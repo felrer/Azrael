@@ -18,6 +18,7 @@ const logs=artifactRun.logs,profile=join(fixture,'chrome-profile');
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {ASSET,HELPER,injectSessionFlags}=require('./inject-session-flags.cjs');
+const {SEARCH_HELPER,injectRecentChatFilter}=require('./inject-recent-chat-filter.cjs');
 const {injectDeferredPresentation,injectDeferredHeader,injectDeferredTurn,DEFERRED_REDUCER_ASSET}=require('./inject-deferred-turn.cjs');
 const {createDeferredListStateFixture}=require('./deferred-list-state-fixture.cjs');
 const reducer=injectDeferredTurn(await readFile(join(assets,DEFERRED_REDUCER_ASSET.split('/').at(-1)),'utf8')).text;
@@ -28,9 +29,10 @@ const listStates=Object.fromEntries(['waiting','claimed','resumed','cancelled','
  return [state,listProducer.getListState(conversation)];
 }));
 const headerName=ASSET.split('/').at(-1),rowsName='app-initial-c014f9ee4429.js';
-const original=await readFile(join(assets,headerName),'utf8'),header=injectSessionFlags(injectDeferredHeader(original).text,ASSET).text;
+const original=await readFile(join(assets,headerName),'utf8'),header=injectSessionFlags(injectRecentChatFilter(injectDeferredHeader(original).text,ASSET).text,ASSET).text;
 assert.equal(header.split('(0,Z.jsx)(azraelFlaggedSessionRow,{').length-1,2);
 assert.equal(injectSessionFlags(header,ASSET).text,header);
+assert.equal(injectRecentChatFilter(header,ASSET).text,header);
 const rows=injectDeferredPresentation(await readFile(join(assets,rowsName),'utf8')).text,file=ts.createSourceFile('rows.js',rows,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
 const owner=file.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='Gjr');assert(owner);
 // Adapt only external host state, navigation and archive services. Keep Gjr's
@@ -42,7 +44,7 @@ for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)
 render=render.replace('function Gjr(','function fixtureGjr(');
 const rowAdapter=`
 const fixture_ta=()=>({get:()=>false}),fixture_K=()=>false,fixture_le=()=>({formatMessage:({defaultMessage})=>defaultMessage}),fixture_VC=()=>null,fixture_Ajr=()=>null,fixture_Gqn=()=>false;
-const fixture_J=(atom,key)=>atom===oDr?(key?.threadId==='unflagged'?'Unflagged chat':'Review session changes'):atom===Yj?'idle':atom===Ap?window.fixtureListStates[window.fixtureResumePhase??(window.fixturePending?'waiting':'cancelled')]:atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
+const fixture_J=(atom,key)=>atom===oDr?(window.fixtureTitles?.[key?.threadId]??(key?.threadId==='unflagged'?'Unflagged chat':'Review session changes')):atom===Yj?'idle':atom===Ap?window.fixtureListStates[window.fixtureResumePhase??(window.fixturePending?'waiting':'cancelled')]:atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
 const fixture_Rjr=()=> 'local';
 const fixture_n2n=()=>()=>{},fixture_M4t=()=>{},fixture_j4t=()=>null;
 const fixture_cIe=(_store,id,host)=>{window.fixtureEvents.push({type:'navigate',id,host});return true};
@@ -74,21 +76,31 @@ const FixtureReact=v();window.fixtureEvents=[];window.fixtureHost='local';window
 window.fixturePending=false;window.fixtureListStates=${JSON.stringify(listStates)};
 window.fixtureMenu=false;window.fixturePreview=false;window.fixtureCurrentId=null;
 const fixtureConversations=[{id:'same-id',hostId:'local',title:'Review session changes',createdAt:Date.now(),updatedAt:Date.now(),turns:[]},{id:'unflagged',hostId:'local',title:'Unflagged chat',createdAt:Date.now(),updatedAt:Date.now(),turns:[]}];
+let fixtureHistoryRows=fixtureConversations,fixtureHistoryRequest=null;
+window.fixtureHistoryCalls=0;window.fixtureTitles={};
+const fixtureLoadAll=()=>{window.fixtureHistoryCalls++;return new Promise((resolve,reject)=>{fixtureHistoryRequest={resolve,reject}})};
+const fixtureHistoryQuery=()=>({data:fixtureHistoryRows,loadAll:fixtureLoadAll,resolveSearchRows:rows=>rows});
+window.fixtureHistoryReset=()=>{fixtureHistoryRows=fixtureConversations;fixtureHistoryRequest=null;window.fixtureSearchConversations=null;window.fixtureHistoryCalls=0;window.fixtureTitles={};window.fixtureRerender()};
+window.fixtureHistoryPublish=()=>{const conversation={id:'late-history',hostId:'local',title:'Review historical match',createdAt:Date.now(),updatedAt:Date.now(),turns:[]};fixtureHistoryRows=[...fixtureConversations,conversation];window.fixtureSearchConversations=fixtureHistoryRows;window.fixtureTitles[conversation.id]=conversation.title;window.fixtureRerender()};
+window.fixtureHistoryResolve=()=>{window.fixtureHistoryPublish();fixtureHistoryRequest.resolve(window.fixtureSearchConversations)};
+window.fixtureHistoryCapRecent=()=>{fixtureHistoryRows=fixtureConversations;window.fixtureRerender()};
+window.fixtureHistoryReject=()=>fixtureHistoryRequest.reject(Error('Fixture history unavailable'));
 const fixtureMerged=fixtureConversations.map(conversation=>({kind:'local',key:conversation.id,conversation}));
-const fixture_menu_st=()=>()=>{},fixture_menu_se=()=>({authMethod:'chatgpt'}),fixture_menu_y=()=>window.fixtureCurrentId?{params:{conversationId:window.fixtureCurrentId}}:null,fixture_menu_ce=()=>({data:[]}),fixture_menu_mt=()=>false,fixture_menu_un=()=>true,fixture_menu_fn=()=>fixtureMerged,fixture_menu_p=()=>({pathname:'/new'}),fixture_menu_Je=()=>({cancelPendingWorktree(){}}),fixture_menu_qt=()=>null;
+const fixture_menu_st=()=>()=>{},fixture_menu_se=()=>({authMethod:'chatgpt'}),fixture_menu_y=()=>window.fixtureCurrentId?{params:{conversationId:window.fixtureCurrentId}}:null,fixture_menu_ce=()=>({data:[]}),fixture_menu_mt=()=>false,fixture_menu_un=()=>true,fixture_menu_fn=(_tasks,conversations)=>conversations.map(conversation=>({kind:'local',key:conversation.id,conversation})),fixture_menu_p=()=>({pathname:'/new'}),fixture_menu_Je=()=>({cancelPendingWorktree(){}}),fixture_menu_qt=()=>null;
 ${menuRender}
 ${previewRender}
 const fixture_header_i=()=>({formatMessage:({defaultMessage},values)=>values?'Count: '+values.count:defaultMessage}),fixture_header_se=()=>({authMethod:'chatgpt'}),fixture_header_p=()=>({pathname:'/local/session'}),fixture_header_l=()=>false,fixture_header_z=()=>({data:[{id:'same-id',turns:window.fixturePending?[{status:'deferred',rootResumeWait:{state:'waiting'}}]:[],resumeState:'ready'}]}),fixture_header_mt=()=>false,fixture_header_Ve=f=>f,fixture_header_te=()=>({data:[]}),fixture_header_un=()=>true,fixture_header_nt=()=>false,fixture_header_le=props=>props.triggerButton,fixture_header_vn=()=>null;
 ${trigger}
-function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return Z.jsxs('div',{children:[Z.jsx('div',{'data-fixture-trigger':true,children:Z.jsx(FixtureTrigger,{})}),window.fixtureOpen?Z.jsx('div',{'data-fixture-row':true,children:(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})})}):null,window.fixtureMenu?Z.jsx('div',{'data-fixture-menu':true,children:Z.jsx(Fixture_vn,{localConversations:fixtureConversations,cloudtasksQuery:{data:[],isLoading:false,isError:false},onClose:()=>window.fixtureEvents.push({type:'close'})})}):null,window.fixturePreview?Z.jsx('div',{'data-fixture-preview':true,children:Z.jsx(Fixture_Et,{mergedTasks:fixtureMerged,tasksQuery:{isLoading:false,isError:false}})}):null]})}
+function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return Z.jsxs('div',{children:[Z.jsx('div',{'data-fixture-trigger':true,children:Z.jsx(FixtureTrigger,{})}),window.fixtureOpen?Z.jsx('div',{'data-fixture-row':true,children:(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})})}):null,window.fixtureMenu?Z.jsx('div',{'data-fixture-menu':true,children:Z.jsx(Fixture_vn,{localConversations:fixtureHistoryRows,cloudtasksQuery:{data:[],isLoading:false,isError:false},onClose:()=>window.fixtureEvents.push({type:'close'})})}):null,window.fixturePreview?Z.jsx('div',{'data-fixture-preview':true,children:Z.jsx(Fixture_Et,{mergedTasks:fixtureMerged,tasksQuery:{isLoading:false,isError:false}})}):null]})}
 let fixtureInitialized=false;
 function Fixture(){Pn();Dn();Nt();fixtureInitRow();fixtureInitScope();if(!fixtureInitialized){fixtureInitialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem("fixture-preferences")||"{}"),(key,value)=>{const prefs=JSON.parse(localStorage.getItem("fixture-preferences")||"{}");if(value===undefined)delete prefs[key];else prefs[key]=value;localStorage.setItem("fixture-preferences",JSON.stringify(prefs));window.fixtureEvents.push({type:"persist",key,value})})}return Z.jsx(FixtureScope,{scope:Re,children:Z.jsx(FixtureIntlContext,{value:{locale:"en",formatMessage:({defaultMessage})=>defaultMessage},children:Z.jsx(FixtureRows,{})})})}
 export {Fixture};
 `;
 // Helper is copied verbatim by injectSessionFlags. Only the native imported row
 // host hooks and localization context are adapted for this isolated fixture.
-const servedHeader=header.replace('e4t as Ke,eL as qe','e4t as Ke,eL as originalQe').replace('Bbt as i,','Bbt as originalIntl,')+'\nconst qe=fixtureGjr,i=()=>({formatMessage:({defaultMessage})=>defaultMessage});\n'+headerAdapter;
+const servedHeader=header.replace('e4t as Ke,eL as qe','e4t as Ke,eL as originalQe').replace('Bbt as i,','Bbt as originalIntl,').replace('bc as z,','bc as originalHistoryQuery,')+'\nconst z=()=>fixtureHistoryQuery(),qe=fixtureGjr,i=()=>({formatMessage:({defaultMessage})=>defaultMessage});\n'+headerAdapter;
 assert(servedHeader.includes(HELPER));
+assert(servedHeader.includes(SEARCH_HELPER));
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-xl flex-col p-8"><h1 class="mb-4 text-xl font-semibold text-default">Recent chats</h1><div id="root" class="[--task-row-trailing-inset:calc(var(--spacing)*1.5)]"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${headerName}';window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($At().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=pathname===join(assets,headerName)?servedHeader:pathname===join(assets,rowsName)?rows+rowAdapter:await readFile(pathname);if(pathname===join(assets,'app-initial-97d3534ad35f.js'))source=source.toString()+'\nexport {kRt as fixtureInitScope};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}res.statusCode=404;res.end()}catch(e){res.statusCode=500;res.end(String(e))}});
@@ -225,6 +237,55 @@ try{
   await click('[data-azrael-session-flag-filter]');
   await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2');
   await evaluate('fixtureCurrentId=null;fixtureRerender()');
+ }
+ // Exercise the real native input, menu, loading/error components and production
+ // search hook. Only the recent-query service boundary controls page completion.
+ const searchInput='[data-fixture-menu] input#recent-tasks-search';
+ const menuRows=()=>evaluate('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length');
+ const typeSearch=async text=>{await click(searchInput);await send('Input.insertText',{text});await wait('document.querySelector('+JSON.stringify(searchInput)+').value==='+JSON.stringify(text))};
+ const clearSearch=async()=>{await click('[data-fixture-menu] button[aria-label="Clear search"]');await wait('document.querySelector('+JSON.stringify(searchInput)+').value===""')};
+ const freshHistoryMenu=async()=>{await evaluate('fixtureMenu=false;fixturePreview=false;fixtureRerender()');await wait('!document.querySelector("[data-fixture-menu]")');await evaluate('fixtureHistoryReset();fixtureMenu=true;fixtureRerender()');await wait('!!document.querySelector('+JSON.stringify(searchInput)+')')};
+ const searchSpins=()=>evaluate('Array.from(document.querySelectorAll("[data-fixture-menu] *")).some(e=>getComputedStyle(e).animationName.split(",").map(s=>s.trim()).includes("spin"))');
+ for(const theme of ['light','dark']){
+  await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));
+  await freshHistoryMenu();
+  check(theme+' history starts with initial recent rows',await menuRows()===2);
+  await typeSearch('Review');await wait('fixtureHistoryCalls===1');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===0');
+  check(theme+' history search suppresses matching initial rows during full load',await menuRows()===0);
+  check(theme+' history search uses visible native spinner',await searchSpins());
+  await shot(theme+'-history-loading');
+  await click(searchInput);
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'a',code:'KeyA',windowsVirtualKeyCode:65,modifiers:2});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'a',code:'KeyA',windowsVirtualKeyCode:65,modifiers:2});
+  await send('Input.insertText',{text:'historical'});
+  await wait('document.querySelector('+JSON.stringify(searchInput)+').value==="historical"');
+  await new Promise(r=>setTimeout(r,100));
+  check(theme+' editing active search reuses in-flight full load',await evaluate('fixtureHistoryCalls===1'));
+  await evaluate('fixtureHistoryPublish()');await new Promise(r=>setTimeout(r,100));
+  check(theme+' intermediate full-history publication still hides partial matches',await menuRows()===0&&await searchSpins());
+  await evaluate('fixtureHistoryResolve()');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===1');
+  check(theme+' full completion reveals matching row beyond initial recent set',await evaluate('document.querySelector("[data-fixture-menu] [data-thread-title]").textContent==="Review historical match"'));
+  check(theme+' completed history search removes native spinner',!(await searchSpins()));
+  await evaluate('fixtureHistoryCapRecent()');await new Promise(r=>setTimeout(r,100));
+  check(theme+' routine capped refresh preserves completed full-history search snapshot',await menuRows()===1&&await evaluate('document.querySelector("[data-fixture-menu] [data-thread-title]").textContent==="Review historical match"'));
+  await shot(theme+'-history-complete');
+
+  await freshHistoryMenu();await typeSearch('Review');await wait('fixtureHistoryCalls===1');
+  await evaluate('fixtureHistoryReject()');await wait('document.querySelector("[data-fixture-menu]").textContent.includes("Failed to load chats.")');
+  check(theme+' history failure displays native error without partial results',await menuRows()===0);
+  await evaluate('[...document.querySelectorAll("[data-fixture-menu] button")].find(e=>e.textContent.trim()==="Retry").setAttribute("data-fixture-history-retry","true")');
+  await shot(theme+'-history-error');await click('[data-fixture-history-retry]');await wait('fixtureHistoryCalls===2');
+  check(theme+' history retry returns to native loading state',await searchSpins()&&await menuRows()===0);
+  await evaluate('fixtureHistoryResolve()');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2');
+  check(theme+' retry completion reveals all matching history rows',await evaluate('[...document.querySelectorAll("[data-fixture-menu] [data-thread-title]")].some(e=>e.textContent==="Review historical match")'));
+
+  await freshHistoryMenu();await typeSearch('Review');await wait('fixtureHistoryCalls===1');
+  await clearSearch();await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2');
+  check(theme+' clearing pending search immediately restores recent rows',!(await searchSpins()));
+  await evaluate('fixtureHistoryResolve()');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===3');
+  check(theme+' late completion after clear keeps query empty and recent rows visible',await evaluate('document.querySelector('+JSON.stringify(searchInput)+').value===""&&!document.querySelector("[data-fixture-menu]").textContent.includes("Failed to load chats.")')&&!(await searchSpins()));
  }
  check('no browser errors',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);
  summary.events=await evaluate('fixtureEvents');

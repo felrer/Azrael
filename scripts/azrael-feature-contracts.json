@@ -2701,6 +2701,8 @@
       "area": "ui",
       "owners": [
         "scripts/inject-recent-chat-filter.cjs",
+        "scripts/verify-session-flags-render.mjs",
+        "scripts/namespace-azrael-host.cjs",
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
@@ -2718,7 +2720,11 @@
             "schema": 1,
             "files": [
               "scripts/inject-recent-chat-filter.cjs",
-              "scripts/test-recent-chat-filter.cjs"
+              "scripts/test-recent-chat-filter.cjs",
+              "scripts/namespace-azrael-host.cjs",
+              "artifacts/upstream-ui/26.1007.21434/webview/assets/header-57b689833777.js",
+              "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-97d3534ad35f.js",
+              "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js"
             ]
           }
         },

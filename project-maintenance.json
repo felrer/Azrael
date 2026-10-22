@@ -24,6 +24,20 @@
   ],
   "bundles": [
     {
+      "id": "recent-history-progressive",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": ["node", "--test", "scripts/test-recent-chat-filter.cjs", "scripts/test-session-flags.cjs", "scripts/test-namespace-cache-owner.cjs"],
+      "inputs": ["scripts/inject-recent-chat-filter.cjs", "scripts/test-recent-chat-filter.cjs", "scripts/inject-session-flags.cjs", "scripts/test-session-flags.cjs", "scripts/namespace-azrael-host.cjs", "scripts/azrael-feature-contracts.json", "scripts/namespace-cache-owner.cjs", "scripts/test-namespace-cache-owner.cjs", "artifacts/upstream-ui/26.1007.21434/webview/assets/header-57b689833777.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-97d3534ad35f.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js"]
+    },
+    {
+      "id": "recent-history-render",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": ["node", "scripts/verify-session-flags-render.mjs"],
+      "inputs": ["scripts/verify-session-flags-render.mjs", "scripts/inject-recent-chat-filter.cjs", "scripts/inject-session-flags.cjs", "scripts/inject-deferred-turn.cjs", "scripts/deferred-list-state-fixture.cjs", "artifacts/upstream-ui/26.1007.21434/webview/assets"]
+    },
+    {
       "id": "sent-draft-restoration-source",
       "kind": "test",
       "purpose": "retained",

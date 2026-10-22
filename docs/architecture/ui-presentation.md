@@ -262,6 +262,8 @@ Design preferences use one store per webview. Subscribe in a microtask after the
 
 Recent-chat filtering subscribes to the history menu's persisted type and environment atoms through the pinned atom and environment query hooks. Initialize the atom owner when this hook first renders and reuse the upstream task merge hook. Preserve the header's existing local bindings so injected variables cannot shadow hooks already called in the same render. Authenticated header and persisted conversation rendering use the same packaged module graph.
 
+The history menu uses the native loading and retry components while an exhaustive local search is pending or failed, and reveals matching rows only after the complete metadata snapshot is ready. Typing within an active search reuses that snapshot. Clearing or unmounting the menu prevents a late response from replacing its current view. Ordinary progressive loading and search scope are owned by the [recent-chat list](azrael-ex.md#recent-chat-list); both paths retain native merge ordering, environment/type filters, flag controls, row navigation and keyboard behavior. Progressive/search presentation acceptance is tracked in the [work record](../../work/DG-01-chat-history-performance/01-plan.md).
+
 ## Typography boundary
 
 Status: `partial` — dynamic-font preparation and persisted chat-font selection are implemented in source; full installed presentation acceptance is separate.
