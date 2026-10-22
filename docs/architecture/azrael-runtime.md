@@ -26,6 +26,16 @@ Azrael은 VS Code 확장 하나로 채팅, 계정, 모델, 사용량, 진단 화
 
 Windows ConPTY의 대화형 자식은 부모 실행 환경에서 상속된 Ctrl+C 무시 상태에 막히지 않아야 한다. ConPTY 소유자는 자식 생성 전에 자기 프로세스의 해당 상속 속성을 정상 처리로 복원하고 이후에도 정상 상태를 유지한다. 이는 프로세스 전체 속성의 변경이며 이전 무시 상태로 되돌리지 않는다. 등록된 애플리케이션 제어 핸들러는 제거하지 않는다. 콘솔이 없는 분리 호스트의 `ERROR_INVALID_HANDLE`은 복원할 콘솔 속성이 없는 경우로 처리하고 다른 오류는 생성 실패로 보고한다. 기존 Job·프로세스 소유권과 명시 중단 정책을 유지한다. 구현은 `utils/pty/src/win/psuedocon.rs`, 필수 검증은 `engine.shared-engine.appserver`의 격리된 상속 상태·PowerShell 전경 자식 중단 회귀가 소유한다. Linux/macOS 경로는 이 Windows 경계의 적용 대상이 아니다. 최종 제품 검증 상태는 해당 빌드 작업 기록을 따른다.
 
+#### 시작 복구와 종료 예산
+
+상태: `partial`. 소스 구현과 Windows native 회귀·격리 프로세스 검증을 완료했다. 실제 설치 업데이트와 다른 OS의 수용은 별도 확인한다. 보존 항목은 [feature inventory](../../scripts/azrael-feature-contracts.json)의 `engine.shared-engine`이다. 구현·검증 범위는 [작업 기록](../../work/CX-01-azrael-auth-recovery/02-plan.md)에 둔다.
+
+시작 실행기는 PID와 실행 파일 receipt 확인 뒤 private peer 검증을 거친 읽기 전용 엔진 상태 응답으로 준비 상태를 확인한다. 응답은 전체 instance ID, 엔진 내용 신원·버전과 추적 중인 PID에 일치해야 한다. 상태 조회는 창 등록·계정 선택·작업 재개를 수행하지 않는다. 새 엔진 시작도 같은 확인을 통과해야 하며, 실제 창은 기존 등록 절차를 별도로 통과한다.
+
+정상 시작 지연은 제한 시간 동안 기다린다. 엔진이 종료 중임을 기록한 receipt가 해당 instance와 현재 프로세스의 OS 생성 신원에 일치할 때만 종료 완료 대기와 해당 소유 엔진 정리를 수행한다. 단순한 접속 실패, 낡은 receipt, PID 재사용이나 신원 불명은 다른 프로세스 종료 권한이 아니다. 시작 잠금과 신원을 다시 확인하고 기존 엔진의 실제 종료를 확인한 뒤 대체 엔진을 시작한다. 이미 제출한 RPC와 중단된 turn·큐·예약은 자동 재실행하지 않는다.
+
+마지막 창 종료 결정 이후 fencing·필수 저장·작업 트리 정리·바깥 router/telemetry/acceptor 정리는 하나의 35초 종료 예산을 공유한다. 관리형 엔진의 독립 OS 스레드 감시가 비동기 실행기 및 동기 I/O 정체에도 예산을 집행한다. 진단 스냅샷은 필수 정리와 병행하고 3초 뒤 실패·누락을 기록해 필수 정리를 계속한다. 대화·큐·예약의 canonical 저장 성공과 진단 스냅샷 성공은 구별한다. 전체 예산 초과는 성공한 checkpoint로 취급하지 않는다. 독립 감시 스레드가 만료를 집행한 경우 종료 코드 124로 구별하며, 기존 비동기 Forced 경로의 종료 코드는 저장 성공을 뜻하지 않는다. 정상 관리형 종료는 필수 join을 마친 뒤 남은 진단 blocking 작업 때문에 runtime teardown에 잔류하지 않도록 프로세스를 종료한다. OS별 소유 worker 종료와 저장·복구 보존은 기존 플랫폼 계약과 검증을 유지한다.
+
 ### 제품 이름과 호환 경계
 
 배포 실행기와 사용자에게 보이는 실행기 이름은 `azrael`이며 Windows 실행 파일은 `azrael.exe`다. 보조 실행 파일은 `azrael-bridge`와 `azrael-code-mode-host` 이름으로 식별한다. 플랫폼 manifest, 실행기 발견, IPC 신원, 패키지·hash·provenance 검사는 이 배포 이름을 사용한다. 실행기 공유와 이름 전환의 조사·미결 사항·검증 계획은 [현재 작업 기록](../../work/BJ-01-build-resource-pressure/01-plan.md)이 소유한다.

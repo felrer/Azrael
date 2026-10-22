@@ -99,6 +99,7 @@ mod app_server_tracing;
 mod attestation;
 mod auth_mode;
 mod azrael_shared_server;
+mod azrael_shutdown;
 mod azrael_thread_engines;
 mod bespoke_event_handling;
 mod code_mode_host;
@@ -523,6 +524,13 @@ pub async fn run_main_with_transport_options(
     auth: WebsocketAuthSettings,
     runtime_options: AppServerRuntimeOptions,
 ) -> IoResult<AppServerExit> {
+    // Own the watchdog until router, telemetry, transport joins and local drops finish.
+    let shutdown_watchdog =
+        if runtime_options.azrael_shared_windows && runtime_options.managed_daemon {
+            Some(Arc::new(azrael_shutdown::ShutdownWatchdog::new()?))
+        } else {
+            None
+        };
     #[cfg(target_os = "windows")]
     let _registered_core = codex_windows_sandbox::registered_core_requested();
     let managed_daemon = matches!(&transport, AppServerTransport::UnixSocket { .. })
@@ -1055,6 +1063,7 @@ pub async fn run_main_with_transport_options(
             let outgoing_tx = outgoing_tx.clone();
             let transport_shutdown_token = transport_shutdown_token.clone();
             let engine_instance = runtime_options.azrael_engine_instance.clone();
+            let shutdown_watchdog = shutdown_watchdog.clone();
             tokio::spawn(async move {
                 match azrael_shared_server::run(
                     processor_args,
@@ -1064,6 +1073,7 @@ pub async fn run_main_with_transport_options(
                     outbound_control_tx,
                     transport_shutdown_token,
                     engine_instance,
+                    shutdown_watchdog,
                 )
                 .await
                 {

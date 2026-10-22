@@ -20,6 +20,96 @@ use super::read_stderr_log_tail;
 use super::stderr_log_file_for_pid_file;
 use super::try_lock_file;
 
+#[tokio::test]
+async fn shutdown_recovery_rejects_reused_pid_and_missing_native_identity() {
+    let directory = TempDir::new().unwrap();
+    let pid_file = directory.path().join("engine.pid");
+    let engine = directory.path().join("engine");
+    tokio::fs::write(&engine, b"test identity").await.unwrap();
+    let executable = crate::managed_install::executable_identity(&engine)
+        .await
+        .unwrap();
+    let backend = PidBackend::new(engine, pid_file.clone(), false);
+    let receipt = PidBackend::current_shutdown_identity().await.unwrap();
+    let mut record: PidRecord = serde_json::from_value(receipt.clone()).unwrap();
+    record.executable_identity = Some(executable.clone());
+    tokio::fs::write(&pid_file, serde_json::to_vec(&record).unwrap())
+        .await
+        .unwrap();
+    assert!(backend.matches_shutdown_identity(&receipt).await.unwrap());
+
+    let mut reused = receipt.clone();
+    #[cfg(unix)]
+    {
+        reused["processIdentity"] = serde_json::json!({"bootId":"different-boot","startTicks":0});
+    }
+    #[cfg(windows)]
+    {
+        reused["processStartTime"] = serde_json::json!("different-start-time");
+    }
+    assert!(!backend.matches_shutdown_identity(&reused).await.unwrap());
+    assert!(
+        backend
+            .stop_shutdown_process(&reused, &executable, 0)
+            .await
+            .is_err()
+    );
+    assert_eq!(
+        backend.read_pid_file_state().await.unwrap(),
+        PidFileState::Running(record.clone())
+    );
+
+    let mut pid_only = receipt;
+    pid_only["processIdentity"] = serde_json::Value::Null;
+    pid_only["processStartTime"] = serde_json::json!("");
+    assert!(!backend.matches_shutdown_identity(&pid_only).await.unwrap());
+    assert!(
+        backend
+            .stop_shutdown_process(&pid_only, &executable, 0)
+            .await
+            .is_err()
+    );
+    assert!(backend.record_is_active(&record).await.unwrap());
+}
+
+#[tokio::test]
+async fn shutdown_recovery_revalidates_executable_under_pid_reservation() {
+    let directory = TempDir::new().unwrap();
+    let pid_file = directory.path().join("engine.pid");
+    let engine = directory.path().join("engine");
+    tokio::fs::write(&engine, b"first generation")
+        .await
+        .unwrap();
+    let executable = crate::managed_install::executable_identity(&engine)
+        .await
+        .unwrap();
+    let backend = PidBackend::new(engine.clone(), pid_file.clone(), false);
+    let receipt = PidBackend::current_shutdown_identity().await.unwrap();
+    let mut record: PidRecord = serde_json::from_value(receipt.clone()).unwrap();
+    tokio::fs::write(&engine, b"replacement generation")
+        .await
+        .unwrap();
+    record.executable_identity = Some(
+        crate::managed_install::executable_identity(&engine)
+            .await
+            .unwrap(),
+    );
+    tokio::fs::write(&pid_file, serde_json::to_vec(&record).unwrap())
+        .await
+        .unwrap();
+    assert!(
+        backend
+            .stop_shutdown_process(&receipt, &executable, 0)
+            .await
+            .is_err()
+    );
+    assert_eq!(
+        backend.read_pid_file_state().await.unwrap(),
+        PidFileState::Running(record.clone())
+    );
+    assert!(backend.record_is_active(&record).await.unwrap());
+}
+
 #[cfg(windows)]
 fn is_elevated_test_process() -> anyhow::Result<bool> {
     let output = std::process::Command::new("powershell.exe")

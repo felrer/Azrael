@@ -152,6 +152,88 @@ enum PidCommandKind {
 }
 
 impl PidBackend {
+    /// A wire snapshot of native creation identity, never a PID-only lease.
+    pub(crate) async fn current_shutdown_identity() -> Result<serde_json::Value> {
+        let pid = std::process::id();
+        #[cfg(windows)]
+        let process_start_time = read_process_start_time(pid).await?;
+        #[cfg(not(windows))]
+        let process_start_time = String::new();
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        let process_identity = Some(identity::read_process_details(pid).await?.1);
+        #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+        let process_identity = None;
+        Ok(serde_json::to_value(PidRecord {
+            pid,
+            process_start_time,
+            process_identity,
+            executable_identity: None,
+        })?)
+    }
+
+    pub(crate) async fn running_pid(&self) -> Result<Option<u32>> {
+        match self.read_pid_file_state().await? {
+            PidFileState::Running(record) if self.record_is_active(&record).await? => {
+                Ok(Some(record.pid))
+            }
+            _ => Ok(None),
+        }
+    }
+
+    fn shutdown_identity_matches(record: &PidRecord, receipt: &PidRecord) -> bool {
+        if record.pid == 0 || record.pid != receipt.pid {
+            return false;
+        }
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        return record.process_identity.is_some()
+            && record.process_identity == receipt.process_identity;
+        #[cfg(windows)]
+        return !receipt.process_start_time.is_empty()
+            && record.process_start_time == receipt.process_start_time;
+        #[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
+        false
+    }
+
+    pub(crate) async fn matches_shutdown_identity(
+        &self,
+        value: &serde_json::Value,
+    ) -> Result<bool> {
+        let receipt: PidRecord = serde_json::from_value(value.clone())?;
+        match self.read_pid_file_state().await? {
+            PidFileState::Running(record) => Ok(Self::shutdown_identity_matches(&record, &receipt)
+                && self.record_is_active(&record).await?),
+            _ => Ok(false),
+        }
+    }
+
+    /// The caller holds the lifecycle operation lock. Keep the PID reservation
+    /// locked through termination so a replacement cannot become the stop target.
+    pub(crate) async fn stop_shutdown_process(
+        &self,
+        value: &serde_json::Value,
+        executable: &ExecutableIdentity,
+        grace_seconds: u32,
+    ) -> Result<()> {
+        let receipt: PidRecord = serde_json::from_value(value.clone())?;
+        let _reservation = self.acquire_reservation_lock().await?;
+        let PidFileState::Running(record) = self.read_pid_file_state_with_lock_held().await? else {
+            return Ok(());
+        };
+        anyhow::ensure!(
+            Self::shutdown_identity_matches(&record, &receipt),
+            "stopping engine identity changed; refusing recovery"
+        );
+        anyhow::ensure!(
+            record.executable_identity.as_ref() == Some(executable),
+            "stopping engine executable changed; refusing recovery"
+        );
+        if !self.record_is_active(&record).await? {
+            return Ok(());
+        }
+        self.stop_with_grace_inner(grace_seconds, Some(&record))
+            .await
+    }
+
     pub(crate) fn with_explicit_args(mut self, args: Vec<String>) -> Self {
         self.explicit_args = Some(args);
         self
@@ -261,11 +343,30 @@ impl PidBackend {
     }
 
     pub(crate) async fn stop_with_grace(&self, grace_seconds: u32) -> Result<()> {
+        self.stop_with_grace_inner(grace_seconds, None).await
+    }
+
+    async fn stop_with_grace_inner(
+        &self,
+        grace_seconds: u32,
+        locked_record: Option<&PidRecord>,
+    ) -> Result<()> {
         loop {
-            let Some(record) = self.wait_for_pid_start().await? else {
+            let Some(record) = (match locked_record {
+                Some(record) => Some(record.clone()),
+                None => self.wait_for_pid_start().await?,
+            }) else {
                 return Ok(());
             };
             if !self.record_is_active(&record).await? {
+                if locked_record.is_some() {
+                    if self.read_pid_file_state_with_lock_held().await?
+                        == PidFileState::Running(record.clone())
+                    {
+                        fs::remove_file(&self.pid_file).await?;
+                    }
+                    return Ok(());
+                }
                 match self.refresh_after_stale_record(&record).await? {
                     PidFileState::Missing => return Ok(()),
                     PidFileState::Starting | PidFileState::Running(_) => continue,
@@ -312,6 +413,15 @@ impl PidBackend {
                     unsafe { libc::waitpid(raw_pid, std::ptr::null_mut(), libc::WNOHANG) };
                 }
                 if !self.record_is_active(&record).await? {
+                    if locked_record.is_some() {
+                        // No successor can publish a PID while the reservation is held.
+                        if self.read_pid_file_state_with_lock_held().await?
+                            == PidFileState::Running(record.clone())
+                        {
+                            fs::remove_file(&self.pid_file).await?;
+                        }
+                        return Ok(());
+                    }
                     match self.refresh_after_stale_record(&record).await? {
                         PidFileState::Missing => return Ok(()),
                         PidFileState::Starting | PidFileState::Running(_) => break,

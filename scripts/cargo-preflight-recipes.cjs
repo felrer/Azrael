@@ -18,7 +18,7 @@ const wrapperHashes = Object.freeze({
   'check-parent-requests': 'aa2456ae2edc5a2e3df68815594a0d01b6e1de202bebe50a2fe9ce7ac819a368',
   'check-capacity-recovery': 'ca6cccb3d50df005500d5ceeedbba0c064806a74aa4c089c880f82186b6d4c37',
   'check-task-profile-skills': '963c93a86d4c501dd7543fe4809ff48b4ee2d3e2cab2cd2e2727a1d484ef4d17',
-  'check-shared-engine-native': '78171fe7e0037cff2c95b2b94c9b74dd7f95d6f1674ddb1459249f65d5e2a597',
+  'check-shared-engine-native': 'ba18a721e1e730eb43508d1a6254e699032a410c59a8fb19135f04b46c63f850',
   'check-question-withdrawal-native': 'b17ee0244ec76cb3fa54d0384dfdb260bd8d8055a5ff32958bd1305d5bf22080',
   'check-mcp-oauth-store': '1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa',
   'check-startup-performance-native': '5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2',
@@ -84,10 +84,10 @@ function reviewedRecipes(wrapper, tail, platform) {
       // Windows native launch tests have a special executor. These arguments are
       // its explicit preflightCommands input, before --no-run/JSON compilation.
       if (platform === 'win32') for (const f of ['windows_tests::', 'win::process_tree::tests::', 'pipe::tests::process_fallback_interrupt_terminates_root']) appserver.push(['test', '-p', 'codex-utils-pty', '--lib', f, '--locked', '--offline']);
-      for (const f of ['azrael::tests::', 'registration::tests::', 'azrael_storage::tests::', 'backend::pid::tests::']) {
+      for (const f of ['azrael::tests::', 'azrael_lifecycle::tests::', 'registration::tests::', 'azrael_storage::tests::', 'backend::pid::tests::']) {
         appserver.push(platform === 'win32' && f === 'backend::pid::tests::' ? ['test', '-p', 'codex-app-server-daemon', '--lib', f, '--locked', '--offline'] : lib('codex-app-server-daemon', f));
       }
-      for (const f of ['azrael_shared_server::tests::', 'azrael_shared_server::instance_tests::', 'azrael_thread_engines::tests::', 'azrael_state::', 'config_manager::window_context_tests::']) appserver.push(lib('codex-app-server', f));
+      for (const f of ['azrael_shared_server::tests::', 'azrael_shutdown::tests::', 'azrael_shared_server::instance_tests::', 'azrael_thread_engines::tests::', 'azrael_state::', 'config_manager::window_context_tests::']) appserver.push(lib('codex-app-server', f));
       appserver.push(lib('codex-install-context', 'azrael_entry_resolves_its_own_code_mode_host'));
       for (const f of ['entry::tests::', 'entry::endpoint_tests::']) appserver.push(finish(['-p', 'codex-app-server', '--bin', 'azrael', f]));
       args = scoped({ appserver,

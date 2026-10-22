@@ -130,6 +130,8 @@
       "owners": [
         "engine/codex-rs/Cargo.toml",
         "engine/codex-rs/app-server/src/azrael_shared_server.rs",
+        "engine/codex-rs/app-server/src/azrael_shutdown.rs",
+        "engine/codex-rs/app-server-daemon/src/azrael_lifecycle.rs",
         "engine/codex-rs/app-server-daemon/src/lib.rs",
         "engine/codex-rs/app-server/src/message_processor.rs",
         "engine/codex-rs/app-server/src/config_manager.rs",

@@ -1,4 +1,5 @@
 //! Private shared engine: transport resources are shared, account/thread authority is not.
+use crate::azrael_shutdown::{SHUTDOWN_TIMEOUT, SNAPSHOT_TIMEOUT, ShutdownWatchdog};
 use crate::message_processor::{MessageProcessor, MessageProcessorArgs};
 use crate::outgoing_message::{ConnectionId, OutgoingEnvelope, OutgoingMessageSender};
 use crate::request_processors::AzraelAccountStatePaths;
@@ -24,7 +25,6 @@ use tokio_util::sync::CancellationToken;
 
 const RECONNECT_GRACE: Duration = Duration::from_secs(3);
 const STARTUP_NO_WINDOW_TIMEOUT: Duration = Duration::from_secs(30);
-const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(35);
 
 #[derive(Clone, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -329,6 +329,62 @@ fn atomic_json(path: &Path, value: &impl Serialize) -> io::Result<()> {
     Ok(())
 }
 
+async fn capture_shutdown_snapshot(
+    collect: impl std::future::Future<
+        Output = Vec<io::Result<codex_app_server_transport::daemon_recovery::RecoverySnapshot>>,
+    >,
+    path: PathBuf,
+    loaded: Vec<String>,
+    budget: Duration,
+) -> Vec<codex_app_server_transport::daemon_recovery::RecoverySnapshot> {
+    let started = Instant::now();
+    tracing::info!(stage = "snapshot_begin", "shared window shutdown progress");
+    let capture = async {
+        let results = collect.await;
+        let mut snapshots = Vec::new();
+        for result in results {
+            match result {
+                Ok(snapshot) => snapshots.push(snapshot),
+                Err(error) => {
+                    tracing::warn!(stage = "snapshot_collect_failed", error_kind = ?error.kind(), "shared window shutdown diagnostic incomplete")
+                }
+            }
+        }
+        tracing::info!(
+            stage = "snapshot_collected",
+            contexts = snapshots.len(),
+            elapsed_ms = started.elapsed().as_millis() as u64,
+            "shared window shutdown progress"
+        );
+        tokio::task::spawn_blocking(move || {
+            tracing::info!(stage = "snapshot_persist_begin", "shared window shutdown progress");
+            atomic_json(&path, &serde_json::json!({"schema": 1, "loadedThreadIds": loaded, "snapshots": snapshots}))?;
+            tracing::info!(stage = "snapshot_persist_complete", bytes = std::fs::metadata(&path)?.len(), "shared window shutdown progress");
+            Ok::<_, io::Error>(snapshots)
+        }).await.map_err(io::Error::other)?
+    };
+    let snapshots = match tokio::time::timeout(budget, capture).await {
+        Ok(Ok(snapshots)) => snapshots,
+        Ok(Err(error)) => {
+            tracing::warn!(stage = "snapshot_failed", error_kind = ?error.kind(), "shared window shutdown diagnostic incomplete");
+            Vec::new()
+        }
+        Err(_) => {
+            tracing::warn!(
+                stage = "snapshot_timed_out",
+                "shared window shutdown diagnostic incomplete"
+            );
+            Vec::new()
+        }
+    };
+    tracing::info!(
+        stage = "snapshot_checked",
+        elapsed_ms = started.elapsed().as_millis() as u64,
+        "shared window shutdown progress"
+    );
+    snapshots
+}
+
 struct Context {
     processor: Arc<MessageProcessor>,
     tasks: Vec<tokio::task::JoinHandle<()>>,
@@ -497,6 +553,7 @@ pub(crate) async fn run(
     control: mpsc::Sender<OutboundControlEvent>,
     shutdown: CancellationToken,
     engine_instance: Option<String>,
+    shutdown_watchdog: Option<Arc<ShutdownWatchdog>>,
 ) -> io::Result<AppServerExit> {
     if !matches!(transport, AppServerTransport::UnixSocket { .. }) {
         return Err(invalid("shared windows require the private local socket"));
@@ -622,6 +679,18 @@ pub(crate) async fn run(
                     TransportEvent::IncomingMessage { connection_id, message } => {
                         let Some(state) = connections.get(&connection_id) else { continue; };
                         if let JSONRPCMessage::Request(request) = &message {
+                            if request.method == "azrael/engine/status" {
+                                if state.origin != ConnectionOrigin::UnixSocket || state.session.initialized() || owners.contains_key(&connection_id) {
+                                    send_error(&outgoing, connection_id, request.id.clone(), &invalid("engine status requires an uninitialized private connection")).await?;
+                                } else {
+                                    outgoing.send(OutgoingEnvelope::ToConnection { connection_id,
+                                        message: OutgoingMessage::RawResponse { id: request.id.clone(), result: serde_json::json!({
+                                            "schema": 1, "state": "ready", "enginePid": std::process::id(),
+                                            "instanceId": instance, "engineVersion": version, "engineIdentity": identity
+                                        }) }, write_complete_tx: None }).await.map_err(invalid)?;
+                                }
+                                continue;
+                            }
                             if request.method == "azrael/window/register" {
                                 let result = async {
                                     if state.origin != ConnectionOrigin::UnixSocket || state.session.initialized() || owners.contains_key(&connection_id) {
@@ -733,6 +802,11 @@ pub(crate) async fn run(
             _ = cleanup.join_next(), if !cleanup.is_empty() => {},
         }
     }
+    // Arm before any shutdown logging, async locks or synchronous persistence.
+    let shutdown_deadline = Instant::now() + SHUTDOWN_TIMEOUT;
+    if let Some(watchdog) = &shutdown_watchdog {
+        watchdog.arm(shutdown_deadline);
+    }
     tracing::info!(
         stage = "begin",
         contexts = contexts.len(),
@@ -779,6 +853,9 @@ pub(crate) async fn run(
         trees = initial_trees.len(),
         "shared window shutdown progress"
     );
+    if let Err(error) = codex_app_server_daemon::publish_azrael_shutdown(&home, &instance).await {
+        retain_shutdown_error(&mut terminal_error, invalid(error));
+    }
     if let Err(error) =
         codex_core::azrael_manual_resume::mark_threads_for_manual_resume(&home, ids.iter().copied())
     {
@@ -795,119 +872,112 @@ pub(crate) async fn run(
         .collect();
     let loaded_threads_before_wait: Vec<String> = ids.iter().map(ToString::to_string).collect();
     let drain = async {
-        let mut errors = Vec::new();
-        tracing::info!(stage = "snapshot_begin", "shared window shutdown progress");
-        let snapshot_results = futures::future::join_all(
-            contexts
-                .values()
-                .map(|ctx| ctx.processor.shared_window_snapshot()),
-        )
-        .await;
-        let mut snapshots = Vec::new();
-        for result in snapshot_results {
-            match result {
-                Ok(snapshot) => snapshots.push(snapshot),
-                Err(error) => errors.push(error),
-            }
-        }
-        if let Err(error) = atomic_json(
-            &home.join("azrael/runtime/window-shutdown-snapshot.json"),
-            &serde_json::json!({"schema": 1, "loadedThreadIds": loaded_threads_before_wait, "snapshots": snapshots}),
-        ) {
-            errors.push(error);
-        }
-        tracing::info!(
-            stage = "snapshot_checked",
-            "shared window shutdown progress"
+        // Diagnostics and mandatory cleanup progress independently. A blocked diagnostic
+        // writer may finish later, but cannot prevent cancellation, tree waits or exit.
+        let capture_snapshot = capture_shutdown_snapshot(
+            futures::future::join_all(
+                contexts
+                    .values()
+                    .map(|ctx| ctx.processor.shared_window_snapshot()),
+            ),
+            home.join("azrael/runtime/window-shutdown-snapshot.json")
+                .to_path_buf(),
+            loaded_threads_before_wait,
+            SNAPSHOT_TIMEOUT,
         );
-        // Connection teardown and bounded startup work run concurrently, after tree cancellation.
-        let close_connections = async {
-            let connection_results =
-                futures::future::join_all(connections.iter().filter_map(|(id, state)| {
-                    connection_bindings
-                        .get(id)
-                        .and_then(|owner| contexts.get(owner))
-                        .map(|ctx| async move {
-                            tokio::time::timeout(
-                                Duration::from_secs(10),
-                                ctx.processor.connection_closed(*id, &state.session),
-                            )
-                            .await
-                            .map_err(|error| io::Error::new(io::ErrorKind::TimedOut, error))
-                        })
-                }));
-            let cleanup_future = tokio::time::timeout(Duration::from_secs(10), async {
-                while let Some(result) = cleanup.join_next().await {
-                    result.map_err(io::Error::other)?;
+        let cleanup_work = async {
+            let mut errors = Vec::new();
+            // Connection teardown and bounded startup work run concurrently, after tree cancellation.
+            let close_connections = async {
+                let connection_results =
+                    futures::future::join_all(connections.iter().filter_map(|(id, state)| {
+                        connection_bindings
+                            .get(id)
+                            .and_then(|owner| contexts.get(owner))
+                            .map(|ctx| async move {
+                                tokio::time::timeout(
+                                    Duration::from_secs(10),
+                                    ctx.processor.connection_closed(*id, &state.session),
+                                )
+                                .await
+                                .map_err(|error| io::Error::new(io::ErrorKind::TimedOut, error))
+                            })
+                    }));
+                let cleanup_future = tokio::time::timeout(Duration::from_secs(10), async {
+                    while let Some(result) = cleanup.join_next().await {
+                        result.map_err(io::Error::other)?;
+                    }
+                    Ok::<(), io::Error>(())
+                });
+                let (results, cleanup_result) = tokio::join!(connection_results, cleanup_future);
+                let mut errors = results
+                    .into_iter()
+                    .filter_map(Result::err)
+                    .collect::<Vec<_>>();
+                match cleanup_result {
+                    Ok(Ok(())) => {}
+                    Ok(Err(error)) => errors.push(error),
+                    Err(error) => {
+                        cleanup.abort_all();
+                        errors.push(io::Error::new(io::ErrorKind::TimedOut, error));
+                    }
                 }
-                Ok::<(), io::Error>(())
-            });
-            let (results, cleanup_result) = tokio::join!(connection_results, cleanup_future);
-            let mut errors = results
-                .into_iter()
-                .filter_map(Result::err)
-                .collect::<Vec<_>>();
-            match cleanup_result {
-                Ok(Ok(())) => {}
-                Ok(Err(error)) => errors.push(error),
-                Err(error) => {
-                    cleanup.abort_all();
-                    errors.push(io::Error::new(io::ErrorKind::TimedOut, error));
-                }
-            }
-            errors
-        };
-        let startup = futures::future::join_all(
-            contexts
-                .values()
-                .map(|ctx| ctx.processor.drain_shared_window_startup_tasks()),
-        );
-        let (connection_errors, startup_results) = tokio::join!(close_connections, startup);
-        tracing::info!(
-            stage = "connections_and_startup_drained",
-            "shared window shutdown progress"
-        );
-        errors.extend(connection_errors);
-        errors.extend(startup_results.into_iter().filter_map(Result::err));
-        // An admitted startup may have published another root during cancellation. Fence it too.
-        let mut loaded_ids = HashMap::new();
-        for (owner, (loaded, handles, failures)) in
-            futures::future::join_all(contexts.iter().map(|(owner, ctx)| async move {
-                (
-                    owner.clone(),
-                    ctx.processor.fence_shared_window_threads().await,
-                )
-            }))
-            .await
-        {
-            for thread in loaded {
-                loaded_ids.insert(thread, owner.clone());
-            }
-            initial_trees.extend(handles);
-            errors.extend(failures);
-        }
-        tracing::info!(
-            stage = "tree_cleanup_begin",
-            trees = initial_trees.len(),
-            "shared window shutdown progress"
-        );
-        let results = futures::future::join_all(initial_trees.iter().map(|tree| async {
-            tokio::time::timeout(Duration::from_secs(10), tree.wait_detailed())
+                errors
+            };
+            let startup = futures::future::join_all(
+                contexts
+                    .values()
+                    .map(|ctx| ctx.processor.drain_shared_window_startup_tasks()),
+            );
+            let (connection_errors, startup_results) = tokio::join!(close_connections, startup);
+            tracing::info!(
+                stage = "connections_and_startup_drained",
+                "shared window shutdown progress"
+            );
+            errors.extend(connection_errors);
+            errors.extend(startup_results.into_iter().filter_map(Result::err));
+            // An admitted startup may have published another root during cancellation. Fence it too.
+            let mut loaded_ids = HashMap::new();
+            for (owner, (loaded, handles, failures)) in
+                futures::future::join_all(contexts.iter().map(|(owner, ctx)| async move {
+                    (
+                        owner.clone(),
+                        ctx.processor.fence_shared_window_threads().await,
+                    )
+                }))
                 .await
-                .map_err(|error| io::Error::new(io::ErrorKind::TimedOut, error))?
-                .map_err(io::Error::other)
-        }))
-        .await;
-        errors.extend(results.into_iter().filter_map(Result::err));
-        tracing::info!(
-            stage = "tree_cleanup_checked",
-            "shared window shutdown progress"
-        );
-        while let Some(result) = listeners.join_next().await {
-            if let Err(error) = result {
-                errors.push(io::Error::other(error));
+            {
+                for thread in loaded {
+                    loaded_ids.insert(thread, owner.clone());
+                }
+                initial_trees.extend(handles);
+                errors.extend(failures);
             }
-        }
+            tracing::info!(
+                stage = "tree_cleanup_begin",
+                trees = initial_trees.len(),
+                "shared window shutdown progress"
+            );
+            let results = futures::future::join_all(initial_trees.iter().map(|tree| async {
+                tokio::time::timeout(Duration::from_secs(10), tree.wait_detailed())
+                    .await
+                    .map_err(|error| io::Error::new(io::ErrorKind::TimedOut, error))?
+                    .map_err(io::Error::other)
+            }))
+            .await;
+            errors.extend(results.into_iter().filter_map(Result::err));
+            tracing::info!(
+                stage = "tree_cleanup_checked",
+                "shared window shutdown progress"
+            );
+            while let Some(result) = listeners.join_next().await {
+                if let Err(error) = result {
+                    errors.push(io::Error::other(error));
+                }
+            }
+            (loaded_ids, errors)
+        };
+        let (snapshots, (loaded_ids, errors)) = tokio::join!(capture_snapshot, cleanup_work);
         (snapshots, loaded_ids, errors)
     };
     tokio::pin!(drain);
@@ -948,7 +1018,12 @@ pub(crate) async fn run(
             }
         }
     };
-    match tokio::time::timeout(SHUTDOWN_TIMEOUT, final_drain).await {
+    match tokio::time::timeout_at(
+        tokio::time::Instant::from_std(shutdown_deadline),
+        final_drain,
+    )
+    .await
+    {
         Ok((snapshots, loaded, errors)) => {
             for (thread, owner) in loaded {
                 if let Err(error) = thread_engines.acquire(&thread.to_string()) {
