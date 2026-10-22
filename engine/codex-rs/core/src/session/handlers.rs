@@ -328,7 +328,17 @@ pub(super) async fn shutdown_session_runtime(sess: &Arc<Session>) {
     if let Some(startup_prewarm) = startup_prewarm {
         startup_prewarm.abort().await;
     }
-    let _ = sess.conversation.shutdown().await;
+    if let Err(err) = sess.conversation.shutdown().await {
+        sess.services.local_agent_runtime.record_shutdown_failure(
+            AgentTreeShutdownFailure::operation_failed(
+                "session_shutdown",
+                "realtime",
+                Some(sess.thread_id),
+                "realtime_error",
+            ),
+        );
+        warn!("failed to shutdown realtime conversation: {err}");
+    }
     sess.abort_all_tasks(TurnAbortReason::Interrupted).await;
     let shell_snapshot_prewarm = sess.state.lock().await.shell_snapshot_prewarm.take();
     if let Some(shell_snapshot_prewarm) = shell_snapshot_prewarm {
@@ -610,6 +620,12 @@ pub(super) async fn submission_loop(
                         &result,
                         Ok(codex_protocol::turn_input::SuspendTurnOutcome::Suspended { .. })
                     );
+                    let _ = reply.send(result);
+                    should_exit
+                }
+                Op::TryShutdownForHandoff { reply } => {
+                    let result = super::handoff::shutdown_if_idle(&sess, sub.id.clone()).await;
+                    let should_exit = matches!(&result, Ok(true));
                     let _ = reply.send(result);
                     should_exit
                 }

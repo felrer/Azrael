@@ -594,6 +594,13 @@ impl CodexThread {
         }
     }
 
+    /// Transfer an idle thread only after its writer and session loop have stopped.
+    /// Busy leaves all accepted work intact. The caller must fence external
+    /// callbacks and thread RPCs before invoking this operation.
+    pub async fn try_shutdown_for_handoff(&self) -> CodexResult<bool> {
+        self.io.try_shutdown_for_handoff().await
+    }
+
     /// Stops the active unfinished root turn without recording TurnAborted or
     /// TurnComplete, so another worker can recover its original turn ID.
     ///

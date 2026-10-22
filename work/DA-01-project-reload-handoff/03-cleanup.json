@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "work": "DA-01-project-reload-handoff",
+  "recordedUtc": "2026-10-22T16:41:15.011Z",
+  "groupId": "DA-01-session-handoff-r1",
+  "registeredLogicalBytes": 66002326676,
+  "registrationCompletedUtc": "2026-10-22T16:05:55.007Z",
+  "verificationMode": "registered",
+  "blockersAtReview": [],
+  "apply": {
+    "aborted": false,
+    "status": "deleted",
+    "attemptId": "attempt-61016-1500-1792685619669",
+    "itemId": "873007a0c8a6d509453c700fc27c004068b08a583472a0f049946b7cd401f175",
+    "remaining": false,
+    "error": null,
+    "physicalBytesReclaimed": null
+  },
+  "independentAbsenceCheck": true,
+  "producerMetadata": {
+    "id": "DA-01-session-handoff-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\757fc03cefbd0855fc9e5d5fb322e5037b4be2e2dea672aa8a765bda19ce329c.json"
+  },
+  "retainedEvidence": "02-verification.json",
+  "finalSourceCheck": {
+    "command": "node --test --test-name-pattern='session handoff' scripts/test-cargo-preflight-recipes.cjs",
+    "passed": 1,
+    "failed": 0,
+    "exitCode": 0
+  },
+  "whitespace": {
+    "command": "git -c core.whitespace=cr-at-eol diff --check (owned scope)",
+    "exitCode": 0,
+    "note": "runtime.rs is text-unset in attributes; CRLF end-of-line accepted, no source bytes changed to hide diagnostics."
+  },
+  "syntax": {
+    "command": "node --check scripts/check-shared-engine-native.cjs",
+    "exitCode": 0
+  },
+  "note": "Initial measurement and Windows permission/attribute-checked deletion were slow. No duplicate scan, force delete or process termination was used. Raw log paths in earlier work entries are historical; independently readable evidence and hashes survive in02-verification.json."
+}

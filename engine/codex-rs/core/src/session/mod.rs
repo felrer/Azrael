@@ -247,6 +247,7 @@ pub(crate) mod extension_metrics;
 mod fork_metadata;
 mod guardian_checkpoint;
 mod handlers;
+mod handoff;
 mod inject;
 mod reasoning_effort;
 mod submission;
@@ -429,7 +430,7 @@ use codex_utils_stream_parser::ProposedPlanSegment;
 /// completion future observes that shutdown.
 #[derive(Clone)]
 pub(crate) struct SessionIo {
-    pub(crate) tx_sub: Sender<Submission>,
+    pub(crate) tx_sub: handoff::SubmissionSender,
     pub(crate) rx_event: Receiver<Event>,
     // Last known status of the agent.
     pub(crate) agent_status: watch::Receiver<AgentStatus>,
@@ -1003,7 +1004,7 @@ impl Session {
             }
         }));
         let io = SessionIo {
-            tx_sub,
+            tx_sub: tx_sub.into(),
             rx_event,
             agent_status: agent_status_rx,
             session_loop_termination: session_loop_termination_from_handle(session_loop_handle),
@@ -1061,10 +1062,7 @@ impl SessionIo {
         if sub.trace.is_none() {
             sub.trace = current_span_w3c_trace_context();
         }
-        self.tx_sub
-            .send(sub)
-            .await
-            .map_err(|_| CodexErr::InternalAgentDied)?;
+        self.tx_sub.send(sub).await?;
         Ok(())
     }
 

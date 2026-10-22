@@ -630,6 +630,11 @@ async fn start_if_idle(
 
     let turn_state = {
         let mut active_turn = session.active_turn.lock().await;
+        if session.state.lock().await.shutting_down {
+            return Ok(TurnInputSubmission::NotSubmitted {
+                reason: NotSubmittedReason::ServerDraining,
+            });
+        }
         if active_turn.is_some() {
             return Ok(TurnInputSubmission::NotSubmitted {
                 reason: NotSubmittedReason::NotIdle,
@@ -829,7 +834,8 @@ impl Session {
         &self,
     ) -> Option<(Arc<tokio::sync::Mutex<TurnState>>, TurnStartOptions)> {
         let mut active_turn = self.active_turn.lock().await;
-        if active_turn.is_some()
+        if self.state.lock().await.shutting_down
+            || active_turn.is_some()
             || self.has_root_resume_reservation()
             || self.parent_response_turn_is_deferred()
         {

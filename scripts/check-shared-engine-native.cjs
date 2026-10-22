@@ -69,7 +69,13 @@ function runWindowsNativeTests(sourceRoot, crate, filter) {
 function main() {
   const [sourceRoot, scope, ...extra] = process.argv.slice(2);
   const scopes = {
-    bridge: [["codex-app-server-client", "remote::tests::", ["--no-default-features", "--lib", "--bin", "azrael-bridge"]]],
+    handoff: [["codex-app-server-daemon", "session_handoff::tests::"],
+      ["codex-core", "session::handoff::tests::"],
+      ["codex-app-server", "azrael_session_handoff::tests::"],
+      ["codex-app-server", "azrael_thread_engines::tests::"],
+      ["codex-app-server", "azrael_shared_server::tests::"]],
+    bridge: [["codex-app-server-client", "remote::tests::", ["--no-default-features", "--lib"]],
+      ["codex-app-server-client", "terminal_", ["--no-default-features", "--bin", "azrael-bridge"]]],
     appserver: [...(process.platform === "win32" ? [["codex-utils-pty", "windows_tests::"],
       ["codex-utils-pty", "win::process_tree::tests::"],
       ["codex-utils-pty", "pipe::tests::process_fallback_interrupt_terminates_root"]] : []),
@@ -92,7 +98,7 @@ function main() {
       ["codex-queue-extension", "manual_resume_marker", "queue_service"]],
   };
   if (!sourceRoot || !path.isAbsolute(sourceRoot) || !Object.hasOwn(scopes, scope) || extra.length) {
-    throw new Error("Usage: check-shared-engine-native.cjs <absolute frozen engine source root> <appserver|manual|bridge>");
+    throw new Error("Usage: check-shared-engine-native.cjs <absolute frozen engine source root> <appserver|manual|bridge|handoff>");
   }
   if (!fs.statSync(path.join(sourceRoot, "codex-rs", "Cargo.toml")).isFile()) {
     throw new Error("Selected engine source has no Cargo workspace");

@@ -234,7 +234,10 @@
         "engine/codex-rs/app-server-transport/src/transport/mod.rs",
         "engine/codex-rs/app-server-transport/src/transport/unix_socket_tests.rs",
         "scripts/verification-state.ps1",
-        "scripts/test-verification-state.ps1"
+        "scripts/test-verification-state.ps1",
+        "engine/codex-rs/app-server/src/azrael_session_handoff.rs",
+        "engine/codex-rs/app-server-daemon/src/session_handoff.rs",
+        "engine/codex-rs/core/src/session/handoff.rs"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "reportFields": [],
@@ -322,6 +325,17 @@
             "scripts/tests/test_compile_scope_manifests.py"
           ],
           "level": "source"
+        },
+        {
+          "id": "engine.shared-engine.session-handoff",
+          "executable": "node",
+          "args": [
+            "scripts/check-shared-engine-native.cjs",
+            "{engineSourceRoot}",
+            "handoff"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
         }
       ]
     },

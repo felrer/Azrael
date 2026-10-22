@@ -10,6 +10,8 @@ mod azrael;
 #[cfg(feature = "lifecycle")]
 mod azrael_lifecycle;
 #[cfg(feature = "lifecycle")]
+mod session_handoff;
+#[cfg(feature = "lifecycle")]
 pub use azrael_lifecycle::publish_azrael_shutdown;
 #[cfg(feature = "lifecycle")]
 mod azrael_storage;

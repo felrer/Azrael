@@ -1,4 +1,5 @@
 //! Private shared engine: transport resources are shared, account/thread authority is not.
+use crate::azrael_session_handoff::{self as handoff, Attach, Receipt, Selection};
 use crate::azrael_shutdown::{SHUTDOWN_TIMEOUT, SNAPSHOT_TIMEOUT, ShutdownWatchdog};
 use crate::message_processor::{MessageProcessor, MessageProcessorArgs};
 use crate::outgoing_message::{ConnectionId, OutgoingEnvelope, OutgoingMessageSender};
@@ -86,6 +87,10 @@ struct Owner {
     account_default_file: Option<PathBuf>,
     /// Stable processor authority; every companion/UI alias moves together on rejoin.
     context: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    session_thread: Option<String>,
+    #[serde(default)]
+    session_handoff_pending: bool,
 }
 #[derive(Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -206,6 +211,8 @@ impl Registry {
                     account_state_file: request.account_state_file.clone(),
                     account_default_file: request.account_default_file.clone(),
                     context: request.owner_id.clone(),
+                    session_thread: None,
+                    session_handoff_pending: false,
                 },
             );
         }
@@ -326,6 +333,8 @@ fn atomic_json(path: &Path, value: &impl Serialize) -> io::Result<()> {
     temporary.as_file_mut().write_all(b"\n")?;
     temporary.as_file().sync_all()?;
     temporary.persist(path).map_err(|error| error.error)?;
+    #[cfg(unix)]
+    std::fs::File::open(parent)?.sync_all()?;
     Ok(())
 }
 
@@ -393,6 +402,115 @@ enum ContextEvent {
     Outgoing(String, OutgoingEnvelope),
     ThreadCreated(String, ThreadId),
     Failed(String),
+    Handoff {
+        connection: ConnectionId,
+        request: RequestId,
+        thread: String,
+        target: String,
+        result: io::Result<bool>,
+    },
+}
+struct SessionScope {
+    thread: String,
+    context: String,
+    workspace: String,
+    target: String,
+    host: AzraelProcessIdentity,
+}
+
+fn bind_session_scope_if_unsubscribed(
+    scopes: &mut HashMap<ConnectionId, SessionScope>,
+    connection: ConnectionId,
+    scope: SessionScope,
+    subscribers: &[ConnectionId],
+) -> &'static str {
+    if !subscribers.is_empty()
+        || scopes
+            .values()
+            .any(|existing| existing.thread == scope.thread)
+    {
+        return "busy";
+    }
+    scopes.insert(connection, scope);
+    "attached"
+}
+
+fn session_claim_allows_request(
+    scopes: &HashMap<ConnectionId, SessionScope>,
+    connection: ConnectionId,
+    thread: &str,
+) -> bool {
+    let canonical = ThreadId::from_string(thread)
+        .map(|thread| thread.to_string())
+        .unwrap_or_else(|_| thread.to_owned());
+    !scopes
+        .iter()
+        .any(|(claimed, scope)| *claimed != connection && scope.thread == canonical)
+}
+
+fn routed_context(
+    registry: &Registry,
+    owners: &HashMap<ConnectionId, String>,
+    scopes: &HashMap<ConnectionId, SessionScope>,
+    connection: ConnectionId,
+) -> Option<String> {
+    scopes
+        .get(&connection)
+        .map(|scope| scope.context.clone())
+        .or_else(|| connection_context(registry, owners, connection))
+}
+
+fn outgoing_thread(message: &OutgoingMessage) -> Option<String> {
+    serde_json::to_value(message)
+        .ok()
+        .and_then(|value| handoff::message_thread(&value).map(str::to_owned))
+}
+
+fn handoff_closure(message: &OutgoingMessage) -> bool {
+    let Ok(value) = serde_json::to_value(message) else {
+        return false;
+    };
+    value.get("method").and_then(|method| method.as_str()) == Some("thread/closed")
+        || value
+            .pointer("/params/msg/type")
+            .and_then(|kind| kind.as_str())
+            == Some("shutdown_complete")
+}
+
+fn session_outgoing_allowed(
+    scope: Option<&SessionScope>,
+    message: &OutgoingMessage,
+    callback_thread: Option<&str>,
+) -> bool {
+    let Some(scope) = scope else {
+        return true;
+    };
+    match message {
+        OutgoingMessage::Request(_) => callback_thread == Some(&scope.thread),
+        OutgoingMessage::AppServerNotification(_) => {
+            outgoing_thread(message).as_deref() == Some(&scope.thread)
+        }
+        _ => true,
+    }
+}
+
+fn route_callback(
+    message: &mut OutgoingMessage,
+    connection: ConnectionId,
+    context: &str,
+    next: &mut u64,
+    callbacks: &mut HashMap<(ConnectionId, RequestId), (String, RequestId)>,
+) -> io::Result<()> {
+    if let OutgoingMessage::Request(request) = message {
+        let original = request.id().clone();
+        *next += 1;
+        let routed = RequestId::String(format!("azrael-session-{next}"));
+        let mut value = serde_json::to_value(request).map_err(invalid)?;
+        value["id"] = serde_json::to_value(&routed).map_err(invalid)?;
+        *message = OutgoingMessage::Request(serde_json::from_value(value).map_err(invalid)?);
+        callbacks.insert((connection, routed), (context.to_owned(), original));
+    }
+    Ok(())
 }
 impl Drop for Context {
     fn drop(&mut self) {
@@ -471,6 +589,126 @@ async fn create_context(
         tasks: vec![outgoing_task, thread_task],
     })
 }
+
+fn validated_target_snapshot(
+    receipt: &Receipt,
+    thread: &str,
+    workspace: &str,
+    instance: &str,
+    compatibility: &serde_json::Value,
+) -> io::Result<handoff::RuntimeSnapshot> {
+    receipt.validate(thread, workspace, instance, compatibility)?;
+    let snapshot: handoff::RuntimeSnapshot =
+        serde_json::from_value(receipt.resume.clone()).map_err(invalid)?;
+    if !snapshot.safe_client_capabilities() {
+        return Err(invalid("unsafe client capability transfer snapshot"));
+    }
+    snapshot.permission_snapshot()?;
+    snapshot.overrides()?;
+    Ok(snapshot)
+}
+
+/// Preparation errors remain owned by this selected session. Only a successfully persisted
+/// binding may proceed to normal resume; pending bindings retain their lease and retry route.
+#[allow(clippy::too_many_arguments)]
+async fn prepare_target_context(
+    template: &MessageProcessorArgs,
+    registry: &mut Registry,
+    contexts: &mut HashMap<String, Context>,
+    registry_path: &Path,
+    home: &Path,
+    thread: &str,
+    requester: &str,
+    instance: &str,
+    compatibility: &serde_json::Value,
+    events: mpsc::Sender<ContextEvent>,
+) -> io::Result<Option<String>> {
+    let receipt = Receipt::read(home, thread)?;
+    let workspace = registry
+        .saved
+        .owners
+        .get(requester)
+        .ok_or_else(|| invalid("target owner missing"))?
+        .workspace_id
+        .clone();
+    let dedicated = registry
+        .saved
+        .threads
+        .get(thread)
+        .and_then(|id| registry.saved.owners.get(id))
+        .filter(|binding| binding.session_thread.as_deref() == Some(thread))
+        .cloned();
+    if let Some(binding) = dedicated {
+        if binding.workspace_id != workspace {
+            return Err(invalid("transferred session workspace mismatch"));
+        }
+        // Forward handoff does not rebind an engine that has already transferred this thread away.
+        if receipt.as_ref().is_some_and(|receipt| {
+            receipt.source_instance_id == instance && receipt.target_instance_id != instance
+        }) {
+            return Err(invalid(
+                "released session cannot be reacquired by its prior engine",
+            ));
+        }
+        let snapshot = if binding.session_handoff_pending {
+            Some(validated_target_snapshot(
+                receipt
+                    .as_ref()
+                    .ok_or_else(|| invalid("pending transfer receipt missing"))?,
+                thread,
+                &workspace,
+                instance,
+                compatibility,
+            )?)
+        } else {
+            None
+        };
+        let id = binding.context.clone();
+        if !contexts.contains_key(&id) {
+            let context = create_context(template, &binding, &id, events).await?;
+            if let Some(snapshot) = snapshot {
+                context
+                    .processor
+                    .install_handoff_restore(thread.to_owned(), snapshot)
+                    .await;
+            }
+            contexts.insert(id.clone(), context);
+        }
+        // A previous save failure keeps this exact pending binding in memory for a retry.
+        if binding.session_handoff_pending {
+            registry.save(registry_path)?;
+        }
+        return Ok(Some(id));
+    }
+    let Some(receipt) = receipt else {
+        return Ok(None);
+    };
+    let snapshot =
+        validated_target_snapshot(&receipt, thread, &workspace, instance, compatibility)?;
+    let id = ThreadId::new().to_string().replace('-', "");
+    let selection = home
+        .join("azrael-thread-engines-v1")
+        .join(format!("{thread}.{instance}.account.json"));
+    atomic_json(&selection, &receipt.selection)?;
+    let binding = Owner {
+        workspace_id: workspace,
+        account_state_file: selection,
+        account_default_file: None,
+        context: id.clone(),
+        session_thread: Some(thread.to_owned()),
+        session_handoff_pending: true,
+    };
+    let context = create_context(template, &binding, &id, events).await?;
+    context
+        .processor
+        .install_handoff_restore(thread.to_owned(), snapshot)
+        .await;
+    registry.saved.owners.insert(id.clone(), binding);
+    registry.saved.threads.insert(thread.to_owned(), id.clone());
+    contexts.insert(id.clone(), context);
+    registry.save(registry_path)?;
+    Ok(Some(id))
+}
 async fn send_error(
     tx: &mpsc::Sender<OutgoingEnvelope>,
     connection_id: ConnectionId,
@@ -491,6 +729,31 @@ async fn send_error(
     })
     .await
     .map_err(invalid)
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn isolate_target_restore_error(
+    registry: &Registry,
+    routes: &mut HashMap<(ConnectionId, String), String>,
+    failed: &mut HashSet<String>,
+    outgoing: &mpsc::Sender<OutgoingEnvelope>,
+    connection: ConnectionId,
+    request: RequestId,
+    thread: &str,
+    error: io::Error,
+) -> io::Result<()> {
+    failed.insert(thread.to_owned());
+    if let Some(binding) = registry
+        .saved
+        .threads
+        .get(thread)
+        .and_then(|id| registry.saved.owners.get(id))
+        .filter(|owner| owner.session_thread.as_deref() == Some(thread))
+    {
+        routes.insert((connection, thread.to_owned()), binding.context.clone());
+    }
+    // Only outbound channel failure escapes. Restoration failure remains fenced to this thread.
+    send_error(outgoing, connection, request, error).await
 }
 fn published_thread(message: &OutgoingMessage) -> Option<&str> {
     use codex_app_server_protocol::{ClientResponsePayload, ServerNotification};
@@ -558,6 +821,12 @@ pub(crate) async fn run(
     if !matches!(transport, AppServerTransport::UnixSocket { .. }) {
         return Err(invalid("shared windows require the private local socket"));
     }
+    let socket_path = match &transport {
+        AppServerTransport::UnixSocket { socket_path } => socket_path.as_path().to_path_buf(),
+        _ => unreachable!(),
+    };
+    let compatibility = serde_json::to_value(codex_state::azrael_storage_compatibility_manifest())
+        .map_err(invalid)?;
     // Context forks share backend identity and snapshot ordering, never account selection.
     template.azrael_account_backend_state = Some(Default::default());
     let version = env!("CARGO_PKG_VERSION");
@@ -574,6 +843,14 @@ pub(crate) async fn run(
     let mut contexts = HashMap::<String, Context>::new();
     let mut connections = HashMap::<ConnectionId, ConnectionState>::new();
     let mut owners = HashMap::<ConnectionId, String>::new();
+    let mut scopes = HashMap::<ConnectionId, SessionScope>::new();
+    let mut thread_routes = HashMap::<(ConnectionId, String), String>::new();
+    let mut callbacks = HashMap::<(ConnectionId, RequestId), (String, RequestId)>::new();
+    let mut next_callback = 0_u64;
+    let mut seen_messages = HashSet::<ConnectionId>::new();
+    let mut transferring = HashMap::<String, String>::new();
+    let mut released = HashMap::<String, String>::new();
+    let mut failed_transfers = HashSet::<String>::new();
     let (context_tx, mut context_rx) = mpsc::channel(CHANNEL_CAPACITY);
     let mut listeners = tokio::task::JoinSet::new();
     let mut cleanup = tokio::task::JoinSet::new();
@@ -593,7 +870,12 @@ pub(crate) async fn run(
                 }
                 if terminal_error.is_some() { break; }
                 for owner in dead { registry.host_disappeared(&owner); }
-                if let Some(reason) = registry.no_window_shutdown_reason_at(Instant::now()) {
+                let mut dead_scopes = Vec::new();
+                for (connection, scope) in &scopes {
+                    if !scope.host.is_alive().await.map_err(invalid)? { dead_scopes.push(*connection); }
+                }
+                for connection in dead_scopes { scopes.remove(&connection); }
+                if scopes.is_empty() && let Some(reason) = registry.no_window_shutdown_reason_at(Instant::now()) {
                     tracing::info!(reason, "shared window engine has no window leases; stopping");
                     break;
                 }
@@ -602,26 +884,86 @@ pub(crate) async fn run(
                 match event {
                     Some(ContextEvent::Outgoing(context, envelope)) => {
                         let message = match &envelope { OutgoingEnvelope::Broadcast { message } | OutgoingEnvelope::ToConnection { message, .. } => message };
+                        let callback_thread=if let OutgoingMessage::Request(request)=message {
+                            if let Some(ctx)=contexts.get(&context) {ctx.processor.server_request_thread(request.id()).await.map(|thread|thread.to_string())} else {None}
+                        } else {None};
+                        let routed_thread=callback_thread.clone().or_else(||outgoing_thread(message));
+                        if handoff_closure(message) && outgoing_thread(message).is_some_and(|thread|transferring.contains_key(&thread)||released.contains_key(&thread)) {continue;}
                         if let Some(thread) = published_thread(message) {
                             if let Err(error) = thread_engines.acquire(thread) { terminal_error = Some(error); break; }
                         }
                         match record_published_thread(&mut registry, &context, message) {
-                            Ok(true) => if let Err(error) = registry.save(&registry_path) { terminal_error = Some(error); break; },
+                            Ok(true) => if let Err(error) = registry.save(&registry_path) {
+                                if registry.saved.owners.get(&context).is_some_and(|owner|owner.session_thread.is_some()) {
+                                    if let Some(thread)=published_thread(message) {failed_transfers.insert(thread.to_owned());}
+                                    if let OutgoingEnvelope::ToConnection {connection_id,message:OutgoingMessage::Response(response),..}=&envelope {
+                                        send_error(&outgoing,*connection_id,response.id.clone(),error).await?;
+                                    }
+                                    continue;
+                                }
+                                terminal_error = Some(error); break;
+                            },
                             Ok(false) => {},
                             Err(error) => { terminal_error = Some(error); break; },
+                        }
+                        if let OutgoingMessage::Response(response)=message {
+                            if let codex_app_server_protocol::ClientResponsePayload::ThreadResume(resumed)=response.result.as_ref() {
+                                if let Some(binding)=registry.saved.owners.get_mut(&context).filter(|owner|owner.session_thread.as_deref()==Some(&resumed.thread.id)) {
+                                    if binding.session_handoff_pending {
+                                        binding.session_handoff_pending=false;
+                                        if let Err(error)=registry.save(&registry_path) {
+                                            if let Some(binding)=registry.saved.owners.get_mut(&context) {binding.session_handoff_pending=true;}
+                                            failed_transfers.insert(resumed.thread.id.clone());
+                                            if let OutgoingEnvelope::ToConnection {connection_id,..}=&envelope {
+                                                send_error(&outgoing,*connection_id,response.id.clone(),error).await?;
+                                            }
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if let Some(thread) = published_thread(message) {
+                            let workspace = &registry.saved.owners.get(&context).ok_or_else(|| invalid("missing publication workspace"))?.workspace_id;
+                            let published=thread_engines.publish(thread, &serde_json::json!({"schema":1,"protocol":1,"threadId":thread,
+                                "workspaceId":workspace,"instanceId":instance,"socketPath":socket_path,"engineVersion":version,
+                                "engineIdentity":identity,"storageCompatibility":compatibility}));
+                            if let Err(error)=published {
+                                if registry.saved.owners.get(&context).is_some_and(|owner|owner.session_thread.as_deref()==Some(thread)) {
+                                    failed_transfers.insert(thread.to_owned());
+                                    if let OutgoingEnvelope::ToConnection {connection_id,message:OutgoingMessage::Response(response),..}=&envelope {
+                                        send_error(&outgoing,*connection_id,response.id.clone(),error).await?;
+                                    }
+                                    continue;
+                                }
+                                return Err(error);
+                            }
                         }
                         match envelope {
                         OutgoingEnvelope::Broadcast { message } => {
                             for (connection, state) in &connections {
-                                if state.session.initialized() && connection_context(&registry, &owners, *connection).as_deref() == Some(&context) {
-                                    if outgoing.send(OutgoingEnvelope::ToConnection { connection_id: *connection, message: message.clone(), write_complete_tx: None }).await.is_err() {
+                                if state.session.initialized()
+                                    && (routed_context(&registry, &owners, &scopes, *connection).as_deref() == Some(&context)
+                                        || routed_thread.as_ref().is_some_and(|thread| thread_routes.get(&(*connection, thread.clone())).is_some_and(|route| route == &context)))
+                                    && session_outgoing_allowed(scopes.get(connection), &message, callback_thread.as_deref()) {
+                                    let mut message=message.clone();
+                                    route_callback(&mut message,*connection,&context,&mut next_callback,&mut callbacks)?;
+                                    if outgoing.send(OutgoingEnvelope::ToConnection { connection_id: *connection, message, write_complete_tx: None }).await.is_err() {
                                         terminal_error = Some(invalid("outbound router closed")); break;
                                     }
                                 }
                             }
                         },
-                        OutgoingEnvelope::ToConnection { connection_id, message, write_complete_tx } => {
-                            if connection_context(&registry, &owners, connection_id).as_deref() == Some(&context) {
+                        OutgoingEnvelope::ToConnection { connection_id, mut message, write_complete_tx } => {
+                            if (routed_context(&registry, &owners, &scopes, connection_id).as_deref() == Some(&context)
+                                || thread_routes.iter().any(|((id, _), route)| *id == connection_id && route == &context))
+                                && session_outgoing_allowed(scopes.get(&connection_id), &message, callback_thread.as_deref()) {
+                                if routed_context(&registry,&owners,&scopes,connection_id).as_deref()!=Some(&context)
+                                    && matches!(&message,OutgoingMessage::Request(_)|OutgoingMessage::AppServerNotification(_))
+                                    && routed_thread.as_ref().is_none_or(|thread|thread_routes.get(&(connection_id,thread.clone())).is_none_or(|route|route!=&context)) {
+                                    continue;
+                                }
+                                route_callback(&mut message,connection_id,&context,&mut next_callback,&mut callbacks)?;
                                 if outgoing.send(OutgoingEnvelope::ToConnection { connection_id, message, write_complete_tx }).await.is_err() {
                                     terminal_error = Some(invalid("outbound router closed"));
                                 }
@@ -636,7 +978,14 @@ pub(crate) async fn run(
                         } else {
                             registry.saved.threads.insert(thread.to_string(), context.clone());
                             registry.work_owned.insert(context.clone());
-                            if let Err(error) = registry.save(&registry_path) { terminal_error = Some(error); }
+                            if let Err(error) = registry.save(&registry_path) {
+                                if registry.saved.owners.get(&context).is_some_and(|owner|owner.session_thread.is_some()) {
+                                    failed_transfers.insert(thread.to_string());
+                                    tracing::warn!(%thread,%error,"selected transfer registry persistence failed; retaining session lease");
+                                    continue;
+                                }
+                                terminal_error = Some(error);
+                            }
                             let ids = connections.iter().filter(|(id, state)| state.session.initialized()
                                 && connection_context(&registry, &owners, **id).as_deref() == Some(&context)).map(|(id, _)| *id).collect();
                             if let Some(context) = contexts.get(&context) {
@@ -645,6 +994,25 @@ pub(crate) async fn run(
                             }
                         }
                     },
+                    Some(ContextEvent::Handoff {connection, request, thread, target, result}) => {
+                        match result {
+                            Ok(true) => {
+                                if let Err(error) = thread_engines.release(&thread) { send_error(&outgoing, connection, request, error).await?; }
+                                else {
+                                    transferring.remove(&thread);
+                                    released.insert(thread, target);
+                                    outgoing.send(OutgoingEnvelope::ToConnection {connection_id:connection,
+                                        message:OutgoingMessage::RawResponse {id:request,result:serde_json::json!({"state":"released"})},write_complete_tx:None}).await.map_err(invalid)?;
+                                }
+                            }
+                            Ok(false) => {
+                                transferring.remove(&thread);
+                                outgoing.send(OutgoingEnvelope::ToConnection {connection_id:connection,
+                                message:OutgoingMessage::RawResponse {id:request,result:serde_json::json!({"state":"busy"})},write_complete_tx:None}).await.map_err(invalid)?;
+                            }
+                            Err(error) => send_error(&outgoing, connection, request, error).await?,
+                        }
+                    }
                     Some(ContextEvent::Failed(context)) => { terminal_error = Some(invalid(format!("thread owner event stream lagged for {context}"))); },
                     None => { terminal_error = Some(invalid("context router closed")); },
                 }
@@ -664,19 +1032,28 @@ pub(crate) async fn run(
                         connections.insert(connection_id, ConnectionState::new(origin, auth, initialized, experimental, opted_out));
                     }
                     TransportEvent::ConnectionClosed { connection_id } => {
-                        let context = connection_context(&registry, &owners, connection_id);
+                        let context = routed_context(&registry, &owners, &scopes, connection_id);
+                        let mut closed_contexts:HashSet<String>=thread_routes.iter().filter(|((id,_),_)|*id==connection_id).map(|(_,context)|context.clone()).collect();
+                        closed_contexts.extend(context);
+                        seen_messages.remove(&connection_id);
+                        scopes.remove(&connection_id);
+                        callbacks.retain(|(id, _), _| *id != connection_id);
+                        thread_routes.retain(|(id, _), _| *id != connection_id);
                         owners.remove(&connection_id);
                         if let Some(state) = connections.remove(&connection_id) {
                             state.session.rpc_gate.close().await;
-                            if let Some(context) = context.and_then(|id| contexts.get(&id)) {
+                            for context in closed_contexts.iter().filter_map(|id|contexts.get(id)) {
                                 let processor = Arc::clone(&context.processor);
-                                cleanup.spawn(async move { processor.connection_closed(connection_id, &state.session).await; });
+                                let session=Arc::clone(&state.session);
+                                cleanup.spawn(async move { processor.connection_closed(connection_id, &session).await; });
                             }
                         }
                         control.send(OutboundControlEvent::Closed { connection_id }).await.map_err(invalid)?;
                         // Host process identity, not proxy/socket lifetime, owns the window lease.
                     }
                     TransportEvent::IncomingMessage { connection_id, message } => {
+                        let mut message = message;
+                        let first_message=seen_messages.insert(connection_id);
                         let Some(state) = connections.get(&connection_id) else { continue; };
                         if let JSONRPCMessage::Request(request) = &message {
                             if request.method == "azrael/engine/status" {
@@ -686,14 +1063,95 @@ pub(crate) async fn run(
                                     outgoing.send(OutgoingEnvelope::ToConnection { connection_id,
                                         message: OutgoingMessage::RawResponse { id: request.id.clone(), result: serde_json::json!({
                                             "schema": 1, "state": "ready", "enginePid": std::process::id(),
-                                            "instanceId": instance, "engineVersion": version, "engineIdentity": identity
+                                            "instanceId": instance, "engineVersion": version, "engineIdentity": identity,
+                                            "sessionHandoff": {"protocol": handoff::PROTOCOL,"storageCompatibility":compatibility}
                                         }) }, write_complete_tx: None }).await.map_err(invalid)?;
                                 }
                                 continue;
                             }
+                            if request.method == "azrael/session/attach" {
+                                let result = async {
+                                    if state.origin != ConnectionOrigin::UnixSocket || state.session.initialized()
+                                        || owners.contains_key(&connection_id) || scopes.contains_key(&connection_id) || !first_message {
+                                        return Err(invalid("attachment must be the first private request"));
+                                    }
+                                    let attach: Attach = serde_json::from_value(request.params.clone().ok_or_else(|| invalid("attachment params missing"))?).map_err(invalid)?;
+                                    attach.validate(&instance, &identity, &compatibility)?;
+                                    let context_id = registry.saved.threads.get(&attach.thread_id).cloned().ok_or_else(|| invalid("source does not own this session"))?;
+                                    let binding = registry.saved.owners.get(&context_id).ok_or_else(|| invalid("source session context missing"))?;
+                                    if binding.workspace_id != attach.workspace_id
+                                        || !thread_engines.owned_threads().contains(&ThreadId::from_string(&attach.thread_id).map_err(invalid)?) {
+                                        return Err(invalid("session workspace or authoritative lease mismatch"));
+                                    }
+                                    let host = capture_process_identity(attach.host_pid).await.map_err(invalid)?.ok_or_else(|| invalid("session host is not alive"))?;
+                                    if !contexts.contains_key(&context_id) {
+                                        contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone()).await?);
+                                    }
+                                    if !contexts.get(&context_id).ok_or_else(||invalid("session context unavailable"))?.processor.session_attach_supported() {
+                                        return Err(invalid("externally managed authentication requires its original host connection"));
+                                    }
+                                    let subscribers=contexts.get(&context_id).ok_or_else(||invalid("session context unavailable"))?.processor
+                                        .session_subscribers(ThreadId::from_string(&attach.thread_id).map_err(invalid)?).await;
+                                    let attach_state=bind_session_scope_if_unsubscribed(&mut scopes,connection_id,
+                                        SessionScope {thread:attach.thread_id.clone(), context:context_id,
+                                            workspace:attach.workspace_id, target:attach.target_instance_id, host},&subscribers);
+                                    Ok::<_,io::Error>(serde_json::json!({"schema":1,"protocol":1,"threadId":attach.thread_id,
+                                        "instanceId":instance,"engineIdentity":identity,"engineVersion":version,"storageCompatibility":compatibility,"state":attach_state}))
+                                }.await;
+                                match result {
+                                    Ok(result) => outgoing.send(OutgoingEnvelope::ToConnection {connection_id,
+                                        message:OutgoingMessage::RawResponse {id:request.id.clone(), result},write_complete_tx:None}).await.map_err(invalid)?,
+                                    Err(error) => send_error(&outgoing, connection_id, request.id.clone(), error).await?,
+                                }
+                                continue;
+                            }
+                            if request.method == "azrael/session/handoff" {
+                                let Some(scope) = scopes.get(&connection_id).filter(|_| state.session.initialized()) else {
+                                    send_error(&outgoing, connection_id, request.id.clone(), "handoff requires initialized session attachment").await?; continue;
+                                };
+                                let params = request.params.as_ref();
+                                if params.and_then(|p|p.get("threadId")).and_then(|p|p.as_str()) != Some(&scope.thread)
+                                    || params.and_then(|p|p.get("targetInstanceId")).and_then(|p|p.as_str()) != Some(&scope.target) {
+                                    send_error(&outgoing, connection_id, request.id.clone(), "handoff scope mismatch").await?; continue;
+                                }
+                                if released.get(&scope.thread) == Some(&scope.target) || transferring.contains_key(&scope.thread) {
+                                    let state = if released.contains_key(&scope.thread) {"released"} else {"busy"};
+                                    outgoing.send(OutgoingEnvelope::ToConnection {connection_id,message:OutgoingMessage::RawResponse {
+                                        id:request.id.clone(),result:serde_json::json!({"state":state})},write_complete_tx:None}).await.map_err(invalid)?;
+                                    continue;
+                                }
+                                let processor = Arc::clone(&contexts.get(&scope.context).ok_or_else(|| invalid("handoff context unavailable"))?.processor);
+                                let account_guard=match processor.session_handoff_account_guard().await {
+                                    Ok(guard)=>guard,
+                                    Err(_)=>{outgoing.send(OutgoingEnvelope::ToConnection {connection_id,message:OutgoingMessage::RawResponse {
+                                        id:request.id.clone(),result:serde_json::json!({"state":"busy"})},write_complete_tx:None}).await.map_err(invalid)?;continue;}
+                                };
+                                let binding = registry.saved.owners.get(&scope.context).ok_or_else(|| invalid("handoff owner unavailable"))?;
+                                let selection = match Selection::read(&binding.account_state_file, binding.account_default_file.as_deref(), &home) {
+                                    Ok(selection) => selection,
+                                    Err(error) => {send_error(&outgoing, connection_id, request.id.clone(), error).await?;continue;}
+                                };
+                                let mut receipt = Receipt {schema:1,protocol:1,state:"stopped".into(),thread_id:scope.thread.clone(),
+                                    workspace_id:scope.workspace.clone(),source_instance_id:instance.clone(),source_identity:identity.clone(),
+                                    target_instance_id:scope.target.clone(),storage_compatibility:compatibility.clone(),selection,resume:serde_json::json!({})};
+                                let thread = scope.thread.clone(); let target = scope.target.clone(); let request_id = request.id.clone();
+                                transferring.insert(thread.clone(), target.clone());
+                                let tx = context_tx.clone(); let receipt_home = home.clone();
+                                listeners.spawn(async move {
+                                    let _account_guard=account_guard;
+                                    let result = async {
+                                        let Some(snapshot) = processor.try_session_handoff(&thread, connection_id).await? else {return Ok(false);};
+                                        receipt.resume = snapshot;
+                                        atomic_json(&handoff::receipt_path(&receipt_home, &thread)?, &receipt)?;
+                                        Ok(true)
+                                    }.await;
+                                    let _ = tx.send(ContextEvent::Handoff {connection:connection_id,request:request_id,thread,target,result}).await;
+                                });
+                                continue;
+                            }
                             if request.method == "azrael/window/register" {
                                 let result = async {
-                                    if state.origin != ConnectionOrigin::UnixSocket || state.session.initialized() || owners.contains_key(&connection_id) {
+                                    if state.origin != ConnectionOrigin::UnixSocket || state.session.initialized() || owners.contains_key(&connection_id) || scopes.contains_key(&connection_id) {
                                         return Err(invalid("registration requires an uninitialized private connection"));
                                     }
                                     let registration: Registration = serde_json::from_value(request.params.clone().ok_or_else(|| invalid("registration params missing"))?).map_err(invalid)?;
@@ -734,13 +1192,45 @@ pub(crate) async fn run(
                                 continue;
                             }
                         }
-                        let Some(owner_id) = owners.get(&connection_id).cloned() else {
+                        if let Some(scope) = scopes.get(&connection_id) {
+                            let allowed = match &message {
+                                JSONRPCMessage::Request(request) => handoff::scoped_request(&request.method,request.params.as_ref(),&scope.thread),
+                                JSONRPCMessage::Notification(notification) => notification.method == "initialized",
+                                JSONRPCMessage::Response(response) => callbacks.contains_key(&(connection_id,response.id.clone())),
+                                JSONRPCMessage::Error(error) => callbacks.contains_key(&(connection_id,error.id.clone())),
+                            };
+                            if !allowed {
+                                if let JSONRPCMessage::Request(request) = &message {send_error(&outgoing,connection_id,request.id.clone(),"request exceeds attached session authority").await?;}
+                                continue;
+                            }
+                            if let JSONRPCMessage::Request(request)=&mut message {
+                                if request.method=="thread/resume" && let Some(params)=request.params.as_mut() {
+                                    handoff::retain_scoped_resume_presentation(params);
+                                }
+                            }
+                        }
+                        let Some(owner_id) = owners.get(&connection_id).cloned().or_else(|| scopes.get(&connection_id).map(|scope|scope.context.clone())) else {
                             if let JSONRPCMessage::Request(request) = message { send_error(&outgoing, connection_id, request.id, "register a window before initialize").await?; }
                             continue;
                         };
-                        let mut context_id = registry.context(&owner_id)?;
+                        let mut context_id = routed_context(&registry,&owners,&scopes,connection_id).ok_or_else(||invalid("session route missing"))?;
+                        if matches!(&message,JSONRPCMessage::Response(response) if !callbacks.contains_key(&(connection_id,response.id.clone())))
+                            || matches!(&message,JSONRPCMessage::Error(error) if !callbacks.contains_key(&(connection_id,error.id.clone()))) {continue;}
+                        match &mut message {
+                            JSONRPCMessage::Response(response) => if let Some((route,original)) = callbacks.remove(&(connection_id,response.id.clone())) {context_id=route;response.id=original;},
+                            JSONRPCMessage::Error(error) => if let Some((route,original)) = callbacks.remove(&(connection_id,error.id.clone())) {context_id=route;error.id=original;},
+                            _ => {},
+                        }
                         if let JSONRPCMessage::Request(request) = &message {
                             if let Some(thread) = request.params.as_ref().and_then(|p| p.get("threadId")).and_then(|p| p.as_str()) {
+                                if !session_claim_allows_request(&scopes,connection_id,thread) {
+                                    send_error(&outgoing,connection_id,request.id.clone(),"session is claimed by another attached connection").await?;continue;
+                                }
+                                if transferring.contains_key(thread) || released.contains_key(thread)
+                                    || (failed_transfers.contains(thread) && request.method != "thread/resume") {
+                                    send_error(&outgoing,connection_id,request.id.clone(),"session handoff is fenced").await?;continue;
+                                }
+                                if let Some(route) = thread_routes.get(&(connection_id,thread.to_owned())) {context_id=route.clone();}
                                 if request.method == "thread/resume" {
                                     if let Some(path) = request.params.as_ref().and_then(|p| p.get("path")).and_then(|p| p.as_str()).filter(|path| !path.is_empty()) {
                                         match codex_rollout::read_session_meta_line(Path::new(path)).await {
@@ -754,11 +1244,32 @@ pub(crate) async fn run(
                                     send_error(&outgoing, connection_id, request.id.clone(), error).await?;
                                     continue;
                                 }
-                                match registry.select_thread(&owner_id, thread, request.method == "thread/resume") {
+                                if !scopes.contains_key(&connection_id) && request.method == "thread/resume" {
+                                    let prepared=prepare_target_context(&template,&mut registry,&mut contexts,&registry_path,&home,
+                                        thread,&owner_id,&instance,&compatibility,context_tx.clone()).await;
+                                    match prepared {
+                                        Ok(Some(selected))=>{
+                                            context_id=selected;
+                                            thread_routes.insert((connection_id,thread.to_owned()),context_id.clone());
+                                            failed_transfers.remove(thread);
+                                        }
+                                        Ok(None)=>{failed_transfers.remove(thread);}
+                                        Err(error)=>{
+                                            isolate_target_restore_error(&registry,&mut thread_routes,&mut failed_transfers,
+                                                &outgoing,connection_id,request.id.clone(),thread,error).await?;continue;
+                                        }
+                                    }
+                                }
+                                let selected = if scopes.contains_key(&connection_id) || thread_routes.contains_key(&(connection_id,thread.to_owned())) {
+                                    Ok(context_id.clone())
+                                } else {registry.select_thread(&owner_id,thread,request.method == "thread/resume")};
+                                match selected {
                                     Ok(selected) => {
                                         let rebound = context_id != selected;
                                         context_id = selected;
-                                        if let Err(error) = registry.save(&registry_path) { terminal_error = Some(error); break; }
+                                        if !scopes.contains_key(&connection_id) && !thread_routes.contains_key(&(connection_id,thread.to_owned())) {
+                                            if let Err(error)=registry.save(&registry_path) {terminal_error=Some(error);break;}
+                                        }
                                         if !contexts.contains_key(&context_id) {
                                             let binding = registry.saved.owners.get(&context_id).ok_or_else(|| invalid("rejoin context binding missing"))?;
                                             contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone()).await?);
@@ -774,9 +1285,36 @@ pub(crate) async fn run(
                                     },
                                     Err(error) => { send_error(&outgoing, connection_id, request.id.clone(), error).await?; continue; },
                                 }
+                                if registry.saved.owners.get(&context_id).is_some_and(|binding|binding.session_handoff_pending) && request.method!="thread/resume" {
+                                    send_error(&outgoing,connection_id,request.id.clone(),"transferred session must finish restoring before new work").await?;continue;
+                                }
                             }
                         }
                         let processor = &contexts.get(&context_id).ok_or_else(|| invalid("window context unavailable"))?.processor;
+                        if let JSONRPCMessage::Request(request)=&mut message {
+                            if request.method == "thread/resume" {
+                                if let Some(thread)=request.params.as_ref().and_then(|params|params.get("threadId")).and_then(|id|id.as_str()).map(str::to_owned) {
+                                    if thread_routes.contains_key(&(connection_id,thread.clone())) {
+                                        if registry.saved.owners.get(&context_id).is_some_and(|binding|binding.session_handoff_pending) {
+                                            let restored=(||->io::Result<()> {
+                                                let receipt=Receipt::read(&home,&thread)?.ok_or_else(||invalid("pending transfer receipt missing"))?;
+                                                let workspace=&registry.saved.owners.get(&context_id).ok_or_else(||invalid("pending transfer owner missing"))?.workspace_id;
+                                                let snapshot=validated_target_snapshot(&receipt,&thread,workspace,&instance,&compatibility)?;
+                                                let params=request.params.as_mut().and_then(serde_json::Value::as_object_mut).ok_or_else(||invalid("resume params missing"))?;
+                                                for (key,value) in snapshot.resume_params().as_object().ok_or_else(||invalid("invalid restored params"))? {params.insert(key.clone(),value.clone());}
+                                                params.remove("history");params.remove("path");params.remove("sandbox");params.remove("permissions");
+                                                Ok(())
+                                            })();
+                                            if let Err(error)=restored {
+                                                failed_transfers.insert(thread.clone());
+                                                send_error(&outgoing,connection_id,request.id.clone(),error).await?;continue;
+                                            }
+                                        }
+                                        processor.connection_initialized(connection_id,state.session.request_attestation()).await;
+                                    }
+                                }
+                            }
+                        }
                         let state = connections.get(&connection_id).ok_or_else(|| invalid("connection disappeared"))?;
                         if state.session.rpc_gate.is_closed() { continue; }
                         match message {

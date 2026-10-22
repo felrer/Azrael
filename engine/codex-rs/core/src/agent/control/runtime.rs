@@ -36,6 +36,7 @@ const MAX_RETAINED_SHUTDOWN_FAILURES: usize = 64;
 #[derive(Debug)]
 pub(crate) struct AgentTreeShutdownState {
     members: TaskTracker,
+    admission: Mutex<()>,
     report: Mutex<AgentTreeShutdownReport>,
 }
 
@@ -43,6 +44,7 @@ impl Default for AgentTreeShutdownState {
     fn default() -> Self {
         Self {
             members: TaskTracker::new(),
+            admission: Mutex::new(()),
             report: Mutex::new(AgentTreeShutdownReport {
                 tree_id: Uuid::now_v7(),
                 failures: Vec::new(),
@@ -273,6 +275,11 @@ impl AgentControlInit {
 
 impl LocalAgentRuntime {
     pub(crate) fn admit_start(&self) -> CodexResult<AgentTreeMembership> {
+        let _admission = self
+            .shutdown_state
+            .admission
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
         if self.shutdown_state.members.is_closed() {
             return Err(
                 CodexErr::InvalidRequest("agent runtime is shutting down".to_owned())
@@ -299,6 +306,35 @@ impl LocalAgentRuntime {
         self.shutdown.cancel();
         self.mailboxes.close();
         Arc::clone(&self.shutdown_state)
+    }
+
+    /// Seal an otherwise unshared runtime without cancelling its owning session.
+    /// Every loaded session and in-flight spawn retains a membership. The owning
+    /// session loop is the only member allowed to remain at this boundary.
+    pub(crate) fn try_seal_for_handoff(&self) -> bool {
+        let _admission = self
+            .shutdown_state
+            .admission
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        if self.shutdown_state.members.is_closed() || self.shutdown_state.members.len() > 1 {
+            return false;
+        }
+        self.shutdown_state.members.close();
+        true
+    }
+
+    pub(crate) fn has_shared_handoff_members(&self) -> bool {
+        self.shutdown_state.members.len() > 1
+    }
+
+    pub(crate) fn shutdown_has_failures(&self) -> bool {
+        let report = self
+            .shutdown_state
+            .report
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        !report.failures.is_empty() || report.omitted_failures != 0
     }
 
     /// The caller must hold tree membership until this record has been written. This keeps

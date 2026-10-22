@@ -1,6 +1,287 @@
 use super::*;
 
 #[tokio::test]
+async fn pre_resume_claim_is_exclusive_and_fences_later_original_requests() {
+    let thread = ThreadId::new().to_string();
+    let unrelated = ThreadId::new().to_string();
+    let mut scopes = HashMap::new();
+    let first = SessionScope {
+        thread: thread.clone(),
+        context: "a".repeat(32),
+        workspace: "b".repeat(64),
+        target: "c".repeat(64),
+        host: capture_process_identity(std::process::id())
+            .await
+            .unwrap()
+            .unwrap(),
+    };
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(&mut scopes, ConnectionId(3), first, &[]),
+        "attached"
+    );
+    // Neither attachment has resumed or created a thread subscription yet.
+    let competing = SessionScope {
+        thread: thread.clone(),
+        context: "a".repeat(32),
+        workspace: "b".repeat(64),
+        target: "c".repeat(64),
+        host: capture_process_identity(std::process::id())
+            .await
+            .unwrap()
+            .unwrap(),
+    };
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(&mut scopes, ConnectionId(4), competing, &[]),
+        "busy"
+    );
+    assert!(!scopes.contains_key(&ConnectionId(4)));
+    assert_eq!(scopes.len(), 1);
+    // The same admission predicate gates thread/resume and other exact-thread RPCs.
+    assert!(!session_claim_allows_request(
+        &scopes,
+        ConnectionId(1),
+        &thread
+    ));
+    assert!(!session_claim_allows_request(
+        &scopes,
+        ConnectionId(1),
+        &thread.to_uppercase()
+    ));
+    assert!(!session_claim_allows_request(
+        &scopes,
+        ConnectionId(4),
+        &thread
+    ));
+    assert!(session_claim_allows_request(
+        &scopes,
+        ConnectionId(3),
+        &thread
+    ));
+    assert!(session_claim_allows_request(
+        &scopes,
+        ConnectionId(1),
+        &unrelated
+    ));
+    scopes.remove(&ConnectionId(3));
+    assert!(session_claim_allows_request(
+        &scopes,
+        ConnectionId(1),
+        &thread
+    ));
+}
+
+#[tokio::test]
+async fn live_session_subscriber_returns_busy_without_control_or_approval_route() {
+    use crate::thread_state::{ConnectionCapabilities, ThreadStateManager};
+    let home = tempfile::tempdir().unwrap();
+    let mut registry = new_registry(home.path());
+    let original = registration(home.path(), 'a');
+    registry.bind(&original).unwrap();
+    let thread = ThreadId::new();
+    let unrelated = ThreadId::new();
+    let manager = ThreadStateManager::new();
+    for connection in [ConnectionId(1), ConnectionId(2)] {
+        manager
+            .connection_initialized(
+                connection,
+                ConnectionCapabilities {
+                    request_attestation: false,
+                },
+            )
+            .await;
+    }
+    assert!(
+        manager
+            .try_ensure_connection_subscribed(thread, ConnectionId(1), false)
+            .await
+            .is_some()
+    );
+    assert!(
+        manager
+            .try_ensure_connection_subscribed(unrelated, ConnectionId(2), false)
+            .await
+            .is_some()
+    );
+    let scope = SessionScope {
+        thread: thread.to_string(),
+        context: original.owner_id.clone(),
+        workspace: original.workspace_id.clone(),
+        target: "b".repeat(64),
+        host: capture_process_identity(std::process::id())
+            .await
+            .unwrap()
+            .unwrap(),
+    };
+    let owners = HashMap::from([(ConnectionId(1), original.owner_id.clone())]);
+    let mut scopes = HashMap::new();
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(
+            &mut scopes,
+            ConnectionId(3),
+            scope,
+            &manager.subscribed_connection_ids(thread).await
+        ),
+        "busy"
+    );
+    assert!(!scopes.contains_key(&ConnectionId(3)));
+    // Incoming control and callback replies cannot select any processor without a binding.
+    assert_eq!(
+        routed_context(&registry, &owners, &scopes, ConnectionId(3)),
+        None
+    );
+    assert_eq!(
+        routed_context(&registry, &owners, &scopes, ConnectionId(1)),
+        Some(original.owner_id.clone())
+    );
+    assert_eq!(
+        manager.subscribed_connection_ids(thread).await,
+        vec![ConnectionId(1)]
+    );
+    manager
+        .unsubscribe_connection_from_thread(thread, ConnectionId(1))
+        .await;
+    let scope = SessionScope {
+        thread: thread.to_string(),
+        context: original.owner_id,
+        workspace: original.workspace_id,
+        target: "b".repeat(64),
+        host: capture_process_identity(std::process::id())
+            .await
+            .unwrap()
+            .unwrap(),
+    };
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(
+            &mut scopes,
+            ConnectionId(4),
+            scope,
+            &manager.subscribed_connection_ids(thread).await
+        ),
+        "attached"
+    );
+    assert!(scopes.contains_key(&ConnectionId(4)));
+    assert_eq!(
+        manager.subscribed_connection_ids(unrelated).await,
+        vec![ConnectionId(2)]
+    );
+}
+
+#[tokio::test]
+async fn target_restore_error_fences_only_selected_session_and_retains_lease() {
+    let home = tempfile::tempdir().unwrap();
+    let mut registry = new_registry(home.path());
+    let first = registration(home.path(), 'a');
+    let other = registration(home.path(), 'b');
+    registry.bind(&first).unwrap();
+    registry.bind(&other).unwrap();
+    let thread = thread_id();
+    let unrelated = thread_id();
+    let context = "d".repeat(32);
+    registry.saved.owners.insert(
+        context.clone(),
+        Owner {
+            workspace_id: first.workspace_id.clone(),
+            account_state_file: home.path().join("isolated.json"),
+            account_default_file: None,
+            context: context.clone(),
+            session_thread: Some(thread.clone()),
+            session_handoff_pending: true,
+        },
+    );
+    registry
+        .saved
+        .threads
+        .insert(thread.clone(), context.clone());
+    registry
+        .saved
+        .threads
+        .insert(unrelated.clone(), other.owner_id.clone());
+    let mut leases =
+        crate::azrael_thread_engines::ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+            .await
+            .unwrap();
+    leases.acquire(&thread).unwrap();
+    leases.acquire(&unrelated).unwrap();
+    let compatibility = serde_json::json!({"abi":1});
+    let receipt = Receipt {
+        schema: 1,
+        protocol: 1,
+        state: "stopped".into(),
+        thread_id: thread.clone(),
+        workspace_id: first.workspace_id.clone(),
+        source_instance_id: "b".repeat(64),
+        source_identity: "c".repeat(64),
+        target_instance_id: "a".repeat(64),
+        storage_compatibility: compatibility.clone(),
+        selection: Selection {
+            selected_profile_id: None,
+            requires_recovery: false,
+        },
+        resume: serde_json::json!({"incomplete":true}),
+    };
+    let error = validated_target_snapshot(
+        &receipt,
+        &thread,
+        &first.workspace_id,
+        &"a".repeat(64),
+        &compatibility,
+    )
+    .err()
+    .expect("corrupt runtime snapshot rejected");
+    let mut failed = HashSet::new();
+    let mut routes = HashMap::new();
+    let (tx, mut rx) = mpsc::channel(4);
+    isolate_target_restore_error(
+        &registry,
+        &mut routes,
+        &mut failed,
+        &tx,
+        ConnectionId(1),
+        RequestId::Integer(7),
+        &thread,
+        error,
+    )
+    .await
+    .unwrap();
+    assert!(matches!(
+        rx.recv().await,
+        Some(OutgoingEnvelope::ToConnection {
+            connection_id: ConnectionId(1),
+            message: OutgoingMessage::Error(_),
+            ..
+        })
+    ));
+    assert_eq!(
+        routes.get(&(ConnectionId(1), thread.clone())),
+        Some(&context)
+    );
+    assert!(failed.contains(&thread));
+    assert!(!failed.contains(&unrelated));
+    assert!(registry.saved.owners[&context].session_handoff_pending);
+    assert_eq!(registry.context(&other.owner_id).unwrap(), other.owner_id);
+    assert_eq!(registry.saved.threads[&unrelated], other.owner_id);
+    let owned = leases.owned_threads();
+    assert!(owned.contains(&ThreadId::from_string(&thread).unwrap()));
+    assert!(owned.contains(&ThreadId::from_string(&unrelated).unwrap()));
+    // The outbound channel remains usable for another context after the selected failure.
+    send_error(
+        &tx,
+        ConnectionId(2),
+        RequestId::Integer(8),
+        "unrelated reply",
+    )
+    .await
+    .unwrap();
+    assert!(matches!(
+        rx.recv().await,
+        Some(OutgoingEnvelope::ToConnection {
+            connection_id: ConnectionId(2),
+            ..
+        })
+    ));
+}
+
+#[tokio::test]
 async fn diagnostic_snapshot_timeout_does_not_wait_for_collection() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("snapshot.json");
@@ -66,6 +347,43 @@ fn new_registry(root: &Path) -> Registry {
 }
 fn thread_id() -> String {
     ThreadId::new().to_string()
+}
+
+#[tokio::test]
+async fn session_attachment_routes_only_its_thread_without_rebinding_window_aliases() {
+    let root = tempfile::tempdir().unwrap();
+    let mut registry = new_registry(root.path());
+    let first = registration(root.path(), 'a');
+    let second = registration(root.path(), 'b');
+    registry.bind(&first).unwrap();
+    registry.bind(&second).unwrap();
+    let thread = thread_id();
+    registry
+        .saved
+        .threads
+        .insert(thread.clone(), first.owner_id.clone());
+    let owners = HashMap::from([(ConnectionId(1), second.owner_id.clone())]);
+    let scope = SessionScope {
+        thread: thread.clone(),
+        context: first.owner_id.clone(),
+        workspace: first.workspace_id,
+        target: "c".repeat(64),
+        host: capture_process_identity(std::process::id())
+            .await
+            .unwrap()
+            .unwrap(),
+    };
+    let scopes = HashMap::from([(ConnectionId(2), scope)]);
+    assert_eq!(
+        routed_context(&registry, &owners, &scopes, ConnectionId(2)),
+        Some(first.owner_id.clone())
+    );
+    assert_eq!(
+        routed_context(&registry, &owners, &scopes, ConnectionId(1)),
+        Some(second.owner_id.clone())
+    );
+    assert_eq!(registry.context(&second.owner_id).unwrap(), second.owner_id);
+    assert_eq!(registry.saved.threads[&thread], first.owner_id);
 }
 fn register_without_lease(registry: &mut Registry, registration: &Registration) {
     registry.bind(registration).unwrap();

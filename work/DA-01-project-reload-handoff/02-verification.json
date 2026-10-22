@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "work": "DA-01-project-reload-handoff",
+  "recordedUtc": "2026-10-22T15:30:22.606Z",
+  "status": "implemented-focused-verification-passed-installed-acceptance-pending",
+  "platform": {
+    "verified": "Windows x64 local, MSVC, Cargo 1.95.0",
+    "intendedCommon": [
+      "Windows x64",
+      "Linux x64",
+      "macOS ARM64"
+    ],
+    "unverified": [
+      "Installed VS Code two-project/two-version acceptance",
+      "Linux/macOS execution",
+      "Remote SSH/container"
+    ],
+    "installedChanged": false
+  },
+  "source": {
+    "frozenSha256": "ffdd313635c820528e8862bccafc0390cb5b9b63f8369ca13809881ec66e4685",
+    "files": 10830,
+    "baseSha256": "8b7c4e473d8565fbc6a6efff9ae7897a381d39b82625132a15324c707279dcd1",
+    "finalDelta": [
+      "codex-rs/core/src/session/handoff_tests.rs"
+    ],
+    "concurrentTreeNote": "Other tasks changed the shared checkout during frozen validation. Receipts bind immutable r5; unrelated later changes are not verified by these receipts."
+  },
+  "native": {
+    "args": "cargo test -p <package> --lib <filter> --locked --offline --target x86_64-pc-windows-msvc -- --test-threads=1",
+    "prerequisites": "selected-tests-v1 test-profile lib+tests typecheck and nonzero listing required for every filter",
+    "environment": {
+      "jobs": 2,
+      "target": "x86_64-pc-windows-msvc",
+      "isolatedHost": true,
+      "offline": true
+    },
+    "typeChecks": [
+      {
+        "package": "codex-core",
+        "exitCode": 0
+      },
+      {
+        "package": "codex-app-server-daemon",
+        "exitCode": 0
+      },
+      {
+        "package": "codex-app-server",
+        "exitCode": 0
+      }
+    ],
+    "suites": [
+      {
+        "package": "codex-core",
+        "filter": "session::handoff::tests::",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "durationSeconds": 4.88
+      },
+      {
+        "package": "codex-app-server-daemon",
+        "filter": "session_handoff::tests::",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "durationSeconds": 6.5
+      },
+      {
+        "package": "codex-app-server",
+        "filter": "azrael_session_handoff::tests::",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "durationSeconds": 3.44
+      },
+      {
+        "package": "codex-app-server",
+        "filter": "azrael_thread_engines::tests::",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "durationSeconds": 1.58
+      },
+      {
+        "package": "codex-app-server",
+        "filter": "azrael_shared_server::tests::",
+        "passed": 18,
+        "failed": 0,
+        "exitCode": 0,
+        "durationSeconds": 0.17
+      }
+    ],
+    "originalR5ExitCode": 101,
+    "retryExitCode": 0,
+    "intermittentFailure": {
+      "test": "azrael_shared_server::tests::diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal",
+      "original": "Shared-server17/18 passed; snapshots.len()0 expected1 at tests.rs:316. Capture includes storage and2sec timeout; exact failing branch not observed.",
+      "retry": "Same immutable r5, all prerequisites retained,18/18 passed, exit0. No source edits to hide failure."
+    },
+    "priorAttempts": [
+      {
+        "revision": "r1",
+        "exitCode": 101,
+        "cause": "E0616 private Session.state; fixed by owning Session reservation method."
+      },
+      {
+        "revision": "r2",
+        "exitCode": 101,
+        "cause": "Existing private HarnessProfiles test API and new private environment imports; used public APIs."
+      },
+      {
+        "revision": "r3",
+        "exitCode": 101,
+        "cause": "E0507 borrowed reasoning_effort moved; clone preserves snapshot."
+      },
+      {
+        "revision": "r4",
+        "exitCode": 101,
+        "cause": "Core9/10 passed. Test fixture had no retained ThreadManager. Corrected only fixture; writer failure now checks causal persistence error. Remaining40 passed."
+      }
+    ],
+    "timing": {
+      "firstNativeStartUtc": "2026-10-22T11:19:22Z",
+      "r4StartUtc": "2026-10-22T12:20:50Z",
+      "r5StartUtc": "2026-10-22T14:00:24Z",
+      "note": "Elapsed includes cold compilation and serial cache ownership. Source revisions and reruns are retained; overlapping durations are not summed."
+    }
+  },
+  "sourceChecks": [
+    {
+      "command": "node --test scripts/test-shared-engine-host.cjs scripts/test-integrated-entry.cjs scripts/test-recovery-state.cjs",
+      "passed": 331,
+      "failed": 0,
+      "exitCode": 0
+    },
+    {
+      "command": "node --test --test-name-pattern='session handoff|check-shared-engine-native' scripts/test-cargo-preflight-recipes.cjs",
+      "passed": 1,
+      "failed": 0,
+      "exitCode": 0
+    },
+    {
+      "command": "node --test --test-name-pattern='shared-engine verification|shared guidance' scripts/test-compile-scope.cjs scripts/test-engine-check-selection.cjs",
+      "passed": 2,
+      "failed": 0,
+      "exitCode": 0
+    },
+    {
+      "command": "node --test scripts/test-cargo-preflight-recipes.cjs scripts/test-cargo-verification.cjs scripts/test-feature-preservation.cjs",
+      "passed": 71,
+      "failed": 5,
+      "exitCode": 1,
+      "ownHandoffRecipePassed": true,
+      "knownConcurrentFailures": [
+        "model-harness wrapper/source hash and expected call counts:4 tests",
+        "task-recovery wrapper expected4 calls observed8:1 test"
+      ]
+    }
+  ],
+  "logs": [
+    {
+      "name": "host-source.log",
+      "bytes": 61522,
+      "sha256": "4864be2a209f455dfda45e572c27896a6cf13e852a4ebd2c405ba65e2411cbb0"
+    },
+    {
+      "name": "handoff-recipes.log",
+      "bytes": 396,
+      "sha256": "264d8bf103aa007404bc7abb178b1a0bb03cc7479c768cb30786e52bbde4b608"
+    },
+    {
+      "name": "handoff-selection.log",
+      "bytes": 303,
+      "sha256": "24a81b99e844ce59de3fc3d2e5bc3008991207b5e9936f00deac02f279eacf97"
+    },
+    {
+      "name": "verification-contracts-r4.log",
+      "bytes": 60130,
+      "sha256": "2a154037426bf23bff191bca9351faf09c888bae1f643c4dc1d97fdaf23cfa8c"
+    },
+    {
+      "name": "daemon-native-r1.log",
+      "bytes": 45597,
+      "sha256": "2c010c12f6805b0f5b5d237b215faaf0f97399242d2cc0b3bf60e062b9daa6d5"
+    },
+    {
+      "name": "native-r2.log",
+      "bytes": 49645,
+      "sha256": "c4cef05ed8c5173a95f99bc27d78c8ba0e0f3176d9d23c36ee7b3be553773fe4"
+    },
+    {
+      "name": "native-r3.log",
+      "bytes": 37228,
+      "sha256": "03cedbaca6431c80f17193bc2b3944a002273db3327a99dd826675152a55b49f"
+    },
+    {
+      "name": "native-r4.log",
+      "bytes": 209066,
+      "sha256": "cf81ccdef80c434d6caabb5bd69007ab9f0d12d256a2704fdc282d544cd644f0"
+    },
+    {
+      "name": "native-after-core-r4.log",
+      "bytes": 225834,
+      "sha256": "fa25f3b6356a328e6b2d310d8a807569a2212aea836236c9b67c3374aa6b0ced"
+    },
+    {
+      "name": "native-r5.log",
+      "bytes": 334942,
+      "sha256": "78d09104d690c43564a909c80a5f3bc020e06afda397c9dea3ad6e18cfdf6838"
+    },
+    {
+      "name": "native-shared-retry-r5.log",
+      "bytes": 47796,
+      "sha256": "aabe929af30336b0a8f7d7d36f8391a23bf67c30847215c8cee5ce2168ee7173"
+    }
+  ],
+  "producerEvidence": {
+    "allOwnedNativeAndCopySessionsObservedTerminal": true,
+    "sessions": [
+      {
+        "id": 54776,
+        "exitCode": 101
+      },
+      {
+        "id": 85083,
+        "exitCode": 101
+      },
+      {
+        "id": 36194,
+        "exitCode": 101
+      },
+      {
+        "id": 31266,
+        "exitCode": 101
+      },
+      {
+        "id": 4901,
+        "exitCode": 0
+      },
+      {
+        "id": 53050,
+        "exitCode": 101
+      },
+      {
+        "id": 42256,
+        "exitCode": 0
+      }
+    ],
+    "aggregateOutcome": "failure",
+    "aggregateExitCode": 101,
+    "note": "Generated group retains observed failed attempts. Final focused suites passed with same-input retry; failures are not rewritten as success."
+  },
+  "cleanup": {
+    "state": "pending",
+    "groupId": "DA-01-session-handoff-r1",
+    "rawLogsDisposition": "Independent condensed evidence retained here before cleanup; hashes identify original logs."
+  }
+}

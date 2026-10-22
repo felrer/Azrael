@@ -1,9 +1,9 @@
-//! Home-global, process-lifetime admission for a conversation across engine releases.
+//! Home-global admission and authenticated discovery hints across engine releases.
 
 use codex_protocol::ThreadId;
 use std::collections::{HashMap, HashSet};
 use std::fs::{File, OpenOptions};
-use std::io;
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 
 pub(crate) struct ThreadEngineLeases {
@@ -43,6 +43,24 @@ fn check_metadata(metadata: &std::fs::Metadata, directory: bool) -> io::Result<(
         ));
     }
     Ok(())
+}
+
+fn open_record(path: &Path) -> io::Result<File> {
+    let mut options = OpenOptions::new();
+    options.read(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.custom_flags(libc::O_NOFOLLOW);
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::OpenOptionsExt;
+        options.custom_flags(0x00200000); // FILE_FLAG_OPEN_REPARSE_POINT
+    }
+    let file = options.open(path)?;
+    check_metadata(&file.metadata()?, false)?;
+    Ok(file)
 }
 
 impl ThreadEngineLeases {
@@ -123,11 +141,158 @@ impl ThreadEngineLeases {
         debug_assert_eq!(self.instance.len(), 64);
         self.owned.keys().copied().collect()
     }
+
+    /// Publish only while holding the real writer admission lock. Readers must
+    /// still authenticate the advertised peer: this record is a discovery hint.
+    pub(crate) fn publish(
+        &mut self,
+        thread: &str,
+        descriptor: &serde_json::Value,
+    ) -> io::Result<()> {
+        let id = ThreadId::from_string(thread).map_err(io::Error::other)?;
+        if !self.owned.contains_key(&id)
+            || descriptor["schema"] != 1
+            || descriptor["protocol"] != 1
+            || descriptor["threadId"].as_str() != Some(id.to_string().as_str())
+            || descriptor["instanceId"].as_str() != Some(self.instance.as_str())
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "unowned conversation discovery record",
+            ));
+        }
+        check_metadata(&std::fs::symlink_metadata(&self.home)?, true)?;
+        check_metadata(&std::fs::symlink_metadata(&self.directory)?, true)?;
+        let path = self.directory.join(format!("{id}.engine.json"));
+        let bytes = serde_json::to_vec(descriptor)?;
+        if bytes.len() > 64 * 1024 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "conversation discovery record exceeds limit",
+            ));
+        }
+        match std::fs::symlink_metadata(&path) {
+            Ok(metadata) => {
+                check_metadata(&metadata, false)?;
+                let file = open_record(&path)?;
+                let mut existing = Vec::new();
+                file.take(64 * 1024 + 1).read_to_end(&mut existing)?;
+                if existing == bytes {
+                    return Ok(());
+                }
+            }
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+        }
+        let mut temporary = tempfile::NamedTempFile::new_in(&self.directory)?;
+        temporary.write_all(&bytes)?;
+        temporary.as_file().sync_all()?;
+        temporary.persist(&path).map_err(|error| error.error)?;
+        Ok(())
+    }
+
+    /// The caller has already stopped the exact runtime and durably recorded
+    /// its transfer. Any metadata failure retains the authoritative lock.
+    pub(crate) fn release(&mut self, thread: &str) -> io::Result<()> {
+        let id = ThreadId::from_string(thread).map_err(io::Error::other)?;
+        if !self.owned.contains_key(&id) {
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "conversation lease is not owned",
+            ));
+        }
+        check_metadata(&std::fs::symlink_metadata(&self.home)?, true)?;
+        check_metadata(&std::fs::symlink_metadata(&self.directory)?, true)?;
+        let path = self.directory.join(format!("{id}.engine.json"));
+        match std::fs::symlink_metadata(&path) {
+            Ok(metadata) => {
+                check_metadata(&metadata, false)?;
+                let file = open_record(&path)?;
+                let mut bytes = Vec::new();
+                file.take(64 * 1024 + 1).read_to_end(&mut bytes)?;
+                if bytes.len() > 64 * 1024 {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "conversation discovery record exceeds limit",
+                    ));
+                }
+                let value: serde_json::Value = serde_json::from_slice(&bytes)?;
+                if value["instanceId"].as_str() != Some(self.instance.as_str())
+                    || value["threadId"].as_str() != Some(id.to_string().as_str())
+                {
+                    return Err(io::Error::new(
+                        io::ErrorKind::PermissionDenied,
+                        "conversation discovery owner changed",
+                    ));
+                }
+                std::fs::remove_file(&path)?;
+            }
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+        }
+        // The lock file remains. Its presence never means an engine owns it.
+        self.owned.remove(&id);
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn session_release_keeps_other_threads_locked_and_requires_ownership() {
+        let home = tempfile::tempdir().unwrap();
+        let mut first = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+            .await
+            .unwrap();
+        let mut second = ThreadEngineLeases::new(home.path(), &"b".repeat(64))
+            .await
+            .unwrap();
+        let selected = ThreadId::new().to_string();
+        let untouched = ThreadId::new().to_string();
+        let record = serde_json::json!({"schema":1,"protocol":1,"threadId":selected,"instanceId":"a".repeat(64)});
+        assert!(first.publish(&selected, &record).is_err());
+        first.acquire(&selected).unwrap();
+        first.acquire(&untouched).unwrap();
+        first.publish(&selected, &record).unwrap();
+        let descriptor = first.directory.join(format!("{selected}.engine.json"));
+        assert!(descriptor.exists());
+        first.release(&selected).unwrap();
+        assert!(!descriptor.exists());
+        second.acquire(&selected).unwrap();
+        assert_eq!(
+            second.acquire(&untouched).unwrap_err().kind(),
+            io::ErrorKind::WouldBlock
+        );
+        assert!(first.release(&selected).is_err());
+        assert!(first.directory.join(format!("{selected}.lock")).exists());
+    }
+
+    #[tokio::test]
+    async fn changed_discovery_owner_prevents_release() {
+        let home = tempfile::tempdir().unwrap();
+        let mut first = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+            .await
+            .unwrap();
+        let mut second = ThreadEngineLeases::new(home.path(), &"b".repeat(64))
+            .await
+            .unwrap();
+        let selected = ThreadId::new().to_string();
+        first.acquire(&selected).unwrap();
+        let record = serde_json::json!({"schema":1,"protocol":1,"threadId":selected,"instanceId":"b".repeat(64)});
+        assert!(first.publish(&selected, &record).is_err());
+        std::fs::write(
+            first.directory.join(format!("{selected}.engine.json")),
+            serde_json::to_vec(&record).unwrap(),
+        )
+        .unwrap();
+        assert!(first.release(&selected).is_err());
+        assert_eq!(
+            second.acquire(&selected).unwrap_err().kind(),
+            io::ErrorKind::WouldBlock
+        );
+    }
 
     #[cfg(windows)]
     fn inspect_acl(path: &Path) -> Vec<u8> {

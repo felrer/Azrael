@@ -2,7 +2,6 @@
 //! This path never installs, updates, enrolls or migrates a managed Codex release.
 
 use anyhow::{Context, Result, bail, ensure};
-use futures::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 #[cfg(test)]
@@ -13,8 +12,9 @@ use std::{
     path::{Path, PathBuf},
     time::Duration,
 };
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio_tungstenite::tungstenite::Message;
+use tokio::io::AsyncBufReadExt;
+#[cfg(test)]
+use tokio::io::BufReader;
 
 use crate::registration::{
     AZRAEL_STARTUP_TIMEOUT, MAX_MESSAGE, connect_azrael_registered, connect_private_stream,
@@ -463,7 +463,8 @@ pub async fn run_azrael_stdio_proxy_with_args(
             && registration["engineIdentity"] == endpoint.engine_identity,
         "window engine identity differs from the selected executable"
     );
-    let mut ws = connect_startup_with_retry(
+    let selected_endpoint = endpoint.clone();
+    let ws = connect_startup_with_retry(
         deadline,
         endpoint,
         || ensure_azrael_started_with_args(selected_exe, startup_args),
@@ -473,35 +474,7 @@ pub async fn run_azrael_stdio_proxy_with_args(
         },
     )
     .await?;
-    let mut stdin = BufReader::new(tokio::io::stdin());
-    let mut stdout = tokio::io::stdout();
-    let mut line = Vec::new();
-    loop {
-        tokio::select! {
-            read = read_bounded_line(&mut stdin, &mut line) => {
-                if read? == 0 { ws.close(None).await?; return Ok(()) }
-                ensure!(line.len() <= MAX_MESSAGE, "stdio JSON-RPC envelope exceeds remote transport limit");
-                if line.last() == Some(&b'\n') { line.pop(); }
-                if line.last() == Some(&b'\r') { line.pop(); }
-                let text = std::str::from_utf8(&line)?;
-                ws.send(Message::Text(text.to_owned().into())).await?;
-                line.clear();
-            }
-            message = ws.next() => {
-                match message {
-                    Some(Ok(Message::Text(text))) => {
-                        stdout.write_all(text.as_bytes()).await?;
-                        stdout.write_all(b"\n").await?;
-                        stdout.flush().await?;
-                    }
-                    Some(Ok(Message::Ping(bytes))) => ws.send(Message::Pong(bytes)).await?,
-                    Some(Ok(Message::Pong(_))) => {},
-                    Some(Err(err)) => return Err(err.into()),
-                    _ => bail!("Azrael daemon disconnected; reconnect with a new transport; request outcomes may be unknown"),
-                }
-            }
-        }
-    }
+    crate::session_handoff::run(ws, selected_endpoint, registration).await
 }
 
 /// Registration precedes reading stdin, so these retries cannot replay official
@@ -580,7 +553,7 @@ fn retryable_registration_transport(error: &io::Error) -> bool {
 
 // Keep buffered partial input across select cancellation, bounding allocation
 // before a newline arrives as well as bounding completed envelopes.
-async fn read_bounded_line<R: tokio::io::AsyncBufRead + Unpin>(
+pub(crate) async fn read_bounded_line<R: tokio::io::AsyncBufRead + Unpin>(
     reader: &mut R,
     line: &mut Vec<u8>,
 ) -> io::Result<usize> {
