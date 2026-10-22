@@ -4,7 +4,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
-const tests = ["instructionView", "instructionService", "instructionLibraryService", "instructionCatalogFlow"];
+const tests = ["instructionView", "instructionService", "instructionLibraryService", "instructionCatalogFlow", "instructionSkillSettings", "instructionManagement", "instructionMigrationFlow"];
 if (process.argv[2] === "--run-ts") {
   const name = process.argv[3];
   if (!tests.includes(name)) throw new Error("Unknown instruction host test");

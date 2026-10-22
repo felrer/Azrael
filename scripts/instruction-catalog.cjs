@@ -39,11 +39,20 @@ function metadata(text, fallback) {
   const field = key => new RegExp(`^${key}:\\s*(.+)$`, "m").exec(front)?.[1]?.replace(/^(["'])(.*)\1$/, "$2").trim();
   return { name: field("name") || fallback, description: field("description") || /^description\s*=\s*"([^"\r\n]*)"/m.exec(text)?.[1] || "" };
 }
-async function scanInstalled({ installedRoot, baselineRoot, pluginRoots = [] } = {}) {
+async function scanInstalled({ installedRoot, baselineRoot, baselineIdentity = "felrer/azrael", pluginRoots = [] } = {}) {
   const entries = [], notices = [], identities = new Set();
   const budget = { nodes: 0, bytes: 0 };
-  const notice = (sourcePath, error) => { if (notices.length < 256) notices.push({ sourcePath, message: String(error.message || error).slice(0, 500) }); };
-  const attempt = async (source, action) => { try { await action(); } catch (error) { notice(source, error); } };
+  function notice(sourcePath, error, sourceKind = "installed", code, reason) {
+    const message = String(error.message || error).slice(0, 500);
+    code ||= error.code === "ENOENT" ? "source-missing" : error.code === "EACCES" || error.code === "EPERM" ? "source-unreadable" : /Linked/.test(message) ? "linked-content-rejected" : /limit/.test(message) ? "source-limit" : "source-invalid";
+    reason ||= code === "source-missing" ? "missing-source" : code === "source-unreadable" ? "access-denied" : code === "linked-content-rejected" ? "link-policy" : code === "source-limit" ? "budget-exceeded" : "invalid-source";
+    const existing = notices.find(n => n.code === code && n.sourceKind === sourceKind);
+    if (existing) {
+      existing.count++;
+      if (existing.affectedPaths.length < 256) existing.affectedPaths.push(sourcePath);
+    } else if (notices.length < 256) notices.push({ sourcePath, message, code, reason, sourceKind, count: 1, affectedPaths: [sourcePath] });
+  }
+  const attempt = async (source, action, sourceKind = "installed") => { try { await action(); } catch (error) { notice(source, error, sourceKind); } };
   async function children(dir) {
     await safe(dir);
     const result = [], seen = new Set();
@@ -104,7 +113,7 @@ async function scanInstalled({ installedRoot, baselineRoot, pluginRoots = [] } =
     } else await walk(root);
     return files.sort((a,b) => a.path.localeCompare(b.path, "en"));
   }
-  async function add({ root, main, kind, sourceKind, sourceLabel, name, versionLabel, mappings, identity }) {
+  async function add({ root, main, kind, sourceKind, sourceLabel, name, versionLabel, mappings, identity, componentId, sourceIdentity, installedRelativePath }) {
     if (entries.length >= LIMITS.entries) throw Error("Catalog entry limit reached");
     const sourcePath = await safe(root), mainSource = mappings ? mappings.find(f => f.path === main)?.source : main;
     const mainPath = await safe(path.join(root, relative(mainSource)));
@@ -115,18 +124,41 @@ async function scanInstalled({ installedRoot, baselineRoot, pluginRoots = [] } =
     if (!mainFile || mainFile.encoding !== "utf8") throw Error("Missing UTF-8 instruction entry point");
     const meta = metadata(mainFile.content, name || path.basename(root));
     const entry = { id: uuid(identity), catalogId: `catalog:${uuid(identity)}`, kind, name: meta.name, displayName: meta.name, description: meta.description, sharing: "local", files, sourceKind, sourceLabel, sourcePath, mainPath, readOnly: true, versionLabel: versionLabel || "Local installation" };
+    if (componentId) { entry.componentId = componentId; entry.sourceIdentity = sourceIdentity; }
+    if (installedRelativePath) entry.installedRelativePath = installedRelativePath;
     entry.digest = packageDigest(entry);
     if (sourceKind === "installed") entry.installedDigest = entry.digest;
     entries.push(entry); identities.add(identity);
   }
   async function skills(dir, label) {
     for (const item of await children(dir)) {
+      // Junction Dirents can be links without being directories. Report only the
+      // installation path: the external target is not a canonical source.
+      if (item.isSymbolicLink()) { notice(path.join(dir,item.name), "Linked installation requires migration; use its canonical source for browsing", "installed", "linked-installation", "migration-needed"); continue; }
       if (item.name === ".system" && item.isDirectory()) { await attempt(path.join(dir, item.name), () => skills(path.join(dir, item.name), "System skills")); continue; }
-      if (!item.isDirectory()) { if (item.isSymbolicLink()) notice(path.join(dir,item.name), "Linked skill source skipped"); continue; }
+      if (!item.isDirectory()) continue;
       const root = path.join(dir, item.name);
       await attempt(root, () => add({ root, main: "SKILL.md", kind: "skill", sourceKind: "installed", sourceLabel: label }));
     }
   }
+  // Reserve discovery priority for canonical sources within the shared scan budget.
+  if (baselineRoot) await attempt(baselineRoot, async () => {
+    if (typeof baselineIdentity !== "string" || !baselineIdentity.trim() || baselineIdentity.length > 500) throw Error("Invalid baseline source identity");
+    const sourceIdentity = baselineIdentity.trim().toLowerCase();
+    const root = path.resolve(baselineRoot), manifest = JSON.parse((await read(path.join(root,"azrael-environment.json"))).toString("utf8"));
+    if (!Array.isArray(manifest.components) || manifest.components.length > LIMITS.entries) throw Error("Invalid baseline components");
+    for (const component of manifest.components) await attempt(`${root}:${component.id}`, async () => {
+      if (typeof component.id !== "string" || !/^[a-z0-9][a-z0-9._-]{0,199}$/i.test(component.id)) throw Error("Invalid baseline component identity");
+      const kind = ({skill:"skill",agent:"agent-role",instructions:"context",context:"context",playbook:"playbook","task-profile":"task-profile"})[component.kind];
+      if (!kind) return;
+      if (!Array.isArray(component.files) || !component.files.length || component.files.length > LIMITS.files) throw Error("Invalid baseline mappings");
+      const mainMapping = component.files.find(f => kind === "skill" ? /(?:^|\/)SKILL\.md$/.test(f.source) : kind === "agent-role" ? /\.toml$/.test(f.source) : /\.md$/i.test(f.source)) || component.files[0];
+      const first = relative(mainMapping.source), prefix = kind === "skill" ? path.posix.dirname(first) + "/" : "";
+      const mappings = component.files.map(f => ({source:relative(f.source), path:prefix && f.source.startsWith(prefix) ? f.source.slice(prefix.length) : path.posix.basename(f.source)}));
+      const installedRelativePath = component.scope === "home" && mainMapping.target ? relative(mainMapping.target) : undefined;
+      await add({root, main:mappings.find(f => f.source === first).path, mappings, kind, name:component.title || component.id, sourceKind:"builtin", sourceLabel:"Azrael baseline", versionLabel:manifest.instructionVersion || "Baseline", identity:`${sourceIdentity}:${component.id}`, componentId:component.id, sourceIdentity, installedRelativePath});
+    }, "builtin");
+  }, "builtin");
   if (installedRoot) await attempt(installedRoot, async () => {
     const root = path.resolve(installedRoot);
     await attempt(path.join(root, "skills"), () => skills(path.join(root, "skills"), "Installed skills"));
@@ -136,19 +168,6 @@ async function scanInstalled({ installedRoot, baselineRoot, pluginRoots = [] } =
       }
     });
     await attempt(path.join(root,"AGENTS.md"), () => add({root, main:"AGENTS.md", kind:"context", name:"Global instructions", sourceKind:"installed", sourceLabel:"Installed global instructions", mappings:[{source:"AGENTS.md",path:"AGENTS.md"}]}));
-  });
-  if (baselineRoot) await attempt(baselineRoot, async () => {
-    const root = path.resolve(baselineRoot), manifest = JSON.parse((await read(path.join(root,"azrael-environment.json"))).toString("utf8"));
-    if (!Array.isArray(manifest.components) || manifest.components.length > LIMITS.entries) throw Error("Invalid baseline components");
-    for (const component of manifest.components) await attempt(`${root}:${component.id}`, async () => {
-      const kind = ({skill:"skill",agent:"agent-role",instructions:"context",context:"context",playbook:"playbook","task-profile":"task-profile"})[component.kind];
-      if (!kind) return;
-      if (!Array.isArray(component.files) || !component.files.length || component.files.length > LIMITS.files) throw Error("Invalid baseline mappings");
-      const mainMapping = component.files.find(f => kind === "skill" ? /(?:^|\/)SKILL\.md$/.test(f.source) : kind === "agent-role" ? /\.toml$/.test(f.source) : /\.md$/i.test(f.source)) || component.files[0];
-      const first = relative(mainMapping.source), prefix = kind === "skill" ? path.posix.dirname(first) + "/" : "";
-      const mappings = component.files.map(f => ({source:relative(f.source), path:prefix && f.source.startsWith(prefix) ? f.source.slice(prefix.length) : path.posix.basename(f.source)}));
-      await add({root, main:mappings.find(f => f.source === first).path, mappings, kind, name:component.title || component.id, sourceKind:"builtin", sourceLabel:"Azrael baseline", versionLabel:manifest.instructionVersion || "Baseline", identity:`${root}:${component.id}`});
-    });
   });
   if (!Array.isArray(pluginRoots)) { notice("plugins", "Plugin roots must be an array"); pluginRoots = []; }
   for (const pluginRoot of pluginRoots.slice(0, 64)) await attempt(pluginRoot, async () => {

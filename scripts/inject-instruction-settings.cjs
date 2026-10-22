@@ -132,19 +132,31 @@ function instructionClientTools(root) {
         }
         if (action === 'libraryImport' || action === 'libraryOpenInstalled')
             return id ? { id } : {};
+        if (action === 'librarySetSkillEnabled')
+            return { id, enabled: button.dataset.enabled === 'true' };
+        if (action === 'libraryPlanDelete')
+            return { id, removeInstallation: !!button.closest('[data-delete-id]')?.querySelector('[data-field="remove-installation"]')?.checked };
+        if (action === 'librarySetSource') {
+            const sourceMode = value('source-mode'), sourceProject = value('source-project');
+            if (sourceMode === 'project' && !sourceProject)
+                throw new Error('Select a source project / 소스 프로젝트를 선택하세요.');
+            return { sourceMode, ...(sourceMode === 'project' ? { sourceProject } : {}) };
+        }
         if (action === 'librarySetProject')
             return { project: value('project') };
+        if (action === 'libraryPlanMigrate')
+            return { id };
         if (action === 'libraryPlanAcquire') {
             const scope = button.closest('[data-version-controls]') ?? [...root.querySelectorAll('.library-reading [data-version-controls]')].find(e => e.dataset.versionControls === id);
             if (!scope)
                 throw new Error('Select an available version / 사용 가능한 버전을 선택하세요.');
-            return { id, digest: value('to-digest', scope) };
+            return { id, digest: value('to-digest', scope), ...(root.querySelector('[data-field=install-enabled]') ? { enabled: !!root.querySelector('[data-field=install-enabled]').checked } : {}) };
         }
         if (action === 'libraryCompare' || action === 'libraryInspectVersion') {
             const scope = button.closest('[data-version-controls]');
             return action === 'libraryCompare' ? { id, fromDigest: value('from-digest', scope), toDigest: value('to-digest', scope) } : { id, digest: value('to-digest', scope) };
         }
-        if (['libraryApply', 'libraryAcquire', 'libraryPublish', 'libraryStartTask'].includes(action))
+        if (['libraryApply', 'libraryAcquire', 'libraryPublish', 'libraryStartTask', 'libraryDelete', 'libraryMigrate'].includes(action))
             return { token: button.dataset.token };
         if (action === 'libraryCreate') {
             const name = value('create-name'), kind = value('create-kind'), sharing = value('create-sharing');
@@ -169,20 +181,23 @@ function instructionClientTools(root) {
             return result;
         }
         if (action === 'libraryPlanApply')
-            return { ids: [id] };
-        if (action === 'libraryPlanPublish')
-            return { ids: [id], version: value('publish-version') };
+            return { ids: [id], ...(root.querySelector('[data-field=install-enabled]') ? { enabled: !!root.querySelector('[data-field=install-enabled]').checked } : {}) };
+        if (action === 'libraryPlanPublish') {
+            const repository = value('publish-repository');
+            if (!repository)
+                throw new Error('Select a publish repository / 게시 대상 저장소를 선택하세요.');
+            return { ids: [id], version: value('publish-version'), repository };
+        }
         if (action === 'libraryPrepareTask')
             return { id, model: value('model'), provider: value('provider') || undefined, reasoningEffort: value('reasoningEffort') || undefined };
         if (action === 'libraryConnect' || action === 'libraryRemoteRefresh' || action === 'libraryRemoteImport') {
             const scope = button.closest('[data-connection]');
-            return action === 'libraryConnect' ? { sharing: button.dataset.sharing, repository: value('repository', scope), branch: value('branch', scope) } : action === 'libraryRemoteImport' ? { sharing: button.dataset.sharing, version: value('remote-version', scope) } : { sharing: button.dataset.sharing };
+            return action === 'libraryConnect' ? { sharing: button.dataset.sharing, repository: value('repository', scope), branch: value('branch', scope) } : action === 'libraryRemoteImport' ? { sharing: button.dataset.sharing, repository: value('repository', scope), version: value('remote-version', scope) } : { sharing: button.dataset.sharing, repository: value('repository', scope) };
         }
         return {};
     };
     return { capture, restore, filter, file, payload, error };
 }
-
 function AzraelInstructionNavigationIcon(props) {
   return (0, Z.jsx)("svg", { width: 20, height: 20, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.3, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true, ...props,
     children: (0, Z.jsx)("path", { d: "M11.5 2.75H5.5a1.5 1.5 0 0 0-1.5 1.5v11.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-8.5Zm0 0v4.5H16M7 10h6M7 13h6" }) });

@@ -9,7 +9,9 @@ const { InstructionLibrary, PlaybookStore, preparePlaybook, canonicalDigest } = 
 const file = (name, content) => ({ path: name, encoding: "utf8", content });
 const playbook = (body = "# Review\nRead the code.\n") => ({ name: "Review", kind: "playbook", files: [file("PLAYBOOK.md", body), file("references/example.txt", "support")] });
 async function fixture(t) {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "azrael-playbooks-"));
+  const parent = path.resolve(process.env.AZRAEL_INSTRUCTION_TEST_ROOT || os.tmpdir());
+  await fs.mkdir(parent, { recursive: true });
+  const base = await fs.mkdtemp(path.join(parent, "azrael-playbooks-"));
   t.after(() => fs.rm(base, { recursive: true }));
   const workspace = path.join(base, "project"), stateRoot = path.join(base, "project-state"); await fs.mkdir(workspace);
   return { base, workspace, stateRoot, lib: new InstructionLibrary({ root: path.join(base, "library"), installedRoot: path.join(base, "installed") }), store: new PlaybookStore({ stateRoot }) };

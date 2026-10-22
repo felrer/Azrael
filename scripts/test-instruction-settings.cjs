@@ -58,7 +58,9 @@ test("library client preserves full source drafts through busy/plan rerenders an
   assert.deepEqual(tools.payload(button("librarySave")), { id: "one", name: "Edited name", sharing: "local", revision: 7, files: files.map(f => ({ path: f.dataset.filePath, encoding: f.dataset.encoding, content: f.value })) });
   assert.deepEqual(tools.payload(button("libraryPlanApply")), { ids: ["one"] });
   fields.push(field("publish-version", "1.2.0"));
-  assert.deepEqual(tools.payload(button("libraryPlanPublish")), { ids: ["one"], version: "1.2.0" });
+  assert.throws(() => tools.payload(button("libraryPlanPublish")), /publish repository/);
+  fields.push(field("publish-repository", "owner/personal"));
+  assert.deepEqual(tools.payload(button("libraryPlanPublish")), { ids: ["one"], version: "1.2.0", repository: "owner/personal" });
   assert.deepEqual(tools.payload(button("libraryPublish")), { token: "frozen-token" });
   assert.deepEqual(tools.payload(button("libraryImport")), { id: "one" });
   const created = tools.payload(button("libraryCreate"));

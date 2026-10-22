@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 // Source and fixture ownership are recorded before any generated file or browser exists.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const run = artifactRunTools.beginArtifactRun(root, {
-  workId: 'CM-01-instruction-library-experience', owner: 'scripts/verify-instruction-library-render.mjs',
+  workId: 'DK-01-instruction-catalog-diagnosis', owner: 'scripts/verify-instruction-library-render.mjs',
 });
 const spawn = (...args) => artifactRunTools.trackArtifactChild(run, nativeSpawn(...args));
 const profile = join(run.temporary, 'chrome-profile');
@@ -45,14 +45,14 @@ try {
     files: [{ path: kind === 'skill' ? 'SKILL.md' : kind === 'playbook' ? 'PLAYBOOK.md' : 'CONTEXT.md', encoding: 'utf8', content: '# ' + name + '\n\nRead this resource before using it.\n' }],
     projectStatus: { state: 'missing', path: '' }, ...extra,
   });
-  const entries = [resource('skill-one', 'Review skill', 'skill'), resource('playbook-one', 'Release playbook', 'playbook'),
+  const entries = [resource('skill-one', 'Review skill', 'skill', { canToggleSkill: true, skillEnabled: false, canMigrate: true, sharing: 'public', provenance: { sourceKind: 'builtin', resourceId: 'official', digest: 'official-digest' } }), resource('playbook-one', 'Release playbook', 'playbook'),
     resource('remote-role', 'Remote role', 'agent-role', { catalogId: 'catalog-role', sourceKind: 'remote', sourceLabel: 'Team catalog', sharing: 'collaborators', readOnly: true }),
     ...Array.from({ length: 20 }, (_, index) => resource('context-' + index, 'Context resource ' + index))];
   const initial = {
     repository: 'fixture/isolated', currentVersion: null, pinnedVersion: null, selectedVersion: null,
     versions: [], downloadedVersions: [], components: [], documents: [], conflicts: [],
     error: { en: '<Existing source error>', ko: '<기존 소스 오류>' },
-    library: { revision: 1, entries, connections: [], projects: [{ id: 'project-one', name: 'Fixture project' }], notices: [{ en: 'Choose a project for playbooks.', ko: '플레이북에 사용할 프로젝트를 선택하세요.' }] },
+    library: { revision: 1, entries, connections: [{ sharing: 'public', repository: 'official/source', branch: 'main' }, { sharing: 'public', repository: 'personal/publish', branch: 'main' }], remoteVersions: [{ sharing: 'public', repository: 'official/source', version: 'official-version' }, { sharing: 'public', repository: 'personal/publish', version: 'personal-version' }], projects: [{ id: 'project-one', name: 'Fixture project' }], notices: Array.from({ length: 10 }, () => ({ en: 'Choose a project for playbooks.', ko: '플레이북에 사용할 프로젝트를 선택하세요.' })) },
   };
   let state = structuredClone(initial), locale = 'en';
   const markup = () => renderInstructionMarkup(state, undefined, locale);
@@ -94,6 +94,12 @@ try {
           const { action, payload } = request; requests.push(request);
           const entry = state.library.entries.find(e => (e.catalogId ?? e.id) === payload.id);
           if (action === 'librarySelect' || action === 'libraryInspectVersion') state.library.selected = structuredClone(entry);
+          if (action === 'librarySetSkillEnabled') { entry.skillEnabled = payload.enabled; if (state.library.selected?.id === entry.id) state.library.selected.skillEnabled = payload.enabled; }
+          if (action === 'librarySetSource') { state.library.sourceMode = payload.sourceMode; state.library.sourceProject = payload.sourceProject; }
+          if (action === 'libraryPlanDelete') state.library.plan = { token: 'delete-reviewed', kind: 'delete', summary: payload.removeInstallation ? 'Delete source and installation' : 'Delete personal source; retain installation', conflicts: [], diffs: [{ target: 'personal/source', current: 'source content', proposed: '' }] };
+          if (action === 'libraryPlanMigrate') state.library.plan = { token: 'migrate-reviewed', kind: 'migrate', summary: 'Preserve differing legacy content as a personal derivative before migration', conflicts: [] };
+          if (action === 'libraryMigrate') state.library.plan = undefined;
+          if (action === 'libraryDelete') { state.library.entries = state.library.entries.filter(e => e.id !== state.library.selected.id); state.library.selected = undefined; state.library.plan = undefined; }
           if (action === 'libraryBack') state.library.selected = undefined;
           if (action === 'librarySetProject') state.library.selectedProject = payload.project;
           if (action === 'libraryCompare') state.library.comparison = { id: payload.id, from: payload.fromDigest, to: payload.toDigest, files: [
@@ -144,7 +150,7 @@ try {
     const label = `${theme}-${width}`;
     summary.themeSamples[label] = await evaluate(`({foreground:getComputedStyle(fixtureRoot.querySelector('main')).color,background:getComputedStyle(document.body).backgroundColor})`);
     summary.noticeContrast[label] = await evaluate(`(()=>{
-      const notice=fixtureRoot.querySelector('.notice[role=status]'),layers=[];
+      const notice=fixtureRoot.querySelector('[data-disclosure=notices] summary'),layers=[];
       for(let node=notice;node;node=node.parentElement??node.getRootNode()?.host)layers.unshift(node);
       const canvas=document.createElement('canvas');canvas.width=canvas.height=1;
       const context=canvas.getContext('2d',{willReadFrequently:true});context.fillStyle='#fff';context.fillRect(0,0,1,1);
@@ -167,15 +173,19 @@ try {
     await shot(label + '-cards');
     await evaluate(`setFilter('search','does not exist')`);
     check(label + ' filtered count and no results', await evaluate(`fixtureRoot.querySelector('[data-result-count]').textContent==='0' && !fixtureRoot.querySelector('[data-no-results]').hidden`));
-    await evaluate(`setFilter('search','Review');setFilter('kind','skill');setFilter('source','library');setFilter('sharing','local');setFilter('state','missing')`);
+    await evaluate(`setFilter('search','Review');setFilter('kind','skill');setFilter('source','library');setFilter('sharing','public');setFilter('state','missing')`);
     check(label + ' combined filters and count', await evaluate(`fixtureRoot.querySelector('[data-result-count]').textContent==='1' && fixtureRoot.querySelector('[data-no-results]').hidden`));
     await evaluate(`setFilter('search','');setFilter('kind','');setFilter('source','');setFilter('sharing','');setFilter('state','');setFilter('layout','list');document.scrollingElement.scrollTop=500`);
     const scroll = await evaluate('document.scrollingElement.scrollTop');
     await evaluate(`clickAction('librarySelect','skill-one')`); await wait(`!!fixtureRoot.querySelector('.library-reading')`);
     check(label + ' skill install without project and full-width detail', await evaluate(`!fixtureRoot.querySelector('.library-reading [data-action=libraryPlanAcquire]').disabled && fixtureRoot.querySelector('.library-reading [data-action=libraryPlanAcquire]').textContent.includes('Install in Azrael') && fixtureRoot.querySelector('[data-library-browse]').hidden`));
+    check(label + ' personal derivative install defaults excluded', await evaluate(`!fixtureRoot.querySelector('[data-field=install-enabled]').checked`));
     await evaluate(`fixtureRoot.querySelector('.library-reading [data-field=to-digest]').value='old';clickAction('libraryPlanAcquire','skill-one')`);
     await wait(`fixturePending===0 && fixtureRequests.some(r=>r.action==='libraryPlanAcquire'&&r.payload.digest==='old')`);
     check(label + ' historical install request uses active selector', requests.at(-1)?.payload.digest === 'old');
+    check(label + ' historical install sends explicit exclusion', requests.at(-1)?.payload.enabled === false);
+    await evaluate(`fixtureRoot.querySelector('[data-field=install-enabled]').checked=true;clickAction('libraryPlanAcquire','skill-one')`); await wait(`!fixturePending`);
+    check(label + ' install inclusion requires explicit selection', requests.at(-1)?.payload.enabled === true);
     await evaluate(`clickAction('libraryBack')`); await wait(`!fixtureRoot.querySelector('[data-library-browse]').hidden`);
     check(label + ' back preserves list scroll and selected focus', await evaluate(`Math.abs(document.scrollingElement.scrollTop-${scroll})<3 && fixtureRoot.activeElement?.dataset.id==='skill-one'`));
     await evaluate(`setFilter('search','Review');setFilter('kind','skill');clickAction('librarySelect','skill-one')`); await wait(`!!fixtureRoot.querySelector('.library-reading')`);
@@ -192,6 +202,35 @@ try {
     await wait(`!fixtureRoot.querySelector('.library-reading [data-action=libraryPlanAcquire]').disabled`);
     check(label + ' playbook project download action', await evaluate(`fixtureRoot.querySelector('.library-reading [data-action=libraryPlanAcquire]').textContent.includes('Download to project')`));
     await shot(label + '-detail');
+    await evaluate(`resetFixture()`); await wait(`fixtureRoot.querySelectorAll('.library-entry').length===23 && !fixturePending`);
+    check(label + ' notices collapse to count', await evaluate(`!fixtureRoot.querySelector('[data-disclosure=notices]').open && fixtureRoot.querySelector('[data-disclosure=notices] summary').textContent.includes('10')`));
+    await evaluate(`fixtureRoot.querySelector('[data-disclosure=notices] summary').click()`);
+    check(label + ' source notice disclosure opens', await evaluate(`fixtureRoot.querySelector('[data-disclosure=notices]').open`));
+    await evaluate(`fixtureRoot.querySelector('[data-disclosure=source-settings]').open=true;fixtureRoot.querySelector('[data-field=source-mode]').value='project';fixtureRoot.querySelector('[data-field=source-project]').value='project-one';clickAction('librarySetSource')`);
+    await wait(`!fixturePending`);
+    check(label + ' explicit developer source request', requests.at(-1)?.payload.sourceMode === 'project' && requests.at(-1)?.payload.sourceProject === 'project-one');
+    await evaluate(`fixtureRoot.querySelector('[data-disclosure=connections]').open=true;fixtureRoot.querySelector('[data-connection=public-1] [data-action=libraryRemoteRefresh]').click()`); await wait(`!fixturePending`);
+    check(label + ' second connection keeps repository identity', requests.at(-1)?.payload.repository === 'personal/publish');
+    check(label + ' remote versions stay with their connection', await evaluate(`fixtureRoot.querySelector('[data-connection=public-0] [data-field=remote-version]').textContent.includes('official-version') && !fixtureRoot.querySelector('[data-connection=public-0] [data-field=remote-version]').textContent.includes('personal-version')`));
+    await evaluate(`clickAction('librarySelect','skill-one')`); await wait(`!!fixtureRoot.querySelector('.library-reading') && !fixturePending`);
+    await evaluate(`fixtureRoot.querySelector('.library-reading [role=switch]').click()`); await wait(`fixtureRoot.querySelector('.library-reading [role=switch]').getAttribute('aria-checked')==='true' && !fixturePending`);
+    check(label + ' inclusion toggles only selected skill', requests.at(-1)?.payload.id === 'skill-one' && requests.at(-1)?.payload.enabled === true);
+    await evaluate(`fixtureRoot.querySelector('[data-disclosure=notices]').open=false;fixtureRoot.querySelector('[data-disclosure=source-settings]').open=false;fixtureRoot.querySelector('.library-reading').scrollIntoView({block:'start'})`);
+    await shot(label + '-inclusion');
+    await evaluate(`clickAction('libraryPlanMigrate','skill-one')`); await wait(`!!fixtureRoot.querySelector('[data-action=libraryMigrate]') && !fixturePending`);
+    check(label + ' migration review exposes preservation', await evaluate(`fixtureRoot.querySelector('[data-plan-token]').textContent.includes('Preserve differing legacy content')`));
+    await evaluate(`clickAction('libraryMigrate')`); await wait(`!fixtureRoot.querySelector('[data-plan-token]') && !fixturePending`);
+    check(label + ' migration confirms frozen token', requests.at(-1)?.payload.token === 'migrate-reviewed');
+    await evaluate(`fixtureRoot.querySelector('[data-disclosure=manage]').open=true;fixtureRoot.querySelector('[data-field=publish-repository]').value='personal/publish';clickAction('libraryPlanPublish','skill-one')`); await wait(`!fixturePending`);
+    check(label + ' publish uses separate explicit destination', requests.at(-1)?.payload.repository === 'personal/publish');
+    await evaluate(`clickAction('libraryPlanDelete','skill-one')`); await wait(`!!fixtureRoot.querySelector('[data-plan-token]') && !fixturePending`);
+    check(label + ' deletion defaults source only and shows effects', requests.at(-1)?.payload.removeInstallation === false && await evaluate(`fixtureRoot.querySelector('[data-plan-token]').textContent.includes('retain installation') && fixtureRoot.querySelector('[data-plan-token]').textContent.includes('personal/source')`));
+    await evaluate(`fixtureRoot.querySelector('[data-delete-id]').scrollIntoView({block:'start'})`);
+    await shot(label + '-management');
+    await evaluate(`fixtureRoot.querySelector('[data-field=remove-installation]').checked=true;clickAction('libraryPlanDelete','skill-one')`); await wait(`!fixturePending`);
+    check(label + ' installation removal requires explicit selection', requests.at(-1)?.payload.removeInstallation === true);
+    await evaluate(`clickAction('libraryDelete')`); await wait(`!fixtureRoot.querySelector('.library-reading') && !fixturePending`);
+    check(label + ' deletion confirms frozen token and updates catalog', requests.at(-1)?.payload.token === 'delete-reviewed' && await evaluate(`fixtureRoot.querySelectorAll('.library-entry').length===22`));
     check(label + ' detail no horizontal overflow', await evaluate(`document.documentElement.scrollWidth<=innerWidth+1 && fixtureRoot.querySelector('main').scrollWidth<=fixtureRoot.querySelector('main').clientWidth+1`));
   }
   await evaluate(`resetFixture('ko')`); await wait(`fixtureRoot.querySelector('main').lang==='ko'`);

@@ -57,7 +57,7 @@ test("library markup separates local drafts, frozen plans and source-scoped remo
   try {
     const { renderInstructionMarkup, validInstructionRequest } = require("../src/instructionView") as typeof import("../src/instructionView");
     const resource = { id: "one", name: '<script>name</script>', kind: "skill" as const, sharing: "local" as const, digest: "changed", validationErrors: ["Invalid draft"], publications: [{ repository: "org/public", version: "1.0", digest: "old" }], files: [{ path: "SKILL.md", encoding: "utf8" as const, content: "<script>한국어 source</script>" }, { path: "references/readme.md", encoding: "utf8" as const, content: "Full support" }] };
-    const state: InstructionUiState = { ...base, error: "<failure>", library: { revision: 3, entries: [resource], selected: resource, connections: [], remoteVersions: [{ version: "public-version", sharing: "public" }, { version: "private-version", sharing: "collaborators" }], plan: { kind: "apply", token: "frozen", summary: { en: "<plan>", ko: "<검토>" }, conflicts: [{ target: "file", reason: "edited", current: "<old>", proposed: "<new>" }] } } };
+    const state: InstructionUiState = { ...base, error: "<failure>", library: { revision: 3, entries: [resource], selected: resource, connections: [{ sharing: "public", repository: "org/public", branch: "main" }, { sharing: "collaborators", repository: "org/private", branch: "main" }], remoteVersions: [{ version: "public-version", sharing: "public", repository: "org/public" }, { version: "private-version", sharing: "collaborators", repository: "org/private" }], plan: { kind: "apply", token: "frozen", summary: { en: "<plan>", ko: "<검토>" }, conflicts: [{ target: "file", reason: "edited", current: "<old>", proposed: "<new>" }] } } };
     const html = renderInstructionMarkup(state, undefined, "en");
     assert.match(html, /&lt;plan&gt;/); assert.match(renderInstructionMarkup(state, undefined, "ko"), /&lt;검토&gt;/); assert(!html.includes("[object Object]")); assert(!html.includes("Not implemented")); assert(!html.includes("<script>"));
     assert.match(html, /data-file-path="references\/readme.md"/); assert.match(html, /&lt;script&gt;한국어 source/);
@@ -67,7 +67,7 @@ test("library markup separates local drafts, frozen plans and source-scoped remo
     assert.match(html, /data-action="libraryApply" data-token="frozen" disabled/);
     assert.match(html, /Previously published: org\/public/);
     assert(html.indexOf("&lt;failure&gt;") < html.indexOf("<details"));
-    const publicConnection = html.slice(html.indexOf('data-connection="public"'), html.indexOf('data-connection="collaborators"'));
+    const publicConnection = html.slice(html.indexOf('data-connection="public-0"'), html.indexOf('data-connection="collaborators-0"'));
     assert(publicConnection.includes("public-version")); assert(!publicConnection.includes("private-version"));
     const valid = { id: "one", revision: 3, files: resource.files, profile: { model: "m", dependencies: [{ id: "context", digest: "pinned" }] } };
     assert(validInstructionRequest(valid));
@@ -204,4 +204,51 @@ test("legacy mounts and standalone shell follow VS Code language with localized 
     assert.match(sent.at(-1).html, /lang="ko"/);
     view.dispose(); english.dispose();
   } finally { api._load = original; if (cached) require.cache[filename] = cached; else delete require.cache[filename]; }
+});
+
+
+test("personal resource management keeps inclusion, deletion, sources and repositories explicit", () => {
+  const { renderInstructionMarkup, validInstructionRequest, instructionClientTools } = require("../src/instructionView") as typeof import("../src/instructionView");
+  const personal = { id: "personal", name: "Personal skill", kind: "skill" as const, sharing: "public" as const, digest: "personal-digest", sourceKind: "library" as const, canToggleSkill: true, skillEnabled: false, canMigrate: true, provenance: { sourceKind: "builtin", resourceId: "original", digest: "source-digest" }, validationErrors: [], publications: [], files: [] };
+  const official = { ...personal, id: "official", name: "Official skill", sourceKind: "builtin" as const, readOnly: true, skillEnabled: true };
+  const library = { revision: 1, entries: [official, personal], selected: personal, notices: Array.from({ length: 10 }, () => "Source unavailable"), connections: [{ sharing: "public" as const, repository: "official/source", branch: "main" }, { sharing: "public" as const, repository: "personal/publish", branch: "main" }], remoteVersions: [{ sharing: "public" as const, repository: "official/source", version: "official-version" }, { sharing: "public" as const, repository: "personal/publish", version: "personal-version" }], projects: [{ id: "dev", name: "Development" }] };
+  const html = renderInstructionMarkup({ ...base, library });
+  assert.match(html, /data-disclosure="notices"><summary>10 source notices/);
+  assert(!html.includes('data-disclosure="notices" open'));
+  assert.match(html, /data-field="source-mode"><option value="release" selected>/);
+  assert.match(html, /data-field="source-project"/);
+  assert.match(html, /aria-checked="false" data-action="librarySetSkillEnabled" data-id="personal" data-enabled="true"/);
+  assert.match(html, /aria-checked="true" data-action="librarySetSkillEnabled" data-id="official" data-enabled="false"/);
+  assert.match(html, /Changes apply to new conversations/);
+  assert.match(html, /data-field="install-enabled"> Use as a skill/);
+  assert.match(html, /data-action="libraryPlanMigrate" data-id="personal"/);
+  assert.match(renderInstructionMarkup({ ...base, library: { ...library, selected: { ...personal, skillEnabled: true } } }), /data-field="install-enabled" checked/);
+  assert.match(html, /data-action="libraryPlanDelete" data-id="personal"/);
+  assert(!html.includes('data-field="remove-installation" checked'));
+  assert.match(html, /data-field="publish-repository"/);
+  assert.match(html, /data-connection="public-0"/); assert.match(html, /data-connection="public-1"/);
+  const officialHtml = renderInstructionMarkup({ ...base, library: { ...library, selected: official } });
+  assert(!officialHtml.includes('data-action="libraryPlanDelete"'));
+  const plan = { token: "delete-token", kind: "delete" as const, summary: "Delete personal source only", conflicts: [{ target: "profile", reason: "Pinned dependency" }], diffs: [{ target: "personal/source", current: "source", proposed: "" }] };
+  const blocked = renderInstructionMarkup({ ...base, library: { ...library, plan } });
+  assert.match(blocked, /Pinned dependency/); assert.match(blocked, /personal\/source/);
+  assert.match(blocked, /data-action="libraryDelete" data-token="delete-token" disabled/);
+  assert.match(renderInstructionMarkup({ ...base, library: { ...library, plan: { ...plan, conflicts: [] } } }), /data-action="libraryDelete" data-token="delete-token">/);
+  assert.match(renderInstructionMarkup({ ...base, library: { ...library, plan: { ...plan, kind: "migrate", conflicts: [] } } }), /data-action="libraryMigrate" data-token="delete-token">/);
+  for (const request of [{ enabled: false }, { removeInstallation: true }, { sourceMode: "release" }, { sourceMode: "project", sourceProject: "dev" }]) assert(validInstructionRequest(request));
+  for (const request of [{ enabled: "false" }, { removeInstallation: 1 }, { sourceMode: "vault" }, { sourceProject: {} }]) assert(!validInstructionRequest(request));
+  const fields: Record<string, any> = { "source-mode": { value: "project" }, "source-project": { value: "dev" }, "publish-version": { value: "1.0" }, "publish-repository": { value: "personal/publish" }, repository: { value: "official/source" }, "remote-version": { value: "official-version" } };
+  const scope = { querySelector: (selector: string) => selector.includes("remove-installation") ? { checked: false } : fields[selector.match(/data-field="([^"]+)"/)?.[1] ?? ""] };
+  const root = { querySelector: (selector: string) => selector === "[data-library-revision]" ? { dataset: { libraryRevision: "1" } } : scope.querySelector(selector) };
+  const tools = instructionClientTools(root);
+  const payload = (action: string) => tools.payload({ dataset: { action, id: "personal", enabled: "true", sharing: "public", token: "delete-token" }, closest: () => scope });
+  assert.deepEqual(payload("librarySetSkillEnabled"), { id: "personal", enabled: true });
+  assert.deepEqual(payload("libraryPlanDelete"), { id: "personal", removeInstallation: false });
+  assert.deepEqual(payload("libraryDelete"), { token: "delete-token" });
+  assert.deepEqual(payload("libraryPlanMigrate"), { id: "personal" });
+  assert.deepEqual(payload("libraryMigrate"), { token: "delete-token" });
+  assert.deepEqual(payload("librarySetSource"), { sourceMode: "project", sourceProject: "dev" });
+  assert.equal(payload("libraryPlanPublish").repository, "personal/publish");
+  assert.equal(payload("libraryRemoteRefresh").repository, "official/source");
+  assert.equal(payload("libraryRemoteImport").repository, "official/source");
 });
