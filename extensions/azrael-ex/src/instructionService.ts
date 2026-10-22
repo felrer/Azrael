@@ -34,7 +34,7 @@ export class InstructionService implements InstructionUiPort {
   private readonly personalLibrary: InstructionLibraryService;
 
   constructor(private readonly context: vscode.ExtensionContext,
-    private readonly runtime: { engine: string; codexHome: string },
+    private readonly runtime: { engine: string; codexHome: string; env?: NodeJS.ProcessEnv },
     private readonly log: vscode.LogOutputChannel) { this.personalLibrary = new InstructionLibraryService(context, runtime); }
 
   private repository(): string {

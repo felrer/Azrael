@@ -87,7 +87,7 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
 
   const sharedEnvLog = vscode.window.createOutputChannel("Azrael shared environment", { log: true });
   context.subscriptions.push(sharedEnvLog);
-  const sharedEnvRuntime = { engine, codexHome };
+  const sharedEnvRuntime = { engine, codexHome, env: runtimeEnv };
   register("azrael.syncSharedEnvironment", () => guarded(() => syncSharedEnvironment(context, sharedEnvRuntime, sharedEnvLog)));
   register("azrael.fetchSharedPlaybook", () => guarded(() => fetchSharedPlaybook(context, sharedEnvRuntime, sharedEnvLog)));
   instructions = new InstructionView(new InstructionService(context, sharedEnvRuntime, sharedEnvLog));

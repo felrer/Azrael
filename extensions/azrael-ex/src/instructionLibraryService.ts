@@ -3,21 +3,24 @@ import * as path from "node:path";
 import { randomUUID } from "node:crypto";
 import { createHash } from "node:crypto";
 import * as vscode from "vscode";
+import { InstructionSkillSettings } from "./instructionSkillSettings";
 import type { InstructionAction, InstructionLibraryUiState, InstructionRequest, InstructionResource, InstructionSharing } from "./instructionProtocol";
 
 type Connection = { sharing: "public" | "collaborators"; repository: string; branch: string; readable?: boolean; writable?: boolean };
-type CatalogEntry = InstructionResource & { sourcePath?: string; mainPath?: string; remote?: { repository: string; sharing: "public" | "collaborators"; releases: Record<string, string>; commit?: string } };
-const libraryActions = new Set<InstructionAction>(["libraryRefresh", "libraryImport", "libraryCreate", "librarySelect", "librarySave", "libraryPlanApply", "libraryApply", "libraryPlanPublish", "libraryPublish", "libraryRecover", "libraryConnect", "libraryRemoteRefresh", "libraryRemoteImport", "libraryPrepareTask", "libraryStartTask", "libraryCompare", "libraryInspectVersion", "librarySetProject", "libraryPlanAcquire", "libraryAcquire", "libraryBack", "libraryOpenInstalled"]);
+type CatalogEntry = InstructionResource & { sourcePath?: string; mainPath?: string; installedRelativePath?: string; sourceIdentity?: string; remote?: { repository: string; sharing: "public" | "collaborators"; releases: Record<string, string>; commit?: string } };
+type SkillSettings = { list(): Promise<Array<{ path: string; enabled: boolean; name: string }>>; set(path: string, enabled: boolean): Promise<boolean>; setForInstallation?(path: string, enabled: boolean): Promise<void>; dispose(): void };
+const libraryActions = new Set<InstructionAction>(["libraryRefresh", "libraryImport", "libraryCreate", "librarySelect", "librarySave", "libraryPlanApply", "libraryApply", "libraryPlanPublish", "libraryPublish", "libraryRecover", "libraryConnect", "libraryRemoteRefresh", "libraryRemoteImport", "libraryPrepareTask", "libraryStartTask", "libraryCompare", "libraryInspectVersion", "librarySetProject", "libraryPlanAcquire", "libraryAcquire", "libraryBack", "libraryOpenInstalled", "librarySetSource", "librarySetSkillEnabled", "libraryPlanDelete", "libraryDelete", "libraryPlanMigrate", "libraryMigrate"]);
 
 /** Host-only adapter. Credentials and immutable operation plans never enter the webview. */
 export class InstructionLibraryService {
   private library: any;
   private publisher: any;
+  private migration: any;
   private root = "";
   private selectedId?: string;
   private versions: NonNullable<InstructionLibraryUiState["remoteVersions"]> = [];
   private checked = new Map<string, Connection>();
-  private plan?: { token: string; kind: "apply" | "publish" | "task"; value: any; summary: NonNullable<InstructionLibraryUiState["plan"]>["summary"]; preview?: NonNullable<InstructionLibraryUiState["plan"]>["diffs"]; sharing?: InstructionSharing; version?: string };
+  private plan?: { token: string; kind: "apply" | "publish" | "task" | "delete" | "migrate"; value: any; summary: NonNullable<InstructionLibraryUiState["plan"]>["summary"]; preview?: NonNullable<InstructionLibraryUiState["plan"]>["diffs"]; sharing?: InstructionSharing; version?: string };
   private operation?: InstructionLibraryUiState["operation"];
   private catalog = new Map<string, CatalogEntry>();
   private remoteEntries = new Map<string, CatalogEntry>();
@@ -29,10 +32,41 @@ export class InstructionLibraryService {
   private notices: NonNullable<InstructionLibraryUiState["notices"]> = [];
   private remoteNotices: NonNullable<InstructionLibraryUiState["notices"]> = [];
   private discovery?: { entries: CatalogEntry[]; notices: any[] };
-  private acquire?: { token: string; entry: any; origin: CatalogEntry; value: any; project?: string; libraryRevision: number; importOnly?: boolean };
+  private discoverySource = "";
+  private skills?: SkillSettings;
+  private nativeSkills = new Map<string, { path: string; enabled: boolean; name: string }>();
+  private migrationOrigin?: { id: string; digest: string; source: string; preservedId?: string; preservedDigest?: string; name: string; enabled: boolean };
+  private acquire?: { token: string; entry: any; origin: CatalogEntry; value: any; project?: string; libraryRevision: number; importOnly?: boolean; enabled?: boolean };
   private connectionKey(): string { return `azrael.instructionConnections.v1:${this.root}`; }
 
-  constructor(private readonly context: vscode.ExtensionContext, private readonly runtime: { engine: string; codexHome: string }) {}
+  constructor(private readonly context: vscode.ExtensionContext, private readonly runtime: { engine: string; codexHome: string; env?: NodeJS.ProcessEnv; skillSettings?: SkillSettings }) {}
+
+  private sourceKey(): string { return `azrael.instructionSource.v1:${path.resolve(this.runtime.codexHome)}`; }
+  private source(): { mode: "release" | "project"; project?: string } {
+    const value = this.context.globalState?.get<{ mode: "release" | "project"; project?: string }>(this.sourceKey());
+    if (!value) return { mode: "release" };
+    if (!["release", "project"].includes(value.mode) || value.mode === "project" && (!value.project || !path.isAbsolute(value.project))) throw new Error("Invalid instruction authoring source selection.");
+    return value;
+  }
+  private repository(): string {
+    const repository = vscode.workspace.getConfiguration("azrael").get<string>("instructions.repository", "felrer/Azrael").trim();
+    if (!/^[\w.-]+\/[\w.-]+$/.test(repository)) throw new Error("Use GitHub owner/repository format.");
+    return repository;
+  }
+  private pathKey(value: string): string { const resolved = path.resolve(value); return process.platform === "win32" ? resolved.toLowerCase() : resolved; }
+  private skillAt(mainPath: string, states: Array<{ path: string; enabled: boolean; name: string }>): { path: string; enabled: boolean; name: string } | undefined {
+    let realPath = mainPath;
+    try { realPath = fs.realpathSync(mainPath); } catch { /* A new installation may not exist yet. */ }
+    return states.find(skill => this.pathKey(skill.path) === this.pathKey(mainPath) || this.pathKey(skill.path) === this.pathKey(realPath));
+  }
+  private skillSettings(): SkillSettings | undefined {
+    if (this.skills) return this.skills;
+    if (this.runtime.skillSettings) return this.skills = this.runtime.skillSettings;
+    if (!path.isAbsolute(this.runtime.engine) || !fs.existsSync(this.runtime.engine)) return undefined;
+    this.skills = new InstructionSkillSettings(this.runtime, this.project() || this.runtime.codexHome);
+    this.context.subscriptions?.push(this.skills);
+    return this.skills;
+  }
 
   handles(action: InstructionAction): boolean { return libraryActions.has(action); }
 
@@ -45,14 +79,12 @@ export class InstructionLibraryService {
 
   private backend(): any {
     const configured = vscode.workspace.getConfiguration("azrael").get<string>("instructions.libraryRoot", "").trim();
-    const workspace = vscode.workspace.workspaceFolders?.find(folder => folder.uri.scheme === "file")?.uri.fsPath;
-    // Only this application's authoring checkout gets a project-local default.
-    const authoring = workspace && fs.existsSync(path.join(workspace, "instructions", "azrael-environment.json"));
-    const root = configured ? path.resolve(configured) : authoring ? path.join(workspace!, "instruction-library") : `${path.resolve(this.runtime.codexHome)}-instruction-library`;
+    const root = configured ? path.resolve(configured) : `${path.resolve(this.runtime.codexHome)}-instruction-library`;
     if (!this.library || this.root !== root) {
       const { InstructionLibrary } = this.module("instruction-library.cjs");
       this.library = new InstructionLibrary({ root, installedRoot: this.runtime.codexHome, appVersion: this.context.extension?.packageJSON?.version ?? "0.4.0" });
       this.publisher = new (this.module("instruction-publisher.cjs").InstructionPublisher)({ stateRoot: path.join(root, "operations") });
+      this.migration = undefined;
       this.root = root; this.selectedId = undefined; this.plan = undefined; this.versions = []; this.checked.clear();
       this.catalog.clear(); this.remoteEntries.clear(); this.snapshots.clear(); this.installedEntries.clear(); this.selectedDigest = undefined; this.acquire = undefined;
       this.discovery = undefined;
@@ -64,7 +96,6 @@ export class InstructionLibraryService {
     const values = this.context.globalState?.get<Connection[]>(this.connectionKey(), []) ?? [];
     if (!Array.isArray(values) || values.some(value => !value || !["public", "collaborators"].includes(value.sharing) ||
       !/^[\w.-]+\/[\w.-]+$/.test(value.repository) || !/^[\w./-]+$/.test(value.branch) || value.branch.includes("..")) ||
-      new Set(values.map(value => value.sharing)).size !== values.length ||
       new Set(values.map(value => value.repository.toLowerCase())).size !== values.length) throw new Error("Invalid instruction repository connections.");
     return values;
   }
@@ -72,7 +103,8 @@ export class InstructionLibraryService {
   async snapshot(): Promise<InstructionLibraryUiState> {
     this.backend();
     const recovery = await this.library.recoveryState();
-    const interruptedApply = recovery.recoveryRequired;
+    const migrationPending = fs.existsSync(path.join(this.runtime.codexHome, "azrael", "instructions", "migration-journal.json"));
+    const interruptedApply = recovery.recoveryRequired || migrationPending;
     if (interruptedApply) this.operation = { phase: "apply-interrupted" };
     else if (this.operation?.phase === "apply-interrupted") this.operation = undefined;
     if (!interruptedApply && typeof this.publisher.listOperations === "function") {
@@ -97,8 +129,8 @@ export class InstructionLibraryService {
     }
     const resource = (entry: any): InstructionResource => ({ ...entry, publications: entry.publications.map((receipt: any) => ({ ...receipt, repository: receipt.repository ?? receipt.destination })) });
     return { revision: state.revision, entries: [...this.catalog.values()].map(entry => resource(this.publicEntry(entry, false))), selected: selected ? resource(this.publicEntry(selected, true)) : undefined,
-      projects: this.projects(), selectedProject: this.project(), comparison: this.comparison, notices: this.notices,
-      connections: this.connections().map(connection => this.checked.get(connection.sharing) ?? connection), remoteVersions: this.versions,
+      projects: this.projects(), selectedProject: this.project(), comparison: this.comparison, notices: this.notices, sourceMode: this.source().mode, sourceProject: this.source().project,
+      connections: this.connections().map(connection => this.checked.get(connection.repository.toLowerCase()) ?? connection), remoteVersions: this.versions,
       plan: this.plan ? { token: this.plan.token, kind: this.plan.kind, summary: this.plan.summary,
         conflicts: (this.plan.value.conflicts ?? []).map((reason: string) => ({ target: "", reason })), diffs: this.plan.preview,
         model: this.plan.value.model, provider: this.plan.value.provider, acquire: !!this.acquire && this.acquire.token === this.plan.token } : undefined, operation: this.operation };
@@ -123,20 +155,29 @@ export class InstructionLibraryService {
   private async catalogSnapshot(state: any): Promise<void> {
     this.catalog.clear(); this.installedEntries.clear(); this.notices = [...this.remoteNotices];
     const { scanInstalled } = this.module("instruction-catalog.cjs");
-    const candidate = path.resolve(this.context.extensionUri.fsPath, "../../instructions");
-    let baselineRoot = fs.existsSync(path.join(candidate, "azrael-environment.json")) ? candidate : undefined;
-    if (!this.discovery && !baselineRoot) {
+    const source = this.source(), repository = this.repository();
+    const sourceKey = JSON.stringify([source, repository]);
+    if (this.discoverySource !== sourceKey) { this.discovery = undefined; this.snapshots.clear(); this.discoverySource = sourceKey; }
+    let baselineRoot: string | undefined;
+    if (source.mode === "project") {
+      const candidate = path.join(source.project!, "instructions");
+      if (this.projects().some(project => this.pathKey(project.id) === this.pathKey(source.project!)) && fs.existsSync(path.join(candidate, "azrael-environment.json"))) baselineRoot = candidate;
+      else this.notices.push({ en: "The selected authoring project is unavailable. Select its owning workspace project.", ko: "선택한 원본 프로젝트를 사용할 수 없습니다. 해당 작업공간 프로젝트를 선택하세요." });
+    }
+    if (!this.discovery && source.mode === "release") {
       try {
         const { InstructionStore } = this.module("instruction-package.cjs");
-        const store = new InstructionStore({ stateRoot: this.runtime.codexHome, appVersion: this.context.extension?.packageJSON?.version ?? "0.4.0", engine: this.runtime.engine });
+        const store = new InstructionStore({ stateRoot: this.runtime.codexHome, repository, appVersion: this.context.extension?.packageJSON?.version ?? "0.4.0", engine: this.runtime.engine });
         const baseline = await store.getState();
-        const version = baseline.appliedVersion || baseline.downloadedVersions?.[0];
+        const semver = require("semver");
+        const versions = (baseline.downloadedVersions ?? []).filter((version: string) => semver.valid(version) && !semver.prerelease(version)).sort(semver.rcompare);
+        const version = [baseline.pinnedRepository === repository ? baseline.pinnedVersion : undefined, baseline.installedRepository === repository ? baseline.appliedVersion : undefined, ...versions].find(value => value && versions.includes(value));
         if (version) { const manifest = await store.getManifest(version); await store.verifyCache(version, manifest); baselineRoot = path.join(store.cache(version), "package"); }
       } catch (error) { this.notices.push({ en: `Baseline catalog unavailable: ${String(error)}`, ko: `기본 지침 목록을 불러올 수 없습니다: ${String(error)}` }); }
     }
-    const discovered = this.discovery ?? await scanInstalled({ installedRoot: this.runtime.codexHome, baselineRoot, pluginRoots: [path.join(this.runtime.codexHome, "plugins", "cache")] });
+    const discovered = this.discovery ?? await scanInstalled({ installedRoot: this.runtime.codexHome, baselineRoot, baselineIdentity: repository, pluginRoots: [path.join(this.runtime.codexHome, "plugins", "cache")] });
     this.discovery = discovered;
-    this.notices.push(...discovered.notices.map((notice: any) => typeof notice === "string" ? notice : { en: `Source unavailable: ${notice.sourcePath}\n${notice.message}`, ko: `출처를 확인할 수 없습니다: ${notice.sourcePath}\n${notice.message}` }));
+    this.notices.push(...discovered.notices.map((notice: any) => typeof notice === "string" ? notice : notice.reason === "migration-needed" ? { en: `${notice.count || 1} linked installation(s) need migration. Canonical documents remain available; original targets have not been read or changed.`, ko: `연결된 설치 ${notice.count || 1}개는 전환이 필요합니다. 원본 문서는 별도로 조회할 수 있으며 연결 대상은 읽거나 변경하지 않았습니다.` } : { en: `Source unavailable: ${notice.sourcePath}\n${notice.message}`, ko: `출처를 확인할 수 없습니다: ${notice.sourcePath}\n${notice.message}` }));
     for (const meta of state.entries) {
       const entry = await this.library.read(meta.id);
       const history = await this.library.listVersions(meta.id);
@@ -153,8 +194,10 @@ export class InstructionLibraryService {
     for (const entry of discovered.entries as CatalogEntry[]) {
       const owner = Object.entries(state.managed ?? {}).find(([relative]) => entry.mainPath && path.resolve(this.runtime.codexHome, relative) === path.resolve(entry.mainPath))?.[1] as { id?: string } | undefined;
       if (owner?.id && this.catalog.has(owner.id)) { this.installedEntries.set(owner.id, entry); continue; }
+      const detached = owner?.id && state.detachedEntries?.find((value: any) => value.id === owner.id);
       const id = entry.catalogId || entry.id;
       let resource = { ...entry, version: entry.version ?? 1, validationErrors: entry.validationErrors ?? [], publications: entry.publications ?? [] };
+      if (detached) resource = { ...resource, provenance: detached.provenance, publications: detached.publications ?? [], readOnly: true };
       if (entry.kind === "playbook") {
         const files = (entry.files ?? []).map((file, index, all) => file === (all.find(f => f.path === "PLAYBOOK.md") || all.find(f => /\.md$/i.test(f.path))) ? { ...file, path: "PLAYBOOK.md" } : file);
         resource = { ...resource, ...this.module("instruction-library.cjs").preparePlaybook({ ...resource, files }), versionLabel: entry.documentVersion || "0.1.0" };
@@ -171,9 +214,30 @@ export class InstructionLibraryService {
       if (!this.connections().some(c => c.repository === entry.remote?.repository && c.sharing === entry.remote?.sharing)) continue;
       this.catalog.set(id, entry);
     }
+    for (const [id, entry] of this.catalog) {
+      if (entry.sourceKind === "builtin" && entry.installedRelativePath) {
+        const mainPath = path.resolve(this.runtime.codexHome, entry.installedRelativePath);
+        if (fs.existsSync(mainPath)) this.installedEntries.set(id, { ...entry, mainPath });
+        const folder = path.dirname(mainPath);
+        try { entry.canMigrate = entry.kind === "skill" && fs.lstatSync(folder).isSymbolicLink(); } catch { entry.canMigrate = false; }
+      }
+    }
+    this.nativeSkills.clear();
+    const settings = this.skillSettings();
+    if (settings) {
+      try {
+        for (const skill of await settings.list()) this.nativeSkills.set(this.pathKey(skill.path), skill);
+        for (const [id, entry] of this.catalog) {
+          const installed = this.installedEntries.get(id);
+          const skill = installed?.mainPath && this.skillAt(installed.mainPath, [...this.nativeSkills.values()]);
+          if (entry.kind === "skill" && skill) { entry.canToggleSkill = true; entry.skillEnabled = skill.enabled; }
+        }
+      } catch (error) { this.notices.push({ en: `Skill inclusion state unavailable: ${String(error)}`, ko: `스킬 사용 설정을 확인할 수 없습니다: ${String(error)}` }); }
+    }
   }
 
   private playbooks(): any { return new (this.module("instruction-library.cjs").PlaybookStore)({ stateRoot: path.join(this.runtime.codexHome, "azrael", "project-playbooks") }); }
+  private migrations(): any { return this.migration ??= new (this.module("instruction-migration.cjs").InstructionMigration)({ installedRoot: this.runtime.codexHome, libraryRoot: this.root }); }
 
   private async restoreRemote(): Promise<void> {
     const cached = this.context.globalState?.get<any[]>(`azrael.instructionCatalog.v1:${this.root}`, []) ?? [];
@@ -198,7 +262,7 @@ export class InstructionLibraryService {
     const connection = this.connections().find(c => c.repository === entry.remote!.repository && c.sharing === entry.remote!.sharing);
     if (!connection) throw new Error("Reconnect the resource source.");
     const release = entry.remote.releases[digest]; if (!release) throw new Error("Version content is unavailable.");
-    const result = await this.publisher.download(await this.connection(connection.sharing), release);
+    const result = await this.publisher.download(await this.connection(connection.sharing, false, connection.repository), release);
     for (const resource of result.packages) {
       const key = `remote:${connection.sharing}:${connection.repository}:${resource.id}`;
       this.snapshots.set(`${key}:${resource.digest}`, { ...resource, publications: [], provenance: { repository: connection.repository, version: release, commit: result.manifest.sourceCommit } });
@@ -215,9 +279,9 @@ export class InstructionLibraryService {
 
   private async refreshRemote(request: InstructionRequest): Promise<void> {
     this.remoteNotices = [];
-    const connection = await this.connection(this.sharing(request));
+    const connection = await this.connection(this.sharing(request), false, request.repository);
     const releases = await this.publisher.listReleases(connection);
-    this.versions = [...this.versions.filter(v => v.sharing !== connection.sharing), ...releases.map((v: any) => ({ ...v, sharing: connection.sharing, repository: connection.repository }))];
+    this.versions = [...this.versions.filter(v => v.repository !== connection.repository), ...releases.map((v: any) => ({ ...v, sharing: connection.sharing, repository: connection.repository }))];
     // Metadata is fetched without registration, installation, or full archive downloads.
     for (const release of releases.slice(0, 30).reverse()) {
       try {
@@ -310,6 +374,48 @@ export class InstructionLibraryService {
       ...(entry.kind === "playbook" ? { preserveIdentity: entry.id, documentVersion: entry.documentVersion } : {}) });
   }
 
+  private async copyCatalog(origin: CatalogEntry, entry: any, installationName?: string, upstreamDigest = entry.digest): Promise<any> {
+    let files = entry.files;
+    if (entry.kind === "skill") {
+      const current = /^name:\s*(.+)$/m.exec(files.find((file: any) => file.path === "SKILL.md")?.content || "")?.[1]?.trim().replace(/^["']|["']$/g, "") || "skill";
+      installationName = installationName || await vscode.window.showInputBox({ value: `${current.slice(0, 54)}-personal`, prompt: "Installation name for your separate personal skill / 개인 스킬의 별도 설치 이름", validateInput: value => /^[a-z0-9][a-z0-9_-]{0,63}$/.test(value) && value !== current ? undefined : "Choose a distinct lowercase ASCII installation name / 다른 영문 소문자 설치 이름을 입력하세요." });
+      if (!installationName) return undefined;
+      if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(installationName) || installationName === current) throw new Error("Choose a distinct personal skill installation name.");
+      const target = path.join(this.runtime.codexHome, "skills", installationName);
+      if (fs.existsSync(target)) throw new Error("The personal skill installation name is already in use.");
+      files = files.map((file: any) => file.path === "SKILL.md" && file.encoding === "utf8" ? { ...file, content: file.content.replace(/^(---\r?\n)([\s\S]*?)(\r?\n---)/, (_: string, start: string, body: string, end: string) => start + body.replace(/^name:.*$/m, `name: ${installationName}`) + end) } : file);
+    }
+    const imported = await this.library.create({ name: entry.kind === "skill" ? installationName : entry.name, kind: entry.kind, sharing: "local", files, profile: entry.profile,
+      provenance: { sourceKind: origin.sourceKind || "library", repository: origin.remote?.repository || origin.sourceIdentity, resourceId: entry.id, digest: upstreamDigest, versionLabel: origin.versionLabel || this.label(entry) } });
+    return imported;
+  }
+
+  private async prepareSkillInstallation(entry: any, enabled?: boolean): Promise<void> {
+    const metadata = (await this.library.getState()).entries.find((value: any) => value.id === entry.id);
+    if (entry.kind !== "skill" || !(entry.provenance || metadata?.provenance)) return;
+    const main = entry.files?.find((file: any) => file.path === "SKILL.md");
+    const name = /^name:\s*([a-z0-9][a-z0-9_-]{0,63})\s*$/m.exec(main?.content || "")?.[1];
+    if (!name) throw new Error("Invalid personal skill installation name.");
+    const target = path.join(this.runtime.codexHome, "skills", name, "SKILL.md");
+    const settings = this.skillSettings();
+    if (!settings?.setForInstallation) throw new Error("Native skill settings are required before installing a personal version.");
+    const existing = (await settings.list()).find(skill => this.pathKey(skill.path) === this.pathKey(target));
+    await settings.setForInstallation(target, existing?.enabled ?? enabled ?? false);
+  }
+
+  private async assertProfileSkillsEnabled(packages: any[]): Promise<void> {
+    const settings = this.skillSettings();
+    if (!settings) return;
+    const states = await settings.list();
+    for (const resource of packages.filter(value => value.kind === "skill")) {
+      const matches = [...this.catalog.values()].filter(entry => entry.id === resource.id || entry.provenance?.resourceId === resource.id && entry.digest === resource.digest);
+      for (const match of matches) {
+        const installed = this.installedEntries.get(match.catalogId || match.id);
+        if (installed?.mainPath && states.some(skill => this.pathKey(skill.path) === this.pathKey(installed.mainPath!) && !skill.enabled)) throw new Error(`The task profile requires an excluded skill: ${resource.name}. Review its skill inclusion setting first.`);
+      }
+    }
+  }
+
   private ids(request: InstructionRequest): string[] {
     const ids = request.ids ?? (request.id ? [request.id] : []);
     if (!ids.length || ids.length > 100 || ids.some(id => typeof id !== "string" || id.length > 128)) throw new Error("Select instruction resources.");
@@ -321,8 +427,14 @@ export class InstructionLibraryService {
     return request.sharing;
   }
 
-  private async connection(sharing: "public" | "collaborators", write = false): Promise<Connection & { token?: string }> {
-    const connection = this.connections().find(item => item.sharing === sharing);
+  private selectedConnection(sharing: "public" | "collaborators", repository?: string): Connection {
+    const connections = this.connections().filter(item => item.sharing === sharing && (!repository || item.repository.toLowerCase() === repository.toLowerCase()));
+    if (connections.length !== 1) throw new Error("Select exactly one connected GitHub repository.");
+    return connections[0];
+  }
+
+  private async connection(sharing: "public" | "collaborators", write = false, repository?: string): Promise<Connection & { token?: string }> {
+    const connection = this.selectedConnection(sharing, repository);
     if (!connection) throw new Error("Connect the selected GitHub repository first.");
     let token: string | undefined;
     if (sharing === "collaborators" || write) {
@@ -339,12 +451,12 @@ export class InstructionLibraryService {
       }
     }
     const result = await this.publisher.checkConnection({ ...connection, token });
-    this.checked.set(sharing, { ...connection, readable: result.readable, writable: result.writable });
+    this.checked.set(connection.repository.toLowerCase(), { ...connection, readable: result.readable, writable: result.writable });
     if (write && !result.writable) throw new Error("The selected GitHub account cannot publish to this repository.");
     return { ...connection, token };
   }
 
-  private requirePlan(request: InstructionRequest, kind: "apply" | "publish" | "task"): any {
+  private requirePlan(request: InstructionRequest, kind: "apply" | "publish" | "task" | "delete" | "migrate"): any {
     if (!this.plan || this.plan.kind !== kind || request.token !== this.plan.token) throw new Error("Review a fresh operation plan first.");
     return this.plan.value;
   }
@@ -362,6 +474,79 @@ export class InstructionLibraryService {
   async request(action: InstructionAction, request: InstructionRequest): Promise<void> {
     const library = this.backend();
     if (action === "libraryRefresh") { this.discovery = undefined; return; }
+    if (action === "librarySetSource") {
+      if (!["release", "project"].includes(request.sourceMode || "")) throw new Error("Select a canonical instruction source.");
+      if (request.sourceMode === "project" && (!request.sourceProject || !this.projects().some(project => this.pathKey(project.id) === this.pathKey(request.sourceProject!)) || !fs.existsSync(path.join(request.sourceProject, "instructions", "azrael-environment.json")))) throw new Error("Select an Azrael authoring project containing instructions/azrael-environment.json.");
+      await this.context.globalState.update(this.sourceKey(), { mode: request.sourceMode, ...(request.sourceMode === "project" ? { project: path.resolve(request.sourceProject!) } : {}) });
+      this.discovery = undefined; this.snapshots.clear(); this.selectedId = undefined; this.plan = undefined; this.acquire = undefined; return;
+    }
+    if (action === "librarySetSkillEnabled") {
+      if (typeof request.enabled !== "boolean") throw new Error("Choose whether to include this skill.");
+      await this.catalogSnapshot(await library.getState());
+      const entry = this.catalogEntry(request), installed = this.installedEntries.get(entry.catalogId || entry.id);
+      if (entry.kind !== "skill" || !entry.canToggleSkill || !installed?.mainPath) throw new Error("Select an installed skill with verified native settings.");
+      const settings = this.skillSettings()!;
+      const skill = this.skillAt(installed.mainPath, await settings.list());
+      if (!skill || await settings.set(skill.path, request.enabled) !== request.enabled) throw new Error("The effective skill setting differs from the requested value.");
+      this.plan = undefined; this.acquire = undefined; return;
+    }
+    if (action === "libraryPlanDelete") {
+      const entry = this.catalogEntry(request);
+      if (entry.sourceKind !== "library" || entry.readOnly) throw new Error("Only a personal authoring resource can be deleted.");
+      const value = await library.planDelete(entry.id, { removeInstallation: request.removeInstallation === true });
+      this.acquire = undefined;
+      this.plan = { token: randomUUID(), kind: "delete", value, summary: { en: `Delete personal source: ${entry.name}\n${request.removeInstallation ? "Also remove the unchanged managed installation." : "Keep installed files and installation ownership."}\nUpstream sources and GitHub history are preserved.\nRetained versions: ${value.affected?.retainedVersions?.length || 0}`, ko: `개인 작업본 삭제: ${entry.name}\n${request.removeInstallation ? "변경되지 않은 관리 설치본도 제거합니다." : "설치 파일과 설치 소유권은 유지합니다."}\n원본과 GitHub 게시 이력은 보존합니다.\n보존 버전: ${value.affected?.retainedVersions?.length || 0}` },
+        preview: [...(value.sourceDiffs || []), ...(value.diffs || [])].map((diff: any) => ({ path: diff.path, current: this.displayBytes(diff.beforeContent == null ? null : Buffer.from(diff.beforeContent, "base64")), proposed: this.displayBytes(diff.content == null ? null : Buffer.from(diff.content, "base64")) })) }; return;
+    }
+    if (action === "libraryDelete") {
+      await library.delete(this.requirePlan(request, "delete"));
+      this.plan = undefined; this.acquire = undefined; this.selectedId = undefined; this.selectedDigest = undefined; this.snapshots.clear(); this.discovery = undefined; return;
+    }
+    if (action === "libraryPlanMigrate") {
+      const entry = this.catalogEntry(request);
+      if (entry.sourceKind !== "builtin" || !entry.canMigrate) throw new Error("Select a canonical skill with a linked installation.");
+      const value = await this.migrations().plan(await this.catalogVersion(entry));
+      const installedName = path.posix.basename(path.posix.dirname(entry.installedRelativePath!));
+      const name = `${installedName.slice(0, 43)}-legacy-${value.legacyDigest?.slice(0, 8) || "copy"}`;
+      const settings = this.skillSettings();
+      const skill = settings && this.skillAt(path.join(this.runtime.codexHome, entry.installedRelativePath!), await settings.list());
+      if (!skill || !settings?.setForInstallation) throw new Error("Verify native skill inclusion before migrating this installation.");
+      this.migrationOrigin = { id: entry.catalogId || entry.id, digest: entry.digest, source: JSON.stringify(this.source()), name, enabled: skill.enabled };
+      this.acquire = undefined;
+      this.plan = { token: randomUUID(), kind: "migrate", value, summary: { en: `Replace linked installation with ${entry.name} from the canonical source.\n${value.differences.length ? `Preserve differing files as personal resource ${name} before replacement.` : "Installed bytes match the canonical source."}\nThe external original is kept. Review skill inclusion after migration.`, ko: `연결된 설치를 원본의 ${entry.name}(으)로 전환합니다.\n${value.differences.length ? `다른 파일은 전환 전에 ${name} 개인 작업본으로 보존합니다.` : "설치 내용이 원본과 같습니다."}\n외부 원본은 보존합니다. 전환 후 스킬 사용 설정을 확인하세요.` }, preview: value.differences.map((diff: any) => ({ path: diff.path, current: diff.action === "add" ? undefined : "Existing linked file", proposed: diff.action === "remove" ? undefined : "Canonical source file" })) }; return;
+    }
+    if (action === "libraryMigrate") {
+      const value = this.requirePlan(request, "migrate"), origin = this.migrationOrigin;
+      if (!origin || origin.source !== JSON.stringify(this.source())) throw new Error("Canonical source changed; review migration again.");
+      this.discovery = undefined; this.snapshots.clear(); await this.catalogSnapshot(await library.getState());
+      const entry = this.catalog.get(origin.id);
+      if (!entry || entry.digest !== origin.digest || !entry.canMigrate) throw new Error("Canonical content or linked installation changed; review migration again.");
+      const target = path.join(this.runtime.codexHome, entry.installedRelativePath!);
+      const settings = this.skillSettings();
+      const skill = settings && this.skillAt(target, await settings.list());
+      if (!skill || skill.enabled !== origin.enabled || !settings?.setForInstallation) throw new Error("Skill inclusion changed; review migration again.");
+      let preservedDigest: string | undefined;
+      if (value.differences.length) {
+        if (!origin.preservedId) {
+          const files = value.legacyFiles.map((file: any) => { const data = Buffer.from(file.content, file.encoding); const text = data.toString("utf8"); return { path: file.path, encoding: !data.includes(0) && Buffer.from(text).equals(data) ? "utf8" : "base64", content: !data.includes(0) && Buffer.from(text).equals(data) ? text : data.toString("base64") }; });
+          // Preserve the exact original skill body as well as a separately named usable copy.
+          const main = files.find((file: any) => file.path === "SKILL.md");
+          if (main) files.push({ ...main, path: `migration-original-${value.legacyDigest.slice(0, 8)}.md` });
+          const preserved = await this.copyCatalog(entry, { ...entry, files, digest: value.legacyDigest }, origin.name, origin.digest);
+          if (!preserved) throw new Error("Legacy content must be preserved before migration.");
+          origin.preservedId = preserved.id;
+          origin.preservedDigest = preserved.digest;
+        }
+        const preserved = await library.read(origin.preservedId);
+        if (preserved.digest !== origin.preservedDigest) throw new Error("Preserved legacy content changed; review migration again.");
+        preservedDigest = value.legacyDigest;
+      }
+      await settings.setForInstallation(target, origin.enabled);
+      await this.migrations().apply(value, { preservedDigest });
+      const installed = this.skillAt(target, await settings.list());
+      if (!installed || installed.enabled !== origin.enabled) throw new Error("Migration completed; native skill inclusion needs checking.");
+      this.plan = undefined; this.migrationOrigin = undefined; this.discovery = undefined; this.snapshots.clear(); return;
+    }
     if (action === "librarySetProject") {
       if (!this.projects().some(item => item.id === request.project)) throw new Error("Select an available local project.");
       this.selectedProject = request.project; this.comparison = undefined; this.plan = undefined; this.acquire = undefined; return;
@@ -391,7 +576,7 @@ export class InstructionLibraryService {
       const resources = await this.acquisitionResources(origin, entry);
       const value = entry.kind === "playbook" ? await this.playbooks().plan(entry, project) : await library.planApply([entry.id], { digests: { [entry.id]: entry.digest }, resources: origin.sourceKind === "library" ? undefined : resources, provenance: entry.provenance });
       const token = randomUUID();
-      this.acquire = { token, entry, origin, value, project, libraryRevision: state.revision };
+      this.acquire = { token, entry, origin, value, project, libraryRevision: state.revision, enabled: request.enabled };
       this.plan = { token, kind: "apply", value, summary: { en: `Review resource ${entry.name} (${this.label(entry)})\nDestination: ${project || this.runtime.codexHome}`, ko: `${entry.name} (${this.label(entry)}) 변경 검토\n대상: ${project || this.runtime.codexHome}` },
         preview: value.diffs.map((diff: any) => ({ path: diff.path, current: this.displayBytes(diff.beforeContent === null ? null : Buffer.from(diff.beforeContent, "base64")), proposed: this.displayBytes(diff.content === null ? null : Buffer.from(diff.content, "base64")) })) }; return;
     }
@@ -402,13 +587,13 @@ export class InstructionLibraryService {
       if (acquired.project) {
         if (acquired.origin.sourceKind !== "library") await this.importCatalog(acquired.origin, acquired.entry);
         await this.playbooks().apply(acquired.value);
-      } else await library.apply(acquired.value);
+      } else { await this.prepareSkillInstallation(acquired.entry, acquired.enabled); await library.apply(acquired.value); }
       this.acquire = undefined; this.plan = undefined; this.selectedDigest = undefined; this.discovery = undefined; return;
     }
     if (action === "libraryImport") {
       if (request.id) {
         const origin = this.catalogEntry(request), entry = await this.catalogVersion(origin, request.digest);
-        const imported = await this.importCatalog(origin, entry); this.selectedId = imported.id; this.selectedDigest = undefined; this.plan = undefined; return;
+        const imported = await this.copyCatalog(origin, entry, request.installationName); if (!imported) return; this.selectedId = imported.id; this.selectedDigest = undefined; this.plan = undefined; return;
       }
       const selection = await vscode.window.showOpenDialog({ canSelectFiles: true, canSelectFolders: true, canSelectMany: false, openLabel: "Import instruction resource" });
       if (!selection?.length) return;
@@ -432,21 +617,26 @@ export class InstructionLibraryService {
         current: this.displayBytes(diff.beforeContent === null ? null : Buffer.from(diff.beforeContent, "base64")),
         proposed: this.displayBytes(diff.content === null ? null : Buffer.from(diff.content, "base64")) }));
       const inventory = this.inventory(value.entries);
-      this.plan = { token: randomUUID(), kind: "apply", value, preview, summary: { en: `Apply the reviewed resources. New conversations use the changes.\n\n${inventory}`, ko: `검토한 리소스를 설치본에 적용합니다. 변경은 새 대화부터 사용합니다.\n\n${inventory}` } }; return;
+      this.plan = { token: randomUUID(), kind: "apply", value: { ...value, skillEnabled: request.enabled }, preview, summary: { en: `Apply the reviewed resources. New conversations use the changes.\n\n${inventory}`, ko: `검토한 리소스를 설치본에 적용합니다. 변경은 새 대화부터 사용합니다.\n\n${inventory}` } }; return;
     }
-    if (action === "libraryApply") { await library.apply(this.requirePlan(request, "apply")); this.plan = undefined; this.discovery = undefined; return; }
+    if (action === "libraryApply") {
+      const value = this.requirePlan(request, "apply");
+      for (const entry of value.entries ?? []) await this.prepareSkillInstallation(entry, value.skillEnabled);
+      const { skillEnabled: _enabled, ...backendPlan } = value;
+      await library.apply(backendPlan); this.plan = undefined; this.discovery = undefined; return;
+    }
     if (action === "libraryConnect") {
       const sharing = this.sharing(request);
       if (!request.repository || !/^[\w.-]+\/[\w.-]+$/.test(request.repository)) throw new Error("Use GitHub owner/repository format.");
       const branch = request.branch || "main";
       if (!/^[\w./-]+$/.test(branch) || branch.includes("..")) throw new Error("Invalid repository branch.");
       const previous = this.connections();
-      const connections = previous.filter(item => item.sharing !== sharing);
+      const connections = previous.filter(item => item.repository.toLowerCase() !== request.repository!.toLowerCase());
       if (connections.some(item => item.repository.toLowerCase() === request.repository!.toLowerCase())) throw new Error("Public and collaborator sources must use separate repositories.");
       const candidate = { sharing, repository: request.repository, branch };
       await this.context.globalState.update(this.connectionKey(), [...connections, candidate]);
-      try { await this.connection(sharing); } catch (error) { await this.context.globalState.update(this.connectionKey(), previous); this.checked.delete(sharing); throw error; }
-      this.versions = this.versions.filter(value => value.sharing !== sharing);
+      try { await this.connection(sharing, false, request.repository); } catch (error) { await this.context.globalState.update(this.connectionKey(), previous); this.checked.delete(request.repository.toLowerCase()); throw error; }
+      this.versions = this.versions.filter(value => value.repository !== request.repository);
       this.plan = undefined; return;
     }
     if (action === "libraryRemoteRefresh") {
@@ -454,7 +644,7 @@ export class InstructionLibraryService {
     }
     if (action === "libraryRemoteImport") {
       if (!request.version) throw new Error("Select a resource release.");
-      const result = await this.publisher.download(await this.connection(this.sharing(request)), request.version);
+      const result = await this.publisher.download(await this.connection(this.sharing(request), false, request.repository), request.version);
       for (const entry of result.packages) {
         // Preserve identity and historical version when importing verified remote packages.
         if (typeof library.importPackage !== "function") throw new Error("Verified remote package import is unavailable.");
@@ -468,7 +658,7 @@ export class InstructionLibraryService {
       const entry = await library.read(ids[0]);
       const sharing = this.sharing({ ...request, sharing: request.sharing ?? entry.sharing });
       const value = await library.planPublish(ids, sharing);
-      const connection = this.connections().find(item => item.sharing === sharing);
+      const connection = this.selectedConnection(sharing, request.repository);
       if (!connection || !request.version) throw new Error("Connect a repository and enter a publication version.");
       this.plan = { token: randomUUID(), kind: "publish", value: { ...value, connection: { ...connection } }, sharing, version: request.version,
         summary: { en: `Publish selected changes to ${connection.repository} (${sharing}), version ${request.version}. Past releases remain available.\n\n${this.inventory(value.packages)}`, ko: `${connection.repository} (${sharing})에 ${request.version} 버전으로 선택한 변경을 게시합니다. 과거 배포본은 보존합니다.\n\n${this.inventory(value.packages)}` } }; return;
@@ -477,9 +667,9 @@ export class InstructionLibraryService {
       const value = this.requirePlan(request, "publish"), plan = this.plan!;
       const fresh = await library.planPublish(value.rootIds, plan.sharing);
       if (fresh.digest !== value.digest) throw new Error("Instruction content or sharing changed. Review a new publication plan.");
-      const target = this.connections().find(item => item.sharing === plan.sharing);
+      const target = this.connections().find(item => item.sharing === plan.sharing && item.repository === value.connection.repository);
       if (target?.repository !== value.connection.repository || target?.branch !== value.connection.branch) throw new Error("The publication destination changed. Review a new plan.");
-      const connection = await this.connection(plan.sharing as "public" | "collaborators", true);
+      const connection = await this.connection(plan.sharing as "public" | "collaborators", true, value.connection.repository);
       if (connection.repository !== value.connection.repository || connection.branch !== value.connection.branch) throw new Error("The publication destination changed. Review a new plan.");
       if ((await library.planPublish(value.rootIds, plan.sharing)).digest !== value.digest) throw new Error("Instruction content or sharing changed during authentication. Review a new publication plan.");
       try {
@@ -498,6 +688,10 @@ export class InstructionLibraryService {
       return;
     }
     if (action === "libraryRecover") {
+      if (fs.existsSync(path.join(this.runtime.codexHome, "azrael", "instructions", "migration-journal.json"))) {
+        const migration = await this.migrations().recover();
+        if (migration.recovered) { this.plan = undefined; this.migrationOrigin = undefined; this.discovery = undefined; return; }
+      }
       if (this.operation?.id && this.operation.repository) {
         const connection = this.connections().find(item => item.repository === this.operation!.repository);
         if (!connection) throw new Error("Reconnect the interrupted publication repository.");
@@ -507,7 +701,7 @@ export class InstructionLibraryService {
           const current = await library.getState();
           if (frozen.packages.some((entry: any) => current.entries.find((head: any) => head.id === entry.id)?.sharing !== frozen.sharing)) throw new Error("Sharing changed before the source was committed. Review a new publication plan.");
         }
-        const receipt = await this.publisher.recover(await this.connection(connection.sharing, true), id);
+        const receipt = await this.publisher.recover(await this.connection(connection.sharing, true, connection.repository), id);
         await library.recordPublication(frozen, { ...receipt, destination: receipt.repository });
         this.operation = { ...receipt, id: receipt.operationId };
       } else { await library.recover(); this.operation = undefined; }
@@ -516,6 +710,7 @@ export class InstructionLibraryService {
     if (action === "libraryPrepareTask") {
       const overrides = Object.fromEntries(["model", "provider", "reasoningEffort"].filter(key => request[key as keyof InstructionRequest] !== undefined).map(key => [key, request[key as keyof InstructionRequest]]));
       const value = await library.resolveProfile(this.ids(request)[0], overrides);
+      await this.assertProfileSkillsEnabled(value.packages);
       const content = `${this.inventory(value.packages)}\n\n${value.instructions.filter((entry: any) => entry.loading === "persistent").map((entry: any) => `${entry.id}:\n${entry.text}`).join("\n\n")}`;
       this.plan = { token: randomUUID(), kind: "task", value, summary: { en: `Start a new conversation with ${value.model}.\n\n${content}`, ko: `${value.model} 모델로 선택한 새 대화를 시작합니다.\n\n${content}` } }; return;
     }
@@ -523,6 +718,7 @@ export class InstructionLibraryService {
       const value = this.requirePlan(request, "task");
       const overrides = Object.fromEntries(["model", "provider", "reasoningEffort"].filter(key => value[key] !== undefined).map(key => [key, value[key]]));
       const fresh = await library.resolveProfile(value.profileId, overrides);
+      await this.assertProfileSkillsEnabled(fresh.packages);
       if (fresh.digest !== value.digest) throw new Error("Task profile changed. Review a new conversation plan.");
       await vscode.commands.executeCommand("azrael.startTaskProfile", value, this.runtime.codexHome);
       this.plan = undefined; return;

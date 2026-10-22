@@ -134,6 +134,13 @@ function preparePlaybook(input) {
   return entry;
 }
 function metadata(entry) { const { files, ...meta } = entry; return meta; }
+function derivativeProvenance(value) {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).some(k => !["sourceKind", "repository", "resourceId", "digest", "versionLabel"].includes(k)) || typeof value.sourceKind !== "string" || !value.sourceKind.trim() || typeof value.resourceId !== "string" || !value.resourceId.trim()) throw new Error("Invalid derivative provenance");
+  digest(value.digest);
+  if (value.repository !== undefined && !/^[\w.-]+\/[\w.-]+$/.test(value.repository) || value.versionLabel !== undefined && typeof value.versionLabel !== "string") throw new Error("Invalid derivative provenance");
+  return clone(value);
+}
 function sealed(value) { const result = clone(value); result.digest = hash(value); return freeze(result); }
 function verifyPlan(plan) { const { digest: expected, ...body } = plan; if (hash(body) !== expected) throw new Error("Plan identity mismatch"); }
 
@@ -205,7 +212,7 @@ class InstructionLibrary {
     identity(id); digest(pinned); const data = await bytes(this.file(`packages/${id}/${pinned}.json`)); if (!data) throw new Error("Missing dependency version");
     const entry = JSON.parse(data); if (entry.id !== id || entry.digest !== pinned || hash(packageData(entry)) !== pinned) throw new Error("Package version integrity mismatch"); return entry;
   }
-  async getState() { const s = await this._state(); return { schemaVersion: 1, revision: s.revision, entries: clone(s.entries) }; }
+  async getState() { const s = await this._state(); return { schemaVersion: 1, revision: s.revision, entries: clone(s.entries), managed: clone(s.managed), detachedEntries: clone(s.detachedEntries || []) }; }
   async list() { return (await this.getState()).entries; }
   async read(id) { const s = await this._state(); const meta = s.entries.find(e => e.id === identity(id)); if (!meta) throw new Error("Unknown package"); return { ...await this._version(id, meta.digest), ...clone(meta) }; }
   async listVersions(id) {
@@ -218,13 +225,14 @@ class InstructionLibrary {
   async readVersion(id, pinned) { await this._state(); const entry = await this._version(id, pinned); if (validation(entry).length) throw new Error("Invalid package version"); return entry; }
   async create(input) {
     return this._lock(async () => {
-      const state = await this._state(); const id = input.kind === "playbook" && input.preserveIdentity ? identity(input.preserveIdentity) : crypto.randomUUID();
-      if (state.entries.some(e => e.id === id)) throw new Error("Package identity already exists");
+      const provenance = derivativeProvenance(input.provenance);
+      const state = await this._state(); const id = !provenance && input.kind === "playbook" && input.preserveIdentity ? identity(input.preserveIdentity) : crypto.randomUUID();
+      if ([...state.entries, ...(state.detachedEntries || [])].some(e => e.id === id)) throw new Error("Package identity already exists");
       const authored = { ...input, sharing: input.sharing || (input.kind === "playbook" ? "local" : "collaborators") };
       if (input.kind === "playbook") { authored.documentVersion = input.documentVersion || "0.1.0"; authored.files = withPlaybookMetadata(inventory(input.files || []), id, authored.documentVersion); }
       const entry = makeEntry(authored, id, 1);
       await atomic(this.file(`packages/${entry.id}/${entry.digest}.json`), JSON.stringify(entry));
-      state.entries.push({ ...metadata(entry), installedDigest: null, publications: [] }); await this._commit(state); return { ...entry, ...state.entries.at(-1) };
+      state.entries.push({ ...metadata(entry), ownership: "personal", ...(provenance ? { provenance } : {}), installedDigest: null, publications: [] }); await this._commit(state); return { ...entry, ...state.entries.at(-1) };
     });
   }
   async save(id, changes, expectedRevision) {
@@ -259,10 +267,11 @@ class InstructionLibrary {
       const state = await this._state(); let meta = state.entries.find(e => e.id === entry.id);
       const isCurrent = provenance.current !== false;
       if (isCurrent && meta && meta.digest !== entry.digest && !meta.historicalOnly) throw new Error("Remote package conflicts with local version; explicit review required");
+      if ((state.detachedEntries || []).some(e => e.id === entry.id)) throw new Error("Deleted package identity is retained; create a personal derivative");
       const publication = { destination: provenance.repository, version: provenance.version, commit: provenance.commit, digest: entry.digest, sharing: entry.sharing };
       const location = this.file(`packages/${entry.id}/${entry.digest}.json`);
       if (!await bytes(location)) await atomic(location, JSON.stringify(entry)); else await this._version(entry.id, entry.digest);
-      if (!meta) { meta = { ...metadata(entry), installedDigest: null, publications: [], historicalOnly: !isCurrent }; state.entries.push(meta); }
+      if (!meta) { meta = { ...metadata(entry), ownership: "downloaded", installedDigest: null, publications: [], historicalOnly: !isCurrent }; state.entries.push(meta); }
       else if (isCurrent && meta.historicalOnly) Object.assign(meta, metadata(entry), { historicalOnly: false });
       if (meta.publications.some(p => p.digest === entry.digest && p.destination !== provenance.repository)) throw new Error("Remote package source conflict");
       if (!meta.publications.some(p => canonical(p) === canonical(publication))) meta.publications.push(publication);
@@ -334,8 +343,9 @@ class InstructionLibrary {
     return this._lock(async () => {
       const state = await this._state(); let changed = false;
       for (const p of plan.packages) {
-        await this._version(p.id, p.digest); const e = state.entries.find(e => e.id === p.id); if (!e) throw new Error("Unknown published package");
+        await this._version(p.id, p.digest); const e = state.entries.find(e => e.id === p.id) || (state.detachedEntries || []).find(e => e.id === p.id); if (!e) throw new Error("Unknown published package");
         const publication = { destination: receipt.destination, version: receipt.version, commit: receipt.commit, digest: p.digest, sharing: plan.sharing, planDigest: plan.digest };
+        if (e.sourceDeleted && !e.publications.some(r => canonical(r) === canonical(publication))) throw new Error("Detached publication requires an existing matching receipt");
         if (!e.publications.some(r => canonical(r) === canonical(publication))) { e.publications.push(publication); changed = true; }
       }
       if (changed) await this._commit(state); return this.getState();
@@ -347,6 +357,103 @@ class InstructionLibrary {
       const name = engineName(entry); return entry.files.map(f => ({ relative: f.path.endsWith(".toml") ? `agents/${name}.toml` : `agents/${name}/${f.path}`, data: content(f) }));
     }
     return [];
+  }
+  async planDelete(id, { removeInstallation = false } = {}) {
+    return this._planDelete(id, removeInstallation);
+  }
+  async _planDelete(id, removeInstallation, locked = false) {
+    identity(id); if (typeof removeInstallation !== "boolean") throw new Error("Invalid deletion selection");
+    const state = await this._state(), meta = state.entries.find(e => e.id === id);
+    if (!meta) throw new Error("Unknown package");
+    const conflicts = [], diffs = [], sourceDiffs = [], retainedVersions = [], references = [], installed = [];
+    if (meta.ownership !== "personal") conflicts.push("Personal source ownership is unknown or provider-owned");
+    const recovery = await this.recoveryState();
+    // During execution the caller owns both locks; journals still independently protect recovery.
+    if (await bytes(this.file("journal.json")) || await bytes(this.writerFile("journal.json"))) conflicts.push("Instruction recovery required before deletion");
+    if (recovery.recoveryRequired && !locked) conflicts.push("Instruction operation requires recovery");
+    const packageRoot = this.file(`packages/${id}`); await safe(packageRoot);
+    const names = (await fs.readdir(packageRoot)).sort();
+    const versions = [];
+    for (const name of names) {
+      if (!/^[a-f0-9]{64}\.json$/.test(name)) { conflicts.push(`Unknown package payload: ${name}`); continue; }
+      versions.push(await this._version(id, name.slice(0, -5)));
+    }
+    if (!versions.some(e => e.digest === meta.digest)) conflicts.push("Missing current source version");
+    // Historical profiles remain usable through readVersion and publication recovery.
+    for (const owner of [...state.entries, ...(state.detachedEntries || [])]) {
+      if (owner.id === id) continue;
+      const directory = this.file(`packages/${identity(owner.id)}`); await safe(directory);
+      let retained = []; try { retained = await fs.readdir(directory); } catch(e) { if (e.code !== "ENOENT") throw e; }
+      for (const name of retained) {
+        if (!/^[a-f0-9]{64}\.json$/.test(name)) { conflicts.push(`Unknown retained package state: ${owner.id}`); continue; }
+        const version = await this._version(owner.id, name.slice(0, -5));
+        if (version.profile && !Array.isArray(version.profile.dependencies)) { conflicts.push(`Unknown dependency state: ${owner.id}`); continue; }
+        for (const ref of version.profile?.dependencies || []) if (ref?.id === id) references.push({ id: owner.id, digest: version.digest, dependencyDigest: ref.digest });
+      }
+    }
+    if (references.length) conflicts.push("Resource is referenced by retained task-profile versions");
+    const retain = new Set((meta.publications || []).map(p => digest(p.digest))), operationVersions = new Set();
+    const operations = this.file("operations"); await safe(operations);
+    let operationNames = []; try { operationNames = await fs.readdir(operations); } catch(e) { if (e.code !== "ENOENT") throw e; }
+    for (const name of operationNames.sort()) {
+      if (!/^[\w.-]+\.json$/.test(name)) { conflicts.push("Unknown publication recovery state"); continue; }
+      const operation = JSON.parse((await bytes(path.join(operations, name))).toString("utf8"));
+      const mentions = value => value && typeof value === "object" && (value.id === id || value.profileId === id || value.rootIds?.includes(id) || Object.values(value).some(mentions));
+      if (!mentions(operation)) continue;
+      let completed = operation.phase === "published";
+      try { verifyPlan(operation.approvedPlan); if (operation.digest !== operation.approvedPlan.digest || !Array.isArray(operation.approvedPlan.packages)) completed = false; } catch { completed = false; }
+      const required = completed ? operation.approvedPlan.packages.filter(p => p.id === id) : [];
+      if (!completed || required.some(p => !meta.publications?.some(r => r.destination === operation.repository && r.version === operation.version && r.commit === operation.commit && r.digest === p.digest && r.sharing === operation.approvedPlan.sharing && r.planDigest === operation.approvedPlan.digest))) conflicts.push(`Resource is needed by publication recovery: ${name}`);
+      else for (const resource of required) { retain.add(digest(resource.digest)); operationVersions.add(resource.digest); }
+    }
+    const owned = Object.entries(state.managed).filter(([, receipt]) => receipt.id === id);
+    if (!removeInstallation && meta.installedDigest) retain.add(digest(meta.installedDigest));
+    if (owned.length && !meta.installedDigest) conflicts.push("Managed installation has no pinned receipt version");
+    for (const [rel, receipt] of owned) {
+      relative(rel); if (!/^(?:skills\/[^/]+\/.+|agents\/[^/]+\.toml|agents\/[^/]+\/.+)$/.test(rel)) throw new Error("Deletion target scope rejected");
+      digest(receipt.sha256); const current = await bytes(path.join(this.installedRoot, rel));
+      if (!current || sha(current) !== receipt.sha256) conflicts.push(`External or missing managed destination: ${rel}`);
+      installed.push({ path: rel, ...clone(receipt), retained: !removeInstallation });
+      let original = null;
+      if (receipt.original !== null && receipt.original !== undefined) {
+        original = Buffer.from(receipt.original, "base64");
+        if (original.toString("base64") !== receipt.original || sha(original) !== receipt.originalDigest) throw new Error("Managed original integrity mismatch");
+      }
+      if (removeInstallation && (current ? sha(current) : null) !== (original ? sha(original) : null)) diffs.push({ path: rel, id, encoding: "base64", beforeDigest: current ? sha(current) : null, afterDigest: original ? sha(original) : null, beforeContent: current ? current.toString("base64") : null, content: original ? original.toString("base64") : null });
+    }
+    for (const pinned of retain) {
+      await this._version(id, pinned);
+      retainedVersions.push({ digest: pinned, reasons: [...(meta.publications?.some(p => p.digest === pinned) ? ["publication history"] : []), ...(operationVersions.has(pinned) ? ["publication recovery"] : []), ...(!removeInstallation && meta.installedDigest === pinned ? ["retained installation"] : [])] });
+    }
+    for (const version of versions) if (!retain.has(version.digest)) {
+      const rel = `packages/${id}/${version.digest}.json`, current = await bytes(this.file(rel));
+      sourceDiffs.push({ path: rel, encoding: "base64", beforeDigest: sha(current), afterDigest: null, beforeContent: current.toString("base64"), content: null });
+    }
+    return sealed({ schemaVersion: 1, kind: "delete", id, libraryRevision: state.revision, removeInstallation, conflicts, diffs, sourceDiffs, affected: { resource: clone(meta), installed, references, retainedVersions, sourceRemoved: sourceDiffs.map(d => d.path) } });
+  }
+  async delete(plan) {
+    verifyPlan(plan); if (plan.kind !== "delete" || plan.conflicts.length) throw new Error("Delete has conflicts");
+    return this._lock(() => this._writer(async () => {
+      const state = await this._state(); if (state.revision !== plan.libraryRevision) throw new Error("Library revision conflict");
+      const fresh = await this._planDelete(plan.id, plan.removeInstallation, true);
+      if (fresh.digest !== plan.digest) throw new Error("Delete preview changed or external edit detected");
+      const journal = { schemaVersion: 1, kind: "delete", state: clone(state), diffs: clone(plan.diffs), sourceDiffs: clone(plan.sourceDiffs) };
+      await atomic(this.file("journal.json"), JSON.stringify(journal));
+      try {
+        for (const diff of [...plan.diffs, ...plan.sourceDiffs]) {
+          const target = plan.sourceDiffs.includes(diff) ? this.file(diff.path) : path.join(this.installedRoot, relative(diff.path));
+          const current = await bytes(target); if ((current ? sha(current) : null) !== diff.beforeDigest) throw new Error("External edit during delete");
+          if (diff.content === null) await unlink(target); else await atomic(target, Buffer.from(diff.content, "base64"));
+        }
+        const meta = state.entries.find(e => e.id === plan.id);
+        state.entries = state.entries.filter(e => e.id !== plan.id);
+        if (plan.removeInstallation) for (const target of plan.affected.installed) delete state.managed[target.path];
+        state.detachedEntries ||= [];
+        state.detachedEntries.push({ ...meta, sourceDeleted: true, installedDigest: plan.removeInstallation ? null : meta.installedDigest, retainedVersions: clone(plan.affected.retainedVersions) });
+        await this._commit(state); await unlink(this.file("journal.json"));
+        return { id: plan.id, digest: plan.digest, revision: state.revision, deleted: true, removedSourcePaths: plan.sourceDiffs.map(d => d.path), removedInstallation: plan.removeInstallation, retainedVersions: clone(plan.affected.retainedVersions), retainedInstallation: !plan.removeInstallation && plan.affected.installed.length > 0 };
+      } catch(e) { await this._rollback(journal); throw e; }
+    }));
   }
   async planApply(ids, options = {}) {
     const digests = { ...(options.digests || {}) }, resources = options.resources || [], provenance = options.provenance || null;
@@ -364,7 +471,10 @@ class InstructionLibrary {
     }
     for (const [id, pinned] of Object.entries(digests)) { identity(id); digest(pinned); if (!ids.includes(id)) throw new Error("Pinned installation must select a root package"); }
     const state = await this._state();
-    for (const entry of stagedResources) if (!state.entries.some(e => e.id === entry.id)) state.entries.push({ ...metadata(entry), installedDigest: null, publications: [] });
+    for (const entry of stagedResources) {
+      if ((state.detachedEntries || []).some(e => e.id === entry.id)) throw new Error("Deleted package identity is retained; create a personal derivative");
+      if (!state.entries.some(e => e.id === entry.id)) state.entries.push({ ...metadata(entry), installedDigest: null, publications: [] });
+    }
     const entries = await this._closure(ids, state, undefined, digests, staged), conflicts = [], diffs = [], adoptions = [], releases = [], targets = new Map(); const selected = new Set(entries.map(e => e.id));
     if (stagedResources.some(e => !entries.some(selectedEntry => selectedEntry.id === e.id && selectedEntry.digest === e.digest))) throw new Error("Staged resource is outside selected dependency closure");
     for (const entry of entries) for (const target of this._targets(entry)) {
@@ -400,7 +510,8 @@ class InstructionLibrary {
           const versionPath = this.file(`packages/${entry.id}/${entry.digest}.json`);
           if (!await bytes(versionPath)) await atomic(versionPath, JSON.stringify(entry)); else await this._version(entry.id, entry.digest);
           let meta = state.entries.find(e => e.id === entry.id);
-          if (!meta) { meta = { ...metadata(entry), installedDigest: null, publications: [] }; state.entries.push(meta); }
+          if ((state.detachedEntries || []).some(e => e.id === entry.id)) throw new Error("Deleted package identity is retained; create a personal derivative");
+          if (!meta) { meta = { ...metadata(entry), ownership: "downloaded", installedDigest: null, publications: [] }; state.entries.push(meta); }
           if (plan.provenance) {
             if (meta.publications.some(p => p.digest === entry.digest && p.destination !== plan.provenance.repository)) throw new Error("Staged package source conflict");
             const publication = { destination: plan.provenance.repository, version: plan.provenance.version, commit: plan.provenance.commit, digest: entry.digest, sharing: entry.sharing };
@@ -429,16 +540,18 @@ class InstructionLibrary {
   }
   async _rollback(journal) {
     if (journal.schemaVersion !== 1 || journal.state?.schemaVersion !== 1 || !Number.isSafeInteger(journal.state.revision) || !Array.isArray(journal.state.entries) || !Array.isArray(journal.diffs)) throw new Error("Invalid recovery journal");
-    for (const diff of journal.diffs) {
+    const sourceDiffs = journal.sourceDiffs || [];
+    if (!Array.isArray(sourceDiffs) || sourceDiffs.length && journal.kind !== "delete") throw new Error("Invalid source recovery journal");
+    for (const diff of [...journal.diffs, ...sourceDiffs]) {
       relative(diff.path);
-      if (!/^(?:skills\/[^/]+\/.+|agents\/[^/]+\.toml|agents\/[^/]+\/.+)$/.test(diff.path)) throw new Error("Recovery target scope rejected");
+      if (sourceDiffs.includes(diff) ? !/^packages\/[a-f0-9-]{36}\/[a-f0-9]{64}\.json$/.test(diff.path) : !/^(?:skills\/[^/]+\/.+|agents\/[^/]+\.toml|agents\/[^/]+\/.+)$/.test(diff.path)) throw new Error("Recovery target scope rejected");
       for (const [field, expected] of [["beforeContent", "beforeDigest"], ["content", "afterDigest"]]) {
         if (diff[field] === null) { if (diff[expected] !== null) throw new Error("Recovery backup integrity mismatch"); }
         else if (typeof diff[field] !== "string" || Buffer.from(diff[field], "base64").toString("base64") !== diff[field] || sha(Buffer.from(diff[field], "base64")) !== diff[expected]) throw new Error("Recovery backup integrity mismatch");
       }
     }
-    for (const diff of [...journal.diffs].reverse()) {
-      const target = path.join(this.installedRoot, relative(diff.path)), current = await bytes(target), currentHash = current ? sha(current) : null;
+    for (const diff of [...journal.diffs, ...sourceDiffs].reverse()) {
+      const target = sourceDiffs.includes(diff) ? this.file(diff.path) : path.join(this.installedRoot, relative(diff.path)), current = await bytes(target), currentHash = current ? sha(current) : null;
       if (currentHash === diff.beforeDigest) continue;
       if (currentHash !== diff.afterDigest) throw new Error("Recovery blocked by external edit");
       if (diff.beforeContent === null) await unlink(target); else await atomic(target, Buffer.from(diff.beforeContent, "base64"));

@@ -53,6 +53,14 @@ async function fixture(t: TestContext) {
   const api = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const original = api._load;
   api._load = function (request, parent, isMain) {
+    // Native catalog transport has its own adapter tests. These release tests use
+    // the real engine only for strict staged configuration validation.
+    if (request === "./instructionSkillSettings") return { InstructionSkillSettings: class {
+      async list() { return []; }
+      async set(_path: string, enabled: boolean) { return enabled; }
+      async setForInstallation() {}
+      dispose() {}
+    } };
     if (request === "vscode") return { workspace: { get workspaceFolders() { return [{ uri: { scheme: "file", fsPath: control.workspace } }]; }, getConfiguration: () => ({ get: (key: string, fallback: unknown) => key === "instructions.repository" ? control.repository : fallback }) } };
     if (request === backendFile) return { InstructionStore: class extends InstructionStore {
       constructor(input: any) { super({ ...input, request: transport }); options.push(input); }

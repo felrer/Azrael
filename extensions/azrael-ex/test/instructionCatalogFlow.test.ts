@@ -16,6 +16,20 @@ async function fixture(t: TestContext) {
   await fs.mkdir(home); await fs.mkdir(project);
   const values = new Map<string, any>(), calls = { metadata: 0, downloads: 0, auth: 0 };
   const releases = new Map<string, any>();
+  const skillStates = new Map<string, boolean>();
+  const skillSettings = {
+    async list() {
+      const installed = [];
+      for (const [filename, enabled] of skillStates) {
+        try { await fs.access(filename); installed.push({ path: filename, enabled, name: path.basename(path.dirname(filename)) }); }
+        catch (error: any) { if (error.code !== "ENOENT") throw error; }
+      }
+      return installed;
+    },
+    async set(filename: string, enabled: boolean) { await fs.access(filename); skillStates.set(filename, enabled); return enabled; },
+    async setForInstallation(filename: string, enabled: boolean) { assert.ok(path.isAbsolute(filename)); skillStates.set(filename, enabled); },
+    dispose() {},
+  };
   class Publisher {
     async listOperations() { return []; }
     async checkConnection() { calls.auth++; return { readable: true, writable: true }; }
@@ -34,10 +48,10 @@ async function fixture(t: TestContext) {
   };
   const serviceFile = require.resolve("../src/instructionLibraryService"); delete require.cache[serviceFile];
   const { InstructionLibraryService } = require(serviceFile);
-  const createService = () => new InstructionLibraryService(context, { engine: "unused", codexHome: home });
+  const createService = () => new InstructionLibraryService(context, { engine: "unused", codexHome: home, skillSettings });
   const library = new InstructionLibrary({ root: libraryRoot, installedRoot: home }), service = createService();
   t.after(async () => { api._load = original; delete require.cache[serviceFile]; const relative = path.relative(parent, directory); assert(relative && !relative.startsWith("..") && !path.isAbsolute(relative)); await fs.rm(directory, { recursive: true }); await assert.rejects(fs.access(directory), { code: "ENOENT" }); });
-  return { service, library, createService, home, libraryRoot, directory, project, values, calls, releases, folders };
+  return { service, library, createService, home, libraryRoot, directory, project, values, calls, releases, folders, skillStates };
 }
 
 test("Playbook history compares in place, preview does not install, project edits stay protected", async t => {
@@ -97,5 +111,6 @@ test("remote metadata lists without acquiring, verified previews persist offline
   assert.equal((await f.library.getState()).entries.length, 0);
   await reopened.request("libraryAcquire", { token: state.plan!.token });
   assert.equal((await f.library.read(first.id)).installedDigest, first.digest);
+  assert.ok(f.skillStates.has(path.join(f.home, "skills/catalog-review/SKILL.md")));
   assert((await fs.readFile(path.join(f.home, "skills/catalog-review/SKILL.md"), "utf8")).includes("First"));
 });

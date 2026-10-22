@@ -7,7 +7,7 @@ const { spawnSync } = require("node:child_process");
 
 const instructionModules = Object.freeze([
   "instruction-package.cjs", "instruction-library.cjs",
-  "instruction-publisher.cjs", "instruction-catalog.cjs", "task-profile-runtime.cjs",
+  "instruction-publisher.cjs", "instruction-catalog.cjs", "instruction-migration.cjs", "task-profile-runtime.cjs",
 ]);
 
 function accountRoot(directory) {

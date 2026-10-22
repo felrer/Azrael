@@ -7,15 +7,19 @@ const { beginArtifactRun, finishArtifactRun } = require("./artifact-run.cjs");
 const root = path.resolve(__dirname, "..");
 const scope = process.argv[2];
 const selections = {
-  backend: ["--test", "scripts/tests/instruction-library.test.cjs", "scripts/tests/instruction-playbooks.test.cjs", "scripts/tests/instruction-publisher.test.cjs", "scripts/tests/instruction-catalog.test.cjs"],
+  backend: ["--test", "scripts/tests/instruction-library.test.cjs", "scripts/tests/instruction-playbooks.test.cjs", "scripts/tests/instruction-publisher.test.cjs", "scripts/tests/instruction-catalog.test.cjs", "scripts/tests/instruction-migration.test.cjs"],
+  migration: ["--test", "scripts/tests/instruction-migration.test.cjs"],
+  service: ["scripts/test-instruction-library-host.cjs", "--run-ts", "instructionService"],
+  "migration-host": ["scripts/test-instruction-library-host.cjs", "--run-ts", "instructionMigrationFlow"],
   host: ["--test", "scripts/test-instruction-library-host.cjs", "scripts/test-instruction-settings.cjs", "scripts/tests/task-profile-runtime.test.cjs", "scripts/tests/inject-task-profile.test.cjs", "scripts/tests/instruction-module-packaging.test.cjs", "scripts/tests/instruction-package.test.cjs", "scripts/test-namespace-cache-owner.cjs"],
   types: ["extensions/azrael-ex/node_modules/typescript/bin/tsc", "--noEmit", "--project", "extensions/azrael-ex/tsconfig.json"],
 };
-if (!selections[scope]) throw new Error("Choose backend, host, or types.");
-const run = beginArtifactRun(root, { workId: "CM-01", runId: `${scope}-${require("node:crypto").randomUUID().slice(0, 8)}`, owner: "instruction-library-verification" });
+if (!selections[scope]) throw new Error("Choose backend, migration, migration-host, service, host, or types.");
+const run = beginArtifactRun(root, { workId: "DK-01-instruction-catalog-diagnosis", runId: `${scope}-${require("node:crypto").randomUUID().slice(0, 8)}`, owner: "instruction-library-verification" });
 const startedAt = new Date().toISOString();
 const env = { ...process.env, NODE_TEST_CONTEXT: undefined, TEMP: run.temporary, TMP: run.temporary,
   AZRAEL_CATALOG_TEST_ROOT: path.join(run.temporary, "catalog"),
+  AZRAEL_MIGRATION_TEST_ROOT: path.join(run.temporary, "migration"),
   INSTRUCTION_PUBLISHER_FIXTURES: path.join(run.temporary, "publisher"),
   AZRAEL_INSTRUCTION_TEST_ROOT: run.temporary,
   AZRAEL_INSTRUCTION_PACKAGING_TEST_ROOT: path.join(run.temporary, "instruction-packaging") };

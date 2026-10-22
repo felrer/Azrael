@@ -11,11 +11,126 @@ const { InstructionStore } = require("../instruction-package.cjs");
 const file = (name, content) => ({ path: name, encoding: "utf8", content });
 const skill = (name = "example", sharing = "collaborators") => ({ name, kind: "skill", sharing, files: [file("SKILL.md", `---\nname: ${name}\ndescription: A reusable skill\n---\nInstructions\n`), file("references/a.md", "Support reference")] });
 async function fixture(t) {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "azrael-library-"));
+  const parent = path.resolve(process.env.AZRAEL_INSTRUCTION_TEST_ROOT || os.tmpdir());
+  await fs.mkdir(parent, { recursive: true });
+  const base = await fs.mkdtemp(path.join(parent, "azrael-library-"));
   t.after(() => fs.rm(base, { recursive: true }));
   const root = path.join(base, "library"), installedRoot = path.join(base, "installed");
   return { base, root, installedRoot, lib: new InstructionLibrary({ root, installedRoot }) };
 }
+
+test("personal derivatives retain local provenance and independent identity across edits", async t => {
+  const { lib, base } = await fixture(t), original = await lib.create(skill("upstream", "public"));
+  const provenance = { sourceKind: "github", repository: "owner/source", resourceId: original.id, digest: original.digest, versionLabel: "v1" };
+  const derived = await lib.create({ ...skill("derived"), provenance });
+  assert.notEqual(derived.id, original.id); assert.deepEqual(derived.provenance, provenance); assert.equal(derived.ownership, "personal");
+  const state = await lib.getState(), edited = await lib.save(derived.id, { name: "renamed" }, state.revision);
+  assert.equal(edited.id, derived.id); assert.deepEqual(edited.provenance, provenance);
+  const publication = await lib.planPublish([derived.id], "collaborators");
+  assert.equal(publication.packages[0].provenance, undefined);
+  const source = path.join(base, "source"); await fs.mkdir(source); await fs.writeFile(path.join(source, "SKILL.md"), skill("copied").files[0].content);
+  const imported = await lib.importPath(source, { provenance }); assert.deepEqual(imported.provenance, provenance); assert.notEqual(imported.id, original.id);
+  await assert.rejects(lib.create({ ...skill(), provenance: { ...provenance, digest: "bad" } }), /digest/);
+});
+
+test("delete removes personal source payload and retains detached installation ownership", async t => {
+  const { lib, root, installedRoot } = await fixture(t), initial = await lib.create(skill("delete-source"));
+  await lib.apply(await lib.planApply([initial.id]));
+  const updated = await lib.save(initial.id, { files: [...initial.files, file("new.md", "new authoring")] }, (await lib.getState()).revision);
+  const plan = await lib.planDelete(initial.id);
+  assert.ok(Object.isFrozen(plan.affected.installed)); assert.equal(plan.kind, "delete"); assert.deepEqual(plan.conflicts, []);
+  const result = await lib.delete(plan); assert.equal(result.retainedInstallation, true);
+  await assert.rejects(lib.read(initial.id), /Unknown package/);
+  await assert.rejects(fs.stat(path.join(root, "packages", initial.id, updated.digest + ".json")), { code: "ENOENT" });
+  assert.equal((await lib.readVersion(initial.id, initial.digest)).id, initial.id);
+  const state = await lib.getState(); assert.equal(state.entries.length, 0); assert.equal(state.detachedEntries[0].sourceDeleted, true);
+  assert.equal(state.detachedEntries[0].installedDigest, initial.digest); assert.equal(state.managed["skills/delete-source/SKILL.md"].id, initial.id);
+  assert.equal(await fs.readFile(path.join(installedRoot, "skills/delete-source/SKILL.md"), "utf8"), initial.files.find(f => f.path === "SKILL.md").content);
+});
+
+test("delete can remove unchanged managed installation and restores adopted originals", async t => {
+  const { lib, root, installedRoot } = await fixture(t), entry = await lib.create(skill("delete-installed"));
+  const main = path.join(installedRoot, "skills/delete-installed/SKILL.md"), original = entry.files.find(f => f.path === "SKILL.md").content; await fs.mkdir(path.dirname(main), { recursive: true }); await fs.writeFile(main, original);
+  await lib.apply(await lib.planApply([entry.id]));
+  await lib.delete(await lib.planDelete(entry.id, { removeInstallation: true }));
+  assert.equal(await fs.readFile(main, "utf8"), original);
+  await assert.rejects(fs.stat(path.join(installedRoot, "skills/delete-installed/references/a.md")), { code: "ENOENT" });
+  await assert.rejects(fs.stat(path.join(root, "packages", entry.id, entry.digest + ".json")), { code: "ENOENT" });
+  assert.deepEqual((await lib.getState()).managed, {});
+  assert.equal((await lib.getState()).detachedEntries[0].installedDigest, null);
+});
+
+test("delete blocks referenced historical dependencies, external edits and stale plans", async t => {
+  const { lib, installedRoot } = await fixture(t), entry = await lib.create(skill("protected"));
+  const profile = await lib.create({ name: "consumer", kind: "task-profile", profile: { model: "m", dependencies: [{ id: entry.id, digest: entry.digest }] } });
+  await lib.save(profile.id, { profile: { model: "m", dependencies: [] } }, (await lib.getState()).revision);
+  assert.match((await lib.planDelete(entry.id)).conflicts.join(";"), /referenced/);
+  await assert.rejects(lib.delete(await lib.planDelete(entry.id)), /conflicts/);
+  const other = await lib.create(skill("concurrent")), plan = await lib.planDelete(other.id);
+  await lib.save(other.id, { name: "new" }, (await lib.getState()).revision); await assert.rejects(lib.delete(plan), /revision/);
+  await lib.apply(await lib.planApply([other.id])); const installedPlan = await lib.planDelete(other.id, { removeInstallation: true });
+  await fs.writeFile(path.join(installedRoot, "skills/concurrent/SKILL.md"), "external");
+  await assert.rejects(lib.delete(installedPlan), /external edit/);
+  assert.match((await lib.planDelete(other.id)).conflicts.join(";"), /External/); assert.equal((await lib.read(other.id)).id, other.id);
+});
+
+test("delete preserves publication history and rejects downloaded ownership and operation references", async t => {
+  const { lib, root } = await fixture(t), remote = await fixture(t), entry = await lib.create(skill("published", "public"));
+  await lib.recordPublication(await lib.planPublish([entry.id], "public"), { destination: "owner/public", version: "v1", commit: "abc" });
+  await remote.lib.importPackage(entry, { repository: "owner/public", version: "v1", commit: "abc" });
+  assert.match((await remote.lib.planDelete(entry.id)).conflicts.join(";"), /ownership/);
+  await fs.mkdir(path.join(root, "operations")); await fs.writeFile(path.join(root, "operations", "pending.json"), JSON.stringify({ phase: "prepared", approvedPlan: { packages: [entry] } }));
+  assert.match((await lib.planDelete(entry.id)).conflicts.join(";"), /publication recovery/);
+  await fs.unlink(path.join(root, "operations", "pending.json"));
+  const result = await lib.delete(await lib.planDelete(entry.id)); assert.equal(result.retainedVersions[0].digest, entry.digest);
+  const detached = (await lib.getState()).detachedEntries[0]; assert.equal(detached.publications[0].commit, "abc"); assert.equal((await lib.readVersion(entry.id, entry.digest)).digest, entry.digest);
+});
+
+test("delete rollback restores source and registry after a failed commit and explicit recovery", async t => {
+  const { lib, root, installedRoot } = await fixture(t), entry = await lib.create(skill("rollback-delete"));
+  await lib.apply(await lib.planApply([entry.id]));
+  const plan = await lib.planDelete(entry.id, { removeInstallation: true }), commit = lib._commit;
+  lib._commit = async () => { throw new Error("simulated commit failure"); };
+  await assert.rejects(lib.delete(plan), /simulated/); lib._commit = commit;
+  assert.equal((await lib.read(entry.id)).id, entry.id);
+  assert.equal(await fs.readFile(path.join(installedRoot, "skills/rollback-delete/SKILL.md"), "utf8"), entry.files.find(f => f.path === "SKILL.md").content);
+  const sourcePath = plan.sourceDiffs[0].path;
+  await fs.writeFile(path.join(root, "journal.json"), JSON.stringify({ schemaVersion: 1, kind: "delete", state: JSON.parse(await fs.readFile(path.join(root, "registry.json"))), diffs: [], sourceDiffs: plan.sourceDiffs }));
+  await fs.unlink(path.join(root, sourcePath)); await lib.recover(); assert.equal((await lib.read(entry.id)).id, entry.id);
+});
+
+test("delete rejects unknown payload and legacy ownership and detects source edits", async t => {
+  const { lib, root } = await fixture(t), entry = await lib.create(skill("unsafe-delete"));
+  const source = path.join(root, "packages", entry.id), unknown = path.join(source, "unknown.txt");
+  await fs.writeFile(unknown, "retain"); assert.match((await lib.planDelete(entry.id)).conflicts.join(";"), /Unknown package payload/); await fs.unlink(unknown);
+  const plan = await lib.planDelete(entry.id), version = path.join(source, entry.digest + ".json"), before = await fs.readFile(version);
+  await fs.writeFile(version, before.toString() + " "); await assert.rejects(lib.delete(plan), /preview changed/); await fs.writeFile(version, before);
+  const registryFile = path.join(root, "registry.json"), registry = JSON.parse(await fs.readFile(registryFile));
+  delete registry.entries[0].ownership; await fs.writeFile(registryFile, JSON.stringify(registry));
+  assert.match((await lib.planDelete(entry.id)).conflicts.join(";"), /ownership/); await assert.rejects(lib.delete(await lib.planDelete(entry.id)), /conflicts/);
+});
+
+test("deleted identities cannot recreate removed payload through acquisition", async t => {
+  const { lib, root } = await fixture(t), entry = await lib.create(skill("no-resurrection", "public"));
+  await lib.delete(await lib.planDelete(entry.id));
+  await assert.rejects(lib.importPackage(entry, { repository: "owner/public", version: "v1", commit: "abc" }), /Deleted package identity/);
+  await assert.rejects(lib.planApply([entry.id], { resources: [entry] }), /Deleted package identity/);
+  await assert.rejects(fs.stat(path.join(root, "packages", entry.id, entry.digest + ".json")), { code: "ENOENT" });
+});
+
+test("delete retains completed publication versions and reconciles detached receipts idempotently", async t => {
+  const { lib, root } = await fixture(t), entry = await lib.create(skill("terminal-publication", "public"));
+  const approvedPlan = await lib.planPublish([entry.id], "public"), receipt = { destination: "owner/public", version: "v1", commit: "abc" };
+  await fs.mkdir(path.join(root, "operations"));
+  await fs.writeFile(path.join(root, "operations", "published.json"), JSON.stringify({ phase: "published", repository: receipt.destination, version: receipt.version, commit: receipt.commit, digest: approvedPlan.digest, approvedPlan }));
+  assert.match((await lib.planDelete(entry.id)).conflicts.join(";"), /publication recovery/);
+  await lib.recordPublication(approvedPlan, receipt);
+  const plan = await lib.planDelete(entry.id); assert.deepEqual(plan.conflicts, []); assert.ok(plan.affected.retainedVersions[0].reasons.includes("publication recovery"));
+  await lib.delete(plan); const state = await lib.getState(); await lib.recordPublication(approvedPlan, receipt);
+  assert.equal((await lib.getState()).revision, state.revision);
+  await assert.rejects(lib.recordPublication(approvedPlan, { ...receipt, commit: "other" }), /existing matching receipt/);
+  assert.equal((await lib.readVersion(entry.id, entry.digest)).digest, entry.digest);
+});
 test("import retains originals, binary support and separates save from apply and publish", async t => {
   const { base, installedRoot, lib } = await fixture(t); const source = path.join(base, "original"); await fs.mkdir(source);
   await fs.writeFile(path.join(source, "SKILL.md"), skill().files[0].content);
