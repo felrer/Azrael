@@ -24,6 +24,26 @@ function fixtures(files) {
 const oauth = stage => check('check-mcp-oauth-store', ['--stage', stage], `oauth-${stage}`);
 const capacity = check('check-capacity-recovery');
 
+test('session restoration recipe preserves all recovery filters and preflight gates', () => {
+  const result = recipesForCheck(config, check('check-task-recovery-native'));
+  assert.deepEqual(result.gaps, []);
+  const filters = [
+    'session_restore_', 'host_approval', 'async_question', 'session::accepted_user_inputs::tests',
+    'context_manager::history::tests::normalize_',
+    'context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history',
+    'tasks::panic_tests::', 'tasks::tests::',
+  ];
+  assert.deepEqual(result.cargoPreparations.map(recipe => recipe.args), filters.map(filter =>
+    ['test', '-p', 'codex-core', '--lib', filter, '--locked', '--offline', '--', '--test-threads=1']));
+  for (const recipe of result.cargoPreparations) {
+    assert.equal(recipe.isolateHostEnvironment, true);
+    const gates = preflightCommands({ args: recipe.args });
+    assert.ok(gates.typeCheck.args.includes('--tests'));
+    assert.ok(gates.selection.args.includes('--list'));
+    assert.ok(gates.selection.args.includes('--format=terse'));
+  }
+});
+
 test('OAuth default and preserve_order preserve separate exact compilation recipes', () => {
   const result = plan(config, [feature([oauth('default'), oauth('preserve-order')])]);
   assert.deepEqual(result.gaps, []);

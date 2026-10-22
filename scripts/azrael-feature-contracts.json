@@ -1218,7 +1218,9 @@
       "owners": [
         "scripts/inject-recovery.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/azrael-recovery.cjs",
+        "scripts/recovery-state.cjs"
       ],
       "contract": "docs/architecture/reload-recovery.md",
       "checks": [
@@ -2982,7 +2984,11 @@
         "engine/codex-rs/thread-store/src/local/thread_history_materialization.rs",
         "engine/codex-rs/thread-store/src/local/thread_history_materialization_tests.rs",
         "engine/codex-rs/thread-store/src/local/revert_thread_tests.rs",
-        "scripts/test-recovery-engine.mjs"
+        "scripts/test-recovery-engine.mjs",
+        "engine/codex-rs/core/src/session/history_restore.rs",
+        "engine/codex-rs/core/src/session/session.rs",
+        "engine/codex-rs/core/src/session/user_questions.rs",
+        "engine/codex-rs/core/src/session/host_approvals.rs"
       ],
       "contract": "docs/architecture/reload-recovery.md",
       "checks": [

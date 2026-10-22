@@ -9,7 +9,13 @@ if (!sourceRoot || !path.isAbsolute(sourceRoot) || extra.length) {
 }
 // These tests execute debug-assertion recovery, panic unwinding/terminal delivery,
 // interruption ownership and a subsequent task in the same native session.
+// Startup restoration also preserves the durable question/approval ledgers and
+// accepted-input reconciliation while sharing one verified full-history read.
 for (const filter of [
+  "session_restore_",
+  "host_approval",
+  "async_question",
+  "session::accepted_user_inputs::tests",
   "context_manager::history::tests::normalize_",
   "context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history",
   "tasks::panic_tests::",

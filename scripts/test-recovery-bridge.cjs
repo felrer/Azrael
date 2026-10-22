@@ -504,6 +504,201 @@ async function untilDelivered(delivered, count) {
   }
 }
 
+for (const delay of [36000, 43000]) {
+  test(`resume remains tracked through 20s and succeeds at ${delay}ms before queued input`, async t => {
+    const recovery = require("./azrael-recovery.cjs");
+    const records = [], delivered = [], deliveries = [], calls = [], abandoned = [];
+    const { context, vscode } = recoveryVscodeStub(records);
+    const disposable = recovery.initialize(context, vscode);
+    const host = fakeRecoveryHost(delivered, deliveries);
+    host.abandonRequest = (...args) => abandoned.push(args);
+    t.mock.timers.enable({ apis: ["setTimeout", "Date"] });
+    const result = { thread: { id: "private-resume-thread" }, privateBody: "private-resume-result" };
+    const raw = (provider, id, method, params) => {
+      calls.push({ provider, id, method, params });
+      if (method === "thread/resume") return;
+      const response = method === "thread/read" ? { thread: { status: { type: "idle" } } } :
+        method === "thread/turns/list" ? { data: [] } : { turn: { id: "new-turn", status: "inProgress" } };
+      queueMicrotask(() => host.providers.get(provider)?.onResult({ id, result: response }));
+    };
+    try {
+      for (const id of ["resume-first", "resume-second"]) recovery.dispatch(host,
+        ["client", id, "thread/resume", { threadId: "private-resume-thread" }, false, true], raw);
+      recovery.dispatch(host, ["client", "queued-input", "turn/start", {
+        threadId: "private-resume-thread", input: [{ type: "text", text: "private-input" }],
+      }, false, true], raw);
+      await untilDelivered(calls, 1);
+      t.mock.timers.tick(20000);
+      await new Promise(resolve => setImmediate(resolve));
+      assert.equal(delivered.length, 0);
+      assert.equal(deliveries.length, 0);
+      assert.equal(abandoned.length, 0);
+      assert.deepEqual(calls.map(c => c.method), ["thread/resume"]);
+      const slow = records.filter(r => r.event === "recovery.rpc_slow");
+      assert.equal(slow.length, 1);
+      assert.equal(slow[0].elapsedMs, 20000);
+      assert.equal(slow[0].timeoutMs, 120000);
+      assert.equal(JSON.stringify(slow).includes("private-"), false);
+      assert.match(slow[0].requestRef, /^[a-f0-9]{16}$/);
+      t.mock.timers.tick(delay - 20000);
+      const { provider, id } = calls[0];
+      recovery.observe(host, { id: `${provider}:${id}`, result });
+      assert.equal(records.find(r => r.event === "host.rpc_response_received").tracking, "pending");
+      host.providers.get(provider).onResult({ id, result });
+      await untilDelivered(delivered, 3);
+      assert.equal(delivered.length, 3);
+      assert.equal(delivered[0].result, result);
+      assert.equal(delivered[1].result, result);
+      assert.equal(delivered[2].id, "queued-input");
+      assert.deepEqual(calls.map(c => c.method), ["thread/resume", "thread/read", "thread/turns/list", "turn/start"]);
+      assert.equal(records.find(r => r.event === "recovery.rpc_result" && r.method === "thread/resume").elapsedMs, delay);
+      t.mock.timers.tick(120001);
+      assert.equal(records.filter(r => r.event === "recovery.rpc_slow").length, 1);
+      assert.equal(records.filter(r => r.event === "recovery.rpc_timeout").length, 0);
+      assert.equal(abandoned.length, 0);
+    } finally { disposable.dispose(); t.mock.timers.reset(); }
+  });
+}
+
+for (const ending of ["hard-timeout", "rpc-error", "disconnect", "dispose", "fatal", "send-failed"]) {
+  test(`resume ${ending} ends once and clears slow and deadline timers`, async t => {
+    const recovery = require("./azrael-recovery.cjs");
+    const records = [], delivered = [], deliveries = [], calls = [], abandoned = [];
+    const { context, vscode } = recoveryVscodeStub(records);
+    const disposable = recovery.initialize(context, vscode);
+    const host = fakeRecoveryHost(delivered, deliveries);
+    host.abandonRequest = (...args) => abandoned.push(args);
+    t.mock.timers.enable({ apis: ["setTimeout", "Date"] });
+    try {
+      recovery.dispatch(host, ["client", "resume-ending", "thread/resume", { threadId: "private-thread" }, false, true],
+        (...args) => { calls.push(args); if (ending === "send-failed") throw Error("private-send-error"); });
+      await untilDelivered(calls, 1);
+      const [provider, id] = calls[0];
+      const callback = host.providers.get(provider);
+      if (ending !== "send-failed") {
+        t.mock.timers.tick(ending === "hard-timeout" ? 119999 : ending === "rpc-error" ? 43000 : 1000);
+        assert.equal(delivered.length, 0);
+        if (ending === "hard-timeout") t.mock.timers.tick(1);
+        if (ending === "rpc-error") callback.onResult({ id, error: { code: -32603, message: "private-server-error" } });
+        if (ending === "disconnect") recovery.disconnect(host);
+        if (ending === "dispose") disposable.dispose();
+        if (ending === "fatal") callback.onFatalError();
+      }
+      await untilDelivered(delivered, 1);
+      assert.equal(delivered.length, 1);
+      assert.ok(delivered[0].error);
+      assert.equal(calls.length, 1, "failure must not refresh or replay");
+      if (ending === "hard-timeout") {
+        assert.match(delivered[0].error.message, /^120초/);
+        assert.equal(deliveries.length, 1);
+        assert.equal(abandoned.length, 1);
+        callback.onResult({ id, error: { code: -32603, message: "private-late-error" } });
+        const late = records.find(r => r.event === "recovery.rpc_late_result");
+        assert.equal(late.outcome, "rpc_error");
+        assert.equal(late.disposition, "ignored_after_timeout");
+        assert.equal(JSON.stringify(late).includes("private-"), false);
+        callback.onResult({ id, result: { thread: {} } });
+      }
+      const slowCount = records.filter(r => r.event === "recovery.rpc_slow").length;
+      const timeoutCount = records.filter(r => r.event === "recovery.rpc_timeout").length;
+      t.mock.timers.tick(240001);
+      await new Promise(resolve => setImmediate(resolve));
+      assert.equal(records.filter(r => r.event === "recovery.rpc_slow").length, slowCount);
+      assert.equal(records.filter(r => r.event === "recovery.rpc_timeout").length, timeoutCount);
+      assert.equal(slowCount, ["hard-timeout", "rpc-error"].includes(ending) ? 1 : 0);
+      assert.equal(timeoutCount, ending === "hard-timeout" ? 1 : 0);
+      assert.equal(delivered.length, 1);
+    } finally { disposable.dispose(); t.mock.timers.reset(); }
+  });
+}
+
+test("resume refresh retains ordinary 20s deadline", async t => {
+  const recovery = require("./azrael-recovery.cjs");
+  const records = [], delivered = [], calls = [];
+  const { context, vscode } = recoveryVscodeStub(records);
+  const disposable = recovery.initialize(context, vscode);
+  const host = fakeRecoveryHost(delivered);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    recovery.dispatch(host, ["client", "resume-refresh-timeout", "thread/resume", { threadId: "thread" }, false, true],
+      (provider, id, method) => {
+        calls.push(method);
+        if (method === "thread/resume") queueMicrotask(() => host.providers.get(provider).onResult({ id, result: { thread: {} } }));
+      });
+    await untilDelivered(calls, 2);
+    t.mock.timers.tick(19999);
+    assert.equal(delivered.length, 0);
+    t.mock.timers.tick(1);
+    await untilDelivered(delivered, 1);
+    assert.match(delivered[0].error.message, /^20초/);
+    assert.equal(records.find(r => r.event === "recovery.rpc_timeout").method, "thread/read");
+    assert.deepEqual(calls, ["thread/resume", "thread/read"]);
+  } finally { disposable.dispose(); t.mock.timers.reset(); }
+});
+
+test("notLoaded continuation uses the same extended resume deadline", async t => {
+  const recovery = require("./azrael-recovery.cjs");
+  const records = [], delivered = [], calls = [];
+  const { context, vscode } = recoveryVscodeStub(records);
+  const disposable = recovery.initialize(context, vscode);
+  const host = fakeRecoveryHost(delivered);
+  let loaded = false;
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const raw = (provider, id, method) => {
+    calls.push({ provider, id, method });
+    if (method === "thread/resume") return;
+    const result = method === "thread/read" ? { thread: { status: { type: loaded ? "idle" : "notLoaded" } } } :
+      method === "thread/turns/list" ? { data: [] } : { turn: { id: "continued", status: "inProgress" } };
+    queueMicrotask(() => host.providers.get(provider)?.onResult({ id, result }));
+  };
+  try {
+    recovery.dispatch(host, ["client", "internal-resume", "turn/start", {
+      threadId: "not-loaded", input: [{ type: "text", text: "continue" }],
+    }, false, true], raw);
+    await untilDelivered(calls, 3);
+    assert.equal(calls[2].method, "thread/resume");
+    t.mock.timers.tick(43000);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(delivered.length, 0);
+    assert.equal(records.filter(r => r.event === "recovery.rpc_slow").length, 1);
+    loaded = true;
+    const { provider, id } = calls[2];
+    host.providers.get(provider).onResult({ id, result: { thread: {} } });
+    await untilDelivered(delivered, 1);
+    assert.equal(delivered[0].result.turn.id, "continued");
+    assert.deepEqual(calls.map(c => c.method), ["thread/read", "thread/turns/list", "thread/resume", "thread/read", "thread/turns/list", "turn/start"]);
+    t.mock.timers.tick(120001);
+    assert.equal(records.filter(r => r.event === "recovery.rpc_timeout").length, 0);
+  } finally { disposable.dispose(); t.mock.timers.reset(); }
+});
+
+test("explicit 5s reconciliation deadline stays shorter than ordinary RPC default", async t => {
+  const recovery = require("./azrael-recovery.cjs");
+  const records = [], delivered = [], calls = [];
+  const { context, vscode } = recoveryVscodeStub(records);
+  const disposable = recovery.initialize(context, vscode);
+  const host = fakeRecoveryHost(delivered);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    recovery.dispatch(host, ["client", "short-reconciliation", "turn/steer", {
+      threadId: "thread", expectedTurnId: "turn", clientUserMessageId: "client-message",
+      input: [{ type: "text", text: "instruction" }],
+    }, false, true], (...args) => calls.push(args));
+    await untilDelivered(calls, 1);
+    t.mock.timers.tick(20000);
+    await untilDelivered(calls, 2);
+    assert.equal(calls[1][2], "thread/turns/list");
+    t.mock.timers.tick(4999);
+    assert.equal(delivered.length, 0);
+    t.mock.timers.tick(1);
+    await untilDelivered(delivered, 1);
+    assert.ok(delivered[0].error);
+    const timeouts = records.filter(r => r.event === "recovery.rpc_timeout");
+    assert.deepEqual(timeouts.map(r => [r.method, r.timeoutMs]), [["turn/steer", 20000], ["thread/turns/list", 5000]]);
+    assert.equal(records.some(r => r.event === "recovery.rpc_slow"), false);
+  } finally { disposable.dispose(); t.mock.timers.reset(); }
+});
+
 test("late steering response logs the same wire reference without changing the failed result", async t => {
   const { createHash } = require("node:crypto");
   const recovery = require("./azrael-recovery.cjs");

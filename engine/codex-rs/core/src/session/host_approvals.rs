@@ -1,7 +1,9 @@
 //! Durable host approval receipts and serialized, typed idle wakeups.
 //! Neither chat text nor this ledger grants authority to engine tools.
 use super::Session;
-use codex_history::{InitialHistory, RolloutItem};
+#[cfg(test)]
+use codex_history::InitialHistory;
+use codex_history::RolloutItem;
 use codex_protocol::ThreadId;
 use codex_protocol::error::{CodexErr, Result};
 use codex_protocol::host_approvals::*;
@@ -270,27 +272,12 @@ impl Session {
     pub(crate) fn list_host_approvals(&self, token: &str) -> Result<Vec<HostApprovalRecord>> {
         self.host_approvals.lock().unwrap().list(token)
     }
-    pub(super) async fn restore_host_approvals(&self, history: &InitialHistory) -> Result<()> {
+    pub(super) fn restore_host_approvals(&self, items: Option<&[RolloutItem]>) {
         // Forks never inherit receipts or wakeup reservations from their parent.
-        if let InitialHistory::Resumed(h) = history {
-            let items = if let Some(path) = self
-                .current_rollout_path()
-                .await
-                .map_err(|e| invalid(&e.to_string()))?
-            {
-                let (items, id, errors) =
-                    codex_rollout::RolloutRecorder::load_rollout_items(&path).await?;
-                if id != Some(self.thread_id) || errors != 0 {
-                    return Err(invalid("incomplete host approval history"));
-                }
-                items
-            } else {
-                h.history.as_ref().clone()
-            };
+        if let Some(items) = items {
             *self.host_approvals.lock().unwrap() =
-                HostApprovals::from_history(self.thread_id, &items);
+                HostApprovals::from_history(self.thread_id, items);
         }
-        Ok(())
     }
     async fn commit_host_approvals(&self, next: HostApprovals) -> Result<()> {
         let current = self.host_approvals.lock().unwrap().clone();
@@ -513,6 +500,130 @@ mod tests {
             &serde_json::from_str::<Vec<RolloutItem>>(&serde_json::to_string(&items).unwrap())
                 .unwrap(),
         )
+    }
+    fn restoration_items(thread_id: ThreadId) -> Vec<RolloutItem> {
+        use codex_protocol::items::{AgentMessageItem, AsyncUserInputQuestion, TurnItem};
+        use codex_protocol::protocol::ItemCompletedEvent;
+
+        let mut ledger = HostApprovals::default();
+        create(&mut ledger, "host:pending");
+        vec![
+            RolloutItem::EventMsg(EventMsg::ItemCompleted(ItemCompletedEvent {
+                thread_id,
+                turn_id: "original-turn".into(),
+                started_at_ms: None,
+                completed_at_ms: 1,
+                item: TurnItem::AgentMessage(AgentMessageItem {
+                    id: "question-before-compaction".into(),
+                    content: vec![],
+                    phase: None,
+                    memory_citation: None,
+                    delivery: None,
+                    questions: Some(vec![AsyncUserInputQuestion {
+                        withdrawn: false,
+                        title: "Continue?".into(),
+                        options: None,
+                    }]),
+                }),
+            })),
+            RolloutItem::EventMsg(EventMsg::HostApprovalLedgerUpdated(
+                HostApprovalLedgerEvent {
+                    thread_id,
+                    updates: ledger.records.values().cloned().collect(),
+                },
+            )),
+        ]
+    }
+
+    fn resumed_history(thread_id: ThreadId, items: Vec<RolloutItem>) -> InitialHistory {
+        InitialHistory::Resumed(codex_history::ResumedHistory {
+            conversation_id: thread_id,
+            history: Arc::new(items),
+            history_revision: None,
+            rollout_path: None,
+        })
+    }
+
+    #[tokio::test]
+    async fn session_restore_loads_once_for_questions_and_approvals() {
+        let (session, _) = crate::session::tests::make_session_and_context().await;
+        let calls = std::cell::Cell::new(0);
+        // Supplied history can start after compaction and omit both pending records.
+        session
+            .restore_session_history_with_loader(
+                &resumed_history(session.thread_id, vec![]),
+                Some("rollout.jsonl".into()),
+                |_| {
+                    calls.set(calls.get() + 1);
+                    std::future::ready(Ok((
+                        restoration_items(session.thread_id),
+                        Some(session.thread_id),
+                        0,
+                    )))
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(calls.get(), 1);
+        assert_eq!(session.pending_question_count(), 1);
+        assert_eq!(session.pending_approval_count(), 1);
+    }
+
+    #[tokio::test]
+    async fn session_restore_rejects_invalid_history_before_either_consumer() {
+        let (session, _) = crate::session::tests::make_session_and_context().await;
+        let history = resumed_history(session.thread_id, restoration_items(session.thread_id));
+        session
+            .restore_session_history_with_loader(&history, None, |_| async { panic!("no path") })
+            .await
+            .unwrap();
+        for (id, errors) in [
+            (None, 0),
+            (Some(ThreadId::new()), 0),
+            (Some(session.thread_id), 1),
+        ] {
+            let result = session
+                .restore_session_history_with_loader(&history, Some("rollout.jsonl".into()), |_| {
+                    std::future::ready(Ok((vec![], id, errors)))
+                })
+                .await;
+            assert!(result.is_err());
+            assert_eq!(session.pending_question_count(), 1);
+            assert_eq!(session.pending_approval_count(), 1);
+        }
+        let result = session
+            .restore_session_history_with_loader(&history, Some("missing.jsonl".into()), |_| {
+                std::future::ready(Err(std::io::Error::from(std::io::ErrorKind::NotFound)))
+            })
+            .await;
+        assert!(result.is_err());
+        assert_eq!(session.pending_question_count(), 1);
+        assert_eq!(session.pending_approval_count(), 1);
+    }
+
+    #[tokio::test]
+    async fn session_restore_supplied_fork_new_and_cleared_history() {
+        for kind in 0..4 {
+            let (session, _) = crate::session::tests::make_session_and_context().await;
+            let items = restoration_items(session.thread_id);
+            let history = match kind {
+                0 => resumed_history(session.thread_id, items),
+                // Even records with this thread ID must not grant fork approval consent.
+                1 => InitialHistory::Forked(items),
+                2 => InitialHistory::New,
+                _ => InitialHistory::Cleared,
+            };
+            session
+                .restore_session_history_with_loader(
+                    &history,
+                    (kind != 0).then(|| "ignored.jsonl".into()),
+                    |_| async { panic!("must use supplied history") },
+                )
+                .await
+                .unwrap();
+            assert_eq!(session.pending_question_count(), usize::from(kind < 2));
+            assert_eq!(session.pending_approval_count(), usize::from(kind == 0));
+        }
     }
     #[test]
     fn host_approval_fork_history_never_inherits_foreign_consent_or_wakeups() {
@@ -1006,6 +1117,9 @@ mod tests {
             // This is the task teardown used by ordinary runtime shutdown, not an explicit Stop.
             session.abort_all_tasks(TurnAbortReason::Interrupted).await;
             assert_eq!(session.pending_approval_count(), 1);
+            let question = restoration_items(session.thread_id).remove(0);
+            assert!(session.persist_rollout_items(&[question]).await);
+            session.flush_rollout().await.unwrap();
             let path = session.current_rollout_path().await.unwrap().unwrap();
             let (items, _, errors) = codex_rollout::RolloutRecorder::load_rollout_items(&path)
                 .await
@@ -1048,6 +1162,7 @@ mod tests {
             };
             let resumed = persistent(home.path(), history(), mode).await;
             assert_eq!(resumed.pending_approval_count(), 1);
+            assert_eq!(resumed.pending_question_count(), 1);
             assert!(resumed.active_turn.lock().await.is_none());
             assert_eq!(
                 resumed
