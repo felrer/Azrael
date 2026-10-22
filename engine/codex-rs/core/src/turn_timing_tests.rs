@@ -22,7 +22,7 @@ async fn response_performance_resets_per_turn_and_ignores_tool_elapsed_time() {
     state
         .mark_turn_started(Instant::now() - Duration::from_secs(120))
         .await;
-    let mut guard = state.begin_response_performance();
+    let mut guard = state.begin_response_performance(Some("priority"));
     guard.started_at = Instant::now() - Duration::from_secs(2);
     guard.complete(Some(100));
     guard.complete(Some(999)); // A completion is admitted once by its guard.
@@ -31,6 +31,12 @@ async fn response_performance_resets_per_turn_and_ignores_tool_elapsed_time() {
     assert_eq!(stats.turn_id, "turn-1");
     assert_eq!(stats.output_tokens, 100);
     assert_eq!(stats.completed_requests, 1);
+    assert!(stats.started_at_unix_ms.is_some());
+    assert!(stats.observed_at_unix_ms >= stats.started_at_unix_ms);
+    assert_eq!(
+        stats.minute_samples[0].mode,
+        Some(codex_protocol::response_performance::ResponseSpeedMode::Fast)
+    );
     assert!(stats.request_duration_ms >= 2000 && stats.request_duration_ms < 10000);
     state.mark_turn_started(Instant::now()).await;
     let stats = state.response_performance("turn-2");
@@ -42,11 +48,54 @@ async fn response_performance_resets_per_turn_and_ignores_tool_elapsed_time() {
 #[test]
 fn response_performance_cancelled_request_is_unmeasured() {
     let state = std::sync::Arc::new(TurnTimingState::default());
-    drop(state.begin_response_performance());
+    drop(state.begin_response_performance(None));
     let stats = state.response_performance("interrupted");
     assert_eq!(stats.completed_requests, 0);
     assert_eq!(stats.unmeasured_requests, 1);
     assert_eq!(stats.output_tokens, 0);
+}
+
+#[tokio::test]
+async fn response_performance_usage_keeps_history_when_next_turn_is_waiting() {
+    let (session, mut turn) = crate::session::tests::make_session_and_context().await;
+    turn.turn_timing_state
+        .mark_turn_started(Instant::now())
+        .await;
+    let mut guard = turn
+        .turn_timing_state
+        .begin_response_performance(Some("ultrafast"));
+    guard.started_at = Instant::now() - Duration::from_secs(1);
+    guard.complete(Some(100));
+    session.send_token_count_event(&turn).await;
+    let first = session
+        .token_usage_info()
+        .await
+        .unwrap()
+        .response_performance
+        .unwrap();
+    assert_eq!(first.output_tokens, 100);
+    assert_eq!(
+        first.minute_samples[0].mode,
+        Some(codex_protocol::response_performance::ResponseSpeedMode::Ultrafast)
+    );
+    turn.sub_id = "next-waiting-turn".into();
+    turn.turn_timing_state
+        .mark_turn_started(Instant::now())
+        .await;
+    session.send_token_count_event(&turn).await;
+    session.send_token_count_event(&turn).await;
+    let next = session
+        .token_usage_info()
+        .await
+        .unwrap()
+        .response_performance
+        .unwrap();
+    assert_eq!(next.completed_requests, 0);
+    assert!(next.minute_samples.is_empty());
+    assert!(next.started_at_unix_ms.is_some());
+    assert_eq!(next.history.len(), 1);
+    assert_eq!(next.history[0].turn_id, first.turn_id);
+    assert_eq!(next.history[0].minute_samples[0].output_tokens, 100);
 }
 
 #[tokio::test]

@@ -1756,11 +1756,15 @@ impl Session {
                 self.apply_rollout_reconstruction(&turn_context, &rollout_items)
                     .await;
 
-                // Seed usage info from the recorded rollout so UIs can show token counts
-                // immediately on resume/fork.
-                if let Some(info) = Self::last_token_info_from_rollout(&rollout_items) {
+                // Keep inherited token totals, but start this conversation's TPS history fresh.
+                let fork_token_info =
+                    Self::last_token_info_from_rollout(&rollout_items).map(|mut info| {
+                        info.response_performance = None;
+                        info
+                    });
+                if let Some(info) = &fork_token_info {
                     let mut state = self.state.lock().await;
-                    state.set_token_info(Some(info));
+                    state.set_token_info(Some(info.clone()));
                 }
                 self.state.lock().await.latest_token_usage_record =
                     Self::last_token_usage_record_from_rollout(&rollout_items);
@@ -1790,6 +1794,15 @@ impl Session {
                         // cold resume cannot observe inherited settings as the latest value.
                         rollout_items.push(thread_settings_applied);
                     }
+                }
+                if let Some(info) = fork_token_info {
+                    // Persist the reset after inherited records so cold resume stays isolated.
+                    rollout_items.push(RolloutItem::EventMsg(EventMsg::TokenCount(
+                        TokenCountEvent {
+                            info: Some(info),
+                            rate_limits: None,
+                        },
+                    )));
                 }
                 self.persist_rollout_items(&rollout_items).await;
 
@@ -5081,15 +5094,22 @@ impl Session {
         let (mut info, rate_limits) = {
             let mut state = self.state.lock().await;
             let (mut info, rate_limits) = state.token_info_and_rate_limits();
-            if let Some(info) = info.as_mut() {
-                info.response_performance = Some(
-                    turn_context
-                        .turn_timing_state
-                        .response_performance(&turn_context.sub_id),
-                );
-                // Keep attach/reload replay consistent with live notifications.
-                state.set_token_info(Some(info.clone()));
-            }
+            // A new turn boundary must reach the UI before its first observation,
+            // including conversations which have no token usage yet.
+            let info = info.get_or_insert_with(|| TokenUsageInfo {
+                total_token_usage: TokenUsage::default(),
+                last_token_usage: TokenUsage::default(),
+                model_context_window: turn_context.model_context_window(),
+                response_performance: None,
+                context_policy: None,
+            });
+            let mut performance = turn_context
+                .turn_timing_state
+                .response_performance(&turn_context.sub_id);
+            performance.retain_history_from(info.response_performance.as_ref());
+            info.response_performance = Some(performance);
+            state.set_token_info(Some(info.clone()));
+            let info = Some(info.clone());
             (info, rate_limits)
         };
         if let Some(info) = info.as_mut()

@@ -4019,6 +4019,65 @@ async fn record_initial_history_reconstructs_forked_transcript() {
 }
 
 #[tokio::test]
+async fn response_performance_fork_keeps_token_totals_and_clears_parent_graph() {
+    let (mut session, turn_context) = make_session_and_context().await;
+    let rollout_path = attach_thread_persistence(&mut session).await;
+    let (mut rollout_items, _) = sample_rollout(&session, &turn_context).await;
+    let parent_info = TokenUsageInfo {
+        total_token_usage: TokenUsage {
+            total_tokens: 42,
+            ..Default::default()
+        },
+        last_token_usage: TokenUsage {
+            total_tokens: 12,
+            ..Default::default()
+        },
+        model_context_window: Some(2_000),
+        context_policy: None,
+        response_performance: Some(codex_protocol::response_performance::ResponsePerformance {
+            turn_id: "parent-turn".to_string(),
+            started_at_unix_ms: Some(1_000),
+            observed_at_unix_ms: Some(2_000),
+            ..Default::default()
+        }),
+    };
+    rollout_items.push(RolloutItem::EventMsg(EventMsg::TokenCount(
+        TokenCountEvent {
+            info: Some(parent_info.clone()),
+            rate_limits: None,
+        },
+    )));
+    session
+        .record_initial_history(InitialHistory::Forked(rollout_items))
+        .await;
+    let mut expected = parent_info;
+    expected.response_performance = None;
+    assert_eq!(
+        session.state.lock().await.token_info(),
+        Some(expected.clone())
+    );
+    session.flush_rollout().await.expect("flush fork");
+    let InitialHistory::Resumed(resumed) = RolloutRecorder::get_rollout_history(&rollout_path)
+        .await
+        .expect("read fork history")
+    else {
+        panic!("expected resumed history")
+    };
+    assert_eq!(
+        Session::last_token_info_from_rollout(&resumed.history),
+        Some(expected.clone())
+    );
+    let (resumed_session, _) = make_session_and_context().await;
+    resumed_session
+        .record_initial_history(InitialHistory::Resumed(resumed))
+        .await;
+    assert_eq!(
+        resumed_session.state.lock().await.token_info(),
+        Some(expected)
+    );
+}
+
+#[tokio::test]
 async fn start_new_context_window_persists_checkpoint_state() {
     let (mut session, turn_context, _rx) = make_session_and_context_with_auth_and_config_and_rx(
         CodexAuth::from_api_key("Test API Key"),

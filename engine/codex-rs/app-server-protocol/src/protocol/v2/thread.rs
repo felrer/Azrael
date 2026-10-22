@@ -2018,9 +2018,23 @@ mod response_performance_tests {
         assert!(info.response_performance.is_none());
         let mut stats = codex_protocol::response_performance::ResponsePerformance {
             turn_id: "turn-1".into(),
+            started_at_unix_ms: Some(1_000),
+            observed_at_unix_ms: Some(2_000),
             ..Default::default()
         };
-        stats.record(Some(123), 1000);
+        stats.record_at_mode(
+            Some(123),
+            1000,
+            0,
+            Some(codex_protocol::response_performance::ResponseSpeedMode::Fast),
+        );
+        stats.history.push(
+            codex_protocol::response_performance::ResponsePerformanceTurn {
+                turn_id: "previous".into(),
+                started_at_unix_ms: 500,
+                minute_samples: stats.minute_samples.clone(),
+            },
+        );
         info.response_performance = Some(stats);
         let persisted = serde_json::to_value(&info).unwrap();
         let restored: codex_protocol::protocol::TokenUsageInfo =
@@ -2029,6 +2043,9 @@ mod response_performance_tests {
         assert_eq!(wire["responsePerformance"]["turnId"], "turn-1");
         assert_eq!(wire["responsePerformance"]["outputTokens"], 123);
         assert_eq!(wire["responsePerformance"]["completedRequests"], 1);
+        assert_eq!(wire["responsePerformance"]["startedAtUnixMs"], 1_000);
+        assert_eq!(wire["responsePerformance"]["minuteSamples"][0]["mode"], "fast");
+        assert_eq!(wire["responsePerformance"]["history"][0]["turnId"], "previous");
     }
 }
 

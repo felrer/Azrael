@@ -50,11 +50,42 @@ test("minute TPS graph distinguishes estimates, gaps, zero and truncated history
  h.responsePerformanceGraph=(...args)=>{calculations++;return nativeGraph(...args)};
  h.st=()=>({...nativeIntl,locale});
  h.wd=()=>({...nativeReact,useMemo(fn,deps){memoCalls.push(deps);if(!previousDeps||deps.some((v,i)=>!Object.is(v,previousDeps[i]))){previousDeps=deps;memoValue=fn()}return memoValue}});
- h.XSa({conversationId:'a',contextUsage:usage});h.XSa({conversationId:'b',contextUsage:usage});assert.equal(calculations,1);assert.equal(memoCalls[0][0],base);assert.equal(memoCalls[0][1],false);
- const nextUsage={...usage,responsePerformance:{...base,turnId:'b'}};h.XSa({conversationId:'b',contextUsage:nextUsage});assert.equal(calculations,2);
- locale='ko-KR';const localized=h.XSa({conversationId:null,contextUsage:nextUsage});assert.equal(calculations,3);assert.equal(memoCalls.at(-1)[1],true);assert.match(localized.props.children.props['aria-label'],/분별 TPS · 추정/);
- h.XSa({contextUsage:{...usage,responsePerformance:undefined}});assert.equal(calculations,4);assert.equal(memoCalls.length,5);assert.equal(memoCalls.at(-1)[0],undefined);
+ h.XSa({conversationId:'a',contextUsage:usage});h.XSa({conversationId:'b',contextUsage:usage});assert.equal(calculations,2);assert.equal(memoCalls[0][0],base);assert.equal(memoCalls[0][1],false);
+ const nextUsage={...usage,responsePerformance:{...base,turnId:'b'}};h.XSa({conversationId:'b',contextUsage:nextUsage});assert.equal(calculations,3);
+ locale='ko-KR';const localized=h.XSa({conversationId:null,contextUsage:nextUsage});assert.equal(calculations,4);assert.equal(memoCalls.at(-1)[1],true);assert.match(localized.props.children.props['aria-label'],/분별 TPS · 추정/);
+ h.XSa({contextUsage:{...usage,responsePerformance:undefined}});assert.equal(calculations,5);assert.equal(memoCalls.length,5);assert.equal(memoCalls.at(-1)[0],undefined);
  assert.doesNotMatch(declaration(transformed,'XSa'),/setInterval|setTimeout/);
+});
+test("timestamped TPS retains turns, clips weighted mode averages, and marks a waiting turn",()=>{
+ const end=new Date(2026,9,23,12,40).getTime(),start=end-40*60000;
+ const sample=(minute,outputTokens,requestDurationMs,mode)=>({minute,outputTokens,requestDurationMs,mode});
+ const p={turnId:'waiting',startedAtUnixMs:end,observedAtUnixMs:end,outputTokens:0,requestDurationMs:0,completedRequests:0,unmeasuredRequests:0,graphEstimated:true,minuteSamples:[],history:[
+  {turnId:'old',startedAtUnixMs:start-30000,minuteSamples:[sample(0,100,1000,'standard'),sample(1,100,3000,'standard'),sample(3,0,1000,'fast'),sample(4,400,1000,'fast'),sample(4,300,1000,'ultrafast'),sample(5,200,1000,null)]},
+  {turnId:'prior',startedAtUnixMs:end-60000,minuteSamples:[sample(0,50,1000,'standard')]}
+ ]};
+ const graph=injection.responsePerformanceGraph(jsx,p,false,{Switch:'native-switch'}),svg=graph.props.children[1],shapes=svg.props.children;
+ assert.equal(shapes.filter(n=>n?.type==='circle').length,7);assert.equal(shapes.filter(n=>n?.props['data-tps-join']).length,2);
+ assert.equal(shapes.filter(n=>n?.props['data-turn-boundary']).length,2);
+ assert.equal(shapes.find(n=>n?.props['data-turn-boundary']==='waiting').props.x1,264);
+ assert.equal(shapes.filter(n=>n?.props['data-mode-average']).length,0);
+ assert.equal(graph.props.children[4].props.children[1].props.checked,false);
+ assert.match(graph.props['aria-label'],/Unknown mode: 200\.0 tokens\/s/);
+ const timestamps=graph.props.children[2].props.children;assert.deepEqual(timestamps.map(n=>n.props.children),['12:39','12:40']);
+ assert.ok(timestamps.every(n=>/^\d{2}:\d{2}$/.test(n.props.children)));
+ const enabled=injection.responsePerformanceGraph(jsx,p,false,{averages:true}),means=enabled.props.children[1].props.children.filter(n=>n?.props['data-mode-average']);
+ assert.equal(means.length,3);assert.equal(means.find(n=>n.props['data-mode-average']==='standard').props['data-tps'],200/4500*1000);
+ assert.equal(means.find(n=>n.props['data-mode-average']==='fast').props['data-tps'],200);assert.equal(means.find(n=>n.props['data-mode-average']==='ultrafast').props.stroke,'var(--color-purple)');
+ assert.match(JSON.stringify(enabled.props.children[5]),/Standard: 44\.4 tokens\/s/);
+ assert.match(injection.responsePerformanceGraph(jsx,p,true).props['aria-label'],/최근 40분/);
+ const onlyWaiting=injection.responsePerformanceGraph(jsx,{...p,history:[]},false);assert.equal(onlyWaiting.props.children[1].props.children.filter(n=>n?.type==='circle').length,0);
+ const current=injection.responsePerformanceDescription(p,false);assert.equal(current,'Waiting for measurement');
+ const unmeasured=injection.responsePerformanceGraph(jsx,{...p,graphEstimated:false},false);assert.equal(unmeasured.props.children[1].props.children.filter(n=>n?.type==='circle').length,7);assert.equal(unmeasured.props.children[1].props.children.find(n=>n?.props['data-turn-boundary']==='waiting').props.x1,264);
+ const partialMinute=injection.responsePerformanceGraph(jsx,{...p,history:[],startedAtUnixMs:end-90000,minuteSamples:[sample(0,100,1000,'standard'),sample(1,300,1000,'standard')]},false,{averages:true});assert.equal(partialMinute.props.children[1].props.children.find(n=>n?.props['data-mode-average']==='standard').props['data-tps'],200);
+ const closeStarts=injection.responsePerformanceGraph(jsx,{...p,history:[0,1,2].map(i=>({turnId:'close-'+i,startedAtUnixMs:end-3000+i*1000,minuteSamples:[]})),graphEstimated:false},false);const closeLabels=closeStarts.props.children[2].props.children;assert.equal(closeLabels.length,4);assert.deepEqual(closeLabels.map(n=>n.props['data-timestamp-row']),[0,1,2,3]);assert.ok(closeLabels.every(n=>/^\d{2}:\d{2}$/.test(n.props.children)));
+ for(const patch of [{observedAtUnixMs:NaN},{startedAtUnixMs:end+1},{history:null},{history:[p.history[1],p.history[0]]},{minuteSamples:[sample(-1,1,1,'fast')]},{minuteSamples:[sample(0,1,0,'fast')]},{minuteSamples:[sample(0,1,1,'turbo')]},{minuteSamples:[sample(0,1,1,'fast'),sample(0,1,1,'fast')]}])assert.equal(injection.responsePerformanceGraph(jsx,{...p,...patch},false),null);
+ const one=injection.responsePerformanceGraph(jsx,{...p,history:[],startedAtUnixMs:end-1000,minuteSamples:[sample(0,0,1000,'fast')]},false);assert.equal(one.props.children[1].props.children.find(n=>n?.type==='circle').props.cy,78);
+ const multimode=injection.responsePerformanceGraph(jsx,{...p,history:[],startedAtUnixMs:end-60000,minuteSamples:[sample(0,100,1000,'standard'),sample(0,200,1000,'fast'),sample(0,300,1000,'ultrafast')]},false,{averages:true});assert.equal(multimode.props.children[1].props.children.filter(n=>n?.type==='circle').length,3);assert.equal(multimode.props.children[1].props.children.filter(n=>n?.props['data-tps-join']).length,0);
+ const unknown=injection.responsePerformanceGraph(jsx,{...p,history:[],startedAtUnixMs:end-60000,minuteSamples:[{minute:0,outputTokens:1,requestDurationMs:1000}]},false,{averages:true});assert.equal(unknown.props.children[1].props.children.find(n=>n?.type==='circle').props['data-mode'],'unknown');assert.equal(unknown.props.children[1].props.children.filter(n=>n?.props['data-mode-average']).length,0);
 });
 test("disabled auto-compaction uses the second capacity lap only at the threshold",()=>{
  for(const [input,enabled,percent,lap] of [[599999,false,599999/600000*100,false],[600000,false,0,true],[800000,false,50,true],[1000000,false,100,true],[1200000,false,100,true],[600000,true,100,false],[800000,true,100,false]]){

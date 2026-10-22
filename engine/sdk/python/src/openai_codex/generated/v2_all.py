@@ -4328,13 +4328,29 @@ class OtherResponseItem(BaseModel):
     type: Annotated[Literal["other"], Field(title="OtherResponseItemType")]
 
 
+class ResponseSpeedMode(Enum):
+    standard = "standard"
+    fast = "fast"
+    ultrafast = "ultrafast"
+
+
 class ResponseMinuteSample(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
     minute: Annotated[int, Field(ge=0)]
+    mode: ResponseSpeedMode | None = None
     output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
     request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
+
+
+class ResponsePerformanceTurn(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    minute_samples: Annotated[list[ResponseMinuteSample], Field(alias="minuteSamples")]
+    started_at_unix_ms: Annotated[int, Field(alias="startedAtUnixMs")]
+    turn_id: Annotated[str, Field(alias="turnId")]
 
 
 class ResponsePerformance(BaseModel):
@@ -4343,9 +4359,14 @@ class ResponsePerformance(BaseModel):
     )
     completed_requests: Annotated[int, Field(alias="completedRequests", ge=0)]
     graph_estimated: Annotated[bool | None, Field(alias="graphEstimated")] = False
-    minute_samples: Annotated[list[ResponseMinuteSample] | None, Field(alias="minuteSamples")] = []
+    history: list[ResponsePerformanceTurn] | None = []
+    minute_samples: Annotated[
+        list[ResponseMinuteSample] | None, Field(alias="minuteSamples")
+    ] = []
+    observed_at_unix_ms: Annotated[int | None, Field(alias="observedAtUnixMs")] = None
     output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
     request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
+    started_at_unix_ms: Annotated[int | None, Field(alias="startedAtUnixMs")] = None
     truncated_minutes: Annotated[bool | None, Field(alias="truncatedMinutes")] = False
     turn_id: Annotated[str, Field(alias="turnId")]
     unmeasured_requests: Annotated[int, Field(alias="unmeasuredRequests", ge=0)]

@@ -6,7 +6,9 @@ const crates = { protocol: "codex-protocol", core: "codex-core", appserver: "cod
 if (!sourceRoot || !path.isAbsolute(sourceRoot) || !Object.hasOwn(crates, scope) || extra.length) {
   throw Error("Usage: check-response-tps-native.cjs <absolute frozen engine root> <protocol|core|appserver>");
 }
-const filter = scope === "core" ? "turn_timing::tests" : "response_performance";
-const result = runCargoTest(sourceRoot, ["test", "-p", crates[scope], "--lib", filter, "--locked", "--offline", "--", "--test-threads=1"], { isolateHostEnvironment: true });
-if (result.error) throw result.error;
-process.exitCode = result.status ?? 1;
+const filters = scope === "core" ? ["turn_timing::tests", "session::tests::response_performance"] : ["response_performance"];
+for (const filter of filters) {
+  const result = runCargoTest(sourceRoot, ["test", "-p", crates[scope], "--lib", filter, "--locked", "--offline", "--", "--test-threads=1"], { isolateHostEnvironment: true });
+  if (result.error) throw result.error;
+  if (result.status !== 0) { process.exitCode = result.status ?? 1; break; }
+}

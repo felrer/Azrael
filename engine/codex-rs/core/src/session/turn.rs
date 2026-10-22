@@ -2806,7 +2806,9 @@ async fn try_run_sampling_request(
             )?;
         }
     }
-    let mut response_performance = turn_context.turn_timing_state.begin_response_performance();
+    let mut response_performance = turn_context
+        .turn_timing_state
+        .begin_response_performance(step_context.settings.service_tier.as_deref());
     let mut stream = if crate::managed_catalog::is_managed(&step_context.settings.model_info.slug) {
         crate::managed_runtime::stream(
             sess.as_ref(),

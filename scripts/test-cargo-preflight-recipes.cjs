@@ -24,6 +24,14 @@ function fixtures(files) {
 const oauth = stage => check('check-mcp-oauth-store', ['--stage', stage], `oauth-${stage}`);
 const capacity = check('check-capacity-recovery');
 
+test('TPS core recipe preserves timing and fork isolation checks', () => {
+  const result = recipesForCheck(config, check('check-response-tps-native', ['core']));
+  assert.deepEqual(result.gaps, []);
+  assert.deepEqual(result.cargoPreparations.map(recipe => recipe.args),
+    ['turn_timing::tests', 'session::tests::response_performance'].map(filter =>
+      ['test', '-p', 'codex-core', '--lib', filter, '--locked', '--offline', '--', '--test-threads=1']));
+});
+
 test('session restoration recipe preserves all recovery filters and preflight gates', () => {
   const result = recipesForCheck(config, check('check-task-recovery-native'));
   assert.deepEqual(result.gaps, []);

@@ -92,6 +92,8 @@ export type { ResponseItem } from "./ResponseItem";
 export type { ResponseItemId } from "./ResponseItemId";
 export type { ResponseMinuteSample } from "./ResponseMinuteSample";
 export type { ResponsePerformance } from "./ResponsePerformance";
+export type { ResponsePerformanceTurn } from "./ResponsePerformanceTurn";
+export type { ResponseSpeedMode } from "./ResponseSpeedMode";
 export type { ReviewDecision } from "./ReviewDecision";
 export type { RootResumeAgentTask } from "./RootResumeAgentTask";
 export type { RootResumeReasoningSettings } from "./RootResumeReasoningSettings";
