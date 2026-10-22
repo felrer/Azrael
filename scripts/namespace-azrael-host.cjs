@@ -49,7 +49,7 @@ const { CAPACITY_RETRY_ASSET, injectCapacityRetryStop } = require("./inject-capa
 const { ERROR_PRESENTATION_ASSET, injectErrorPresentation } = require("./inject-error-presentation.cjs");
 const { THREAD_BRANCH_ASSET, injectThreadBranch } = require("./inject-thread-branch.cjs");
 const { BTW_ASSETS, injectBtw } = require("./inject-btw.cjs");
-const { ASSET: RECENT_CHAT_FILTER_ASSET, injectRecentChatFilter } = require("./inject-recent-chat-filter.cjs");
+const { ASSET: RECENT_CHAT_FILTER_ASSET, QUERY_ASSET: RECENT_CHAT_QUERY_ASSET, injectRecentChatFilter } = require("./inject-recent-chat-filter.cjs");
 const { ASSET: WEBVIEW_IDLE_ASSET, injectWebviewIdle } = require("./inject-webview-idle.cjs");
 const { ASSET: SESSION_FLAGS_ASSET, injectSessionFlags } = require("./inject-session-flags.cjs");
 const { ASSET: TEAM_UI_ASSET, injectTeamUI } = require("./inject-team-ui.cjs");
@@ -587,7 +587,7 @@ const ASSET_RULE_PATHS = {
   "inject-capacity-retry-stop.cjs": [CAPACITY_RETRY_ASSET],
   "inject-btw.cjs": BTW_ASSETS,
   "btw-conversation.cjs": BTW_ASSETS,
-  "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET, RECENT_THREAD_LIST_ASSET],
+  "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET, RECENT_THREAD_LIST_ASSET, RECENT_CHAT_QUERY_ASSET],
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
   "inject-team-ui.cjs": [TEAM_UI_ASSET],
   "inject-team-runtime.cjs": TEAM_RUNTIME_ASSETS,
