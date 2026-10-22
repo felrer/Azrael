@@ -8,6 +8,10 @@ pub use registration::validate_azrael_registration;
 #[cfg(feature = "lifecycle")]
 mod azrael;
 #[cfg(feature = "lifecycle")]
+mod azrael_lifecycle;
+#[cfg(feature = "lifecycle")]
+pub use azrael_lifecycle::publish_azrael_shutdown;
+#[cfg(feature = "lifecycle")]
 mod azrael_storage;
 #[cfg(feature = "lifecycle")]
 pub use azrael_storage::AzraelStorageLease;

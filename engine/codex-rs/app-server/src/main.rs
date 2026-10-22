@@ -298,8 +298,10 @@ fn run_entry(azrael_entry: bool) -> anyhow::Result<()> {
             runtime_options,
         )
         .await?;
-        if exit == codex_app_server::AppServerExit::Forced {
+        if exit == codex_app_server::AppServerExit::Forced || (azrael_shared_windows && managed_daemon) {
             // Runtime teardown can wait forever for blocked rollout I/O.
+            // Shared shutdown has joined its mandatory work; diagnostic blocking tasks
+            // are best effort and must not keep a completed managed daemon alive.
             std::process::exit(0);
         }
         Ok(())

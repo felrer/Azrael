@@ -1,5 +1,53 @@
 use super::*;
 
+#[tokio::test]
+async fn diagnostic_snapshot_timeout_does_not_wait_for_collection() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("snapshot.json");
+    let snapshots = capture_shutdown_snapshot(
+        std::future::pending(),
+        path.clone(),
+        vec![],
+        Duration::from_millis(10),
+    )
+    .await;
+    assert!(snapshots.is_empty());
+    assert!(!path.exists());
+}
+
+#[tokio::test]
+async fn diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal() {
+    use codex_app_server_transport::daemon_recovery::RecoverySnapshot;
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("snapshot.json");
+    let id = thread_id();
+    let snapshot = RecoverySnapshot {
+        loaded: [id.clone()].into_iter().collect(),
+        ..Default::default()
+    };
+    let snapshots = capture_shutdown_snapshot(
+        std::future::ready(vec![Ok(snapshot)]),
+        path.clone(),
+        vec![id.clone()],
+        Duration::from_secs(2),
+    )
+    .await;
+    assert_eq!(snapshots.len(), 1);
+    assert!(snapshots[0].loaded.contains(&id));
+    let saved: serde_json::Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    assert_eq!(saved["schema"], 1);
+    assert_eq!(saved["loadedThreadIds"][0], id);
+    assert_eq!(saved["snapshots"].as_array().unwrap().len(), 1);
+    let snapshots = capture_shutdown_snapshot(
+        std::future::ready(vec![Ok(RecoverySnapshot::default())]),
+        path.join("invalid.json"),
+        vec![],
+        Duration::from_secs(2),
+    )
+    .await;
+    assert!(snapshots.is_empty());
+}
+
 fn registration(root: &Path, byte: char) -> Registration {
     Registration {
         schema: 1,

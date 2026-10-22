@@ -244,7 +244,7 @@ pub async fn ensure_azrael_started_with_args(
         endpoint: endpoint.clone(),
         native_argv: native_argv.clone(),
     };
-    let _lock = tokio::time::timeout(TIMEOUT, daemon.acquire_operation_lock())
+    let _lock = tokio::time::timeout(AZRAEL_STARTUP_TIMEOUT, daemon.acquire_operation_lock())
         .await
         .context("Azrael daemon operation is busy; retry after it completes")??;
     ensure!(
@@ -258,16 +258,17 @@ pub async fn ensure_azrael_started_with_args(
     let backend =
         crate::backend::PidBackend::new(selected_exe.clone(), daemon.pid_file.clone(), false)
             .with_explicit_args(native_argv);
-    if backend.is_starting_or_running().await? {
-        let identity = backend.running_executable_identity().await?.context(
-            "running daemon identity is unavailable; close its windows before selecting an engine",
-        )?;
-        let recorded: AzraelDaemonReceipt = serde_json::from_slice(&tokio::fs::read(&receipt_path).await
-            .context("running daemon has no Azrael receipt; close its windows before selecting this engine")?)?;
-        ensure!(
-            identity == selected_identity && recorded == receipt,
-            "an Azrael engine with a different binary or startup configuration is running; close all Azrael windows before switching releases or configuration"
-        );
+    let home = codex_utils_home_dir::find_codex_home()?;
+    if wait_for_engine(
+        &backend,
+        &receipt_path,
+        &receipt,
+        &selected_identity,
+        home.as_path(),
+        true,
+    )
+    .await?
+    {
         return Ok(endpoint);
     }
     // Never introduce a second engine beside an untracked live socket owner.
@@ -291,11 +292,133 @@ pub async fn ensure_azrael_started_with_args(
             bail!("private socket owner check timed out; retry after checking the running engine")
         }
     }
+    // A stopping predecessor may have taken time to exit. Revalidate immutable
+    // inputs before launching its replacement under the same operation lock.
+    ensure!(
+        crate::managed_install::executable_identity(&selected_exe).await? == selected_identity,
+        "selected Azrael executable changed while waiting for the engine; retry with immutable inputs"
+    );
+    ensure!(
+        azrael_engine_sha256(&selected_exe).await? == endpoint.engine_identity,
+        "selected Azrael executable changed before engine launch"
+    );
     backend.start().await?;
     let temporary = receipt_path.with_extension("json.tmp");
     tokio::fs::write(&temporary, serde_json::to_vec(&receipt)?).await?;
-    tokio::fs::rename(temporary, receipt_path).await?;
+    tokio::fs::rename(temporary, &receipt_path).await?;
+    ensure!(
+        wait_for_engine(
+            &backend,
+            &receipt_path,
+            &receipt,
+            &selected_identity,
+            home.as_path(),
+            false
+        )
+        .await?,
+        "Azrael engine exited before becoming ready"
+    );
     Ok(endpoint)
+}
+
+/// The operation lock stays held for this entire wait. Failed readiness alone
+/// never grants termination authority: only a matching native shutdown receipt
+/// can move a live engine into recovery.
+async fn wait_for_engine(
+    backend: &crate::backend::PidBackend,
+    receipt_path: &Path,
+    expected: &AzraelDaemonReceipt,
+    selected_identity: &crate::managed_install::ExecutableIdentity,
+    home: &Path,
+    recover_stopping: bool,
+) -> Result<bool> {
+    let deadline = tokio::time::Instant::now() + AZRAEL_STARTUP_TIMEOUT;
+    let mut stopping_since: Option<(
+        crate::azrael_lifecycle::ShutdownReceipt,
+        tokio::time::Instant,
+    )> = None;
+    loop {
+        if !backend.is_starting_or_running().await? {
+            return Ok(false);
+        }
+        if let Some(pid) = backend.running_pid().await? {
+            let identity = backend
+                .running_executable_identity()
+                .await?
+                .context("running daemon identity is unavailable")?;
+            let recorded: AzraelDaemonReceipt = serde_json::from_slice(&tokio::fs::read(receipt_path).await
+                .context("running daemon has no Azrael receipt; close its windows before selecting this engine")?)?;
+            ensure!(
+                &identity == selected_identity && recorded == *expected,
+                "an Azrael engine with a different binary or startup configuration is running; close all Azrael windows before switching releases or configuration"
+            );
+            let stopping =
+                crate::azrael_lifecycle::matching_shutdown(home, &expected.endpoint, backend)
+                    .await?;
+            let remaining = deadline.saturating_duration_since(tokio::time::Instant::now());
+            let ready = tokio::time::timeout(
+                remaining,
+                crate::azrael_lifecycle::probe_ready(&expected.endpoint, pid),
+            )
+            .await
+            .is_ok_and(|probe| probe.is_ok())
+                && backend.running_pid().await? == Some(pid);
+            let stopping_elapsed = if let Some(stopping) = stopping.as_ref().filter(|_| !ready) {
+                let (previous, since) = stopping_since
+                    .get_or_insert_with(|| (stopping.clone(), tokio::time::Instant::now()));
+                if previous != stopping {
+                    *previous = stopping.clone();
+                    *since = tokio::time::Instant::now();
+                }
+                since.elapsed()
+            } else {
+                stopping_since = None;
+                Duration::ZERO
+            };
+            match crate::azrael_lifecycle::recovery_action(
+                ready,
+                stopping.is_some(),
+                stopping_elapsed,
+            ) {
+                crate::azrael_lifecycle::RecoveryAction::Ready => return Ok(true),
+                crate::azrael_lifecycle::RecoveryAction::Recover if recover_stopping => {
+                    let stopping =
+                        stopping.context("shutdown recovery requires a matching receipt")?;
+                    // Re-read both receipt and executable immediately before
+                    // taking the PID lock. The backend then pins that record.
+                    ensure!(
+                        crate::azrael_lifecycle::matching_shutdown(
+                            home,
+                            &expected.endpoint,
+                            backend
+                        )
+                        .await?
+                        .as_ref()
+                            == Some(&stopping),
+                        "engine shutdown receipt changed during recovery"
+                    );
+                    ensure!(
+                        backend.running_executable_identity().await?.as_ref()
+                            == Some(selected_identity),
+                        "stopping engine executable identity changed"
+                    );
+                    tokio::time::timeout(
+                        deadline.saturating_duration_since(tokio::time::Instant::now()),
+                        backend.stop_shutdown_process(&stopping.process, selected_identity, 2),
+                    )
+                    .await
+                    .context("stopping engine recovery exceeded the startup deadline")??;
+                    continue;
+                }
+                _ => {}
+            }
+        }
+        ensure!(
+            tokio::time::Instant::now() < deadline,
+            "Azrael engine did not become ready within the startup deadline; its process was retained"
+        );
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
 }
 
 async fn probe_existing_socket(socket_path: &Path) -> io::Result<bool> {
@@ -320,29 +443,28 @@ pub async fn run_azrael_stdio_proxy_with_args(
     startup_args: &[String],
 ) -> Result<()> {
     validate_azrael_registration(&registration)?;
-    let endpoint = ensure_azrael_started_with_args(selected_exe, startup_args).await?;
+    let deadline = tokio::time::Instant::now() + AZRAEL_STARTUP_TIMEOUT;
+    let endpoint = tokio::time::timeout_at(
+        deadline,
+        ensure_azrael_started_with_args(selected_exe, startup_args),
+    )
+    .await
+    .context("Azrael engine startup deadline expired")??;
     ensure!(
         registration["engineVersion"] == endpoint.engine_version
             && registration["engineIdentity"] == endpoint.engine_identity,
         "window engine identity differs from the selected executable"
     );
-    // Startup races retry only before any official request can be sent.
-    let deadline = tokio::time::Instant::now() + AZRAEL_STARTUP_TIMEOUT;
-    let mut ws = loop {
-        match connect_azrael_registered(&endpoint.socket_path, &registration).await {
-            Ok(ws) => break ws,
-            Err(err)
-                if err.kind() == io::ErrorKind::NotFound
-                    || err.kind() == io::ErrorKind::ConnectionRefused =>
-            {
-                if tokio::time::Instant::now() >= deadline {
-                    return Err(err.into());
-                }
-                tokio::time::sleep(Duration::from_millis(50)).await;
-            }
-            Err(err) => return Err(err.into()),
-        }
-    };
+    let mut ws = connect_startup_with_retry(
+        deadline,
+        endpoint,
+        || ensure_azrael_started_with_args(selected_exe, startup_args),
+        |endpoint| {
+            let registration = &registration;
+            async move { connect_azrael_registered(&endpoint.socket_path, registration).await }
+        },
+    )
+    .await?;
     let mut stdin = BufReader::new(tokio::io::stdin());
     let mut stdout = tokio::io::stdout();
     let mut line = Vec::new();
@@ -371,6 +493,80 @@ pub async fn run_azrael_stdio_proxy_with_args(
                 }
             }
         }
+    }
+}
+
+/// Registration precedes reading stdin, so these retries cannot replay official
+/// RPC. The initial ensure and every retry share one absolute startup deadline.
+async fn connect_startup_with_retry<T, E, EF, C, CF>(
+    deadline: tokio::time::Instant,
+    expected: AzraelDaemonEndpoint,
+    mut ensure_started: E,
+    mut connect: C,
+) -> Result<T>
+where
+    E: FnMut() -> EF,
+    EF: std::future::Future<Output = Result<AzraelDaemonEndpoint>>,
+    C: FnMut(AzraelDaemonEndpoint) -> CF,
+    CF: std::future::Future<Output = io::Result<T>>,
+{
+    loop {
+        match tokio::time::timeout_at(deadline, connect(expected.clone()))
+            .await
+            .context("Azrael window registration startup deadline expired")?
+        {
+            Ok(connection) => return Ok(connection),
+            Err(error) if retryable_registration_transport(&error) => {
+                tokio::time::timeout_at(deadline, tokio::time::sleep(Duration::from_millis(50)))
+                    .await
+                    .context("Azrael window registration startup deadline expired")?;
+                let endpoint = tokio::time::timeout_at(deadline, ensure_started())
+                    .await
+                    .context("Azrael engine recovery startup deadline expired")??;
+                ensure!(
+                    endpoint == expected,
+                    "Azrael engine endpoint identity changed during window registration"
+                );
+            }
+            Err(error) => return Err(error.into()),
+        }
+    }
+}
+
+fn retryable_registration_transport(error: &io::Error) -> bool {
+    if matches!(
+        error.kind(),
+        io::ErrorKind::NotFound | io::ErrorKind::ConnectionRefused
+    ) {
+        return true;
+    }
+    // The registration helper synthesizes this kind on close/EOF. Native peer
+    // authentication rejects with PermissionDenied or a preserved OS error;
+    // do not reinterpret raw failures from that admission boundary.
+    if error.kind() == io::ErrorKind::ConnectionAborted && error.raw_os_error().is_none() {
+        return true;
+    }
+    // The remaining retryable closures retain their WebSocket transport type.
+    // Other admission and registration failures remain terminal.
+    match error
+        .get_ref()
+        .and_then(|source| source.downcast_ref::<tokio_tungstenite::tungstenite::Error>())
+    {
+        Some(
+            tokio_tungstenite::tungstenite::Error::ConnectionClosed
+            | tokio_tungstenite::tungstenite::Error::AlreadyClosed,
+        ) => true,
+        Some(tokio_tungstenite::tungstenite::Error::Protocol(
+            tokio_tungstenite::tungstenite::error::ProtocolError::ResetWithoutClosingHandshake,
+        )) => true,
+        Some(tokio_tungstenite::tungstenite::Error::Io(error)) => matches!(
+            error.kind(),
+            io::ErrorKind::UnexpectedEof
+                | io::ErrorKind::ConnectionReset
+                | io::ErrorKind::ConnectionAborted
+                | io::ErrorKind::BrokenPipe
+        ),
+        _ => false,
     }
 }
 
@@ -404,6 +600,129 @@ async fn read_bounded_line<R: tokio::io::AsyncBufRead + Unpin>(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn startup_endpoint() -> AzraelDaemonEndpoint {
+        AzraelDaemonEndpoint {
+            schema: 2,
+            instance_id: "a".repeat(64),
+            socket_path: PathBuf::from("private.sock"),
+            engine_version: env!("CARGO_PKG_VERSION").into(),
+            engine_identity: "b".repeat(64),
+        }
+    }
+
+    #[tokio::test]
+    async fn registration_startup_race_reensures_before_retry_without_forwarding_rpc() {
+        let endpoint = startup_endpoint();
+        let ensures = std::cell::Cell::new(0);
+        let connects = std::cell::Cell::new(0);
+        let connected = connect_startup_with_retry(
+            tokio::time::Instant::now() + Duration::from_secs(2),
+            endpoint.clone(),
+            || {
+                ensures.set(ensures.get() + 1);
+                std::future::ready(Ok(endpoint.clone()))
+            },
+            |actual| {
+                assert_eq!(actual, endpoint);
+                connects.set(connects.get() + 1);
+                std::future::ready(match connects.get() {
+                    1 => Err(io::Error::from(io::ErrorKind::NotFound)),
+                    2 => Err(io::Error::from(io::ErrorKind::ConnectionRefused)),
+                    3 => Err(io::Error::new(
+                        io::ErrorKind::ConnectionAborted,
+                        "registration close/EOF",
+                    )),
+                    _ => Ok(42),
+                })
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(connected, 42);
+        assert_eq!(ensures.get(), 3);
+        assert_eq!(connects.get(), 4);
+    }
+
+    #[tokio::test]
+    async fn registration_startup_rejects_admission_errors_without_reensure() {
+        for kind in [
+            io::ErrorKind::PermissionDenied,
+            io::ErrorKind::InvalidData,
+            io::ErrorKind::Other,
+        ] {
+            let ensures = std::cell::Cell::new(0);
+            let endpoint = startup_endpoint();
+            let result = connect_startup_with_retry(
+                tokio::time::Instant::now() + Duration::from_secs(2),
+                endpoint.clone(),
+                || {
+                    ensures.set(ensures.get() + 1);
+                    std::future::ready(Ok(endpoint.clone()))
+                },
+                |_| std::future::ready(Err::<(), _>(io::Error::from(kind))),
+            )
+            .await;
+            assert!(result.is_err());
+            assert_eq!(ensures.get(), 0, "retried {kind:?}");
+        }
+    }
+
+    #[tokio::test]
+    async fn registration_startup_reensure_cannot_reset_deadline_or_change_identity() {
+        let endpoint = startup_endpoint();
+        let connects = std::cell::Cell::new(0);
+        let result = connect_startup_with_retry(
+            tokio::time::Instant::now() + Duration::from_millis(80),
+            endpoint.clone(),
+            || std::future::pending::<Result<AzraelDaemonEndpoint>>(),
+            |_| {
+                connects.set(connects.get() + 1);
+                std::future::ready(Err::<(), _>(io::Error::from(io::ErrorKind::NotFound)))
+            },
+        )
+        .await;
+        assert!(result.unwrap_err().to_string().contains("deadline"));
+        assert_eq!(connects.get(), 1);
+        let mut changed = endpoint.clone();
+        changed.instance_id = "c".repeat(64);
+        let result = connect_startup_with_retry(
+            tokio::time::Instant::now() + Duration::from_secs(2),
+            endpoint,
+            || std::future::ready(Ok(changed.clone())),
+            |_| {
+                std::future::ready(Err::<(), _>(io::Error::from(
+                    io::ErrorKind::ConnectionRefused,
+                )))
+            },
+        )
+        .await;
+        assert!(result.unwrap_err().to_string().contains("identity changed"));
+    }
+
+    #[test]
+    fn registration_startup_retries_registration_close_and_typed_websocket_closures() {
+        use tokio_tungstenite::tungstenite::{Error, error::ProtocolError};
+        for error in [
+            Error::ConnectionClosed,
+            Error::AlreadyClosed,
+            Error::Io(io::Error::from(io::ErrorKind::UnexpectedEof)),
+            Error::Protocol(ProtocolError::ResetWithoutClosingHandshake),
+        ] {
+            assert!(retryable_registration_transport(&io::Error::other(error)));
+        }
+        assert!(!retryable_registration_transport(&io::Error::other(
+            Error::Io(io::Error::from(io::ErrorKind::PermissionDenied))
+        )));
+        assert!(retryable_registration_transport(&io::Error::new(
+            io::ErrorKind::ConnectionAborted,
+            "registration close/EOF"
+        )));
+        #[cfg(windows)]
+        assert!(!retryable_registration_transport(
+            &io::Error::from_raw_os_error(10053)
+        ));
+    }
 
     #[tokio::test]
     async fn absent_socket_with_absent_parent_does_not_attempt_a_connection() {
