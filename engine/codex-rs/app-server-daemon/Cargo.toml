@@ -17,6 +17,7 @@ default = ["lifecycle"]
 # Managed lifecycle remains the default; private registration is always available.
 lifecycle = [
     "dep:sha2",
+    "dep:data-encoding",
     "dep:anyhow",
     "dep:codex-app-server-protocol",
     "dep:codex-app-server-transport",
@@ -34,6 +35,7 @@ lifecycle = [
 
 [dependencies]
 sha2 = { workspace = true, optional = true }
+data-encoding = { workspace = true, optional = true }
 anyhow = { workspace = true, optional = true }
 codex-app-server-protocol = { workspace = true, optional = true }
 codex-app-server-transport = { workspace = true, optional = true }

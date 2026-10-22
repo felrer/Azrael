@@ -30,6 +30,17 @@ use tokio_util::sync::CancellationToken;
 
 #[test]
 fn listen_unix_socket_parses_as_unix_socket_transport() {
+    let home = std::env::current_dir().expect("current directory");
+    assert_eq!(
+        app_server_control_socket_path(&home).unwrap().as_path(),
+        home.join("ipc/app-server-control.sock")
+    );
+    assert_eq!(
+        super::app_server_startup_lock_path(&home)
+            .unwrap()
+            .as_path(),
+        home.join("ipc/app-server-startup.lock")
+    );
     assert_eq!(
         AppServerTransport::from_listen_url("unix://"),
         Ok(AppServerTransport::UnixSocket {
@@ -497,21 +508,13 @@ fn default_control_socket_path() -> AbsolutePathBuf {
 }
 
 fn test_socket_path(temp_dir: &Path) -> AbsolutePathBuf {
-    AbsolutePathBuf::from_absolute_path(
-        temp_dir
-            .join("app-server-control")
-            .join("app-server-control.sock"),
-    )
-    .expect("socket path should resolve")
+    AbsolutePathBuf::from_absolute_path(temp_dir.join("ipc").join("app-server-control.sock"))
+        .expect("socket path should resolve")
 }
 
 fn test_startup_lock_path(temp_dir: &Path) -> AbsolutePathBuf {
-    AbsolutePathBuf::from_absolute_path(
-        temp_dir
-            .join("app-server-control")
-            .join("app-server-startup.lock"),
-    )
-    .expect("startup lock path should resolve")
+    AbsolutePathBuf::from_absolute_path(temp_dir.join("ipc").join("app-server-startup.lock"))
+        .expect("startup lock path should resolve")
 }
 
 async fn connect_to_socket(socket_path: &Path) -> IoResult<UnixStream> {

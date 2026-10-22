@@ -9,7 +9,7 @@ $driveRoot = [IO.Path]::GetPathRoot([IO.Path]::GetFullPath($PSScriptRoot))
 $prefix = Join-Path $driveRoot ('azv-' + [guid]::NewGuid().ToString('N').Substring(0, 8) + '-')
 function New-BoundaryState([int]$SocketBytes, [string]$Text) {
     $base = $prefix + $Text
-    $socket = Join-Path $base 'app-server-control/app-server-control.sock'
+    $socket = Join-Path $base 'ipc/aaaaaaaaaaaaaaaaaaaa.sock'
     $padding = $SocketBytes - [Text.Encoding]::UTF8.GetByteCount($socket)
     if ($padding -lt 0) { throw 'Test prefix exceeds requested boundary.' }
     $base + ('a' * $padding)
@@ -18,7 +18,7 @@ function New-BoundaryState([int]$SocketBytes, [string]$Text) {
 foreach ($text in @('', '한글')) {
     foreach ($length in @(107, 108)) {
         $state = New-BoundaryState -SocketBytes $length -Text $text
-        $socket = Join-Path $state 'app-server-control/app-server-control.sock'
+        $socket = Join-Path $state 'ipc/aaaaaaaaaaaaaaaaaaaa.sock'
         if ([Text.Encoding]::UTF8.GetByteCount($socket) -ne $length) { throw 'Invalid test boundary.' }
         if (Test-Path -LiteralPath $state) { throw "Test state already exists: $state" }
         $message = $null
