@@ -1,0 +1,946 @@
+{
+  "schema": 1,
+  "owner": "CY-01-session-loading-review",
+  "purpose": "Independently readable diagnostic results retained after disposable profile cleanup",
+  "platform": "Windows x64 native; excludeTurns=true; signed out; explicit MCP disabled; implicit codex_apps startup observed; no turn start or tools",
+  "measurements": [
+    {
+      "name": "baseline4",
+      "startedAt": "2026-10-22T11:17:41.586Z",
+      "resourcesBefore": {
+        "processes": [
+          {
+            "ProcessId": 10700,
+            "Name": "cargo.exe"
+          }
+        ],
+        "freeMemoryKB": 7997048
+      },
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-10-22T11:18:35.252Z",
+      "resourcesAfter": {
+        "processes": [
+          {
+            "ProcessId": 10700,
+            "Name": "cargo.exe"
+          }
+        ],
+        "freeMemoryKB": 7784700
+      },
+      "status": "passed",
+      "engineExitCode": 0,
+      "remainingOwnedProcesses": 0,
+      "serverRequests": 0,
+      "unexpectedTurnStarted": false,
+      "steps": [
+        {
+          "phase": "initialize",
+          "elapsedMs": 499.645199999999,
+          "responseBytes": 351
+        },
+        {
+          "phase": "metadata",
+          "elapsedMs": 161.45900000000074,
+          "responseBytes": 1178
+        },
+        {
+          "phase": "cold-resume",
+          "elapsedMs": 36676.7424,
+          "responseBytes": 3667
+        },
+        {
+          "phase": "warm-resume",
+          "elapsedMs": 26.30500000000029,
+          "responseBytes": 3667
+        },
+        {
+          "phase": "recent-turns",
+          "elapsedMs": 25.162200000006123,
+          "responseBytes": 2760
+        },
+        {
+          "phase": "recent-items",
+          "elapsedMs": 3.8733999999967637,
+          "responseBytes": 1762
+        }
+      ]
+    },
+    {
+      "name": "instrumented1",
+      "startedAt": "2026-10-22T11:18:36.346Z",
+      "resourcesBefore": {
+        "processes": [
+          {
+            "ProcessId": 10700,
+            "Name": "cargo.exe"
+          }
+        ],
+        "freeMemoryKB": 7776732
+      },
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-10-22T11:19:34.926Z",
+      "resourcesAfter": {
+        "processes": [
+          {
+            "ProcessId": 70176,
+            "Name": "cargo.exe"
+          },
+          {
+            "ProcessId": 35176,
+            "Name": "cargo.exe"
+          }
+        ],
+        "freeMemoryKB": 7628760
+      },
+      "status": "passed",
+      "engineExitCode": 0,
+      "remainingOwnedProcesses": 0,
+      "serverRequests": 0,
+      "unexpectedTurnStarted": false,
+      "steps": [
+        {
+          "phase": "initialize",
+          "elapsedMs": 496.8641000000007,
+          "responseBytes": 355
+        },
+        {
+          "phase": "metadata",
+          "elapsedMs": 226.20780000000013,
+          "responseBytes": 1182
+        },
+        {
+          "phase": "cold-resume",
+          "elapsedMs": 36636.706900000005,
+          "responseBytes": 3671
+        },
+        {
+          "phase": "warm-resume",
+          "elapsedMs": 29.140199999994365,
+          "responseBytes": 3671
+        },
+        {
+          "phase": "recent-turns",
+          "elapsedMs": 39.60260000000562,
+          "responseBytes": 2760
+        },
+        {
+          "phase": "recent-items",
+          "elapsedMs": 4.194700000000012,
+          "responseBytes": 1762
+        }
+      ]
+    },
+    {
+      "name": "historyfirst1",
+      "startedAt": "2026-10-22T11:19:35.813Z",
+      "resourcesBefore": {
+        "processes": [
+          {
+            "ProcessId": 70176,
+            "Name": "cargo.exe"
+          },
+          {
+            "ProcessId": 35176,
+            "Name": "cargo.exe"
+          }
+        ],
+        "freeMemoryKB": 7617640
+      },
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-10-22T11:20:35.345Z",
+      "resourcesAfter": {
+        "processes": [
+          {
+            "ProcessId": 70176,
+            "Name": "cargo.exe"
+          },
+          {
+            "ProcessId": 35176,
+            "Name": "cargo.exe"
+          },
+          {
+            "ProcessId": 19876,
+            "Name": "rustc.exe"
+          },
+          {
+            "ProcessId": 58692,
+            "Name": "rustc.exe"
+          },
+          {
+            "ProcessId": 28848,
+            "Name": "rustc.exe"
+          },
+          {
+            "ProcessId": 7388,
+            "Name": "rustc.exe"
+          }
+        ],
+        "freeMemoryKB": 7618196
+      },
+      "status": "passed",
+      "engineExitCode": 0,
+      "remainingOwnedProcesses": 0,
+      "serverRequests": 0,
+      "unexpectedTurnStarted": false,
+      "steps": [
+        {
+          "phase": "initialize",
+          "elapsedMs": 479.0565000000006,
+          "responseBytes": 356
+        },
+        {
+          "phase": "metadata",
+          "elapsedMs": 183.83519999999953,
+          "responseBytes": 1183
+        },
+        {
+          "phase": "pre-resume-recent-turns",
+          "elapsedMs": 245.01620000000003,
+          "responseBytes": 2760
+        },
+        {
+          "phase": "pre-resume-recent-items",
+          "elapsedMs": 5.285299999999552,
+          "responseBytes": 1762
+        },
+        {
+          "phase": "cold-resume",
+          "elapsedMs": 42901.5924,
+          "responseBytes": 3672
+        },
+        {
+          "phase": "warm-resume",
+          "elapsedMs": 29.773600000000442,
+          "responseBytes": 3672
+        },
+        {
+          "phase": "recent-turns",
+          "elapsedMs": 9.725500000000466,
+          "responseBytes": 2760
+        },
+        {
+          "phase": "recent-items",
+          "elapsedMs": 4.267500000001746,
+          "responseBytes": 1762
+        }
+      ]
+    }
+  ],
+  "phases": {
+    "instrumented1": {
+      "scopes": [
+        {
+          "scope": "model_context_reverse_scan",
+          "phases": [
+            {
+              "phase": "scan",
+              "durationMs": 173.768
+            },
+            {
+              "phase": "scan_finished",
+              "durationMs": 0.896
+            }
+          ],
+          "complete": true,
+          "totalMs": 174.665,
+          "durationSumMs": 174.664,
+          "sumGapMs": 0.0010000000000047748
+        },
+        {
+          "scope": "request",
+          "phases": [
+            {
+              "phase": "attempts",
+              "durationMs": 36646.893
+            },
+            {
+              "phase": "request_return",
+              "durationMs": 0.106
+            }
+          ],
+          "complete": true,
+          "totalMs": 36647,
+          "durationSumMs": 36646.998999999996,
+          "sumGapMs": 0.0010000000038417056
+        },
+        {
+          "scope": "attempt",
+          "phases": [
+            {
+              "phase": "admission_locks",
+              "durationMs": 0.148
+            },
+            {
+              "phase": "running_probe",
+              "durationMs": 4.062
+            },
+            {
+              "phase": "metadata_model_context",
+              "durationMs": 123.818
+            },
+            {
+              "phase": "config_metadata",
+              "durationMs": 0.536
+            },
+            {
+              "phase": "config_resolution_retry",
+              "durationMs": 15.763
+            }
+          ],
+          "complete": true,
+          "totalMs": 144.328,
+          "durationSumMs": 144.327,
+          "sumGapMs": 0.0010000000000047748
+        },
+        {
+          "scope": "model_context_reverse_scan",
+          "phases": [
+            {
+              "phase": "scan",
+              "durationMs": 115.034
+            },
+            {
+              "phase": "scan_finished",
+              "durationMs": 0.235
+            }
+          ],
+          "complete": true,
+          "totalMs": 115.27,
+          "durationSumMs": 115.269,
+          "sumGapMs": 0.000999999999990564
+        },
+        {
+          "scope": "attempt",
+          "phases": [
+            {
+              "phase": "admission_locks",
+              "durationMs": 0.086
+            },
+            {
+              "phase": "running_probe",
+              "durationMs": 5.37
+            },
+            {
+              "phase": "metadata_model_context",
+              "durationMs": 1.512
+            },
+            {
+              "phase": "config_metadata",
+              "durationMs": 0.686
+            },
+            {
+              "phase": "config_resolution_retry",
+              "durationMs": 0.211
+            },
+            {
+              "phase": "session_spawn",
+              "durationMs": 36406.123
+            },
+            {
+              "phase": "client_attach",
+              "durationMs": 1.506
+            },
+            {
+              "phase": "writer_persist",
+              "durationMs": 3.537
+            },
+            {
+              "phase": "full_turns_conditional",
+              "durationMs": 0.188
+            },
+            {
+              "phase": "listener_attach",
+              "durationMs": 11.968
+            },
+            {
+              "phase": "response_hydration",
+              "durationMs": 20.602
+            },
+            {
+              "phase": "initial_page",
+              "durationMs": 36.58
+            },
+            {
+              "phase": "response_assembly",
+              "durationMs": 0.126
+            },
+            {
+              "phase": "response_send",
+              "durationMs": 0.854
+            },
+            {
+              "phase": "response_sent_postlude",
+              "durationMs": 12.343
+            }
+          ],
+          "complete": true,
+          "totalMs": 36501.696,
+          "durationSumMs": 36501.692,
+          "sumGapMs": 0.004000000000814907
+        },
+        {
+          "scope": "core_spawn",
+          "phases": [
+            {
+              "phase": "config_and_policy",
+              "durationMs": 4.869
+            },
+            {
+              "phase": "model_list_default",
+              "durationMs": 847.354
+            },
+            {
+              "phase": "model_info",
+              "durationMs": 1.245
+            },
+            {
+              "phase": "session_configuration",
+              "durationMs": 0.579
+            },
+            {
+              "phase": "session_new",
+              "durationMs": 30481.451
+            },
+            {
+              "phase": "runtime_io",
+              "durationMs": 0.175
+            }
+          ],
+          "complete": true,
+          "totalMs": 31335.675,
+          "durationSumMs": 31335.673000000003,
+          "sumGapMs": 0.001999999996769475
+        },
+        {
+          "scope": "session_new",
+          "phases": [
+            {
+              "phase": "initialization",
+              "durationMs": 1.223
+            },
+            {
+              "phase": "parallel_persistence_db_auth_mcp_join",
+              "durationMs": 13.713
+            },
+            {
+              "phase": "runtime_setup",
+              "durationMs": 474.584
+            },
+            {
+              "phase": "mcp_runtime_install",
+              "durationMs": 3.624
+            },
+            {
+              "phase": "history_restore_and_readiness",
+              "durationMs": 29987.219
+            }
+          ],
+          "complete": true,
+          "totalMs": 30480.364,
+          "durationSumMs": 30480.363,
+          "sumGapMs": 0.0010000000002037268
+        },
+        {
+          "scope": "writer_resume",
+          "phases": [
+            {
+              "phase": "writer_locks",
+              "durationMs": 3.03
+            },
+            {
+              "phase": "history_revision_reuse_or_reload",
+              "durationMs": 1.156
+            },
+            {
+              "phase": "recorder_setup",
+              "durationMs": 0.249
+            },
+            {
+              "phase": "recorder_open",
+              "durationMs": 2.189
+            },
+            {
+              "phase": "recorder_attach",
+              "durationMs": 0.451
+            },
+            {
+              "phase": "writer_attached",
+              "durationMs": 0.158
+            }
+          ],
+          "complete": true,
+          "totalMs": 7.236,
+          "durationSumMs": 7.233,
+          "sumGapMs": 0.0030000000000001137
+        },
+        {
+          "scope": "request",
+          "phases": [
+            {
+              "phase": "attempts",
+              "durationMs": 17.476
+            },
+            {
+              "phase": "request_return",
+              "durationMs": 0.094
+            }
+          ],
+          "complete": true,
+          "totalMs": 17.57,
+          "durationSumMs": 17.57,
+          "sumGapMs": 0
+        },
+        {
+          "scope": "attempt",
+          "phases": [
+            {
+              "phase": "admission_locks",
+              "durationMs": 0.092
+            },
+            {
+              "phase": "running_probe",
+              "durationMs": 17.108
+            }
+          ],
+          "complete": true,
+          "totalMs": 17.201,
+          "durationSumMs": 17.2,
+          "sumGapMs": 0.0010000000000012221
+        }
+      ],
+      "unparsedRecords": 0,
+      "unclosedScopes": 0,
+      "meaning": "Scope completion is timing evidence; RPC/process outcomes establish success. Nested scopes are not additive."
+    },
+    "historyfirst1": {
+      "scopes": [
+        {
+          "scope": "model_context_reverse_scan",
+          "phases": [
+            {
+              "phase": "scan",
+              "durationMs": 139.88
+            },
+            {
+              "phase": "scan_finished",
+              "durationMs": 0.355
+            }
+          ],
+          "complete": true,
+          "totalMs": 140.235,
+          "durationSumMs": 140.23499999999999,
+          "sumGapMs": 2.842170943040401e-14
+        },
+        {
+          "scope": "request",
+          "phases": [
+            {
+              "phase": "attempts",
+              "durationMs": 42911.597
+            },
+            {
+              "phase": "request_return",
+              "durationMs": 0.105
+            }
+          ],
+          "complete": true,
+          "totalMs": 42911.703,
+          "durationSumMs": 42911.702000000005,
+          "sumGapMs": 0.000999999996565748
+        },
+        {
+          "scope": "attempt",
+          "phases": [
+            {
+              "phase": "admission_locks",
+              "durationMs": 0.102
+            },
+            {
+              "phase": "running_probe",
+              "durationMs": 3.24
+            },
+            {
+              "phase": "metadata_model_context",
+              "durationMs": 112.485
+            },
+            {
+              "phase": "config_metadata",
+              "durationMs": 0.967
+            },
+            {
+              "phase": "config_resolution_retry",
+              "durationMs": 16.09
+            }
+          ],
+          "complete": true,
+          "totalMs": 132.887,
+          "durationSumMs": 132.884,
+          "sumGapMs": 0.0030000000000143245
+        },
+        {
+          "scope": "model_context_reverse_scan",
+          "phases": [
+            {
+              "phase": "scan",
+              "durationMs": 106.132
+            },
+            {
+              "phase": "scan_finished",
+              "durationMs": 0.42
+            }
+          ],
+          "complete": true,
+          "totalMs": 106.552,
+          "durationSumMs": 106.552,
+          "sumGapMs": 0
+        },
+        {
+          "scope": "attempt",
+          "phases": [
+            {
+              "phase": "admission_locks",
+              "durationMs": 0.073
+            },
+            {
+              "phase": "running_probe",
+              "durationMs": 1.772
+            },
+            {
+              "phase": "metadata_model_context",
+              "durationMs": 1.098
+            },
+            {
+              "phase": "config_metadata",
+              "durationMs": 0.61
+            },
+            {
+              "phase": "config_resolution_retry",
+              "durationMs": 0.18
+            },
+            {
+              "phase": "session_spawn",
+              "durationMs": 42698.397
+            },
+            {
+              "phase": "client_attach",
+              "durationMs": 1.503
+            },
+            {
+              "phase": "writer_persist",
+              "durationMs": 3.205
+            },
+            {
+              "phase": "full_turns_conditional",
+              "durationMs": 0.165
+            },
+            {
+              "phase": "listener_attach",
+              "durationMs": 11.28
+            },
+            {
+              "phase": "response_hydration",
+              "durationMs": 18.438
+            },
+            {
+              "phase": "initial_page",
+              "durationMs": 28.763
+            },
+            {
+              "phase": "response_assembly",
+              "durationMs": 0.102
+            },
+            {
+              "phase": "response_send",
+              "durationMs": 0.762
+            },
+            {
+              "phase": "response_sent_postlude",
+              "durationMs": 11.478
+            }
+          ],
+          "complete": true,
+          "totalMs": 42777.831,
+          "durationSumMs": 42777.825999999994,
+          "sumGapMs": 0.005000000004656613
+        },
+        {
+          "scope": "core_spawn",
+          "phases": [
+            {
+              "phase": "config_and_policy",
+              "durationMs": 899.989
+            },
+            {
+              "phase": "model_list_default",
+              "durationMs": 916.896
+            },
+            {
+              "phase": "model_info",
+              "durationMs": 0.647
+            },
+            {
+              "phase": "session_configuration",
+              "durationMs": 0.45
+            },
+            {
+              "phase": "session_new",
+              "durationMs": 35325.363
+            },
+            {
+              "phase": "runtime_io",
+              "durationMs": 0.193
+            }
+          ],
+          "complete": true,
+          "totalMs": 37143.538,
+          "durationSumMs": 37143.538,
+          "sumGapMs": 0
+        },
+        {
+          "scope": "session_new",
+          "phases": [
+            {
+              "phase": "initialization",
+              "durationMs": 0.99
+            },
+            {
+              "phase": "parallel_persistence_db_auth_mcp_join",
+              "durationMs": 25.199
+            },
+            {
+              "phase": "runtime_setup",
+              "durationMs": 510.221
+            },
+            {
+              "phase": "mcp_runtime_install",
+              "durationMs": 3.007
+            },
+            {
+              "phase": "history_restore_and_readiness",
+              "durationMs": 34785.008
+            }
+          ],
+          "complete": true,
+          "totalMs": 35324.428,
+          "durationSumMs": 35324.425,
+          "sumGapMs": 0.0029999999969732016
+        },
+        {
+          "scope": "writer_resume",
+          "phases": [
+            {
+              "phase": "writer_locks",
+              "durationMs": 3.494
+            },
+            {
+              "phase": "history_revision_reuse_or_reload",
+              "durationMs": 1.729
+            },
+            {
+              "phase": "recorder_setup",
+              "durationMs": 0.331
+            },
+            {
+              "phase": "recorder_open",
+              "durationMs": 9.892
+            },
+            {
+              "phase": "recorder_attach",
+              "durationMs": 0.29
+            },
+            {
+              "phase": "writer_attached",
+              "durationMs": 0.115
+            }
+          ],
+          "complete": true,
+          "totalMs": 15.854,
+          "durationSumMs": 15.850999999999999,
+          "sumGapMs": 0.0030000000000001137
+        },
+        {
+          "scope": "request",
+          "phases": [
+            {
+              "phase": "attempts",
+              "durationMs": 19.154
+            },
+            {
+              "phase": "request_return",
+              "durationMs": 0.089
+            }
+          ],
+          "complete": true,
+          "totalMs": 19.244,
+          "durationSumMs": 19.243,
+          "sumGapMs": 0.0010000000000012221
+        },
+        {
+          "scope": "attempt",
+          "phases": [
+            {
+              "phase": "admission_locks",
+              "durationMs": 0.089
+            },
+            {
+              "phase": "running_probe",
+              "durationMs": 18.743
+            }
+          ],
+          "complete": true,
+          "totalMs": 18.832,
+          "durationSumMs": 18.831999999999997,
+          "sumGapMs": 3.552713678800501e-15
+        }
+      ],
+      "unparsedRecords": 0,
+      "unclosedScopes": 0,
+      "meaning": "Scope completion is timing evidence; RPC/process outcomes establish success. Nested scopes are not additive."
+    }
+  },
+  "parser": {
+    "startedAt": "2026-10-22T11:28:59.585Z",
+    "completedAt": "2026-10-22T11:29:34.666Z",
+    "elapsedMs": 35081,
+    "exitCode": 0,
+    "inputBytes": 359977474,
+    "inputHashBefore": "83e0383c5e3f0a76a8f35f328e5a72bac9455791efbe1c09876e984c0c4dca10",
+    "inputHashAfter": "83e0383c5e3f0a76a8f35f328e5a72bac9455791efbe1c09876e984c0c4dca10",
+    "binarySha256": "572e96b32af248c0074e87b8ecfbe43f09e821dde3e9cecb39f6e0ef9c0954ac",
+    "stderrBytes": 0,
+    "measurements": [
+      {
+        "attempt": 1,
+        "parse_us": 15666466,
+        "drop_us": 177358,
+        "items": 133999,
+        "thread_id_present": true,
+        "errors": 0
+      },
+      {
+        "attempt": 2,
+        "parse_us": 17828645,
+        "drop_us": 152252,
+        "items": 133999,
+        "thread_id_present": true,
+        "errors": 0
+      }
+    ]
+  },
+  "compaction": {
+    "seedBytes": 359977474,
+    "compactionCount": 127,
+    "latestCompactions": [
+      {
+        "offset": 344483893,
+        "lineBytes": 239251,
+        "ordinal": 127850,
+        "hasReplacementHistory": true,
+        "hasWindowNumber": true,
+        "suffixBytesIncludingBoundary": 15493581
+      },
+      {
+        "offset": 347735684,
+        "lineBytes": 253096,
+        "ordinal": 129217,
+        "hasReplacementHistory": true,
+        "hasWindowNumber": true,
+        "suffixBytesIncludingBoundary": 12241790
+      },
+      {
+        "offset": 351027682,
+        "lineBytes": 245780,
+        "ordinal": 130661,
+        "hasReplacementHistory": true,
+        "hasWindowNumber": true,
+        "suffixBytesIncludingBoundary": 8949792
+      },
+      {
+        "offset": 354639741,
+        "lineBytes": 231344,
+        "ordinal": 131846,
+        "hasReplacementHistory": true,
+        "hasWindowNumber": true,
+        "suffixBytesIncludingBoundary": 5337733
+      },
+      {
+        "offset": 358161838,
+        "lineBytes": 238273,
+        "ordinal": 133340,
+        "hasReplacementHistory": true,
+        "hasWindowNumber": true,
+        "suffixBytesIncludingBoundary": 1815636
+      }
+    ]
+  },
+  "producerStop": {
+    "checkedAt": "2026-10-22T11:30:26.1228740Z",
+    "capturedIdentityCount": 19,
+    "matchingCapturedIdentityCount": 0,
+    "taskPathProcessMatches": [],
+    "passed": true
+  },
+  "preparationBuild": {
+    "started": "2026-10-22T10:55:57.243Z",
+    "completed": "2026-10-22T11:16:08.905Z",
+    "elapsedMs": 1211657,
+    "exitCode": 0,
+    "signal": null,
+    "inputBefore": "e70d4b79d2eec440af3c9641154c6133dc3db10458fd21738b936f9c0701fba1",
+    "inputAfter": "e70d4b79d2eec440af3c9641154c6133dc3db10458fd21738b936f9c0701fba1",
+    "unchanged": true,
+    "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-profile-r1\\temporary\\instrumentation\\bin\\azrael.exe",
+    "binarySha256": "17d6fc53b222428075c4140e66ffdaa12ca3fd74a0169c758a1a3a24611ac978"
+  },
+  "earlierAttempts": {
+    "compile1": "unknown/interrupted; no terminal receipt; not recast as success",
+    "baseline1": "exit 1 before initialize; cause unclassified",
+    "baseline2": "resume RPC -32603 invalid empty account-state; fixture corrected",
+    "baseline3": "success cold 55817.51ms while own compilation running; excluded from primary comparison",
+    "parserCompile1": "exit 1 windows.0.48.5.lib missing native search path",
+    "parserCompile2": {
+      "startedAt": "2026-10-22T11:28:23.327Z",
+      "completedAt": "2026-10-22T11:28:33.790Z",
+      "exitCode": 0,
+      "elapsedMs": 10463,
+      "inputHashesBefore": [
+        "ed83b58962222098e50ca48676964562cf35930067eac179d670189fd1d6c76c",
+        "04970995da20015e09a28ea88ebace72b8dfc5fb70fe0a47882656505e1c3c7a"
+      ],
+      "inputHashesAfter": [
+        "ed83b58962222098e50ca48676964562cf35930067eac179d670189fd1d6c76c",
+        "04970995da20015e09a28ea88ebace72b8dfc5fb70fe0a47882656505e1c3c7a"
+      ],
+      "unchanged": true,
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-profile-r1\\temporary\\analysis\\full-history-read.rs",
+        "--edition=2024",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--extern",
+        "codex_rollout=C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\deps\\libcodex_rollout-9c2f357e1263227f.rlib",
+        "--extern",
+        "tokio=C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\deps\\libtokio-6aa38fc2a9f9535b.rlib",
+        "-L",
+        "dependency=C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\deps",
+        "-L",
+        "dependency=C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps",
+        "-C",
+        "target-feature=+crt-static",
+        "-C",
+        "link-arg=/STACK:8388608",
+        "-o",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-profile-r1\\temporary\\analysis\\full-history-read.exe",
+        "-L",
+        "native=C:/Users/felre/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows_x86_64_msvc-0.48.5/lib",
+        "-L",
+        "native=C:/Users/felre/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows_x86_64_msvc-0.52.6/lib",
+        "-L",
+        "native=C:/Users/felre/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows_x86_64_msvc-0.53.1/lib"
+      ]
+    }
+  }
+}
