@@ -2144,6 +2144,7 @@
       "owners": [
         "scripts/inject-deferred-turn.cjs",
         "scripts/verify-deferred-turn-render.mjs",
+        "scripts/verify-team-ui-render.mjs",
         "scripts/deferred-list-state-fixture.cjs",
         "scripts/verify-session-flags-render.mjs",
         "scripts/root-resume-wait.cjs",
