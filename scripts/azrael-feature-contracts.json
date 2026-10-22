@@ -230,7 +230,11 @@
         "engine/codex-rs/core/BUILD.bazel",
         "engine/codex-rs/app-server-client/BUILD.bazel",
         "engine/codex-rs/app-server-daemon/BUILD.bazel",
-        "scripts/tests/test_compile_scope_manifests.py"
+        "scripts/tests/test_compile_scope_manifests.py",
+        "engine/codex-rs/app-server-transport/src/transport/mod.rs",
+        "engine/codex-rs/app-server-transport/src/transport/unix_socket_tests.rs",
+        "scripts/verification-state.ps1",
+        "scripts/test-verification-state.ps1"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "reportFields": [],

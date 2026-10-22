@@ -2241,6 +2241,7 @@ dependencies = [
  "codex-uds",
  "codex-utils-cargo-bin",
  "codex-utils-home-dir",
+ "data-encoding",
  "futures",
  "libc",
  "pretty_assertions",

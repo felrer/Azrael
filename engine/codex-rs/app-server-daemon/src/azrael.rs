@@ -116,6 +116,14 @@ fn instance_id(exe: &Path, identity: &str, args: &[String]) -> Result<String> {
     ))
 }
 
+fn socket_stem(instance_id: &str) -> Result<String> {
+    // Preserve the existing 96-bit prefix; only its on-disk representation changes.
+    let prefix = data_encoding::HEXLOWER.decode(&instance_id.as_bytes()[..24])?;
+    Ok(data_encoding::BASE32_NOPAD
+        .encode(&prefix)
+        .to_ascii_lowercase())
+}
+
 pub fn azrael_window_registry_path(home: &Path, instance: &str) -> Result<PathBuf> {
     ensure!(
         instance.len() == 64
@@ -149,7 +157,7 @@ fn endpoint_from_inputs(
     legacy_socket: &Path,
 ) -> Result<AzraelDaemonEndpoint> {
     let instance_id = instance_id(exe, &identity, args)?;
-    let socket_path = legacy_socket.with_file_name(format!("{}.sock", &instance_id[..24]));
+    let socket_path = legacy_socket.with_file_name(format!("{}.sock", socket_stem(&instance_id)?));
     Ok(AzraelDaemonEndpoint {
         schema: 2,
         instance_id,
@@ -788,7 +796,7 @@ mod tests {
             &home.join("azrael"),
             "a".repeat(64),
             &[],
-            &home.join("control/legacy.sock"),
+            &home.join("ipc/legacy.sock"),
         )
         .unwrap();
         assert_eq!(endpoint.schema, 2);
@@ -800,8 +808,23 @@ mod tests {
                 .unwrap()
                 .to_string_lossy()
                 .len(),
-            29
+            25
         );
+        assert_eq!(endpoint.instance_id.len(), 64);
+        assert_eq!(
+            endpoint.instance_id,
+            instance_id(&home.join("azrael"), &"a".repeat(64), &[]).unwrap()
+        );
+        assert_eq!(endpoint.socket_path.parent().unwrap(), home.join("ipc"));
+        assert_eq!(endpoint.socket_path.extension().unwrap(), "sock");
+        let other = endpoint_from_inputs(
+            &home.join("azrael"),
+            "b".repeat(64),
+            &[],
+            &home.join("ipc/legacy.sock"),
+        )
+        .unwrap();
+        assert_ne!(endpoint.socket_path, other.socket_path);
         let value = serde_json::to_value(&endpoint).unwrap();
         assert_eq!(value["instanceId"], endpoint.instance_id);
         let receipt = AzraelDaemonReceipt {
@@ -828,6 +851,34 @@ mod tests {
             format!("{}\\", "a".repeat(63)),
         ] {
             assert!(azrael_window_registry_path(&home, &invalid).is_err());
+        }
+    }
+
+    #[test]
+    fn socket_stem_preserves_96_bits_in_lowercase_unpadded_base32() {
+        for (hex, expected) in [
+            ("000000000000000000000000", "aaaaaaaaaaaaaaaaaaaa"),
+            ("ffffffffffffffffffffffff", "7777777777777777777q"),
+            ("666f6f626172666f6f626172", "mzxw6ytbojtg633cmfza"),
+        ] {
+            let full_instance = format!("{hex}{}", "0".repeat(40));
+            let stem = socket_stem(&full_instance).unwrap();
+            assert_eq!(stem, expected);
+            assert_eq!(stem.len(), 20);
+            assert!(
+                stem.bytes()
+                    .all(|b| b.is_ascii_lowercase() || (b'2'..=b'7').contains(&b))
+            );
+            assert_eq!(
+                data_encoding::BASE32_NOPAD
+                    .decode(stem.to_ascii_uppercase().as_bytes())
+                    .unwrap(),
+                data_encoding::HEXLOWER.decode(hex.as_bytes()).unwrap()
+            );
+            assert_eq!(
+                socket_stem(&format!("{hex}{}", "f".repeat(40))).unwrap(),
+                stem
+            );
         }
     }
 

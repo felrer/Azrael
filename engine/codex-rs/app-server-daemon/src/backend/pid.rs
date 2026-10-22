@@ -1032,7 +1032,7 @@ mod azrael_endpoint_tests {
                 .unwrap()
                 .as_path()
         );
-        let socket = home.join("app-server-control/0123456789abcdef01234567.sock");
+        let socket = home.join("ipc/aaaaaaaaaaaaaaaaaaaa.sock");
         let shared = PidBackend::new(
             home.join("azrael"),
             home.join("app-server-daemon/engines/full-instance/azrael.pid"),

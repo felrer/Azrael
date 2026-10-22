@@ -8,6 +8,8 @@ Azrael은 VS Code 확장 하나로 채팅, 계정, 모델, 사용량, 진단 화
 
 ### 공용 실행기와 창 수명
 
+소켓 내부 경로 단축(소스 구현, 새 바이너리 검증 전): 새 제어 디렉터리는 상태 홈 아래 `ipc`이며 버전별 소켓 파일명은 `<20자리 소문자 RFC 4648 Base32>.sock`이다. 파일명은 기존 인스턴스 SHA-256의 앞 96비트를 패딩 없이 인코딩하며, 전체 64자리 인스턴스 ID와 권한·실행기 검증은 유지한다. 기존 descriptor의 명시적 주소를 파일명에서 재구성하지 않는다. 프로젝트 폴더명 변경과 기존 실행 소켓 이동은 포함하지 않는다. Windows 호스트 사전 검사는 최종 경로의 UTF-8 바이트 길이를 검사한다. 검증 상태는 [현재 작업](../../work/CR-01-build-legacy-cleanup/02-plan.md)에 기록한다.
+
 빌드 경계: `app-server-client`는 기본 `embedded` 기능에서 기존 내장 서버 API를 제공하고, `azrael-bridge`는 기본 기능을 꺼 원격 연결 API로 빌드한다. `app-server-daemon`의 등록 검증·private 연결·peer 인증은 기본 `lifecycle` 기능의 실행기 시작·수명 관리 코드와 분리되어 있다. 원격 전용 구성에도 같은 등록·인증 계약을 적용한다. 기본 기능을 사용하는 기존 호출자는 내장 API와 수명 관리 API를 유지한다. 구성과 검증 범위는 [개발 절차](../ops/development.md#source-test-scope)와 [컴파일 범위 작업](../../work/CL-01-question-withdrawal/03-plan.md)에 기록한다.
 
 구현 상태: `partial`. 제품 전용 `azrael` 진입점, private endpoint의 시작 잠금·실행 파일 신원 검사, 창별 연결 컨텍스트와 종료 marker가 소스에 구현되어 있다. 한 프로세스 안에서 창별 `MessageProcessor`, `AuthManager`, `ThreadManager`와 config loader를 보유하고, 외부 transport·상태 환경·code-mode 서비스를 공유한다. 이 구조는 창별 인증과 모델 격리를 유지하며 컨텍스트별 메모리 비용도 남긴다. 호스트 source 검사와 Windows native 공용 실행·종료·재연결 검사는 통과했으며, 단일 엔진의 짧은 유휴 메모리 측정도 완료했다. 설치 수용은 [현재 작업](../../work/BJ-01-build-resource-pressure/01-plan.md)의 검증 결과에 따른다.

@@ -1543,7 +1543,7 @@ mod tests {
             log_diagnostics: false,
             socket_path: home
                 .path()
-                .join("app-server-control/app-server-control.sock"),
+                .join("ipc/app-server-control.sock"),
             pid_file: state.join("app-server.pid"),
             update_pid_file: state.join("app-server-updater.pid"),
             operation_lock_file: state.join("daemon.lock"),
