@@ -235,6 +235,17 @@ exports.run = async function run() {
     assert(inheritedAzrael.length === 0, `extension host environment contained azrael variables: ${inheritedAzrael.join(", ")}`);
   };
   try {
+    const explicitUserData = process.env.SAME_WINDOW_CHECK_USER_DATA_DIR;
+    if (explicitUserData !== undefined) {
+      assert(path.isAbsolute(explicitUserData), "SAME_WINDOW_CHECK_USER_DATA_DIR must be absolute");
+      const inside = (base, candidate) => {
+        const relative = path.relative(base, candidate);
+        return relative !== "" && relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+      };
+      assert(inside(root, explicitUserData), "SAME_WINDOW_CHECK_USER_DATA_DIR must be contained in the fixture");
+      assert(inside(await fs.realpath(root), await fs.realpath(explicitUserData)), "SAME_WINDOW_CHECK_USER_DATA_DIR resolves outside the fixture");
+    }
+    diagnostics.userData = explicitUserData ?? path.join(root, standalone ? "standalone-user-data" : "coexistence-user-data");
     assert(vscode.env.remoteName === undefined, `host unexpectedly ran remotely: ${vscode.env.remoteName}`);
     assertFixtureEnvironment();
 
@@ -262,6 +273,7 @@ exports.run = async function run() {
       await waitFor(() => startupConnect.hasOutcome(), 30_000, "embedded AccountService startup connection");
     } finally {
       startupConnect.restore();
+      diagnostics.embeddedStartupConnect = startupConnect.snapshot();
     }
     const startupConnectResult = startupConnect.snapshot();
     assert(startupConnectResult.instanceCount === 1, `embedded startup used ${startupConnectResult.instanceCount} AccountService instances`);
@@ -287,7 +299,7 @@ exports.run = async function run() {
       await vscode.commands.executeCommand("chatgpt.openSidebar");
     }
     await vscode.commands.executeCommand("azrael.openSidebar");
-    const profileLogs = path.join(root, standalone ? "standalone-user-data" : "coexistence-user-data", "logs");
+    const profileLogs = path.join(diagnostics.userData, "logs");
     await waitFor(async () => {
       const sessions = (await fs.readdir(profileLogs)).sort().reverse();
       for (const session of sessions) {
