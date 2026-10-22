@@ -2064,8 +2064,7 @@ impl Session {
 
             // record_initial_history can emit events. We record only after the SessionConfiguredEvent is emitted.
             let recover_accepted_inputs = matches!(&initial_history, InitialHistory::Resumed(_));
-            sess.restore_user_questions(&initial_history).await?;
-            sess.restore_host_approvals(&initial_history).await?;
+            sess.restore_session_history(&initial_history).await?;
             let accepted_inputs_reconciled = Box::pin(sess.record_initial_history(initial_history)).await;
             if recover_accepted_inputs && accepted_inputs_reconciled {
                 Box::pin(sess.recover_accepted_user_inputs()).await;

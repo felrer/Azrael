@@ -1,6 +1,8 @@
 //! Conversation-owned questions, reconstructed from durable lifecycle events.
 use super::Session;
-use codex_history::{InitialHistory, RolloutItem};
+#[cfg(test)]
+use codex_history::InitialHistory;
+use codex_history::RolloutItem;
 use codex_protocol::error::{CodexErr, Result};
 use codex_protocol::items::{AgentMessageItem, TurnItem};
 use codex_protocol::protocol::{Event, EventMsg, ItemCompletedEvent, ThreadQueueChangedEvent};
@@ -173,28 +175,13 @@ impl Session {
         self.user_questions.lock().unwrap().pending_count()
     }
 
-    pub(super) async fn restore_user_questions(&self, history: &InitialHistory) -> Result<()> {
-        let items = match history {
-            InitialHistory::Resumed(h) => h.history.as_slice(),
-            InitialHistory::Forked(h) => h.as_slice(),
-            _ => &[],
-        };
+    pub(super) async fn restore_user_questions(
+        &self,
+        items: &[RolloutItem],
+        resumed: bool,
+    ) -> Result<()> {
         let mut questions = UserQuestions::from_history(items);
-        if matches!(history, InitialHistory::Resumed(_)) {
-            if let Some(path) = self
-                .current_rollout_path()
-                .await
-                .map_err(|e| CodexErr::InvalidRequest(e.to_string()))?
-            {
-                let (items, id, errors) =
-                    codex_rollout::RolloutRecorder::load_rollout_items(&path).await?;
-                if id != Some(self.thread_id) || errors != 0 {
-                    return Err(CodexErr::InvalidRequest(
-                        "incomplete question history".into(),
-                    ));
-                }
-                questions = UserQuestions::from_history(&items);
-            }
+        if resumed {
             if self.journals_user_input() {
                 if let Some(db) = self.state_db() {
                     for receipt in db

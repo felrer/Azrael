@@ -263,6 +263,7 @@ mod plugin_selection;
 mod provider_handoff;
 pub(crate) use provider_handoff::prepare as prepare_provider_handoff;
 mod accepted_user_inputs;
+mod history_restore;
 pub(crate) mod host_approvals;
 pub(crate) mod parent_request;
 mod parent_response_wait;

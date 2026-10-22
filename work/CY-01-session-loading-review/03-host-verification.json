@@ -1,0 +1,113 @@
+{
+  "owner": "CY-01-session-loading-review",
+  "platform": "Windows x64",
+  "focused": {
+    "exitCode": 0,
+    "passed": 360,
+    "logSha256": "431dab542824a245eb7e3dc2cb2a98216476de399d005357c06c6314e6b16545"
+  },
+  "sourceRecovery": {
+    "status": "passed",
+    "exitCode": 0,
+    "tests": 427,
+    "wallTimeMs": 190559,
+    "commands": [
+      {
+        "name": "source",
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "--test",
+          "--test-concurrency=1",
+          "scripts/test-edit-stop-integration.cjs",
+          "scripts/test-fetch-response.cjs",
+          "scripts/test-immediate-stop.cjs",
+          "scripts/test-queue-consumption.cjs",
+          "scripts/test-recovery-bridge.cjs",
+          "scripts/test-recovery-state.cjs",
+          "scripts/test-send-result-integration.cjs"
+        ],
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "files": [
+          "scripts/test-edit-stop-integration.cjs",
+          "scripts/test-fetch-response.cjs",
+          "scripts/test-immediate-stop.cjs",
+          "scripts/test-queue-consumption.cjs",
+          "scripts/test-recovery-bridge.cjs",
+          "scripts/test-recovery-state.cjs",
+          "scripts/test-send-result-integration.cjs"
+        ],
+        "phase": "test",
+        "checkIds": [
+          "project-test:scripts/test-edit-stop-integration.cjs",
+          "project-test:scripts/test-fetch-response.cjs",
+          "project-test:scripts/test-immediate-stop.cjs",
+          "project-test:scripts/test-queue-consumption.cjs",
+          "project-test:scripts/test-recovery-bridge.cjs",
+          "project-test:scripts/test-recovery-state.cjs",
+          "project-test:scripts/test-send-result-integration.cjs"
+        ],
+        "dependsOn": []
+      }
+    ],
+    "results": [
+      {
+        "name": "source",
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "--test",
+          "--test-concurrency=1",
+          "scripts/test-edit-stop-integration.cjs",
+          "scripts/test-fetch-response.cjs",
+          "scripts/test-immediate-stop.cjs",
+          "scripts/test-queue-consumption.cjs",
+          "scripts/test-recovery-bridge.cjs",
+          "scripts/test-recovery-state.cjs",
+          "scripts/test-send-result-integration.cjs"
+        ],
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "files": [
+          "scripts/test-edit-stop-integration.cjs",
+          "scripts/test-fetch-response.cjs",
+          "scripts/test-immediate-stop.cjs",
+          "scripts/test-queue-consumption.cjs",
+          "scripts/test-recovery-bridge.cjs",
+          "scripts/test-recovery-state.cjs",
+          "scripts/test-send-result-integration.cjs"
+        ],
+        "phase": "test",
+        "checkIds": [
+          "project-test:scripts/test-edit-stop-integration.cjs",
+          "project-test:scripts/test-fetch-response.cjs",
+          "project-test:scripts/test-immediate-stop.cjs",
+          "project-test:scripts/test-queue-consumption.cjs",
+          "project-test:scripts/test-recovery-bridge.cjs",
+          "project-test:scripts/test-recovery-state.cjs",
+          "project-test:scripts/test-send-result-integration.cjs"
+        ],
+        "dependsOn": [],
+        "exitCode": 0,
+        "signal": null,
+        "status": "passed",
+        "durationMs": 190546,
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\2026-10-22T12-04-30-095Z-9ad53aaf-6d0b-4fc9-b4c6-0a7a9f1d928d\\logs\\01-source.stdout.log",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\2026-10-22T12-04-30-095Z-9ad53aaf-6d0b-4fc9-b4c6-0a7a9f1d928d\\logs\\01-source.stderr.log",
+        "startedUtc": "2026-10-22T12:04:30.112Z",
+        "completedUtc": "2026-10-22T12:07:40.663Z",
+        "wallTimeMs": 190551
+      }
+    ]
+  },
+  "preservation": {
+    "exitCode": 0,
+    "tests": 43,
+    "logSha256": "3029646779d3d19f7b9be3840cb3833744a45ec871890e740f99ae5d1db4bfa6"
+  },
+  "interruptedAttempt": {
+    "toolRunId": "run-61016-1428-1792670613287259200",
+    "exitCode": 124,
+    "producerCompleted": true,
+    "innerTests": "interrupted/unconfirmed; no successful test receipt",
+    "retry": "same7files, concurrency1, long native execution session; completed exit0"
+  },
+  "manifestValidation": "validateManifest(loadManifest(projectRoot), projectRoot) exited0"
+}

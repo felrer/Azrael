@@ -20,6 +20,8 @@ const hostRequests = new WeakMap();
 const MAX_HOST_REQUESTS = 128;
 const HOST_REQUEST_TTL_MS = 5 * 60 * 1000;
 const MAX_LATE_RESPONSES = 64;
+const RPC_TIMEOUT_MS = 20000;
+const RESUME_TIMEOUT_MS = 120000;
 let ui;
 const labels = {
   recovering: "서버 연결 중 · 세션 확인", starting: "전송 대기 중", waiting: "응답 대기 중",
@@ -98,6 +100,7 @@ function structuredCategory(error) {
 function knownMessageCategory(message) {
   if (recoveryErrors.has(message)) return recoveryErrors.get(message);
   if (typeof message !== "string" || message.length > 512 || /[\r\n]/.test(message)) return undefined;
+  if (/^[0-9]+(?:\.[0-9]+)?초 안에 엔진 응답을 받지 못했습니다\. 실행 여부를 확인한 뒤 재개해주세요\.$/.test(message)) return "timeout";
   // Same complete historical server-message guards as recovery-state.cjs.
   if (/^stream disconnected before completion: An error occurred while processing your request\. You can retry your request, or contact us through our help center at help\.openai\.com if the error persists\. Please include the request ID [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} in your message\.$/.test(message) ||
       /^The '[A-Za-z0-9][A-Za-z0-9._/-]*' model is not supported when using Codex with a ChatGPT account\.$/.test(message)) return "unknown";
@@ -263,6 +266,7 @@ class BridgeController {
         }
         this.pending.delete(message.id);
         clearTimeout(pending.timer);
+        clearTimeout(pending.slowTimer);
         ui?.log({ event: "recovery.rpc_result", requestId: message.id, method: pending.method,
           requestRef: pending.requestRef, threadRef: reference(pending.threadId),
           threadId: pending.threadId, elapsedMs: Date.now() - pending.started,
@@ -288,7 +292,7 @@ class BridgeController {
     for (const [id, entry] of this.expired) if (entry.timedOutAt < cutoff) this.expired.delete(id);
   }
 
-  rpc(method, params, timeout = 20000) {
+  rpc(method, params, timeout = method === "thread/resume" ? RESUME_TIMEOUT_MS : RPC_TIMEOUT_MS) {
     if (this.pending.size >= 64) return Promise.reject(new Error("상태 확인 요청이 많습니다. 잠시 후 다시 시도해주세요."));
     return new Promise((resolve, reject) => {
       const id = randomUUID();
@@ -297,7 +301,13 @@ class BridgeController {
         requestRef, threadRef: reference(params.threadId),
         originalRequestIds: [...this.requests.values()].filter(request =>
           request.method === method && request.threadId === params.threadId).map(request => request.id) });
+      const slowTimer = method === "thread/resume" && timeout > RPC_TIMEOUT_MS ? setTimeout(() => {
+        ui?.log({ event: "recovery.rpc_slow", requestRef, threadRef: reference(params.threadId),
+          method, elapsedMs: RPC_TIMEOUT_MS, timeoutMs: timeout, disposition: "waiting" });
+      }, RPC_TIMEOUT_MS) : undefined;
+      slowTimer?.unref?.();
       const timer = setTimeout(() => {
+        clearTimeout(slowTimer);
         ui?.log({ event: "recovery.rpc_timeout", requestId: id, method, threadId: params.threadId,
           requestRef, threadRef: reference(params.threadId),
           timeoutMs: timeout });
@@ -310,14 +320,15 @@ class BridgeController {
         this.pending.delete(id);
         // Release native delivery tracking as well as our bounded promise.
         this.clearNativeRequest(id);
-        reject(new Error("20초 안에 엔진 응답을 받지 못했습니다. 실행 여부를 확인한 뒤 재개해주세요."));
+        reject(new Error(`${timeout / 1000}초 안에 엔진 응답을 받지 못했습니다. 실행 여부를 확인한 뒤 재개해주세요.`));
       }, timeout);
       timer.unref?.();
-      this.pending.set(id, { resolve, reject, timer, method, threadId: params.threadId, requestRef, started: Date.now() });
+      this.pending.set(id, { resolve, reject, timer, slowTimer, method, threadId: params.threadId, requestRef, started: Date.now() });
       try { this.raw(this.provider, id, method, params, false, true); }
       catch {
         ui?.log({ event: "recovery.rpc_send_failed", requestId: id, method, threadId: params.threadId });
         clearTimeout(timer);
+        clearTimeout(slowTimer);
         this.pending.delete(id);
         this.clearNativeRequest(id);
         reject(new Error("엔진 연결에 실패했습니다. 상태를 다시 확인해주세요."));
@@ -350,6 +361,7 @@ class BridgeController {
     for (const [id, pending] of this.pending) {
       this.forwardDelivery(id, { type: "outcome-unknown", delivery: { requestId: id, method: pending.method, stage: "outcome-unknown" } });
       clearTimeout(pending.timer);
+      clearTimeout(pending.slowTimer);
       this.clearNativeRequest(id);
       pending.reject(new Error("엔진 연결이 끊겼습니다. 상태를 다시 확인해주세요."));
     }

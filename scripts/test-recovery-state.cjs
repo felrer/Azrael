@@ -497,6 +497,56 @@ test("concurrent native thread resume requests share one RPC", async () => {
   assert.equal(calls.filter(call => call.method === "thread/resume").length, 1);
 });
 
+for (const boundary of ["thread/resume", "thread/read", "thread/turns/list"]) {
+  for (const outcome of ["result", "error"]) {
+    test(`stale resume ${boundary} ${outcome} preserves newer state and stops refresh`, async () => {
+      const calls = [];
+      let release, entered;
+      const ready = new Promise(resolve => { entered = resolve; });
+      const gate = new Promise((resolve, reject) => { release = outcome === "result" ? resolve : reject; });
+      const state = new RecoveryState({ store: memoryStore(), rpc: async method => {
+        calls.push(method);
+        if (method === boundary) { entered(); return gate; }
+        if (method === "thread/resume") return { thread: { id: "stale-thread" } };
+        if (method === "thread/read") return { thread: { status: { type: "idle" } } };
+        throw Error(`unexpected ${method}`);
+      } });
+      const resumed = state.resume({ threadId: "stale-thread" });
+      await ready;
+      state.disconnect();
+      state.setStage("stale-thread", "waiting", "new-generation-turn");
+      const expected = state.list();
+      const result = boundary === "thread/turns/list" ? { data: [] } : { thread: { status: { type: "idle" } } };
+      const rejection = assert.rejects(resumed);
+      release(outcome === "result" ? result : Object.assign(Error("stale private error"), { rpcError: { code: -32603 } }));
+      await rejection;
+      assert.deepEqual(state.list(), expected);
+      assert.deepEqual(calls, ["thread/resume", "thread/read", "thread/turns/list"].slice(0,
+        ["thread/resume", "thread/read", "thread/turns/list"].indexOf(boundary) + 1));
+    });
+  }
+}
+
+test("notLoaded internal resume checks generation before reading refreshed state", async () => {
+  const calls = [];
+  let state;
+  state = new RecoveryState({ store: memoryStore(), rpc: async method => {
+    calls.push(method);
+    if (method === "thread/read") return { thread: { status: { type: "notLoaded" } } };
+    if (method === "thread/turns/list") return { data: [] };
+    if (method === "thread/resume") {
+      state.disconnect();
+      state.setStage("not-loaded", "waiting", "new-turn");
+      return { thread: {} };
+    }
+    throw Error(`unexpected ${method}`);
+  } });
+  await assert.rejects(state.start(continuation("not-loaded")));
+  assert.deepEqual(calls, ["thread/read", "thread/turns/list", "thread/resume"]);
+  assert.equal(state.list()[0].phase, "waiting");
+  assert.equal(state.list()[0].turnId, "new-turn");
+});
+
 for (const method of ["turn/start", "turn/steer"]) {
   test(`${method} waits for pending recovery without overtaking its admission`, async () => {
     const calls = [];

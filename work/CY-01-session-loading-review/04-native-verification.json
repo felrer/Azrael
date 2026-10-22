@@ -1,0 +1,784 @@
+{
+  "owner": "CY-01-session-loading-review",
+  "platform": "Windows x64 / x86_64-pc-windows-msvc",
+  "sourceScope": "Frozen shared working-tree snapshot including concurrent changes, based on b79fc04bd80335a7fb3fb920d4c5ffc7d4d4c420. No installed-product acceptance.",
+  "input": {
+    "started": "2026-10-22T12:01:07.769Z",
+    "completed": "2026-10-22T12:02:22.714Z",
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+    "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-fix-r1\\temporary\\engine",
+    "sha256": "eb9492e2f34c6282af00433c50e29080a96b74035f46365e5f8f3fc2821d63ae",
+    "fileCount": 10831
+  },
+  "environment": {
+    "checkedAt": "2026-10-22T11:59:58.079Z",
+    "msvcExitCode": 0,
+    "inputs": [
+      {
+        "file": "engine/codex-rs/Cargo.toml",
+        "present": true
+      },
+      {
+        "file": "C:/Users/felre/.cargo/bin/cargo.exe",
+        "present": true
+      },
+      {
+        "file": "artifacts/upstream-ui/26.1007.21434/out/extension.js",
+        "present": true
+      },
+      {
+        "file": "extensions/azrael-ex/node_modules/typescript/lib/typescript.js",
+        "present": true
+      }
+    ],
+    "node": "v26.7.0"
+  },
+  "cargoAttempts": [
+    {
+      "started": "2026-10-22T12:02:35.448Z",
+      "phase": "terminal",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-fix-r1\\temporary\\engine",
+      "inputBefore": "eb9492e2f34c6282af00433c50e29080a96b74035f46365e5f8f3fc2821d63ae",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+      "jobs": 1,
+      "cacheWaitMs": 1357710,
+      "cacheReadyAt": "2026-10-22T12:25:13.164Z",
+      "producerPid": 70184,
+      "exitCode": 1,
+      "signal": null,
+      "inputAfter": "eb9492e2f34c6282af00433c50e29080a96b74035f46365e5f8f3fc2821d63ae",
+      "unchanged": true,
+      "completed": "2026-10-22T12:25:29.996Z"
+    },
+    {
+      "started": "2026-10-22T12:26:38.187Z",
+      "phase": "terminal",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-fix-r1\\temporary\\engine",
+      "inputBefore": "eb9492e2f34c6282af00433c50e29080a96b74035f46365e5f8f3fc2821d63ae",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+      "jobs": 1,
+      "cacheReadyAt": "2026-10-22T12:26:38.192Z",
+      "producerPid": 62300,
+      "exitCode": 1,
+      "signal": null,
+      "inputAfter": "eb9492e2f34c6282af00433c50e29080a96b74035f46365e5f8f3fc2821d63ae",
+      "unchanged": true,
+      "completed": "2026-10-22T13:25:39.303Z"
+    }
+  ],
+  "cargoPreflight": [
+    {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-core",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-22T12:26:38.305Z",
+          "durationMs": 1615799,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-core",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-22T12:26:38.305Z",
+          "durationMs": 1615799,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--lib",
+            "session_restore_",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-22T12:53:34.104Z",
+          "durationMs": 1862793,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 3
+        }
+      ]
+    }
+  ],
+  "cargoWrapperOutcome": "Not passed as a whole: existing Cargo target owner rejected the next filter after session_restore_ passed. No lease bypass or forced process stop. Successful typecheck and exact compiled binary reused for remaining independent checks.",
+  "nativeBinaryVerification": {
+    "started": "2026-10-22T13:28:10.042Z",
+    "pid": 15352,
+    "phase": "terminal",
+    "binary": {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\deps\\codex_core-83a5160d8550a7d4.exe",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-fix-r1\\temporary\\native-tests.exe",
+      "sha256": "a6928771e76d3d2458bdab1506e731d65df5acfc6b66f8109eaf0470a73fb260",
+      "copiedAt": "2026-10-22T13:27:28.130Z",
+      "size": 319769088,
+      "provenance": "Exact unit-test executable reported by successful session_restore_ execution after selected-tests-v1 typecheck and nonzero selection; frozen source before/after hashes match."
+    },
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261022-resume-fix-r1\\temporary\\engine",
+    "inputBefore": "eb9492e2f34c6282af00433c50e29080a96b74035f46365e5f8f3fc2821d63ae",
+    "typeCheckReuse": {
+      "source": "native-r2.stderr.log",
+      "exitCode": 0,
+      "scope": "codex-core --lib --tests --profile test; same frozen source, features, target, toolchain and test executable"
+    },
+    "results": [
+      {
+        "filter": "session_restore_",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "session_restore_",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:28:10.045Z",
+            "durationMs": 702,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-0-selection.stdout.log",
+            "stderr": "native-binary-0-selection.stderr.log",
+            "selectedTests": 3
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "session_restore_",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:28:10.747Z",
+            "durationMs": 4993,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-0-execution.stdout.log",
+            "stderr": "native-binary-0-execution.stderr.log",
+            "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 3087 filtered out; finished in 4.91s",
+            "names": [
+              "session::host_approvals::tests::session_restore_loads_once_for_questions_and_approvals",
+              "session::host_approvals::tests::session_restore_rejects_invalid_history_before_either_consumer",
+              "session::host_approvals::tests::session_restore_supplied_fork_new_and_cleared_history"
+            ]
+          }
+        ]
+      },
+      {
+        "filter": "host_approval",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "host_approval",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:28:15.742Z",
+            "durationMs": 60,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-1-selection.stdout.log",
+            "stderr": "native-binary-1-selection.stderr.log",
+            "selectedTests": 17
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "host_approval",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:28:15.802Z",
+            "durationMs": 23117,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-1-execution.stdout.log",
+            "stderr": "native-binary-1-execution.stderr.log",
+            "summary": "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 3073 filtered out; finished in 23.03s",
+            "names": [
+              "session::handoff::tests::pending_host_approval_is_busy_and_preserved",
+              "session::host_approvals::tests::host_approval_active_decision_waits_and_idle_dispatch_claims_once",
+              "session::host_approvals::tests::host_approval_bounds_and_owner_scoped_withdrawal_are_independent",
+              "session::host_approvals::tests::host_approval_capacity_keeps_cancelled_tombstones",
+              "session::host_approvals::tests::host_approval_copied_fork_and_cold_restore_keep_their_own_ledger",
+              "session::host_approvals::tests::host_approval_defer_and_reply_race_survive_restore_in_both_orders",
+              "session::host_approvals::tests::host_approval_fast_reply_does_not_resume_and_cancellation_revokes_receipts",
+              "session::host_approvals::tests::host_approval_fork_history_never_inherits_foreign_consent_or_wakeups",
+              "session::host_approvals::tests::host_approval_holds_automatic_message_and_compaction_without_starting_work",
+              "session::host_approvals::tests::host_approval_owner_scope_and_terminal_identity_are_enforced",
+              "session::host_approvals::tests::host_approval_real_rollout_restart_preserves_receipts_and_explicit_stop_revokes",
+              "session::host_approvals::tests::host_approval_retirement_clear_wakes_one_idle_decision",
+              "session::host_approvals::tests::session_restore_loads_once_for_questions_and_approvals",
+              "session::host_approvals::tests::session_restore_rejects_invalid_history_before_either_consumer",
+              "session::host_approvals::tests::session_restore_supplied_fork_new_and_cleared_history",
+              "session::parent_response_wait::tests::host_approval_parent_wait_cancel_wakes_after_submission_gate_is_released_once",
+              "session::root_resume::lifecycle_tests::host_approval_root_reservation_cancellation_dispatches_one_typed_resume"
+            ]
+          }
+        ]
+      },
+      {
+        "filter": "async_question",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "async_question",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:28:38.921Z",
+            "durationMs": 56,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-2-selection.stdout.log",
+            "stderr": "native-binary-2-selection.stderr.log",
+            "selectedTests": 10
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "async_question",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:28:38.977Z",
+            "durationMs": 7835,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-2-execution.stdout.log",
+            "stderr": "native-binary-2-execution.stderr.log",
+            "summary": "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 3080 filtered out; finished in 7.75s",
+            "names": [
+              "session::user_questions::tests::async_question_answer_first_preserves_answer_and_late_reply_is_rejected",
+              "session::user_questions::tests::async_question_automatic_queue_accepts_reply_shaped_text_after_hold_clears",
+              "session::user_questions::tests::async_question_both_queue_triggers_restore_as_queue_origin",
+              "session::user_questions::tests::async_question_explicit_queue_start_preserves_pending_questions",
+              "session::user_questions::tests::async_question_failed_persistence_retains_pending_hold_and_visible_message",
+              "session::user_questions::tests::async_question_materialization_retains_answers_and_withdrawals",
+              "session::user_questions::tests::async_question_partial_and_all_withdrawal_hold_idle_and_compaction",
+              "session::user_questions::tests::async_question_queue_envelopes_skip_reply_validation_and_preserve_holds",
+              "session::user_questions::tests::async_question_replay_does_not_infer_answers_from_user_message_text",
+              "tools::spec_plan::tests::async_question_claude_fallback_retains_withdrawal_only_for_async_backend"
+            ]
+          }
+        ]
+      },
+      {
+        "filter": "session::accepted_user_inputs::tests",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "session::accepted_user_inputs::tests",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:28:46.813Z",
+            "durationMs": 63,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-3-selection.stdout.log",
+            "stderr": "native-binary-3-selection.stderr.log",
+            "selectedTests": 11
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "session::accepted_user_inputs::tests",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:28:46.877Z",
+            "durationMs": 18793,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-3-execution.stdout.log",
+            "stderr": "native-binary-3-execution.stderr.log",
+            "summary": "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 3079 filtered out; finished in 18.70s",
+            "names": [
+              "session::accepted_user_inputs::tests::absent_client_id_keeps_identical_submissions_independent",
+              "session::accepted_user_inputs::tests::accepted_retry_retains_admitted_causal_root",
+              "session::accepted_user_inputs::tests::closed_journal_returns_submission_error_without_ack_or_enqueue",
+              "session::accepted_user_inputs::tests::historical_receipt_requires_explicit_canonical_causal_root",
+              "session::accepted_user_inputs::tests::history_append_failure_retains_pending_receipt",
+              "session::accepted_user_inputs::tests::journal_payload_preserves_context_classification_and_complete_user_input",
+              "session::accepted_user_inputs::tests::pending_receipt_survives_session_drop_and_explicit_resume",
+              "session::accepted_user_inputs::tests::raw_user_crash_midpoint_repairs_identity_and_spans_without_duplicate_model_input",
+              "session::accepted_user_inputs::tests::reconciliation_only_matches_user_with_original_turn_and_order",
+              "session::accepted_user_inputs::tests::recovery_records_once_without_sampling_and_seeds_order_floor",
+              "session::accepted_user_inputs::tests::same_id_returns_original_turn_and_new_id_accepts_same_text"
+            ]
+          }
+        ]
+      },
+      {
+        "filter": "context_manager::history::tests::normalize_",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "context_manager::history::tests::normalize_",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:29:05.671Z",
+            "durationMs": 62,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-4-selection.stdout.log",
+            "stderr": "native-binary-4-selection.stderr.log",
+            "selectedTests": 9
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "context_manager::history::tests::normalize_",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:29:05.734Z",
+            "durationMs": 66,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-4-execution.stdout.log",
+            "stderr": "native-binary-4-execution.stderr.log",
+            "summary": "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 3081 filtered out; finished in 0.01s",
+            "names": [
+              "context_manager::history::tests::normalize_adds_missing_output_for_custom_tool_call",
+              "context_manager::history::tests::normalize_adds_missing_output_for_function_call_inserts_output",
+              "context_manager::history::tests::normalize_adds_missing_output_for_local_shell_call_with_id",
+              "context_manager::history::tests::normalize_adds_missing_output_for_tool_search_call",
+              "context_manager::history::tests::normalize_keeps_server_tool_search_output_without_matching_call",
+              "context_manager::history::tests::normalize_orphan_outputs_preserves_matched_calls_and_missing_output_recovery",
+              "context_manager::history::tests::normalize_orphan_outputs_preserves_media_and_marks_encrypted_content",
+              "context_manager::history::tests::normalize_orphan_outputs_preserves_reference_data_and_raw_history",
+              "context_manager::history::tests::normalize_preserves_named_function_call_output_without_call_id"
+            ]
+          }
+        ]
+      },
+      {
+        "filter": "context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:29:05.801Z",
+            "durationMs": 66,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-5-selection.stdout.log",
+            "stderr": "native-binary-5-selection.stderr.log",
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:29:05.868Z",
+            "durationMs": 70,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-5-execution.stdout.log",
+            "stderr": "native-binary-5-execution.stderr.log",
+            "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3089 filtered out; finished in 0.00s",
+            "names": [
+              "context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history"
+            ]
+          }
+        ]
+      },
+      {
+        "filter": "tasks::panic_tests::",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "tasks::panic_tests::",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:29:05.940Z",
+            "durationMs": 68,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-6-selection.stdout.log",
+            "stderr": "native-binary-6-selection.stderr.log",
+            "selectedTests": 2
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "tasks::panic_tests::",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:29:06.009Z",
+            "durationMs": 1520,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-6-execution.stdout.log",
+            "stderr": "native-binary-6-execution.stderr.log",
+            "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 3088 filtered out; finished in 1.42s",
+            "names": [
+              "tasks::panic_tests::task_panic_releases_turn_and_admits_follow_up::interruption_owns_terminal_event",
+              "tasks::panic_tests::task_panic_releases_turn_and_admits_follow_up::panic_finishes_failed"
+            ]
+          }
+        ]
+      },
+      {
+        "filter": "tasks::tests::",
+        "phases": [
+          {
+            "phase": "selection",
+            "args": [
+              "tasks::tests::",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "started": "2026-10-22T13:29:07.530Z",
+            "durationMs": 176,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-7-selection.stdout.log",
+            "stderr": "native-binary-7-selection.stderr.log",
+            "selectedTests": 11
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "tasks::tests::",
+              "--test-threads=1"
+            ],
+            "started": "2026-10-22T13:29:07.707Z",
+            "durationMs": 2813,
+            "exitCode": 0,
+            "signal": null,
+            "error": null,
+            "stdout": "native-binary-7-execution.stdout.log",
+            "stderr": "native-binary-7-execution.stderr.log",
+            "summary": "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 3079 filtered out; finished in 2.74s",
+            "names": [
+              "tasks::tests::emit_compact_metric_records_auto_local",
+              "tasks::tests::emit_compact_metric_records_manual_remote_v2",
+              "tasks::tests::emit_turn_memory_metric_records_config_disabled_without_citations",
+              "tasks::tests::emit_turn_memory_metric_records_read_allowed_with_citations",
+              "tasks::tests::emit_turn_network_proxy_metric_records_active_turn",
+              "tasks::tests::emit_turn_network_proxy_metric_records_inactive_turn",
+              "tasks::tests::turn_completion_metrics_follow_model_switch::compact_then_response",
+              "tasks::tests::turn_completion_metrics_follow_model_switch::compact_then_stop",
+              "tasks::tests::turn_completion_metrics_follow_model_switch::no_response",
+              "tasks::tests::turn_completion_metrics_follow_model_switch::response_after_step_switch",
+              "tasks::tests::turn_completion_metrics_follow_model_switch::response_only"
+            ]
+          }
+        ]
+      }
+    ],
+    "exitCode": 0,
+    "binaryAfter": "a6928771e76d3d2458bdab1506e731d65df5acfc6b66f8109eaf0470a73fb260",
+    "inputAfter": "eb9492e2f34c6282af00433c50e29080a96b74035f46365e5f8f3fc2821d63ae",
+    "unchanged": true,
+    "completed": "2026-10-22T13:29:22.894Z"
+  },
+  "uniquePassed": 61,
+  "executionCount": 64,
+  "note": "64 test executions cover 61 distinct names; session_restore_ overlaps host_approval. Direct libtest selection and execution were checked independently for every filter. This is not a successful Cargo-wrapper receipt.",
+  "recipeVerification": {
+    "fullSuite": {
+      "exitCode": 1,
+      "passed": 7,
+      "failed": 2,
+      "causes": [
+        "bridge/integration/package-wide/parent-request test: model-harness context recipe length 0 instead of 4",
+        "registered selected-tests check: engine.model-harness-profiles.config wrapper source hash drift"
+      ]
+    },
+    "targeted": {
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=session restoration recipe",
+        "scripts/test-cargo-preflight-recipes.cjs"
+      ],
+      "exitCode": 0,
+      "passed": 1
+    },
+    "scope": "Updated only the task-recovery wrapper hash, its eight recipes, and a focused regression. Unrelated model-harness drift preserved."
+  },
+  "producerStop": {
+    "checkedAt": "2026-10-22T13:29:58.6419652Z",
+    "verified": true,
+    "basis": "Managed native session 30382 returned terminal exit 1 after completed successful restoration tests and later owner-conflict refusal. Managed binary session 30211 returned exit 0 after every selection/execution child returned. Current process census finds no exact captured process identities, runner PID, or task-path producers. No processes terminated or cache leases modified.",
+    "capturedIdentities": [
+      {
+        "ProcessId": 8280,
+        "ParentProcessId": 58820,
+        "Name": "node.exe",
+        "CreationMs": 1792671994195
+      },
+      {
+        "ProcessId": 62300,
+        "ParentProcessId": 8280,
+        "Name": "node.exe",
+        "CreationMs": 1792671998199
+      },
+      {
+        "ProcessId": 59772,
+        "ParentProcessId": 62300,
+        "Name": "rustup.exe",
+        "CreationMs": 1792671998369
+      },
+      {
+        "ProcessId": 32840,
+        "ParentProcessId": 59772,
+        "Name": "conhost.exe",
+        "CreationMs": 1792671998395
+      },
+      {
+        "ProcessId": 13252,
+        "ParentProcessId": 59772,
+        "Name": "cargo.exe",
+        "CreationMs": 1792671998485
+      },
+      {
+        "ProcessId": 12540,
+        "ParentProcessId": 13252,
+        "Name": "rustc.exe",
+        "CreationMs": 1792672445236
+      }
+    ],
+    "liveExactIdentities": [],
+    "liveTaskProducers": [],
+    "binaryRunnerPid": 15352
+  },
+  "originalLogs": [
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-r2.stdout.log",
+      "sha256": "2927538b118e4165ee1c4fb88d5cb1b60ebad6f11deda58d648e27c98b2ca7d2"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-r2.stderr.log",
+      "sha256": "3634fc966fee09376c8d1fe92bbfdafafa170ff85b36588ef761009431890f46"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native.stderr.log",
+      "sha256": "181e963313b8b950bb0896e90ebc694472e0d0c00312eb2313c53566f13d2740"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/recipe-tests.log",
+      "sha256": "7eae5b51963815939fe9c7c41d5b7fdcb9e36061abee918eeb9033558afe9dbc"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/recipe-targeted-tests.log",
+      "sha256": "01f487c58c2f2cd0636fab4b68548327d572e0086685f86e9379fbf6cb178195"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-0-selection.stdout.log",
+      "sha256": "dc909ccaf065a38d80b578eba09f470a552826a0b4ebe21899f3f6cebbb91ddf"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-0-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-0-execution.stdout.log",
+      "sha256": "f16839e1536dd45148591c9fcc250a78bdc3eb902aada8ddd95bf15a00d3086a"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-0-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-1-selection.stdout.log",
+      "sha256": "194e43efb4af9bd3b86f12c6303e4c379799f6b7ee9429cd8b0fa269a1bfa675"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-1-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-1-execution.stdout.log",
+      "sha256": "c8355542fb19f6677ed4e2ff3ad24c57063792b77462b3e94a8ea4523db469ab"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-1-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-2-selection.stdout.log",
+      "sha256": "ed7132d7948e241cf9dbd3ec7c09c57be69d3621c29cdf7b6e543b6e4fd7a9ce"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-2-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-2-execution.stdout.log",
+      "sha256": "c7ae76c49492870f49ce41f43df0d54e02794a65a6e9a95be5c61bd9e5eb632e"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-2-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-3-selection.stdout.log",
+      "sha256": "34f3591a23c64595796247d27708edfff6a133b50840e23f1644bf854d3f4ae3"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-3-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-3-execution.stdout.log",
+      "sha256": "67a144c1a4536ad2b490b7999dbbec4775c3c98956e67fde17e08bf0a10bb1f3"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-3-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-4-selection.stdout.log",
+      "sha256": "43b314928c4a3839a877a2e49d75bc55a60023187956b0c28b75bc5c219eb0c6"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-4-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-4-execution.stdout.log",
+      "sha256": "931f57de008d9567b093ce4b18f8999c6dc3b716537f2d4f700e7538e733cb76"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-4-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-5-selection.stdout.log",
+      "sha256": "45bba5b2ae8ce805bfc439f1c1bbec16cd2a77e5597735c8568c1f127b5c3cdd"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-5-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-5-execution.stdout.log",
+      "sha256": "088ff43a2eda2d66dc33d030bdebea349583ae670ca279356a636638f10ed289"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-5-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-6-selection.stdout.log",
+      "sha256": "bd49b65694870d4cab0537e7ce920d1665c724ef0cd8f28656335024f7a35026"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-6-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-6-execution.stdout.log",
+      "sha256": "3842b45a3de55bb1e12c31c5a67a7ce2d428aa40643c2254e4dbbe60db88415b"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-6-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-7-selection.stdout.log",
+      "sha256": "db6f842c2ff3faed396edae2d48189e39257dd7019ca9058ba85146d6e46fa1b"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-7-selection.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-7-execution.stdout.log",
+      "sha256": "294a19a545eac01385a5667c9509b78040e19338762d468ebfd7519b24879941"
+    },
+    {
+      "path": "artifacts/tasks/CY-01-session-loading-review/runs/20261022-resume-fix-r1/logs/native-binary-7-execution.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limitations": [
+    "No product build or installation.",
+    "No post-change before/after timing with the original long session.",
+    "Linux x64 and macOS ARM64 execution unverified.",
+    "Cargo wrapper interrupted by shared cache contention; standalone frozen-binary checks completed instead.",
+    "Complete recipe suite remains failing on unrelated model-harness source hash drift."
+  ]
+}

@@ -249,13 +249,16 @@ class RecoveryState {
   }
 
   async snapshot(threadId, deadline = Infinity) {
+    const generation = this.generation;
     const remaining = () => {
       const ms = Math.min(20000, deadline - this.now());
       if (ms <= 0) throw new Error("중단 완료를 확인하지 못했습니다. 새 작업은 시작하지 않았습니다.");
       return ms;
     };
     const { thread } = await this.rpc("thread/read", { threadId, includeTurns: false }, remaining());
+    this.checkGeneration(generation);
     const page = await this.rpc("thread/turns/list", { threadId, limit: 1, sortDirection: "desc", itemsView: "summary" }, remaining());
+    this.checkGeneration(generation);
     const latest = page.data?.[0];
     const active = thread.status?.type === "active";
     if (active && latest?.status !== "inProgress") throw new Error("실행 상태가 갱신 중입니다. 상태를 다시 확인해주세요.");
@@ -300,22 +303,26 @@ class RecoveryState {
         } else this.setStage(threadId, "unknown", receipt.turnId);
       }
       else if (receipt?.phase === "accepted" && !snapshot.active) await this.persist(threadId, { ...receipt, phase: "finished" });
+      this.checkGeneration(generation);
       return snapshot;
     } catch (error) {
-      this.setStage(threadId, error.rpcError ? "error" : "disconnected");
+      if (generation === this.generation) this.setStage(threadId, error.rpcError ? "error" : "disconnected");
       throw error;
     }
   }
 
   resume(params) {
     return this.coalesce(`resume:${params.threadId}:${fingerprint(params)}`, () => this.serial(params.threadId, async () => {
+      const generation = this.generation;
       this.setStage(params.threadId, "recovering");
       try {
         const result = await this.rpc("thread/resume", params);
+        this.checkGeneration(generation);
         await this.refresh(params.threadId);
+        this.checkGeneration(generation);
         return result;
       } catch (error) {
-        this.setStage(params.threadId, error.rpcError ? "error" : "disconnected");
+        if (generation === this.generation) this.setStage(params.threadId, error.rpcError ? "error" : "disconnected");
         throw error;
       }
     }));
@@ -385,6 +392,7 @@ class RecoveryState {
     }
     if (thread.status.type === "notLoaded") {
       await this.rpc("thread/resume", { threadId });
+      this.checkGeneration(generation);
       const resumed = await this.snapshot(threadId);
       this.checkGeneration(generation);
       if (resumed.active) { decision("attached", "active_after_resume", resumed); return { turn: resumed.latest }; }
