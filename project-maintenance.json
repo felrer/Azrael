@@ -24,6 +24,15 @@
   ],
   "bundles": [
     {
+      "id": "response-tps-ui",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-provider-context.cjs", "scripts/test-provider-model-picker.cjs"],
+      "inputs": ["scripts/inject-provider-context.cjs", "scripts/test-provider-context.cjs", "scripts/provider-context-labels.cjs", "scripts/astra-speed-toggle.cjs", "scripts/provider-model-picker.cjs", "scripts/inject-provider-model-picker.cjs", "scripts/test-provider-model-picker.cjs", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-c014f9ee4429.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/personalization-settings-8b2df7633ad3.js", "extensions/azrael-ex/node_modules/typescript/lib/typescript.js", "extensions/azrael-ex/node_modules/typescript/package.json"]
+    },
+
+    {
       "id": "recent-history-progressive",
       "kind": "test",
       "purpose": "retained",

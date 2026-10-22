@@ -11,6 +11,7 @@ use codex_otel::TURN_TTFM_DURATION_METRIC;
 use codex_protocol::items::TurnItem;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::response_performance::ResponsePerformance;
+use codex_protocol::response_performance::ResponseSpeedMode;
 use tokio::sync::Mutex;
 
 use crate::ResponseEvent;
@@ -96,6 +97,7 @@ pub(crate) struct ResponsePerformanceGuard {
     timing: Arc<TurnTimingState>,
     started_at: Instant,
     finished: bool,
+    mode: Option<ResponseSpeedMode>,
 }
 
 impl ResponsePerformanceGuard {
@@ -109,10 +111,11 @@ impl ResponsePerformanceGuard {
             .started_at
             .map(|start| duration_to_u64_ms(self.started_at.saturating_duration_since(start)))
             .unwrap_or(0);
-        profile.response_performance.record_at(
+        profile.response_performance.record_at_mode(
             output_tokens,
             duration_to_u64_ms(self.started_at.elapsed()),
             started_at_ms,
+            self.mode,
         );
     }
 }
@@ -126,17 +129,22 @@ impl Drop for ResponsePerformanceGuard {
 }
 
 impl TurnTimingState {
-    pub(crate) fn begin_response_performance(self: &Arc<Self>) -> ResponsePerformanceGuard {
+    pub(crate) fn begin_response_performance(
+        self: &Arc<Self>,
+        service_tier: Option<&str>,
+    ) -> ResponsePerformanceGuard {
         ResponsePerformanceGuard {
             timing: Arc::clone(self),
             started_at: Instant::now(),
             finished: false,
+            mode: ResponseSpeedMode::from_service_tier(service_tier),
         }
     }
 
     pub(crate) fn response_performance(&self, turn_id: &str) -> ResponsePerformance {
         let mut stats = self.profile_state().response_performance.clone();
         stats.turn_id = turn_id.to_string();
+        stats.observed_at_unix_ms = Some(now_unix_timestamp_ms());
         stats
     }
     pub(crate) async fn mark_turn_started(&self, started_at: Instant) -> i64 {
@@ -149,6 +157,7 @@ impl TurnTimingState {
         state.first_token_at = None;
         state.first_message_at = None;
         self.profile_state().start(started_at);
+        self.profile_state().response_performance.started_at_unix_ms = Some(started_at_unix_ms);
         started_at_unix_ms
     }
 

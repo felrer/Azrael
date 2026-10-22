@@ -22,7 +22,7 @@ const wrapperHashes = Object.freeze({
   'check-question-withdrawal-native': 'b17ee0244ec76cb3fa54d0384dfdb260bd8d8055a5ff32958bd1305d5bf22080',
   'check-mcp-oauth-store': '1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa',
   'check-startup-performance-native': '5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2',
-  'check-response-tps-native': 'd39754dd25cc8cd398ca6760e013e916328800b3d720d18c293f977e2060f7f6',
+  'check-response-tps-native': 'ff6fd89fe8103a7da51f5555f0c704bd37d056b3f5017f10251d7285563b74e0',
   'check-task-recovery-native': 'b6a39560e33898d9919cd99cd95e07f405cfcb7a3720ad256426019f03de851c',
   'check-project-maintenance': '1eea8c6a873bcf17a7899461a4c2e171796054bc13b9e3a48e87d95a8499e87e',
   'check-error-classification-native': '338386a3b633c8364fae67e268c86405328b60f809e951f193edc8a533c1d616',
@@ -133,7 +133,7 @@ function reviewedRecipes(wrapper, tail, platform) {
       break;
     }
     case 'check-response-tps-native':
-      args = scoped({ protocol: [lib('codex-protocol', 'response_performance')], core: [lib('codex-core', 'turn_timing::tests')], appserver: [lib('codex-app-server-protocol', 'response_performance')] });
+      args = scoped({ protocol: [lib('codex-protocol', 'response_performance')], core: [lib('codex-core', 'turn_timing::tests'), lib('codex-core', 'session::tests::response_performance')], appserver: [lib('codex-app-server-protocol', 'response_performance')] });
       break;
     case 'check-task-recovery-native':
       if (!tail.length) args = ['session_restore_', 'host_approval', 'async_question', 'session::accepted_user_inputs::tests', 'context_manager::history::tests::normalize_', 'context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history', 'tasks::panic_tests::', 'tasks::tests::'].map(f => lib('codex-core', f));

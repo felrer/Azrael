@@ -40,7 +40,7 @@ function responsePerformanceDescription(performance, ko) {
   if (requestDurationMs <= 0 || !Number.isFinite(rate)) return unavailable;
   return rate.toLocaleString(ko ? "ko-KR" : "en-US", {minimumFractionDigits:1,maximumFractionDigits:1}) + (ko ? " 토큰/초" : " tokens/s") + partial;
 }
-function responsePerformanceGraph(jsx, performance, ko) {
+function legacyResponsePerformanceGraph(jsx, performance, ko) {
   if (!performance || performance.completedRequests <= 0 || performance.requestDurationMs <= 0 || responsePerformanceDescription(performance,false) === "Unavailable" || performance.graphEstimated !== true || !Array.isArray(performance.minuteSamples) || !performance.minuteSamples.length || performance.minuteSamples.length > 120) return null;
   const samples=performance.minuteSamples;
   if (samples.some((s,i)=>!s || !Number.isSafeInteger(s.minute) || s.minute<0 || !Number.isFinite(s.outputTokens) || s.outputTokens<0 || !Number.isFinite(s.requestDurationMs) || s.requestDurationMs<=0 || !Number.isFinite(s.outputTokens/s.requestDurationMs*1000) || i>0 && s.minute<=samples[i-1].minute) || samples.at(-1).minute-samples[0].minute>=120) return null;
@@ -57,13 +57,61 @@ function responsePerformanceGraph(jsx, performance, ko) {
   const description=[label,range,(ko?"응답 시작 후 분; ":"Minutes since response start; ")+unit,...points.map(p=>(p.minute+1)+(ko?"분: ":" min: ")+format(p.rate)+" "+unit)].join(" · ");
   return jsx("div",{"data-azrael-response-tps-graph":"estimated","aria-label":description,style:{display:"flex",flexDirection:"column",gap:4,minWidth:0},children:[
     jsx("div",{style:{display:"flex",justifyContent:"space-between",gap:8,flexWrap:"wrap"},children:[jsx("strong",{children:label}),jsx("span",{className:"text-token-description-foreground",children:range})]}),
-    jsx("svg",{viewBox:"0 0 288 104",role:"img","aria-label":description,style:{display:"block",width:"100%",height:"auto",maxHeight:112,color:"var(--vscode-textLink-foreground, currentColor)"},children:[
+    jsx("svg",{viewBox:"0 0 288 104",role:"img","aria-label":description,style:{display:"block",width:"100%",height:"auto",maxHeight:112,color:"var(--vscode-descriptionForeground, currentColor)"},children:[
       jsx("path",{d:"M24 20V78H264",fill:"none",stroke:"currentColor",strokeOpacity:0.3}),
       jsx("text",{x:24,y:13,fontSize:9,fill:"currentColor",children:format(max)+" "+unit}),...segments,
       jsx("text",{x:18,y:81,textAnchor:"end",fontSize:9,fill:"currentColor",children:"0"}),
       jsx("text",{x:first===last?144:24,y:96,textAnchor:first===last?"middle":"start",fontSize:9,fill:"currentColor",children:(first+1)+(ko?"분":" min")}),
       first===last?null:jsx("text",{x:264,y:96,textAnchor:"end",fontSize:9,fill:"currentColor",children:(last+1)+(ko?"분":" min")})
     ]})
+  ]});
+}
+function responsePerformanceGraph(jsx, p, ko, options = {}) {
+  if (p?.startedAtUnixMs == null && p?.observedAtUnixMs == null) return legacyResponsePerformanceGraph(jsx,p,ko);
+  const minuteMs=60000,windowMs=40*minuteMs,end=p?.observedAtUnixMs,start=end-windowMs;
+  if (!p || !Number.isFinite(end) || !Number.isFinite(new Date(end).getTime()) || !Number.isFinite(p.startedAtUnixMs) || !Number.isFinite(new Date(p.startedAtUnixMs).getTime()) || p.startedAtUnixMs>end || typeof p.turnId!=="string" || !p.turnId.trim() || !Array.isArray(p.history) || !Array.isArray(p.minuteSamples)) return null;
+  const modes=["standard","fast","ultrafast"],colors={standard:"var(--color-chart-blue)",fast:"var(--color-chart-orange)",ultrafast:"var(--color-purple)"},names={standard:"Standard",fast:"Fast",ultrafast:"Ultrafast",unknown:ko?"모드 미상":"Unknown mode"};
+  const color=mode=>colors[mode]??"var(--vscode-descriptionForeground, currentColor)",format=n=>n.toLocaleString(ko?"ko-KR":"en-US",{minimumFractionDigits:1,maximumFractionDigits:1});
+  const clock=ms=>{const d=new Date(ms);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
+  const turns=[...p.history,{turnId:p.turnId,startedAtUnixMs:p.startedAtUnixMs,minuteSamples:p.minuteSamples}],ids=new Set(),points=[],boundaries=[];
+  for (const [index,turn] of turns.entries()) {
+    if (!turn || typeof turn.turnId!=="string" || !turn.turnId.trim() || ids.has(turn.turnId) || !Number.isFinite(turn.startedAtUnixMs) || turn.startedAtUnixMs>end || !Array.isArray(turn.minuteSamples) || index>0&&turn.startedAtUnixMs<turns[index-1].startedAtUnixMs) return null;
+    ids.add(turn.turnId);
+    if(turn.startedAtUnixMs>=start) boundaries.push({id:turn.turnId,time:turn.startedAtUnixMs});
+    let previous=null;const seen=new Set();
+    for(const sample of turn.minuteSamples){
+      const mode=sample?.mode??null;
+      if(!sample || !Number.isSafeInteger(sample.minute) || sample.minute<0 || !Number.isFinite(sample.outputTokens) || sample.outputTokens<0 || !Number.isFinite(sample.requestDurationMs) || sample.requestDurationMs<=0 || !Number.isFinite(sample.outputTokens/sample.requestDurationMs*1000) || mode!==null&&!modes.includes(mode) || previous&&sample.minute<previous.minute || seen.has(sample.minute+':'+mode)) return null;
+      previous=sample;seen.add(sample.minute+':'+mode);
+      const time=turn.startedAtUnixMs+sample.minute*minuteMs,right=Math.min(time+minuteMs,end),left=Math.max(time,start),fraction=(right-left)/(right-time);
+      if(!Number.isFinite(time)||right<=left||!Number.isFinite(fraction)||fraction<=0)continue;
+      points.push({turnId:turn.turnId,minute:sample.minute,mode,time:left,tokens:sample.outputTokens*fraction,duration:sample.requestDurationMs*fraction,rate:sample.outputTokens/sample.requestDurationMs*1000});
+    }
+  }
+  if(!points.length&&!boundaries.length)return null;
+  const means=modes.flatMap(mode=>{const samples=points.filter(point=>point.mode===mode),duration=samples.reduce((n,s)=>n+s.duration,0);return duration>0?[{mode,rate:samples.reduce((n,s)=>n+s.tokens,0)/duration*1000}]:[]});
+  const max=Math.max(1,...points.map(s=>s.rate)),x=time=>24+(time-start)/windowMs*240,y=rate=>78-rate/max*54;
+  const label=ko?"분별 TPS · 추정":"TPS by minute · estimated",range=ko?"최근 40분":"Recent 40 minutes",unit=ko?"토큰/초":"tokens/s",averageLabel=ko?"모드별 평균":"Mode averages";
+  const description=[label,range,...points.map(s=>clock(s.time)+" "+names[s.mode??'unknown']+": "+format(s.rate)+" "+unit)].join(" · ");
+  const shapes=[],timestampRows=[];
+  // A label occupies at most 20% of the narrow plot (five tabular digits).
+  // Allocate extra rows rather than overlap closely spaced request starts.
+  const timestamps=boundaries.map(b=>{const left=Math.max(0,Math.min(80,(b.time-start)/windowMs*100));let row=timestampRows.findIndex(right=>right<=left);if(row<0){row=timestampRows.length;timestampRows.push(0)}timestampRows[row]=left+20;return {...b,left,row}});
+  for(const [i,point] of points.entries()){
+    const previous=points[i-1];
+    if(previous&&previous.turnId===point.turnId&&previous.mode===point.mode&&point.minute===previous.minute+1)shapes.push(jsx("line",{key:"join-"+i,"data-tps-join":true,x1:x(previous.time),y1:y(previous.rate),x2:x(point.time),y2:y(point.rate),stroke:color(point.mode),strokeWidth:1.5}));
+    shapes.push(jsx("circle",{key:"point-"+i,cx:x(point.time),cy:y(point.rate),r:2.5,fill:color(point.mode),"data-minute":point.minute,"data-turn-id":point.turnId,"data-mode":point.mode??"unknown","data-tps":point.rate,children:jsx("title",{children:names[point.mode??'unknown']+": "+format(point.rate)+" "+unit})}));
+  }
+  return jsx("div",{"data-azrael-response-tps-graph":"estimated","aria-label":description,style:{display:"flex",flexDirection:"column",gap:4,minWidth:0},children:[
+    jsx("div",{className:"flex items-center justify-between gap-2 flex-wrap",children:[jsx("strong",{children:label}),jsx("span",{className:"text-token-description-foreground",children:range})]}),
+    jsx("svg",{viewBox:"0 0 288 86",role:"img","aria-label":description,style:{display:"block",width:"100%",height:"auto",maxHeight:112,overflow:"visible"},children:[
+      jsx("path",{d:"M24 20V78H264",fill:"none",stroke:"currentColor",strokeOpacity:0.3}),jsx("text",{x:24,y:13,fontSize:9,fill:"currentColor",children:format(max)+" "+unit}),
+      ...boundaries.map(b=>jsx("line",{key:b.id,"data-turn-boundary":b.id,x1:x(b.time),x2:x(b.time),y1:20,y2:78,stroke:"currentColor",strokeOpacity:0.4,strokeDasharray:"3 3"})),
+      ...(options.averages?means.map(m=>jsx("line",{key:"average-"+m.mode,"data-mode-average":m.mode,"data-tps":m.rate,x1:24,x2:264,y1:y(m.rate),y2:y(m.rate),stroke:color(m.mode),strokeDasharray:"5 3"})):[]),...shapes]}),
+    jsx("div",{"data-tps-timestamps":true,style:{position:"relative",height:Math.max(1,timestampRows.length)*16,marginLeft:"8.333%",marginRight:"8.333%",fontSize:10,lineHeight:"16px",fontVariantNumeric:"tabular-nums"},children:timestamps.map(b=>jsx("span",{key:b.id,"data-turn-timestamp":b.id,"data-timestamp-row":b.row,title:clock(b.time),style:{position:"absolute",left:b.left+"%",top:b.row*16,whiteSpace:"nowrap"},children:clock(b.time)}))}),
+    jsx("div",{style:{display:"flex",gap:8,flexWrap:"wrap",fontSize:11},children:[...modes,"unknown"].filter(mode=>mode!=="unknown"||points.some(s=>s.mode===null)).map(mode=>jsx("span",{key:mode,style:{color:color(mode)},children:names[mode]}))}),
+    options.Switch?jsx("div",{className:"flex items-center justify-between gap-4","data-tps-average-toggle":true,children:[jsx("span",{className:"text-sm",children:averageLabel}),jsx(options.Switch,{ariaLabel:averageLabel,checked:options.averages===true,onChange:options.onAveragesChange})]}):null,
+    options.averages?jsx("div",{"data-tps-average-labels":true,style:{display:"flex",gap:8,flexWrap:"wrap",fontSize:11},children:means.map(m=>jsx("span",{key:m.mode,style:{color:color(m.mode)},children:names[m.mode]+": "+format(m.rate)+" "+unit}))}):null
   ]});
 }
 function decorateGauge(jsx, node, policy, ko, action = null, performance = undefined, graph = responsePerformanceGraph(jsx,performance,ko)) {
@@ -301,7 +349,7 @@ function injectProviderContextControls(text, asset) {
     text=once(text,"(XSa,{contextUsage:y})", "(XSa,{contextUsage:y,conversationId:h})");
     text=once(text,"t[22]=y,t[23]=H,t[24]=W)", "t[22]=y,t[23]=H,t[24]=W,t[41]=h)");
     if (!/r4n as l9[,}]/.test(text) || !/l4n as d9[,}]/.test(text)) throw Error("Pinned native auto-compaction switch changed");
-    text += `\n${policyDescription.toString()}\n${gaugeProgress.toString()}\n${responsePerformanceDescription.toString()}\n${responsePerformanceGraph.toString()}\n${decorateGauge.toString()}\n${useThreadAutoCompaction.toString()}\n${renderThreadAutoCompaction.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null;return {...usage,percent:gaugeProgress(policy,usage.percent).percent,contextPolicy:policy,responsePerformance:e?.responsePerformance}}\nfunction XSa(e){gw();_A();l4n();const ko=st().locale?.startsWith('ko'),graph=wd().useMemo(()=>responsePerformanceGraph(y7.jsx,e.contextUsage.responsePerformance,ko),[e.contextUsage.responsePerformance,ko]),store=Ou($),manager=e.conversationId==null?null:store.get(nA,store.get(hA,e.conversationId)),state=useThreadAutoCompaction(wd(),manager,e.conversationId,(method,params)=>Px(store,store.get(hA,e.conversationId)).sendRequest(method,params)),policy=e.contextUsage.contextPolicy?{...e.contextUsage.contextPolicy,autoCompactionEnabled:state.enabled}:null,usage={...e.contextUsage,contextPolicy:policy,percent:gaugeProgress(policy,e.contextUsage.percent).percent},manual=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id)),action=y7.jsx('div',{className:'flex flex-col gap-3',children:[renderThreadAutoCompaction(y7.jsx,r4n,mw,state,e.conversationId,ko),manual]});return decorateGauge(y7.jsx,__azraelNativeContextGauge({...e,contextUsage:usage}),policy,ko,action,e.contextUsage.responsePerformance,graph)}\n`;
+    text += `\n${policyDescription.toString()}\n${gaugeProgress.toString()}\n${responsePerformanceDescription.toString()}\n${legacyResponsePerformanceGraph.toString()}\n${responsePerformanceGraph.toString()}\n${decorateGauge.toString()}\n${useThreadAutoCompaction.toString()}\n${renderThreadAutoCompaction.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null;return {...usage,percent:gaugeProgress(policy,usage.percent).percent,contextPolicy:policy,responsePerformance:e?.responsePerformance}}\nfunction XSa(e){gw();_A();l4n();const ko=st().locale?.startsWith('ko'),[averageState,setAverageState]=wd().useState(()=>({id:e.conversationId,enabled:false})),averages=averageState?.id===e.conversationId&&averageState?.enabled===true,graph=wd().useMemo(()=>responsePerformanceGraph(y7.jsx,e.contextUsage.responsePerformance,ko,{averages,Switch:r4n,onAveragesChange:enabled=>setAverageState({id:e.conversationId,enabled})}),[e.contextUsage.responsePerformance,ko,averages,e.conversationId]),store=Ou($),manager=e.conversationId==null?null:store.get(nA,store.get(hA,e.conversationId)),state=useThreadAutoCompaction(wd(),manager,e.conversationId,(method,params)=>Px(store,store.get(hA,e.conversationId)).sendRequest(method,params)),policy=e.contextUsage.contextPolicy?{...e.contextUsage.contextPolicy,autoCompactionEnabled:state.enabled}:null,usage={...e.contextUsage,contextPolicy:policy,percent:gaugeProgress(policy,e.contextUsage.percent).percent},manual=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id)),action=y7.jsx('div',{className:'flex flex-col gap-3',children:[renderThreadAutoCompaction(y7.jsx,r4n,mw,state,e.conversationId,ko),manual]});return decorateGauge(y7.jsx,__azraelNativeContextGauge({...e,contextUsage:usage}),policy,ko,action,e.contextUsage.responsePerformance,graph)}\n`;
     count++;
   } else if (asset === SETTINGS_ASSET) {
     // Include host identity in the parent cache even when hidden instructions leave s null.

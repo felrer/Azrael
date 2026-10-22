@@ -4240,6 +4240,17 @@
           "minimum": 0.0,
           "type": "integer"
         },
+        "mode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ResponseSpeedMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "outputTokens": {
           "format": "uint64",
           "minimum": 0.0,
@@ -4269,12 +4280,27 @@
           "default": false,
           "type": "boolean"
         },
+        "history": {
+          "default": [],
+          "items": {
+            "$ref": "#/definitions/ResponsePerformanceTurn"
+          },
+          "type": "array"
+        },
         "minuteSamples": {
           "default": [],
           "items": {
             "$ref": "#/definitions/ResponseMinuteSample"
           },
           "type": "array"
+        },
+        "observedAtUnixMs": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "outputTokens": {
           "format": "uint64",
@@ -4285,6 +4311,14 @@
           "format": "uint64",
           "minimum": 0.0,
           "type": "integer"
+        },
+        "startedAtUnixMs": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "truncatedMinutes": {
           "default": false,
@@ -4307,6 +4341,37 @@
         "unmeasuredRequests"
       ],
       "type": "object"
+    },
+    "ResponsePerformanceTurn": {
+      "properties": {
+        "minuteSamples": {
+          "items": {
+            "$ref": "#/definitions/ResponseMinuteSample"
+          },
+          "type": "array"
+        },
+        "startedAtUnixMs": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "turnId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "minuteSamples",
+        "startedAtUnixMs",
+        "turnId"
+      ],
+      "type": "object"
+    },
+    "ResponseSpeedMode": {
+      "enum": [
+        "standard",
+        "fast",
+        "ultrafast"
+      ],
+      "type": "string"
     },
     "RootResumeState": {
       "enum": [
