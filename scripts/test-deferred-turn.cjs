@@ -14,7 +14,7 @@ const { createDeferredListStateFixture } = require("./deferred-list-state-fixtur
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const inputs = [
   [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 15],
-  [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 10],
+  [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 15],
   ["out/extension.js", patch.injectDeferredHostNotification, 1],
   [patch.DEFERRED_WAIT_RENDERER_ASSET, patch.injectDeferredWaitRenderer, 2],
   [patch.DEFERRED_THREAD_ASSET, patch.injectDeferredThread, 8],

@@ -187,7 +187,14 @@ function injectDeferredPresentation(text) {
     azraelRootResumeBranchContext.toString() + "\nvar azraelResumeBranchContext;export {azraelRootResumeBranchContext};\nvar azraelRootResumeStore;window.addEventListener('pagehide',()=>azraelRootResumeStore?.dispose(),{once:true});";
   text = replaceOnce(text, "let Jt=Kt&&qt?.parentThreadId!=null,Yt=At;",
     "let Jt=Kt&&qt?.parentThreadId!=null,Yt=At===`idle`&&ut?.isRootResumePending?`loading`:At;");
-  return { text, count: 10 };
+  // Keep the native loading state for callers; the memo key also tracks waiting.
+  text = replaceOnce(text, "Zt=Nt?`loading`:Yt,Qt=", "Zt=!Nt&&Yt===`loading`&&ut?.isRootResumePending?`azraelWaiting`:Nt?`loading`:Yt,Qt=");
+  text = replaceOnce(text, "en={type:Zt,unread:Qt,unreadCount:$t}", "en={type:Zt===`azraelWaiting`?`loading`:Zt,isRootResumePending:Zt===`azraelWaiting`,unread:Qt,unreadCount:$t}");
+  text = replaceOnce(text, "if(n.type===`loading`){let e;", "if(n.type===`loading`&&n.isRootResumePending)return(0,HZ.jsx)(fkr,{size:i,waiting:!0});if(n.type===`loading`){let e;");
+  text = replaceOnce(text, "let a=n===`compact`?`icon-xs shrink-0`:`size-5 shrink-0`,o;", "let a=(n===`compact`?`icon-xs shrink-0`:`size-5 shrink-0`)+(e.waiting?` azrael-resume-wait`:``),o;");
+  text = replaceOnce(text, "o=(0,HZ.jsx)(md,{className:a})", "o=(0,HZ.jsx)(md,{className:a,as:e.waiting?azraelResumeSpinner:void 0})");
+  text += "\nfunction azraelResumeSpinner(props){return(0,HZ.jsx)(`div`,{...props,style:{animationDuration:`4s`},\"data-azrael-resume-spinner\":true})}";
+  return { text, count: 15 };
 }
 
 function injectDeferredHeader(text, { allowAlreadyTransformed = false } = {}) {
