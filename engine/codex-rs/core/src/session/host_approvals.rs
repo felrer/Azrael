@@ -1304,7 +1304,7 @@ mod tests {
         let thread = crate::CodexThread::new(
             Arc::clone(&session),
             super::super::SessionIo {
-                tx_sub,
+                tx_sub: tx_sub.into(),
                 rx_event: events.clone(),
                 agent_status: session.agent_status.subscribe(),
                 session_loop_termination: async {}.boxed().shared(),

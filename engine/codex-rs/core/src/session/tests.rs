@@ -8316,7 +8316,7 @@ async fn submit_with_trace_captures_current_span_trace_context() {
     let (tx_sub, rx_sub) = async_channel::bounded(1);
     let (_tx_event, rx_event) = async_channel::unbounded();
     let io = SessionIo {
-        tx_sub,
+        tx_sub: tx_sub.into(),
         rx_event,
         agent_status: watch::channel(AgentStatus::PendingInit).1,
         session_loop_termination: completed_session_loop_termination(),
@@ -9150,7 +9150,7 @@ async fn shutdown_and_wait_allows_multiple_waiters() {
         tokio::time::sleep(StdDuration::from_millis(50)).await;
     });
     let io = Arc::new(SessionIo {
-        tx_sub,
+        tx_sub: tx_sub.into(),
         rx_event,
         agent_status: watch::channel(AgentStatus::PendingInit).1,
         session_loop_termination: session_loop_termination_from_handle(session_loop_handle),
@@ -9186,7 +9186,7 @@ async fn shutdown_and_wait_waits_when_shutdown_is_already_in_progress() {
         let _ = shutdown_complete_rx.await;
     });
     let io = Arc::new(SessionIo {
-        tx_sub,
+        tx_sub: tx_sub.into(),
         rx_event,
         agent_status: watch::channel(AgentStatus::PendingInit).1,
         session_loop_termination: session_loop_termination_from_handle(session_loop_handle),

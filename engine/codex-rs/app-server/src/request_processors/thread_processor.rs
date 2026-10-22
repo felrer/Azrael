@@ -510,6 +510,7 @@ pub(crate) struct ThreadRequestProcessor {
     pub(super) config_manager: ConfigManager,
     pub(super) thread_store: Arc<dyn ThreadStore>,
     pub(super) pending_thread_unloads: Arc<Mutex<HashSet<ThreadId>>>,
+    handoff_restores: Arc<Mutex<HashMap<String, crate::azrael_session_handoff::RuntimeSnapshot>>>,
     pub(super) thread_state_manager: ThreadStateManager,
     pub(super) thread_watch_manager: ThreadWatchManager,
     pub(super) thread_list_state_permit: Arc<Semaphore>,
@@ -569,6 +570,7 @@ impl ThreadRequestProcessor {
             config_manager,
             thread_store,
             pending_thread_unloads,
+            handoff_restores: Default::default(),
             thread_state_manager,
             thread_watch_manager,
             thread_list_state_permit,
@@ -580,6 +582,162 @@ impl ThreadRequestProcessor {
             turn_cost_worker,
             initial_config_warnings: Arc::new(initial_config_warnings),
         }
+    }
+
+    pub(crate) async fn install_handoff_restore(
+        &self,
+        thread: String,
+        snapshot: crate::azrael_session_handoff::RuntimeSnapshot,
+    ) {
+        self.handoff_restores.lock().await.insert(thread, snapshot);
+    }
+
+    pub(crate) async fn session_subscribers(&self, thread: ThreadId) -> Vec<ConnectionId> {
+        self.thread_state_manager
+            .subscribed_connection_ids(thread)
+            .await
+    }
+
+    pub(crate) fn session_attach_supported(&self) -> bool {
+        !self.auth_manager.has_external_auth()
+            && !self.auth_manager.is_external_chatgpt_auth_active()
+    }
+
+    pub(crate) async fn session_handoff_account_guard(
+        &self,
+    ) -> std::io::Result<tokio::sync::OwnedRwLockReadGuard<()>> {
+        self.auth_manager.azrael_admission().admit_request().await
+    }
+
+    /// Called only behind the thread RPC queue barrier, with router admissions fenced.
+    pub(crate) async fn try_session_handoff(
+        &self,
+        thread: &str,
+        connection: ConnectionId,
+    ) -> std::io::Result<Option<serde_json::Value>> {
+        use crate::azrael_session_handoff::{LocalEnvironment, RuntimeSnapshot};
+        use codex_protocol::protocol::EnvironmentConfigState;
+        let id = ThreadId::from_string(thread).map_err(std::io::Error::other)?;
+        if self.pending_thread_unloads.lock().await.contains(&id)
+            || self
+                .thread_state_manager
+                .subscribed_connection_ids(id)
+                .await
+                .iter()
+                .any(|other| *other != connection)
+            || self.outgoing.has_pending_requests_for_thread(id).await
+        {
+            return Ok(None);
+        }
+        let loaded = self
+            .thread_manager
+            .get_thread(id)
+            .await
+            .map_err(std::io::Error::other)?;
+        let snapshot = loaded.config_snapshot().await;
+        if snapshot.ephemeral
+            || snapshot.parent_thread_id.is_some()
+            || snapshot.environment_selections().iter().any(|environment| {
+                !matches!(environment.config, EnvironmentConfigState::FromThread)
+            })
+        {
+            return Ok(None);
+        }
+        let restorable = loaded.restorable_thread_settings().await;
+        let config = loaded.config().await;
+        let runtime = RuntimeSnapshot {
+            computer_use_mode: snapshot.computer_use_mode,
+            settings: codex_protocol::protocol::ThreadSettingsSnapshot {
+                auto_compaction_enabled: snapshot.auto_compaction_enabled,
+                model: snapshot.model,
+                model_provider_id: snapshot.model_provider_id,
+                service_tier: snapshot.service_tier,
+                approval_policy: snapshot.approval_policy,
+                approvals_reviewer: snapshot.approvals_reviewer,
+                permission_profile: snapshot.permission_profile,
+                active_permission_profile: snapshot.active_permission_profile,
+                cwd: snapshot.environments.legacy_fallback_cwd.clone(),
+                runtime_workspace_roots: restorable.runtime_workspace_roots,
+                reasoning_effort: snapshot.reasoning_effort,
+                reasoning_summary: snapshot.reasoning_summary,
+                personality: snapshot.personality,
+                collaboration_mode: snapshot.collaboration_mode,
+                disabled_plugin_ids: snapshot.disabled_plugin_ids,
+            },
+            profile_roots: snapshot
+                .profile_workspace_roots
+                .iter()
+                .map(|root| root.as_uri().to_string())
+                .collect(),
+            environments: snapshot
+                .environments
+                .environments
+                .iter()
+                .map(|environment| LocalEnvironment {
+                    id: environment.environment_id.clone(),
+                    cwd: environment.cwd.to_string(),
+                    roots: environment
+                        .workspace_roots
+                        .iter()
+                        .map(ToString::to_string)
+                        .collect(),
+                })
+                .collect(),
+            client_mcp_extensions: loaded
+                .client_mcp_extensions()
+                .iter()
+                .map(|(key, value)| (key.to_owned(), value.clone()))
+                .collect(),
+            base_instructions: config.base_instructions.clone(),
+            developer_instructions: config.developer_instructions.clone(),
+        };
+        // Validate serialization and reconstruction before stopping any source work.
+        if !runtime.safe_client_capabilities() {
+            return Ok(None);
+        }
+        runtime.permission_snapshot()?;
+        runtime.overrides()?;
+        let encoded = serde_json::to_value(runtime).map_err(std::io::Error::other)?;
+        let thread_state = self.thread_state_manager.thread_state(id).await;
+        let drain = {
+            let mut state = thread_state.lock().await;
+            state
+                .cancel_tx
+                .is_some()
+                .then(|| state.register_shutdown_drain_waiter())
+        };
+        if !loaded
+            .try_shutdown_for_handoff()
+            .await
+            .map_err(std::io::Error::other)?
+        {
+            thread_state.lock().await.take_shutdown_drain_waiter();
+            return Ok(None);
+        }
+        if let Some(drain) = drain {
+            tokio::time::timeout(Duration::from_secs(10), drain)
+                .await
+                .map_err(std::io::Error::other)?
+                .map_err(std::io::Error::other)?;
+        }
+        if self.outgoing.has_pending_requests_for_thread(id).await
+            || self
+                .thread_state_manager
+                .subscribed_connection_ids(id)
+                .await
+                .iter()
+                .any(|other| *other != connection)
+        {
+            return Err(std::io::Error::other(
+                "session callbacks or subscribers changed while stopping; source lease retained",
+            ));
+        }
+        self.thread_manager
+            .remove_thread_if_matches(&id, &loaded)
+            .await
+            .ok_or_else(|| std::io::Error::other("handoff runtime disappeared before removal"))?;
+        self.finalize_thread_teardown(id).await;
+        Ok(Some(encoded))
     }
 
     pub(crate) async fn thread_start(
@@ -3809,6 +3967,28 @@ impl ThreadRequestProcessor {
         prepared_config: &mut Option<PreparedResumeConfig>,
         prepared_history: &mut Option<PreparedResumeHistory>,
     ) -> Result<ControlFlow<()>, JSONRPCErrorError> {
+        let pending_handoff_restore = self
+            .handoff_restores
+            .lock()
+            .await
+            .get(&params.thread_id)
+            .cloned();
+        if let Some(snapshot) = pending_handoff_restore
+            && let Ok(id) = ThreadId::from_string(&params.thread_id)
+            && let Ok(thread) = self.thread_manager.get_thread(id).await
+        {
+            thread
+                .restore_thread_settings(
+                    snapshot
+                        .overrides()
+                        .map_err(|error| internal_error(error.to_string()))?,
+                )
+                .await
+                .map_err(|error| {
+                    internal_error(format!("cannot restore transferred runtime: {error}"))
+                })?;
+            self.handoff_restores.lock().await.remove(&params.thread_id);
+        }
         if let Ok(thread_id) = ThreadId::from_string(&params.thread_id)
             && self
                 .pending_thread_unloads
@@ -4191,6 +4371,20 @@ impl ThreadRequestProcessor {
             config.model_reasoning_effort = None;
         }
 
+        let handoff_restore = self.handoff_restores.lock().await.get(&thread_id).cloned();
+        if let Some(snapshot) = &handoff_restore {
+            config
+                .permissions
+                .set_permission_profile_from_session_snapshot(
+                    snapshot
+                        .permission_snapshot()
+                        .map_err(|error| internal_error(error.to_string()))?,
+                )
+                .map_err(|error| {
+                    internal_error(format!("cannot restore transferred permissions: {error}"))
+                })?;
+        }
+
         let response_history = thread_history.clone();
 
         match self
@@ -4205,7 +4399,12 @@ impl ThreadRequestProcessor {
                     }
                     ThreadResumeTarget::DaemonRecovery(_) => None,
                 },
-                client_mcp_extensions,
+                handoff_restore
+                    .as_ref()
+                    .map(|snapshot| {
+                        ClientMcpExtensions::new(snapshot.client_mcp_extensions.clone())
+                    })
+                    .unwrap_or(client_mcp_extensions),
             )
             .await
         {
@@ -4215,6 +4414,24 @@ impl ThreadRequestProcessor {
                 session_configured,
                 ..
             }) => {
+                if let Some(snapshot) = handoff_restore {
+                    codex_thread
+                        .restore_thread_settings(
+                            snapshot
+                                .overrides()
+                                .map_err(|error| internal_error(error.to_string()))?,
+                        )
+                        .await
+                        .map_err(|error| {
+                            internal_error(format!(
+                                "cannot restore transferred thread settings: {error}"
+                            ))
+                        })?;
+                    self.handoff_restores
+                        .lock()
+                        .await
+                        .remove(&thread_id.to_string());
+                }
                 let ThreadResumeTarget::Client(request_id) = target else {
                     // Observe lifecycle events without attaching a client subscription.
                     self.thread_watch_manager

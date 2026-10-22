@@ -291,3 +291,11 @@ test('invalid root and changed-path contracts fail before command planning', () 
   assert.throws(() => plan({ ...config, engineSourceRoot: 'relative' }, []), /absolute/);
   assert.throws(() => plan(config, [], { changedPaths: [null] }), /changedPaths/);
 });
+
+test('session handoff preparation covers proxy, core admission and server ownership', () => {
+  const result = recipesForCheck(config, check('check-shared-engine-native', ['handoff']));
+  assert.deepEqual(result.gaps, []);
+  assert.deepEqual(result.cargoPreparations.map(x => x.args[x.args.indexOf('-p') + 1]),
+    ['codex-app-server-daemon', 'codex-core', 'codex-app-server', 'codex-app-server', 'codex-app-server']);
+  assert.ok(result.cargoPreparations.every(x => x.args.includes('--lib') && x.args.includes('--locked') && x.args.includes('--offline')));
+});

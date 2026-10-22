@@ -600,6 +600,22 @@ impl OutgoingMessageSender {
         requests
     }
 
+    pub(crate) async fn has_pending_requests_for_thread(&self, thread_id: ThreadId) -> bool {
+        self.request_id_to_callback
+            .lock()
+            .await
+            .values()
+            .any(|entry| entry.thread_id == Some(thread_id))
+    }
+
+    pub(crate) async fn server_request_thread(&self, request_id: &RequestId) -> Option<ThreadId> {
+        self.request_id_to_callback
+            .lock()
+            .await
+            .get(request_id)
+            .and_then(|entry| entry.thread_id)
+    }
+
     pub(crate) async fn cancel_requests_for_thread(
         &self,
         thread_id: ThreadId,

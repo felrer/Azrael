@@ -99,6 +99,7 @@ mod app_server_tracing;
 mod attestation;
 mod auth_mode;
 mod azrael_shared_server;
+mod azrael_session_handoff;
 mod azrael_shutdown;
 mod azrael_thread_engines;
 mod bespoke_event_handling;

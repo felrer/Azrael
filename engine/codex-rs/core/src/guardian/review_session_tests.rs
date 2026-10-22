@@ -152,7 +152,7 @@ async fn test_review_session() -> (
         GuardianReviewSession {
             session,
             io: SessionIo {
-                tx_sub,
+                tx_sub: tx_sub.into(),
                 rx_event,
                 agent_status,
                 session_loop_termination: crate::session::completed_session_loop_termination(),

@@ -637,6 +637,12 @@ pub enum Op {
         reply: oneshot::Sender<CodexResult<SuspendTurnOutcome>>,
     },
 
+    /// Ordered idle-only ownership transfer. Busy never cancels running work.
+    #[debug("TryShutdownForHandoff")]
+    TryShutdownForHandoff {
+        reply: oneshot::Sender<CodexResult<bool>>,
+    },
+
     /// Apply thread-settings overrides without starting a turn.
     ///
     /// This uses the same submission queue as turn starts so app-server can
@@ -970,6 +976,7 @@ impl Op {
             Self::RecoverTurn { .. } => "recover_turn",
             Self::CompactIfIdle { .. } => "compact_if_idle",
             Self::SuspendTurnAndShutdown { .. } => "suspend_turn_and_shutdown",
+            Self::TryShutdownForHandoff { .. } => "try_shutdown_for_handoff",
             Self::ThreadSettings { .. } => "thread_settings",
             Self::TurnSettings { .. } => "turn_settings",
             Self::InterAgentCommunication { .. } => "inter_agent_communication",

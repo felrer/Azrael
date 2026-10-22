@@ -1009,6 +1009,59 @@ impl MessageProcessor {
         self.thread_processor.shutdown_threads().await;
     }
 
+    pub(crate) async fn install_handoff_restore(
+        &self,
+        thread: String,
+        snapshot: crate::azrael_session_handoff::RuntimeSnapshot,
+    ) {
+        self.thread_processor
+            .install_handoff_restore(thread, snapshot)
+            .await;
+    }
+
+    pub(crate) async fn server_request_thread(
+        &self,
+        request: &codex_app_server_protocol::RequestId,
+    ) -> Option<ThreadId> {
+        self.outgoing.server_request_thread(request).await
+    }
+
+    pub(crate) fn session_attach_supported(&self) -> bool {
+        self.thread_processor.session_attach_supported()
+    }
+
+    pub(crate) async fn session_subscribers(&self, thread: ThreadId) -> Vec<ConnectionId> {
+        self.thread_processor.session_subscribers(thread).await
+    }
+
+    pub(crate) async fn session_handoff_account_guard(
+        &self,
+    ) -> std::io::Result<tokio::sync::OwnedRwLockReadGuard<()>> {
+        self.thread_processor.session_handoff_account_guard().await
+    }
+
+    pub(crate) async fn try_session_handoff(
+        &self,
+        thread: &str,
+        connection: ConnectionId,
+    ) -> std::io::Result<Option<serde_json::Value>> {
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        let processor = self.thread_processor.clone();
+        let thread = thread.to_owned();
+        self.request_serialization_queues
+            .enqueue_background(
+                RequestSerializationQueueKey::Thread {
+                    thread_id: thread.clone(),
+                },
+                crate::request_serialization::RequestSerializationAccess::Exclusive,
+                async move {
+                    let _ = tx.send(processor.try_session_handoff(&thread, connection).await);
+                },
+            )
+            .await;
+        rx.await.map_err(std::io::Error::other)?
+    }
+
     pub(crate) async fn connection_closed(
         &self,
         connection_id: ConnectionId,

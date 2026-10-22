@@ -727,6 +727,10 @@ impl Session {
         self.parent_response_wait_control().deferred.load(Ordering::Acquire)
     }
 
+    pub(crate) async fn has_parent_response_wait_for_handoff(&self) -> bool {
+        self.parent_response_wait_control().state.lock().await.is_some()
+    }
+
     pub(crate) async fn parked_parent_response_task_identity(&self) -> Option<String> {
         self.parent_response_wait_control().state.lock().await.as_ref()
             .filter(|wait| wait.parked).map(|wait| wait.record.child_task_id.clone())
