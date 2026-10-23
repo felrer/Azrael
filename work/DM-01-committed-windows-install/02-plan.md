@@ -162,3 +162,11 @@ root가 데이터/호출 계약·선택 범위·입력 기준·통합·최종 �
 
 - windows-r3 입력 준비 실제 exit0. project SHA ddcd1246ec190243e4bc66a35056e8e4ac9a19b4b8395b14b693f254ec4e4aa5. helper 준비 926,538ms, 의존성 독립 복사·세 번 inventory 비교 152,412ms, 최종 immutable/working 검증 통과. 프로세스 생성16:12:17~producer 영수증16:31:06 기준 전체 준비 약18분49초. source-dependencies.json에 13,325파일/1,522디렉터리와 로딩 증거 보존.
 - 2026-10-23 16:32 UTC windows-controller-w13b 장기 세션28366 시작. 공유 Cargo owner API exists=false 및 Cargo/rustc/link 프로세스 없음 확인. 기존 PS7/runtime 소비 참조를 지원 API로 windows-r3에 추가했다. 설치 목표2026.0.12이며 NoLaunch/reload-required 계약을 유지한다.
+
+- windows-r3 배포는 cache preflight에서 실제 exit1: 공유 module cache registry에 이미 사라진 artifacts/w31b가 남아 사용을 차단했다. controller 전후 소스 검증 통과, 제품 컴파일 미시작. 원시 registry를 수정하거나 legacy 보호를 해제하지 않았다.
+- 16:36 UTC windows-r4 / w13c-99afefb1 재시도는 같은 고정 소스를 재사용하고 기존 공개 인수로 module/Cargo verification/namespace cache owner를 working project로 분리했다. 공유 Cargo compilation target은 유지한다. 초기 캐시 생성 비용과 legacy 복구·입력 재복사의 비용을 비교해 분리를 선택했으며 실제 비용은 실행 결과로 남긴다. fixture는 fresh artifacts/x를 사용한다. primary run의 지속 input 참조를 추가해 catalog 경계 사이에 자동 보호가 전파된다고 가정하지 않는다.
+
+- windows-r4는 fixture 이름 계약(artifacts/v 또는 v- 접두사)에 맞지 않는 x를 지정해 producer 시작 전에 exit1로 끝났다. windows-r5는 사전 환경·의존성 준비 exit0 이후 전체 manifest의 고정 UI 자료가 작업 사본에 없어 exit1이었다. 두 시도 모두 제품 컴파일 전이며 controller의 입력 전후 검증은 통과했다.
+- 고정 UI 19,632파일/117디렉터리/링크0을 독립 복사하고 원본 전후·복사본 inventory 일치 및 77기능 manifest 검증을 확인했다(exit0, 약8분15초). 증거 pinned-ui-copy.json.
+- 8GiB 여유 공간 기준을 유지하기 위해 새 고정 입력·작업 소스·독립 복사한 UI/의존성과 작업 소유의 PS7 도구 사본에 NTFS 일반 압축을 적용했다. 파일 내용 보존을 전체 입력/소스/UI 해시로 재검증하며, PS7 실행 파일 SHA256은 기존 값과 일치한다. 사용자 원본·System·ACL은 변경하지 않는다. 압축은 물리 저장량 최적화이며 삭제 회수량에 합산하지 않는다. windows-r6/w13e는 검증 및 공간 기준 충족 후 실행한다.
+- 압축 후 전체 입력/작업 소스/UI 검증은 17:08:11~17:09:23 UTC, exit0. project SHA와 UI inventory는 기존 값 그대로다. 8GiB 기준 충족, 공유 Cargo owner 미점유 및 cargo/rustc/link 미실행을 확인한 뒤 windows-r6 / w13e controller 세션52430을 시작했다. UI 준비 lifecycle은 실제 leaf 종료 증거로 complete revision2로 닫았고 배포 실행 참조는 유지한다.
