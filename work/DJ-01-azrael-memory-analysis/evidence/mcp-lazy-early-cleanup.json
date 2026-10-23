@@ -1,0 +1,48 @@
+{
+  "groups": [
+    {
+      "id": "run:DJ-01:mcp-lazy-r1",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:mcp-lazy-r2",
+      "status": "deleted"
+    }
+  ],
+  "items": [
+    {
+      "id": "71eab7a6f3e6c8225067bd4f749140ed86be76c15293c06c8b6bf05317b5ebcd",
+      "group": "run:DJ-01:mcp-lazy-r2",
+      "status": "deleted",
+      "remaining": false,
+      "token": "bd50cfecb5f30e2c3a98fd1dbace5665400777bc42c63fc973020a08fce30b45"
+    },
+    {
+      "id": "8c852d38d52636c6152eaae8e51672553ed16a9ca8cce5df4c16a9ef37f27d65",
+      "group": "run:DJ-01:mcp-lazy-r2",
+      "status": "deleted",
+      "remaining": false,
+      "token": "2978bdb7efb42e36c230a1dce452a2f98fd5e889760c9a3fcd46bdb858112ffd"
+    },
+    {
+      "id": "92b764fc0f2d8fc92a91d7d7152ab6f8d81deb8c64a91b51adedd067f98308fc",
+      "group": "run:DJ-01:mcp-lazy-r1",
+      "status": "deleted",
+      "remaining": false,
+      "token": "ab7b5b36de347ef3f588e2b7b9d0ffcab2a3814aba95d09fe59a95a92d82d1f9"
+    },
+    {
+      "id": "dc6f084f6dd0dddf74ce955ac7af7e6866e1b0e66597d4b91e924a141da09de3",
+      "group": "run:DJ-01:mcp-lazy-r1",
+      "status": "deleted",
+      "remaining": false,
+      "token": "60e5fd7fe43d2f4f58ee0a53bcd54b8c83c12aa01e99fb77f5deff3489341188"
+    }
+  ],
+  "logicalBytes": 102070574,
+  "finalized": [
+    "run:DJ-01:mcp-lazy-r1",
+    "run:DJ-01:mcp-lazy-r2"
+  ],
+  "evidenceRetained": "work/DJ-01-azrael-memory-analysis/evidence/mcp-lazy-r1 and mcp-lazy-r2"
+}

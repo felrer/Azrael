@@ -1,0 +1,871 @@
+[cargo-owner] {"schema":1,"token":"feaede07-bfcb-475f-93b8-533311aac8ef","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.689Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\early-prepare-v7R3Hu\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\early-prepare-v7r3hu\\target","command":"cargo","args":["check","-p","codex-core","--lib","--features","one","--target","selected-triple","--profile","release","--tests"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\early-prepare-v7R3Hu\\source\\codex-rs","compilationSignature":"70f5f8476b7e5c324f3b52f54b165aea8feb32c6d3ae9fa9a669426cbfbe4508","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\early-prepare-v7R3Hu\\pending","status":"failed","resultObservedUtc":"2026-10-23T03:32:00.696Z","exitCode":101,"signal":null,"durationMs":13.2538}
+[cargo-owner] {"schema":1,"token":"b0551295-b7c7-46c7-9dfd-77b5ed6ce2a5","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.726Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-uvwl7e\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\engine\\codex-rs","compilationSignature":"d1655cc2cc06ec508ba9292d416c310339e60e01b70122d20b5624be847c951d","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\pending","status":"success","resultObservedUtc":"2026-10-23T03:32:00.730Z","exitCode":0,"signal":null,"durationMs":10.4593}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.723Z","durationMs":10,"exitCode":0,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"07fcc853-108d-4060-9f4e-aeebae4fb7e2","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.735Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-uvwl7e\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\engine\\codex-rs","compilationSignature":"e30ac1394589bf3499c0e42cd340f68e4d719974cc474af4750cc014c4c6bc4d","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\pending","status":"success","resultObservedUtc":"2026-10-23T03:32:00.737Z","exitCode":0,"signal":null,"durationMs":6.7203}
+fixture: test
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.723Z","durationMs":10,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T03:32:00.733Z","durationMs":7,"exitCode":0,"signal":null,"selectedTests":1}]}
+[cargo-owner] {"schema":1,"token":"48825ade-18d1-4805-a33f-7c7a314bd2f7","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.742Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-uvwl7e\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\engine\\codex-rs","compilationSignature":"e30ac1394589bf3499c0e42cd340f68e4d719974cc474af4750cc014c4c6bc4d","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\command-contract-UvwL7e\\pending","status":"success","resultObservedUtc":"2026-10-23T03:32:00.745Z","exitCode":0,"signal":null,"durationMs":8.0282}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.723Z","durationMs":10,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T03:32:00.733Z","durationMs":7,"exitCode":0,"signal":null,"selectedTests":1},{"phase":"execution","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1"],"startedUtc":"2026-10-23T03:32:00.740Z","durationMs":8,"exitCode":0,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"e8bc981b-219b-4930-882e-c02ad322026a","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.754Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-type-failure-fNGZRr\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-type-failure-fngzrr\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-type-failure-fNGZRr\\engine\\codex-rs","compilationSignature":"7680b153352f422750089c08a7f5fef069fda097bf16b11a1fb0cb502375d90a","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-type-failure-fNGZRr\\pending","status":"failed","resultObservedUtc":"2026-10-23T03:32:00.757Z","exitCode":101,"signal":null,"durationMs":9.3878}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.751Z","durationMs":10,"exitCode":101,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"0b7bc746-05b1-4bb7-8082-d7fc8c2b5ab5","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.767Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esunTl\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esuntl\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esunTl\\engine\\codex-rs","compilationSignature":"e4abbb5c51717338c032a0e6f9b4c32918783bec28954da191ba2028a93d7bbb","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esunTl\\pending","status":"success","resultObservedUtc":"2026-10-23T03:32:00.770Z","exitCode":0,"signal":null,"durationMs":8.7712}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.764Z","durationMs":9,"exitCode":0,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"deb96b77-3a21-4bfb-9907-447c46721959","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.775Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esunTl\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esuntl\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esunTl\\engine\\codex-rs","compilationSignature":"91c2f1934a7dc56315707e5dc37ef79c78b7037f49bb49ee188f87a015564a64","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-selection-failure-esunTl\\pending","status":"failed","resultObservedUtc":"2026-10-23T03:32:00.778Z","exitCode":101,"signal":null,"durationMs":7.4134}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.764Z","durationMs":9,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T03:32:00.773Z","durationMs":8,"exitCode":101,"signal":null,"selectedTests":0}]}
+[cargo-owner] {"schema":1,"token":"fc1d16b7-9086-437a-b964-06b38c7dfa75","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.786Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-DABQH4\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-dabqh4\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-DABQH4\\engine\\codex-rs","compilationSignature":"1d5cd3db54aea03ea8e5ba72caa8400e71487e907f2df2e58e49deb7941f8d59","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-DABQH4\\pending","status":"success","resultObservedUtc":"2026-10-23T03:32:00.789Z","exitCode":0,"signal":null,"durationMs":8.3307}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.784Z","durationMs":8,"exitCode":0,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"8b69fd44-0df3-425d-a5e3-2c988ffa329e","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.794Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-DABQH4\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-dabqh4\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-DABQH4\\engine\\codex-rs","compilationSignature":"c576551161efce3d1b4abde90bbe3a974b48160b22489aae74e4e4aab92ce75e","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-zero-tests-DABQH4\\pending","status":"success","resultObservedUtc":"2026-10-23T03:32:00.797Z","exitCode":0,"signal":null,"durationMs":7.5451}
+0 tests, 0 benchmarks
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.784Z","durationMs":8,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T03:32:00.792Z","durationMs":8,"exitCode":0,"signal":null,"selectedTests":0}]}
+[cargo-owner] {"schema":1,"token":"30fdefd0-27fe-4382-b62c-b3d96e177633","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.805Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-interruption-nqctPo\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-interruption-nqctpo\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-interruption-nqctPo\\engine\\codex-rs","compilationSignature":"733e0bf325ad5df93e4312eb5b21ba45601defaafa7436b6b49efdb46d8f3999","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-interruption-nqctPo\\pending","status":"unknown","resultObservedUtc":"2026-10-23T03:32:00.808Z","exitCode":null,"signal":"SIGTERM","durationMs":9.5163}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.802Z","durationMs":11,"exitCode":null,"signal":"SIGTERM"}]}
+[cargo-owner] {"schema":1,"token":"9c7e7ab2-d542-451a-bc9b-c0a4a352a24a","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.818Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-yKUbA8\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-ykuba8\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-yKUbA8\\engine\\codex-rs","compilationSignature":"08df77e83d235c43b66c81572c5548373b4e87e3bfbe255eab63bbf8cb7504ac","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-yKUbA8\\pending","status":"success","resultObservedUtc":"2026-10-23T03:32:00.821Z","exitCode":0,"signal":null,"durationMs":8.444}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.815Z","durationMs":9,"exitCode":0,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"3ca7d07e-7d04-46c0-addd-ce2a5cced495","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.825Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-yKUbA8\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-ykuba8\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-yKUbA8\\engine\\codex-rs","compilationSignature":"9640b35a061a2f909cf90af102dceb9fac6577887e085d7988bbe71c37baecd7","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-1-inconsistent-interruption-yKUbA8\\pending","status":"unknown","resultObservedUtc":"2026-10-23T03:32:00.828Z","exitCode":0,"signal":"SIGTERM","durationMs":6.717}
+fixture: test
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.815Z","durationMs":9,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-core","--lib","filter","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T03:32:00.824Z","durationMs":7,"exitCode":0,"signal":"SIGTERM","selectedTests":1}]}
+[cargo-owner] {"schema":1,"token":"2c561465-e13f-4551-8f35-1b5c9d3b64cd","run":"pid-73340","coordinatorPid":73340,"producerPid":null,"startedUtc":"2026-10-23T03:32:00.836Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-missing-tool-GzPCka\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\tasks\\dj-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-missing-tool-gzpcka\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-missing-tool-GzPCka\\engine\\codex-rs","compilationSignature":"a6228acef8438c88d3ef5d684d2ae5bfee99f8181f3cc9a09af4b82094340ece","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r2\\temporary\\wrapper-fixtures\\gate-0-missing-tool-GzPCka\\pending","status":"unknown","resultObservedUtc":"2026-10-23T03:32:00.839Z","exitCode":null,"signal":null,"durationMs":7.3916}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T03:32:00.834Z","durationMs":7,"exitCode":null,"signal":null}]}
+✔ early type preparation leases the actual target, preserves configuration and writes separate evidence (27.8088ms)
+✔ early preparation cannot launch Cargo when a physical target already has an owner (6.4824ms)
+✔ type check and nonempty selection gate execution using the same Cargo cache (31.6071ms)
+✔ preflight blocks execution after type failure (12.4258ms)
+✔ preflight blocks execution after selection failure (19.9917ms)
+✔ preflight blocks execution after zero tests (18.7873ms)
+✔ preflight blocks execution after interruption (12.7084ms)
+✔ preflight blocks execution after inconsistent interruption (18.2663ms)
+✔ preflight blocks execution after missing tool (10.4252ms)
+✔ preflight preserves selectors, features, target and effective test profile (0.7757ms)
+✔ Cargo bundles require the supported preflight contract and reject undeclared or weakened policy (0.5319ms)
+✖ task recovery retains captured pass-count validation after joining the preflight gate (0.5624ms)
+✔ Windows: frozen workspace and Cargo default test profile (2.0216ms)
+✔ Windows: explicit cache, target and profile precede test arguments (1.9735ms)
+✔ POSIX: frozen workspace and Cargo default test profile (0.1192ms)
+✔ POSIX: explicit cache, target and profile precede test arguments (0.1394ms)
+✔ host isolation retains selected compilation settings and scrubs runtime sockets (0.1972ms)
+✖ check-api-context prompts: preserves every package/filter and Cargo reuse (0.3712ms)
+✖ check-api-context prompts: first failure stops subsequent filters (0.2395ms)
+✖ check-api-context skills: preserves every package/filter and Cargo reuse (0.2124ms)
+✖ check-api-context skills: first failure stops subsequent filters (0.1944ms)
+✖ check-api-context core: preserves every package/filter and Cargo reuse (0.1871ms)
+✖ check-api-context core: first failure stops subsequent filters (0.1943ms)
+✖ check-model-harness-profiles config: preserves every package/filter and Cargo reuse (0.186ms)
+✖ check-model-harness-profiles config: first failure stops subsequent filters (0.198ms)
+✖ check-model-harness-profiles tools: preserves every package/filter and Cargo reuse (0.2299ms)
+✖ check-model-harness-profiles tools: first failure stops subsequent filters (0.2036ms)
+✖ check-task-work-time-native protocol: preserves every package/filter and Cargo reuse (0.1843ms)
+✖ check-task-work-time-native protocol: first failure stops subsequent filters (0.2116ms)
+✖ check-task-work-time-native store: preserves every package/filter and Cargo reuse (0.1919ms)
+✖ check-task-work-time-native store: first failure stops subsequent filters (0.1797ms)
+✖ check-task-work-time-native appserver: preserves every package/filter and Cargo reuse (0.1746ms)
+✖ check-task-work-time-native appserver: first failure stops subsequent filters (0.1761ms)
+✖ check-root-resume-reasoning : preserves every package/filter and Cargo reuse (0.1753ms)
+✖ check-root-resume-reasoning : first failure stops subsequent filters (0.1792ms)
+✖ check-thread-auto-compaction : preserves every package/filter and Cargo reuse (0.1771ms)
+✖ check-thread-auto-compaction : first failure stops subsequent filters (0.1776ms)
+✖ bridge scope runs remote library and terminal binary tests separately without embedded features (1.6493ms)
+✖ Windows native PTY and daemon groups compile selected frozen libtests then execute them outside Cargo (0.5691ms)
+✖ native direct execution is Windows scoped (0.4459ms)
+✖ importing Windows native runner exports a reusable helper without CLI side effects (0.3781ms)
+✖ codex-app-server-daemon: direct execution stops on failed type checking or empty/interrupted listing (0.3847ms)
+✖ codex-app-server-daemon: native runner rejects missing, foreign, ambiguous and malformed Cargo artifacts (0.3402ms)
+✖ codex-app-server-daemon: native runner propagates compile and runtime failures without continuing (0.4167ms)
+✖ codex-utils-pty: direct execution stops on failed type checking or empty/interrupted listing (0.2589ms)
+✖ codex-utils-pty: native runner rejects missing, foreign, ambiguous and malformed Cargo artifacts (0.2634ms)
+✖ codex-utils-pty: native runner propagates compile and runtime failures without continuing (0.4571ms)
+✖ CLI stops subsequent native groups after the first compile or test failure (0.8399ms)
+✔ MCP preservation keeps native integration and connection checks with offline locks (0.9871ms)
+✔ MCP preservation requires the managed nonzero test preflight (0.5647ms)
+ℹ tests 50
+ℹ suites 0
+ℹ pass 18
+ℹ fail 32
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 311.9489
+
+✖ failing tests:
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:93:1
+✖ task recovery retains captured pass-count validation after joining the preflight gate (0.5624ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-task-recovery-native.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:96:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-task-recovery-native.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-api-context prompts: preserves every package/filter and Cargo reuse (0.3712ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-api-context.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-api-context.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-api-context prompts: first failure stops subsequent filters (0.2395ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-api-context.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-api-context.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-api-context skills: preserves every package/filter and Cargo reuse (0.2124ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-api-context.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-api-context.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-api-context skills: first failure stops subsequent filters (0.1944ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-api-context.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-api-context.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-api-context core: preserves every package/filter and Cargo reuse (0.1871ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-api-context.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-api-context.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-api-context core: first failure stops subsequent filters (0.1943ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-api-context.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-api-context.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-model-harness-profiles config: preserves every package/filter and Cargo reuse (0.186ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-model-harness-profiles.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-model-harness-profiles.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-model-harness-profiles config: first failure stops subsequent filters (0.198ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-model-harness-profiles.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-model-harness-profiles.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-model-harness-profiles tools: preserves every package/filter and Cargo reuse (0.2299ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-model-harness-profiles.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-model-harness-profiles.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-model-harness-profiles tools: first failure stops subsequent filters (0.2036ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-model-harness-profiles.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-model-harness-profiles.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-task-work-time-native protocol: preserves every package/filter and Cargo reuse (0.1843ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-task-work-time-native.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-task-work-time-native.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-task-work-time-native protocol: first failure stops subsequent filters (0.2116ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-task-work-time-native.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-task-work-time-native.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-task-work-time-native store: preserves every package/filter and Cargo reuse (0.1919ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-task-work-time-native.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-task-work-time-native.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-task-work-time-native store: first failure stops subsequent filters (0.1797ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-task-work-time-native.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-task-work-time-native.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-task-work-time-native appserver: preserves every package/filter and Cargo reuse (0.1746ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-task-work-time-native.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-task-work-time-native.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-task-work-time-native appserver: first failure stops subsequent filters (0.1761ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-task-work-time-native.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-task-work-time-native.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-root-resume-reasoning : preserves every package/filter and Cargo reuse (0.1753ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-root-resume-reasoning.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-root-resume-reasoning.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-root-resume-reasoning : first failure stops subsequent filters (0.1792ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-root-resume-reasoning.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-root-resume-reasoning.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:188:3
+✖ check-thread-auto-compaction : preserves every package/filter and Cargo reuse (0.1771ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-thread-auto-compaction.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:189:23)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-thread-auto-compaction.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:199:3
+✖ check-thread-auto-compaction : first failure stops subsequent filters (0.1776ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-thread-auto-compaction.cjs'
+      at Object.readFileSync (node:fs:539:20)
+      at runWrapper (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:172:25)
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:200:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-thread-auto-compaction.cjs'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:260:1
+✖ bridge scope runs remote library and terminal binary tests separately without embedded features (1.6493ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+  +     at Object.readFileSync (node:fs:539:20)
+  +     at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+  +     at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:261:18)
+  +     at Test.runInAsyncScope (node:async_hooks:226:14)
+  +     at Test.run (node:internal/test_runner/test:1397:25)
+  +     at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+  +     at Test.postRun (node:internal/test_runner/test:1537:19)
+  +     at Test.run (node:internal/test_runner/test:1462:12)
+  +     at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+  +   code: 'ENOENT',
+  +   errno: -4058,
+  +   path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-shared-engine-native.cjs',
+  +   syscall: 'open'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:262:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+        at Object.readFileSync (node:fs:539:20)
+        at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+        at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:261:18)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1397:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+        at Test.postRun (node:internal/test_runner/test:1537:19)
+        at Test.run (node:internal/test_runner/test:1462:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:278:1
+✖ Windows native PTY and daemon groups compile selected frozen libtests then execute them outside Cargo (0.5691ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+  +     at Object.readFileSync (node:fs:539:20)
+  +     at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+  +     at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:279:18)
+  +     at Test.runInAsyncScope (node:async_hooks:226:14)
+  +     at Test.run (node:internal/test_runner/test:1397:25)
+  +     at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+  +     at Test.postRun (node:internal/test_runner/test:1537:19)
+  +     at Test.run (node:internal/test_runner/test:1462:12)
+  +     at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+  +   code: 'ENOENT',
+  +   errno: -4058,
+  +   path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-shared-engine-native.cjs',
+  +   syscall: 'open'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:286:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+        at Object.readFileSync (node:fs:539:20)
+        at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+        at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:279:18)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1397:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+        at Test.postRun (node:internal/test_runner/test:1537:19)
+        at Test.run (node:internal/test_runner/test:1462:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:316:1
+✖ native direct execution is Windows scoped (0.4459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+  +     at Object.readFileSync (node:fs:539:20)
+  +     at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+  +     at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:317:18)
+  +     at Test.runInAsyncScope (node:async_hooks:226:14)
+  +     at Test.run (node:internal/test_runner/test:1397:25)
+  +     at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+  +     at Test.postRun (node:internal/test_runner/test:1537:19)
+  +     at Test.run (node:internal/test_runner/test:1462:12)
+  +     at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+  +   code: 'ENOENT',
+  +   errno: -4058,
+  +   path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-shared-engine-native.cjs',
+  +   syscall: 'open'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:318:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+        at Object.readFileSync (node:fs:539:20)
+        at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+        at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:317:18)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1397:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+        at Test.postRun (node:internal/test_runner/test:1537:19)
+        at Test.run (node:internal/test_runner/test:1462:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:325:1
+✖ importing Windows native runner exports a reusable helper without CLI side effects (0.3781ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+  +     at Object.readFileSync (node:fs:539:20)
+  +     at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+  +     at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:326:18)
+  +     at Test.runInAsyncScope (node:async_hooks:226:14)
+  +     at Test.run (node:internal/test_runner/test:1397:25)
+  +     at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+  +     at Test.postRun (node:internal/test_runner/test:1537:19)
+  +     at Test.run (node:internal/test_runner/test:1462:12)
+  +     at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+  +   code: 'ENOENT',
+  +   errno: -4058,
+  +   path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-shared-engine-native.cjs',
+  +   syscall: 'open'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:327:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+        at Object.readFileSync (node:fs:539:20)
+        at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+        at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:326:18)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1397:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+        at Test.postRun (node:internal/test_runner/test:1537:19)
+        at Test.run (node:internal/test_runner/test:1462:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:337:3
+✖ codex-app-server-daemon: direct execution stops on failed type checking or empty/interrupted listing (0.3847ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:339:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:347:3
+✖ codex-app-server-daemon: native runner rejects missing, foreign, ambiguous and malformed Cargo artifacts (0.3402ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:360:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:366:3
+✖ codex-app-server-daemon: native runner propagates compile and runtime failures without continuing (0.4167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+  +     at Object.readFileSync (node:fs:539:20)
+  +     at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+  +     at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:371:22)
+  +     at Test.runInAsyncScope (node:async_hooks:226:14)
+  +     at Test.run (node:internal/test_runner/test:1397:25)
+  +     at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+  +     at Test.postRun (node:internal/test_runner/test:1537:19)
+  +     at Test.run (node:internal/test_runner/test:1462:12)
+  +     at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+  +   code: 'ENOENT',
+  +   errno: -4058,
+  +   path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-shared-engine-native.cjs',
+  +   syscall: 'open'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:372:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+        at Object.readFileSync (node:fs:539:20)
+        at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+        at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:371:22)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1397:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+        at Test.postRun (node:internal/test_runner/test:1537:19)
+        at Test.run (node:internal/test_runner/test:1462:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:337:3
+✖ codex-utils-pty: direct execution stops on failed type checking or empty/interrupted listing (0.2589ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:339:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:347:3
+✖ codex-utils-pty: native runner rejects missing, foreign, ambiguous and malformed Cargo artifacts (0.2634ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:360:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:366:3
+✖ codex-utils-pty: native runner propagates compile and runtime failures without continuing (0.4571ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+  +     at Object.readFileSync (node:fs:539:20)
+  +     at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+  +     at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:371:22)
+  +     at Test.runInAsyncScope (node:async_hooks:226:14)
+  +     at Test.run (node:internal/test_runner/test:1397:25)
+  +     at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+  +     at Test.postRun (node:internal/test_runner/test:1537:19)
+  +     at Test.run (node:internal/test_runner/test:1462:12)
+  +     at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+  +   code: 'ENOENT',
+  +   errno: -4058,
+  +   path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-shared-engine-native.cjs',
+  +   syscall: 'open'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:372:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+        at Object.readFileSync (node:fs:539:20)
+        at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+        at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:371:22)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1397:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+        at Test.postRun (node:internal/test_runner/test:1537:19)
+        at Test.run (node:internal/test_runner/test:1462:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:387:1
+✖ CLI stops subsequent native groups after the first compile or test failure (0.8399ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+  +     at Object.readFileSync (node:fs:539:20)
+  +     at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+  +     at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:389:20)
+  +     at Test.runInAsyncScope (node:async_hooks:226:14)
+  +     at Test.run (node:internal/test_runner/test:1397:25)
+  +     at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+  +     at Test.postRun (node:internal/test_runner/test:1537:19)
+  +     at Test.run (node:internal/test_runner/test:1462:12)
+  +     at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+  +   code: 'ENOENT',
+  +   errno: -4058,
+  +   path: 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\check-shared-engine-native.cjs',
+  +   syscall: 'open'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:390:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: ENOENT: no such file or directory, open 'C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\check-shared-engine-native.cjs'
+        at Object.readFileSync (node:fs:539:20)
+        at runSharedNative (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:248:27)
+        at TestContext.<anonymous> (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r2\scripts\test-cargo-verification.cjs:389:20)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1397:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+        at Test.postRun (node:internal/test_runner/test:1537:19)
+        at Test.run (node:internal/test_runner/test:1462:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:969:7),
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

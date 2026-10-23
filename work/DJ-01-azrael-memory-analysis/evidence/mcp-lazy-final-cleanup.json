@@ -1,0 +1,303 @@
+{
+  "schema": 1,
+  "stage": "complete",
+  "groups": [
+    {
+      "id": "run:DJ-01:mcp-lazy-r3",
+      "owner": "DJ-01-mcp-lazy",
+      "members": 2,
+      "membership_complete": true
+    },
+    {
+      "id": "run:DJ-01:mcp-lazy-r4",
+      "owner": "DJ-01-mcp-lazy",
+      "members": 2,
+      "membership_complete": true
+    },
+    {
+      "id": "run:DJ-01:mcp-provenance-r1",
+      "owner": "DJ-01-mcp-lazy",
+      "members": 1,
+      "membership_complete": true
+    },
+    {
+      "id": "run:DJ-01:mcp-provenance-r2",
+      "owner": "DJ-01-mcp-lazy",
+      "members": 1,
+      "membership_complete": true
+    }
+  ],
+  "items": [
+    {
+      "id": "998f47d26348247161734bd869aa320daab3380d81b213694aca5cd6c452dc40",
+      "group": "run:DJ-01:mcp-provenance-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-provenance-r1",
+      "token": "e04df70f81de1d1bea708915cdd34a1583b3a429d03e0196a6fbce8a3f88fee6",
+      "identity": "c52ce787ffc892a9a0770a57d58378d0f9d00e521b25ca593aa0d442680527aa",
+      "logical_bytes": 80925,
+      "verification": "registered",
+      "blockers": []
+    },
+    {
+      "id": "a8e63ee554b6548ddec20c69d02ca0a88f64624ffb1323fd596d364886fdc7c4",
+      "group": "run:DJ-01:mcp-lazy-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4",
+      "token": "2616c3f8640df12337851a649f3a3daa50433941a1bfc3072847e9dcd54f0879",
+      "identity": "ae28d5b04e6c0c74486d81f93372fe3b43fa69e04ae5e3b47cbb51c601418c81",
+      "logical_bytes": 100408027,
+      "verification": "registered",
+      "blockers": []
+    },
+    {
+      "id": "b62b2af44de32e3820ea94d16cb7ca953e1d3ca92cdb99a031e52d044ac9f082",
+      "group": "run:DJ-01:mcp-lazy-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4",
+      "token": "11e25b695e24bb6a66f18f7034a76429673afe9d1c368ff0a74710ef76fa5ea1",
+      "identity": "ae9dfc07404dd438504e4f5e76c496b2348d2be0468359fcf2acb6703bd19c92",
+      "logical_bytes": 25242039,
+      "verification": "registered",
+      "blockers": []
+    },
+    {
+      "id": "bbbbd45f528ab3b0fbe6f2ea4d526aded7b3eba984b25d7f8029809e7fe0aa55",
+      "group": "run:DJ-01:mcp-lazy-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r3",
+      "token": "7247f038b0cb15dc9f7956b554fca72e326ad6f91d6494e7b84b7d1c8fb50094",
+      "identity": "57617d121b9bea86991e36af68e426294ad5c6c10ac3683232c463016526be06",
+      "logical_bytes": 100407838,
+      "verification": "registered",
+      "blockers": []
+    },
+    {
+      "id": "d768c69a789d9addbf6dc3c6d23d2471133e209900615a79de3d31491d167e4d",
+      "group": "run:DJ-01:mcp-provenance-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-provenance-r2",
+      "token": "a2a3317a406706ccdd5cd9c4857f23bca6f1b40f84cb03a70bfd725d0269236e",
+      "identity": "5e331a886b9c4d1b6ee99e17b9a6c88c84fcf4af5b4185bcadfc8e382f929e0a",
+      "logical_bytes": 327696,
+      "verification": "registered",
+      "blockers": []
+    },
+    {
+      "id": "e380795c31770c2af43061ffc15d6a4f4b704cc9e4e9f974bd2b8801a61d681a",
+      "group": "run:DJ-01:mcp-lazy-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r3",
+      "token": "23395d7a5b5603e1ec35de7cd512ce841f907b96018acdb2ce4689a2fcc98b5b",
+      "identity": "483231214c74c8b71cbc34f7809f3cf28b9a69d0acedb38169e7dff3c2bfeaa1",
+      "logical_bytes": 1681133,
+      "verification": "registered",
+      "blockers": []
+    }
+  ],
+  "decisions": [
+    {
+      "id": "998f47d26348247161734bd869aa320daab3380d81b213694aca5cd6c452dc40",
+      "token": "e04df70f81de1d1bea708915cdd34a1583b3a429d03e0196a6fbce8a3f88fee6",
+      "decision": "delete",
+      "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer."
+    },
+    {
+      "id": "a8e63ee554b6548ddec20c69d02ca0a88f64624ffb1323fd596d364886fdc7c4",
+      "token": "2616c3f8640df12337851a649f3a3daa50433941a1bfc3072847e9dcd54f0879",
+      "decision": "delete",
+      "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer."
+    },
+    {
+      "id": "b62b2af44de32e3820ea94d16cb7ca953e1d3ca92cdb99a031e52d044ac9f082",
+      "token": "11e25b695e24bb6a66f18f7034a76429673afe9d1c368ff0a74710ef76fa5ea1",
+      "decision": "delete",
+      "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer."
+    },
+    {
+      "id": "bbbbd45f528ab3b0fbe6f2ea4d526aded7b3eba984b25d7f8029809e7fe0aa55",
+      "token": "7247f038b0cb15dc9f7956b554fca72e326ad6f91d6494e7b84b7d1c8fb50094",
+      "decision": "delete",
+      "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer."
+    },
+    {
+      "id": "d768c69a789d9addbf6dc3c6d23d2471133e209900615a79de3d31491d167e4d",
+      "token": "a2a3317a406706ccdd5cd9c4857f23bca6f1b40f84cb03a70bfd725d0269236e",
+      "decision": "delete",
+      "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer."
+    },
+    {
+      "id": "e380795c31770c2af43061ffc15d6a4f4b704cc9e4e9f974bd2b8801a61d681a",
+      "token": "23395d7a5b5603e1ec35de7cd512ce841f907b96018acdb2ce4689a2fcc98b5b",
+      "decision": "delete",
+      "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer."
+    }
+  ],
+  "logicalBytes": 228147658,
+  "retainedEvidence": "work/DJ-01-azrael-memory-analysis/evidence/mcp-*",
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DJ-01:mcp-lazy-r3",
+        "status": "deleted"
+      },
+      {
+        "id": "run:DJ-01:mcp-lazy-r4",
+        "status": "deleted"
+      },
+      {
+        "id": "run:DJ-01:mcp-provenance-r1",
+        "status": "deleted"
+      },
+      {
+        "id": "run:DJ-01:mcp-provenance-r2",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-61336-1687-1792729425252",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "998f47d26348247161734bd869aa320daab3380d81b213694aca5cd6c452dc40",
+        "lifecycle_group_id": "run:DJ-01:mcp-provenance-r1",
+        "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "e04df70f81de1d1bea708915cdd34a1583b3a429d03e0196a6fbce8a3f88fee6"
+      },
+      {
+        "attempt_id": "attempt-61336-1690-1792729480290",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "a8e63ee554b6548ddec20c69d02ca0a88f64624ffb1323fd596d364886fdc7c4",
+        "lifecycle_group_id": "run:DJ-01:mcp-lazy-r4",
+        "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "2616c3f8640df12337851a649f3a3daa50433941a1bfc3072847e9dcd54f0879"
+      },
+      {
+        "attempt_id": "attempt-61336-1693-1792729596962",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "b62b2af44de32e3820ea94d16cb7ca953e1d3ca92cdb99a031e52d044ac9f082",
+        "lifecycle_group_id": "run:DJ-01:mcp-lazy-r4",
+        "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "11e25b695e24bb6a66f18f7034a76429673afe9d1c368ff0a74710ef76fa5ea1"
+      },
+      {
+        "attempt_id": "attempt-61336-1696-1792729656916",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "bbbbd45f528ab3b0fbe6f2ea4d526aded7b3eba984b25d7f8029809e7fe0aa55",
+        "lifecycle_group_id": "run:DJ-01:mcp-lazy-r3",
+        "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "7247f038b0cb15dc9f7956b554fca72e326ad6f91d6494e7b84b7d1c8fb50094"
+      },
+      {
+        "attempt_id": "attempt-61336-1699-1792729775776",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "e380795c31770c2af43061ffc15d6a4f4b704cc9e4e9f974bd2b8801a61d681a",
+        "lifecycle_group_id": "run:DJ-01:mcp-lazy-r3",
+        "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "23395d7a5b5603e1ec35de7cd512ce841f907b96018acdb2ce4689a2fcc98b5b"
+      },
+      {
+        "attempt_id": "attempt-61336-1702-1792729809972",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "d768c69a789d9addbf6dc3c6d23d2471133e209900615a79de3d31491d167e4d",
+        "lifecycle_group_id": "run:DJ-01:mcp-provenance-r2",
+        "reason": "Owned stopped test/provenance run; independent verification and failure evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/mcp-*. No remaining diagnostic, execution or recovery consumer.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "a2a3317a406706ccdd5cd9c4857f23bca6f1b40f84cb03a70bfd725d0269236e"
+      }
+    ]
+  },
+  "finalized": [
+    {
+      "id": "run:DJ-01:mcp-lazy-r3",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c466e9450ecb826baa8d0836e4bfac95a8fb3d1cd7bba0cd81530a3b9f681ac7.json"
+    },
+    {
+      "id": "run:DJ-01:mcp-lazy-r4",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\000002f0cdae3ddf2e34579af22082d63f6e5729ffdd1282511c17d05e14d3d9.json"
+    },
+    {
+      "id": "run:DJ-01:mcp-provenance-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c66b806fd3d2e2028dc30103206138183be6225d88f3a03b79b7251c3f70e729.json"
+    },
+    {
+      "id": "run:DJ-01:mcp-provenance-r2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\15ab6aa2b999b759ed71486aa5ffb6e4e1453bb02475ff730ec1682a85fa8803.json"
+    }
+  ],
+  "totalIncludingEarlier": {
+    "groups": 6,
+    "items": 10,
+    "logicalBytes": 330218232,
+    "physicalBytesReclaimed": null
+  }
+}

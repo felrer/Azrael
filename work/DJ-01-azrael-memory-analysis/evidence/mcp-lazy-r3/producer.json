@@ -1,0 +1,23 @@
+{
+  "lifecycleId": "run:DJ-01:mcp-lazy-r3",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r3",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\run-mcp-lazy-verification.cjs",
+    "mcp-lazy-r3"
+  ],
+  "exitCode": 1,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 54252,
+      "closed": true
+    },
+    {
+      "pid": 71272,
+      "closed": true
+    }
+  ],
+  "state": "failed",
+  "membership_complete": true
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "wrapper",
+    "executable": "C:\\Program Files\\nodejs\\node.exe",
+    "args": [
+      "--test",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r3\\scripts\\test-mcp-lazy-startup.cjs",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r3\\scripts\\test-cargo-verification.cjs"
+    ],
+    "startedUtc": "2026-10-23T03:33:26.251Z",
+    "finishedUtc": "2026-10-23T03:33:27.174Z",
+    "exitCode": 0,
+    "signal": null
+  },
+  {
+    "name": "native",
+    "executable": "C:\\Program Files\\nodejs\\node.exe",
+    "args": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r3\\scripts\\check-mcp-lazy-startup.cjs",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r3\\engine"
+    ],
+    "startedUtc": "2026-10-23T03:33:27.176Z",
+    "finishedUtc": "2026-10-23T03:41:23.739Z",
+    "exitCode": 101,
+    "signal": null
+  }
+]

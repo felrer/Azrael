@@ -12,6 +12,7 @@ const PREFLIGHT = Object.freeze({ schema: 1, typeCheck: "selected-tests", testSe
 const PREFLIGHT_ID = "selected-tests-v1";
 const guardedCargoWrappers = new Set([
   "check-mcp-oauth-store",
+  "check-mcp-lazy-startup",
   "check-window-approval-native", "check-question-withdrawal-native", "check-shared-engine-native", "check-startup-performance-native",
   "check-parent-requests", "check-api-context", "check-root-resume-reasoning", "check-model-harness-profiles",
   "check-task-work-time-native", "check-response-tps-native", "check-thread-auto-compaction",

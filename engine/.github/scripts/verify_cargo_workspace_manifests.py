@@ -48,6 +48,7 @@ MANIFEST_FEATURE_EXCEPTIONS = {
         "default": ("lifecycle",),
         "lifecycle": (
             "dep:sha2",
+            "dep:data-encoding",
             "dep:anyhow",
             "dep:codex-app-server-protocol",
             "dep:codex-app-server-transport",
@@ -75,7 +76,7 @@ OPTIONAL_DEPENDENCY_EXCEPTIONS = {
 } | {
     ("codex-rs/app-server-daemon/Cargo.toml", "dependencies", name)
     for name in (
-        "sha2", "anyhow", "codex-app-server-protocol", "codex-app-server-transport",
+        "sha2", "data-encoding", "anyhow", "codex-app-server-protocol", "codex-app-server-transport",
         "codex-http-client", "codex-install-context", "codex-utils-home-dir",
         "libc", "serde", "semver", "blake3", "tempfile", "tracing",
     )

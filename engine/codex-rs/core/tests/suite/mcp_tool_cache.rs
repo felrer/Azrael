@@ -444,14 +444,18 @@ async fn apps_cache_filled_during_binding_capture_reaches_the_model() -> anyhow:
     .context("timed out exercising an Apps cache fill during binding capture")?
 }
 
-#[test_case(false, false, 1; "optional server uses cache")]
-#[test_case(true, false, 1; "required server uses cache")]
-#[test_case(false, true, 2; "headers helper bypasses cache")]
+#[test_case(false, false, 1, false; "root optional server uses cache")]
+#[test_case(true, false, 1, false; "root required server uses cache")]
+#[test_case(false, true, 2, false; "root headers helper bypasses cache")]
+#[test_case(false, false, 1, true; "subagent optional server uses cache")]
+#[test_case(true, false, 1, true; "subagent required server uses cache")]
+#[test_case(false, true, 2, true; "subagent headers helper bypasses cache")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn cached_http_mcp_starts_lazily_for_subagents(
+async fn cached_http_mcp_starts_lazily_for_threads(
     required: bool,
     with_headers_helper: bool,
     expected_startup_attempts: usize,
+    subagent: bool,
 ) -> anyhow::Result<()> {
     skip_if_no_network!(Ok(()));
     if with_headers_helper && is_remote_test_environment() {
@@ -515,13 +519,15 @@ async fn cached_http_mcp_starts_lazily_for_subagents(
     } = fixture
         .thread_manager
         .start_thread(StartThreadOptions {
-            session_source: Some(SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
-                parent_thread_id: fixture.session_configured.thread_id,
-                depth: 1,
-                agent_path: None,
-                agent_nickname: None,
-                agent_role: None,
-            })),
+            session_source: subagent.then(|| {
+                SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
+                    parent_thread_id: fixture.session_configured.thread_id,
+                    depth: 1,
+                    agent_path: None,
+                    agent_nickname: None,
+                    agent_role: None,
+                })
+            }),
             ..StartThreadOptions::new(subagent_config)
         })
         .await?;
@@ -580,8 +586,10 @@ async fn cached_http_mcp_starts_lazily_for_subagents(
 }
 
 // Keep spawned tasks on the thread with the scoped tracing subscriber.
+#[test_case(false; "root")]
+#[test_case(true; "subagent")]
 #[tokio::test(flavor = "current_thread")]
-async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow::Result<()> {
+async fn cached_mcp_startup_is_lazy_for_threads(subagent: bool) -> anyhow::Result<()> {
     skip_if_wine_exec!(
         Ok(()),
         "requires a Windows test_stdio_server in the Wine-exec environment"
@@ -671,17 +679,7 @@ async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow
         &format!("Echo from {first_process}."),
     );
 
-    let NewThread {
-        thread: eager_thread,
-        ..
-    } = fixture
-        .thread_manager
-        .start_thread(StartThreadOptions::new(fixture.config.clone()))
-        .await?;
-    let eager_pid = wait_for_new_pid(fs.as_ref(), &pid_file, Some(&first_pid)).await?;
-    wait_for_mcp_server(&eager_thread, SERVER_NAME).await?;
-    eager_thread.shutdown_and_wait().await?;
-    let cached_process = process_label(&eager_pid);
+    let cached_process = process_label(&first_pid);
 
     fs.remove(
         &barrier_file,
@@ -706,13 +704,15 @@ async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow
     } = fixture
         .thread_manager
         .start_thread(StartThreadOptions {
-            session_source: Some(SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
-                parent_thread_id: fixture.session_configured.thread_id,
-                depth: 1,
-                agent_path: None,
-                agent_nickname: None,
-                agent_role: None,
-            })),
+            session_source: subagent.then(|| {
+                SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
+                    parent_thread_id: fixture.session_configured.thread_id,
+                    depth: 1,
+                    agent_path: None,
+                    agent_nickname: None,
+                    agent_role: None,
+                })
+            }),
             ..StartThreadOptions::new(fixture.config.clone())
         })
         .await?;
@@ -779,12 +779,29 @@ async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow
             .get(SERVER_NAME),
         Some(&McpServerConnectionStatus::NotStarted),
     );
+    let mut unused_roots = Vec::new();
+    for _ in 0..10 {
+        let NewThread { thread, .. } = fixture
+            .thread_manager
+            .start_thread(StartThreadOptions::new(fixture.config.clone()))
+            .await?;
+        let (config, _) = thread.current_mcp_config_and_runtime_context().await;
+        assert_eq!(
+            thread
+                .mcp_connection_statuses(&config)
+                .await
+                .get(SERVER_NAME),
+            Some(&McpServerConnectionStatus::NotStarted),
+            "a warm root must not start an unused MCP process"
+        );
+        unused_roots.push(thread);
+    }
     assert_eq!(
         fs.read_file_text(&pid_file, Default::default(), /*sandbox*/ None)
             .await?
             .trim(),
-        eager_pid,
-        "cached tool definitions should not start an unused subagent-owned MCP process"
+        first_pid,
+        "cached tool definitions should not start an unused thread-owned MCP process"
     );
 
     let app_only_call_id = "cached-app-only-call";
@@ -878,7 +895,7 @@ async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow
         &format!("Use the tools from {cached_process}."),
         &format!("Echo from {cached_process}."),
     );
-    let second_pid = wait_for_new_pid(fs.as_ref(), &pid_file, Some(&eager_pid)).await?;
+    let second_pid = wait_for_new_pid(fs.as_ref(), &pid_file, Some(&first_pid)).await?;
     let second_process = process_label(&second_pid);
     tokio::time::timeout(Duration::from_secs(2), unrelated_finished_rx)
         .await
@@ -930,6 +947,19 @@ async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow
         Some("Plan updated")
     );
 
+    for thread in unused_roots {
+        let (config, _) = thread.current_mcp_config_and_runtime_context().await;
+        assert_eq!(
+            thread
+                .mcp_connection_statuses(&config)
+                .await
+                .get(SERVER_NAME),
+            Some(&McpServerConnectionStatus::NotStarted),
+            "calling one thread's tool must not start another thread's server"
+        );
+        thread.shutdown_and_wait().await?;
+    }
+
     second_thread.shutdown_and_wait().await?;
     let mut filtered_config = fixture.config.clone();
     let mut filtered_servers = filtered_config.mcp_servers.get().clone();
@@ -944,9 +974,11 @@ async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow
     } = fixture
         .thread_manager
         .start_thread(StartThreadOptions {
-            session_source: Some(SessionSource::SubAgent(SubAgentSource::Other(
-                "filtered-cached-startup".to_string(),
-            ))),
+            session_source: subagent.then(|| {
+                SessionSource::SubAgent(SubAgentSource::Other(
+                    "filtered-cached-startup".to_string(),
+                ))
+            }),
             ..StartThreadOptions::new(filtered_config)
         })
         .await?;
@@ -969,9 +1001,11 @@ async fn cached_mcp_startup_is_eager_for_root_and_lazy_for_subagents() -> anyhow
     } = fixture
         .thread_manager
         .start_thread(StartThreadOptions {
-            session_source: Some(SessionSource::SubAgent(SubAgentSource::Other(
-                "interrupted-cached-startup".to_string(),
-            ))),
+            session_source: subagent.then(|| {
+                SessionSource::SubAgent(SubAgentSource::Other(
+                    "interrupted-cached-startup".to_string(),
+                ))
+            }),
             ..StartThreadOptions::new(fixture.config.clone())
         })
         .await?;

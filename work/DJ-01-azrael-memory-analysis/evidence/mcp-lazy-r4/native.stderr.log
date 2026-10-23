@@ -1,0 +1,741 @@
+   Compiling codex-skills v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\skills)
+   Compiling codex-exec-server v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server)
+   Compiling codex-rmcp-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rmcp-client)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 29s
+[cargo-owner] {"schema":1,"token":"001c7896-80ce-4ca1-ac1c-c48bc7269ed9","run":"pid-36876","coordinatorPid":36876,"producerPid":36912,"startedUtc":"2026-10-23T03:43:36.566Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["build","-p","codex-rmcp-client","--bin","test_stdio_server","--locked","--offline"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine\\codex-rs","compilationSignature":"13762b4519d5720eff148c99620d68bae3cba7aac56639f746f45dda64fe779b","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T03:45:06.117Z","exitCode":0,"signal":null,"durationMs":89558.3347}
+[mcp-fixture-preparation] {"args":["build","-p","codex-rmcp-client","--bin","test_stdio_server","--locked","--offline"],"exitCode":0,"signal":null}
+    Checking codex-skills v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\skills)
+   Compiling codex-state v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\state)
+    Checking codex-exec-server v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server)
+    Checking codex-rollout v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rollout)
+   Compiling codex-code-mode-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\code-mode-protocol)
+    Checking codex-utils-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\plugins)
+    Checking codex-plugin v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\plugin)
+    Checking codex-feedback v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\feedback)
+    Checking codex-connectors v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\connectors)
+    Checking codex-model-provider v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\model-provider)
+    Checking codex-code-mode v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\code-mode)
+    Checking codex-rmcp-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rmcp-client)
+    Checking codex-tools v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\tools)
+    Checking codex-app-server-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\app-server-protocol)
+    Checking codex-mcp v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-mcp)
+    Checking codex-extension-api v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\extension-api)
+    Checking codex-hooks v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\hooks)
+    Checking codex-apply-patch v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\apply-patch)
+    Checking codex-agent-message-board-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\agent-message-board)
+    Checking codex-agent-message-board-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\agent-message-board-client)
+    Checking codex-rollout-trace v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rollout-trace)
+    Checking codex-agent-graph-store v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\agent-graph-store)
+    Checking codex-arg0 v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\arg0)
+    Checking codex-home v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-home)
+    Checking codex-exec-server-test-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server\tests\support)
+    Checking codex-test-binary-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\test-binary-support)
+    Checking codex-analytics v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\analytics)
+    Checking codex-thread-store v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\thread-store)
+    Checking codex-core-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\core-plugins)
+    Checking codex-skills-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\skills)
+    Checking codex-guardian-reviewer v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\guardian-reviewer)
+    Checking codex-connectors-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\connectors)
+    Checking codex-core v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\core)
+warning: unused import: `crate::agent::api::AgentControl`
+ --> core\src\tools\handlers\multi_agents_v2\message_tool.rs:9:5
+  |
+9 | use crate::agent::api::AgentControl;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `check_response` is never read
+   --> core\src\session\parent_response_wait.rs:838:25
+    |
+838 |                         check_response = false;
+    |                         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `request_id` is never used
+  --> core\src\capacity_recovery.rs:38:19
+   |
+25 | impl CapacityRecoveryState {
+   | -------------------------- method in this implementation
+...
+38 |     pub(crate) fn request_id(&self) -> Option<&str> {
+   |                   ^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `turn_state` is never used
+    --> core\src\client.rs:1434:19
+     |
+1398 | impl ModelClientSession {
+     | ----------------------- method in this implementation
+...
+1434 |     pub(crate) fn turn_state(&self) -> Arc<OnceLock<String>> {
+     |                   ^^^^^^^^^^
+
+warning: field `diagnostics` is never read
+ --> core\src\devin\native_runtime_estimate.rs:9:16
+  |
+5 | pub(crate) struct InputBudget {
+  |                   ----------- field in this struct
+...
+9 |     pub(crate) diagnostics: serde::de::IgnoredAny,
+  |                ^^^^^^^^^^^
+  |
+  = note: `InputBudget` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: methods `get_total_token_usage` and `estimated_tokens_after_last_model_generated_item` are never used
+    --> core\src\session\mod.rs:1520:25
+     |
+1246 | impl Session {
+     | ------------ methods in this implementation
+...
+1520 |     pub(crate) async fn get_total_token_usage(&self) -> i64 {
+     |                         ^^^^^^^^^^^^^^^^^^^^^
+...
+1537 |     pub(crate) async fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `register_session_root` is never used
+   --> core\src\agent\control.rs:432:19
+    |
+103 | impl LocalAgentControl {
+    | ---------------------- method in this implementation
+...
+432 |     pub(crate) fn register_session_root(
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `estimate_token_count_with_base_instructions`, `get_total_token_usage`, and `estimated_tokens_after_last_model_generated_item` are never used
+    --> core\src\context_manager\history.rs:668:19
+     |
+ 238 | impl ContextManager {
+     | ------------------- methods in this implementation
+...
+ 668 |     pub(crate) fn estimate_token_count_with_base_instructions(
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 973 |     pub(crate) fn get_total_token_usage(&self, server_reasoning_included: bool) -> i64 {
+     |                   ^^^^^^^^^^^^^^^^^^^^^
+...
+1013 |     pub(crate) fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_MAX_ACTION_BYTES` is never used
+  --> core\src\guardian\mod.rs:77:18
+   |
+77 | pub(crate) const GUARDIAN_MAX_ACTION_BYTES: usize = 50_000 * 4;
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_MAX_ACTION_STRING_TOKENS` is never used
+  --> core\src\guardian\mod.rs:78:7
+   |
+78 | const GUARDIAN_MAX_ACTION_STRING_TOKENS: usize = 16_000;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_RECENT_ENTRY_LIMIT` is never used
+  --> core\src\guardian\mod.rs:79:7
+   |
+79 | const GUARDIAN_RECENT_ENTRY_LIMIT: usize = 40;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `get_total_token_usage` is never used
+   --> core\src\state\session.rs:365:19
+    |
+107 | impl SessionState {
+    | ----------------- method in this implementation
+...
+365 |     pub(crate) fn get_total_token_usage(&self, server_reasoning_included: bool) -> i64 {
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+warning: `codex-core` (lib) generated 12 warnings
+    Checking codex-guardian-v2 v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\guardian-v2)
+    Checking codex-image-generation-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\image-generation)
+    Checking codex-web-search-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\web-search)
+    Checking codex-mcp-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\mcp)
+    Checking core_test_support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\core\tests\common)
+warning: constant `COLLABORATION_NAMESPACE` is never used
+  --> core\tests\suite\multi_agent_resume.rs:41:7
+   |
+41 | const COLLABORATION_NAMESPACE: &str = "collaboration";
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused `std::result::Result` that must be used
+  --> core\tests\suite\managed_threads_no_tools_tests.rs:15:13
+   |
+15 | /             config
+16 | |                 .features
+17 | |                 .set_enabled(codex_features::Feature::CodeMode, code_mode);
+   | |__________________________________________________________________________^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+   |
+15 |             let _ = config
+   |             +++++++
+
+warning: `codex-core` (test "all") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5m 14s
+[cargo-owner] {"schema":1,"token":"9e35ce29-fb22-4435-8cb4-1ff460fcfecb","run":"pid-36876","coordinatorPid":36876,"producerPid":67036,"startedUtc":"2026-10-23T03:45:06.135Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--features","integration-tests","--test","all","--locked","--offline","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine\\codex-rs","compilationSignature":"70d3a03493b0abf7272a5cf2bdefbd5791b8310ed9b8479c7e1d35529cc79408","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T03:50:21.347Z","exitCode":0,"signal":null,"durationMs":315218.3226}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--features","integration-tests","--test","all","--locked","--offline","--profile","test"],"startedUtc":"2026-10-23T03:45:06.133Z","durationMs":315218,"exitCode":0,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"7cea7347-f09c-4b34-be70-522cf11fd807","run":"pid-36876","coordinatorPid":36876,"producerPid":73952,"startedUtc":"2026-10-23T03:50:21.352Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-core","--features","integration-tests","--test","all","suite::mcp_tool_cache::","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine\\codex-rs","compilationSignature":"8bb438643643812e054a0374215c617b801a3f0d0d8a057d34299f731f194224","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T04:03:43.640Z","exitCode":0,"signal":null,"durationMs":802293.5425}
+   Compiling codex-skills v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\skills)
+   Compiling codex-state v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\state)
+   Compiling codex-exec-server v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server)
+   Compiling codex-rollout v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rollout)
+   Compiling codex-utils-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\plugins)
+   Compiling codex-plugin v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\plugin)
+   Compiling codex-code-mode-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\code-mode-protocol)
+   Compiling codex-feedback v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\feedback)
+   Compiling codex-model-provider v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\model-provider)
+   Compiling codex-code-mode v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\code-mode)
+   Compiling codex-connectors v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\connectors)
+   Compiling codex-rmcp-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rmcp-client)
+   Compiling codex-tools v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\tools)
+   Compiling codex-app-server-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\app-server-protocol)
+   Compiling codex-mcp v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-mcp)
+   Compiling codex-extension-api v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\extension-api)
+   Compiling codex-analytics v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\analytics)
+   Compiling codex-hooks v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\hooks)
+   Compiling codex-apply-patch v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\apply-patch)
+   Compiling codex-agent-message-board-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\agent-message-board)
+   Compiling codex-core-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\core-plugins)
+   Compiling codex-thread-store v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\thread-store)
+   Compiling codex-agent-message-board-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\agent-message-board-client)
+   Compiling codex-guardian-reviewer v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\guardian-reviewer)
+   Compiling codex-skills-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\skills)
+   Compiling codex-rollout-trace v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rollout-trace)
+   Compiling codex-agent-graph-store v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\agent-graph-store)
+   Compiling codex-arg0 v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\arg0)
+   Compiling codex-core v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\core)
+   Compiling codex-connectors-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\connectors)
+   Compiling codex-home v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-home)
+   Compiling codex-exec-server-test-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server\tests\support)
+   Compiling codex-test-binary-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\test-binary-support)
+warning: unused import: `crate::agent::api::AgentControl`
+ --> core\src\tools\handlers\multi_agents_v2\message_tool.rs:9:5
+  |
+9 | use crate::agent::api::AgentControl;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `check_response` is never read
+   --> core\src\session\parent_response_wait.rs:838:25
+    |
+838 |                         check_response = false;
+    |                         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `request_id` is never used
+  --> core\src\capacity_recovery.rs:38:19
+   |
+25 | impl CapacityRecoveryState {
+   | -------------------------- method in this implementation
+...
+38 |     pub(crate) fn request_id(&self) -> Option<&str> {
+   |                   ^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `turn_state` is never used
+    --> core\src\client.rs:1434:19
+     |
+1398 | impl ModelClientSession {
+     | ----------------------- method in this implementation
+...
+1434 |     pub(crate) fn turn_state(&self) -> Arc<OnceLock<String>> {
+     |                   ^^^^^^^^^^
+
+warning: field `diagnostics` is never read
+ --> core\src\devin\native_runtime_estimate.rs:9:16
+  |
+5 | pub(crate) struct InputBudget {
+  |                   ----------- field in this struct
+...
+9 |     pub(crate) diagnostics: serde::de::IgnoredAny,
+  |                ^^^^^^^^^^^
+  |
+  = note: `InputBudget` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: methods `get_total_token_usage` and `estimated_tokens_after_last_model_generated_item` are never used
+    --> core\src\session\mod.rs:1520:25
+     |
+1246 | impl Session {
+     | ------------ methods in this implementation
+...
+1520 |     pub(crate) async fn get_total_token_usage(&self) -> i64 {
+     |                         ^^^^^^^^^^^^^^^^^^^^^
+...
+1537 |     pub(crate) async fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `register_session_root` is never used
+   --> core\src\agent\control.rs:432:19
+    |
+103 | impl LocalAgentControl {
+    | ---------------------- method in this implementation
+...
+432 |     pub(crate) fn register_session_root(
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `estimate_token_count_with_base_instructions`, `get_total_token_usage`, and `estimated_tokens_after_last_model_generated_item` are never used
+    --> core\src\context_manager\history.rs:668:19
+     |
+ 238 | impl ContextManager {
+     | ------------------- methods in this implementation
+...
+ 668 |     pub(crate) fn estimate_token_count_with_base_instructions(
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 973 |     pub(crate) fn get_total_token_usage(&self, server_reasoning_included: bool) -> i64 {
+     |                   ^^^^^^^^^^^^^^^^^^^^^
+...
+1013 |     pub(crate) fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_MAX_ACTION_BYTES` is never used
+  --> core\src\guardian\mod.rs:77:18
+   |
+77 | pub(crate) const GUARDIAN_MAX_ACTION_BYTES: usize = 50_000 * 4;
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_MAX_ACTION_STRING_TOKENS` is never used
+  --> core\src\guardian\mod.rs:78:7
+   |
+78 | const GUARDIAN_MAX_ACTION_STRING_TOKENS: usize = 16_000;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_RECENT_ENTRY_LIMIT` is never used
+  --> core\src\guardian\mod.rs:79:7
+   |
+79 | const GUARDIAN_RECENT_ENTRY_LIMIT: usize = 40;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `get_total_token_usage` is never used
+   --> core\src\state\session.rs:365:19
+    |
+107 | impl SessionState {
+    | ----------------- method in this implementation
+...
+365 |     pub(crate) fn get_total_token_usage(&self, server_reasoning_included: bool) -> i64 {
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling codex-guardian-v2 v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\guardian-v2)
+   Compiling core_test_support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\core\tests\common)
+   Compiling codex-web-search-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\web-search)
+   Compiling codex-mcp-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\mcp)
+   Compiling codex-image-generation-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\image-generation)
+warning: `codex-core` (lib) generated 12 warnings
+warning: constant `COLLABORATION_NAMESPACE` is never used
+  --> core\tests\suite\multi_agent_resume.rs:41:7
+   |
+41 | const COLLABORATION_NAMESPACE: &str = "collaboration";
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused `std::result::Result` that must be used
+  --> core\tests\suite\managed_threads_no_tools_tests.rs:15:13
+   |
+15 | /             config
+16 | |                 .features
+17 | |                 .set_enabled(codex_features::Feature::CodeMode, code_mode);
+   | |__________________________________________________________________________^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+   |
+15 |             let _ = config
+   |             +++++++
+
+warning: `codex-core` (test "all") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13m 20s
+     Running tests\all.rs (C:\Users\felre\Desktop\pi-harness-init\engine\codex-rs\target\debug\deps\all-265fcb2b077dd74b.exe)
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--features","integration-tests","--test","all","--locked","--offline","--profile","test"],"startedUtc":"2026-10-23T03:45:06.133Z","durationMs":315218,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-core","--features","integration-tests","--test","all","suite::mcp_tool_cache::","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T03:50:21.351Z","durationMs":802294,"exitCode":0,"signal":null,"selectedTests":10}]}
+warning: unused import: `crate::agent::api::AgentControl`
+ --> core\src\tools\handlers\multi_agents_v2\message_tool.rs:9:5
+  |
+9 | use crate::agent::api::AgentControl;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `check_response` is never read
+   --> core\src\session\parent_response_wait.rs:838:25
+    |
+838 |                         check_response = false;
+    |                         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `request_id` is never used
+  --> core\src\capacity_recovery.rs:38:19
+   |
+25 | impl CapacityRecoveryState {
+   | -------------------------- method in this implementation
+...
+38 |     pub(crate) fn request_id(&self) -> Option<&str> {
+   |                   ^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `turn_state` is never used
+    --> core\src\client.rs:1434:19
+     |
+1398 | impl ModelClientSession {
+     | ----------------------- method in this implementation
+...
+1434 |     pub(crate) fn turn_state(&self) -> Arc<OnceLock<String>> {
+     |                   ^^^^^^^^^^
+
+warning: field `diagnostics` is never read
+ --> core\src\devin\native_runtime_estimate.rs:9:16
+  |
+5 | pub(crate) struct InputBudget {
+  |                   ----------- field in this struct
+...
+9 |     pub(crate) diagnostics: serde::de::IgnoredAny,
+  |                ^^^^^^^^^^^
+  |
+  = note: `InputBudget` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: methods `get_total_token_usage` and `estimated_tokens_after_last_model_generated_item` are never used
+    --> core\src\session\mod.rs:1520:25
+     |
+1246 | impl Session {
+     | ------------ methods in this implementation
+...
+1520 |     pub(crate) async fn get_total_token_usage(&self) -> i64 {
+     |                         ^^^^^^^^^^^^^^^^^^^^^
+...
+1537 |     pub(crate) async fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `register_session_root` is never used
+   --> core\src\agent\control.rs:432:19
+    |
+103 | impl LocalAgentControl {
+    | ---------------------- method in this implementation
+...
+432 |     pub(crate) fn register_session_root(
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `estimate_token_count_with_base_instructions`, `get_total_token_usage`, and `estimated_tokens_after_last_model_generated_item` are never used
+    --> core\src\context_manager\history.rs:668:19
+     |
+ 238 | impl ContextManager {
+     | ------------------- methods in this implementation
+...
+ 668 |     pub(crate) fn estimate_token_count_with_base_instructions(
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 973 |     pub(crate) fn get_total_token_usage(&self, server_reasoning_included: bool) -> i64 {
+     |                   ^^^^^^^^^^^^^^^^^^^^^
+...
+1013 |     pub(crate) fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_MAX_ACTION_BYTES` is never used
+  --> core\src\guardian\mod.rs:77:18
+   |
+77 | pub(crate) const GUARDIAN_MAX_ACTION_BYTES: usize = 50_000 * 4;
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_MAX_ACTION_STRING_TOKENS` is never used
+  --> core\src\guardian\mod.rs:78:7
+   |
+78 | const GUARDIAN_MAX_ACTION_STRING_TOKENS: usize = 16_000;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GUARDIAN_RECENT_ENTRY_LIMIT` is never used
+  --> core\src\guardian\mod.rs:79:7
+   |
+79 | const GUARDIAN_RECENT_ENTRY_LIMIT: usize = 40;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `get_total_token_usage` is never used
+   --> core\src\state\session.rs:365:19
+    |
+107 | impl SessionState {
+    | ----------------- method in this implementation
+...
+365 |     pub(crate) fn get_total_token_usage(&self, server_reasoning_included: bool) -> i64 {
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+warning: `codex-core` (lib) generated 12 warnings
+warning: constant `COLLABORATION_NAMESPACE` is never used
+  --> core\tests\suite\multi_agent_resume.rs:41:7
+   |
+41 | const COLLABORATION_NAMESPACE: &str = "collaboration";
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused `std::result::Result` that must be used
+  --> core\tests\suite\managed_threads_no_tools_tests.rs:15:13
+   |
+15 | /             config
+16 | |                 .features
+17 | |                 .set_enabled(codex_features::Feature::CodeMode, code_mode);
+   | |__________________________________________________________________________^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+   |
+15 |             let _ = config
+   |             +++++++
+
+warning: `codex-core` (test "all") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 46.04s
+     Running tests\all.rs (C:\Users\felre\Desktop\pi-harness-init\engine\codex-rs\target\debug\deps\all-265fcb2b077dd74b.exe)
+[cargo-owner] {"schema":1,"token":"5ba7d31f-c6a8-4109-aade-e818de3bf875","run":"pid-36876","coordinatorPid":36876,"producerPid":57884,"startedUtc":"2026-10-23T04:03:43.647Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-core","--features","integration-tests","--test","all","suite::mcp_tool_cache::","--locked","--offline","--","--test-threads=1"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine\\codex-rs","compilationSignature":"8bb438643643812e054a0374215c617b801a3f0d0d8a057d34299f731f194224","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T04:05:10.145Z","exitCode":0,"signal":null,"durationMs":86503.4212}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--features","integration-tests","--test","all","--locked","--offline","--profile","test"],"startedUtc":"2026-10-23T03:45:06.133Z","durationMs":315218,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-core","--features","integration-tests","--test","all","suite::mcp_tool_cache::","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T03:50:21.351Z","durationMs":802294,"exitCode":0,"signal":null,"selectedTests":10},{"phase":"execution","args":["test","-p","codex-core","--features","integration-tests","--test","all","suite::mcp_tool_cache::","--locked","--offline","--","--test-threads=1"],"startedUtc":"2026-10-23T04:03:43.646Z","durationMs":86503,"exitCode":0,"signal":null}]}
+    Checking tokio v1.52.3
+   Compiling rustls v0.23.45
+    Checking codex-utils-absolute-path v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\absolute-path)
+    Checking tokio-util v0.7.18
+    Checking tokio-rustls v0.26.4
+    Checking tokio-stream v0.1.18
+    Checking rama-utils v0.3.0-alpha.4
+    Checking h2 v0.4.19
+    Checking tower v0.5.3
+    Checking tokio-graceful v0.2.2
+    Checking rama-core v0.3.0-alpha.4
+    Checking hyper v1.8.1
+    Checking hyper-util v0.1.20
+    Checking rama-http-types v0.3.0-alpha.4
+    Checking hyper-rustls v0.27.7
+    Checking tower-http v0.6.8
+    Checking tokio-native-tls v0.3.1
+    Checking hyper-tls v0.6.0
+    Checking rama-net v0.3.0-alpha.4
+    Checking reqwest v0.12.28
+    Checking hickory-proto v0.25.2
+    Checking codex-utils-rustls-provider v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\rustls-provider)
+    Checking blake3 v1.8.2
+    Checking sorted_vector_map v0.2.1
+    Checking hickory-resolver v0.25.2
+    Checking rustls-platform-verifier v0.7.0
+    Checking pagable v0.4.1
+    Checking rama-dns v0.3.0-alpha.4
+    Checking codex-http-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\http-client)
+    Checking rama-http-headers v0.3.0-alpha.4
+    Checking starlark_map v0.14.2
+    Checking x509-parser v0.18.1
+    Checking rama-http v0.3.0-alpha.4
+    Checking rama-tcp v0.3.0-alpha.4
+    Checking tokio-test v0.4.5
+    Checking codex-utils-home-dir v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\home-dir)
+    Checking rustyline v14.0.0
+    Checking rcgen v0.14.9
+    Checking starlark_syntax v0.14.2
+    Checking rama-udp v0.3.0-alpha.4
+    Checking starlark v0.14.2
+    Checking rama-http-core v0.3.0-alpha.4
+    Checking rama-http-backend v0.3.0-alpha.4
+    Checking codex-utils-cache v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\cache)
+    Checking rama-socks5 v0.3.0-alpha.4
+    Checking rama-tls-rustls v0.3.0-alpha.4
+    Checking codex-utils-path-uri v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\path-uri)
+    Checking codex-network-proxy v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\network-proxy)
+    Checking codex-execpolicy v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\execpolicy)
+    Checking codex-utils-image v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\image)
+    Checking codex-async-utils v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\async-utils)
+    Checking codex-extension-items v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\ext\items)
+    Checking gix-hash v0.23.0
+    Checking gix-hashtable v0.13.0
+    Checking gix-object v0.58.0
+    Checking codex-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\protocol)
+    Checking tungstenite v0.27.0 (https://github.com/openai-oss-forks/tungstenite-rs?rev=4fffad30fe373adbdcffab9545e9e9bf4f2fc19f#4fffad30)
+    Checking gix-tempfile v21.0.2
+    Checking gix-lock v21.0.2
+    Checking tokio-tungstenite v0.28.0 (https://github.com/openai-oss-forks/tokio-tungstenite?rev=0e5b2d73aa18dd9f0a50ee9ff199d5aef7594186#0e5b2d73)
+    Checking hyper-timeout v0.5.2
+    Checking codex-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-client)
+    Checking tonic v0.14.3
+    Checking gix-commitgraph v0.35.0
+    Checking gix-revwalk v0.29.0
+    Checking tonic-prost v0.14.3
+    Checking codex-utils-pty v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\pty)
+    Checking codex-websocket-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\websocket-client)
+    Checking gix-ref v0.61.0
+    Checking opentelemetry_sdk v0.31.0
+    Checking opentelemetry-proto v0.31.0
+    Checking gix-glob v0.24.0
+    Checking opentelemetry-http v0.31.0
+    Checking gix-pack v0.68.0
+    Checking opentelemetry-otlp v0.31.0
+    Checking gix-transport v0.55.1
+    Checking gix-revision v0.43.0
+    Checking gix-shallow v0.10.0
+    Checking gix-config v0.54.0
+    Checking gix-protocol v0.59.0
+    Checking gix-refspec v0.39.0
+    Checking gix-odb v0.78.0
+    Checking gix-discover v0.49.0
+    Checking gix-traverse v0.55.0
+    Checking gix-diff v0.61.0
+    Checking aws-smithy-async v1.2.14
+    Checking aws-smithy-runtime-api v1.12.0
+    Checking gix v0.81.0
+    Checking codex-api v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-api)
+    Checking codex-file-system v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\file-system)
+    Checking codex-git-utils v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\git-utils)
+    Checking codex-otel v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\otel)
+    Checking jsonwebtoken v9.3.1
+    Checking codex-utils-path v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\path-utils)
+    Checking wxc_common v0.8.0 (https://github.com/microsoft/mxc?rev=6cd3d58f05d3447e67109cfb75e042803b843ca4#6cd3d58f)
+    Checking codex-windows-sandbox v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\windows-sandbox-rs)
+    Checking codex-features v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\features)
+    Checking codex-model-provider-info v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\model-provider-info)
+    Checking codex-config v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\config)
+    Checking learning_mode_windows v0.8.0 (https://github.com/microsoft/mxc?rev=6cd3d58f05d3447e67109cfb75e042803b843ca4#6cd3d58f)
+    Checking aws-smithy-http v0.62.6
+    Checking aws-credential-types v1.2.11
+    Checking appcontainer_common v0.8.0 (https://github.com/microsoft/mxc?rev=6cd3d58f05d3447e67109cfb75e042803b843ca4#6cd3d58f)
+    Checking aws-smithy-http-client v1.1.12
+    Checking aws-smithy-observability v0.1.5
+    Checking aws-smithy-runtime v1.9.5
+    Checking codex-shell-command v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\shell-command)
+    Checking codex-mxc-sandbox v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\mxc-sandbox)
+    Checking aws-types v1.3.11
+    Checking aws-sigv4 v1.3.7
+    Checking codex-install-context v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\install-context)
+    Checking codex-uds v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\uds)
+    Checking aws-runtime v1.5.17
+    Checking codex-history v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\history)
+    Checking axum v0.8.8
+    Checking sqlx-core v0.9.0
+    Checking codex-secrets v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\secrets)
+    Checking codex-sandboxing v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\sandboxing)
+    Checking clatter v2.2.0
+    Checking codex-file-watcher v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\file-watcher)
+    Checking codex-skills v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\skills)
+    Checking codex-build-info v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\build-info)
+    Checking codex-exec-server-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server-protocol)
+    Checking codex-websocket-auth v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\websocket-auth)
+    Checking codex-core-plugin-common v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\core-plugin-common)
+    Checking sqlx-sqlite v0.9.0
+    Checking codex-exec-server v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server)
+    Checking codex-agent-identity v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\agent-identity)
+    Checking codex-workload-identity v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\workload-identity)
+    Checking debugid v0.8.0
+   Compiling codex-state v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\state)
+    Checking codex-login v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\login)
+    Checking sentry-types v0.46.1
+    Checking sqlx v0.9.0
+    Checking codex-utils-output-truncation v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\output-truncation)
+    Checking codex-context-fragments v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\context-fragments)
+    Checking codex-file-search v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\file-search)
+    Checking aws-sdk-sts v1.95.0
+    Checking codex-guardian-context v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\guardian-context)
+    Checking sentry-core v0.46.1
+    Checking aws-sdk-sso v1.91.0
+    Checking aws-sdk-signin v1.2.0
+    Checking aws-sdk-ssooidc v1.93.0
+    Checking deadpool v0.12.3
+    Checking codex-prompts v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\prompts)
+    Checking aws-config v1.8.12
+    Checking sentry v0.46.1
+    Checking codex-rollout v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rollout)
+    Checking codex-utils-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\plugins)
+    Checking process-wrap v10.0.0
+    Checking oauth2 v5.0.0
+    Checking reqwest v0.13.4
+    Checking wiremock v0.6.5
+    Checking rmcp v3.3.0 (https://github.com/modelcontextprotocol/rust-sdk?rev=3e636cab26c013eca5131103c03d20237f12c4df#3e636cab)
+    Checking codex-feedback v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\feedback)
+    Checking codex-plugin v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\plugin)
+    Checking codex-aws-auth v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\aws-auth)
+    Checking codex-models-manager v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\models-manager)
+    Checking codex-response-debug-context v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\response-debug-context)
+    Checking codex-model-provider v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\model-provider)
+    Checking codex-connectors v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\connectors)
+    Checking codex-exec-server-test-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server\tests\support)
+    Checking codex-rmcp-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rmcp-client)
+    Checking codex-mcp v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3m 22s
+[cargo-owner] {"schema":1,"token":"b817ce39-ac9e-4b18-b21e-6e63419ee599","run":"pid-36876","coordinatorPid":36876,"producerPid":38656,"startedUtc":"2026-10-23T04:05:10.154Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-mcp","--lib","--locked","--offline","--tests","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine\\codex-rs","compilationSignature":"d8ecd4083a8ca67d64c96d02f59fc2a7d49f0f2f925e9fa89a92ea5cbb2ee5bf","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T04:08:32.962Z","exitCode":0,"signal":null,"durationMs":202813.058}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-mcp","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T04:05:10.152Z","durationMs":202813,"exitCode":0,"signal":null}]}
+[cargo-owner] {"schema":1,"token":"2bfe1ba2-ce36-4843-bbdf-555687cb4e39","run":"pid-36876","coordinatorPid":36876,"producerPid":38928,"startedUtc":"2026-10-23T04:08:32.966Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-mcp","--lib","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine\\codex-rs","compilationSignature":"a17e9b2ceb9df64a28a1501aaeb8dcfa1196ad40d0c94b960d928c32b2d4ebd7","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T04:13:18.421Z","exitCode":0,"signal":null,"durationMs":285459.6193}
+   Compiling hyper v1.8.1
+   Compiling codex-state v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\state)
+   Compiling deadpool v0.12.3
+   Compiling hyper-util v0.1.20
+   Compiling hyper-rustls v0.27.7
+   Compiling hyper-tls v0.6.0
+   Compiling hyper-timeout v0.5.2
+   Compiling reqwest v0.12.28
+   Compiling tonic v0.14.3
+   Compiling codex-http-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\http-client)
+   Compiling codex-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\protocol)
+   Compiling codex-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-client)
+   Compiling codex-websocket-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\websocket-client)
+   Compiling tonic-prost v0.14.3
+   Compiling opentelemetry-proto v0.31.0
+   Compiling opentelemetry-http v0.31.0
+   Compiling opentelemetry-otlp v0.31.0
+   Compiling aws-smithy-http-client v1.1.12
+   Compiling aws-smithy-runtime v1.9.5
+   Compiling aws-runtime v1.5.17
+   Compiling axum v0.8.8
+   Compiling codex-api v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-api)
+   Compiling codex-otel v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\otel)
+   Compiling codex-file-system v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\file-system)
+   Compiling codex-git-utils v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\git-utils)
+   Compiling codex-windows-sandbox v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\windows-sandbox-rs)
+   Compiling codex-features v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\features)
+   Compiling codex-model-provider-info v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\model-provider-info)
+   Compiling codex-config v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\config)
+   Compiling codex-mxc-sandbox v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\mxc-sandbox)
+   Compiling codex-shell-command v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\shell-command)
+   Compiling codex-history v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\history)
+   Compiling codex-skills v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\skills)
+   Compiling codex-exec-server-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server-protocol)
+   Compiling codex-sandboxing v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\sandboxing)
+   Compiling codex-secrets v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\secrets)
+   Compiling codex-exec-server v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server)
+   Compiling codex-agent-identity v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\agent-identity)
+   Compiling codex-workload-identity v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\workload-identity)
+   Compiling codex-login v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\login)
+   Compiling codex-utils-output-truncation v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\output-truncation)
+   Compiling codex-context-fragments v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\context-fragments)
+   Compiling codex-guardian-context v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\guardian-context)
+   Compiling aws-sdk-sts v1.95.0
+   Compiling aws-sdk-sso v1.91.0
+   Compiling aws-sdk-signin v1.2.0
+   Compiling aws-sdk-ssooidc v1.93.0
+   Compiling codex-rollout v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rollout)
+   Compiling aws-config v1.8.12
+   Compiling codex-prompts v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\prompts)
+   Compiling codex-utils-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\utils\plugins)
+   Compiling oauth2 v5.0.0
+   Compiling reqwest v0.13.4
+   Compiling rmcp v3.3.0 (https://github.com/modelcontextprotocol/rust-sdk?rev=3e636cab26c013eca5131103c03d20237f12c4df#3e636cab)
+   Compiling codex-plugin v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\plugin)
+   Compiling codex-models-manager v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\models-manager)
+   Compiling codex-aws-auth v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\aws-auth)
+   Compiling codex-feedback v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\feedback)
+   Compiling codex-response-debug-context v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\response-debug-context)
+   Compiling wiremock v0.6.5
+   Compiling codex-exec-server-test-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\exec-server\tests\support)
+   Compiling codex-model-provider v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\model-provider)
+   Compiling codex-rmcp-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\rmcp-client)
+   Compiling codex-connectors v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\connectors)
+   Compiling codex-mcp v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r4\engine\codex-rs\codex-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4m 41s
+     Running unittests src\lib.rs (C:\Users\felre\Desktop\pi-harness-init\engine\codex-rs\target\debug\deps\codex_mcp-9176a92b03ffdda8.exe)
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-mcp","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T04:05:10.152Z","durationMs":202813,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-mcp","--lib","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T04:08:32.965Z","durationMs":285460,"exitCode":0,"signal":null,"selectedTests":258}]}
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.28s
+     Running unittests src\lib.rs (C:\Users\felre\Desktop\pi-harness-init\engine\codex-rs\target\debug\deps\codex_mcp-9176a92b03ffdda8.exe)
+[cargo-owner] {"schema":1,"token":"8060f64c-2ed9-4d58-ad7a-6776b77538c0","run":"pid-36876","coordinatorPid":36876,"producerPid":49208,"startedUtc":"2026-10-23T04:13:18.426Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["test","-p","codex-mcp","--lib","--locked","--offline","--","--test-threads=1"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine\\codex-rs","compilationSignature":"a17e9b2ceb9df64a28a1501aaeb8dcfa1196ad40d0c94b960d928c32b2d4ebd7","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T04:13:37.089Z","exitCode":0,"signal":null,"durationMs":18667.6552}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-mcp","--lib","--locked","--offline","--tests","--profile","test"],"startedUtc":"2026-10-23T04:05:10.152Z","durationMs":202813,"exitCode":0,"signal":null},{"phase":"selection","args":["test","-p","codex-mcp","--lib","--locked","--offline","--","--test-threads=1","--list","--format=terse"],"startedUtc":"2026-10-23T04:08:32.965Z","durationMs":285460,"exitCode":0,"signal":null,"selectedTests":258},{"phase":"execution","args":["test","-p","codex-mcp","--lib","--locked","--offline","--","--test-threads=1"],"startedUtc":"2026-10-23T04:13:18.425Z","durationMs":18668,"exitCode":0,"signal":null}]}

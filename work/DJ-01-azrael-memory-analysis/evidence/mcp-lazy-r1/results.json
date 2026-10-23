@@ -1,0 +1,26 @@
+[
+  {
+    "name": "provenance-record",
+    "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+    "args": [
+      "-B",
+      "scripts/record-engine-local-changes.py",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+      "--baseline",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\engine-original-import-12a1dbfc",
+      "--baseline-receipt-sha256",
+      "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+      "--current-receipt-sha256",
+      "eed776104d75625f69b2d79493261eb445678ca7dac6a7253ba2361084fd3a47",
+      "--expected-path",
+      "codex-rs/core/src/session/mcp_runtime.rs",
+      "--expected-path",
+      "codex-rs/core/tests/suite/mcp_tool_cache.rs"
+    ],
+    "startedUtc": "2026-10-23T03:27:07.152Z",
+    "finishedUtc": "2026-10-23T03:29:01.278Z",
+    "exitCode": 1,
+    "signal": null
+  }
+]

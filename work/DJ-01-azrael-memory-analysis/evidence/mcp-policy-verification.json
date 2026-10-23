@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "scope": "Previously reviewed data-encoding manifest exceptions, included with explicit user approval",
+  "command": [
+    "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+    "-B",
+    "-m",
+    "unittest",
+    "scripts.tests.test_compile_scope_manifests.CompileScopePolicyTests.test_approved_compile_scope_manifests_use_exact_exceptions",
+    "-v"
+  ],
+  "exitCode": 0,
+  "passed": 1,
+  "failed": 0,
+  "testDurationSeconds": 15.38,
+  "policySha256": "a774049a6e3bb942173b37770b5fdb9da8fb3ef6f8deb131a4a55aac065b37d1",
+  "testSourceSha256": "a5eecbdf30c85ce6578866d288d58e955bee0ab0ff3c4381fade6a7239314f55",
+  "testSourceCommittedInThisTask": false
+}

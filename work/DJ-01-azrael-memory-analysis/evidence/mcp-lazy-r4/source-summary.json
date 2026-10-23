@@ -1,0 +1,17 @@
+{
+  "kind": "raw-tracked-source-tests",
+  "importedProvenanceAccepted": false,
+  "repositoryHead": "b06387abf62aa8bf331b18f22ac58a878e43b0f6",
+  "completeInputManifestSha256": "5cdaf8c55e2f8276908578b4e50e95e38ce43fe684025953cfda025abf08e3ab",
+  "fileCount": 9312,
+  "changedInputs": [
+    {
+      "path": "codex-rs/core/src/session/mcp_runtime.rs",
+      "sha256": "ae77971756c186f3dab5ecc01552f7dc96f3b129c4e949beb458bcd87fcfbb30"
+    },
+    {
+      "path": "codex-rs/core/tests/suite/mcp_tool_cache.rs",
+      "sha256": "8809d05b7a034dd2c4bd113ba763307173081c2226d2d71afd8bf5772915dca4"
+    }
+  ]
+}

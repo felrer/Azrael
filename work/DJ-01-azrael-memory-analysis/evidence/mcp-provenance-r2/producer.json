@@ -1,0 +1,23 @@
+{
+  "lifecycleId": "run:DJ-01:mcp-provenance-r2",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-provenance-r2",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\reconcile-mcp-provenance.cjs",
+    "mcp-provenance-r2"
+  ],
+  "exitCode": 0,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 31000,
+      "closed": true
+    },
+    {
+      "pid": 74432,
+      "closed": true
+    }
+  ],
+  "state": "complete",
+  "membership_complete": true
+}

@@ -377,11 +377,9 @@ impl Session {
             desired.environments.ready_environment_handles(),
         );
         McpRuntimeInput {
-            startup_policy: if matches!(desired.session_source, SessionSource::SubAgent(_)) {
-                McpStartupPolicy::LazyWhenCached
-            } else {
-                McpStartupPolicy::Eager
-            },
+            // Reuse compatible tool catalogs without starting an unused per-thread server.
+            // Cold catalogs and explicitly selected plugin servers still start eagerly.
+            startup_policy: McpStartupPolicy::LazyWhenCached,
             config: mcp_config,
             plugins_available,
             ready_selected_capability_roots: ready_selected_capability_roots.to_vec(),

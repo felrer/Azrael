@@ -1,0 +1,2145 @@
+{
+  "userAuthorization": "2026-10-23 existing changes review and provenance metadata reconciliation",
+  "repositoryHead": "b06387abf62aa8bf331b18f22ac58a878e43b0f6",
+  "currentReceiptSha256": "eed776104d75625f69b2d79493261eb445678ca7dac6a7253ba2361084fd3a47",
+  "paths": [
+    {
+      "path": ".github/scripts/verify_cargo_workspace_manifests.py",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "71f6a1cbba345a8cea1333fc877352bfa33250cb26b6da67ce064a1b1683a554",
+        "size": 14575
+      },
+      "currentSha256": "a774049a6e3bb942173b37770b5fdb9da8fb3ef6f8deb131a4a55aac065b37d1",
+      "headSha256": "72bb42f01f8366097ac6c5cdaf610f23e03ef7c256e97848a9baf871a3117525",
+      "classification": "reviewed concurrent manifest policy"
+    },
+    {
+      "path": "codex-rs/Cargo.lock",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "6660dc04535f5043620e71b0f0387cfb7561243727662a38f25b935123b2e723",
+        "size": 408857
+      },
+      "currentSha256": "bd086997f24c35bfa3b4945b2b604c6966e206226da80acd8db62c0b37097c4b",
+      "headSha256": "bd086997f24c35bfa3b4945b2b604c6966e206226da80acd8db62c0b37097c4b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/Cargo.toml",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "1a0d8527eba172d9b20ae87383f509347ee22417872536abeb0c9223694f7eab",
+        "size": 21389
+      },
+      "currentSha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+      "headSha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-client/BUILD.bazel",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "68278d976028d765acd49eaf2c7ee25ad6f3d686505cbda3e549d5592a64d2df",
+        "size": 137
+      },
+      "currentSha256": "1840a0db69850312f6f56f8b8e000b2ca21eaac7b347e212610de3e0e7e50c6e",
+      "headSha256": "1840a0db69850312f6f56f8b8e000b2ca21eaac7b347e212610de3e0e7e50c6e",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-client/src/bin/azrael-bridge.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d7c3b7be42050677183574367a76b1119f8f92fae377e5cfa8bcd70ea8c8d1e7",
+        "size": 6765
+      },
+      "currentSha256": "694646072f89e1afc68be13f0aef55b8b6c1497f9984a240c4b551ba8df31990",
+      "headSha256": "694646072f89e1afc68be13f0aef55b8b6c1497f9984a240c4b551ba8df31990",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/BUILD.bazel",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "f6c103356d43b45cb9a19445f19216fbc3d5f7c4bd2c62e7c003978fcfd87e53",
+        "size": 137
+      },
+      "currentSha256": "7da0c8b9021a4a0733274d7aceb1d40a3cc708b6293234dd3fad10ab83668741",
+      "headSha256": "7da0c8b9021a4a0733274d7aceb1d40a3cc708b6293234dd3fad10ab83668741",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/Cargo.toml",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "e7a081c4fd73abafa31db4581e9049c269b31a0cd6fc14633a344bd10f483cc9",
+        "size": 2165
+      },
+      "currentSha256": "c806f5b6790bbe49b95e2234b728fcc14fe33cc81687f910a39714791bd989ba",
+      "headSha256": "c806f5b6790bbe49b95e2234b728fcc14fe33cc81687f910a39714791bd989ba",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/src/azrael.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "cc4606f027c0a024c9925178c81db5fa1ce55508d18ff574133cd020731f91f8",
+        "size": 20979
+      },
+      "currentSha256": "25228c862c903895e00f4eac666d32804aa59f8ca8719df300fa3db95923110f",
+      "headSha256": "25228c862c903895e00f4eac666d32804aa59f8ca8719df300fa3db95923110f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/src/backend/pid.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "e725ee5014ec5f49b550055b40c1a408f1269e867bac2be6b272cc1aecf26e30",
+        "size": 33989
+      },
+      "currentSha256": "6c5690a0215dbd96c1ff51c98398f7968d24dd526795552bab35ff9e53ab5d6d",
+      "headSha256": "6c5690a0215dbd96c1ff51c98398f7968d24dd526795552bab35ff9e53ab5d6d",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/src/backend/pid_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d11de79815a95aed304b70c4e41807cd0b57c13e4cb6f95a71d77e85c794ead5",
+        "size": 37653
+      },
+      "currentSha256": "264d16c0e7caaea353c5738b232708760479e7df991acf71aa3164b918f96d5b",
+      "headSha256": "264d16c0e7caaea353c5738b232708760479e7df991acf71aa3164b918f96d5b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/src/lib.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "1b600005e2301fb3cea00911c81366a4263fba9e603048cfb9c99ec95c9dc2c4",
+        "size": 59267
+      },
+      "currentSha256": "35c45bc165bb264a129911cc9619e424086bf37a1d0ae01a81f38e1f6d971546",
+      "headSha256": "35c45bc165bb264a129911cc9619e424086bf37a1d0ae01a81f38e1f6d971546",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/src/update_loop_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "af1346bf8b0e1eea6cc5352d4b7766f2ba1baf02cd1fd9db5d461fd56a6bb430",
+        "size": 53394
+      },
+      "currentSha256": "7f2cd79384d43fa4dc9d0bcd1a617e5e846a0a0697aa627bb0a80018b0623a61",
+      "headSha256": "7f2cd79384d43fa4dc9d0bcd1a617e5e846a0a0697aa627bb0a80018b0623a61",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/ClientRequest.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "4b9cb5a7678232df5798e49b6505c8175cbd16fb8f981484514cdcbca17b5887",
+        "size": 217675
+      },
+      "currentSha256": "2ee095969f19b993b30fff51c9e19bae29c2a95b171e354d1a362b854da49081",
+      "headSha256": "2ee095969f19b993b30fff51c9e19bae29c2a95b171e354d1a362b854da49081",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/ServerNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "88955a1995deeab0248c25c0907b49a11c2c288b249aeae19630071190be415e",
+        "size": 222356
+      },
+      "currentSha256": "93bdc290d89cb8a2f6435eb6a09bc9c4f5f9688b677ba1feee2cb1c5462b0934",
+      "headSha256": "93bdc290d89cb8a2f6435eb6a09bc9c4f5f9688b677ba1feee2cb1c5462b0934",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "fe8c318ae71932e21838eaeabdf21b410332e333bdce0df7e0a63cf5bddb7119",
+        "size": 761046
+      },
+      "currentSha256": "55a7c20fc932a9eb378ddc5ec7883d9f3d8a4ccb1575eb4726c25a127d5671fe",
+      "headSha256": "55a7c20fc932a9eb378ddc5ec7883d9f3d8a4ccb1575eb4726c25a127d5671fe",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "206c0feac132f8510f35ec7c6671fadbba64379cc341434d79e1a150b1498006",
+        "size": 656386
+      },
+      "currentSha256": "1901096b86cec6f4a5ea5867f63df782de8fb920415ce9c1500c54bedf94f198",
+      "headSha256": "1901096b86cec6f4a5ea5867f63df782de8fb920415ce9c1500c54bedf94f198",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ConfigReadResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "721c773d69e0cb9782652a1a89c760384d9ae278e4d597b59ec45279e4eb0549",
+        "size": 32306
+      },
+      "currentSha256": "eb62b466364b6d995f6c595f82b5d1ee5e7b816d32fbcc612327b5d6055fd48d",
+      "headSha256": "eb62b466364b6d995f6c595f82b5d1ee5e7b816d32fbcc612327b5d6055fd48d",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ItemCompletedNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "a868ddbae931499d1ecf50c644aea70a261478b0e874315787aeed54e19df304",
+        "size": 48931
+      },
+      "currentSha256": "efb1ad44edd77fee50eea0ea6a8cc921a63a1165a437c336758699d1e83e16fd",
+      "headSha256": "efb1ad44edd77fee50eea0ea6a8cc921a63a1165a437c336758699d1e83e16fd",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ItemStartedNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "4283b92e154800779c96b6d1e79679a3a3193217e25eebc00ff5b4d2378b3922",
+        "size": 48923
+      },
+      "currentSha256": "dbdcd98621ba0fdc837c5f4d4cca01412b30bb5b2a95da90f4a067c51c87e40a",
+      "headSha256": "dbdcd98621ba0fdc837c5f4d4cca01412b30bb5b2a95da90f4a067c51c87e40a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ProjectUsageResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "025923038cf110723389b709f422c86b08f72855eae16ab3c1bfd48f204e6fd1",
+        "size": 1847
+      },
+      "currentSha256": "aedd32b75b6c1d5bf7ed748ca7973a12089ce4d7bb502b9e85f88d6493a8322b",
+      "headSha256": "aedd32b75b6c1d5bf7ed748ca7973a12089ce4d7bb502b9e85f88d6493a8322b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ReviewStartResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "100651a75d9881c3357382909ab68cd9eb0b4b32d72faafb7a672e978cdd7c42",
+        "size": 60673
+      },
+      "currentSha256": "e700c079e6617cf57514d5b696cd41f7ccd50192cc6506ddd7ec7d127f431f28",
+      "headSha256": "e700c079e6617cf57514d5b696cd41f7ccd50192cc6506ddd7ec7d127f431f28",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/RootResumeResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "3b1c2bcb1a0826bd09561c959873217e3fa58da49fb139bb4fe4ef237630e18d",
+        "size": 3384
+      },
+      "currentSha256": "37b89f722b51dceb9a015d79cea03435b5cdcd2fd337dca6ab7ac71d8490148c",
+      "headSha256": "37b89f722b51dceb9a015d79cea03435b5cdcd2fd337dca6ab7ac71d8490148c",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadForkResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "81f808c3d4023e12c0d02537dc14ab5e0b51b77323708d0c65936105750120d8",
+        "size": 82218
+      },
+      "currentSha256": "45f4ceaf1346481abbf7ebb5da90190fa48b38147c69138af476b3564e8776f1",
+      "headSha256": "45f4ceaf1346481abbf7ebb5da90190fa48b38147c69138af476b3564e8776f1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadItemsListResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "74b31e409ad26cef75e2aaab1fd1fda222e18f3b9b5a49fdfb7805084d7be54d",
+        "size": 49971
+      },
+      "currentSha256": "3087beb33cdbed06091820895f2b8c6490b7f6266abdde20e8c25397da97b8e2",
+      "headSha256": "3087beb33cdbed06091820895f2b8c6490b7f6266abdde20e8c25397da97b8e2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadListResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "e86b43031bea06102ddd1383703597f359aafba3a3b109ba51b542f9c064edab",
+        "size": 74978
+      },
+      "currentSha256": "2df95e956aab526a7e891e94cad9c3582c8f69be07777ed642c4560f31e3ce3f",
+      "headSha256": "2df95e956aab526a7e891e94cad9c3582c8f69be07777ed642c4560f31e3ce3f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadMetadataUpdateResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "f752556b8a0166bb2e7e8dbae8593d107561d990be97db46fa4e66fc87dd22d9",
+        "size": 74324
+      },
+      "currentSha256": "dc0848a054c5259cfe8687a3b1c16cc18481459078971e78009053ec3e41c2fc",
+      "headSha256": "dc0848a054c5259cfe8687a3b1c16cc18481459078971e78009053ec3e41c2fc",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadReadResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c8652fe4a1515236995d215561b36e20f33de94f0f15fefcc9c0c54bcf24825b",
+        "size": 74314
+      },
+      "currentSha256": "52f2cbc04ee54f720f26bfa57582a61f3df7a2cd24497cf115c895f0f23bfc2d",
+      "headSha256": "52f2cbc04ee54f720f26bfa57582a61f3df7a2cd24497cf115c895f0f23bfc2d",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadResumeResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "60a3860536f168d0c2a025d607fc220259d009632401ad40cfc0166ed8b55d47",
+        "size": 84521
+      },
+      "currentSha256": "ac1a6273ddd10b91b0ce57094a15ed698d91a2c96a62ec1a7cf8c942547de546",
+      "headSha256": "ac1a6273ddd10b91b0ce57094a15ed698d91a2c96a62ec1a7cf8c942547de546",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadRevertResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "98d8ef97dc78f0a5d5a590e7aec15158ab79bfa73da450aef2c848701d65d457",
+        "size": 75124
+      },
+      "currentSha256": "bb2a1dec9cf86b359d81da6b28cbf45d3c3da1e7bea43a20aee0c3cdb6ac91d7",
+      "headSha256": "bb2a1dec9cf86b359d81da6b28cbf45d3c3da1e7bea43a20aee0c3cdb6ac91d7",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadSettingsUpdatedNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "1decdf57238a1573ffbbf0bf695acba50888c1580e44670471dd88bfc2bd540f",
+        "size": 10787
+      },
+      "currentSha256": "ecd78f4cc6d5eae35036cdafee3c7e769f92db0f792a9caaa952388918ba4d34",
+      "headSha256": "ecd78f4cc6d5eae35036cdafee3c7e769f92db0f792a9caaa952388918ba4d34",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadStartResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "3e5c310ab57f6e2eefe18ee265beaccba6e5176fb5d9ef6382ddb5494062fa4d",
+        "size": 81980
+      },
+      "currentSha256": "d7cd86e186e3555947bcb717fb519f3d8d4fc73a9bfb3156a69839f1b3ebee05",
+      "headSha256": "d7cd86e186e3555947bcb717fb519f3d8d4fc73a9bfb3156a69839f1b3ebee05",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadStartedNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "e038f6c857d262d59c2ba189f60b8c5617b8e06da46aaa8973333e7564d304f0",
+        "size": 74321
+      },
+      "currentSha256": "c74e5554451483811264e871af674f13baa427434b84eda3174e863ac6ac9f00",
+      "headSha256": "c74e5554451483811264e871af674f13baa427434b84eda3174e863ac6ac9f00",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadTokenUsageUpdatedNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "1ad193aef20408aac59e9b5c2ced2bf984be199ec27b6a3f6855cefe3080e98c",
+        "size": 6073
+      },
+      "currentSha256": "f43129806540aa2496b587d63ae450e7c5cc9034ec6badd0c5b30ac7c28a13a6",
+      "headSha256": "f43129806540aa2496b587d63ae450e7c5cc9034ec6badd0c5b30ac7c28a13a6",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadTurnsListResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "11795d84f65c1787e99fd45004ca9693f0b7e769a90aef1029d2cfda0272da28",
+        "size": 61038
+      },
+      "currentSha256": "3c9dbf61a9f945d26cb7b1589861e676095b36ce52bd72763a8d0338befd2f8b",
+      "headSha256": "3c9dbf61a9f945d26cb7b1589861e676095b36ce52bd72763a8d0338befd2f8b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadUnarchiveResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "2037e002b4ee55a4b8bcfcc27a631017dbecb04a7546ddcec908bd1e587ff940",
+        "size": 74319
+      },
+      "currentSha256": "0f2548730f2b0fc8e863209f88dc4bf2f5016248184759ee965aea1b8b24186a",
+      "headSha256": "0f2548730f2b0fc8e863209f88dc4bf2f5016248184759ee965aea1b8b24186a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/TurnCompletedNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "64240644e7924b2665430f2b82d557f32cf9892028cd7db556d63c795ea1d61f",
+        "size": 60480
+      },
+      "currentSha256": "ee57ae42d489f1a0e6cfd1a9e1d6f341724085e6e588fd4c1cd7bc7bb6be3295",
+      "headSha256": "ee57ae42d489f1a0e6cfd1a9e1d6f341724085e6e588fd4c1cd7bc7bb6be3295",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/TurnDeferredNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "3cb7b4c9171e3070e4c77c8efeb225ba507c5ddcb387787519fcc1309212123a",
+        "size": 60553
+      },
+      "currentSha256": "d5e2ee4df37286cbdf4cff966e0feaa7419ce6d73018060e7d0f3f30e87239b9",
+      "headSha256": "d5e2ee4df37286cbdf4cff966e0feaa7419ce6d73018060e7d0f3f30e87239b9",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/TurnStartResponse.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "4e6f3ffb64c40bcdc45c8f68366c2302b49ed0333b3cd0a0f1526e4a7d9e9f31",
+        "size": 60408
+      },
+      "currentSha256": "9b48493b08ab839faf7a5bc5958e02d6e736f764a8534c236c5d841843f32e66",
+      "headSha256": "9b48493b08ab839faf7a5bc5958e02d6e736f764a8534c236c5d841843f32e66",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/TurnStartedNotification.json",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "58969bb0764a511bfb2b4d88f351a1a57c414be78a5b259e1292fbd97cd27b37",
+        "size": 60478
+      },
+      "currentSha256": "34b5bfe71aee6c6887fe63ac196cf8a28df45e2c35b1549f95c5a71e02661818",
+      "headSha256": "34b5bfe71aee6c6887fe63ac196cf8a28df45e2c35b1549f95c5a71e02661818",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "467b37287062a9f08142359149cf260591ded59fd876b23326c0650c8cf65204",
+        "size": 173001
+      },
+      "currentSha256": "ddd04621d88b1456fb1d51d51c68b159e868ff7f179151c025fd985e37ac2a9a",
+      "headSha256": "ddd04621d88b1456fb1d51d51c68b159e868ff7f179151c025fd985e37ac2a9a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "93516e231d348f0422391a0226b062d571d411b2e1901ece4d0518e1ec56c8cc",
+        "size": 167210
+      },
+      "currentSha256": "6fb7904607f664eba24a3885d8eb6ed1861eddf0e54cce6b4394a45f64710ae6",
+      "headSha256": "6fb7904607f664eba24a3885d8eb6ed1861eddf0e54cce6b4394a45f64710ae6",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ClientRequest.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "7c289e1c4ff5a0a0d6f1cd1c64417c2d28ac879a7dae9e740700e84bc204524c",
+        "size": 17386
+      },
+      "currentSha256": "c91d83d62954fbc74524f6153e0c17751a5cd2e33eb3ceadccf6258921b8f65b",
+      "headSha256": "c91d83d62954fbc74524f6153e0c17751a5cd2e33eb3ceadccf6258921b8f65b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ContextPolicy.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "4bb94d00e92ac633b21c5d1ef11d0d3eddb9bc942597c7b05785962041546b64",
+        "size": 603
+      },
+      "currentSha256": "e7fbfaf7583d2d50097e1c3ab01527ab4a986b9a5cd508f7df63cdd3791b4666",
+      "headSha256": "e7fbfaf7583d2d50097e1c3ab01527ab4a986b9a5cd508f7df63cdd3791b4666",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ResponseMinuteSample.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d5240c42865e9d50df665688ab7128bf39dc70ddf841174ae2abfde07d4311fa",
+        "size": 258
+      },
+      "currentSha256": "3be75eb65ecc70c0cb6227392145cd2b32a682dcf8db32c3b4786aeb4b81a18f",
+      "headSha256": "3be75eb65ecc70c0cb6227392145cd2b32a682dcf8db32c3b4786aeb4b81a18f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ResponsePerformance.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "96ae8a1ecafc82d81bf424f99ffb4569f926d75fc2eda63cb6116c53d1252fbd",
+        "size": 476
+      },
+      "currentSha256": "5a12b42394d40ebef1f26f7008aa74b6cc452c1a8eb09b52ba94c2552831b400",
+      "headSha256": "5a12b42394d40ebef1f26f7008aa74b6cc452c1a8eb09b52ba94c2552831b400",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/RootResumeReservation.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "f9a9de2436b170aba12c8ec48bf13e03c424446f18088a3e84cf109e3e514599",
+        "size": 924
+      },
+      "currentSha256": "2641ced0bf9479ef4c56a4c913bb4fa9b1db694c09e52fc080e61649f10d72b2",
+      "headSha256": "2641ced0bf9479ef4c56a4c913bb4fa9b1db694c09e52fc080e61649f10d72b2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/RootResumeWakeReason.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "b1d4c59d31b0133f384bb29fc6efed15331d9f41019b4071cfc44e2f9592ca6d",
+        "size": 266
+      },
+      "currentSha256": "93c450f7959c6f126aaa6ddba011f519a149804307441221875cbb4ac1a5835f",
+      "headSha256": "93c450f7959c6f126aaa6ddba011f519a149804307441221875cbb4ac1a5835f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/index.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "cd91384328d5286e6cabbcf0cc18d479303c59012d574635069d096185a1e193",
+        "size": 6797
+      },
+      "currentSha256": "8a7f1f4868d2918096d2dca27719f87f679634032f75e597dd3d6ef8ebd194f1",
+      "headSha256": "8a7f1f4868d2918096d2dca27719f87f679634032f75e597dd3d6ef8ebd194f1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ProjectUsageProject.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d662a552f4cd0bf2e939c01af1916b7a2f147337f9a7a3bbe8198af34a5ff546",
+        "size": 349
+      },
+      "currentSha256": "0eb6e6f47f036ff1539a47261374632844e2a9171ed37d87dbc221b278033f35",
+      "headSha256": "0eb6e6f47f036ff1539a47261374632844e2a9171ed37d87dbc221b278033f35",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/QueuedSubmissionKind.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "6dbafe6d0cd67441936c1d3f30716d47667e4ceeb32b13709342e96ce77be8b5",
+        "size": 223
+      },
+      "currentSha256": "fc64f4286e492da3309f578fc201306eeccec7b360c993731f88a3140234baf3",
+      "headSha256": "fc64f4286e492da3309f578fc201306eeccec7b360c993731f88a3140234baf3",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/Thread.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "a6a528b2d88115ff3fe8db1c32ced5a90a1af3ec3fa0cfe39106931d6cccebd6",
+        "size": 3800
+      },
+      "currentSha256": "057beed1314b33a01b57cd0e52ac324cb4b2730fd7df83b99268a6180659ee0f",
+      "headSha256": "057beed1314b33a01b57cd0e52ac324cb4b2730fd7df83b99268a6180659ee0f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadItem.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "9eec6b2ee0ce090fa0c8976e0afa5eca07cc3b529bbbe75ead5520291ec9f7f0",
+        "size": 6406
+      },
+      "currentSha256": "189cbedd3f32d3525fc0aab90cda0e2979c9b3075e4eff16ad4303d2ef28760b",
+      "headSha256": "189cbedd3f32d3525fc0aab90cda0e2979c9b3075e4eff16ad4303d2ef28760b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadSettings.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "990f9ddf11011ef1e945485d605068417c56aff54d3ce7f6edcf1532ce7d996a",
+        "size": 1329
+      },
+      "currentSha256": "dcd61ca563ba38c1e1ea8b19179f71216ef9ebb81e8ba85d04d699704d5c5f28",
+      "headSha256": "dcd61ca563ba38c1e1ea8b19179f71216ef9ebb81e8ba85d04d699704d5c5f28",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/index.ts",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "7695067f5437a9ae1771c4799c9506dd9467a6038b03aa9db430cd66b8316d91",
+        "size": 49513
+      },
+      "currentSha256": "4cf6dbbe019d9e05601bee51e4724e8efdc1198946e8e2eba02002428494e7a2",
+      "headSha256": "4cf6dbbe019d9e05601bee51e4724e8efdc1198946e8e2eba02002428494e7a2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/src/protocol/common.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d8132c5c6e7761af9afd7d2c5fc0b50ed4638828308b208cf7b878454be513f6",
+        "size": 175955
+      },
+      "currentSha256": "c270b1a3100648f13b36d976ed271c588a3194e44a3d88c5dd8b329db109f3f1",
+      "headSha256": "c270b1a3100648f13b36d976ed271c588a3194e44a3d88c5dd8b329db109f3f1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "cd9fbb1d11770fbe131945dd12c6d638a63b77d4da23978488a59d7fae68c84a",
+        "size": 84113
+      },
+      "currentSha256": "9d676caf0092a04001091ba44b32c2d870f61ab03643362cb2db4d3f914454cd",
+      "headSha256": "9d676caf0092a04001091ba44b32c2d870f61ab03643362cb2db4d3f914454cd",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-transport/src/transport/mod.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d2b7e7e715bc3a38a2639b5e40836fb203d2c695fb965a8917adeed7456c0e24",
+        "size": 21982
+      },
+      "currentSha256": "bfb15f6108ac98109d674f67d3b62bdd2f5ddcf207bf64e843d08efb5ec75a5a",
+      "headSha256": "bfb15f6108ac98109d674f67d3b62bdd2f5ddcf207bf64e843d08efb5ec75a5a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-transport/src/transport/unix_socket_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "2e61986401fd71d73c836281b118abcb827203cc4af5fbe2b57a1eebf8475f3e",
+        "size": 18871
+      },
+      "currentSha256": "d594d388c4eb7349da7f368d9aaebe5fc74023246f76d19316e4f3f29edaa743",
+      "headSha256": "d594d388c4eb7349da7f368d9aaebe5fc74023246f76d19316e4f3f29edaa743",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/attestation.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "5729e8cdac8f9013e1cc9b53324b4a5c17f20af7ec8a94ecfde3a99bcc104b9d",
+        "size": 7118
+      },
+      "currentSha256": "2ced6a9510fc572acf2e8a01fd52fe5295dfecce4bf703b55257b0ff2484c57b",
+      "headSha256": "2ced6a9510fc572acf2e8a01fd52fe5295dfecce4bf703b55257b0ff2484c57b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/azrael_shared_server.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "790ea0ec094463a8edc5b59cc616a46891a5d95af16a527dcb23edb0dd98603e",
+        "size": 48151
+      },
+      "currentSha256": "255453a8f799139a658a1df1b1ffd7976c5ec64c06fd9fefed9fcba6ebdb5670",
+      "headSha256": "255453a8f799139a658a1df1b1ffd7976c5ec64c06fd9fefed9fcba6ebdb5670",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/azrael_shared_server/tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "44edc2c69dc1c1f2b4c9b1bc9c73dda9979b1b9ae37afee2f1800961b674d42c",
+        "size": 11571
+      },
+      "currentSha256": "2a068fcc432da6d31e93736db569262fb9eb2698715bb2f17634d645f08c1ff9",
+      "headSha256": "2a068fcc432da6d31e93736db569262fb9eb2698715bb2f17634d645f08c1ff9",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/azrael_thread_engines.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "301176d73820d94492a22c64404d9fa58a05b6069496421cc68e3605c7d0e71a",
+        "size": 9228
+      },
+      "currentSha256": "8f89464729db0f2553937bbfcae3df7a09fb4d951aa249059f50f899480aa4dd",
+      "headSha256": "8f89464729db0f2553937bbfcae3df7a09fb4d951aa249059f50f899480aa4dd",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "22600f762debadf546ef949f78729dfe3f9c62ab084e2c617d2b21b1b2d21182",
+        "size": 171377
+      },
+      "currentSha256": "a00e919847459be7e71a623df5d176f7319ac9f9a8d08d01aabff2793fa8ec0e",
+      "headSha256": "a00e919847459be7e71a623df5d176f7319ac9f9a8d08d01aabff2793fa8ec0e",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/current_time.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "6cdd13478819a7e45fad9f0b70979d953f1fa2af6ee9dbf862b9bfa707e1345d",
+        "size": 6300
+      },
+      "currentSha256": "c908ea4e0458e5326237f01db3c575cd17cf52d053fc29055e4bc37776ba668a",
+      "headSha256": "c908ea4e0458e5326237f01db3c575cd17cf52d053fc29055e4bc37776ba668a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/lib.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "455972fbe6ee09ce33ebf96fd5984de0d4cc7ce7e2e5e3c52e199beb1575c347",
+        "size": 71951
+      },
+      "currentSha256": "a69b21afa4a5afd9e9f88fe148bf3acc9944270f0fd75e4b6bf09de676b9f5c2",
+      "headSha256": "a69b21afa4a5afd9e9f88fe148bf3acc9944270f0fd75e4b6bf09de676b9f5c2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/main.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "ca996445d352b7ef114832e97c0d45f93270df52966267ff0411fc66af505233",
+        "size": 13045
+      },
+      "currentSha256": "d25065233adab2b716c615cd33cca107781f9551255946efa4d62332af4818f9",
+      "headSha256": "d25065233adab2b716c615cd33cca107781f9551255946efa4d62332af4818f9",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/message_processor.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "9af9ebb76dc2cdddd76d7afa083013c0ccddf8ed9c29389adc450be18a4042da",
+        "size": 90672
+      },
+      "currentSha256": "cd89477e3a42a63f75b01cf57443a8c1c4bbbbb51d10c377bed5150cc1f35246",
+      "headSha256": "cd89477e3a42a63f75b01cf57443a8c1c4bbbbb51d10c377bed5150cc1f35246",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/outgoing_message.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "19381c969e4118d1320ed2680594ef192d697d6a246d1c37062a6338a2022d4a",
+        "size": 64268
+      },
+      "currentSha256": "1a5906f1039ee863c91db7e3f1d06fdbae57654c48637bd28e0e62bdefef8436",
+      "headSha256": "1a5906f1039ee863c91db7e3f1d06fdbae57654c48637bd28e0e62bdefef8436",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/request_processors/account_processor.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "9fcefe3350e9bbe95bf02380bc339ddc1baa8d57d6911b64c465034bd98a7c51",
+        "size": 80330
+      },
+      "currentSha256": "8b604388d1206bc0e17ef43050d784f7ad7e8c4a12e5644b14fc6dea972cb605",
+      "headSha256": "8b604388d1206bc0e17ef43050d784f7ad7e8c4a12e5644b14fc6dea972cb605",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "3a5e43a61c8de79de39d6e30bf0c36c896b22a47258e7cbd282e01053de700c6",
+        "size": 39972
+      },
+      "currentSha256": "1654bebe591efddd83660ba36b82c720d36535c2a9ff72aafe64dff8289b79fd",
+      "headSha256": "1654bebe591efddd83660ba36b82c720d36535c2a9ff72aafe64dff8289b79fd",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/request_processors/thread_processor.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "a350c38adab0a2b745c8c1d7545f2f47853971870a91dc59e24858c8f111dc37",
+        "size": 266932
+      },
+      "currentSha256": "2e34fed58a1f75332fd368df81af2f34c8bfd69bf0bf5b842cb3d4df2b5ac9ae",
+      "headSha256": "2e34fed58a1f75332fd368df81af2f34c8bfd69bf0bf5b842cb3d4df2b5ac9ae",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/request_processors/thread_queue_processor.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d7ea04dc99717e4df20b4120a4ea737176bbba2d8131fd817a0a20786878c919",
+        "size": 17940
+      },
+      "currentSha256": "421695404a4e6949bb92051e7e95bce6309e2352e534b05e380b808e7adaccd1",
+      "headSha256": "421695404a4e6949bb92051e7e95bce6309e2352e534b05e380b808e7adaccd1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/request_processors/turn_processor.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "ce7ca4b4075b1108d998b8f12256eb6f87253de5f22c00d0c8bc8e6300461567",
+        "size": 70671
+      },
+      "currentSha256": "f8e1d5efaf94fd00a554694425df1b2f0d2443a521f4b4eb5909ebf34be084ed",
+      "headSha256": "f8e1d5efaf94fd00a554694425df1b2f0d2443a521f4b4eb5909ebf34be084ed",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/tests/suite/v2/bedrock_service_tier_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "1d747ee77fd92e7f09a486cacd89b94ceeec755d077e4c14b70c91d1d85f5efa",
+        "size": 4844
+      },
+      "currentSha256": "dcb2e9d399f67befa99c6c81e0bc654ae19f62febf98cbf8966f48cd4e72d117",
+      "headSha256": "dcb2e9d399f67befa99c6c81e0bc654ae19f62febf98cbf8966f48cd4e72d117",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/tests/suite/v2/model_provider_enforcement_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "f448c7c048df795cd6e66dbe84c5ef8a267e3a4d17096a12840c2cade6e9ebb3",
+        "size": 14866
+      },
+      "currentSha256": "2a94dea5a4d9021977fbd15b3a021ef6396787b7a093aae127dfb22225636fad",
+      "headSha256": "2a94dea5a4d9021977fbd15b3a021ef6396787b7a093aae127dfb22225636fad",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/tests/suite/v2/thread_fork_side_question_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "8bdb974e820181811dd4fff809eb048c2b809ac9c5640667844c8ed62d6b8fb4",
+        "size": 6572
+      },
+      "currentSha256": "9397e436bdd71e00aaba483bfeb01d938ce210a9fea0810ded984d2a78264a43",
+      "headSha256": "9397e436bdd71e00aaba483bfeb01d938ce210a9fea0810ded984d2a78264a43",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/tests/suite/v2/thread_queue.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "92227aa8e47ed0f3658c15fd0b4891883d9a983482df8827d3dcd28e8d5e66c5",
+        "size": 43434
+      },
+      "currentSha256": "819624057f29c68cd5dc5551066a1226dd116b5fb9cfcfbd8e6f12b6684876a4",
+      "headSha256": "819624057f29c68cd5dc5551066a1226dd116b5fb9cfcfbd8e6f12b6684876a4",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/config/src/harness_profiles.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c516191d7562360454e0e47f3f95457935f7ea960ea1ed3c09f047052e3c5a7e",
+        "size": 22369
+      },
+      "currentSha256": "a50d7c6a189505098a2b5ca630646252e86ebfcf363784773a8cf29de461258d",
+      "headSha256": "a50d7c6a189505098a2b5ca630646252e86ebfcf363784773a8cf29de461258d",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/BUILD.bazel",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "bf2f83a0af75a0f65788979853e9ca5158f789af73110470dd8492b6d33cf639",
+        "size": 1506
+      },
+      "currentSha256": "a6d243a7d6b96ef45ced70db8b3710ac9033083db8661dd001137e12ed3868a2",
+      "headSha256": "a6d243a7d6b96ef45ced70db8b3710ac9033083db8661dd001137e12ed3868a2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/agent/control/runtime.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "7b5e4bb5d584a6b1e11b64f622415f47a69563a76675c658acaa21b2d76b1756",
+        "size": 12075
+      },
+      "currentSha256": "92aa1b7e8bd30860e0c01313497eb218af29ecd759b21e2b71561cc99f2beb29",
+      "headSha256": "92aa1b7e8bd30860e0c01313497eb218af29ecd759b21e2b71561cc99f2beb29",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/codex_delegate.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "f69dc59547114bdc3473630bb136c58c7cb1d5bb657b37daa1e0a1382138ddba",
+        "size": 16088
+      },
+      "currentSha256": "8467ea3f75317279de98c615ac53e8c547a66d2222b294e2a592529030389862",
+      "headSha256": "8467ea3f75317279de98c615ac53e8c547a66d2222b294e2a592529030389862",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/codex_delegate_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "da276be0b2e562f336d092970b66bb4f1bc49f88e3967d52d7310618b103b73e",
+        "size": 17034
+      },
+      "currentSha256": "139cc42ade460ff338b33d23d96841112c876ad3859c8f2f15f628ee5b53f66c",
+      "headSha256": "139cc42ade460ff338b33d23d96841112c876ad3859c8f2f15f628ee5b53f66c",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/codex_thread.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "77e97b0e6e6fd08a229325f6cf05433d663eec5a9413c5cade59d841bedfe66c",
+        "size": 57138
+      },
+      "currentSha256": "79a2da0d5f3f91028dce43905739187f914edaaf746198bb4f2e5b5da821d085",
+      "headSha256": "79a2da0d5f3f91028dce43905739187f914edaaf746198bb4f2e5b5da821d085",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/context_manager/history.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "a6f513d1cb3b0bb1eb5d8714488ab242320dc4268d5d26ef9bf2236fd0009254",
+        "size": 70248
+      },
+      "currentSha256": "b72398f3729ec8aa0daf8dba053881bb1c79bcc9681a056dab3b4827f01d547a",
+      "headSha256": "b72398f3729ec8aa0daf8dba053881bb1c79bcc9681a056dab3b4827f01d547a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/context_manager/history_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c679538ca25cfa038651949642c859e9a8a97bf0d65f35eec47a96e95d76adb4",
+        "size": 130671
+      },
+      "currentSha256": "971e5d96cea1fc9052b889346defc0fd120ef3d1b98e5605046b995081b8786e",
+      "headSha256": "971e5d96cea1fc9052b889346defc0fd120ef3d1b98e5605046b995081b8786e",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/context_manager/normalize.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "8084104f1d7c729ec1c35ecd06e83e5a8aeafb73f82b2ffcd7b02cec78bc1cba",
+        "size": 16907
+      },
+      "currentSha256": "4ccf1c329d58d3fcd07b9c6898094ce6fd93c20a2183f5ae47c5d95fcce53829",
+      "headSha256": "4ccf1c329d58d3fcd07b9c6898094ce6fd93c20a2183f5ae47c5d95fcce53829",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/devin/native_runtime_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c274a67fbc093b550f0719f5bfcaa2016a57bf6192a999a3a28a804ed47c5f66",
+        "size": 56417
+      },
+      "currentSha256": "d31f3c268a29fb4a3d4069fd23dd525a33fe7175255c953df79a8b4f8e164e21",
+      "headSha256": "d31f3c268a29fb4a3d4069fd23dd525a33fe7175255c953df79a8b4f8e164e21",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/devin/native_runtime_tools.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "8e1b6e6f98fc6cdda3ae115d3ce0ccbb9c869c1336e879d4ae994241a6b1728e",
+        "size": 7261
+      },
+      "currentSha256": "1f3904a1a4e3c35fcba30b6ec99a228b4e9f7a19136ab938774b015c4bfbd057",
+      "headSha256": "1f3904a1a4e3c35fcba30b6ec99a228b4e9f7a19136ab938774b015c4bfbd057",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/guardian/review_session_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "f91c48366ad9d2cb37ceb81029f45320fbb33bb365572e1c80ab8af6a1bd8e41",
+        "size": 41996
+      },
+      "currentSha256": "169a0804080b2d028e3899e08e139e87f58ea6b38d9776f94363100ae93fc9d1",
+      "headSha256": "169a0804080b2d028e3899e08e139e87f58ea6b38d9776f94363100ae93fc9d1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/accepted_user_inputs.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "a57b483afe99c4ff277e916ef852007d40d59f580182def3d601dc665c7f96c9",
+        "size": 27009
+      },
+      "currentSha256": "a0c247306b1acb37f029fc5de60252cbeb9c9680dc8990fbe28aa7558f9601d3",
+      "headSha256": "a0c247306b1acb37f029fc5de60252cbeb9c9680dc8990fbe28aa7558f9601d3",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/accepted_user_inputs_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "6d17c02a01a963bb7bf274228e44a233c2f3b7fe957e26439983eb480ef009f5",
+        "size": 21004
+      },
+      "currentSha256": "6b99b86b864eb1ec9c08ce728418b655e0502300a7ea1d617e4bb42516cb9bc5",
+      "headSha256": "6b99b86b864eb1ec9c08ce728418b655e0502300a7ea1d617e4bb42516cb9bc5",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/compact_input.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "755941f83ca0dd73a7487ceaf6d19b9cc4bb942ee2ba04e095e1c34f613de808",
+        "size": 4188
+      },
+      "currentSha256": "c1c7a7a857d853736f3ac26d59798ef49d2b188005590e27c4350dd964ed8d2c",
+      "headSha256": "c1c7a7a857d853736f3ac26d59798ef49d2b188005590e27c4350dd964ed8d2c",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/extension_interruption_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "16be8f29c36b56e6f0a79415cf1068c04226cee8993d79809552958b7066007d",
+        "size": 3452
+      },
+      "currentSha256": "1b294262d89ad72f9ae604961cd6da92217c0a86eec5e1571d1659101de5518f",
+      "headSha256": "1b294262d89ad72f9ae604961cd6da92217c0a86eec5e1571d1659101de5518f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/handlers.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "1ea36cafadac972046944050c48bae1c9905ba3202f1ea60d76e25ae52793dba",
+        "size": 30929
+      },
+      "currentSha256": "0754ce7223633535dc91920f729f944aff52b92e7afb006a3df2a5d87ef6bda8",
+      "headSha256": "0754ce7223633535dc91920f729f944aff52b92e7afb006a3df2a5d87ef6bda8",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/mcp_runtime.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "84898740ccfb5a3ce53676bc7a59f21501622e05bf14c0e3240519b32fa85414",
+        "size": 16779
+      },
+      "currentSha256": "ae77971756c186f3dab5ecc01552f7dc96f3b129c4e949beb458bcd87fcfbb30",
+      "headSha256": "84898740ccfb5a3ce53676bc7a59f21501622e05bf14c0e3240519b32fa85414",
+      "classification": "MCP implementation"
+    },
+    {
+      "path": "codex-rs/core/src/session/mod.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d940a6b31a288b7abd6aab26f936dafdbcfdd688b50017f501f61d58d732e071",
+        "size": 219485
+      },
+      "currentSha256": "ef50693fa605dd698313e8dcb0f3cfe900875fc8db7e57ea4ad8fba402596ca8",
+      "headSha256": "ef50693fa605dd698313e8dcb0f3cfe900875fc8db7e57ea4ad8fba402596ca8",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/parent_response_wait.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "30cc3784f0908483d4d9e347745609cdadd47c7a9646b0504a80d5aa54a439aa",
+        "size": 60954
+      },
+      "currentSha256": "d875629f537bb4ed9c2f36628884c13186db3c3571d3b7ad2c0f00115d3a7fb3",
+      "headSha256": "d875629f537bb4ed9c2f36628884c13186db3c3571d3b7ad2c0f00115d3a7fb3",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/root_resume.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "ede9e452b2f33134c8c0428c4eb3ab256c846d9c52cc8719530b31e12bf16bf9",
+        "size": 46609
+      },
+      "currentSha256": "89d6f9b79e9fc4dec26b7f78c00837984d10b6b7db4805c1ff39def7ceb6d588",
+      "headSha256": "89d6f9b79e9fc4dec26b7f78c00837984d10b6b7db4805c1ff39def7ceb6d588",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/root_resume_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "0e8f2a257c6a8dc9a8d80c816f48a8829ec4cbdf2db7be3b0567c0a5b92159ab",
+        "size": 40614
+      },
+      "currentSha256": "056e307236836bf3209a0e8f70e88872e24d5fbec7b17d81683a715943a2e803",
+      "headSha256": "056e307236836bf3209a0e8f70e88872e24d5fbec7b17d81683a715943a2e803",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/session.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "acaa8f5c1c01e81fc258fee09af5f4400c95528d1879d02d50404653036d4108",
+        "size": 102338
+      },
+      "currentSha256": "826b6ef9d8e953959d93be298749a4088d7b30580440634cda403ea22635e62b",
+      "headSha256": "826b6ef9d8e953959d93be298749a4088d7b30580440634cda403ea22635e62b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "6e76a879786ecb7edc83b779443d747de995730bcac8938a37121a6bf5e84c6d",
+        "size": 501593
+      },
+      "currentSha256": "c679a2e2b74d0ca931438187d0aa3155fc472011ad9a930414bf06a50028b1d0",
+      "headSha256": "c679a2e2b74d0ca931438187d0aa3155fc472011ad9a930414bf06a50028b1d0",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/turn.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "383d6a3e544792af84306cef995dc0a0ed14e118c9c1fdb56b15f89121126824",
+        "size": 139836
+      },
+      "currentSha256": "61a6d67818a17aea7533c8a32c1792da33c3f245227a409f1c582a4e15e3c9ed",
+      "headSha256": "61a6d67818a17aea7533c8a32c1792da33c3f245227a409f1c582a4e15e3c9ed",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/turn_input.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "eb97c79f7df720af143d02dafc4e830ee813f572b79ae5401844645c25feb86c",
+        "size": 39743
+      },
+      "currentSha256": "9207db4be0b84efd2f251d8b4054d40a92a06ae354c777cde6da422f362483fd",
+      "headSha256": "9207db4be0b84efd2f251d8b4054d40a92a06ae354c777cde6da422f362483fd",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/user_questions.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "5fbe0ddf52ed78b34dc060de6501eb08e957fc719d987563a1f93bc643a8f6b7",
+        "size": 26282
+      },
+      "currentSha256": "4e2d6ab557e8852f7d8260d8ca7d8c7a12200e75c52bdad9a446f8c7c3804b48",
+      "headSha256": "4e2d6ab557e8852f7d8260d8ca7d8c7a12200e75c52bdad9a446f8c7c3804b48",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/tasks/mod.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "06393e70c77fcc983bdd0ecf0c41bfd30cd8eaf12f6ffaf96200475fcafc387d",
+        "size": 42230
+      },
+      "currentSha256": "7d9d73791f96f8c11f3b7ef3da3456372926e6992dde9beb8c986939d4177a67",
+      "headSha256": "7d9d73791f96f8c11f3b7ef3da3456372926e6992dde9beb8c986939d4177a67",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/tools/handlers/project_maintenance.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "e6d2fa6032043518b0ceb6daf7233581dbee6d37d069d8b30bff908e6c2fe1ae",
+        "size": 61738
+      },
+      "currentSha256": "fdaa0540b7ca65e8140436bbe71f46a90f9e9561b276a4e669e0221b8ac1e3af",
+      "headSha256": "fdaa0540b7ca65e8140436bbe71f46a90f9e9561b276a4e669e0221b8ac1e3af",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/tools/multi_agent_tool.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "2e684e1812d8fb4d3f53beba0f4730687e636e5a71eb78f3859a39c921e1a92d",
+        "size": 5081
+      },
+      "currentSha256": "1d52a4b302742c48d9ece9deae0d5633c936581c55d34379f950d265b5fd1fe5",
+      "headSha256": "1d52a4b302742c48d9ece9deae0d5633c936581c55d34379f950d265b5fd1fe5",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/tools/router.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "8ea46786c262069efc03cd534f1432012584c46cc65c37b828cc08afad6c529e",
+        "size": 20061
+      },
+      "currentSha256": "112a15dfd5cae274cadd13a1a00b16cb833d6982a18f529b0f4315a1c2073d53",
+      "headSha256": "112a15dfd5cae274cadd13a1a00b16cb833d6982a18f529b0f4315a1c2073d53",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/tools/router_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "87b4879e10c5cf1d1b10107339d426eff353a73f4e4952c44505332bf9117704",
+        "size": 47133
+      },
+      "currentSha256": "978ea8761cb0688adcfb1fbbb779f0e40528bcfd71dc23e4f5f855ab00d09ed9",
+      "headSha256": "978ea8761cb0688adcfb1fbbb779f0e40528bcfd71dc23e4f5f855ab00d09ed9",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/tools/spec_plan.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "ef075309848d7b6fd347a213c07c43112099273e8c721dc189f85e4327a9f21b",
+        "size": 82258
+      },
+      "currentSha256": "8cd09093e1181ce55366640f9bf2013dd570f20f89f8cbe2321cf256374fa025",
+      "headSha256": "8cd09093e1181ce55366640f9bf2013dd570f20f89f8cbe2321cf256374fa025",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/tools/spec_plan_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "b928a3d9d3db96c57deceb1f9b5324dd08f5252b185d4537bccdb5639dddc193",
+        "size": 147595
+      },
+      "currentSha256": "e67c48b89f4e87e2ed8019ecce14d8c01e07c92676b6c539f01204279f36570a",
+      "headSha256": "e67c48b89f4e87e2ed8019ecce14d8c01e07c92676b6c539f01204279f36570a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/turn_timing.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "0cb43eb6422e4ea82d042093aaff76c78b3b40a37615a3e229803785755dbb3d",
+        "size": 18801
+      },
+      "currentSha256": "32225f3504f283c915655eeebf1d3a55c3cc1c54eb605fd63e0d0145c14ddd23",
+      "headSha256": "32225f3504f283c915655eeebf1d3a55c3cc1c54eb605fd63e0d0145c14ddd23",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/turn_timing_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "3284b1f066b01c442c815f6c1dfe31ba77739fc5e9bb0184b3e790967c7f31b6",
+        "size": 13370
+      },
+      "currentSha256": "26dd6fdb6e9ade4fdd2e37e44404e8d6608172deead4bd7d7b466c003cf00f4a",
+      "headSha256": "26dd6fdb6e9ade4fdd2e37e44404e8d6608172deead4bd7d7b466c003cf00f4a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/tests/suite/mcp_tool_cache.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "acf54d9e01945c7a34c42e2824a3204a271e9661ad656ba2a88d1dec31c69651",
+        "size": 41589
+      },
+      "currentSha256": "8809d05b7a034dd2c4bd113ba763307173081c2226d2d71afd8bf5772915dca4",
+      "headSha256": "acf54d9e01945c7a34c42e2824a3204a271e9661ad656ba2a88d1dec31c69651",
+      "classification": "MCP implementation"
+    },
+    {
+      "path": "codex-rs/core/tests/suite/request_user_input_async.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "70b3aee32f8616fc9bc61cf622082afeb4f10d4a74eb2b7547e5a588bf3572ae",
+        "size": 28926
+      },
+      "currentSha256": "9cc44f8cf111b690438437d9e7731315882b72601328ce84badc9f67520985e2",
+      "headSha256": "9cc44f8cf111b690438437d9e7731315882b72601328ce84badc9f67520985e2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/ext/queue/src/service.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "5753cf944fb5d9ee6013d7da7c0ef45a8bbfc5dff871f989704621c19408adb1",
+        "size": 28115
+      },
+      "currentSha256": "d4dc0d3711c599b26020fea10133abedecc0120ce2d84e41c7e356fd28c95674",
+      "headSha256": "d4dc0d3711c599b26020fea10133abedecc0120ce2d84e41c7e356fd28c95674",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/ext/queue/tests/queue_service.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "d9d0cfc48235493c1eab503d48f505714a67a1aefe1fa935852ef045fa19c721",
+        "size": 63245
+      },
+      "currentSha256": "a8d87ee2b9e23ab91ae5480e678e9ff1146e391ece8eebebf992ddb6e15d9d32",
+      "headSha256": "a8d87ee2b9e23ab91ae5480e678e9ff1146e391ece8eebebf992ddb6e15d9d32",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/ext/skills/src/host_roots_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "8f9fd731057fd511071f0e305c01072c4b632fa6c21b667c0b0957ae04e6c7a0",
+        "size": 28392
+      },
+      "currentSha256": "a9bef481b023df9777912006b849742c06a6c0d9c56c8c9885c0cc40a2376cc4",
+      "headSha256": "a9bef481b023df9777912006b849742c06a6c0d9c56c8c9885c0cc40a2376cc4",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/apply.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "ed12fd5cf69cef2dbbebc1522cc2ff542018220dda40dae48600576ea01adbe4",
+        "size": 15030
+      },
+      "currentSha256": "0bc45647ef3c54ce4ec3866f8aad6338d4a811f9413ec152019257a78bafb5a9",
+      "headSha256": "0bc45647ef3c54ce4ec3866f8aad6338d4a811f9413ec152019257a78bafb5a9",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/groups.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c892f7892e182e88bd9cc80ca02b7272497ba861a267b0115857acd5551539bd",
+        "size": 16808
+      },
+      "currentSha256": "50631e1ee42d28d19d72c87baa7e85f2fbbb4d7826893f7f24527322b5d38256",
+      "headSha256": "50631e1ee42d28d19d72c87baa7e85f2fbbb4d7826893f7f24527322b5d38256",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/lib.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "7241722b7288a00f261e9f04852b0e2326dec99984a1e46916bdf1b7195e3103",
+        "size": 37312
+      },
+      "currentSha256": "112e5cabe400349b67e5bf273dd91976a0cfe9fa2b672b0e07e5824c2886afcc",
+      "headSha256": "112e5cabe400349b67e5bf273dd91976a0cfe9fa2b672b0e07e5824c2886afcc",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/paths.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "7220aba75eafe17cf0364f322ce3b8c0f628dd5b5eb53fafce6b79271ba7d5ab",
+        "size": 30343
+      },
+      "currentSha256": "7e424613614199365deb20ace0da7c66571041b7644ac708d68b13ad5b03c241",
+      "headSha256": "7e424613614199365deb20ace0da7c66571041b7644ac708d68b13ad5b03c241",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/registry.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "e593076b5ef3af84177569de768f778fb9300fee52db6669ad510b806dc0e530",
+        "size": 9893
+      },
+      "currentSha256": "4d257082b8fa7c76c1c9d9f353130a79ddfd90c2b2a5c562c54b1e11aa81cb64",
+      "headSha256": "4d257082b8fa7c76c1c9d9f353130a79ddfd90c2b2a5c562c54b1e11aa81cb64",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/tests/contracts.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "08d577d9c9ca6761b720ed7ccd2f5b0b182be7a0db251cbfacdc894ac9b13895",
+        "size": 39438
+      },
+      "currentSha256": "8af31bb09e5ff12c811447899e9a04cb139108f2b02a0aa50b57601fc495c747",
+      "headSha256": "8af31bb09e5ff12c811447899e9a04cb139108f2b02a0aa50b57601fc495c747",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/tests/groups.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "2fa3e360f31c9b753524916464ff4622a3eabefae5859b9bc17783c4444e895a",
+        "size": 23272
+      },
+      "currentSha256": "5e511288830eb6f5f981de42eaad261209ab57fa15f3c71bb8de5b48fa01e3b1",
+      "headSha256": "5e511288830eb6f5f981de42eaad261209ab57fa15f3c71bb8de5b48fa01e3b1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/project-maintenance/tests/registry.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c95f8daf3c84078350271d3012406020d06aa594df2c675a500e3ddfbba5b80e",
+        "size": 10430
+      },
+      "currentSha256": "e9edd243219bb4b5dbe169489f70ec244860e0c4c4e8a70c5e15ba7e565a70ba",
+      "headSha256": "e9edd243219bb4b5dbe169489f70ec244860e0c4c4e8a70c5e15ba7e565a70ba",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/prompts/src/model_instructions.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "7199ecc118fcdc1890fe117f5460960516c5a5777aefa8b8bf67be97b199f4c6",
+        "size": 4198
+      },
+      "currentSha256": "b6aa17451397b4ad5b3ed1b1440354277c6938894e3b9b7af99092a624672bab",
+      "headSha256": "b6aa17451397b4ad5b3ed1b1440354277c6938894e3b9b7af99092a624672bab",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/prompts/src/model_instructions_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "0b399a25fdced36002a5afb435f2dc68f9fdae93691c3663f268b008d254b585",
+        "size": 6983
+      },
+      "currentSha256": "01c37291c00bfadb7865e60d9c25c968e46d3bf634bcb649c9f83bc4dc92a376",
+      "headSha256": "01c37291c00bfadb7865e60d9c25c968e46d3bf634bcb649c9f83bc4dc92a376",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/prompts/templates/agent_behavior.md",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c950728d9f979294ca85f02a0504eb7b18ff2548875db903883117f12da474e0",
+        "size": 18254
+      },
+      "currentSha256": "35299dca92d9b822843905f629f9948b7ef4c3d27ee9154ef52928329066165a",
+      "headSha256": "35299dca92d9b822843905f629f9948b7ef4c3d27ee9154ef52928329066165a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/prompts/templates/harness-runtime-core.md",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "062b8d8bfb362e55ecd3b9ceb0a94ef57f10474952296117390b1ac48241f9c6",
+        "size": 1060
+      },
+      "currentSha256": "97d3dc1124c92c93f74e924962af920208d42831cee1a3d0a339ccfb9d74cf30",
+      "headSha256": "97d3dc1124c92c93f74e924962af920208d42831cee1a3d0a339ccfb9d74cf30",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/prompts/templates/project-maintenance-guidance.md",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "bbdae189382e833a80ad56208c67fbdfbd60751e76f5925eadf1033131340093",
+        "size": 5829
+      },
+      "currentSha256": "f9ee087923984e8f2e804c95fb0b37dd4f33b088b74386bba4336feae79c4db2",
+      "headSha256": "f9ee087923984e8f2e804c95fb0b37dd4f33b088b74386bba4336feae79c4db2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/protocol/src/lib.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "90e82460654adcee3e380d5ae8bd898f7b0ec2fc42c95da782c3a6ff524e547f",
+        "size": 1610
+      },
+      "currentSha256": "beb592fa0edc4380360c94a3eb8b7ca504fd8e3adc8532fb36b35fcf01396fa1",
+      "headSha256": "beb592fa0edc4380360c94a3eb8b7ca504fd8e3adc8532fb36b35fcf01396fa1",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/protocol/src/protocol.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "8df736f645e54c65f8c7323e5c10bda4019ab20094b2d2f3d6ae26cefffa73de",
+        "size": 248724
+      },
+      "currentSha256": "ee2e77eb8b81d8585ef3a82bd11c4c8bc62b791dd39b9922f0b937ff5ef0de90",
+      "headSha256": "ee2e77eb8b81d8585ef3a82bd11c4c8bc62b791dd39b9922f0b937ff5ef0de90",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/protocol/src/response_performance.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "feebf03026b4ef53fd0248f0baf959d466af6b6bc3e0e6cde61e33ae3ff192fa",
+        "size": 7967
+      },
+      "currentSha256": "92bde8b0c09ddb6cb0318e1a85a77ec83ad2905db564bdcc0ae06e17db62758e",
+      "headSha256": "92bde8b0c09ddb6cb0318e1a85a77ec83ad2905db564bdcc0ae06e17db62758e",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/rmcp-client/src/oauth.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "c037b1ed4ce22a2aeac3a67ee6d05ad45a436819bab784d02d67d8c15d235841",
+        "size": 69948
+      },
+      "currentSha256": "39f289eee3bdbbabe8db171a2081c712a626a73b5ac65d9bae093ce9f94e2a94",
+      "headSha256": "39f289eee3bdbbabe8db171a2081c712a626a73b5ac65d9bae093ce9f94e2a94",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/rmcp-client/src/oauth/resolved_store.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "fe23df3e9f8c62d04e9dc5449221667af277c33089b97a59bb6feaa97e46b75f",
+        "size": 15563
+      },
+      "currentSha256": "8ea49992e556aa0968664eb9c6c8343ab6a1355eff9ae762fc0a475bc5f2a727",
+      "headSha256": "8ea49992e556aa0968664eb9c6c8343ab6a1355eff9ae762fc0a475bc5f2a727",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/rmcp-client/src/oauth/tests/store_lock_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "884fbbe7d8c93ee480a2d54af54dfca3d440136ece58c91c9570677461289693",
+        "size": 25193
+      },
+      "currentSha256": "c6bae87b0946d8c4b1534de86a2c744a3d9d3d5d843040c1c3213986c8dbd662",
+      "headSha256": "c6bae87b0946d8c4b1534de86a2c744a3d9d3d5d843040c1c3213986c8dbd662",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/rollout-trace/src/protocol_event.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "a1027acca2068fc079f8938cc20df3dc5eb45cf07f002fbfdf9927a43dbdf05e",
+        "size": 23131
+      },
+      "currentSha256": "a6a47cd617c9ff2d3ca29806fe02fc56f269939496c0ee1bd05b3b8be168e6a2",
+      "headSha256": "a6a47cd617c9ff2d3ca29806fe02fc56f269939496c0ee1bd05b3b8be168e6a2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/rollout/src/policy.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "7ad4eeb30fd1864587e1f17d29931e59f4b0d55eefd4d5be1123c1ca89cd9eca",
+        "size": 12119
+      },
+      "currentSha256": "2caf02b158b8b4a5a8b2ae6a3a230f9336ea9f7a8b080c443c8104d2ddd2de37",
+      "headSha256": "2caf02b158b8b4a5a8b2ae6a3a230f9336ea9f7a8b080c443c8104d2ddd2de37",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/thread-store/src/local/archive_thread.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "73c26ec4f438134844a8558a402c70f0eb3012659a925b27de3455732bcfe381",
+        "size": 15075
+      },
+      "currentSha256": "28d068439001f6afbebe161548e4bcfde4a51e7a2232163ecc78690cb41ef4db",
+      "headSha256": "28d068439001f6afbebe161548e4bcfde4a51e7a2232163ecc78690cb41ef4db",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/thread-store/src/local/rollout_migration/rollback_plan.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "129051c39ce9ad9dbf35366f409eb47fefec5b7516212a88d9b54f231aeb502a",
+        "size": 26788
+      },
+      "currentSha256": "d69d42eb117927f87a739aea1b6f94ed2eea6a4c9461f7cf73205081744ed01a",
+      "headSha256": "d69d42eb117927f87a739aea1b6f94ed2eea6a4c9461f7cf73205081744ed01a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/tui/src/startup_preflight_tests.rs",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "bc70a30beff45061f43163141e727d341c3a291e01a1fba1c3543397891f5f74",
+        "size": 11391
+      },
+      "currentSha256": "dc9248ea466093b6ff89d02fef4879566614d27fc044ec068efc848212c4b385",
+      "headSha256": "dc9248ea466093b6ff89d02fef4879566614d27fc044ec068efc848212c4b385",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "defs.bzl",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "f943182b30659fa1bc5ec0fca614bbd0e6d9871c009fd7b8a82c065fbee6ba52",
+        "size": 32638
+      },
+      "currentSha256": "93a598ebe100048a4ec87209405f357a13fd1e7832beef7fb88d2b4a0a1ece4b",
+      "headSha256": "93a598ebe100048a4ec87209405f357a13fd1e7832beef7fb88d2b4a0a1ece4b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "sdk/python/src/openai_codex/generated/v2_all.py",
+      "recorded": {
+        "gitMode": "100644",
+        "kind": "file",
+        "permissions": 438,
+        "sha256": "29a583aa341fa20f654373f6e0b4d74ff43b0730a0a49167fe1d8bf989fe3b16",
+        "size": 438163
+      },
+      "currentSha256": "674fdec196ff540405973a40aee01240633c072763002ebe3b9246a21c3d988e",
+      "headSha256": "674fdec196ff540405973a40aee01240633c072763002ebe3b9246a21c3d988e",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/src/azrael_lifecycle.rs",
+      "recorded": null,
+      "currentSha256": "7f5ee948d541ecb2a67156edef9ed0bab8a0bc483a8abd342bdf7360b62a9c5e",
+      "headSha256": "7f5ee948d541ecb2a67156edef9ed0bab8a0bc483a8abd342bdf7360b62a9c5e",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-daemon/src/session_handoff.rs",
+      "recorded": null,
+      "currentSha256": "26a59c723b343bd68dccfb15e6cc4b86e60a4bf7a2e3beed702ba19b8e43eb52",
+      "headSha256": "26a59c723b343bd68dccfb15e6cc4b86e60a4bf7a2e3beed702ba19b8e43eb52",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalDeferParams.json",
+      "recorded": null,
+      "currentSha256": "7bd92efb8dbb67eaeef42bc2959a03ffbf3ce4d21bb9d278256bcf993bf8c5ea",
+      "headSha256": "7bd92efb8dbb67eaeef42bc2959a03ffbf3ce4d21bb9d278256bcf993bf8c5ea",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalListParams.json",
+      "recorded": null,
+      "currentSha256": "750bb72e6150f53387b2e6d18ff5717cff67311a534e8c086fc2c1c7e99cb18a",
+      "headSha256": "750bb72e6150f53387b2e6d18ff5717cff67311a534e8c086fc2c1c7e99cb18a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalListResponse.json",
+      "recorded": null,
+      "currentSha256": "f5f827035e1a32bf12ea60f6f94b6916102262bbec397b619e8ad7ad14a24038",
+      "headSha256": "f5f827035e1a32bf12ea60f6f94b6916102262bbec397b619e8ad7ad14a24038",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalRequestParams.json",
+      "recorded": null,
+      "currentSha256": "e67af46eb4bb7963162aac710899fe2de279931f90b316e880f4cf0c7aff5ba5",
+      "headSha256": "e67af46eb4bb7963162aac710899fe2de279931f90b316e880f4cf0c7aff5ba5",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalResolveParams.json",
+      "recorded": null,
+      "currentSha256": "f439ee8fb7d570bcfcaa606cb157b51c3a1f15e77d1c7e15270e2bcc155de2f5",
+      "headSha256": "f439ee8fb7d570bcfcaa606cb157b51c3a1f15e77d1c7e15270e2bcc155de2f5",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalResponse.json",
+      "recorded": null,
+      "currentSha256": "8d506439c7943b20c059db31c7efee8395eccba51ffdef5ca230555f11f5354b",
+      "headSha256": "8d506439c7943b20c059db31c7efee8395eccba51ffdef5ca230555f11f5354b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalWithdrawParams.json",
+      "recorded": null,
+      "currentSha256": "4354dab3b0b427b526e8a9a0e467b522dc711f1596f77646579ce0cbfab8396b",
+      "headSha256": "4354dab3b0b427b526e8a9a0e467b522dc711f1596f77646579ce0cbfab8396b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/HostApprovalDecision.ts",
+      "recorded": null,
+      "currentSha256": "ed35dc344f0b28099822912d03448ea0d330e7c158670ac2ba60082c9527559f",
+      "headSha256": "ed35dc344f0b28099822912d03448ea0d330e7c158670ac2ba60082c9527559f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/HostApprovalPersistence.ts",
+      "recorded": null,
+      "currentSha256": "a01ba40e569c9e3129abb5652edd48d20b1a0b391938cc2f8476b995bae14b5c",
+      "headSha256": "a01ba40e569c9e3129abb5652edd48d20b1a0b391938cc2f8476b995bae14b5c",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/HostApprovalRecord.ts",
+      "recorded": null,
+      "currentSha256": "0eedd667bd8f9c46ce7f418e4f538424e116d4fb9942299dfd2e47df5068c057",
+      "headSha256": "0eedd667bd8f9c46ce7f418e4f538424e116d4fb9942299dfd2e47df5068c057",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/HostApprovalResumeState.ts",
+      "recorded": null,
+      "currentSha256": "3f6afd5876cc49f3dfc2ec194af9516717bc8bc61fdbb710f0b22c3519b8a45b",
+      "headSha256": "3f6afd5876cc49f3dfc2ec194af9516717bc8bc61fdbb710f0b22c3519b8a45b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/HostApprovalState.ts",
+      "recorded": null,
+      "currentSha256": "5c6b7cad3a13dc6f88f853dd8908a1eb7480f3c38081383069c8012db22d64b2",
+      "headSha256": "5c6b7cad3a13dc6f88f853dd8908a1eb7480f3c38081383069c8012db22d64b2",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ParentRequest.ts",
+      "recorded": null,
+      "currentSha256": "226a1d64d2843c007ead315ad9c19b6f53e939d1b8dfac3b2e6f87037862a8a3",
+      "headSha256": "226a1d64d2843c007ead315ad9c19b6f53e939d1b8dfac3b2e6f87037862a8a3",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ParentRequestDeliveryState.ts",
+      "recorded": null,
+      "currentSha256": "8406330d3a237db5a9c2095d5d2fa7647ca34448a50db0ac368c0f8f748cbd80",
+      "headSha256": "8406330d3a237db5a9c2095d5d2fa7647ca34448a50db0ac368c0f8f748cbd80",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ParentRequestPresentation.ts",
+      "recorded": null,
+      "currentSha256": "31a5e02c78141532995859e395d7af6998c98b4aa3eab67a593303c05c2ec99f",
+      "headSha256": "31a5e02c78141532995859e395d7af6998c98b4aa3eab67a593303c05c2ec99f",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ParentRequestStatus.ts",
+      "recorded": null,
+      "currentSha256": "a2cfaaa16d310704faac80839208b2eb9aea1bb4a4052264b54dcc10591b9d66",
+      "headSha256": "a2cfaaa16d310704faac80839208b2eb9aea1bb4a4052264b54dcc10591b9d66",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ParentResponse.ts",
+      "recorded": null,
+      "currentSha256": "a5b1fd6cb4468e9cee9fcaa621f08c8e4337b7d77d49c4c542ab6b5e8315160d",
+      "headSha256": "a5b1fd6cb4468e9cee9fcaa621f08c8e4337b7d77d49c4c542ab6b5e8315160d",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ResponsePerformanceTurn.ts",
+      "recorded": null,
+      "currentSha256": "61d323aa977f4fcf0126ba881438e9bce00a52917af562c9de555949675549f5",
+      "headSha256": "61d323aa977f4fcf0126ba881438e9bce00a52917af562c9de555949675549f5",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/ResponseSpeedMode.ts",
+      "recorded": null,
+      "currentSha256": "ca2429123bbb79f45b45a52792caf228b58817e90f89f3924355f9208a7fbd54",
+      "headSha256": "ca2429123bbb79f45b45a52792caf228b58817e90f89f3924355f9208a7fbd54",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/RootResumeReasoningSettings.ts",
+      "recorded": null,
+      "currentSha256": "9e8f3f1be8aecea38dae1bec99b51c1e66d743512388aa7c4bf9e98b6f909892",
+      "headSha256": "9e8f3f1be8aecea38dae1bec99b51c1e66d743512388aa7c4bf9e98b6f909892",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalDeferParams.ts",
+      "recorded": null,
+      "currentSha256": "9471096e601295a444efdfa69d2673371f00d91a7f1457c374e4e39994df3c2e",
+      "headSha256": "9471096e601295a444efdfa69d2673371f00d91a7f1457c374e4e39994df3c2e",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalListParams.ts",
+      "recorded": null,
+      "currentSha256": "2529ce2555406fd200c6d622779bc30ac258bface6544cc9061b516d8a0904fd",
+      "headSha256": "2529ce2555406fd200c6d622779bc30ac258bface6544cc9061b516d8a0904fd",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalListResponse.ts",
+      "recorded": null,
+      "currentSha256": "ccf7a2d65618414f3b82759e5037357ca8759e6c5ee37d99159c0174a744be53",
+      "headSha256": "ccf7a2d65618414f3b82759e5037357ca8759e6c5ee37d99159c0174a744be53",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalRequestParams.ts",
+      "recorded": null,
+      "currentSha256": "1e3e1f812d587023325b643df4fdd19ee3fb00df9f3a8b80b893b1407649f07a",
+      "headSha256": "1e3e1f812d587023325b643df4fdd19ee3fb00df9f3a8b80b893b1407649f07a",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalResolveParams.ts",
+      "recorded": null,
+      "currentSha256": "1cc33c19abb86a4b96406517f65ee2d0cd3dbcf04deb11acf7f57912f69b71ac",
+      "headSha256": "1cc33c19abb86a4b96406517f65ee2d0cd3dbcf04deb11acf7f57912f69b71ac",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalResponse.ts",
+      "recorded": null,
+      "currentSha256": "ec64a1dd6079631642f9b1cf7f1f186b29430d08858887ba73fb8b7b14245b3b",
+      "headSha256": "ec64a1dd6079631642f9b1cf7f1f186b29430d08858887ba73fb8b7b14245b3b",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalWithdrawParams.ts",
+      "recorded": null,
+      "currentSha256": "ca8bdac8127d2d674b34f00dad9d18ec75471e7792844d5c5d53243d81553495",
+      "headSha256": "ca8bdac8127d2d674b34f00dad9d18ec75471e7792844d5c5d53243d81553495",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/azrael_session_handoff.rs",
+      "recorded": null,
+      "currentSha256": "f942a6b6a1046301f46c86e4185b85eeec7e3df89e7d9f686e32609b844b9cbb",
+      "headSha256": "f942a6b6a1046301f46c86e4185b85eeec7e3df89e7d9f686e32609b844b9cbb",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/azrael_shutdown.rs",
+      "recorded": null,
+      "currentSha256": "b0db6bdd4824ac64d76034a591e36c7e2fec727b68adea673f1a8b4010265f41",
+      "headSha256": "b0db6bdd4824ac64d76034a591e36c7e2fec727b68adea673f1a8b4010265f41",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/app-server/src/request_processors/account_processor/usage_identity_tests.rs",
+      "recorded": null,
+      "currentSha256": "e7297c6f7f88e45b2a278fe113543c63a4718aba29a4b3b0742338a6a7f60566",
+      "headSha256": "e7297c6f7f88e45b2a278fe113543c63a4718aba29a4b3b0742338a6a7f60566",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/handoff.rs",
+      "recorded": null,
+      "currentSha256": "c92a0b63443eca7577b9f03be2eb26d23eb8d7d2073c1c1b4047e30dcda598d4",
+      "headSha256": "c92a0b63443eca7577b9f03be2eb26d23eb8d7d2073c1c1b4047e30dcda598d4",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/handoff_tests.rs",
+      "recorded": null,
+      "currentSha256": "326bf52cce205e2dc522b43579adb2f5fb848f9cc19e6715cbe94acda2002369",
+      "headSha256": "326bf52cce205e2dc522b43579adb2f5fb848f9cc19e6715cbe94acda2002369",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/history_restore.rs",
+      "recorded": null,
+      "currentSha256": "1d3e806e83117c026972c06255020e1fd69f959493c39352a2736d005ba03011",
+      "headSha256": "1d3e806e83117c026972c06255020e1fd69f959493c39352a2736d005ba03011",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/core/src/session/host_approvals.rs",
+      "recorded": null,
+      "currentSha256": "9252b6ec50b03b6aec678afacd05a0b5f73bba27a8277563b753b2c1e7a9e569",
+      "headSha256": "9252b6ec50b03b6aec678afacd05a0b5f73bba27a8277563b753b2c1e7a9e569",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/protocol/src/host_approvals.rs",
+      "recorded": null,
+      "currentSha256": "7de15572d3f592af2da7507ab5b8021f31e2304ccb3c3cc856e63f4533a17148",
+      "headSha256": "7de15572d3f592af2da7507ab5b8021f31e2304ccb3c3cc856e63f4533a17148",
+      "classification": "existing committed integration"
+    },
+    {
+      "path": "codex-rs/rmcp-client/src/oauth/store_identity_tests.rs",
+      "recorded": null,
+      "currentSha256": "bd6e1702f9796222b560deecb1917b6785bf8b8c71deaae6c1156fcf26e1d5b2",
+      "headSha256": "bd6e1702f9796222b560deecb1917b6785bf8b8c71deaae6c1156fcf26e1d5b2",
+      "classification": "existing committed integration"
+    }
+  ]
+}

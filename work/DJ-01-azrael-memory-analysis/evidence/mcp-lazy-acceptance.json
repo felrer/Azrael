@@ -1,0 +1,254 @@
+{
+  "schema": 1,
+  "scope": "engine.mcp-lazy-startup",
+  "verifiedEnvironment": "Windows x64, Rust 1.95.0, local managed Cargo cache",
+  "wrapperTests": {
+    "passed": 50,
+    "failed": 0,
+    "exitCode": 0
+  },
+  "nativeTestResults": [
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 1942 filtered out; finished in 40.15s",
+    "test result: ok. 258 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.18s"
+  ],
+  "preflights": [
+    {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-core",
+            "--features",
+            "integration-tests",
+            "--test",
+            "all",
+            "--locked",
+            "--offline",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-23T03:45:06.133Z",
+          "durationMs": 315218,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--features",
+            "integration-tests",
+            "--test",
+            "all",
+            "suite::mcp_tool_cache::",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-23T03:50:21.351Z",
+          "durationMs": 802294,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 10
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--features",
+            "integration-tests",
+            "--test",
+            "all",
+            "suite::mcp_tool_cache::",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-23T04:03:43.646Z",
+          "durationMs": 86503,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-mcp",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-23T04:05:10.152Z",
+          "durationMs": 202813,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "codex-mcp",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-23T04:08:32.965Z",
+          "durationMs": 285460,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 258
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "codex-mcp",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-23T04:13:18.425Z",
+          "durationMs": 18668,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    }
+  ],
+  "producer": {
+    "lifecycleId": "run:DJ-01:mcp-lazy-r4",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r4",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\run-mcp-lazy-verification.cjs",
+      "mcp-lazy-r4"
+    ],
+    "exitCode": 0,
+    "producerStopped": true,
+    "children": [
+      {
+        "pid": 26140,
+        "closed": true
+      },
+      {
+        "pid": 36876,
+        "closed": true
+      }
+    ],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "commands": [
+    {
+      "name": "wrapper",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "--test",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\scripts\\test-mcp-lazy-startup.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\scripts\\test-cargo-verification.cjs"
+      ],
+      "startedUtc": "2026-10-23T03:43:35.676Z",
+      "finishedUtc": "2026-10-23T03:43:36.488Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "native",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\scripts\\check-mcp-lazy-startup.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r4\\engine"
+      ],
+      "startedUtc": "2026-10-23T03:43:36.490Z",
+      "finishedUtc": "2026-10-23T04:13:37.103Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "provenance": {
+    "exitCodes": [
+      0,
+      0
+    ],
+    "reviewedPaths": 182,
+    "fileEntriesRemoved": 0,
+    "snapshot": {
+      "schema": 2,
+      "sourceKind": "imported-snapshot",
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "f885456f04aff1edf185a0230159eff67e8f08039fa6bbd483595089eb7ed23f",
+      "importedReceiptSha256": "28b43d45c07941fabfb62bd20a48a3c66fe9093fb39b9f212859fbea17988ef1",
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceSha256": "3373c7c6167ca48cdcc45079b46246a0030bb4cb7c89d117ced100280d8d05e3",
+      "fileCount": 9310,
+      "target": "x86_64-pc-windows-msvc",
+      "buildEnvironment": {
+        "RUSTFLAGS": "",
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "V8_FROM_SOURCE": "",
+        "V8_FORCE_DEBUG": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "EXTRA_GN_ARGS": "",
+        "NINJA": "",
+        "CLANG_BASE_PATH": "",
+        "PYTHON": "",
+        "LIBCLANG_PATH": ""
+      }
+    }
+  },
+  "inputComparison": {
+    "selectedFiles": 9312,
+    "changedPrimaryPaths": [
+      "SOURCE.json"
+    ]
+  },
+  "limitations": [
+    "No product build or installation",
+    "No Linux/macOS native acceptance",
+    "No new RAM savings benchmark"
+  ],
+  "retention": {
+    "purpose": "Feature verification and failure diagnosis",
+    "revisitCondition": "Equivalent accepted verification replaces this work evidence or the feature is retired"
+  }
+}

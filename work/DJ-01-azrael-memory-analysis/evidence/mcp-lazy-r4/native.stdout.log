@@ -1,0 +1,546 @@
+suite::mcp_tool_cache::apps_cache_filled_during_binding_capture_reaches_the_model: test
+suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::root_headers_helper_bypasses_cache: test
+suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::root_optional_server_uses_cache: test
+suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::root_required_server_uses_cache: test
+suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::subagent_headers_helper_bypasses_cache: test
+suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::subagent_optional_server_uses_cache: test
+suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::subagent_required_server_uses_cache: test
+suite::mcp_tool_cache::cached_mcp_startup_is_lazy_for_threads::root: test
+suite::mcp_tool_cache::cached_mcp_startup_is_lazy_for_threads::subagent: test
+suite::mcp_tool_cache::mcp_calls_stay_bound_to_each_thread: test
+
+running 10 tests
+test suite::mcp_tool_cache::apps_cache_filled_during_binding_capture_reaches_the_model ... ok
+test suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::root_headers_helper_bypasses_cache ... ok
+test suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::root_optional_server_uses_cache ... ok
+test suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::root_required_server_uses_cache ... ok
+test suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::subagent_headers_helper_bypasses_cache ... ok
+test suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::subagent_optional_server_uses_cache ... ok
+test suite::mcp_tool_cache::cached_http_mcp_starts_lazily_for_threads::subagent_required_server_uses_cache ... ok
+test suite::mcp_tool_cache::cached_mcp_startup_is_lazy_for_threads::root ... ok
+test suite::mcp_tool_cache::cached_mcp_startup_is_lazy_for_threads::subagent ... ok
+test suite::mcp_tool_cache::mcp_calls_stay_bound_to_each_thread ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 1942 filtered out; finished in 40.15s
+
+auth_changes::tests::auth_notifications_require_opt_in_and_follow_client_lifetime: test
+auth_elicitation::tests::auth_failure_detection_requires_trusted_connector_identity_and_auth_flag: test
+auth_elicitation::tests::builds_auth_elicitation_plan: test
+auth_elicitation::tests::builds_url_elicitation_payload: test
+auth_elicitation::tests::detects_auth_failure_without_an_install_url: test
+auth_elicitation::tests::detects_each_supported_connector_auth_reason: test
+auth_elicitation::tests::parses_auth_failure_from_trusted_connector_metadata: test
+auth_elicitation::tests::rejects_missing_or_mismatched_connector_ids: test
+binding::tests::preparation_holds_catalog_authority_until_it_finishes: test
+binding::tests::prepared_call_does_not_reroute_after_captured_connection_closes: test
+binding::tests::prepared_call_is_rejected_after_catalog_refresh: test
+binding::tests::prepared_call_keeps_captured_connection_and_authority_after_refresh: test
+binding::tests::selected_window_hidden_ui_calls_retain_exact_prepared_authority: test
+binding::tests::selected_window_prepared_ui_authority_requires_capability_and_configured_cwd: test
+binding::tests::stale_prepared_call_does_not_run_preparation: test
+catalog::tests::disabled_discovered_plugin_remains_a_veto_for_runtime_overlays: test
+catalog::tests::disabled_selected_plugin_does_not_veto_runtime_overlays: test
+catalog::tests::disabled_veto_only_disables_the_winning_registration: test
+catalog::tests::disabled_winner_remains_a_veto_when_the_catalog_is_extended: test
+catalog::tests::earlier_plugin_wins_with_an_explicit_conflict: test
+catalog::tests::ema_policy_survives_rebuilds_and_rebinds_materialized_servers: test
+catalog::tests::environment_policy_exempts_only_explicitly_host_owned_apps: test
+catalog::tests::environment_policy_preserves_selected_plugin_and_empty_server_allowlist_semantics: test
+catalog::tests::equal_precedence_uses_insertion_order_not_source_identity: test
+catalog::tests::executor_credential_policy_survives_catalog_rebuilds_and_materialization: test
+catalog::tests::extension_protocol_mode_follows_the_winner_through_materialization: test
+catalog::tests::materialized_server_requires_catalog_registration: test
+catalog::tests::plugin_host_root_is_retained_in_catalog_identity: test
+catalog::tests::rejected_plugin_ema_registration_does_not_veto_hosted_apps: test
+catalog::tests::retired_plugin_ema_does_not_veto_a_later_runtime_registration: test
+catalog::tests::selected_plugin_credential_policy_follows_origin_and_survives_catalog_rebuild: test
+catalog::tests::selected_plugins_override_discovered_plugins_but_not_config: test
+catalog::tests::source_precedence_preserves_the_winning_registration: test
+client_capabilities::tests::normalizes_legacy_form_capability_into_extensions: test
+client_capabilities::tests::selects_only_supported_mcp_extensions: test
+client_capabilities::tests::user_verification_is_projected_only_to_the_host_owned_plugin_service: test
+codex_apps::file_params::tests::declared_openai_file_fields_treat_names_literally: test
+codex_apps::file_params::tests::prepare_openai_file_params_for_model_derives_supported_optional_fields: test
+codex_apps::file_params::tests::prepare_openai_file_params_for_model_leaves_tools_without_file_params_unchanged: test
+codex_apps::file_params::tests::prepare_openai_file_params_for_model_masks_file_params: test
+connection_manager::tests::apps_catalog_broadcast_preserves_running_calls_and_rejects_stale_calls: test
+connection_manager::tests::apps_catalog_broadcast_restores_equivalent_calls: test
+connection_manager::tests::apps_catalog_broadcast_survives_an_older_local_refresh: test
+connection_manager::tests::call_tool_requires_connection_without_waiting_for_startup: test
+connection_manager::tests::call_tool_validates_environment_without_waiting_for_ready_connections: test
+connection_manager::tests::cancelled_elicitation_is_removed_without_affecting_other_pending_requests: test
+connection_manager::tests::cancelling_startup_does_not_disable_a_ready_client: test
+connection_manager::tests::capture_binding_exposes_cached_tools_before_startup: test
+connection_manager::tests::capture_binding_omits_cache_disabled_while_waiting_for_another_server: test
+connection_manager::tests::capture_binding_resolves_concurrently_and_rechecks_cached_clients: test
+connection_manager::tests::capture_binding_retains_cached_tools_that_expire_while_waiting_for_another_server: test
+connection_manager::tests::capture_binding_shares_optional_startup_grace_across_connection_sets: test
+connection_manager::tests::capture_binding_skips_pending_optional_servers_after_configured_shared_startup_grace: test
+connection_manager::tests::capture_binding_uses_cache_published_during_optional_startup: test
+connection_manager::tests::capture_binding_uses_the_ready_clients_own_tools: test
+connection_manager::tests::capture_binding_waits_for_optional_startup_when_shared_grace_is_disabled: test
+connection_manager::tests::codex_apps_env_bearer_token_bypasses_shared_tools_cache: test
+connection_manager::tests::codex_apps_extension_does_not_share_host_owned_tools_cache: test
+connection_manager::tests::concurrent_authority_updates_never_auto_approve_mixed_policy: test
+connection_manager::tests::connected_call_respects_server_tool_filters: test
+connection_manager::tests::connection_identity_distinguishes_accounts_with_the_same_token: test
+connection_manager::tests::connection_identity_distinguishes_agent_account_runtime_and_task: test
+connection_manager::tests::connection_identity_tracks_only_oauth_credentials_when_oauth_is_active: test
+connection_manager::tests::connection_identity_uses_effective_authorization_headers: test
+connection_manager::tests::connection_statuses_follow_latest_reconnect_outcome: test
+connection_manager::tests::connection_statuses_observe_clients_without_starting_them: test
+connection_manager::tests::disabled_permissions_auto_accept_elicitation_with_empty_form_schema: test
+connection_manager::tests::disabled_permissions_decline_requested_user_input_with_approval_metadata: test
+connection_manager::tests::disabled_permissions_decline_user_input_without_an_event_channel: test
+connection_manager::tests::disabled_permissions_do_not_auto_accept_elicitation_with_requested_fields: test
+connection_manager::tests::disabled_permissions_do_not_surface_user_input_when_auto_denied: test
+connection_manager::tests::disabled_permissions_surface_requested_user_input_with_non_codex_approval_metadata: test
+connection_manager::tests::disabled_permissions_surface_requested_user_input_without_metadata: test
+connection_manager::tests::elicitation_capability_advertises_url_support_when_enabled: test
+connection_manager::tests::elicitation_capability_uses_2025_06_18_shape_for_form_only_support: test
+connection_manager::tests::elicitation_granular_policy_defaults_to_prompting: test
+connection_manager::tests::elicitation_granular_policy_respects_never_and_config: test
+connection_manager::tests::executor_owned_chatgpt_mcp_accepts_only_safe_explicit_authorization: test
+connection_manager::tests::filter_tools_applies_per_server_filters: test
+connection_manager::tests::granular_policy_does_not_surface_requested_user_input: test
+connection_manager::tests::hard_refresh_keeps_client_catalog_local_when_shared_cache_loses_race: test
+connection_manager::tests::hosted_actor_credentials_are_only_available_to_host_owned_mcp_servers: test
+connection_manager::tests::hosted_apps_protocol_mode_is_independent_of_generic_mode: test
+connection_manager::tests::idle_apps_clients_do_not_retain_replaced_tools: test
+connection_manager::tests::later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools: test
+connection_manager::tests::legacy_tool_catalog_rejects_repeated_pagination_cursor: test
+connection_manager::tests::list_all_tools_accepts_canonical_namespaced_tool_names: test
+connection_manager::tests::list_all_tools_adds_server_metadata_to_tools: test
+connection_manager::tests::list_all_tools_applies_legacy_mcp_prefix_by_default: test
+connection_manager::tests::list_all_tools_blocks_while_client_is_pending_without_cached_tools: test
+connection_manager::tests::list_all_tools_does_not_block_when_shared_codex_apps_cache_is_empty: test
+connection_manager::tests::list_all_tools_reconnects_failed_codex_apps_startup_and_reuses_client: test
+connection_manager::tests::list_all_tools_resolves_server_catalogs_concurrently: test
+connection_manager::tests::list_all_tools_uses_shared_codex_apps_cache_when_client_startup_fails: test
+connection_manager::tests::list_all_tools_uses_shared_codex_apps_cache_while_client_is_pending: test
+connection_manager::tests::list_available_server_infos_uses_cache_while_client_is_pending: test
+connection_manager::tests::mcp_init_error_display_identifies_oauth_reauthentication: test
+connection_manager::tests::mcp_init_error_display_includes_startup_timeout_hint: test
+connection_manager::tests::mcp_init_error_display_prompts_for_github_pat: test
+connection_manager::tests::mcp_init_error_display_prompts_for_login_when_auth_required: test
+connection_manager::tests::mcp_init_error_display_quotes_server_names: test
+connection_manager::tests::mcp_init_error_display_reports_generic_errors: test
+connection_manager::tests::mcp_startup_failure_reason_requires_existing_oauth_and_auth_failure: test
+connection_manager::tests::no_local_runtime_fails_local_stdio_but_keeps_local_http_server: test
+connection_manager::tests::on_request_approval_forms_remain_with_the_reviewer: test
+connection_manager::tests::plugin_tool_suggestion_elicitations_are_declined_before_review: test
+connection_manager::tests::prepared_call_timeout_includes_trusted_access_lookup: test
+connection_manager::tests::read_only_apps_discovery_never_uses_a_shared_writable_catalog: test
+connection_manager::tests::read_only_policy_does_not_reuse_a_writable_connection: test
+connection_manager::tests::reconciliation_cancels_a_reused_pending_server_when_disabled: test
+connection_manager::tests::reconciliation_reconnects_when_connection_identity_changes: test
+connection_manager::tests::reconciliation_reconnects_when_host_plugin_root_changes: test
+connection_manager::tests::reconciliation_replaces_closed_connections: test
+connection_manager::tests::reconciliation_replaces_connection_when_auth_mode_changes: test
+connection_manager::tests::reconciliation_replaces_connection_when_protocol_mode_changes: test
+connection_manager::tests::reconciliation_retries_non_oauth_authentication_failures: test
+connection_manager::tests::reconciliation_reuses_an_unchanged_pending_server_without_waiting: test
+connection_manager::tests::reconciliation_reuses_an_unchanged_ready_server: test
+connection_manager::tests::reconciliation_reuses_connection_without_relisting_regular_tools: test
+connection_manager::tests::reconciliation_reuses_legacy_stdio_server_when_modern_protocol_is_enabled: test
+connection_manager::tests::reconciliation_reuses_legacy_stdio_server_with_existing_protocol_marker: test
+connection_manager::tests::reconciliation_reuses_ready_server_when_startup_timeout_changes: test
+connection_manager::tests::reconciliation_updates_elicitation_policy_without_restarting_ready_server: test
+connection_manager::tests::refreshed_catalog_follows_reused_client_without_mutating_old_bindings: test
+connection_manager::tests::restricted_never_policy_does_not_surface_requested_user_input: test
+connection_manager::tests::server_metadata_preserves_tool_approval_policy: test
+connection_manager::tests::shared_elicitation_router_targets_the_exact_pending_request: test
+connection_manager::tests::shutdown_cancels_pending_tool_listing: test
+connection_manager::tests::shutdown_continues_after_caller_is_aborted: test
+connection_manager::tests::stable_catalog_revisions_ignore_terminal_optional_server_failures: test
+connection_manager::tests::test_normalize_tools_disambiguates_sanitized_namespace_collisions: test
+connection_manager::tests::test_normalize_tools_disambiguates_sanitized_tool_name_collisions: test
+connection_manager::tests::test_normalize_tools_duplicated_names_skipped: test
+connection_manager::tests::test_normalize_tools_global_feature_omits_prefix_for_every_server: test
+connection_manager::tests::test_normalize_tools_keeps_hyphenated_mcp_tools_callable: test
+connection_manager::tests::test_normalize_tools_long_names_same_server: test
+connection_manager::tests::test_normalize_tools_omits_prefix_only_for_selected_servers: test
+connection_manager::tests::test_normalize_tools_respects_responses_api_name_length_boundaries: test
+connection_manager::tests::test_normalize_tools_sanitizes_invalid_characters: test
+connection_manager::tests::test_normalize_tools_selects_raw_server_name: test
+connection_manager::tests::test_normalize_tools_short_non_duplicated_names: test
+connection_manager::tests::tool_catalog_cache_bypasses_http_headers_helpers: test
+connection_manager::tests::tool_catalog_cache_bypasses_remote_sourced_environment_variables: test
+connection_manager::tests::tool_catalog_cache_sanitizes_tools_and_tracks_environment_generation: test
+connection_manager::tests::tool_filter_allows_by_default: test
+connection_manager::tests::tool_filter_applies_disabled_list: test
+connection_manager::tests::tool_filter_applies_enabled_list: test
+connection_manager::tests::tool_filter_applies_enabled_then_disabled: test
+connection_manager::tests::tool_lists_do_not_block_and_share_codex_apps_startup_reconnect: test
+connection_manager::tests::view_only_changes_reuse_connection_and_preserve_the_old_step: test
+elicitation::tests::closed_event_channel_immediately_cleans_up_pending_elicitation: test
+elicitation::tests::elicitation_without_an_automatic_decision_prompts: test
+elicitation::tests::permission_elicitation_preserves_automatic_review_decisions: test
+elicitation::tests::reused_elicitation_senders_follow_each_servers_latest_permission_authority: test
+elicitation::tests::strict_auto_review_fails_closed_without_a_canonical_decision: test
+elicitation::tests::strict_auto_review_preserves_guardian_denials_and_cancellations: test
+elicitation::tests::strict_auto_review_respects_explicit_elicitation_denials: test
+elicitation::tests::user_verification_cancels_for_an_event_receiver_without_host_activation: test
+elicitation::tests::user_verification_cancels_when_no_app_can_receive_the_request: test
+elicitation::tests::user_verification_drops_pending_response_when_the_request_is_cancelled: test
+elicitation::tests::user_verification_rejects_attached_servers_even_if_they_use_the_plugin_service_name: test
+elicitation::tests::user_verification_requires_the_app_even_when_policy_would_approve_or_decline: test
+mcp::auth::tests::callback_resolution_preserves_registered_and_legacy_clients: test
+mcp::auth::tests::resolve_oauth_scopes_falls_back_to_empty: test
+mcp::auth::tests::resolve_oauth_scopes_prefers_configured_over_discovered: test
+mcp::auth::tests::resolve_oauth_scopes_prefers_explicit: test
+mcp::auth::tests::resolve_oauth_scopes_preserves_explicitly_empty_configured_scopes: test
+mcp::auth::tests::resolve_oauth_scopes_uses_discovered_when_needed: test
+mcp::auth::tests::should_retry_without_scopes_only_for_discovered_provider_errors: test
+mcp::tests::codex_apps_mcp_url_for_base_url_uses_plugin_service_paths: test
+mcp::tests::codex_apps_server_config_forwards_originator_and_configured_product_sku_headers: test
+mcp::tests::codex_apps_server_config_forwards_thread_originator_header: test
+mcp::tests::codex_apps_server_config_sets_product_sku_header: test
+mcp::tests::codex_apps_server_config_uses_plugin_service_path: test
+mcp::tests::effective_mcp_servers_preserve_chatgpt_auth_for_staging: test
+mcp::tests::effective_mcp_servers_preserve_executor_credential_policy: test
+mcp::tests::effective_mcp_servers_preserve_runtime_servers: test
+mcp::tests::effective_mcp_servers_require_catalog_registration: test
+mcp::tests::ema_catalog_allows_only_configured_servers_without_widening_policy: test
+mcp::tests::mcp_prompt_auto_approval_honors_approved_tools_in_all_permission_modes: test
+mcp::tests::mcp_prompt_auto_approval_honors_unrestricted_managed_profiles: test
+mcp::tests::mcp_prompt_auto_approval_rejects_auto_mode_in_default_permission_mode: test
+mcp::tests::mcp_server_permissions_handle_unattached_and_threadless_servers: test
+mcp::tests::qualified_mcp_tool_name_prefix_sanitizes_server_names_without_lowercasing: test
+mcp::tests::selected_mcp_attribution_does_not_join_an_unrelated_local_summary: test
+mcp::tests::status_snapshot_only_downgrades_oauth_authentication_failures: test
+mcp::tests::tool_plugin_context_collects_app_and_mcp_sources: test
+openai_docs_source_attribution::tests::attributes_only_docs_mcp_requests: test
+openai_docs_source_attribution::tests::leaves_other_mcp_clients_unwrapped: test
+pagination::tests::applies_a_default_timeout_when_no_timeout_is_configured: test
+pagination::tests::applies_one_timeout_across_individually_timely_pages: test
+pagination::tests::collects_all_pages_including_an_empty_cursor: test
+pagination::tests::forwards_page_failures: test
+pagination::tests::rejects_a_catalog_exceeding_the_item_limit_across_pages: test
+pagination::tests::rejects_a_page_exceeding_the_catalog_item_limit: test
+pagination::tests::rejects_excessive_pagination_before_fetching_another_page: test
+pagination::tests::rejects_nonconsecutive_repeated_cursors: test
+pagination::tests::rejects_oversized_pagination_cursors_before_following_them: test
+plugin_config::tests::agent_plugin_mcp_enforces_closed_transport_and_path_semantics: test
+plugin_config::tests::agent_plugin_mcp_expands_reserved_paths_and_maps_transports: test
+plugin_config::tests::agent_plugin_mcp_handles_portable_path_and_http_edge_cases: test
+plugin_config::tests::agent_plugin_mcp_overlays_windows_environment_case_insensitively: test
+plugin_config::tests::agent_plugin_mcp_preserves_arbitrary_server_names: test
+plugin_config::tests::agent_plugin_mcp_preserves_server_named_mcp_servers: test
+plugin_config::tests::agent_plugin_mcp_rejects_drive_relative_windows_command: test
+plugin_config::tests::agent_plugin_mcp_rejects_explicit_null_optional_fields: test
+plugin_config::tests::agent_plugin_mcp_rejects_reserved_environment_aliases_case_insensitively: test
+plugin_config::tests::agent_plugin_mcp_rejects_unsupported_schema: test
+plugin_config::tests::agent_plugin_mcp_skips_invalid_server_without_disabling_siblings: test
+plugin_config::tests::agent_plugin_mcp_treats_args_and_env_as_opaque_after_expansion: test
+plugin_config::tests::agent_plugin_placeholder_expansion_is_single_pass: test
+plugin_config::tests::declared_placement_preserves_local_plugin_normalization: test
+plugin_config::tests::environment_placement_forces_authority_and_defaults_null_cwd: test
+plugin_config::tests::environment_placement_rejects_orchestrator_env_vars: test
+plugin_config::tests::environment_placement_rejects_relative_cwd_that_escapes_package: test
+plugin_config::tests::environment_placement_resolves_relative_cwd_beneath_plugin_root: test
+plugin_config::tests::executor_environment_placement_resolves_foreign_uri_cwd: test
+plugin_config::tests::local_environment_placement_preserves_http_env_references: test
+plugin_config::tests::local_environment_placement_preserves_local_env_vars: test
+plugin_config::tests::local_environment_placement_rejects_remote_env_vars: test
+plugin_config::tests::native_plugin_mcp_cannot_self_declare_ema_auth: test
+plugin_config::tests::remote_environment_placement_preserves_bearer_and_rejects_header_env_references: test
+rmcp_client::credential_policy_tests::configured_credentials_retain_host_environment_resolution: test
+rmcp_client::credential_policy_tests::executor_credentials_reject_host_fallback_for_arbitrary_environment_names: test
+rmcp_client::credential_policy_tests::servers_without_environment_credentials_do_not_require_host_fallback: test
+rmcp_client::tests::advertised_server_implementation_takes_precedence_over_configured_name: test
+rmcp_client::tests::codex_apps_connector_metadata_is_preserved: test
+rmcp_client::tests::custom_mcp_connector_metadata_is_stripped: test
+rmcp_client::tests::mcp_initialize_advertises_client_extensions: test
+rmcp_client::tests::missing_server_implementation_uses_configured_server_name: test
+rmcp_client::tests::startup_outcome_error_identifies_authentication_required: test
+runtime::tests::cached_bindings_are_scoped_to_the_published_runtime: test
+runtime::tests::cached_bindings_follow_the_clients_catalog_revision: test
+runtime::tests::explicit_remote_stdio_and_http_accept_named_environment: test
+runtime::tests::local_http_client_is_shared_across_resolution_and_context_clones: test
+runtime::tests::local_http_does_not_require_local_stdio_availability: test
+runtime::tests::local_stdio_accepts_local_environment_when_available: test
+runtime::tests::local_stdio_requires_local_stdio_availability: test
+runtime::tests::publication_gate_opens_only_for_the_winning_candidate: test
+runtime::tests::remote_stdio_accepts_foreign_absolute_cwd: test
+runtime::tests::sandbox_state_serializes_skip_missing_entries_as_missing_path_behavior: test
+runtime::tests::unknown_explicit_environment_is_rejected: test
+server::tests::connection_identity_does_not_reuse_connections_across_credential_policies: test
+server::tests::executor_connection_identity_does_not_capture_host_environment_values: test
+server::tests::remote_http_connections_track_host_headers_but_not_executor_bearer_tokens: test
+server::tests::tool_catalog_cache_does_not_reuse_catalogs_across_credential_policies: test
+trusted_access::tests::delivers_account_bound_verified_access_to_the_calling_plugin: test
+trusted_access::tests::maps_verified_access_states_and_rejects_invalid_provider_responses: test
+trusted_access::tests::rejects_api_key_authentication_without_sending_credentials: test
+trusted_access::tests::rejects_auth_without_a_nonempty_account_id: test
+trusted_access::tests::rejects_duplicate_cyber_programs: test
+trusted_access::tests::rejects_identity_changes_before_sending_credentials: test
+trusted_access::tests::rejects_identity_changes_while_request_is_in_flight: test
+trusted_access::tests::rejects_initial_unsupported_auth_after_switch_to_chatgpt: test
+trusted_access::tests::rejects_verified_access_response_larger_than_one_mebibyte: test
+trusted_access::tests::replaces_untrusted_entitlements_on_malformed_response: test
+trusted_access::tests::returns_unknown_at_the_lookup_deadline: test
+trusted_access::tests::uses_the_checked_auth_snapshot_for_request_headers: test
+
+running 258 tests
+test auth_changes::tests::auth_notifications_require_opt_in_and_follow_client_lifetime ... ok
+test auth_elicitation::tests::auth_failure_detection_requires_trusted_connector_identity_and_auth_flag ... ok
+test auth_elicitation::tests::builds_auth_elicitation_plan ... ok
+test auth_elicitation::tests::builds_url_elicitation_payload ... ok
+test auth_elicitation::tests::detects_auth_failure_without_an_install_url ... ok
+test auth_elicitation::tests::detects_each_supported_connector_auth_reason ... ok
+test auth_elicitation::tests::parses_auth_failure_from_trusted_connector_metadata ... ok
+test auth_elicitation::tests::rejects_missing_or_mismatched_connector_ids ... ok
+test binding::tests::preparation_holds_catalog_authority_until_it_finishes ... ok
+test binding::tests::prepared_call_does_not_reroute_after_captured_connection_closes ... ok
+test binding::tests::prepared_call_is_rejected_after_catalog_refresh ... ok
+test binding::tests::prepared_call_keeps_captured_connection_and_authority_after_refresh ... ok
+test binding::tests::selected_window_hidden_ui_calls_retain_exact_prepared_authority ... ok
+test binding::tests::selected_window_prepared_ui_authority_requires_capability_and_configured_cwd ... ok
+test binding::tests::stale_prepared_call_does_not_run_preparation ... ok
+test catalog::tests::disabled_discovered_plugin_remains_a_veto_for_runtime_overlays ... ok
+test catalog::tests::disabled_selected_plugin_does_not_veto_runtime_overlays ... ok
+test catalog::tests::disabled_veto_only_disables_the_winning_registration ... ok
+test catalog::tests::disabled_winner_remains_a_veto_when_the_catalog_is_extended ... ok
+test catalog::tests::earlier_plugin_wins_with_an_explicit_conflict ... ok
+test catalog::tests::ema_policy_survives_rebuilds_and_rebinds_materialized_servers ... ok
+test catalog::tests::environment_policy_exempts_only_explicitly_host_owned_apps ... ok
+test catalog::tests::environment_policy_preserves_selected_plugin_and_empty_server_allowlist_semantics ... ok
+test catalog::tests::equal_precedence_uses_insertion_order_not_source_identity ... ok
+test catalog::tests::executor_credential_policy_survives_catalog_rebuilds_and_materialization ... ok
+test catalog::tests::extension_protocol_mode_follows_the_winner_through_materialization ... ok
+test catalog::tests::materialized_server_requires_catalog_registration - should panic ... ok
+test catalog::tests::plugin_host_root_is_retained_in_catalog_identity ... ok
+test catalog::tests::rejected_plugin_ema_registration_does_not_veto_hosted_apps ... ok
+test catalog::tests::retired_plugin_ema_does_not_veto_a_later_runtime_registration ... ok
+test catalog::tests::selected_plugin_credential_policy_follows_origin_and_survives_catalog_rebuild ... ok
+test catalog::tests::selected_plugins_override_discovered_plugins_but_not_config ... ok
+test catalog::tests::source_precedence_preserves_the_winning_registration ... ok
+test client_capabilities::tests::normalizes_legacy_form_capability_into_extensions ... ok
+test client_capabilities::tests::selects_only_supported_mcp_extensions ... ok
+test client_capabilities::tests::user_verification_is_projected_only_to_the_host_owned_plugin_service ... ok
+test codex_apps::file_params::tests::declared_openai_file_fields_treat_names_literally ... ok
+test codex_apps::file_params::tests::prepare_openai_file_params_for_model_derives_supported_optional_fields ... ok
+test codex_apps::file_params::tests::prepare_openai_file_params_for_model_leaves_tools_without_file_params_unchanged ... ok
+test codex_apps::file_params::tests::prepare_openai_file_params_for_model_masks_file_params ... ok
+test connection_manager::tests::apps_catalog_broadcast_preserves_running_calls_and_rejects_stale_calls ... ok
+test connection_manager::tests::apps_catalog_broadcast_restores_equivalent_calls ... ok
+test connection_manager::tests::apps_catalog_broadcast_survives_an_older_local_refresh ... ok
+test connection_manager::tests::call_tool_requires_connection_without_waiting_for_startup ... ok
+test connection_manager::tests::call_tool_validates_environment_without_waiting_for_ready_connections ... ok
+test connection_manager::tests::cancelled_elicitation_is_removed_without_affecting_other_pending_requests ... ok
+test connection_manager::tests::cancelling_startup_does_not_disable_a_ready_client ... ok
+test connection_manager::tests::capture_binding_exposes_cached_tools_before_startup ... ok
+test connection_manager::tests::capture_binding_omits_cache_disabled_while_waiting_for_another_server ... ok
+test connection_manager::tests::capture_binding_resolves_concurrently_and_rechecks_cached_clients ... ok
+test connection_manager::tests::capture_binding_retains_cached_tools_that_expire_while_waiting_for_another_server ... ok
+test connection_manager::tests::capture_binding_shares_optional_startup_grace_across_connection_sets ... ok
+test connection_manager::tests::capture_binding_skips_pending_optional_servers_after_configured_shared_startup_grace ... ok
+test connection_manager::tests::capture_binding_uses_cache_published_during_optional_startup ... ok
+test connection_manager::tests::capture_binding_uses_the_ready_clients_own_tools ... ok
+test connection_manager::tests::capture_binding_waits_for_optional_startup_when_shared_grace_is_disabled ... ok
+test connection_manager::tests::codex_apps_env_bearer_token_bypasses_shared_tools_cache ... ok
+test connection_manager::tests::codex_apps_extension_does_not_share_host_owned_tools_cache ... ok
+test connection_manager::tests::concurrent_authority_updates_never_auto_approve_mixed_policy ... ok
+test connection_manager::tests::connected_call_respects_server_tool_filters ... ok
+test connection_manager::tests::connection_identity_distinguishes_accounts_with_the_same_token ... ok
+test connection_manager::tests::connection_identity_distinguishes_agent_account_runtime_and_task ... ok
+test connection_manager::tests::connection_identity_tracks_only_oauth_credentials_when_oauth_is_active ... ok
+test connection_manager::tests::connection_identity_uses_effective_authorization_headers ... ok
+test connection_manager::tests::connection_statuses_follow_latest_reconnect_outcome ... ok
+test connection_manager::tests::connection_statuses_observe_clients_without_starting_them ... ok
+test connection_manager::tests::disabled_permissions_auto_accept_elicitation_with_empty_form_schema ... ok
+test connection_manager::tests::disabled_permissions_decline_requested_user_input_with_approval_metadata ... ok
+test connection_manager::tests::disabled_permissions_decline_user_input_without_an_event_channel ... ok
+test connection_manager::tests::disabled_permissions_do_not_auto_accept_elicitation_with_requested_fields ... ok
+test connection_manager::tests::disabled_permissions_do_not_surface_user_input_when_auto_denied ... ok
+test connection_manager::tests::disabled_permissions_surface_requested_user_input_with_non_codex_approval_metadata ... ok
+test connection_manager::tests::disabled_permissions_surface_requested_user_input_without_metadata ... ok
+test connection_manager::tests::elicitation_capability_advertises_url_support_when_enabled ... ok
+test connection_manager::tests::elicitation_capability_uses_2025_06_18_shape_for_form_only_support ... ok
+test connection_manager::tests::elicitation_granular_policy_defaults_to_prompting ... ok
+test connection_manager::tests::elicitation_granular_policy_respects_never_and_config ... ok
+test connection_manager::tests::executor_owned_chatgpt_mcp_accepts_only_safe_explicit_authorization ... ok
+test connection_manager::tests::filter_tools_applies_per_server_filters ... ok
+test connection_manager::tests::granular_policy_does_not_surface_requested_user_input ... ok
+test connection_manager::tests::hard_refresh_keeps_client_catalog_local_when_shared_cache_loses_race ... ok
+test connection_manager::tests::hosted_actor_credentials_are_only_available_to_host_owned_mcp_servers ... ok
+test connection_manager::tests::hosted_apps_protocol_mode_is_independent_of_generic_mode ... ok
+test connection_manager::tests::idle_apps_clients_do_not_retain_replaced_tools ... ok
+test connection_manager::tests::later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools ... ok
+test connection_manager::tests::legacy_tool_catalog_rejects_repeated_pagination_cursor ... ok
+test connection_manager::tests::list_all_tools_accepts_canonical_namespaced_tool_names ... ok
+test connection_manager::tests::list_all_tools_adds_server_metadata_to_tools ... ok
+test connection_manager::tests::list_all_tools_applies_legacy_mcp_prefix_by_default ... ok
+test connection_manager::tests::list_all_tools_blocks_while_client_is_pending_without_cached_tools ... ok
+test connection_manager::tests::list_all_tools_does_not_block_when_shared_codex_apps_cache_is_empty ... ok
+test connection_manager::tests::list_all_tools_reconnects_failed_codex_apps_startup_and_reuses_client ... ok
+test connection_manager::tests::list_all_tools_resolves_server_catalogs_concurrently ... ok
+test connection_manager::tests::list_all_tools_uses_shared_codex_apps_cache_when_client_startup_fails ... ok
+test connection_manager::tests::list_all_tools_uses_shared_codex_apps_cache_while_client_is_pending ... ok
+test connection_manager::tests::list_available_server_infos_uses_cache_while_client_is_pending ... ok
+test connection_manager::tests::mcp_init_error_display_identifies_oauth_reauthentication ... ok
+test connection_manager::tests::mcp_init_error_display_includes_startup_timeout_hint ... ok
+test connection_manager::tests::mcp_init_error_display_prompts_for_github_pat ... ok
+test connection_manager::tests::mcp_init_error_display_prompts_for_login_when_auth_required ... ok
+test connection_manager::tests::mcp_init_error_display_quotes_server_names ... ok
+test connection_manager::tests::mcp_init_error_display_reports_generic_errors ... ok
+test connection_manager::tests::mcp_startup_failure_reason_requires_existing_oauth_and_auth_failure ... ok
+test connection_manager::tests::no_local_runtime_fails_local_stdio_but_keeps_local_http_server ... ok
+test connection_manager::tests::on_request_approval_forms_remain_with_the_reviewer ... ok
+test connection_manager::tests::plugin_tool_suggestion_elicitations_are_declined_before_review ... ok
+test connection_manager::tests::prepared_call_timeout_includes_trusted_access_lookup ... ok
+test connection_manager::tests::read_only_apps_discovery_never_uses_a_shared_writable_catalog ... ok
+test connection_manager::tests::read_only_policy_does_not_reuse_a_writable_connection ... ok
+test connection_manager::tests::reconciliation_cancels_a_reused_pending_server_when_disabled ... ok
+test connection_manager::tests::reconciliation_reconnects_when_connection_identity_changes ... ok
+test connection_manager::tests::reconciliation_reconnects_when_host_plugin_root_changes ... ok
+test connection_manager::tests::reconciliation_replaces_closed_connections ... ok
+test connection_manager::tests::reconciliation_replaces_connection_when_auth_mode_changes ... ok
+test connection_manager::tests::reconciliation_replaces_connection_when_protocol_mode_changes ... ok
+test connection_manager::tests::reconciliation_retries_non_oauth_authentication_failures ... ok
+test connection_manager::tests::reconciliation_reuses_an_unchanged_pending_server_without_waiting ... ok
+test connection_manager::tests::reconciliation_reuses_an_unchanged_ready_server ... ok
+test connection_manager::tests::reconciliation_reuses_connection_without_relisting_regular_tools ... ok
+test connection_manager::tests::reconciliation_reuses_legacy_stdio_server_when_modern_protocol_is_enabled ... ok
+test connection_manager::tests::reconciliation_reuses_legacy_stdio_server_with_existing_protocol_marker ... ok
+test connection_manager::tests::reconciliation_reuses_ready_server_when_startup_timeout_changes ... ok
+test connection_manager::tests::reconciliation_updates_elicitation_policy_without_restarting_ready_server ... ok
+test connection_manager::tests::refreshed_catalog_follows_reused_client_without_mutating_old_bindings ... ok
+test connection_manager::tests::restricted_never_policy_does_not_surface_requested_user_input ... ok
+test connection_manager::tests::server_metadata_preserves_tool_approval_policy ... ok
+test connection_manager::tests::shared_elicitation_router_targets_the_exact_pending_request ... ok
+test connection_manager::tests::shutdown_cancels_pending_tool_listing ... ok
+test connection_manager::tests::shutdown_continues_after_caller_is_aborted ... ok
+test connection_manager::tests::stable_catalog_revisions_ignore_terminal_optional_server_failures ... ok
+test connection_manager::tests::test_normalize_tools_disambiguates_sanitized_namespace_collisions ... ok
+test connection_manager::tests::test_normalize_tools_disambiguates_sanitized_tool_name_collisions ... ok
+test connection_manager::tests::test_normalize_tools_duplicated_names_skipped ... ok
+test connection_manager::tests::test_normalize_tools_global_feature_omits_prefix_for_every_server ... ok
+test connection_manager::tests::test_normalize_tools_keeps_hyphenated_mcp_tools_callable ... ok
+test connection_manager::tests::test_normalize_tools_long_names_same_server ... ok
+test connection_manager::tests::test_normalize_tools_omits_prefix_only_for_selected_servers ... ok
+test connection_manager::tests::test_normalize_tools_respects_responses_api_name_length_boundaries ... ok
+test connection_manager::tests::test_normalize_tools_sanitizes_invalid_characters ... ok
+test connection_manager::tests::test_normalize_tools_selects_raw_server_name ... ok
+test connection_manager::tests::test_normalize_tools_short_non_duplicated_names ... ok
+test connection_manager::tests::tool_catalog_cache_bypasses_http_headers_helpers ... ok
+test connection_manager::tests::tool_catalog_cache_bypasses_remote_sourced_environment_variables ... ok
+test connection_manager::tests::tool_catalog_cache_sanitizes_tools_and_tracks_environment_generation ... ok
+test connection_manager::tests::tool_filter_allows_by_default ... ok
+test connection_manager::tests::tool_filter_applies_disabled_list ... ok
+test connection_manager::tests::tool_filter_applies_enabled_list ... ok
+test connection_manager::tests::tool_filter_applies_enabled_then_disabled ... ok
+test connection_manager::tests::tool_lists_do_not_block_and_share_codex_apps_startup_reconnect ... ok
+test connection_manager::tests::view_only_changes_reuse_connection_and_preserve_the_old_step ... ok
+test elicitation::tests::closed_event_channel_immediately_cleans_up_pending_elicitation ... ok
+test elicitation::tests::elicitation_without_an_automatic_decision_prompts ... ok
+test elicitation::tests::permission_elicitation_preserves_automatic_review_decisions ... ok
+test elicitation::tests::reused_elicitation_senders_follow_each_servers_latest_permission_authority ... ok
+test elicitation::tests::strict_auto_review_fails_closed_without_a_canonical_decision ... ok
+test elicitation::tests::strict_auto_review_preserves_guardian_denials_and_cancellations ... ok
+test elicitation::tests::strict_auto_review_respects_explicit_elicitation_denials ... ok
+test elicitation::tests::user_verification_cancels_for_an_event_receiver_without_host_activation ... ok
+test elicitation::tests::user_verification_cancels_when_no_app_can_receive_the_request ... ok
+test elicitation::tests::user_verification_drops_pending_response_when_the_request_is_cancelled ... ok
+test elicitation::tests::user_verification_rejects_attached_servers_even_if_they_use_the_plugin_service_name ... ok
+test elicitation::tests::user_verification_requires_the_app_even_when_policy_would_approve_or_decline ... ok
+test mcp::auth::tests::callback_resolution_preserves_registered_and_legacy_clients ... ok
+test mcp::auth::tests::resolve_oauth_scopes_falls_back_to_empty ... ok
+test mcp::auth::tests::resolve_oauth_scopes_prefers_configured_over_discovered ... ok
+test mcp::auth::tests::resolve_oauth_scopes_prefers_explicit ... ok
+test mcp::auth::tests::resolve_oauth_scopes_preserves_explicitly_empty_configured_scopes ... ok
+test mcp::auth::tests::resolve_oauth_scopes_uses_discovered_when_needed ... ok
+test mcp::auth::tests::should_retry_without_scopes_only_for_discovered_provider_errors ... ok
+test mcp::tests::codex_apps_mcp_url_for_base_url_uses_plugin_service_paths ... ok
+test mcp::tests::codex_apps_server_config_forwards_originator_and_configured_product_sku_headers ... ok
+test mcp::tests::codex_apps_server_config_forwards_thread_originator_header ... ok
+test mcp::tests::codex_apps_server_config_sets_product_sku_header ... ok
+test mcp::tests::codex_apps_server_config_uses_plugin_service_path ... ok
+test mcp::tests::effective_mcp_servers_preserve_chatgpt_auth_for_staging ... ok
+test mcp::tests::effective_mcp_servers_preserve_executor_credential_policy ... ok
+test mcp::tests::effective_mcp_servers_preserve_runtime_servers ... ok
+test mcp::tests::effective_mcp_servers_require_catalog_registration - should panic ... ok
+test mcp::tests::ema_catalog_allows_only_configured_servers_without_widening_policy ... ok
+test mcp::tests::mcp_prompt_auto_approval_honors_approved_tools_in_all_permission_modes ... ok
+test mcp::tests::mcp_prompt_auto_approval_honors_unrestricted_managed_profiles ... ok
+test mcp::tests::mcp_prompt_auto_approval_rejects_auto_mode_in_default_permission_mode ... ok
+test mcp::tests::mcp_server_permissions_handle_unattached_and_threadless_servers ... ok
+test mcp::tests::qualified_mcp_tool_name_prefix_sanitizes_server_names_without_lowercasing ... ok
+test mcp::tests::selected_mcp_attribution_does_not_join_an_unrelated_local_summary ... ok
+test mcp::tests::status_snapshot_only_downgrades_oauth_authentication_failures ... ok
+test mcp::tests::tool_plugin_context_collects_app_and_mcp_sources ... ok
+test openai_docs_source_attribution::tests::attributes_only_docs_mcp_requests ... ok
+test openai_docs_source_attribution::tests::leaves_other_mcp_clients_unwrapped ... ok
+test pagination::tests::applies_a_default_timeout_when_no_timeout_is_configured ... ok
+test pagination::tests::applies_one_timeout_across_individually_timely_pages ... ok
+test pagination::tests::collects_all_pages_including_an_empty_cursor ... ok
+test pagination::tests::forwards_page_failures ... ok
+test pagination::tests::rejects_a_catalog_exceeding_the_item_limit_across_pages ... ok
+test pagination::tests::rejects_a_page_exceeding_the_catalog_item_limit ... ok
+test pagination::tests::rejects_excessive_pagination_before_fetching_another_page ... ok
+test pagination::tests::rejects_nonconsecutive_repeated_cursors ... ok
+test pagination::tests::rejects_oversized_pagination_cursors_before_following_them ... ok
+test plugin_config::tests::agent_plugin_mcp_enforces_closed_transport_and_path_semantics ... ok
+test plugin_config::tests::agent_plugin_mcp_expands_reserved_paths_and_maps_transports ... ok
+test plugin_config::tests::agent_plugin_mcp_handles_portable_path_and_http_edge_cases ... ok
+test plugin_config::tests::agent_plugin_mcp_overlays_windows_environment_case_insensitively ... ok
+test plugin_config::tests::agent_plugin_mcp_preserves_arbitrary_server_names ... ok
+test plugin_config::tests::agent_plugin_mcp_preserves_server_named_mcp_servers ... ok
+test plugin_config::tests::agent_plugin_mcp_rejects_drive_relative_windows_command ... ok
+test plugin_config::tests::agent_plugin_mcp_rejects_explicit_null_optional_fields ... ok
+test plugin_config::tests::agent_plugin_mcp_rejects_reserved_environment_aliases_case_insensitively ... ok
+test plugin_config::tests::agent_plugin_mcp_rejects_unsupported_schema ... ok
+test plugin_config::tests::agent_plugin_mcp_skips_invalid_server_without_disabling_siblings ... ok
+test plugin_config::tests::agent_plugin_mcp_treats_args_and_env_as_opaque_after_expansion ... ok
+test plugin_config::tests::agent_plugin_placeholder_expansion_is_single_pass ... ok
+test plugin_config::tests::declared_placement_preserves_local_plugin_normalization ... ok
+test plugin_config::tests::environment_placement_forces_authority_and_defaults_null_cwd ... ok
+test plugin_config::tests::environment_placement_rejects_orchestrator_env_vars ... ok
+test plugin_config::tests::environment_placement_rejects_relative_cwd_that_escapes_package ... ok
+test plugin_config::tests::environment_placement_resolves_relative_cwd_beneath_plugin_root ... ok
+test plugin_config::tests::executor_environment_placement_resolves_foreign_uri_cwd ... ok
+test plugin_config::tests::local_environment_placement_preserves_http_env_references ... ok
+test plugin_config::tests::local_environment_placement_preserves_local_env_vars ... ok
+test plugin_config::tests::local_environment_placement_rejects_remote_env_vars ... ok
+test plugin_config::tests::native_plugin_mcp_cannot_self_declare_ema_auth ... ok
+test plugin_config::tests::remote_environment_placement_preserves_bearer_and_rejects_header_env_references ... ok
+test rmcp_client::credential_policy_tests::configured_credentials_retain_host_environment_resolution ... ok
+test rmcp_client::credential_policy_tests::executor_credentials_reject_host_fallback_for_arbitrary_environment_names ... ok
+test rmcp_client::credential_policy_tests::servers_without_environment_credentials_do_not_require_host_fallback ... ok
+test rmcp_client::tests::advertised_server_implementation_takes_precedence_over_configured_name ... ok
+test rmcp_client::tests::codex_apps_connector_metadata_is_preserved ... ok
+test rmcp_client::tests::custom_mcp_connector_metadata_is_stripped ... ok
+test rmcp_client::tests::mcp_initialize_advertises_client_extensions ... ok
+test rmcp_client::tests::missing_server_implementation_uses_configured_server_name ... ok
+test rmcp_client::tests::startup_outcome_error_identifies_authentication_required ... ok
+test runtime::tests::cached_bindings_are_scoped_to_the_published_runtime ... ok
+test runtime::tests::cached_bindings_follow_the_clients_catalog_revision ... ok
+test runtime::tests::explicit_remote_stdio_and_http_accept_named_environment ... ok
+test runtime::tests::local_http_client_is_shared_across_resolution_and_context_clones ... ok
+test runtime::tests::local_http_does_not_require_local_stdio_availability ... ok
+test runtime::tests::local_stdio_accepts_local_environment_when_available ... ok
+test runtime::tests::local_stdio_requires_local_stdio_availability ... ok
+test runtime::tests::publication_gate_opens_only_for_the_winning_candidate ... ok
+test runtime::tests::remote_stdio_accepts_foreign_absolute_cwd ... ok
+test runtime::tests::sandbox_state_serializes_skip_missing_entries_as_missing_path_behavior ... ok
+test runtime::tests::unknown_explicit_environment_is_rejected ... ok
+test server::tests::connection_identity_does_not_reuse_connections_across_credential_policies ... ok
+test server::tests::executor_connection_identity_does_not_capture_host_environment_values ... ok
+test server::tests::remote_http_connections_track_host_headers_but_not_executor_bearer_tokens ... ok
+test server::tests::tool_catalog_cache_does_not_reuse_catalogs_across_credential_policies ... ok
+test trusted_access::tests::delivers_account_bound_verified_access_to_the_calling_plugin ... ok
+test trusted_access::tests::maps_verified_access_states_and_rejects_invalid_provider_responses ... ok
+test trusted_access::tests::rejects_api_key_authentication_without_sending_credentials ... ok
+test trusted_access::tests::rejects_auth_without_a_nonempty_account_id ... ok
+test trusted_access::tests::rejects_duplicate_cyber_programs ... ok
+test trusted_access::tests::rejects_identity_changes_before_sending_credentials ... ok
+test trusted_access::tests::rejects_identity_changes_while_request_is_in_flight ... ok
+test trusted_access::tests::rejects_initial_unsupported_auth_after_switch_to_chatgpt ... ok
+test trusted_access::tests::rejects_verified_access_response_larger_than_one_mebibyte ... ok
+test trusted_access::tests::replaces_untrusted_entitlements_on_malformed_response ... ok
+test trusted_access::tests::returns_unknown_at_the_lookup_deadline ... ok
+test trusted_access::tests::uses_the_checked_auth_snapshot_for_request_headers ... ok
+
+test result: ok. 258 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.18s
+

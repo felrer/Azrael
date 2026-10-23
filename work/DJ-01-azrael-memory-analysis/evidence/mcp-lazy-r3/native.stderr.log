@@ -1,0 +1,109 @@
+   Compiling hyper v1.8.1
+   Compiling codex-skills v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\skills)
+   Compiling hyper-util v0.1.20
+   Compiling hyper-rustls v0.27.7
+   Compiling hyper-tls v0.6.0
+   Compiling hyper-timeout v0.5.2
+   Compiling reqwest v0.12.28
+   Compiling tonic v0.14.3
+   Compiling codex-http-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\http-client)
+   Compiling tonic-prost v0.14.3
+   Compiling codex-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\protocol)
+   Compiling codex-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\codex-client)
+   Compiling opentelemetry-proto v0.31.0
+   Compiling codex-websocket-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\websocket-client)
+   Compiling opentelemetry-http v0.31.0
+   Compiling opentelemetry-otlp v0.31.0
+   Compiling oauth2 v5.0.0
+   Compiling reqwest v0.13.4
+   Compiling axum v0.8.8
+   Compiling rmcp v3.3.0 (https://github.com/modelcontextprotocol/rust-sdk?rev=3e636cab26c013eca5131103c03d20237f12c4df#3e636cab)
+   Compiling codex-api v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\codex-api)
+   Compiling codex-otel v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\otel)
+   Compiling codex-file-system v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\file-system)
+   Compiling codex-windows-sandbox v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\windows-sandbox-rs)
+   Compiling codex-git-utils v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\git-utils)
+   Compiling codex-mxc-sandbox v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\mxc-sandbox)
+   Compiling codex-shell-command v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\shell-command)
+   Compiling codex-model-provider-info v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\model-provider-info)
+   Compiling codex-features v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\features)
+   Compiling codex-config v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\config)
+   Compiling codex-exec-server-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\exec-server-protocol)
+   Compiling codex-sandboxing v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\sandboxing)
+   Compiling codex-secrets v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\secrets)
+   Compiling codex-exec-server v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\exec-server)
+   Compiling codex-rmcp-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\rmcp-client)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4m 04s
+[cargo-owner] {"schema":1,"token":"f7388724-af9f-45ed-9364-078c795b8870","run":"pid-71272","coordinatorPid":71272,"producerPid":30312,"startedUtc":"2026-10-23T03:33:27.278Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["build","-p","codex-rmcp-client","--bin","test_stdio_server","--locked","--offline"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r3\\engine\\codex-rs","compilationSignature":"4de8538c110b9c75f20b4a1c994cf30bd1d5efd1ca77b07adf0ca8d042722d37","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r3\\temporary\\pending","status":"success","resultObservedUtc":"2026-10-23T03:37:31.895Z","exitCode":0,"signal":null,"durationMs":244624.7719}
+[mcp-fixture-preparation] {"args":["build","-p","codex-rmcp-client","--bin","test_stdio_server","--locked","--offline"],"exitCode":0,"signal":null}
+    Checking codex-skills v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\skills)
+   Compiling codex-state v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\state)
+    Checking codex-exec-server v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\exec-server)
+    Checking codex-rollout v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\rollout)
+   Compiling codex-code-mode-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\code-mode-protocol)
+    Checking codex-utils-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\utils\plugins)
+    Checking codex-feedback v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\feedback)
+    Checking codex-plugin v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\plugin)
+    Checking codex-connectors v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\connectors)
+    Checking codex-model-provider v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\model-provider)
+    Checking codex-code-mode v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\code-mode)
+    Checking codex-rmcp-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\rmcp-client)
+    Checking codex-tools v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\tools)
+    Checking codex-app-server-protocol v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\app-server-protocol)
+    Checking codex-mcp v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\codex-mcp)
+    Checking codex-extension-api v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\ext\extension-api)
+    Checking codex-hooks v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\hooks)
+    Checking codex-apply-patch v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\apply-patch)
+    Checking codex-agent-message-board-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\ext\agent-message-board)
+    Checking codex-agent-message-board-client v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\agent-message-board-client)
+    Checking codex-rollout-trace v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\rollout-trace)
+    Checking codex-agent-graph-store v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\agent-graph-store)
+    Checking codex-arg0 v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\arg0)
+    Checking codex-home v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\codex-home)
+    Checking codex-exec-server-test-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\exec-server\tests\support)
+    Checking codex-test-binary-support v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\test-binary-support)
+    Checking codex-analytics v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\analytics)
+    Checking codex-thread-store v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\thread-store)
+    Checking codex-core-plugins v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\core-plugins)
+    Checking codex-skills-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\ext\skills)
+    Checking codex-guardian-reviewer v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\ext\guardian-reviewer)
+    Checking codex-connectors-extension v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\ext\connectors)
+    Checking codex-core v0.162.0 (C:\Users\felre\Desktop\pi-harness-init\artifacts\build\mcp-lazy-r3\engine\codex-rs\core)
+error[E0609]: no field `session_source` on type `McpDesiredState`
+   --> core\src\session\mcp.rs:248:50
+    |
+248 |                         session_source: &desired.session_source,
+    |                                                  ^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `config`, `auth`, `submit_id`, `originator`, `environments` ... and 2 others
+
+error[E0609]: no field `session_source` on type `McpDesiredState`
+   --> core\src\session\mcp.rs:321:46
+    |
+321 |                     session_source: &desired.session_source,
+    |                                              ^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `config`, `auth`, `submit_id`, `originator`, `environments` ... and 2 others
+
+warning: unused import: `crate::agent::api::AgentControl`
+ --> core\src\tools\handlers\multi_agents_v2\message_tool.rs:9:5
+  |
+9 | use crate::agent::api::AgentControl;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `check_response` is never read
+   --> core\src\session\parent_response_wait.rs:838:25
+    |
+838 |                         check_response = false;
+    |                         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0609`.
+warning: `codex-core` (lib) generated 2 warnings
+error: could not compile `codex-core` (lib) due to 2 previous errors; 2 warnings emitted
+[cargo-owner] {"schema":1,"token":"dbb4c56f-b9cc-4f24-8efa-d95625c08a6f","run":"pid-71272","coordinatorPid":71272,"producerPid":71028,"startedUtc":"2026-10-23T03:37:31.904Z","targetDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target","targetIdentity":"c:\\users\\felre\\desktop\\pi-harness-init\\engine\\codex-rs\\target","command":"cargo","args":["check","-p","codex-core","--features","integration-tests","--test","all","--locked","--offline","--profile","test"],"cwd":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r3\\engine\\codex-rs","compilationSignature":"9ab26004c3fcfe5e762982eeb19bed97dbcdce44ab53c75908d4e5bac54dc1b4","pendingDirectory":"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DJ-01\\runs\\mcp-lazy-r3\\temporary\\pending","status":"failed","resultObservedUtc":"2026-10-23T03:41:23.709Z","exitCode":101,"signal":null,"durationMs":231811.6981}
+[cargo-preflight] {"schema":1,"typeCheck":"selected-tests","testSelection":"nonzero","phases":[{"phase":"typeCheck","args":["check","-p","codex-core","--features","integration-tests","--test","all","--locked","--offline","--profile","test"],"startedUtc":"2026-10-23T03:37:31.902Z","durationMs":231813,"exitCode":101,"signal":null}]}

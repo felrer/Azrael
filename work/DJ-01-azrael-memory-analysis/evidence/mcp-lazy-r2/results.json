@@ -1,0 +1,15 @@
+[
+  {
+    "name": "wrapper",
+    "executable": "C:\\Program Files\\nodejs\\node.exe",
+    "args": [
+      "--test",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\test-mcp-lazy-startup.cjs",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\mcp-lazy-r2\\scripts\\test-cargo-verification.cjs"
+    ],
+    "startedUtc": "2026-10-23T03:32:00.515Z",
+    "finishedUtc": "2026-10-23T03:32:00.928Z",
+    "exitCode": 1,
+    "signal": null
+  }
+]
