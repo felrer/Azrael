@@ -313,6 +313,16 @@ function createIsolationController({ childSession, resources, authorize = async 
       });
     },
     release(ownerId) { text(ownerId, 'ownerId'); if (owner === ownerId || pendingStarts.has(ownerId)) { generation++; invalidate(); } return serial(() => safeRelease(ownerId)); },
+    explicitLogoff(proof) {
+      if(proof?.logoffConfirmed!==true || proof?.processesStopped!==true || !proof.identity) return Promise.reject(new Error('Confirmed explicit child logoff required'));
+      generation++;invalidate();
+      return serial(async()=>{
+        if(!current || !['sid','profile','parentSessionId','childSessionId'].every(key=>current.identity[key]===proof.identity[key]))return {retired:false};
+        const result=await childSession.forgetLoggedOff(proof);
+        current.closed=true;owner=null;targets.clear();
+        return result;
+      });
+    },
     observeSession, closeSession,
   };
 }

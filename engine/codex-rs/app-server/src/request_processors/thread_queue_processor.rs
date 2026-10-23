@@ -101,6 +101,14 @@ impl ThreadQueueRequestProcessor {
                     )
                     .await
             }
+            QueuedSubmissionKind::QuestionReply => {
+                service
+                    .enqueue_question_reply(
+                        thread_id,
+                        submission_into_turn_input(params.input, Some(params.client_user_message_id)),
+                    )
+                    .await
+            }
             QueuedSubmissionKind::ContextCompaction => {
                 if !params.input.is_empty() {
                     return Err(invalid_request(
@@ -159,6 +167,7 @@ impl ThreadQueueRequestProcessor {
             };
             pending_approval_count = CodexThread::pending_approval_count_from_history(thread_id, &history);
             let mut accepted = Vec::new();
+            let mut superseded = Vec::new();
             if let Some(local) = self
                 .thread_store
                 .as_any()
@@ -178,6 +187,15 @@ impl ThreadQueueRequestProcessor {
                                 .ok_or_else(|| internal_error("accepted input missing payload"))?,
                         )
                         .map_err(|e| internal_error(e.to_string()))?;
+                        superseded.extend(
+                            serde_json::from_value::<Vec<String>>(
+                                payload
+                                    .get("superseded_async_question_ids")
+                                    .cloned()
+                                    .unwrap_or_else(|| serde_json::json!([])),
+                            )
+                            .map_err(|e| internal_error(e.to_string()))?,
+                        );
                         if payload["origin"] != "queue" {
                             accepted.push(
                                 serde_json::from_value(payload["content"].clone())
@@ -187,7 +205,7 @@ impl ThreadQueueRequestProcessor {
                     }
                 }
             }
-            CodexThread::pending_question_count_from_history(&history, &accepted)
+            CodexThread::pending_question_count_from_history(&history, &accepted, &superseded)
         };
         let offset = params
             .cursor
@@ -556,6 +574,11 @@ fn api_queued_submission(value: QueuedItem) -> Result<QueuedSubmission, JSONRPCE
             client_id.ok_or_else(|| {
                 internal_error("queued submission is missing its client message id")
             })?,
+        ),
+        QueuedInput::QuestionReply { content, client_id } => (
+            QueuedSubmissionKind::QuestionReply,
+            content.into_iter().map(Into::into).collect(),
+            client_id.ok_or_else(|| internal_error("queued reply is missing its client message id"))?,
         ),
         QueuedInput::ContextCompaction { client_id } => (
             QueuedSubmissionKind::ContextCompaction,

@@ -66,6 +66,57 @@ test("discovers a shared enabled schedule after four cycles while locally disabl
   } finally { service.dispose(); }
 });
 
+test("unchanged ticks suppress change events while discovery, errors, recovery and toggles remain visible", async () => {
+  const backend = new Backend();
+  backend.result = [schedule(true)];
+  const service = new UsageWindowService(backend);
+  let changes = 0;
+  service.on("change", () => ++changes);
+  try {
+    await service.refresh();
+    assert.equal(changes, 1, "first discovery is visible");
+    backend.result = [schedule(true)];
+    await service.poll();
+    await service.refresh();
+    assert.equal(backend.calls.at(-2)?.action, "autoWindowTick");
+    assert.equal(changes, 1, "equivalent new objects do not emit");
+    backend.result = [{ ...schedule(true), nextRunAt: 200 }];
+    await service.poll();
+    assert.equal(changes, 2);
+    backend.handler = async () => { throw new Error("transport failure"); };
+    await service.refresh();
+    assert.equal(changes, 3);
+    await service.refresh();
+    assert.equal(changes, 3, "same safe failure does not emit repeatedly");
+    backend.handler = undefined;
+    await service.refresh();
+    assert.equal(changes, 4, "recovery emits even with unchanged schedules");
+    backend.result = [schedule(false)];
+    await service.setEnabled(profile.id, profile.workspaceAccountId, false);
+    assert.equal(changes, 5);
+    assert.equal(service.forProfile(profile)?.enabled, false);
+  } finally { service.dispose(); }
+});
+
+test("first empty discovery and initial error recovery each emit once", async () => {
+  const backend = new Backend();
+  backend.result = [];
+  backend.handler = async () => { throw new Error("unavailable"); };
+  const service = new UsageWindowService(backend);
+  let changes = 0;
+  service.on("change", () => ++changes);
+  try {
+    await service.refresh();
+    assert.equal(changes, 1);
+    backend.handler = undefined;
+    await service.refresh();
+    assert.equal(changes, 2);
+    await service.refresh();
+    assert.equal(changes, 2);
+    assert.equal(service.error, undefined);
+  } finally { service.dispose(); }
+});
+
 test("opposite queued toggles preserve the final user choice", async () => {
   const backend = new Backend();
   const service = new UsageWindowService(backend);

@@ -6,7 +6,7 @@ const os = require('node:os');
 const tasks = require('./window-task-macros.cjs');
 const { createRegistry } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
-const TOOLS = Object.freeze(['context', 'prepare_permissions', 'request_stage', 'resource_status', 'cleanup', 'launch_isolated', 'capture_isolated', 'input_isolated', 'list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
+const TOOLS = Object.freeze(['context', 'prepare_permissions', 'request_stage', 'resource_status', 'cleanup', 'logoff_isolated', 'launch_isolated', 'capture_isolated', 'input_isolated', 'list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
 const OVERLAY_LABELS = Object.freeze({ capture: '화면 확인 중', inspect: '화면 요소 확인 중', invoke: '버튼 실행 중', set_value: '입력값 변경 중', toggle: '전환 중', select: '항목 선택 중', expand: '펼치는 중', collapse: '접는 중', scroll: '스크롤 중', press_key: '키 전달 중', wait_for: '결과 대기 중', assert: '결과 확인 중', resize: '창 크기 변경 중', run_size_macro: '창 크기 변경 중', run_task_macro: '매크로 실행 중' });
 const OBSERVATION_FAILURES = new Set(['stale-element', 'stale-observation', 'unknown-element', 'uia-value-limit',
   'capture-size-changed', 'capture-timeout', 'provider-timeout', 'backend-timeout', 'native-error',
@@ -285,6 +285,10 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
     call: (thread, tool, args) => {
       if (!TOOLS.includes(tool)) return Promise.reject(new Error('Unsupported selected-window tool'));
       if (tool === 'context') { try { keys(args, ['guideVersion']); if(args.guideVersion !== undefined) str(args.guideVersion); } catch(e) { return Promise.reject(e); } return serial(() => context ? context(thread, args) : {stage:1, executionContext:'parent-window'}); }
+      if (tool === 'logoff_isolated') {
+        try { keys(args,['reason'],['reason']);str(args.reason,1024); } catch(e) { return Promise.reject(e); }
+        return serial(() => resources ? resources(tool,thread,args) : {status:'unavailable',logoffConfirmed:false});
+      }
       if (tool === 'resource_status' || tool === 'cleanup') { try { keys(args, tool==='cleanup'?['ids']:[]);if(args.ids!==undefined && (!Array.isArray(args.ids) || args.ids.length<1 || args.ids.length>20 || args.ids.some(id=>typeof id!=='string' || !/^[A-Za-z0-9_.-]{1,128}$/.test(id)))) throw windowError('invalid_request','Invalid cleanup resource IDs'); } catch(e) { return Promise.reject(e); } return serial(() => resources ? resources(tool, thread,args) : {status:'unavailable',resources:[]}); }
       if (['launch_isolated','capture_isolated','input_isolated'].includes(tool)) {
         try {

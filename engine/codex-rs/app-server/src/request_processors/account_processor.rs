@@ -1627,7 +1627,7 @@ impl AccountRequestProcessor {
             .await
             .map_err(|err| internal_error(format!("failed to fetch codex rate limits: {err}")))?;
         self.account_rate_limits_response_from_backend(
-            &auth,
+            None,
             response,
             detailed_rate_limit_reset_credits,
         )
@@ -1674,7 +1674,22 @@ impl AccountRequestProcessor {
 
     async fn account_rate_limits_response_from_backend(
         &self,
-        _auth: &CodexAuth,
+        requested_profile_auth: Option<&CodexAuth>,
+        response: codex_backend_client::RateLimitsWithResetCredits,
+        detailed_rate_limit_reset_credits: Option<RateLimitResetCreditsSummary>,
+    ) -> Result<GetAccountRateLimitsResponse, JSONRPCErrorError> {
+        let active_auth = self.auth_manager.auth().await;
+        Self::account_rate_limits_response_for_auth(
+            requested_profile_auth,
+            active_auth.as_ref(),
+            response,
+            detailed_rate_limit_reset_credits,
+        )
+    }
+
+    fn account_rate_limits_response_for_auth(
+        requested_profile_auth: Option<&CodexAuth>,
+        active_auth: Option<&CodexAuth>,
         response: codex_backend_client::RateLimitsWithResetCredits,
         detailed_rate_limit_reset_credits: Option<RateLimitResetCreditsSummary>,
     ) -> Result<GetAccountRateLimitsResponse, JSONRPCErrorError> {
@@ -1712,17 +1727,20 @@ impl AccountRequestProcessor {
                 })
         });
 
-        // Match desktop's account readiness check before exposing account-bound CTA content.
-        // Normal rate limits remain available when older backends omit identity or banner data.
-        // Login can change while the backend read is in flight.
-        let active_auth = self.auth_manager.auth().await;
-        let matches_active_account = active_auth.is_some_and(|auth| {
-            !auth.is_fedramp_account()
-                && response.account_id.is_some()
-                && response.account_id == auth.get_account_id()
-                && response.user_id.is_some()
-                && response.user_id == auth.get_chatgpt_user_id()
-        });
+        let matches_account = |auth: Option<&CodexAuth>| {
+            auth.is_some_and(|auth| {
+                !auth.is_fedramp_account()
+                    && response.account_id.is_some()
+                    && response.account_id == auth.get_account_id()
+                    && response.user_id.is_some()
+                    && response.user_id == auth.get_chatgpt_user_id()
+            })
+        };
+        // A saved profile's included-usage permission belongs to that request's identity,
+        // even when another account is selected. Ordinary desktop reads and account-bound
+        // upsell content still recheck the active account after the backend read.
+        let matches_usage_account = matches_account(requested_profile_auth.or(active_auth));
+        let matches_active_account = matches_account(active_auth);
         let rate_limit_upsell = response
             .rate_limit_upsell
             .filter(|_| matches_active_account);
@@ -1730,7 +1748,7 @@ impl AccountRequestProcessor {
         Ok(GetAccountRateLimitsResponse {
             ordinary_usage_allowed: response
                 .ordinary_usage_allowed
-                .filter(|_| matches_active_account),
+                .filter(|_| matches_usage_account),
             rate_limits: rate_limits.into(),
             rate_limits_by_limit_id: Some(
                 rate_limits_by_limit_id
@@ -2020,6 +2038,10 @@ fn workspace_message_type_from_backend(
 fn workspace_messages_feature_disabled(err: &BackendRequestError) -> bool {
     err.status().is_some_and(|status| status.as_u16() == 404)
 }
+
+#[cfg(test)]
+#[path = "account_processor/usage_identity_tests.rs"]
+mod usage_identity_tests;
 
 #[cfg(test)]
 mod tests {

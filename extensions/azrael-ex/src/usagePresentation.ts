@@ -42,7 +42,14 @@ export function providerHeadingHtml(id: string, label: string, count: number, ac
 export function visibleLimits(usage: AccountUsage): RateLimitSnapshot[] {
   const entries = Object.entries(usage.rateLimitsByLimitId ?? { default: usage.rateLimits });
   return entries.filter(([key, limit]) => ![key, limit.limitId, limit.limitName, limit.normalModelSlug]
-    .some(value => typeof value === "string" && /spark/i.test(value))).map(([, limit]) => limit);
+    .some(value => typeof value === "string" && /spark/i.test(value))).sort(([keyA, a], [keyB, b]) => {
+      const idA = a.limitId ?? keyA;
+      const idB = b.limitId ?? keyB;
+      const codexA = keyA === "codex" || idA === "codex";
+      const codexB = keyB === "codex" || idB === "codex";
+      // Compare stable identities directly, without locale-dependent ordering.
+      return Number(codexB) - Number(codexA) || (idA < idB ? -1 : idA > idB ? 1 : keyA < keyB ? -1 : keyA > keyB ? 1 : 0);
+    }).map(([, limit]) => limit);
 }
 
 export function resetText(reset: number | null, now = Date.now()): string {

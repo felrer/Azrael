@@ -5,12 +5,13 @@ const { EventEmitter } = require('node:events');
 const { createHost } = require('./window-control-host.cjs');
 const { attachApprovalEngine } = require('./window-approval-engine-fixture.cjs');
 const ids = ['12345678-1234-1234-1234-123456789abc', '22345678-1234-1234-1234-123456789abc'];
-async function fixture(t, delayed = false, occupancyDirectory, workspaceFile) {
-  const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-use-host-'));
+async function fixture(t, delayed = false, occupancyDirectory, workspaceFile, extra = {}) {
+  const parent=process.env.WINDOW_USE_HOST_TEST_ROOT || os.tmpdir();await fs.mkdir(parent,{recursive:true});
+  const home = await fs.mkdtemp(path.join(parent, 'azrael-window-use-host-'));
   let releaseListen, panels = 0; const calls = [];
   const window = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture app', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
-  const host = createHost({ occupancyDirectory: occupancyDirectory || path.join(home, 'occupancy'), runtime: { codexHome: home, workspacePath: 'C:/private/Workspace', windowControl: {} }, approvals,
+  const host = createHost({ occupancyDirectory: occupancyDirectory || path.join(home, 'occupancy'), runtime: { codexHome: home, workspacePath: 'C:/private/Workspace', windowControl: {}, ...extra.runtime }, approvals, childLogoff:extra.childLogoff,approvalTimeoutMs:extra.approvalTimeoutMs,
     vscode: { workspace: {workspaceFile: workspaceFile ? {fsPath:workspaceFile} : undefined}, window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael'), showWarningMessage: async message => { assert.match(message, /Window Use 2단계/); return '허용'; } } },
     backend: { request: async (method, params) => { calls.push({ method, params }); return method === 'listWindows' ? [window] : window; }, dispose: async () => {} },
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => { releaseListen = ready; if (!delayed) ready(); }; server.close = () => {}; return server; },
@@ -32,6 +33,43 @@ async function replayResult(f, method, expected, returned = expected) {
   const reply = new Promise(resolve => assert.equal(f.host.beforeResult(f.native, result, resolve), true));
   return { reply, result };
 }
+const logoffIdentity={sid:'S-1-5-21-fixture',profile:'C:/fixture',parentSessionId:2,childSessionId:10,sessionAnchorPid:99,sessionAnchorCreated:'12345'};
+async function logoffFixture(t,inspection,logoff,extra={}) {
+  const f=await fixture(t,false,undefined,undefined,{...extra,runtime:{nodeExecutable:process.execPath,windowControl:{childSession:{executable:'C:/fixture/helper.exe',sha256:'a'.repeat(64),logoffScript:'C:/fixture/request-window-child-logoff.ps1'}}},childLogoff:{inspectChildLogoff:async()=>inspection,logoffCurrentChild:logoff}});
+  const settings=require('./use-control-settings.cjs').createSettingsOwner(f.home);settings.updateSettings({stage3Enabled:true},settings.getSettings().revision);
+  f.started();await f.host.threads.get(ids[0]).ready;
+  return {...f,invoke:()=>f.host.handlePipe({...f.message(),tool:'logoff_isolated',arguments:{reason:'사용자가 기존 자식 세션 종료를 요청했습니다.'}})};
+}
+test('healthy occupied child logoff is blocked without asking or calling native logoff',async t=>{
+  const f=await logoffFixture(t,{ok:true,present:true,identity:logoffIdentity,health:'healthy',ownerPresent:true,allowed:false,reasons:[]},()=>assert.fail('occupied child must not be logged off'));
+  f.host.registerApprovalUI(f.native,()=>assert.fail('occupied child must not prompt'));
+  const result=await f.invoke();assert.equal(result.code,'child_session_occupied');assert.equal(result.actionExecuted,false);
+});
+for(const health of ['healthy','abnormal'])test(health+' child logoff requires exact one-shot in-app approval',async t=>{
+  let count=0;const inspected={ok:true,present:true,identity:logoffIdentity,health,ownerPresent:health==='abnormal',allowed:true,reasons:health==='abnormal'?['connection verification failed']:[]};
+  const f=await logoffFixture(t,inspected,async options=>{count++;assert.deepEqual(options.identity,logoffIdentity);return {identity:logoffIdentity,processesStopped:true,logoffConfirmed:true,filesCleanupState:'not_requested'};});
+  let prompts=0;
+  f.host.registerApprovalUI(f.native,message=>{if(message.type!=='mcp-request')return;prompts++;const request=message.request;assert.match(request.params.message,/세션 10/);assert.match(request.params.message,/저장하지 않은 작업/);assert.deepEqual(request.params._meta.persist,['session']);f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});return true;});
+  assert.equal((await f.invoke()).logoffConfirmed,true);assert.equal(count,1);assert.equal(prompts,1);
+  assert.equal((await f.invoke()).logoffConfirmed,true);assert.equal(count,2);assert.equal(prompts,2,'approval cannot authorize a later logoff');
+});
+test('declined child logoff never executes native mutation',async t=>{
+  const f=await logoffFixture(t,{ok:true,present:true,identity:logoffIdentity,health:'abnormal',ownerPresent:true,allowed:true,reasons:['status failure']},()=>assert.fail('declined logoff executed'));
+  f.host.registerApprovalUI(f.native,message=>{if(message.type==='mcp-request'){f.host.respondApproval(f.native,message.request.id,{action:'decline'});return true;}});
+  await assert.rejects(f.invoke(),error=>error.code==='approval_declined');
+});
+test('late one-shot logoff approval requires a fresh call and cannot replay on its own',async t=>{
+  let calls=0,request;
+  const f=await logoffFixture(t,{ok:true,present:true,identity:logoffIdentity,health:'abnormal',ownerPresent:true,allowed:true,reasons:['status failure']},async()=>{calls++;return {identity:logoffIdentity,processesStopped:true,logoffConfirmed:true};},{approvalTimeoutMs:15});
+  f.host.registerApprovalUI(f.native,message=>{if(message.type==='mcp-request'){request=message.request;return true;}});
+  await assert.rejects(f.invoke(),error=>error.code==='permission_pending');assert.equal(calls,0);
+  f.host.observe(f.native,{method:'turn/completed',params:{threadId:ids[0],turn:{id:'turn-one',status:'completed'}}});
+  f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});
+  await new Promise(resolve=>setTimeout(resolve,20));assert.equal(calls,0,'late click cannot execute logoff');
+  f.started(ids[0],'turn-two');
+  const result=await f.host.handlePipe({...f.message(ids[0],'turn-two'),tool:'logoff_isolated',arguments:{reason:'승인된 종료 요청을 새 턴에서 실행합니다.'}});
+  assert.equal(result.logoffConfirmed,true);assert.equal(calls,1);
+});
 test('host task macros use the runtime workspace', async t => {
   const f = await fixture(t);
   f.started(); await f.host.threads.get(ids[0]).ready;

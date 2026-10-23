@@ -953,6 +953,7 @@ pub struct QueuedSubmission {
 #[ts(rename_all = "camelCase", export_to = "v2/")]
 pub enum QueuedSubmissionKind {
     UserInput,
+    QuestionReply,
     ContextCompaction,
 }
 

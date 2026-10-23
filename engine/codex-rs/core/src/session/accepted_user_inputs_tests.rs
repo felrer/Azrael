@@ -359,12 +359,25 @@ fn journal_payload_preserves_context_classification_and_complete_user_input() {
         content,
         additional_context,
         origin: UserInputOrigin::User,
+        superseded_async_question_ids: Vec::new(),
     };
     let json = serde_json::to_string(&payload).unwrap();
     let restored: AcceptedPayload = serde_json::from_str(&json).unwrap();
     assert_eq!(restored.content, payload.content);
     assert_eq!(restored.additional_context, payload.additional_context);
     assert_eq!(restored.origin, payload.origin);
+    assert!(restored.superseded_async_question_ids.is_empty());
+    let with_snapshot = AcceptedPayload {
+        superseded_async_question_ids: vec!["old-question".into()],
+        ..restored
+    };
+    assert_eq!(
+        with_snapshot.input_digest().unwrap(),
+        payload.input_digest().unwrap()
+    );
+    let restored: AcceptedPayload =
+        serde_json::from_str(&serde_json::to_string(&with_snapshot).unwrap()).unwrap();
+    assert_eq!(restored.superseded_async_question_ids, vec!["old-question"]);
 }
 
 #[tokio::test]
@@ -564,6 +577,7 @@ async fn historical_receipt_requires_explicit_canonical_causal_root() {
             content,
             additional_context: BTreeMap::new(),
             origin: UserInputOrigin::User,
+            superseded_async_question_ids: Vec::new(),
         })
         .unwrap();
         session

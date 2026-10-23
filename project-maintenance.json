@@ -24,6 +24,22 @@
   ],
   "bundles": [
     {
+      "id": "question-withdrawal-ui-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-question-withdrawal.cjs", "scripts/test-question-queue.cjs", "scripts/test-queue-consumption.cjs", "scripts/test-namespace-cache-owner.cjs"],
+      "inputs": ["scripts/inject-question-withdrawal.cjs", "scripts/test-question-withdrawal.cjs", "scripts/inject-question-queue.cjs", "scripts/test-question-queue.cjs", "scripts/inject-queue-consumption.cjs", "scripts/test-queue-consumption.cjs", "scripts/namespace-azrael-host.cjs", "scripts/namespace-cache-owner.cjs", "scripts/asset-transform-cache.cjs", "scripts/test-namespace-cache-owner.cjs", "artifacts/upstream-ui/26.1007.21434", "extensions/azrael-ex/node_modules/typescript"]
+    },
+    {
+      "id": "question-withdrawal-ui-render",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/verify-question-withdrawal-render.mjs"],
+      "inputs": ["scripts/verify-question-withdrawal-render.mjs", "scripts/inject-question-withdrawal.cjs", "scripts/inject-question-queue.cjs", "scripts/inject-queued-compaction.cjs", "scripts/inject-account-switch-queue.cjs", "scripts/artifact-run.cjs", "scripts/artifact-lifecycle.cjs", "artifacts/upstream-ui/26.1007.21434", "extensions/azrael-ex/node_modules/typescript"]
+    },
+    {
       "id": "response-tps-ui",
       "kind": "test",
       "purpose": "retained",
@@ -31,7 +47,6 @@
       "argv": ["node", "--test", "scripts/test-provider-context.cjs", "scripts/test-provider-model-picker.cjs"],
       "inputs": ["scripts/inject-provider-context.cjs", "scripts/test-provider-context.cjs", "scripts/provider-context-labels.cjs", "scripts/astra-speed-toggle.cjs", "scripts/provider-model-picker.cjs", "scripts/inject-provider-model-picker.cjs", "scripts/test-provider-model-picker.cjs", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-c014f9ee4429.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/personalization-settings-8b2df7633ad3.js", "extensions/azrael-ex/node_modules/typescript/lib/typescript.js", "extensions/azrael-ex/node_modules/typescript/package.json"]
     },
-
     {
       "id": "recent-history-progressive",
       "kind": "test",
@@ -45,6 +60,41 @@
       "purpose": "retained",
       "argv": ["node", "scripts/verify-session-flags-render.mjs"],
       "inputs": ["scripts/verify-session-flags-render.mjs", "scripts/inject-recent-chat-filter.cjs", "scripts/inject-session-flags.cjs", "scripts/inject-deferred-turn.cjs", "scripts/deferred-list-state-fixture.cjs", "artifacts/upstream-ui/26.1007.21434/webview/assets"]
+    },
+    {
+      "id": "managed-unavailable-tool-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "providers/opencodex/tests/unavailable-tool.test.mjs", "providers/opencodex/tests/tool-diagnostics.test.mjs", "providers/opencodex/tests/harness-mapping.test.mjs"],
+      "inputs": ["providers/opencodex/inference-mapping.mjs", "providers/opencodex/tool-diagnostics.mjs", "providers/opencodex/tests/unavailable-tool.test.mjs", "providers/opencodex/tests/tool-diagnostics.test.mjs", "providers/opencodex/tests/harness-mapping.test.mjs", "providers/opencodex/anthropic-prompt-format.mjs", "providers/devin/tool-search-history.mjs", "providers/devin/progress.mjs"]
+    },
+    {
+      "id": "managed-unavailable-tool-adapter",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-unavailable-tool-adapter.cjs"],
+      "inputs": ["scripts/check-unavailable-tool-adapter.cjs", "providers/opencodex/inference.ts", "providers/opencodex/inference-mapping.mjs", "providers/opencodex/inference-config.ts", "providers/opencodex/tool-diagnostics.mjs", "providers/opencodex/tests/tool-diagnostics-inference.test.ts", "providers/opencodex/tests/tool-name-replay.test.ts", "providers/opencodex/tests/harness-projection.test.ts", "providers/devin/progress.mjs", "providers/devin/tool-search-history.mjs", "artifacts/tools/bun-1.4.2/package/bin/bun.exe"]
+    },
+    {
+      "id": "window-child-explicit-logoff",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": ["node", "scripts/check-window-child-logoff.cjs"],
+      "inputs": [
+        "scripts/check-window-child-logoff.cjs",
+        "scripts/test-window-child-explicit-logoff.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-use-host.cjs",
+        "scripts/window-child-session.cjs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-control-host.cjs",
+        "scripts/window-control-policy.cjs",
+        "scripts/window-control-mcp.cjs",
+        "scripts/request-window-child-logoff.ps1",
+        "native/windows-child-session/ChildSession.cs"
+      ]
     },
     {
       "id": "sent-draft-restoration-source",
@@ -195,6 +245,7 @@
         "node",
         "--test",
         "scripts/test-cargo-verification.cjs",
+        "scripts/test-cargo-test-preparation.cjs",
         "scripts/test-cargo-target-owner.cjs",
         "scripts/test-cargo-scheduling.cjs",
         "scripts/test-cargo-verification-cache.cjs",
@@ -203,6 +254,7 @@
       "cwd": ".",
       "inputs": [
         "scripts/cargo-verification.cjs",
+        "scripts/cargo-test-preparation.cjs",
         "scripts/cargo-target-owner.cjs",
         "scripts/feature-preservation.cjs",
         "scripts/cargo-verification-cache.cjs",
@@ -210,6 +262,7 @@
         "scripts/check-task-recovery-native.cjs",
         "scripts/azrael-feature-contracts.json",
         "scripts/test-cargo-verification.cjs",
+        "scripts/test-cargo-test-preparation.cjs",
         "scripts/test-cargo-target-owner.cjs",
         "scripts/test-cargo-scheduling.cjs",
         "scripts/test-cargo-verification-cache.cjs",

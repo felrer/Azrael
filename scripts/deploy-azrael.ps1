@@ -34,6 +34,7 @@ param(
     [ValidateRange(1,16)][int]$SourceTestConcurrency = 4,
     [switch]$ForceNativeVerification,
     [string[]]$ChangedPath,
+    [AllowEmptyCollection()][string[]]$EngineFeatureId,
     [switch]$VerifyAccountControls,
     [string]$HostVersion
 )
@@ -66,6 +67,7 @@ if ($WindowControlTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($Win
 if ($CargoVerificationCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CargoVerificationCacheProjectRoot)) { throw 'CargoVerificationCacheProjectRoot must be an absolute cache owner path.' }
 if ($NamespaceCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($NamespaceCacheProjectRoot)) { throw 'NamespaceCacheProjectRoot must be an absolute cache owner path.' }
 if ($FullRegression -and $ChangedPath) { throw 'ChangedPath cannot be combined with FullRegression.' }
+if ($FullRegression -and $PSBoundParameters.ContainsKey('EngineFeatureId')) { throw 'EngineFeatureId cannot be combined with FullRegression.' }
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 $lifecycleMembers = Get-VersionLifecycleMembers $project $ReleaseName
 $null = Register-ArtifactLifecycle -ProjectRoot $project -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $lifecycleMembers
@@ -206,39 +208,29 @@ function Assert-Package {
 }
 
 function Get-FocusedEngineFeatureIds {
-    param([string[]]$PolicyPaths, [string]$EngineSourceRoot)
-    $selected = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input')
-    $defaultEngine = [IO.Path]::GetFullPath((Join-Path $project 'engine'))
-    $unknownEngine = [IO.Path]::GetFullPath($EngineSourceRoot).TrimEnd('\', '/') -ine $defaultEngine.TrimEnd('\', '/')
-    # Only clearly unrelated inputs may omit the integration gate.
-    $related = @($PolicyPaths | Where-Object {
-        $_ -notmatch '^(docs/|work/|companion/|ui/)' -and
-        # This renderer reads usage snapshots and emits account HTML/CSS only.
-        # Keep host handlers, protocol/shared helpers and unknown extension paths related.
-        $_ -cne 'extensions/azrael-ex/src/usagePresentation.ts' -and
-        $_ -notmatch '^scripts/(inject-(content-fonts|file-open-menu|image-file-open|image-sketch|ui-cleanup|student-design)\.cjs|test-(asset-transform-cache|session-links|namespace-source)\.cjs)$'
-    })
-    if ($unknownEngine -or @($PolicyPaths).Count -eq 0 -or $related.Count -gt 0) {
-        $selected += 'engine.thread-auto-compaction-integration'
-    }
+    param([string[]]$PolicyPaths, [string]$EngineSourceRoot,
+        [AllowEmptyCollection()][string[]]$EngineFeatureId, [switch]$ExplicitSelection)
+    $selected = @()
     $inventoryPath = Join-Path $project 'scripts/azrael-feature-contracts.json'
-    if (Test-Path -LiteralPath $inventoryPath -PathType Leaf) {
-        $engineFeatures = @((Get-Content -LiteralPath $inventoryPath -Raw | ConvertFrom-Json).features | Where-Object area -eq 'engine')
-        $ownerMatches = @($engineFeatures | Where-Object {
-            $owners = @($_.owners)
-            @($PolicyPaths | Where-Object { $changed = $_; @($owners | Where-Object { $changed -ceq $_ -or $changed.StartsWith($_.TrimEnd('/') + '/', [StringComparison]::Ordinal) }).Count -gt 0 }).Count -gt 0
+    $engineFeatures = @((Get-Content -LiteralPath $inventoryPath -Raw | ConvertFrom-Json).features | Where-Object area -eq 'engine')
+    if ($ExplicitSelection) {
+        $unknownIds = @($EngineFeatureId | Where-Object { $_ -cnotin @($engineFeatures.id) })
+        if ($unknownIds.Count) { throw "Unknown engine feature IDs: $($unknownIds -join ', ')" }
+        return @($EngineFeatureId | Select-Object -Unique)
+    }
+    $unmappedNative = @()
+    foreach ($changed in $PolicyPaths) {
+        $owners = @($engineFeatures | Where-Object {
+            @($_.owners | Where-Object { $changed -ceq $_ -or $changed.StartsWith($_.TrimEnd('/') + '/', [StringComparison]::Ordinal) }).Count -gt 0
         })
-        $selected += @($ownerMatches | ForEach-Object id)
-        $unmappedNative = @($PolicyPaths | Where-Object {
-            $changed = $_
-            $changed -match '^engine/.*(\.rs|Cargo\.(toml|lock)|rust-toolchain(\.toml)?)$' -and
-            @($engineFeatures | Where-Object { $changed -cin @($_.owners) }).Count -eq 0
-        })
-        # A shared dependency or unmapped Rust input cannot be treated as an
-        # unrelated presentation edit just because its direct owner is absent.
-        if ($unmappedNative.Count -or @($PolicyPaths | Where-Object { $_ -in @('scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs') }).Count) {
-            $selected += @($engineFeatures | ForEach-Object id)
+        $selected += @($owners | ForEach-Object id)
+        if (-not $owners.Count -and ($changed -match '^engine/.*(\.rs|Cargo\.(toml|lock)|rust-toolchain(\.toml)?|\.cargo/config(\.toml)?)$' -or
+            $changed -in @('scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs'))) {
+            $unmappedNative += $changed
         }
+    }
+    if ($unmappedNative.Count) {
+        throw "Unmapped engine verification scope: $($unmappedNative -join ', '). Select EngineFeatureId explicitly (an empty array is allowed), or use FullRegression."
     }
     return @($selected | Select-Object -Unique)
 }
@@ -276,7 +268,7 @@ try {
     } | Sort-Object -Unique)
     $sourceTestPolicyPath = Join-Path $logs 'source-test-policy-inputs.json'
     @{changedPaths = @($policyPaths); exhaustive = [bool]$ExhaustiveRegression} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceTestPolicyPath -Encoding utf8NoBOM
-    $focusedEngineFeatureIds = @(Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot)
+    $focusedEngineFeatureIds = @(if (-not $FullRegression) { Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) })
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot, '-LifecycleParentActive')
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
@@ -303,8 +295,6 @@ try {
         outputDirectory = (Join-Path $logs 'engine-source-preflight'); area = 'engine'; checkPhase = 'source'
         reuseNativeChecks = -not [bool]$ForceNativeVerification
         cargoTarget = 'x86_64-pc-windows-msvc'
-        changedPaths = @($policyPaths)
-        preparationLogDirectory = (Join-Path $logs 'changed-test-preparation')
         temporaryDirectory = (Join-Path $project 'artifacts/verification/build-temp')
     }
     if ($PreflightToolDirectory) { $sourceConfig.toolDirectories = @($PreflightToolDirectory) }
@@ -333,14 +323,6 @@ try {
     try {
         $metrics.moduleCachePreflight = [ordered]@{ owner = $preflightModuleCache.Owner; root = $preflightModuleCache.Root; registeredProjects = @(Get-BuildCacheProjects $preflightModuleCache) }
     } finally { $preflightModuleCache.Lease.Dispose() }
-    $preparationPlan = Start-OwnedCommand 'cargo-preparation-plan' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'cargo-preflight-recipes.cjs'), $sourceConfigPath)
-    Wait-OwnedCommands @($preparationPlan)
-    $recipePlan = Get-Content -LiteralPath $preparationPlan.Record.stdout -Raw | ConvertFrom-Json
-    if (-not $recipePlan.PSObject.Properties['cargoPreparations'] -or -not $recipePlan.PSObject.Properties['gaps']) { throw 'Cargo preparation plan is incomplete.' }
-    if (@($recipePlan.gaps).Count) { throw "Cargo preparation has unresolved input or recipe mappings. See $($preparationPlan.Record.stdout)." }
-    $sourceConfig.cargoPreparations = @($recipePlan.cargoPreparations)
-    if (-not @($recipePlan.cargoPreparations).Count) { $sourceConfig.cargoPreparationReason = 'No affected selected Cargo test compilation; see the retained preparation plan.' }
-    $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
     $dependencies = Start-OwnedCommand 'verification-dependencies' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), $sourceConfigPath)
     Wait-OwnedCommands @($dependencies)
     $sourcePreflight = Start-OwnedCommand 'engine-source-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $sourceConfigPath)
@@ -356,9 +338,6 @@ try {
     ConvertTo-Json -InputObject $sourceLogicalArgs -Depth 5 | Set-Content -LiteralPath $sourceTestArgsPath -Encoding utf8NoBOM
     $metrics.sourceTestArguments = [ordered]@{ path = $sourceTestArgsPath; sha256 = (Get-FileHash -LiteralPath $sourceTestArgsPath -Algorithm SHA256).Hash.ToLowerInvariant(); count = $sourceLogicalArgs.Count; characterCount = ($sourceLogicalArgs | Measure-Object -Property Length -Sum).Sum }
     $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source @($sourceTestArgs[0], '--args-file', $sourceTestArgsPath, '--args-sha256', $metrics.sourceTestArguments.sha256)
-    $testPreparation = Start-OwnedCommand 'changed-test-type-preparation' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), '--prepare-tests', $sourceConfigPath)
-    Wait-OwnedCommands @($testPreparation) -MonitoredCommands @($sourceTests)
-    Assert-ProjectSnapshot 'post-test-preparation'
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
     # Build completion releases binary consumers; source failures still cancel owned work.
     Wait-OwnedCommands @($build) -MonitoredCommands @($sourceTests)

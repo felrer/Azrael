@@ -2895,6 +2895,7 @@
     "QueuedSubmissionKind": {
       "enum": [
         "userInput",
+        "questionReply",
         "contextCompaction"
       ],
       "type": "string"

@@ -44,6 +44,20 @@ export class AppServerTransport extends EventEmitter {
   get isConnected(): boolean { return this.connected; }
   get diagnosticSummary(): readonly string[] { return [...this.diagnostics]; }
 
+  /** Observes the owning handshake without starting another engine. */
+  waitForReady(signal: AbortSignal): Promise<void> {
+    if (this.disposed || signal.aborted) return Promise.reject(new Error("app-server readiness cancelled"));
+    if (this.connected) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const cleanup = () => { this.off("ready", ready); this.off("disposed", cancelled); signal.removeEventListener("abort", cancelled); };
+      const ready = () => { cleanup(); resolve(); };
+      const cancelled = () => { cleanup(); reject(new Error("app-server readiness cancelled")); };
+      this.once("ready", ready);
+      this.once("disposed", cancelled);
+      signal.addEventListener("abort", cancelled, { once: true });
+    });
+  }
+
   async start(): Promise<unknown> {
     if (this.started || this.disposed) throw new Error("app-server transport cannot be started again");
     this.started = true;
@@ -69,6 +83,7 @@ export class AppServerTransport extends EventEmitter {
       }, this.options.requestTimeoutMs ?? 15_000);
       this.write({ method: "initialized" });
       this.connected = true;
+      this.emit("ready");
       this.restartFailures = 0;
       return result;
     } catch (error) {
@@ -92,6 +107,7 @@ export class AppServerTransport extends EventEmitter {
 
   dispose(): void {
     this.disposed = true;
+    this.emit("disposed");
     clearTimeout(this.restartTimer);
     this.restartTimer = undefined;
     this.fail(new Error("app-server disposed"));

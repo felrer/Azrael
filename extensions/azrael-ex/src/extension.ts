@@ -3,6 +3,7 @@ import * as path from "node:path";
 import * as os from "node:os";
 import { createHash, randomUUID } from "node:crypto";
 import * as vscode from "vscode";
+import type { EngineReadinessHook } from "./bridgeTransport";
 import { AccountService } from "./accountService";
 import { AccountView } from "./accountView";
 import { UsageView } from "./usageView";
@@ -72,6 +73,7 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
   }
 
   let standaloneTransport: AppServerTransport | undefined;
+  let waitForEngineReady = runtime.waitForEngineReady;
   if (standalone) {
     const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? os.homedir();
     standaloneTransport = new AppServerTransport({
@@ -79,6 +81,8 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
       restartDelayMs: 1_000,
       clientInfo: { name: "azrael-vscode", version: "0.4.0", title: "Azrael VS Code" },
     });
+    const owner = standaloneTransport;
+    waitForEngineReady = (_remainingMs, signal) => owner.waitForReady(signal);
     const chat = new ChatView(new ChatSession(standaloneTransport, cwd));
     context.subscriptions.push(chat, vscode.window.registerWebviewViewProvider("azrael.chat", chat));
     register("azrael.openSidebar", () => vscode.commands.executeCommand("workbench.view.extension.azraelViewContainer"));
@@ -100,7 +104,11 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     vscode.commands.registerCommand("azrael.designEmbedded", (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => studentDesign.handleEmbedded(webview, request, panel)),
     vscode.commands.registerCommand("azrael.studentCreated", (threadId: unknown) => studentDesign.recordCreated(threadId)));
 
-  service = new AccountService({ executable: bridgeExecutable, socket, codexHome, expectedServerVersion: engineVersion, env: { ...runtimeEnv, AZRAEL_EX_MANAGEMENT_SOCKET: socket, CODEX_HOME: codexHome } });
+  const bridgeLog = vscode.window.createOutputChannel("Azrael Bridge", { log: true });
+  context.subscriptions.push(bridgeLog);
+  service = new AccountService({ executable: bridgeExecutable, socket, codexHome, expectedServerVersion: engineVersion,
+    waitForEngineReady, onDiagnostic: event => bridgeLog.warn(JSON.stringify(event)),
+    env: { ...runtimeEnv, AZRAEL_EX_MANAGEMENT_SOCKET: socket, CODEX_HOME: codexHome } });
   const accountService = service;
   standaloneTransport?.on("reconnect", () => {
     void accountService.reconnectAfterEngineRestart().catch(() => undefined);
@@ -160,6 +168,7 @@ async function guarded(action: () => unknown): Promise<void> {
 function message(error: unknown): string { return error instanceof Error ? error.message : String(error); }
 
 export interface HostRuntime {
+  waitForEngineReady?: EngineReadinessHook;
   platform?: { os: string; arch: string; target: string; libc?: string };
   bridge: string;
   engine: string;

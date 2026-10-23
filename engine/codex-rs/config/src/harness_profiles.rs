@@ -91,7 +91,7 @@ pub struct HarnessProfiles {
 }
 
 /// Managed slugs carry the actual inference provider identity. Other providers' Claude
-/// model names and Anthropic-compatible wire protocols do not confer eligibility.
+/// model names and Anthropic-compatible wire protocols do not change this identity.
 pub fn is_anthropic_provider(provider: &str, model: &str) -> bool {
     if provider == "managed" || provider == "azrael-managed" {
         model.starts_with("managed/anthropic/")
@@ -344,13 +344,9 @@ impl HarnessProfiles {
     }
 
     pub fn resolve(&self, provider: &str, model: &str) -> io::Result<ResolvedHarnessProfile> {
-        let anthropic = is_anthropic_provider(provider, model);
         let mut binding = self.profile("azrael-default")?.clone();
         if let Some(id) = &self.config.default_profile {
             self.apply(&mut binding, self.profile(id)?)?;
-        }
-        if anthropic {
-            self.apply(&mut binding, self.profile("anthropic-default")?)?;
         }
         // Specific actual provider bindings override a generic managed transport binding.
         if let Some(layer) = self.config.providers.get(provider) {
@@ -371,11 +367,6 @@ impl HarnessProfiles {
         }
         let prompt_profile = binding.prompt_profile.expect("bundled prompt default");
         let tool_profile = binding.tool_profile.expect("bundled tool default");
-        if (tool_profile == CLAUDE_TOOLS) != anthropic {
-            return Err(invalid(format!(
-                "harness tool profile {tool_profile} is incompatible with provider {provider} model {model}"
-            )));
-        }
         let prompt = self
             .prompts
             .get(&prompt_profile)
@@ -411,15 +402,14 @@ mod tests {
     }
 
     #[test]
-    fn defaults_follow_actual_provider_and_future_models() {
+    fn defaults_use_azrael_for_every_provider_and_future_models() {
         let profiles = HarnessProfiles::default();
         for provider in ["managed", "azrael-managed", "anthropic"] {
-            assert!(
-                profiles
-                    .resolve(provider, "managed/anthropic/future-model")
-                    .unwrap()
-                    .uses_claude_tools()
-            );
+            let profile = profiles
+                .resolve(provider, "managed/anthropic/future-model")
+                .unwrap();
+            assert_eq!(profile.tool_profile, AZRAEL_TOOLS);
+            assert_eq!(profile.prompt_variant, AZRAEL_PROMPT);
         }
         for (provider, model) in [
             ("openai", "claude-opus"),
@@ -493,20 +483,27 @@ mod tests {
     }
 
     #[test]
-    fn provider_tool_isolation_cannot_be_overridden() {
-        for text in [
-            "[providers.openai]\ntool_profile = 'builtin/claude-code-core'",
-            "[providers.anthropic]\ntool_profile = 'builtin/azrael-default'",
-            "[models.'managed/google-antigravity/claude']\nprofile = 'anthropic-default'",
-            "[models.'managed/anthropic/claude']\nprofile = 'azrael-default'",
-        ] {
-            assert!(
-                parse(text).is_err(),
-                "accepted provider isolation violation: {text}"
-            );
-        }
+    fn explicit_profiles_override_defaults_without_provider_restrictions() {
+        let profiles = parse("default_profile = 'anthropic-default'\n[providers.anthropic]\nprofile = 'azrael-default'\n[models.exact]\nprompt_profile = 'builtin/claude-lean'").unwrap();
+        assert!(
+            profiles
+                .resolve("openai", "future")
+                .unwrap()
+                .uses_claude_tools()
+        );
+        let provider = profiles.resolve("anthropic", "future").unwrap();
+        assert_eq!(provider.tool_profile, AZRAEL_TOOLS);
+        assert_eq!(provider.prompt_variant, AZRAEL_PROMPT);
+        let model = profiles.resolve("anthropic", "exact").unwrap();
+        assert_eq!(model.tool_profile, AZRAEL_TOOLS);
+        assert_eq!(model.prompt_variant, CLAUDE_LEAN_PROMPT);
         let profiles = parse("[models.direct]\nprofile = 'anthropic-default'").unwrap();
-        assert!(profiles.resolve("openai", "direct").is_err());
+        assert!(
+            profiles
+                .resolve("openai", "direct")
+                .unwrap()
+                .uses_claude_tools()
+        );
         assert!(
             profiles
                 .resolve("anthropic", "direct")

@@ -45,6 +45,124 @@ use super::tool_log_payload;
 
 struct ExtensionEchoContributor;
 
+#[tokio::test]
+async fn unavailable_tool_marker_rejects_dispatch_even_with_registered_collision() {
+    use super::UNAVAILABLE_TOOL_NAMESPACE;
+    use crate::function_tool::FunctionCallError;
+    use crate::tools::context::ToolCallState;
+
+    let (session, turn) = make_session_and_context().await;
+    let session = Arc::new(session);
+    let step = StepContext::for_test(Arc::new(turn));
+    for collision in [false, true] {
+        let tools = if collision {
+            vec![mcp_runtime(mcp_tool_info(
+                "unavailable-test",
+                false,
+                UNAVAILABLE_TOOL_NAMESPACE,
+                "unknown",
+            ))]
+        } else {
+            Vec::new()
+        };
+        let router = test_tool_router(&step, tools, Vec::new(), &[]);
+        let name = ToolName::namespaced(UNAVAILABLE_TOOL_NAMESPACE, "unknown");
+        assert_eq!(router.tool_runtime(&name).is_some(), collision);
+        let call = ToolRouter::build_tool_call(ResponseItem::FunctionCall {
+            id: None,
+            namespace: Some(UNAVAILABLE_TOOL_NAMESPACE.to_string()),
+            name: "unknown".to_string(),
+            arguments: "{}".to_string(),
+            call_id: "unavailable-call".to_string(),
+            encrypted_function_args: None,
+            internal_chat_message_metadata_passthrough: None,
+        })
+        .unwrap()
+        .unwrap();
+        assert_eq!(call.call_id, "unavailable-call");
+        let result = router
+            .dispatch_tool_call_with_state(
+                Arc::clone(&session),
+                Arc::clone(&step),
+                CancellationToken::new(),
+                Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new())),
+                call,
+                ToolCallSource::Direct,
+                Arc::new(ToolCallState::default()),
+            )
+            .await;
+        assert!(
+            matches!(result, Err(FunctionCallError::RespondToModel(message))
+            if message == "Tool unknown is not available. Use only tools in the current tool catalog.")
+        );
+    }
+}
+
+#[tokio::test]
+async fn unavailable_tool_output_preserves_call_id_and_allows_next_call() -> anyhow::Result<()> {
+    use super::UNAVAILABLE_TOOL_NAMESPACE;
+    use crate::tools::parallel::ToolCallRuntime;
+
+    let (session, turn) = make_session_and_context().await;
+    let step = StepContext::for_test(Arc::new(turn));
+    let router = test_tool_router(
+        &step,
+        Vec::new(),
+        [Arc::new(ExtensionEchoExecutor)
+            as Arc<
+                dyn for<'call> ToolExecutor<ExtensionToolCall<'call>>,
+            >],
+        &[],
+    );
+    let step = step.with_tool_router_for_test(Arc::new(router));
+    let runtime = ToolCallRuntime::new(
+        Arc::new(session),
+        step,
+        Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new())),
+    );
+    for (namespace, name, id, success) in [
+        (
+            UNAVAILABLE_TOOL_NAMESPACE,
+            "unknown",
+            "rejected-call",
+            false,
+        ),
+        ("extension/", "echo", "next-call", true),
+    ] {
+        let output = runtime
+            .clone()
+            .handle_tool_call(
+                ToolCall {
+                    tool_name: ToolName::namespaced(namespace, name),
+                    call_id: id.to_string(),
+                    payload: ToolPayload::Function {
+                        arguments: json!({"message": "continue"}).to_string(),
+                    },
+                    encrypted_function_args: None,
+                },
+                CancellationToken::new(),
+            )
+            .await?;
+        let ResponseItem::FunctionCallOutput {
+            call_id, output, ..
+        } = output.item
+        else {
+            panic!("expected paired function output");
+        };
+        assert_eq!(call_id.as_deref(), Some(id));
+        if success {
+            assert_ne!(output.success, Some(false));
+        } else {
+            assert_eq!(output.success, Some(false));
+            let FunctionCallOutputBody::Text(text) = output.body else {
+                panic!("expected text tool rejection");
+            };
+            assert!(text.contains("Tool unknown is not available."));
+        }
+    }
+    Ok(())
+}
+
 #[test]
 fn tool_log_payload_redacts_plaintext_multi_agent_messages() {
     let payload = ToolPayload::Function {
@@ -247,9 +365,91 @@ impl<'call> ToolExecutor<ExtensionToolCall<'call>> for DeferredEchoExecutor {
 }
 
 #[tokio::test]
+async fn anthropic_azrael_tools_patch_read_and_execute() -> anyhow::Result<()> {
+    let fixture = tempfile::tempdir()?;
+    std::fs::write(fixture.path().join("fixture.txt"), "before\n")?;
+    let (session, mut turn, _events) =
+        crate::session::tests::make_session_and_context_with_auth_and_config_and_rx(
+            codex_login::CodexAuth::from_api_key("Test API Key"),
+            Vec::new(),
+            |config| {
+                config.cwd =
+                    codex_utils_absolute_path::AbsolutePathBuf::from_absolute_path(fixture.path())
+                        .unwrap();
+                config.model_provider_id = "azrael-managed".into();
+                config
+                    .permissions
+                    .set_permission_profile(codex_protocol::models::PermissionProfile::Disabled)
+                    .unwrap();
+                config.permissions.approval_policy = crate::config::Constrained::allow_any(
+                    codex_protocol::protocol::AskForApproval::Never,
+                );
+            },
+        )
+        .await;
+    crate::session::tests::update_turn_settings_for_test(
+        Arc::get_mut(&mut turn).expect("unique turn"),
+        |settings| {
+            let model = Arc::make_mut(&mut settings.model_info);
+            model.slug = "managed/anthropic/future-model".into();
+            model.shell_type = codex_protocol::openai_models::ConfigShellToolType::UnifiedExec;
+            model.apply_patch_tool_type =
+                Some(codex_protocol::openai_models::ApplyPatchToolType::Freeform);
+        },
+    );
+    let step = StepContext::for_test(turn);
+    assert!(!step.harness_profile.uses_claude_tools());
+    let router = test_tool_router(&step, Vec::new(), Vec::new(), &[]);
+    let tracker = Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new()));
+    let calls = [
+        ("apply_patch", ToolPayload::Custom { input: "*** Begin Patch\n*** Update File: fixture.txt\n@@\n-before\n+CJ_TOOL_RESULT\n*** End Patch".into() }),
+        ("exec_command", ToolPayload::Function { arguments: json!({
+            "cmd": if cfg!(windows) { "Get-Content fixture.txt" } else { "cat fixture.txt" },
+            "shell": if cfg!(windows) { "powershell.exe" } else { "/bin/sh" },
+            "login": false, "tty": false, "yield_time_ms": 10000,
+            "workdir": fixture.path(),
+        }).to_string() }),
+    ];
+    for (name, payload) in calls {
+        let response = router
+            .dispatch_tool_call_with_code_mode_result(
+                Arc::clone(&session),
+                Arc::clone(&step),
+                CancellationToken::new(),
+                Arc::clone(&tracker),
+                ToolCall {
+                    tool_name: ToolName::namespaced(DEFAULT_FUNCTION_NAMESPACE, name),
+                    call_id: name.into(),
+                    payload,
+                    encrypted_function_args: None,
+                },
+                ToolCallSource::Direct,
+            )
+            .await?
+            .into_response()
+            .item;
+        let output = serde_json::to_string(&response)?;
+        if name == "exec_command" {
+            assert!(output.contains("CJ_TOOL_RESULT"), "{output}");
+        }
+        assert_eq!(
+            std::fs::read_to_string(fixture.path().join("fixture.txt"))?,
+            "CJ_TOOL_RESULT\n"
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test]
 async fn claude_tool_search_loads_and_dispatches_a_deferred_tool() -> anyhow::Result<()> {
     let (session, mut turn) = make_session_and_context().await;
     Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+    let filesystem = turn.initial_environments.primary_filesystem().expect("test filesystem");
+    Arc::make_mut(&mut turn.config).harness_profiles =
+        codex_config::harness_profiles::HarnessProfiles::load(
+            toml::from_str("[providers.anthropic]\nprofile = 'anthropic-default'").unwrap(),
+            filesystem.as_ref(),
+        ).await?;
     crate::session::tests::update_turn_settings_for_test(&mut turn, |settings| {
         let model = Arc::make_mut(&mut settings.model_info);
         model.slug = "managed/anthropic/future-model".to_string();

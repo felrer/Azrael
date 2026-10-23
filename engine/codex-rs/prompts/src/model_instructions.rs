@@ -4,6 +4,7 @@ use codex_protocol::openai_models::ModelInfo;
 
 /// Embedded copy of instructions/instructions/agent-behavior.md.
 pub const COMMON_AGENT_INSTRUCTIONS: &str = include_str!("../templates/agent_behavior.md");
+const HARNESS_RUNTIME_CORE: &str = include_str!("../templates/harness-runtime-core.md");
 
 const COMMON_PARALLEL_TOOL_GUIDANCE: &str = "Run independent searches, reads, and tool calls in parallel with `Promise.allSettled` inside `functions.exec` when possible, and inspect every result. Keep dependent work, mutations, approvals, waits, and adaptive follow-ups sequential.";
 const API_PARALLEL_TOOL_GUIDANCE: &str = "Call declared tools directly using their declared input schemas. Run independent searches, reads, and tool calls in parallel when the runtime supports parallel tool calls, and inspect every result. Keep dependent work, mutations, approvals, waits, and adaptive follow-ups sequential.";
@@ -11,7 +12,11 @@ const API_PARALLEL_TOOL_GUIDANCE: &str = "Call declared tools directly using the
 /// Project only the exact leading harness-owned common block for API requests.
 /// Custom instructions after that block remain verbatim; unmatched inputs are unchanged.
 pub fn project_api_base_instructions(instructions: &str) -> String {
-    let Some(suffix) = instructions.strip_prefix(COMMON_AGENT_INSTRUCTIONS) else {
+    let (runtime, behavior) = instructions
+        .strip_prefix(HARNESS_RUNTIME_CORE)
+        .and_then(|rest| rest.strip_prefix('\n'))
+        .map_or(("", instructions), |rest| (HARNESS_RUNTIME_CORE, rest));
+    let Some(suffix) = behavior.strip_prefix(COMMON_AGENT_INSTRUCTIONS) else {
         return instructions.to_owned();
     };
     let common = COMMON_AGENT_INSTRUCTIONS.replacen(
@@ -19,7 +24,11 @@ pub fn project_api_base_instructions(instructions: &str) -> String {
         API_PARALLEL_TOOL_GUIDANCE,
         1,
     );
-    format!("{common}{suffix}")
+    if runtime.is_empty() {
+        format!("{common}{suffix}")
+    } else {
+        format!("{runtime}\n{common}{suffix}")
+    }
 }
 
 /// Catalog instruction templates do not replace the harness behavior.
@@ -50,9 +59,6 @@ pub fn compose_harness_instructions(
     claude_tools: bool,
     custom: Option<&str>,
 ) -> String {
-    if !claude_tools && behavior_template.is_none() && prompt_variant == "builtin/azrael-default" {
-        return compose_agent_instructions(custom);
-    }
     let default_behavior = if prompt_variant == "builtin/claude-lean" {
         include_str!("../templates/claude-lean-behavior.md").to_owned()
     } else if claude_tools {
@@ -68,11 +74,7 @@ pub fn compose_harness_instructions(
         COMMON_AGENT_INSTRUCTIONS.to_owned()
     };
     let behavior = behavior_template.unwrap_or(&default_behavior);
-    let mut text = format!(
-        "{}\n{}",
-        include_str!("../templates/harness-runtime-core.md"),
-        behavior
-    );
+    let mut text = format!("{HARNESS_RUNTIME_CORE}\n{behavior}");
     if claude_tools {
         text.push_str("\n");
         text.push_str(include_str!("../templates/claude-tool-environment.md"));
@@ -80,13 +82,24 @@ pub fn compose_harness_instructions(
     if let Some(custom) = custom.filter(|text| !text.is_empty()) {
         // Saved explicit instructions can include an old common prefix. Refresh only that
         // harness-owned prefix; preserve the user's actual additions verbatim.
-        let custom = custom
-            .strip_prefix(COMMON_AGENT_INSTRUCTIONS)
+        let saved_behavior = custom
+            .strip_prefix(HARNESS_RUNTIME_CORE)
+            .and_then(|rest| rest.strip_prefix('\n'))
             .unwrap_or(custom);
+        let suffix = saved_behavior.strip_prefix(COMMON_AGENT_INSTRUCTIONS);
+        let custom = suffix.unwrap_or(custom);
         if !custom.trim().is_empty() {
-            text.push_str(&format!(
-                "\n<custom_agent_instructions>\n{custom}\n</custom_agent_instructions>"
-            ));
+            if suffix.is_some()
+                && custom
+                    .trim_start()
+                    .starts_with("<custom_agent_instructions>\n")
+            {
+                text.push_str(custom);
+            } else {
+                text.push_str(&format!(
+                    "\n<custom_agent_instructions>\n{custom}\n</custom_agent_instructions>"
+                ));
+            }
         }
     }
     text

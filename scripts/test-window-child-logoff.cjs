@@ -8,7 +8,9 @@ const crypto = require('node:crypto');
 const {createSessionCleanup,validateIdentity,sameIdentity,parseArgs,safePath} = require('./window-child-session-cleanup.cjs');
 async function realResourceIntegration(identity,flags) {
   const root=path.resolve(process.env.WINDOW_USE_LOGOFF_TEST_ROOT || path.resolve(__dirname,'../artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/logoff-cli'));
-  const ownedRoot=path.resolve(__dirname,'../artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary');
+  const ownedRoot=path.resolve(process.env.WINDOW_USE_LOGOFF_TEST_OWNER_ROOT || path.resolve(__dirname,'../artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary'));
+  const taskRelative=path.relative(path.resolve(__dirname,'../artifacts/tasks'),ownedRoot);
+  assert.ok(taskRelative && !taskRelative.startsWith('..'+path.sep) && taskRelative!=='..' && !path.isAbsolute(taskRelative) && path.basename(ownedRoot)==='temporary','Logoff fixture owner must be a project task temporary directory');
   const relative=path.relative(ownedRoot,root);
   assert.ok(relative && !relative.startsWith('..'+path.sep) && relative !== '..' && !path.isAbsolute(relative),'Integration fixture must stay below its task-owned temporary root');
   assert.ok(path.isAbsolute(root),'Integration fixture root must be absolute');

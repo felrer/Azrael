@@ -1174,11 +1174,19 @@ impl CodexThread {
         self.session.pending_question_count()
     }
 
+    pub fn validate_queued_question_reply_shape(
+        content: &[codex_protocol::user_input::UserInput],
+    ) -> CodexResult<()> {
+        crate::session::user_questions::queued_reply_ids(content).map(|_| ())
+    }
+
     pub fn pending_question_count_from_history(
         history: &[codex_history::RolloutItem],
         accepted: &[Vec<codex_protocol::user_input::UserInput>],
+        superseded: &[String],
     ) -> usize {
         let mut questions = crate::session::user_questions::UserQuestions::from_history(history);
+        questions.supersede(superseded);
         for content in accepted {
             questions.answer_content(content);
         }

@@ -45,6 +45,20 @@ test("ordinary send keeps its native start once no account change is pending", a
   assert.deepEqual(f.calls, ["query", "start"]);
 });
 
+for (const activeTurnId of [null, "active-turn"]) test(`question reply bypasses pending account switch: ${activeTurnId}`, async () => {
+  const f = fixture({ pending: true, mode: "queue-only", activeTurnId });
+  f.request.message.context.turnTrigger = "send_user_message_async_question";
+  assert.equal((await f.send()).status, "sent");
+  assert.deepEqual(f.calls, [activeTurnId ? "steer" : "start"]);
+});
+
+test("reply-looking ordinary text does not bypass the account switch", async () => {
+  const f = fixture({ pending: true });
+  f.request.message.context.prompt = "<send_user_message_question_reply>answer</send_user_message_question_reply>";
+  assert.equal((await f.send()).status, "queued");
+  assert.deepEqual(f.calls, ["query", "enqueue"]);
+});
+
 test("account-state lookup failure does not send with old authentication", async () => {
   const error = Error("lookup failed"), f = fixture({ queryError: error });
   await assert.rejects(f.send(), e => e === error);

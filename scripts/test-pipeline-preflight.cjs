@@ -112,31 +112,6 @@ test('environment probes are conditional and failed prerequisite blocks remainin
   assert.equal(calls, 1);
   await assert.rejects(preflight.environment(f, sdkFeatures, { env: { AZRAEL_PYTHON_SDK: 'relative' } }), /installed SDK Python/);
 });
-test('early preparation rejects missing declarative mappings before any Cargo execution', () => {
-  const f = environmentFixture();
-  assert.throws(() => preflight.prepareSelectedTests(f, sdkFeatures), /Missing explicit Cargo preparation recipes/);
-  assert.throws(() => preflight.prepareSelectedTests({ ...f, cargoPreparations: [{ checkId: 'native', args: ['build'] }] }, sdkFeatures), /requires cargo test/);
-  assert.throws(() => preflight.prepareSelectedTests({ ...f, cargoPreparations: [] }, sdkFeatures), /cargoPreparationReason/);
-  assert.equal(preflight.prepareSelectedTests({ ...f, cargoPreparations: [], cargoPreparationReason: 'No changed Rust owners' }, sdkFeatures).skipped, true);
-});
-test('early preparation preserves recipe settings, isolates host state and stops after failure', context => {
-  const f = environmentFixture(); const calls = [];
-  context.mock.method(require('./cargo-verification.cjs'), 'prepareCargoTests', (source, args, options) => {
-    calls.push({ source, args, options });
-    assert.equal(source, f.engineSourceRoot);
-    assert.equal(options.env.CARGO_TARGET_DIR, path.join(f.projectRoot, 'target'));
-    assert.equal(options.env.AZRAEL_CARGO_PROFILE, 'test');
-    assert.equal(options.env.AZRAEL_CARGO_TARGET, 'selected-triple');
-    assert.equal(options.env.RUSTUP_TOOLCHAIN, 'pinned');
-    assert.equal(options.isolateHostEnvironment, true);
-    return { status: 101, preparation: { phase: 'prepare', exitCode: 101 }, stderr: 'type error' };
-  });
-  const recipe = { checkId: 'native', args: ['test', '-p', 'crate', '--lib', 'filter', '--features', 'one'], isolateHostEnvironment: true };
-  const result = preflight.prepareSelectedTests({ ...f, cargoPreparations: [recipe, recipe], cargoTargetDirectory: path.join(f.projectRoot, 'target'), cargoProfile: 'test', cargoTarget: 'selected-triple', rustupToolchain: 'pinned' }, sdkFeatures, { env: {} });
-  assert.equal(calls.length, 1); assert.equal(result.status, 101);
-  assert.equal(result.preparations[0].checkId, 'native');
-  assert.equal(result.preparations[0].exitCode, 101);
-});
 test('filesystem preflight reports unknown estimates, checks capacity and probes owned temporary output', context => {
   const f = environmentFixture();
   context.mock.method(fs, 'statfsSync', () => ({ bavail: 100n, bsize: 10n }));
@@ -150,27 +125,6 @@ test('filesystem preflight reports unknown estimates, checks capacity and probes
   assert.equal(report.storage.status, 'passed'); assert.equal(report.storage.availableBytes, '1000');
   assert.equal(report.temporary.status, 'passed'); assert.deepEqual(fs.readdirSync(temporaryDirectory), []);
   assert.throws(() => preflight.filesystemBoundaries({ ...f, engineSourceRoot: path.join(f.projectRoot, 'artifacts'), temporaryDirectory }), /outside selected engine/);
-});
-test('SDK environment recipe and native window wrapper use the same selected interpreter and PATH', context => {
-  const f = environmentFixture(); fs.writeFileSync(path.join(f.engineSourceRoot, 'codex-rs/Cargo.toml'), '# fixture');
-  const env = { Path: 'C:\\inherited', AZRAEL_PYTHON_SDK: process.execPath };
-  let prepared;
-  context.mock.method(require('./cargo-verification.cjs'), 'prepareCargoTests', (_source, _args, options) => {
-    prepared = options.env; return { status: 0, preparation: { phase: 'prepare', exitCode: 0 } };
-  });
-  preflight.prepareSelectedTests({ ...f, cargoPreparations: [{ checkId: 'native', args: ['test', '--lib'], envRecipe: 'sdk-python-path' }] }, sdkFeatures, { env });
-  let executed; let pythonCalls = 0;
-  require('node:vm').runInNewContext(fs.readFileSync(path.join(__dirname, 'check-window-approval-native.cjs'), 'utf8'), {
-    __dirname, process: { argv: ['node', 'wrapper', f.engineSourceRoot, 'queue'], env }, console: { log() {} },
-    require(id) {
-      if (id === './pipeline-preflight.cjs') return preflight;
-      if (id === './cargo-verification.cjs') return { runCargoTest(_source, _args, options) { executed = options.env; return { status: 0 }; } };
-      if (id === 'node:child_process') return { spawnSync(command, _args, options) { pythonCalls++; assert.equal(command, 'python'); assert.deepEqual(options.env, prepared); return { status: 0 }; } };
-      return require(id);
-    },
-  });
-  assert.equal(pythonCalls, 1); assert.deepEqual(executed, prepared);
-  assert.equal(Object.keys(executed).filter(key => key.toUpperCase() === 'PATH').length, 1);
 });
 test('validated temporary directory reaches real children even without Python or Cargo consumers', async () => {
   const f = environmentFixture();

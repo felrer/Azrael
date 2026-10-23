@@ -31,7 +31,8 @@ except ValidationError:
     pass
 else:
     raise AssertionError("question models must continue rejecting unrelated fields")
-print(json.dumps({"python": sys.version.split()[0], "module": v2_all.__file__, "checks": 4, "passed": True}))
+assert v2_all.QueuedSubmissionKind("questionReply").value == "questionReply"
+print(json.dumps({"python": sys.version.split()[0], "module": v2_all.__file__, "checks": 5, "passed": True}))
 `;
 const result = spawnSync(python, ["-B", "-c", code, sourceRoot], { stdio: "inherit", windowsHide: true });
 if (result.error) throw result.error;

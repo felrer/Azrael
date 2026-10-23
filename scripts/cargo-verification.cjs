@@ -4,6 +4,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { createHash } = require("node:crypto");
 const { physicalPath, runManagedCargoSync } = require("./cargo-target-owner.cjs");
+const { preparationContext } = require("./cargo-test-preparation.cjs");
 
 // Pure command construction is shared by execution and verification identity.
 // Cargo owns compilation reuse; every requested test filter still executes.
@@ -15,7 +16,7 @@ const guardedCargoWrappers = new Set([
   "check-parent-requests", "check-api-context", "check-root-resume-reasoning", "check-model-harness-profiles",
   "check-task-work-time-native", "check-response-tps-native", "check-thread-auto-compaction",
   "check-capacity-recovery", "check-task-profile-skills", "check-project-maintenance", "check-error-classification-native",
-  "check-task-recovery-native",
+  "check-task-recovery-native", "check-usage-window",
 ].map(name => `scripts/${name}.cjs`));
 
 function validateCargoPreflight(check) {
@@ -98,9 +99,32 @@ function runCargoTest(sourceRoot, cargoArgs, options) {
     ...(options?.capture ? { stdio: "pipe", encoding: "utf8", maxBuffer: 64 * 1024 * 1024 } : {}) };
   const commands = preflightCommands(spec);
   const evidence = { ...PREFLIGHT, phases: [] };
+  const environment = options?.env || process.env;
+  const configuration = options?.preparation || (environment.AZRAEL_CARGO_PREPARATION_DIR ? {
+    directory: environment.AZRAEL_CARGO_PREPARATION_DIR,
+    sourceIdentity: environment.AZRAEL_CARGO_PREPARATION_SOURCE_IDENTITY,
+    runtimeIdentity: environment.AZRAEL_CARGO_PREPARATION_RUNTIME_IDENTITY,
+    mode: environment.AZRAEL_CARGO_PREPARATION_MODE,
+  } : undefined);
+  let preparation;
+  if (configuration) {
+    try { preparation = preparationContext(spec, configuration); }
+    catch (error) { preparation = { report: { recommendation: "reuse-caution", action: "prepare", reason: error.message } }; }
+    evidence.preparation = preparation.report;
+    process.stderr.write(`[cargo-preparation] ${JSON.stringify(preparation.report)}\n`);
+  }
   for (const [phase, command] of Object.entries(commands)) {
+    if (phase === "typeCheck" && preparation?.skipTypeCheck) continue;
     const started = Date.now();
-    const result = runManagedCargoSync(command);
+    const result = runManagedCargoSync(command, { onSuccess(observed) {
+      if (phase === "selection") preparation?.save?.([...evidence.phases, { phase,
+        exitCode: observed.status, signal: observed.signal, durationMs: Date.now() - started,
+        selectedTests: (String(observed.stdout || "").match(/^.+: test\r?$/gm) || []).length }]);
+    } });
+    if (result.observationError && preparation) {
+      evidence.preparation.saveWarning = String(result.observationError);
+      process.stderr.write(`[cargo-preparation] ${JSON.stringify(evidence.preparation)}\n`);
+    }
     const count = phase === "selection" ? (String(result.stdout || "").match(/^.+: test\r?$/gm) || []).length : undefined;
     evidence.phases.push({ phase, args: command.args, startedUtc: new Date(started).toISOString(),
       durationMs: Date.now() - started, exitCode: result.status ?? null, signal: result.signal ?? null,
@@ -108,10 +132,19 @@ function runCargoTest(sourceRoot, cargoArgs, options) {
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);
     process.stderr.write(`[cargo-preflight] ${JSON.stringify(evidence)}\n`);
-    if (result.error || result.signal || result.status !== 0) return { ...result, status: result.status === 0 ? 1 : result.status, preflight: evidence };
-    if (count === 0) return { ...result, status: 1, error: new Error("Cargo preflight selected zero tests; refusing test execution"), preflight: evidence };
+    if (result.error || result.signal || result.status !== 0 || count === 0) {
+      try { preparation?.invalidate?.(); }
+      catch (error) { evidence.preparation.invalidateWarning = error.message; }
+      return { ...result, status: count === 0 || result.status === 0 ? 1 : result.status,
+        ...(count === 0 ? { error: new Error("Cargo preflight selected zero tests; refusing test execution") } : {}), preflight: evidence };
+    }
   }
-  return { ...runManagedCargoSync(spec), preflight: evidence };
+  const executionStarted = Date.now();
+  const result = runManagedCargoSync(spec);
+  evidence.phases.push({ phase: "execution", args: spec.args, startedUtc: new Date(executionStarted).toISOString(),
+    durationMs: Date.now() - executionStarted, exitCode: result.status ?? null, signal: result.signal ?? null });
+  process.stderr.write(`[cargo-preflight] ${JSON.stringify(evidence)}\n`);
+  return { ...result, preflight: evidence };
 }
 
 // Preparation is an early scheduling boundary. It is never test evidence and

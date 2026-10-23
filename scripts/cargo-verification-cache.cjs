@@ -23,9 +23,10 @@ const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles
   'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs',
   'check-shared-engine-native.cjs'].map(file => `scripts/${file}`));
 const sourceOnlyHelpers = {
-  'scripts/cargo-verification.cjs': '07edcd7bdab380342a1fefcb369340ede5179e60f7075b623bb52065ab6768bb',
+  'scripts/cargo-test-preparation.cjs': '839a9693a24b9cc3c6fc746d835e178cc79c33032a3082387f238e55e0205b23',
+  'scripts/cargo-verification.cjs': '893d139e5f8357b088c25fe9f109061ec8c252bc3541fe7c37728cd90d7684d3',
   // Explicit recovery only retires verified lease metadata; Cargo payload inputs remain unchanged.
-  'scripts/cargo-target-owner.cjs': '9733242c5a46ef350188eae1d8fdd55b16efeb8ef36bb895ebcbe0a8f9689e8f',
+  'scripts/cargo-target-owner.cjs': '4ec525ac71e328d8e752f1958c750717c031c39060aaa3c1fdbbd78c5829917c',
 };
 function auditedSourceOnly(config, group) {
   try {
@@ -193,7 +194,7 @@ async function runtime(config, env, providers = {}) {
     os: { release: os.release(), version: os.version(), machine: os.machine() }, tools, externalTools,
     cargoConfigs: configs, configParser,
     environmentSha256: sha(canonical(env)), normalized,
-    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs']) };
+    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs']) };
 }
 
 async function key(config, group, inputs, runtimeIdentity) {
@@ -204,7 +205,7 @@ async function key(config, group, inputs, runtimeIdentity) {
   }
   const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
     'scripts/cargo-preflight-recipes.cjs',
-    'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/cargo-config-self-contained.py',
+    'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/cargo-config-self-contained.py',
     'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
   const declared = group.entries.map(({ feature, check }) => {
     feature.owners.forEach(file => files.add(file)); files.add(feature.contract); files.add(check.args[0]);

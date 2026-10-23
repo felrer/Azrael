@@ -10,6 +10,8 @@ export const MAX_BYTES = 8 * 1024 * 1024;
 export const MAX_REQUEST_BYTES = 32 * 1024 * 1024;
 export const MAX_IMAGE_BYTES = 24 * 1024 * 1024;
 export const MAX_IMAGES = 100;
+// Internal rejection identity, never a callable tool or an advertised namespace.
+export const UNAVAILABLE_TOOL_NAMESPACE = 'azrael_unavailable_tool';
 const IMAGE_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
 export class AdapterError extends Error {}
 export function fail(code) { throw new AdapterError(code); }
@@ -99,6 +101,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
   const tools = [];
   function declare(tool, namespace = '') {
     if (!object(tool)) fail('invalid_tool');
+    if (namespace === UNAVAILABLE_TOOL_NAMESPACE || (tool.type === 'namespace' && tool.name === UNAVAILABLE_TOOL_NAMESPACE)) fail('reserved_tool_namespace');
     if (tool.type === 'namespace') {
       if (namespace || !Array.isArray(tool.tools) || !string(tool.name)) fail('invalid_namespace');
       for (const child of tool.tools) declare(child, tool.name);
@@ -318,10 +321,25 @@ export async function mapStream(events, compiled, emit, requestId) {
   };
   const closeCall = () => {
     if (!active) return;
-    const restored = restoreToolCall(active, compiled);
+    let restored;
+    try { restored = restoreToolCall(active, compiled); }
+    catch (error) {
+      if (!(error instanceof AdapterError) || error.message !== 'undeclared_tool') throw error;
+      // Preserve a paired call for the native non-executing rejection path. Do
+      // not resolve the name against hidden tools or repair a provider alias.
+      identity(UNAVAILABLE_TOOL_NAMESPACE, active.name, 'function');
+      if (!string(active.id) || !active.id || compiled.calls.has(active.id)) { diagnose(compiled, 'rejected', 'duplicate_id'); fail('duplicate_call_id'); }
+      const args = parseToolArguments(active.arguments, compiled);
+      diagnose(compiled, 'json', object(args) ? 'valid_object' : 'not_object');
+      if (!object(args)) fail('tool_arguments_not_object');
+      compiled.calls.add(active.id);
+      restored = { type: 'function_call', call_id: active.id, namespace: UNAVAILABLE_TOOL_NAMESPACE,
+        name: active.name, arguments: active.arguments };
+    }
     const metadata = opaqueCalls.find(call => call.id === active.id);
     if (metadata) {
-      metadata.name = resolveToolName(active.name, compiled);
+      metadata.name = restored.namespace === UNAVAILABLE_TOOL_NAMESPACE
+        ? alias(UNAVAILABLE_TOOL_NAMESPACE, restored.name, 'function') : resolveToolName(active.name, compiled);
       const parsed = parseToolArguments(active.arguments, compiled);
       metadata.arguments_digest = createHash('sha256').update(JSON.stringify(parsed)).digest('hex');
     }

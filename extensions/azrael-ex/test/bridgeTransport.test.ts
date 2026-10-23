@@ -9,7 +9,7 @@ test("a bridge exit rejects an in-flight request instead of replaying it", async
   const fixture = path.join(__dirname, "bridge-fixture.js");
   const transport = new BridgeTransport({ executable: process.execPath, socket: fixture, env: process.env, requestTimeoutMs: 2_000 });
   await transport.start();
-  await assert.rejects(transport.request("azrael/account", { action: "remove", profileId: "p1" }), /bridge disconnected/);
+  await assert.rejects(transport.request("azrael/account", { action: "remove", profileId: "p1" }), /outcome is uncertain/);
   transport.dispose();
 });
 
@@ -33,7 +33,7 @@ test("invalid bridge output terminates the child and emits one disconnect", asyn
     assert.equal(disconnects, 1);
   } finally {
     transport.dispose();
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { recursive: true });
   }
 });
 
@@ -49,7 +49,7 @@ test("a mutation timeout reports uncertain outcome and terminates the bridge", a
     await waitUntil(() => !isAlive(pid));
   } finally {
     transport.dispose();
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { recursive: true });
   }
 });
 
@@ -58,3 +58,67 @@ async function waitUntil(predicate: () => boolean): Promise<void> {
   for (let i = 0; i < 50; i++) { if (predicate()) return; await new Promise((resolve) => setTimeout(resolve, 10)); }
   assert.fail("child process remained alive");
 }
+
+for (const mode of ["native-error", "unsafe-error"]) {
+  test(`${mode} keeps only safe structured native fields before exit`, async () => {
+    const events: import("../src/bridgeTransport").BridgeDiagnostic[] = [];
+    const transport = new BridgeTransport({ executable: process.execPath, socket: path.join(__dirname, "bridge-fixture.js"), env: { ...process.env, FIXTURE_MODE: mode }, attempt: 3, onDiagnostic: event => events.push(event) });
+    try {
+      await assert.rejects(transport.start(), (error: unknown) => {
+        const failure = error as import("../src/bridgeTransport").BridgeError;
+        assert.equal(failure.code, mode === "native-error" ? "permission_denied" : "protocol_error");
+        assert.equal(failure.retryable, false);
+        return true;
+      });
+      assert.equal(events.length, 1);
+      assert.equal(events[0].attempt, 3);
+      assert.equal(typeof events[0].childPid, "number");
+      assert.ok(events[0].elapsedMs >= 0);
+      assert.ok(!JSON.stringify(events).includes("credential"));
+    } finally { transport.dispose(); }
+  });
+}
+
+test("a root resume mutation and parallel read get distinct failures on timeout", async () => {
+  const transport = new BridgeTransport({ executable: process.execPath, socket: path.join(__dirname, "bridge-fixture.js"), env: { ...process.env, FIXTURE_MODE: "hang" } });
+  try {
+    await transport.start();
+    const change = transport.request("azrael/rootResume", { action: "cancel" }, 30);
+    const read = transport.request("azrael/account", { action: "list" }, 1_000);
+    const results = await Promise.allSettled([change, read]);
+    assert.equal(results[0].status, "rejected");
+    assert.equal(results[1].status, "rejected");
+    if (results[0].status === "rejected" && results[1].status === "rejected") {
+      assert.match(results[0].reason.message, /outcome is uncertain/);
+      assert.equal(results[0].reason.cause.code, "timeout");
+      assert.equal(results[1].reason.code, "timeout");
+      assert.doesNotMatch(results[1].reason.message, /uncertain/);
+    }
+  } finally { transport.dispose(); }
+});
+
+test("late process events from a disposed child cannot disconnect its replacement", async () => {
+  const transport = new BridgeTransport({ executable: process.execPath, socket: path.join(__dirname, "bridge-fixture.js"), env: { ...process.env, FIXTURE_MODE: "hang" } });
+  try {
+    await transport.start();
+    const old = (transport as unknown as { child: import("node:child_process").ChildProcess }).child;
+    transport.dispose();
+    const next = transport.start();
+    old.emit("error", new Error("stale credential"));
+    old.emit("close", 1, null);
+    await next;
+    const read = transport.request("azrael/account", { action: "list" }, 30);
+    await assert.rejects(read, (error: unknown) => (error as import("../src/bridgeTransport").BridgeError).code === "timeout");
+  } finally { transport.dispose(); }
+});
+
+test("business RPC errors reach the caller without entering diagnostics", async () => {
+  const diagnostics: import("../src/bridgeTransport").BridgeDiagnostic[] = [];
+  const transport = new BridgeTransport({ executable: process.execPath, socket: path.join(__dirname, "bridge-fixture.js"), env: { ...process.env, FIXTURE_MODE: "business-error" }, onDiagnostic: event => diagnostics.push(event) });
+  try {
+    await transport.start();
+    await assert.rejects(transport.request("azrael/account", { action: "switch" }), { message: "Account switch is blocked by an active turn." });
+    assert.deepEqual(diagnostics, []);
+    assert.ok(!JSON.stringify(diagnostics).includes("active turn"));
+  } finally { transport.dispose(); }
+});

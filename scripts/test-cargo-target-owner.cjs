@@ -137,6 +137,98 @@ test("tiny process returns exact output/exit and releases normal success and fai
   }
 });
 
+test("success observer receives exact child result while target ownership is held", context => {
+  const spec = fixture("observer-success");
+  const child = { status: 0, signal: null, pid: 12345, stdout: "artifact JSON\n", stderr: "diagnostic\n" };
+  context.mock.method(require("node:child_process"), "spawnSync", () => child);
+  let observedOwner;
+  const result = owner.runManagedCargoSync(spec, { onSuccess(result, metadata) {
+    assert.equal(result, child);
+    observedOwner = metadata;
+    assert.equal(metadata.status, "running");
+    assert.ok(Number.isFinite(Date.parse(metadata.resultObservedUtc)));
+    assert.equal(JSON.parse(fs.readFileSync(path.join(leasePath(spec), "owner.json"))).token, metadata.token);
+    assert.throws(() => owner.acquireTargetOwner(spec), /owner conflict/);
+    fs.writeFileSync(path.join(spec.cwd, "prepared-artifact"), result.stdout);
+  } });
+  assert.equal(result, child);
+  assert.equal(result.observationError, undefined);
+  assert.equal(observedOwner.status, "success");
+  assert.equal(observedOwner.exitCode, 0);
+  assert.equal(fs.readFileSync(path.join(spec.cwd, "prepared-artifact"), "utf8"), child.stdout);
+  assert.ok(!fs.existsSync(leasePath(spec)));
+});
+
+test("observer errors preserve successful child evidence and release ownership", context => {
+  const spawnMock = context.mock.method(require("node:child_process"), "spawnSync");
+  for (const thrown of [new Error("copy failed"), "copy failed"]) {
+    const spec = fixture("observer-error");
+    const child = { status: 0, signal: null, pid: 12345, stdout: "unchanged\n", stderr: "diagnostic\n" };
+    spawnMock.mock.mockImplementation(() => child);
+    let observedOwner;
+    const result = owner.runManagedCargoSync(spec, { onSuccess(_result, metadata) {
+      observedOwner = metadata;
+      throw thrown;
+    } });
+    assert.equal(result, child);
+    assert.equal(result.observationError, thrown);
+    assert.equal(result.status, 0);
+    assert.equal(result.error, undefined);
+    assert.equal(result.signal, null);
+    assert.equal(result.stdout, "unchanged\n");
+    assert.equal(result.stderr, "diagnostic\n");
+    assert.equal(observedOwner.status, "success");
+    assert.equal(observedOwner.exitCode, 0);
+    assert.ok(!fs.existsSync(leasePath(spec)));
+  }
+});
+
+test("failed and unknown child outcomes skip success observation and preserve protection", context => {
+  const spawnMock = context.mock.method(require("node:child_process"), "spawnSync");
+  const outcomes = [
+    { status: 7, signal: null, pid: 12345 },
+    { status: null, signal: "SIGTERM", pid: 12345 },
+    { status: 0, signal: "SIGTERM", pid: 12345 },
+    { status: 0, error: new Error("uncertain child"), pid: 12345 },
+  ];
+  for (const child of outcomes) {
+    const spec = fixture("observer-skipped");
+    spawnMock.mock.mockImplementation(() => child);
+    const result = owner.runManagedCargoSync(spec, { onSuccess() { assert.fail("unexpected success observation"); } });
+    assert.equal(result, child);
+    assert.equal(result.observationError, undefined);
+    const unknown = Boolean(child.error || child.signal);
+    assert.equal(fs.existsSync(leasePath(spec)), unknown);
+    if (unknown) {
+      const metadata = JSON.parse(fs.readFileSync(path.join(leasePath(spec), "owner.json")));
+      assert.equal(metadata.status, "unknown");
+      assert.equal(metadata.exitCode, child.status);
+      assert.ok(Number.isFinite(Date.parse(metadata.resultObservedUtc)));
+      assert.ok(Number.isFinite(metadata.durationMs) && metadata.durationMs >= 0);
+      assert.equal(metadata.endedUtc, undefined);
+    }
+  }
+});
+
+test("owner duration uses monotonic invocation time through lease release", context => {
+  const spec = fixture("owner-timing");
+  context.mock.method(require("node:child_process"), "spawnSync", () => ({ status: 0 }));
+  let clockReads = 0;
+  context.mock.method(process.hrtime, "bigint", () => {
+    if (++clockReads === 1) {
+      assert.ok(!fs.existsSync(spec.env.CARGO_TARGET_DIR));
+      return 1000000000n;
+    }
+    assert.ok(!fs.existsSync(leasePath(spec)));
+    return 1250000000n;
+  });
+  let observedOwner;
+  owner.runManagedCargoSync(spec, { onSuccess(_result, metadata) { observedOwner = metadata; } });
+  assert.equal(clockReads, 2);
+  assert.equal(observedOwner.durationMs, 250);
+  assert.equal(observedOwner.endedUtc, undefined);
+});
+
 test("a second real process cannot enter a target via a junction/symlink or Windows case alias", async () => {
   const spec = fixture("contention");
   const target = spec.env.CARGO_TARGET_DIR;
@@ -245,7 +337,7 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   const spec = fixture("default-lifecycle");
   const scripts = path.join(spec.cwd, "scripts");
   fs.mkdirSync(scripts);
-  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "artifact-lifecycle.cjs"]) {
+  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs"]) {
     fs.copyFileSync(path.join(__dirname, file), path.join(scripts, file));
   }
   const source = path.join(spec.cwd, "engine");

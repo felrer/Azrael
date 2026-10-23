@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { createHash } from 'node:crypto';
-import { compileRequest, mapStream, restoreToolCall } from '../inference-mapping.mjs';
+import { compileRequest, mapStream, restoreToolCall, UNAVAILABLE_TOOL_NAMESPACE } from '../inference-mapping.mjs';
 import { projectRequest } from '../inference.ts';
 
 const fn = (name: string) => ({ type: 'function', name, parameters: { type: 'object' } });
@@ -45,6 +45,23 @@ test('exact wire, original and qualified names preserve public identity and cano
     expect(replay.replayDetails).toHaveLength(1);
     expect(replay.compiled.messages.flatMap((message: any) => message.tool_calls ?? [])[0].name).toBe(wire);
   }
+});
+
+test('unavailable tool rejection preserves canonical private replay and paired result', async () => {
+  const native = request();
+  const frames: any[] = [];
+  await mapStream(events('unknown_tool', '{"value":1}'), { ...compileRequest(native), provider: native.provider_id,
+    turn: native.turn_id, opaque: { details: [{ type: 'reasoning.text', text: 'private' }] } },
+    (frame: any) => frames.push(frame), 'fixture');
+  const items = frames.filter(frame => frame.type === 'item_done').map(frame => frame.item);
+  const rejected = items.find(item => item.type === 'function_call');
+  expect(rejected.namespace).toBe(UNAVAILABLE_TOOL_NAMESPACE);
+  const replay = projectRequest({ ...native, input: [...items,
+    { type: 'function_call_output', call_id: 'call', output: 'Tool is not available.' }] }, 'account');
+  expect(replay.replayDetails).toHaveLength(1);
+  const wire = replay.compiled.messages.flatMap((message: any) => message.tool_calls ?? [])[0].name;
+  expect(replay.compiled.acceptedNames.has(wire)).toBeFalse();
+  expect(replay.parsed.context.messages.at(-1)).toMatchObject({ role: 'toolResult', toolCallId: 'call' });
 });
 
 test('all name collisions fail without publishing executable calls', async () => {

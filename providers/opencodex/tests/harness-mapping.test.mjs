@@ -25,6 +25,32 @@ test('actual provider and adapter own compatibility; ordinary requests keep hash
   assert.ok(compileRequest(native).tools.every(tool => /^az_[a-f0-9]{40}$/.test(tool.name)));
 });
 
+test('Anthropic accepts explicit Azrael tools and preserves native calls and results', () => {
+  const native = { ...request(),
+    harness_profile: { id: 'azrael', fingerprint: 'azrael-v1', tool_profile: 'builtin/azrael-default', prompt_profile: 'builtin/azrael-default' },
+    tools: [{ type: 'namespace', name: 'functions', tools: [fn('exec_command'),
+      { type: 'custom', name: 'apply_patch', format: { type: 'text' } }] }],
+    input: [
+      { type: 'function_call', namespace: 'functions', name: 'exec_command', call_id: 'read', arguments: '{"cmd":"read fixture"}' },
+      { type: 'function_call_output', call_id: 'read', output: 'fixture contents' },
+      { type: 'custom_tool_call', namespace: 'functions', name: 'apply_patch', call_id: 'edit', input: 'fixture patch' },
+      { type: 'custom_tool_call_output', call_id: 'edit', output: 'patch applied' },
+    ] };
+  const compiled = compileRequest(native, { actualAdapter: 'anthropic', promptFormat: 'anthropic-xml' });
+  for (const [name, id, args] of [['exec_command', 'read', '{"cmd":"read fixture"}'], ['apply_patch', 'edit', '{"input":"fixture patch"}']]) {
+    const wire = compiled.messages.find(message => message.tool_calls?.some(call => call.id === id)).tool_calls.find(call => call.id === id);
+    assert.match(wire.name, /^az_[a-f0-9]{40}$/);
+    const restored = restoreToolCall({ id: `${id}-next`, name: wire.name, arguments: args }, compiled);
+    assert.equal(restored.name, name);
+    assert.equal(restored.call_id, `${id}-next`);
+    assert.equal(restored.namespace, 'functions');
+  }
+  assert.deepEqual(compiled.messages.filter(message => message.role === 'tool').map(({ tool_call_id, content }) => ({ tool_call_id, content })), [
+    { tool_call_id: 'read', content: '<tool_result>\n<![CDATA[fixture contents]]>\n</tool_result>' },
+    { tool_call_id: 'edit', content: '<tool_result>\n<![CDATA[patch applied]]>\n</tool_result>' },
+  ]);
+});
+
 for (const catalogSize of [587, 1000]) {
   test(`Claude search history references only current catalog aliases (${catalogSize} available tools)`, () => {
     const available = Array.from({ length: catalogSize }, (_, index) => ({ ...fn(`lookup_${index}`),

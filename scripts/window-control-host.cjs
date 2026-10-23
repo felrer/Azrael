@@ -36,7 +36,11 @@ class Bridge {
   }); }
   dispose() { for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(windowError('connection_error', 'Engine disconnected')); } this.pending.clear(); this.registration?.dispose(); }
 }
-function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 30000 }) {
+function logoffApproval(inspected,reason) {
+  return {message:'Windows 자식 세션 '+inspected.identity.childSessionId+'을 종료합니다. 현재 상태: '+(inspected.health==='healthy'?'정상':'비정상')+' / 입력 소유자: '+(inspected.ownerPresent?'있음':'없음')+'. 세션 안의 모든 앱이 종료되며 저장하지 않은 작업이 사라질 수 있습니다. 정상 세션은 소유자가 없을 때만, 상태·연결 검증에 실패한 비정상 세션은 소유자와 관계없이 종료합니다. 승인은 이번 종료 요청에만 적용됩니다. 필요한 경우 Windows 관리자 승인을 요청합니다.',
+    tool_params_display:[{name:'app',display_name:'대상',value:'Windows 자식 세션 '+inspected.identity.childSessionId},{name:'health',display_name:'상태',value:inspected.health==='healthy'?'정상':'비정상'},{name:'owner',display_name:'입력 소유자',value:inspected.ownerPresent?'있음':'없음'},{name:'reason',display_name:'이유',value:reason}]};
+}
+function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 30000, childLogoff }) {
   const settingsOwner = require('./use-control-settings.cjs').createSettingsOwner(runtime.codexHome);
   const { stageEnabled } = require('./use-control-settings.cjs');
   const stageGrants = new Map();
@@ -46,6 +50,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   const resources = require('./window-use-resources.cjs').createResourceManager({directory:path.join(runtime.codexHome,'azrael','window-use','resources'),inspectSession:identity=>isolation ? isolation.observeSession(identity):{identity,ownershipVerified:false,state:'unknown'},closeSession:identity=>isolation.closeSession(identity)});
   const childRuntime=runtime.windowControl?.childSession;
   const childModule=require('./window-child-session.cjs');
+  const explicitLogoff=childLogoff ?? childModule, logoffRequests=new Map();
   const childSession=childModule.createWindowsChildSessionManager({bootstrapJournalPath:path.join(runtime.codexHome,'azrael','window-use','child-bootstrap.json'),manualRecoveryRequestPath:path.join(runtime.codexHome,'azrael','window-use','manual-recovery','request.json'),enabled:()=>stageEnabled(settingsOwner.getSettings(),3),...(childRuntime?{probe:()=>childModule.probeWindowsChildSession({probePath:childRuntime.probeScript,tempDirectory:path.join(runtime.codexHome,'tmp','window-child-probe')}),nativeHelper:{path:childRuntime.executable,sha256:childRuntime.sha256}}:{}),authorize:async(_operation,request,ownedIdentity)=>{
     const permission=scope.getStore(),state=settingsOwner.getSettings(),grant=stageGrants.get(request.ownerId);
     if(['stop','releaseInput'].includes(_operation)) return !!ownedIdentity;
@@ -167,7 +172,34 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if(args.stage===3) {try{const result=await isolation.start({ownerId:thread});if(result.ok!==true) stageGrants.delete(thread);return {authorized:result.ok===true,...await contextFor(thread),childSession:result};}catch(error){stageGrants.delete(thread);return {authorized:false,...await contextFor(thread),missingPrerequisite:typeof error.code==='string'?error.code:'child-session-admission',message:'격리 실행을 시작하지 못했습니다. 자식 세션의 준비·연결 상태를 확인해주세요.',childSession:await childSession.describe(),diagnostic:require('./window-use-isolation.cjs').childDiagnostic(error,'start')};}}
     check();return {authorized:true,...await contextFor(thread)};
   }
-  const resourceOperation=async(tool,thread,args={})=>{if(scope.getStore()?.threadId!==thread) throw windowError('permission_denied','Native permission context denied');const result=await (tool==='cleanup'?resources.cleanup({reason:'agent-request',...(args.ids?{ids:args.ids}:{})}):resources.inspect());const childStatus=tool==='resource_status' && childRuntime ? await childSession.describe():undefined;return {...result,...(childStatus?{childSession:childStatus}:{}),resources:result.resources.slice(0,20),resourceCount:result.resources.length,...(result.results?{results:result.results.slice(0,20)}:{})};};
+  async function logoffIsolated(thread,args) {
+    const permission=scope.getStore(),task=threads.get(thread),version=task?.turnVersion,generation=settingsOwner.getSettings().windowUseGeneration;
+    const check=()=>{if(!permission?.disabled || permission.threadId!==thread || !task || threads.get(thread)!==task || task.turnVersion!==version || permission.signal?.aborted || permission.uiRecord?.cancelled || disposed || permission.turnId && task.turnId!==permission.turnId) throw windowError('cancelled','자식 세션 종료 요청이 취소되었습니다.');if(settingsOwner.getSettings().windowUseGeneration!==generation || !stageEnabled(settingsOwner.getSettings(),3)) throw windowError('permission_denied','Window Use 3단계를 켜주세요.');};
+    check();
+    if(process.platform!=='win32' || !childRuntime?.logoffScript) return {status:'unavailable',code:'child_logoff_unavailable',logoffConfirmed:false};
+    const nativeHelper={path:childRuntime.executable,sha256:childRuntime.sha256};
+    let operation=logoffRequests.get(thread);
+    try {
+      if(!operation) {
+        const inspected=await explicitLogoff.inspectChildLogoff(nativeHelper);check();
+        if(!inspected.present || !inspected.allowed) return {status:'blocked',code:inspected.present?'child_session_occupied':'child_session_absent',logoffConfirmed:false,actionExecuted:false,childSession:inspected};
+        operation={requestId:randomUUID(),inspection:inspected};logoffRequests.set(thread,operation);
+      }
+      const inspected=operation.inspection;
+      await consent(undefined,thread,{stage:3,reason:args.reason,identity:{operation:'logoff',requestId:operation.requestId,inspection:inspected}});check();
+      // A fresh native check inside the approved operation enforces health/owner policy again.
+      const nodePath=runtime.nodeExecutable || (absolute(runtime.computerUse?.directory)?path.join(runtime.computerUse.directory,'node.exe'):undefined);
+      const result=await explicitLogoff.logoffCurrentChild({stateRoot:runtime.codexHome,nativeHelper,nodePath,scriptPath:childRuntime.logoffScript,identity:inspected.identity});
+      if(result.logoffConfirmed) {
+        // Do not use old grants or observations after an explicit logoff, even when another task owned it.
+        try {result.runtimeRetirement=await isolation.explicitLogoff(result);}catch(error){result.runtimeRetirement={retired:false,message:error.message};}
+        invalidateUI();for(const id of threads.keys())owner.invalidateObservation(id);
+      }
+      return {...result,status:result.logoffConfirmed?'completed':result.code==='approval_cancelled'?'cancelled':'failed'};
+    } catch(error) {if(error.code==='permission_pending') {operation=undefined;throw error;}throw error;}
+    finally {if(operation)logoffRequests.delete(thread);}
+  }
+  const resourceOperation=async(tool,thread,args={})=>{if(scope.getStore()?.threadId!==thread) throw windowError('permission_denied','Native permission context denied');if(tool==='logoff_isolated')return logoffIsolated(thread,args);const result=await (tool==='cleanup'?resources.cleanup({reason:'agent-request',...(args.ids?{ids:args.ids}:{})}):resources.inspect());const childStatus=tool==='resource_status' && childRuntime ? await childSession.describe():undefined;return {...result,...(childStatus?{childSession:childStatus}:{}),resources:result.resources.slice(0,20),resourceCount:result.resources.length,...(result.results?{results:result.results.slice(0,20)}:{})};};
   const isolatedOperation=async(tool,thread,args,parentIdentity)=>{if(!await isolationAuthorized(thread)) throw windowError('permission_denied','Window Use 격리 실행 권한이 필요합니다.');let result;try{if(tool==='launch_isolated' && args.packageName!==undefined) parentIdentity=await childModule.resolveInstalledApplication({packageName:args.packageName,...(args.applicationId!==undefined?{applicationId:args.applicationId}:{})});result=tool==='launch_isolated'?await isolation.launch({ownerId:thread,parentIdentity}):tool==='capture_isolated'?await isolation.capture({ownerId:thread,targetId:args.targetId}):await isolation.input({ownerId:thread,targetId:args.targetId,observationId:args.observationId,input:args.input});} catch(error) {
     const diagnostic=require('./window-use-isolation.cjs').childDiagnostic(error,tool);
     const details={diagnostic,nativeCode:diagnostic.code || 'child-operation-failed'};
@@ -238,7 +270,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     invalidateUI(thread,options); approvals.stop(thread); owner.clear(thread); selections.delete(thread);
     if (closing?.ready) { try { await closing.ready; } catch {} }
     if (closing && threads.get(thread) !== closing) return;
-    threads.delete(thread); const file = files.get(thread); files.delete(thread);
+    threads.delete(thread); logoffRequests.delete(thread); const file = files.get(thread); files.delete(thread);
     if (file) { try { const stored = JSON.parse(await fsp.readFile(file, 'utf8')); if (stored.nonce === nonce) await fsp.unlink(file); } catch (e) { if (e.code !== 'ENOENT') throw e; } }
     if (current === thread) { current = undefined; last = undefined; render(); }
   }
@@ -279,7 +311,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       socket.on('data', data => { if (used) return; const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data); const end = bytes.indexOf(10); const part = end < 0 ? bytes : bytes.subarray(0, end + 1); requestBytes += part.length; if (requestBytes > 65536) { used = true; socket.end(JSON.stringify({ error: errorPayload(windowError('invalid_request', '요청 크기가 Window Use 제한을 초과했습니다.', { stage: 'connection' })) }) + '\n'); return; } buffer += decoder.write(part); const newline = buffer.indexOf('\n'); if (newline < 0) return; used = true;
         progress('queued');
         let message; try { message = JSON.parse(buffer.slice(0, newline)); } catch { socket.end(JSON.stringify({ error: errorPayload(windowError('invalid_request', 'Invalid selected-window request')) }) + '\n'); return; }
-        if (message?.method === 'call' && message.tool === 'request_stage' && message.arguments?.stage === 3) { activeTimeoutMs=360000;socket.setTimeout(activeTimeoutMs); }
+        if (message?.method === 'call' && (message.tool === 'logoff_isolated' || message.tool === 'request_stage' && message.arguments?.stage === 3)) { activeTimeoutMs=360000;socket.setTimeout(activeTimeoutMs); }
         const deliver = async () => { if (disconnected || socket.destroyed) return; let response; try { response = { result: await handlePipe(message, { signal: controller.signal, progress }) }; } catch (e) { response = { error: errorPayload(e) }; } if (disconnected || socket.destroyed) return; const bytes = JSON.stringify(response); socket.end(Buffer.byteLength(bytes) > 32 * 1024 * 1024 ? JSON.stringify({ error: errorPayload(windowError('unclassified', '', { stage: 'running' })) }) + '\n' : bytes + '\n'); };
         void (message?.tool === 'ui_operation' ? deliver() : serial(deliver));
       });
@@ -395,6 +427,10 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       const location=stageRequest.stage===2?'현재 사용자 세션의 선택한 창':stageRequest.stage===3?'Windows 자식 세션':'현재 사용자 데스크톱 전체';
       request.params.message=stageRequest.stage===2?'선택한 창을 제어합니다. 사용자 입력과 충돌할 수 있습니다.':stageRequest.stage===3?'같은 사용자 Windows 자식 세션을 만듭니다. 필요하면 Windows 관리자 권한을 요청하여 자식 세션 기능을 활성화하고 TermService를 시작합니다. 앱은 일반 사용자 권한으로 실행되며 로컬 데이터와 계정은 공유될 수 있습니다.':'현재 사용자 데스크톱 전체에 입력할 수 있습니다. 사용자 작업에 영향을 줄 수 있습니다.';
       Object.assign(request.params._meta,{window_use_approval_kind:'stage',tool_params:{app:appTitle},tool_params_display:[{name:'app',display_name:'App',value:appTitle},{name:'stage',display_name:'단계',value:String(stageRequest.stage)},{name:'location',display_name:'실행 위치',value:location},{name:'reason',display_name:'이유',value:stageRequest.reason}],persist:offered});
+      if(stageRequest.identity?.operation==='logoff') {
+        const presentation=logoffApproval(stageRequest.identity.inspection,stageRequest.reason);
+        request.params.message=presentation.message;request.params._meta.tool_params_display=presentation.tool_params_display;
+      }
     }
     let stored, needsPrompt = isStage; if(!isStage) approvals.receive(request, (_id, result) => { stored = result; }, () => { needsPrompt = true; });
     const denied = result => { if (result?.content?.windowError) throw fromPayload(result.content.windowError); throw windowError('cancelled', 'Application approval cancelled', { stage: 'approval' }); };
@@ -588,5 +624,6 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
 let active;
 function initialize(context, vscode, runtime) { if (active) throw new Error('Window Control already initialized'); active = createHost({ runtime, vscode }); const command = vscode.commands.registerCommand('azrael.windowControl', () => active.open()); let disposal; const disposable = { dispose() { if (disposal) return disposal; command.dispose(); const old = active; active = undefined; disposal = old?.dispose() || Promise.resolve(); return disposal; } }; context.subscriptions.push(disposable); return disposable; }
 module.exports = { initialize, settings: (webview, request) => active ? active.settings(webview, request) : require('./use-settings-host.cjs').unavailable(webview, request), attach: (native, raw) => active?.attach(native, raw), prepareRequest: (method, params) => active ? active.prepareRequest(method, params) : params, registerApprovalUI: (native, publish, navigate) => active?.registerApprovalUI(native, publish, navigate), respondApproval: (native, id, result) => active ? active.respondApproval(native, id, result) : typeof id === 'string' && id.startsWith(CONSENT_PREFIX), request: (native, ...args) => active?.request(native, ...args), beforeResult: (native, message, replay) => active?.beforeResult(native, message, replay), observe: (native, message) => active?.observe(native, message), disconnect: native => active?.disconnect(native), createHost, Bridge };
+module.exports.logoffApproval = logoffApproval;
 registry.set(runtimeKey, module.exports);
 }

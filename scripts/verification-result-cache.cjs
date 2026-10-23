@@ -98,15 +98,26 @@ async function acquireRaw(root, filename, waitMs = 0, details = {}) {
 // All cooperating lease mutations and publications share this short guard. An
 // abandoned guard is deliberately fail-closed, never stolen by PID or age.
 const accessQueues = new Map();
-async function access(root, details = {}) {
+const lifecycleQueues = new Map();
+async function localTurn(queues, root) {
   const canonical = await fs.realpath(root);
   const key = process.platform === 'win32' ? canonical.toLowerCase() : canonical;
-  const previous = accessQueues.get(key) || Promise.resolve();
+  const previous = queues.get(key) || Promise.resolve();
   let next;
   const pending = new Promise(resolve => { next = resolve; });
-  accessQueues.set(key, pending);
-  const finish = () => { if (accessQueues.get(key) === pending) accessQueues.delete(key); next(); };
+  queues.set(key, pending);
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    if (queues.get(key) === pending) queues.delete(key);
+    next();
+  };
   await previous;
+  return finish;
+}
+async function access(root, details = {}) {
+  const finish = await localTurn(accessQueues, root);
   try {
     const release = await acquireRaw(root, path.join(root, '.lease-access'), 2000, { runDirectory: null, checkId: null, operation: 'lease-access', ...details });
     if (!release) throw Error('Lease access guard busy; independent retirement required');
@@ -131,6 +142,20 @@ async function acquire(root, filename, waitMs = 0, details = {}) {
     if (Date.now() >= deadline) return null;
     await delay(Math.min(10, deadline - Date.now()));
   }
+}
+
+async function acquireLifecycle(root, details) {
+  // Local lifecycle owners may scan a large cache. Wait for their actual release
+  // before starting the bounded deadline for an external or abandoned owner.
+  const finish = await localTurn(lifecycleQueues, root);
+  try {
+    const lease = await acquire(root, path.join(root, '.lifecycle'), 2000, details);
+    if (!lease) { finish(); return null; }
+    const release = async () => { try { await lease(); } finally { finish(); } };
+    release.assertOwned = lease.assertOwned;
+    release.owner = lease.owner;
+    return release;
+  } catch (error) { finish(); throw error; }
 }
 
 function leasePath(cacheRoot, lease) {
@@ -238,7 +263,7 @@ async function pruneObsoleteVersions(options = {}) {
   let release;
   try {
     await directory(cacheRoot, true);
-    release = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune-obsolete' });
+    release = await acquireLifecycle(cacheRoot, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune-obsolete' });
     if (!release) return { deferred: ['obsolete versions: lifecycle lease busy'] };
     await obsolete(cacheRoot, deferred);
   } catch (error) { deferred.push(message(error)); }
@@ -253,7 +278,7 @@ async function pruneRemovedChecks(options) {
   let release;
   try {
     await directory(cacheRoot, true);
-    release = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune-removed' });
+    release = await acquireLifecycle(cacheRoot, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune-removed' });
     if (!release) return { removed, deferred: ['removed checks: lifecycle lease busy'] };
     const version = path.join(cacheRoot, `v${CACHE_SCHEMA}`);
     await directory(path.join(cacheRoot, '.leases'), true);
@@ -335,7 +360,7 @@ async function begin(options) {
   } };
   try {
     await directory(cacheRoot, true);
-    releaseLifecycle = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000, { runDirectory, checkId });
+    releaseLifecycle = await acquireLifecycle(cacheRoot, { runDirectory, checkId });
     if (!releaseLifecycle) { handle.reason = 'busy: lifecycle lease'; return handle; }
     await obsolete(cacheRoot, deferred);
     releaseCheck = await acquire(cacheRoot, path.join(cacheRoot, '.leases', sha(checkId)), 0, { runDirectory, checkId });

@@ -321,6 +321,92 @@ fn tool_catalog_rejects_unknown_kind_and_duplicate_call_ids() {
 }
 
 #[test]
+fn unavailable_tool_marker_preserves_native_catalog_validation() {
+    use crate::tools::router::UNAVAILABLE_TOOL_NAMESPACE;
+
+    let catalog = ToolCatalog::from_specs(&[function("exec")]).unwrap();
+    let item = |namespace: Option<&str>, name: &str, arguments: &str, call_id: &str| {
+        ResponseItem::FunctionCall {
+            id: None,
+            name: name.to_string(),
+            namespace: namespace.map(str::to_string),
+            arguments: arguments.to_string(),
+            encrypted_function_args: None,
+            call_id: call_id.to_string(),
+            internal_chat_message_metadata_passthrough: None,
+        }
+    };
+    let marked = item(
+        Some(UNAVAILABLE_TOOL_NAMESPACE),
+        "unknown",
+        "{}",
+        "rejected",
+    );
+    let mut calls = HashSet::new();
+    catalog.verify(&marked, &mut calls).unwrap();
+    assert!(catalog.verify(&marked, &mut calls).is_err());
+
+    for arguments in ["[]", "null", "invalid"] {
+        assert!(
+            catalog
+                .verify(
+                    &item(
+                        Some(UNAVAILABLE_TOOL_NAMESPACE),
+                        "unknown",
+                        arguments,
+                        "bad-args"
+                    ),
+                    &mut HashSet::new(),
+                )
+                .is_err()
+        );
+    }
+    for (namespace, name, call_id) in [
+        (None, "unknown", "unmarked"),
+        (Some("other"), "unknown", "other-namespace"),
+        (Some(UNAVAILABLE_TOOL_NAMESPACE), "", "empty-name"),
+        (Some(UNAVAILABLE_TOOL_NAMESPACE), "unknown", ""),
+    ] {
+        assert!(
+            catalog
+                .verify(&item(namespace, name, "{}", call_id), &mut HashSet::new(),)
+                .is_err()
+        );
+    }
+    let custom = ResponseItem::CustomToolCall {
+        id: None,
+        status: Some("completed".to_string()),
+        call_id: "custom-marker".to_string(),
+        name: "unknown".to_string(),
+        namespace: Some(UNAVAILABLE_TOOL_NAMESPACE.to_string()),
+        input: "text".to_string(),
+        internal_chat_message_metadata_passthrough: None,
+    };
+    assert!(catalog.verify(&custom, &mut HashSet::new()).is_err());
+}
+
+#[test]
+fn unavailable_tool_namespace_cannot_be_declared() {
+    let spec = ToolSpec::Namespace(codex_tools::ResponsesApiNamespace {
+        name: crate::tools::router::UNAVAILABLE_TOOL_NAMESPACE.to_string(),
+        description: String::new(),
+        tools: vec![codex_tools::ResponsesApiNamespaceTool::Function(
+            match function("unknown") {
+                ToolSpec::Function(tool) => tool,
+                _ => unreachable!(),
+            },
+        )],
+    });
+    assert!(ToolCatalog::from_specs(&[spec]).is_err());
+    let empty_namespace = ToolSpec::Namespace(codex_tools::ResponsesApiNamespace {
+        name: crate::tools::router::UNAVAILABLE_TOOL_NAMESPACE.to_string(),
+        description: String::new(),
+        tools: Vec::new(),
+    });
+    assert!(ToolCatalog::from_specs(&[empty_namespace]).is_err());
+}
+
+#[test]
 fn function_arguments_must_be_json_objects() {
     let catalog = ToolCatalog::from_specs(&[function("exec")]).unwrap();
     let mut calls = HashSet::new();

@@ -182,43 +182,11 @@ async function environment(config, features, { env = process.env, run = spawnSyn
   }
   return { env: effective, environmentPatch: patch, probes, required, boundaries, environmentSha256: sha(JSON.stringify(Object.keys(effective).sort().map(key => [key, effective[key]]))) };
 }
-function prepareSelectedTests(config, features, { env = process.env } = {}) {
-  env = { ...env };
-  for (const [field, variable] of [['cargoTargetDirectory', 'CARGO_TARGET_DIR'], ['cargoTarget', 'AZRAEL_CARGO_TARGET'], ['cargoProfile', 'AZRAEL_CARGO_PROFILE'], ['rustupToolchain', 'RUSTUP_TOOLCHAIN']]) {
-    if (config[field]) env[variable] = config[field];
-  }
-  const checks = features.flatMap(feature => feature.checks).filter(check => check.cargoPreflight === 'selected-tests-v1');
-  if (!Array.isArray(config.cargoPreparations)) throw Error('Missing explicit Cargo preparation recipes for selected checks');
-  const recipes = config.cargoPreparations;
-  if (!recipes.length && !config.cargoPreparationReason) throw Error('Empty Cargo preparation requires cargoPreparationReason');
-  const selectedIds = new Set(checks.map(check => check.id));
-  for (const recipe of recipes) if (!selectedIds.has(recipe.checkId)) throw Error(`Cargo preparation check is not selected: ${recipe.checkId}`);
-  function recipeEnvironment(recipe) {
-    if (!recipe.envRecipe) return env;
-    if (recipe.envRecipe !== 'sdk-python-path') throw Error(`Unknown Cargo preparation environment recipe: ${recipe.envRecipe}`);
-    return composePath(env, [path.dirname(sdkPython(config.projectRoot, env))]);
-  }
-  // Validate the complete plan before the first compiler can start.
-  const { buildCargoTestCommand, preflightCommands, prepareCargoTests } = require('./cargo-verification.cjs');
-  for (const recipe of recipes) {
-    if (!Array.isArray(recipe.args) || !recipe.args.every(arg => typeof arg === 'string')) throw Error(`Invalid preparation args: ${recipe.checkId}`);
-    preflightCommands(buildCargoTestCommand(config.engineSourceRoot, recipe.args, { env: recipeEnvironment(recipe), isolateHostEnvironment: recipe.isolateHostEnvironment }));
-  }
-  const preparations = [];
-  for (const [index, recipe] of recipes.entries()) {
-    const result = prepareCargoTests(config.engineSourceRoot, recipe.args, { env: recipeEnvironment(recipe), isolateHostEnvironment: recipe.isolateHostEnvironment,
-      ...(config.preparationLogDirectory ? { logDirectory: path.join(config.preparationLogDirectory, `${index}`) } : {}) });
-    preparations.push({ checkId: recipe.checkId, ...result.preparation });
-    if (result.error || result.signal || result.status !== 0) return { status: result.status ?? 1, preparations, error: result.error?.message || result.stderr || `Cargo preparation failed: ${recipe.checkId}` };
-  }
-  return { status: 0, preparations, ...(recipes.length ? {} : { skipped: true, reason: config.cargoPreparationReason }) };
-}
-module.exports = { prepare, identity, dependencyRoot, budgetRequired, sdkPython, composePath, consumers, environment, prepareSelectedTests, filesystemBoundaries };
+module.exports = { prepare, identity, dependencyRoot, budgetRequired, sdkPython, composePath, consumers, environment, filesystemBoundaries };
 if (require.main === module) {
   const args = process.argv.slice(2);
   const environmentOnly = args[0] === '--environment';
-  const testPreparationOnly = args[0] === '--prepare-tests';
-  if (environmentOnly || testPreparationOnly) args.shift();
+  if (environmentOnly) args.shift();
   const [filename, ...extra] = args;
   if (!filename || extra.length) throw Error('Usage: pipeline-preflight.cjs <config JSON>');
   const config = JSON.parse(fs.readFileSync(filename, 'utf8').replace(/^\uFEFF/, ''));
@@ -227,7 +195,5 @@ if (require.main === module) {
   if (environmentOnly) environment(config, features).then(({ env, ...report }) => console.log(JSON.stringify(report))).catch(error => {
     console.error(JSON.stringify({ error: error.message, probes: error.probes || [] })); process.exitCode = 1;
   });
-  else if (testPreparationOnly) {
-    const result = prepareSelectedTests(config, features); console.log(JSON.stringify(result)); process.exitCode = result.status;
-  } else console.log(JSON.stringify(prepare(config, features)));
+  else console.log(JSON.stringify(prepare(config, features)));
 }

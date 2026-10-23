@@ -3,15 +3,14 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
-const { preflightCommands } = require('./cargo-verification.cjs');
 
 // These are reviewed command recipes, never evaluated wrapper source. A wrapper
 // change requires reviewing its commands/environment and updating this identity;
-// otherwise the planner reports a gap rather than silently using stale commands.
+// otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
-  'check-model-harness-profiles': 'c60957e4de39d8f95d7094cd6b50614d6517cb259a3fbbce4a8dbaa950cdde81',
+  'check-model-harness-profiles': 'a38d1ac09f80351d662d824245dbdcb03a6e9f320e8c550bed9c7066e2ae3928',
   'check-root-resume-reasoning': '0158f4af4864a884036821e42228d0d74e4396a7d9cc3856bcd7f4db190a76e4',
   'check-task-work-time-native': '63cb1e6655af44990874fbf20c2158470631e25397c9a72ba24b96233354f973',
   'check-thread-auto-compaction': '45538fd544446ae4af9453e6cde0b4cd62e9ba87b1b62e5f2c57ea80723bb053',
@@ -51,9 +50,9 @@ function reviewedRecipes(wrapper, tail, platform) {
       break;
     case 'check-model-harness-profiles':
       isolateHostEnvironment = false;
-      args = scoped({ config: [lib('codex-config', 'harness')],
+      args = scoped({ config: [lib('codex-config', 'harness'), lib('codex-prompts', 'model_instructions')],
         context: ['context::world_state::model::tests', 'session::provider_handoff::tests', 'instruction_state_projection'].map(f => lib('codex-core', f)).concat([integration('suite::model_switching')]),
-        tools: ['claude', 'anthropic_profile_replaces_native_tools_and_other_providers_exclude_compatible_tools', 'tools::router::tests::chat_discovery', 'mcp_and_tool_search_follow_direct_and_deferred_tool_exposure'].map(f => lib('codex-core', f)) });
+        tools: ['claude', 'azrael_defaults_and_explicit_claude_profile_select_executable_tools', 'anthropic_azrael_tools_patch_read_and_execute', 'tools::router::tests::chat_discovery', 'mcp_and_tool_search_follow_direct_and_deferred_tool_exposure'].map(f => lib('codex-core', f)) });
       break;
     case 'check-root-resume-reasoning':
       if (!tail.length) args = [libs(['codex-core', 'codex-protocol', 'codex-state'], 'root_resume')];
@@ -96,7 +95,8 @@ function reviewedRecipes(wrapper, tail, platform) {
           lib('codex-app-server', 'azrael_session_handoff::tests::'),
           lib('codex-app-server', 'azrael_thread_engines::tests::'),
           lib('codex-app-server', 'azrael_shared_server::tests::')],
-        bridge: [finish(['-p', 'codex-app-server-client', '--no-default-features', '--lib', '--bin', 'azrael-bridge', 'remote::tests::'])],
+        bridge: [finish(['-p', 'codex-app-server-client', '--no-default-features', '--lib', 'remote::tests::']),
+          finish(['-p', 'codex-app-server-client', '--no-default-features', '--bin', 'azrael-bridge', 'terminal_'])],
         manual: [lib('codex-core', 'azrael_manual_resume::tests::'), lib('codex-core', 'manual_resume_marker'), finish(['-p', 'codex-queue-extension', '--test', 'queue_service', 'manual_resume_marker'])] });
       break;
     }
@@ -168,124 +168,4 @@ function recipesForCheck(config, check) {
   return { cargoPreparations: recipes.map(recipe => ({ checkId: check.id, ...recipe })), gaps: [] };
 }
 
-const slash = value => value.replace(/\\/g, '/');
-function inside(root, file) {
-  const relative = path.relative(root, file);
-  return relative === '' || (!path.isAbsolute(relative) && relative !== '..' && !relative.startsWith(`..${path.sep}`));
-}
-function selectedSourcePath(config, changed) {
-  if (path.isAbsolute(changed)) {
-    if (inside(config.engineSourceRoot, changed)) return path.resolve(changed);
-    if (!inside(config.projectRoot, changed)) return undefined;
-    changed = path.relative(config.projectRoot, changed);
-  }
-  const relative = slash(changed).replace(/^\.\//, '');
-  if (relative.startsWith('engine/')) return path.resolve(config.engineSourceRoot, relative.slice(7));
-  if (relative.startsWith('codex-rs/')) return path.resolve(config.engineSourceRoot, relative);
-  return undefined;
-}
-
-// Deliberately narrow declaration reader, not a general TOML parser. Unknown,
-// quoted/dotted/inherited/ambiguous declarations disable early scheduling narrowing.
-function literalPackageName(text) {
-  if (text.includes('"""') || text.includes("'''")) return undefined;
-  const sections = text.split(/\r?\n/);
-  let inPackage = false;
-  let packages = 0;
-  let name;
-  for (const raw of sections) {
-    const line = raw.trim();
-    if (/^\[/.test(line)) { inPackage = /^\[package\]\s*(?:#.*)?$/.test(line); if (inPackage) packages++; continue; }
-    if (!inPackage || !/^name\s*=/.test(line)) continue;
-    const match = /^name\s*=\s*(?:"([A-Za-z0-9_-]+)"|'([A-Za-z0-9_-]+)')\s*(?:#.*)?$/.exec(line);
-    if (!match || name) return undefined;
-    name = match[1] || match[2];
-  }
-  return packages === 1 ? name : undefined;
-}
-function closestPackage(config, file) {
-  const root = path.join(config.engineSourceRoot, 'codex-rs');
-  if (!inside(root, file)) return undefined;
-  let directory = path.dirname(file);
-  while (inside(root, directory)) {
-    const manifest = path.join(directory, 'Cargo.toml');
-    if (fs.existsSync(manifest)) {
-      try { return literalPackageName(fs.readFileSync(manifest, 'utf8')); }
-      catch { return undefined; }
-    }
-    if (directory === root) break;
-    directory = path.dirname(directory);
-  }
-  return undefined;
-}
-function packages(args) {
-  const result = [];
-  for (let i = 0; i < args.length; i++) if (args[i] === '-p' || args[i] === '--package') result.push(args[++i]);
-  return result;
-}
-
-function plan(config, features, { changedPaths = [] } = {}) {
-  if (!path.isAbsolute(config.projectRoot || '') || !path.isAbsolute(config.engineSourceRoot || '')) throw Error('Cargo recipe planning requires absolute project and engine source roots');
-  if (!Array.isArray(changedPaths) || changedPaths.some(value => typeof value !== 'string' || !value)) throw Error('changedPaths must contain nonempty paths');
-  const nativeEntries = features.flatMap(feature => feature.checks.map(check => ({ feature, check }))).filter(({ check }) =>
-    check.cargoPreflight || (check.level === 'native' && (check.args || []).some(arg => arg === '{engineSourceRoot}' || arg === config.engineSourceRoot)));
-  const skipped = nativeEntries.filter(({ check }) => !check.cargoPreflight).map(({ check }) => ({ checkId: check.id, reason: 'not a declared Cargo test preparation consumer' }));
-  const entries = nativeEntries.filter(({ check }) => check.cargoPreflight);
-  const paths = changedPaths.map(changed => ({ changed, source: selectedSourcePath(config, changed) }));
-  const nativePaths = paths.filter(({ changed, source }) => source && (inside(path.join(config.engineSourceRoot, 'codex-rs'), source) || /(?:\.rs|Cargo\.(?:toml|lock)|rust-toolchain(?:\.toml)?|(?:^|\/)\.cargo\/config(?:\.toml)?)$/.test(slash(changed))));
-  // Rust outside the selected tree or an unresolvable owner is still a native
-  // scope uncertainty. Ordinary documentation and JS edits do not select Rust.
-  const unknownRust = paths.some(({ changed, source }) => !source && /(?:\.rs|(?:^|\/)Cargo\.(?:toml|lock)|(?:^|\/)rust-toolchain(?:\.toml)?|(?:^|\/)\.cargo\/config(?:\.toml)?)$/.test(slash(changed)));
-  if (changedPaths.length && !nativePaths.length && !unknownRust) return { cargoPreparations: [], deferredPreparations: [], gaps: [], skipped: [...skipped, ...entries.map(({ check }) => ({ checkId: check.id, reason: 'changed paths do not affect native source' }))], changedPackages: [], selection: 'no-native-changes' };
-  const packageNames = nativePaths.map(({ source }) => closestPackage(config, source));
-  const changedPackages = [...new Set(packageNames.filter(Boolean))];
-  const changedOwners = new Set(entries.filter(({ feature }) => (feature.owners || []).some(owner => paths.some(({ changed, source }) => slash(owner) === slash(changed) || (source && selectedSourcePath(config, owner) === source)))).map(({ check }) => check.id));
-  const candidates = [];
-  const gaps = [];
-  for (const { check } of entries) {
-    const result = recipesForCheck(config, check);
-    gaps.push(...result.gaps);
-    for (const recipe of result.cargoPreparations) {
-      const matchesPackage = packages(recipe.args).some(name => changedPackages.includes(name));
-      candidates.push({ ...recipe, priority: matchesPackage ? 0 : changedOwners.has(check.id) ? 1 : 2 });
-    }
-  }
-  candidates.sort((a, b) => a.priority - b.priority);
-  const dedup = new Map();
-  for (const { priority, ...recipe } of candidates) {
-    const key = JSON.stringify([preflightCommands({ args: recipe.args }).typeCheck.args, recipe.isolateHostEnvironment, recipe.envRecipe || null]);
-    if (dedup.has(key)) {
-      const previous = dedup.get(key);
-      if (!previous.checkIds.includes(recipe.checkId)) previous.checkIds.push(recipe.checkId);
-    } else dedup.set(key, { ...recipe, checkIds: [recipe.checkId] });
-  }
-  const allPreparations = [...dedup.values()];
-  // This only schedules preparation earlier. Every selected native consumer
-  // retains its own type-check, nonzero selection and test execution gates.
-  // Configuration/build inputs and unresolved source ownership need all early
-  // preparations; package matches do not prove dependency closure isolation.
-  const narrow = nativePaths.length > 0 && !unknownRust && !gaps.length
-    && nativePaths.every(({ source }, index) => packageNames[index]
-      && path.extname(source) === '.rs' && path.basename(source) !== 'build.rs')
-    && changedPackages.every(name => allPreparations.some(recipe => packages(recipe.args).includes(name)));
-  const affected = recipe => packages(recipe.args).some(name => changedPackages.includes(name))
-    || recipe.checkIds.some(id => changedOwners.has(id));
-  const cargoPreparations = narrow ? allPreparations.filter(affected) : allPreparations;
-  const deferredPreparations = narrow ? allPreparations.filter(recipe => !affected(recipe)).map(recipe => ({
-    ...recipe, reason: 'prepared by selected native consumer if reusable evidence misses',
-  })) : [];
-  return { cargoPreparations, deferredPreparations, gaps, skipped, changedPackages,
-    selection: narrow ? 'affected-selected-native' : 'conservative-selected-native' };
-}
-
-module.exports = { plan, recipesForCheck, literalPackageName };
-if (require.main === module) {
-  try {
-    const [filename, ...extra] = process.argv.slice(2);
-    if (!filename || extra.length) throw Error('Usage: cargo-preflight-recipes.cjs <config JSON>');
-    const config = JSON.parse(fs.readFileSync(filename, 'utf8').replace(/^\uFEFF/, ''));
-    const manifest = JSON.parse(fs.readFileSync(path.join(config.projectRoot, 'scripts/azrael-feature-contracts.json'), 'utf8'));
-    const features = manifest.features.filter(feature => feature.area === 'engine' && (!config.featureIds || config.featureIds.includes(feature.id)));
-    console.log(JSON.stringify(plan(config, features, { changedPaths: config.changedPaths || [] })));
-  } catch (error) { console.error(error.message); process.exitCode = 1; }
-}
+module.exports = { recipesForCheck };

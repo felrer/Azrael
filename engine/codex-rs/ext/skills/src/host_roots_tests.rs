@@ -605,7 +605,24 @@ async fn resolved_project_layer_loads_skill_without_git_marker() {
     let skill_root = dot_codex.join("skills");
     fs::create_dir_all(&workspace).expect("create workspace");
     let skill_path = write_skill(&skill_root, "local", "local-skill");
-    let config_stack = stack(vec![project_layer(&dot_codex)]);
+
+    // Keep this absent-marker fixture independent of an enclosing checkout.
+    let marker = format!(
+        ".skills-no-project-marker-{}",
+        temp_dir
+            .path()
+            .file_name()
+            .expect("temp directory name")
+            .to_string_lossy()
+    );
+    let config = toml::Value::try_from(serde_json::json!({
+        "project_root_markers": [marker],
+    }))
+    .expect("fixture project markers");
+    let config_stack = stack(vec![
+        project_layer(&dot_codex),
+        ConfigLayerEntry::new(ConfigLayerSource::SessionFlags, config),
+    ]);
 
     let roots = resolve_skill_roots_with_home_dir(
         Some(Arc::clone(&LOCAL_FS)),

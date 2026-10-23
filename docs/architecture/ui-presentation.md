@@ -6,6 +6,14 @@ Design Azrael UI in the OpenAI style. Reuse the pinned UI’s existing native co
 
 ## Withdrawn questions and queue waiting
 
+Question-panel replies carry explicit `questionReply` queue provenance when
+queued. Their row does not show a pending-question wait for the answer it
+already contains. Remaining ordinary rows still show unanswered-question
+holds. Automatic selection may choose the earliest reply behind ordinary rows;
+approval, interruption and account holds remain visible and enforced. Text
+tags in an ordinary queued message do not change its kind. Restoring a typed
+reply also restores its question-panel submission trigger.
+
 Status: `partial`; scoped source and Windows native React/CSS fixtures cover
 light/dark rendering and interactions. Full application-provider, package,
 installed-host and other-platform acceptance are separate in the
@@ -17,6 +25,14 @@ question text. Remaining questions retain their original identities and source
 indexes. The existing question-state reconciler closes a withdrawn selection and
 removes its draft; accepted user replies remain in history. Source-item updates
 also refresh virtualized question cards whose projected rows remain mounted.
+
+The chat list's **입력 필요** badge uses the same active question identities as
+the question panel. Withdrawn questions do not contribute to its pending set.
+An update that changes only withdrawal state invalidates the conversation index,
+including for an inactive chat. Removing a withdrawn question's draft cannot
+recreate the badge. Remaining unanswered questions and approval indicators retain
+their existing meaning; an absent draft for an active question still needs input.
+Implementation and verification scope: [question badge work record](../../work/DL-01-withdrawn-question-badge-diagnosis/01-plan.md).
 
 Queued messages held by unanswered questions show **사용자 답변 대기 중** through
 the existing queue status surface. The queue retains its order, cancellation and

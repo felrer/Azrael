@@ -37,6 +37,23 @@ struct AcceptedPayload {
     #[serde(with = "accepted_context")]
     additional_context: BTreeMap<String, AdditionalContextEntry>,
     origin: UserInputOrigin,
+    /// Frozen at acceptance, never recomputed during retry or recovery.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    superseded_async_question_ids: Vec<String>,
+}
+
+impl AcceptedPayload {
+    /// Idempotency binds the submitted input, excluding host-owned question state.
+    fn input_digest(&self) -> Result<String> {
+        let input = Self {
+            content: self.content.clone(),
+            additional_context: self.additional_context.clone(),
+            origin: self.origin,
+            superseded_async_question_ids: Vec::new(),
+        };
+        let json = serde_json::to_string(&input).map_err(storage_error)?;
+        Ok(format!("{:x}", Sha256::digest(json.as_bytes())))
+    }
 }
 
 // The protocol submission context is an in-process type without serde. Keep its
@@ -196,6 +213,11 @@ impl Session {
                 })?
             }
         };
+        if let Some(json) = receipt.payload_json.as_deref() {
+            let payload: AcceptedPayload = serde_json::from_str(json).map_err(storage_error)?;
+            self.withdraw_user_questions_under_admission(&payload.superseded_async_question_ids)
+                .await?;
+        }
         Ok(Some((receipt.turn_id, root)))
     }
 
@@ -243,10 +265,9 @@ impl Session {
                 content: content.clone(),
                 additional_context: additional_context.clone(),
                 origin,
+                superseded_async_question_ids: Vec::new(),
             };
-            let json = serde_json::to_string(&payload).map_err(storage_error)?;
-            let mut matches_payload =
-                receipt.payload_sha256 == format!("{:x}", Sha256::digest(json.as_bytes()));
+            let mut matches_payload = receipt.payload_sha256 == payload.input_digest()?;
             // Before queue provenance was recorded, queued receipts used the User origin.
             // Accept only the identical payload under that prior origin.
             if !matches_payload && origin == UserInputOrigin::Queue {
@@ -254,9 +275,7 @@ impl Session {
                     origin: UserInputOrigin::User,
                     ..payload
                 };
-                let json = serde_json::to_string(&legacy).map_err(storage_error)?;
-                matches_payload =
-                    receipt.payload_sha256 == format!("{:x}", Sha256::digest(json.as_bytes()));
+                matches_payload = receipt.payload_sha256 == legacy.input_digest()?;
             }
             if !matches_payload {
                 return Err(CodexErr::InvalidRequest(
@@ -283,6 +302,7 @@ impl Session {
             return Ok(None);
         }
         let order = self.reserve_user_input_order().await;
+        let superseded = self.questions_superseded_by_input(content, origin);
         if self.journals_user_input() {
             let db = self
                 .state_db()
@@ -291,9 +311,10 @@ impl Session {
                 content: content.clone(),
                 additional_context: additional_context.clone(),
                 origin,
+                superseded_async_question_ids: superseded.clone(),
             };
             let json = serde_json::to_string(&payload).map_err(storage_error)?;
-            let digest = format!("{:x}", Sha256::digest(json.as_bytes()));
+            let digest = payload.input_digest()?;
             match db
                 .thread_queue()
                 .accept_user_input_with_root(
@@ -317,6 +338,8 @@ impl Session {
         if origin != UserInputOrigin::Queue {
             self.accept_question_replies(content).await;
         }
+        self.withdraw_user_questions_under_admission(&superseded)
+            .await?;
         Ok(Some(order))
     }
 
@@ -456,6 +479,7 @@ impl Session {
             for receipt in pending {
                 let accepted: AcceptedPayload = serde_json::from_str(receipt.payload_json.as_deref().ok_or_else(|| anyhow::anyhow!("pending input has no payload"))?)?;
                 if accepted.origin != UserInputOrigin::Queue { self.accept_question_replies(&accepted.content).await; }
+                self.withdraw_user_questions_under_admission(&accepted.superseded_async_question_ids).await?;
                 if let Some(index) = rollout.iter().position(|item| recorded_receipt(item, &receipt.turn_id, receipt.acceptance_order)) {
                     let payload: AcceptedPayload = serde_json::from_str(receipt.payload_json.as_deref().ok_or_else(|| anyhow::anyhow!("pending input has no payload"))?)?;
                     let RolloutItem::ResponseItem(envelope) = &rollout[index] else { unreachable!() };
@@ -595,6 +619,10 @@ impl Session {
                         .as_deref()
                         .ok_or_else(|| anyhow::anyhow!("pending input has no payload"))?,
                 )?;
+                self.withdraw_user_questions_under_admission(
+                    &payload.superseded_async_question_ids,
+                )
+                .await?;
                 let context = self.new_accepted_input_context(receipt.turn_id).await;
                 let input = TurnInput::UserInput {
                     content: payload.content,

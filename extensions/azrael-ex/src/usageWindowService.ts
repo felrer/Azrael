@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import { isDeepStrictEqual } from "node:util";
 import type { AccountParams, AccountProfile, AccountResponse, AccountState, UsageWindowSchedule } from "./protocol";
 
 export interface UsageWindowBackend {
@@ -20,6 +21,7 @@ export class UsageWindowService extends EventEmitter {
   private tail: Promise<void> = Promise.resolve();
   private readonly pending = new Map<string, Promise<void>>();
   private lastRequestKey: string | undefined;
+  private loaded = false;
   private readonly stateListener = () => this.start();
 
   constructor(backend: UsageWindowBackend) {
@@ -74,6 +76,8 @@ export class UsageWindowService extends EventEmitter {
     this.lastRequestKey = key;
     const operation = this.tail.then(async () => {
       if (this.disposed) return;
+      const previousError = this.error;
+      let changed = false;
       try {
         if (!this.backend.changesEnabled) throw new Error("unverified");
         const profile = params.profileId === undefined ? undefined : this.backend.state?.profiles.find(item => item.id === params.profileId && item.workspaceAccountId === workspaceAccountId);
@@ -87,14 +91,16 @@ export class UsageWindowService extends EventEmitter {
           const schedule = response.autoWindows.find(item => item.workspaceAccountId === profile.workspaceAccountId && item.userId === profile.userId);
           if (!schedule || schedule.enabled !== (params.action === "autoWindowEnable")) throw new Error("schedule identity mismatch");
         }
-        this.schedules = response.autoWindows;
+        changed = !this.loaded || !isDeepStrictEqual(this.schedules, response.autoWindows);
+        if (changed) this.schedules = response.autoWindows;
+        this.loaded = true;
         this.error = undefined;
       } catch {
         if (this.disposed) return;
         // Transport diagnostics can contain credentials; display only this safe service error.
         this.error = "자동 타이머 상태를 확인하지 못했습니다. 연결과 계정 인증을 확인한 뒤 다시 갱신하세요.";
       }
-      this.emit("change");
+      if (changed || this.error !== previousError) this.emit("change");
     }).finally(() => { if (this.pending.get(key) === operation) this.pending.delete(key); });
     this.pending.set(key, operation);
     this.tail = operation;
