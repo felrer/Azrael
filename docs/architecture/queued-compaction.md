@@ -87,8 +87,10 @@ does not acquire reply authority. This kind survives editing, storage and
 reload. During a question hold the earliest queued reply may run ahead of
 ordinary input; the relative order of the remaining queue is preserved. Core
 validates its target IDs again at acceptance and records only those answers.
-Other unanswered questions stay pending. Approval, interruption, account and
-recovery holds still apply. Legacy ordinary queue records without reply
+Other unanswered questions stay pending. Approval, interruption and recovery
+holds still apply. Question replies bypass a pending account-switch hold using
+shared account admission; the exclusive commit and failed recovery remain blocked.
+Legacy ordinary queue records without reply
 provenance remain ordinary; the user can resubmit through the question UI.
 
 Question state is authoritative in the engine and survives reopening and restart.

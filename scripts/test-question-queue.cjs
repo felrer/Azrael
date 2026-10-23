@@ -221,6 +221,8 @@ test("pending account switch dispatches typed replies behind ordinary input", as
   for (const count of [0, 2]) {
     const f = adapterFixture(); f.setCount(count); f.setAccount(true);
     const head = { id: "ordinary", kind: "userInput", input: [] };
+    f.setItems([head]); await f.queue.load("thread");
+    await f.queue.resume("thread", () => true);
     f.setItems([head, { id: "reply", kind: "questionReply", input: [] }]);
     await f.queue.load("thread");
     const rows = f.queue.read("thread");

@@ -298,6 +298,12 @@ impl QueuedItemService {
                                     tracing::warn!(%thread_id, %error, "failed to check queued user input");
                                 }
                             }
+                            // Try replies once while a switch is pending, then
+                            // let admission notifications schedule a fresh worker.
+                            // A sleeping worker would hide the reopen notification.
+                            if thread.auth_admission().await.is_pending() {
+                                return;
+                            }
                         }
                         tokio::time::sleep(Duration::from_secs(/*secs*/ 10)).await;
                     }

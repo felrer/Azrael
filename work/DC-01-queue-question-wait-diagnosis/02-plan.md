@@ -1,4 +1,12 @@
-상태: 질문 답변 큐 차단 후속 수정 중. 사용자 승인에 따라 답변 종류를 저장·복구·수락까지 보존한다. 설치·배포는 포함하지 않는다.
+상태: 질문 답변 큐 차단과 계정 전환 대기 예외의 코드 수정 및 Windows 검증 완료. 검증 자료 28개 묶음의 보존 결정을 적용했고 작업 커밋을 마감한다. 설치·배포는 포함하지 않는다.
+
+## 최종 마감 (2026-10-23)
+
+- 계정 전환 pending 동안 질문 UI의 직접 답변과 typed queued reply는 현재 계정의 shared admission으로 제출한다. 일반 메시지의 계정 대기, 실제 계정 변경 commit의 배타 잠금, 실패한 복구와 승인·사용자 중단 보호는 유지한다.
+- 이번 예외의 Windows 검증은 source 86/86, queue native 28/28, app-server unit 1/1, 실제 React/CSS 렌더 검사 28개 통과다. 각 성공 명령은 exit 0이다. 상세 명령·실패 후 수정·동결 입력 해시는 아래 계정 전환 후속 기록과 각 run의 reports/summary.json 및 logs/에 보존한다. Linux/macOS 및 설치된 제품 전체 전송은 미검증이다.
+- project_inventory 등록 후 project_cleanup_review/apply의 registered 검증으로 총 28개 run 묶음을 defer 처리했다. 모든 apply는 aborted=false, 해당 항목은 deferred/remaining=true다. 실패 진단·재실행 입력·Cargo 복구 증거·화면 자료를 보존한다. 작업 커밋과 독립 보고서 보존 후 대체 패키지 검증에서 이 입력을 더 이상 요구하지 않을 때 재검토한다. 기존 native-2의 불완전 producer 증거는 보호 상태로 유지한다.
+- 정확히 종료가 확인된 두 Cargo target lease만 공식 recoverTargetOwner로 회수했다. 공유 기본 pending lifecycle의 unknown 결과는 그대로 보호한다. 이후 성공 검사는 지원되는 run별 INSTA_PENDING_DIR를 사용했다. 기본 경로의 후속 검사는 해당 소유자의 정식 복구가 필요할 수 있다. 레지스트리나 잠금을 직접 편집하지 않았다.
+- 진행 중 외부 커밋 99afefb1이 앞선 구현 변경을 함께 포함했다. 이를 보존하고 이번 마감 커밋에는 남은 소유 파일 9개만 포함한다. 운영 세션 DB, 제품 설치·배포는 변경하지 않았다. 아래 대기·실패 기록은 당시 경과이며 현재 결과는 이 절을 따른다.
 
 # 새 요청으로 대체된 질문 자동 철회
 
@@ -19,6 +27,7 @@
 - 마지막 요청 이후 생성된 질문은 답변되거나 철회될 때까지 큐를 보류한다.
 - 모델의 명시적 철회는 유지하고, 이미 자동 철회된 ID에 대한 반복 철회는 기존 멱등 규칙을 유지한다.
 - 이미 수락된 답변을 취소하거나 이전 질문을 재활성화하지 않는다.
+- 질문 패널 답변과 typed queued reply는 계정 전환 대기에서도 현재 계정으로 제출한다. 실제 계정 commit 및 실패한 복구의 잠금은 유지한다.
 - 재연결·재시작·불러오지 않은 스레드의 큐 조회도 같은 질문 상태를 계산해야 한다.
 
 ## 조사와 재사용
@@ -61,6 +70,28 @@
 ## 최종 검증과 남은 작업
 
 ### 답변 대기열 후속 수정 검증 현황
+
+#### 계정 전환 중 질문 답변 예외 추가
+
+사용자 후속 요청에 따라 질문 패널 답변은 계정 전환 대기에서도 즉시 제출한다. 기존 `send-now` 답변 트리거와 서버의 답변 envelope 검증을 재사용한다. 서버와 typed 큐는 기존 shared queued admission으로 현재 계정을 고정하며 독점 commit 및 복구 실패를 우회하지 않는다. 일반 메시지·텍스트 태그 위장은 계속 보류한다. UI 큐 선택과 계정 전환 대기 표시는 typed 답변에만 예외를 적용한다. 승인·중단·복구 보류는 보존한다.
+
+공통 Windows/Linux/macOS 동작이며 Windows x64에서 source VM 회귀와 queue 통합·app-server admission 검사를 수행한다. 소유 변경은 기존 UI 주입/테스트, queue service/통합 테스트, message_processor의 admission 분기/단위 테스트, 해당 아키텍처/인벤토리이다. 실행은 `reply-account-source-1`, 고정 native 입력은 기존 검증 source를 복사하고 이번 Rust 3파일만 반영한 `reply-account-native-1`에 보존한다. 설치·배포는 포함하지 않는다. 입력과 준비가 완료된 native 검사를 먼저 시작했고, 소스 검사·문서·자료 정리는 독립 진행한다.
+
+- source-1은 86개 중 85개 통과, exit 1이다. 새 fixture가 최초 account refresh 전에 상태를 읽어 실패했으며, 일반 head만 둔 첫 resume로 실제 refresh를 수행하도록 수정했다. source-2는 동일 5개 retained 파일의 86개 전체 통과, 실제 exit 0이다. 명령·로그는 `reply-account-source-2/reports/summary.json`, `logs/source.log`에 보존한다. 이전 미완료 namespace-cache-owner 검사도 이 실행에 포함했다.
+- native 입력은 9,309파일, SHA-256 `8b184a90f9ad364446d2acbd03531b6a2e5fd242e3b664f7a7a3942d2a339f99`이다. 큐 통합 검사와 app-server 답변 계정 admission 검사를 순서대로 실행하며 캐시 guard를 우회하지 않는다. completion `e7495346-060a-4f00-be94-da09df83c1b2`, 실행 세션 78369. native 결과는 아직 대기한다.
+- light/dark native React/CSS 회귀 28개는 exit 0이다. 두 화면을 확인했으며 기존 일반 큐 대기 문구·질문 철회·배지·승인·키보드 동작을 검증한다. typed 답변의 계정 예외 데이터/선택은 source VM 범위이다. 렌더 자료는 `artifacts/tasks/verify-question-withdrawal-render/runs/20261023T012125487Z-5dc392cb-0f9e-4306-b8b2-2be474dbf495`에 있다.
+- 이전 catalog 잠금이 해제되어 source-3/native-9/reply-native-2의 실제 outer failure와 모든 자식 종료 근거로 supported close를 완료했다. 이전 failed 결과는 보존한다. DC 실행 자료를 native 관리 등록 중이며, 실행 중인 이번 native 입력은 등록/정리 대상에서 제외한다.
+- 공유 체크아웃의 외부 커밋 `99afefb1`이 진행 중 구현 변경을 포함했다. 해당 커밋을 되돌리지 않고 검증을 이어가며, 남은 문서/인벤토리/fixture 보완만 별도 작업 커밋으로 마감한다.
+- `reply-account-native-1`은 queue 26개 통과/2개 실패, Cargo exit 101, producer exit 1이다. pending 상태에도 유지되던 큐 worker가 10초 sleep 중 reopen 알림을 가려 5초 이내 재개 검사가 실패했다. pending 중에는 답변 dispatch를 한 번 시도한 뒤 worker를 종료하여 reopen 알림이 새 worker를 예약하도록 수정했다. 계정 commit fixture는 TurnComplete 뒤 task 인증 lease 해제까지 기다리도록 보완했다. 실패 run은 진단 자료로 보존하고 수정된 입력만 새 run에서 검증한다.
+- native 자료 등록 도구 호출이 장시간 반환하지 않아 해당 orchestration을 중단했다. 일부 등록 여부는 미확정이므로 등록 완료로 계산하지 않고 재시도 전에 현재 native registry를 확인한다. catalog 종료 기록과 native 관리 등록은 구분한다.
+- 현재 native registry를 다시 조회하여 기존 등록된 DC 묶음 7개를 확인하고, 등록되지 않은 묶음 13개만 순차 등록 중이다. 중단된 등록을 무조건 재시도하지 않았다.
+- `reply-account-native-2`는 Cargo 실행 전 `recordPending`의 catalog 잠금 충돌로 exit 1이다. `cargo-target-owner.cjs:211`의 등록이 `spawnSync`보다 앞임을 확인했고 실제 Cargo 검사 결과는 없다. producer/자식 종료 근거를 확인했다. `reply-account-native-3`은 같은 수정 내용으로 재시도하며, 이 정확한 pre-Cargo 잠금 충돌만 실제 해제 뒤 제한적으로 재시도한다. 기능 검사 실패는 재시도하지 않는다. completion `742f1526-c23d-4a93-b0ac-292f0f336403`, 세션 70129.
+- native-3 첫 시도는 native-2의 남은 Cargo lease 때문에 Cargo 미실행 guard 충돌이었다. lease token `5fdf3e98-6425-4179-9ab7-1ff29516f4f9`, coordinator PID 43516, producerPid=null이 종료된 native-2 tracked child와 일치한다. 세션 68246의 실제 종료 및 recordPending의 pre-spawn 실패를 근거로 `recoverTargetOwner`를 실행했다. `reply-account-cargo-recovery-1`은 exit 0이며 independent evidence/receipt를 보존한다. 캐시 payload는 유지했고 기존 unknown/null exit 결과를 성공으로 바꾸지 않았다. native-3은 lease 제거 이벤트 뒤 같은 producer에서 재진입한다.
+- native-3 재진입은 shared Cargo pending 기록의 이전 unknown generation을 교체할 수 없어 Cargo 실행 전 실패했다. exact coordinator 18440의 tracked close와 producerPid=null, pre-spawn generation 거부를 근거로 `reply-account-cargo-recovery-2`에서 공식 lease 복구를 완료했다(exit 0). 이전 shared unknown 기록은 보호 상태로 남긴다.
+- `reply-account-native-4`는 `INSTA_PENDING_DIR`을 자신의 planned outputs 아래로 지정한다. 기존 helper가 명시적 출력의 caller lifecycle 소유권을 재사용하므로 shared unknown generation을 바꾸거나 우회하지 않는다. 같은 source 수정과 공유 Cargo cache, 기존 typecheck/비영 검사 선택/실행 gate를 유지한다. completion `bea10d08-5858-4e42-95d9-ae74ffe593e3`, 세션 28618. native 재실행의 원인은 첫 실제 회귀 실패 보완 1회와 이후 기록/잠금 인프라 실패이며, 후자를 기능 테스트 결과로 계산하지 않는다.
+- native-4의 queue 통합은 28개 전체 통과, Cargo exit 0이다. pending 계정의 typed reply 전송, exclusive commit 대기, 남은 질문/일반 큐 보류 및 switch 완료/취소 시 일반 큐 재개를 확인했다. app-server typecheck는 API `UserInput`의 `Into` 미구현으로 exit 101이었다. 기존 `UserInput::into_core` 변환으로 수정했다.
+- `reply-account-native-5`에서는 변경된 app-server 단위 검사만 다시 수행한다. queue package는 app-server에 의존하지 않고 service/queue 테스트 파일도 native-4 검증 뒤 바꾸지 않았으므로 해당 28개 결과를 그대로 보존한다. 이 재사용을 전체 새 source fingerprint의 일괄 acceptance로 표현하지 않는다. completion `ba81d97a-6662-44ce-94c3-e45a1ba36260`, 세션 93561. 소스/렌더/SDK 관련 입력은 추가 변경하지 않았다.
+- native-5 실제 app-server typecheck/비영 검사 선택/실행이 모두 exit 0이며 단위 검사 1개가 통과했다. 입력 SHA-256 `039d809ab237264050cf62e001e1fee1246b9c2ad7b671da93bea4f51d0f84e9`의 실행 전후 동일성과 producer 최종 exit 0을 확인했다. native-4의 queue 28개, source-2의 소스 86개 및 렌더 28개와 함께 이번 계정 전환 답변 예외의 Windows 검증 근거로 사용한다. 실제 설치 환경·다른 OS acceptance와 구분한다.
 
 - `questionReply` 종류를 UI → 큐 API → 저장 → 편집/재시작 → 엔진 수락까지 보존한다. 일반 문자열의 태그만으로 답변 종류를 부여하지 않는다. 질문 보류 시 가장 이른 답변을 먼저 선택하되 나머지 큐의 상대 순서와 승인·중단·계정·복구 보류는 유지한다.
 - `reply-native-2`의 Windows x64 실제 Cargo 실행은 async 18개, accepted 11개, compact 5개, turn 21개, queue 27개, questions 29개가 각각 exit 0이다. 스키마 및 SDK 마지막 결과와 producer 종료는 아직 대기한다. 고정 입력 식별자는 아래 실행 기록에 보존한다.

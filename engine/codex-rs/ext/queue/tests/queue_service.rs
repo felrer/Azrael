@@ -139,10 +139,23 @@ async fn question_reply_queue_scenario(pending_account: bool) -> anyhow::Result<
     let pending = pending_account
         .then(|| admission.begin_switch())
         .transpose()?;
-    let commit = pending
-        .as_ref()
-        .map(|p| p.try_commit().context("idle switch commit"))
-        .transpose()?;
+    // TurnComplete can arrive before the task releases its authentication lease.
+    let commit = if let Some(pending) = &pending {
+        Some(
+            tokio::time::timeout(Duration::from_secs(5), async {
+                loop {
+                    if let Some(commit) = pending.try_commit() {
+                        break commit;
+                    }
+                    tokio::task::yield_now().await;
+                }
+            })
+            .await
+            .context("completed task must release account admission")?,
+        )
+    } else {
+        None
+    };
     let queued = queue
         .enqueue(thread_id, user_input("Run after questions are cleared."))
         .await?;
