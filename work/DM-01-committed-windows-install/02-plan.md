@@ -151,6 +151,14 @@ root가 데이터/호출 계약·선택 범위·입력 기준·통합·최종 �
 - known-signal 취소는 기존 failure/null 표현을 사용하도록 finish에 실제 signal 입력을 추가했고 집중 검사 exit 0. 신호 없는 취소 표시는 unknown을 유지한다.
 
 - 경계 파일럿 6개를 실제 실행하고 native grouped review/apply했다. success/failure/retry/실제 SIGTERM 4개는 실제 부재 확인 후 finalize했다. 과거 unknown 취소와 stop-proof 누락 2개는 원래 결과를 보존해 defer했다. 증거: impl-r1/reports/pilot-six-cleanup.json, pilot-six-finalize.json.
-- Windows AF_UNIX 여유를 위해 새 mutable workspace는 artifacts/workspaces/a의 fresh 세대를 사용한다. 이름은 소유 판정에 사용하지 않고 독립 manifest와 run 식별값으로 묶는다.
+- 첫 mutable workspace artifacts/workspaces/a는 소켓 사전 검사에서 중단됐고, 수정 적용 입력은 artifacts/workspaces/b의 fresh 세대를 사용한다. 이름은 소유 판정에 사용하지 않고 독립 manifest와 run 식별값으로 묶는다.
 - RetainedSourceRoot 패키징 회귀 6/6과 PowerShell AST 검사 실제 exit0. 다른 소스와 복사 중 변경을 거부한다. 배포의 source preflight/native 입력은 mutable 경로로 일치시키고 최종 build-info만 검증된 보존 경로를 기록한다. Windows 필수 lifecycle gate에 PackagingOnly 회귀를 연결했다.
 - 실제 Windows 사전 검사에서 신규 fixture/state 소켓이109바이트로107바이트 제한을 넘었다. 8.3 표기도 .NET에서 확장되어 해결되지 않았다. 명시적 VerificationFixtureRoot에서만 상태 하위 이름을 s로 줄이고 기본 state 경로를 유지했다. 실제 guard109거부/105허용·기본 설치·짧은 fixture 설치 3개 회귀 exit0. 제품 컴파일은 시작하지 않았다. 실패 세대의 payload는 검증 증거를 impl-r1/reports/failed-w13a로 보존한 뒤 재검토·삭제하며 새 입력 세대를 만든다.
+
+- 새 mutable 소스에는 무시된 node_modules가 포함되지 않는다. 고정 제품 기준 c23b의 package-lock SHA 일치 확인 후 기존 검증 의존성을 독립 복사하고, 전체 파일·링크 inventory의 복사 전/후 일치 및 TypeScript/node-pty 실제 로딩을 검증한다. mutable extensions 멤버가 이를 소유하며 immutable input에는 넣지 않는다. 지침 테스트의 고정 release assets는 기존 보호 경로를 명시한다.
+
+- 실패 입력/작업 소스 2그룹 24멤버가 native apply에서 모두 deleted·remaining=false로 확인됐고 지원 finalize를 완료했다. 논리 크기 1,299,421,981바이트이며 전체 작업 컨테이너의 보호 Git 전달 파일까지 삭제했다는 뜻은 아니다. 검토/삭제/종료 근거는 impl-r1/reports/failed-generation-*.json에 보존했다.
+- native project_build 경계는 실제 10초 후 exit124로 종료해 장기 배포에 사용할 수 없었다. 실패 영수증을 보존하고 해당 일회성 bundle만 제거했다. 장기 실행은 동일 고정 입력 검증을 유지하는 기존 command 세션과 실제 child close 증거로 추적한다. 새 입력 준비 windows-r3를 시작했다.
+
+- windows-r3 입력 준비 실제 exit0. project SHA ddcd1246ec190243e4bc66a35056e8e4ac9a19b4b8395b14b693f254ec4e4aa5. helper 준비 926,538ms, 의존성 독립 복사·세 번 inventory 비교 152,412ms, 최종 immutable/working 검증 통과. 프로세스 생성16:12:17~producer 영수증16:31:06 기준 전체 준비 약18분49초. source-dependencies.json에 13,325파일/1,522디렉터리와 로딩 증거 보존.
+- 2026-10-23 16:32 UTC windows-controller-w13b 장기 세션28366 시작. 공유 Cargo owner API exists=false 및 Cargo/rustc/link 프로세스 없음 확인. 기존 PS7/runtime 소비 참조를 지원 API로 windows-r3에 추가했다. 설치 목표2026.0.12이며 NoLaunch/reload-required 계약을 유지한다.
