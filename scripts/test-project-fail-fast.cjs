@@ -30,6 +30,24 @@ test("failure collection requires an explicit CLI flag", () => {
   assert.equal(parseArgs(["--collect-failures"]).collectFailures, true);
 });
 
+test("fixture readiness is explicit and blocks before output creation or command launch", async () => {
+  assert.equal(parseArgs(["--check-fixtures"]).checkFixtures, true);
+  const previous = process.env.AZRAEL_CATALOG_TEST_ROOT;
+  delete process.env.AZRAEL_CATALOG_TEST_ROOT;
+  const directory = path.join(os.tmpdir(), `azrael-fixture-gate-${require('node:crypto').randomUUID()}`);
+  let called = false;
+  try {
+    await assert.rejects(runSelection({ ...selection(["source"]), files: ["scripts/tests/instruction-catalog.test.cjs"] }, {
+      directory, runCommand: async () => { called = true; return { status: "passed", exitCode: 0 }; },
+    }), error => error.code === "AZRAEL_SOURCE_FIXTURES_BLOCKED");
+    assert.equal(called, false);
+    assert.equal(fs.existsSync(directory), false);
+  } finally {
+    if (previous === undefined) delete process.env.AZRAEL_CATALOG_TEST_ROOT;
+    else process.env.AZRAEL_CATALOG_TEST_ROOT = previous;
+  }
+});
+
 test("source failure stops every later command group and retains planned scope", async () => {
   const calls = [];
   const { report, saved } = await fixture(["source", "native-fixture", "extension-build", "extension-changed"], {

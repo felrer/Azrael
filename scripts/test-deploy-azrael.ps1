@@ -62,6 +62,11 @@ const scenario = JSON.parse(fs.readFileSync(path.join(a, 'scenario.json')));
 const launchArgs = process.argv.slice(2);
 if(launchArgs.length!==4 || launchArgs[0]!=='--args-file' || !path.isAbsolute(launchArgs[1]) || launchArgs[2]!=='--args-sha256') throw Error('Expected exclusive absolute args-file launch');
 if(require('node:crypto').createHash('sha256').update(fs.readFileSync(launchArgs[1])).digest('hex')!==launchArgs[3]) throw Error('Argument SHA-256 mismatch');
+const logicalArgs = JSON.parse(fs.readFileSync(launchArgs[1], 'utf8'));
+if(logicalArgs.includes('--check-fixtures')) {
+ fs.writeFileSync(path.join(a,'source-fixtures.json'),JSON.stringify({time:Date.now(),args:logicalArgs}));
+ process.exit(scenario.mode==='source-fixtures-fail'?29:0);
+}
 fs.writeFileSync(path.join(a, 'test-launch.json'), JSON.stringify(launchArgs));
 fs.writeFileSync(path.join(a, 'test-invocation.json'), JSON.stringify(JSON.parse(fs.readFileSync(launchArgs[1], 'utf8'))));
 fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.pid, time:Date.now()}));
@@ -666,7 +671,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
         return
     }
-    if ($Mode -in @('engine-source-preflight-fail','dependencies-fail')) {
+    if ($Mode -in @('engine-source-preflight-fail','dependencies-fail','source-fixtures-fail')) {
         Assert-True ($exit -ne 0 -and $metrics.status -ceq 'failed') 'preflight failure did not abort deploy'
         foreach($marker in @('source-start.json','build-start.json','prepare-invocation.json','install-invocation.json')) {
             Assert-True (-not (Test-Path (Join-Path $a $marker))) "Preflight failure started work: $marker"
@@ -926,6 +931,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'temporary references preserved' 'success'
     Invoke-Case 'policy selection' 'policy-selection'
     Invoke-Case 'engine-source-preflight-fail' 'engine-source-preflight-fail'
+    Invoke-Case 'source-fixtures-fail' 'source-fixtures-fail'
     Invoke-Case 'dependencies-fail' 'dependencies-fail'
     Invoke-Case 'parallel prepare' 'success' $true
     Invoke-Case 'verify only' 'success' $true

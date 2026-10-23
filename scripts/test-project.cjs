@@ -48,6 +48,7 @@ function parseArgs(args) {
     if (option === "--exhaustive") { options.exhaustive = true; continue; }
     if (option === "--defer-preservation-cache-owner") { options.deferPreservationCacheOwner = true; continue; }
     if (option === "--list") { options.list = true; continue; }
+    if (option === "--check-fixtures") { options.checkFixtures = true; continue; }
     if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
     if (!["--area", "--changed", "--log-directory", "--test-concurrency", "--work-id", "--source-preflight-config"].includes(option)) throw new Error(`Unknown option: ${option}`);
@@ -479,6 +480,7 @@ function checkedWorkId(value) {
 
 async function runSelection(selection, options = {}) {
   const root = path.resolve(options.root || ROOT);
+  require('./source-test-fixtures.cjs').assertSourceFixtures({ root, files: selection.files });
   let sourcePreflight;
   if (options.sourcePreflightConfig) {
     const config = JSON.parse(fs.readFileSync(options.sourcePreflightConfig, 'utf8').replace(/^\uFEFF/, ''));
@@ -596,6 +598,11 @@ async function main(args = process.argv.slice(2)) {
   const selection = select(options);
   if (options.argumentIdentity) selection.argumentIdentity = options.argumentIdentity;
   if (options.list) { console.log(JSON.stringify(selection, null, 2)); return 0; }
+  if (options.checkFixtures) {
+    const readiness = require('./source-test-fixtures.cjs').inspectSourceFixtures({ root: ROOT, files: selection.files });
+    console.log(JSON.stringify(readiness, null, 2));
+    return readiness.status === 'ready' ? 0 : 1;
+  }
   const report = await runSelection(selection, { ...options,
     onResult: result => console.log(`${result.name}: ${result.status} (exit ${result.exitCode}, ${result.durationMs}ms)`) });
   const { resultPath } = report;
