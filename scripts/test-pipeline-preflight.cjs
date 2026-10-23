@@ -55,6 +55,32 @@ test('Windows PATH composition has one key and deduplicates case; POSIX paths re
   assert.equal(windows.SECRET, 'retained');
   assert.equal(preflight.composePath({ PATH: '/Tools:/tools' }, [], 'linux').PATH, '/Tools:/tools');
 });
+test('Windows PATH deduplicates slash and trailing separator aliases while preserving drive and UNC roots', () => {
+  const directories = ['C:/Program Files/nodejs/', 'C:/Tools/', 'C:/', '//server/share/'];
+  const env = preflight.composePath({ Path: 'C:\\Program Files\\nodejs;C:\\Tools;C:\\;\\\\server\\share\\',
+    PATH: 'c:/program files/nodejs;c:/tools/;c:/;//SERVER/share' }, directories, 'win32');
+  assert.equal(env.PATH, directories.join(';'));
+  assert.deepEqual(Object.keys(env), ['PATH']);
+  assert.equal(preflight.composePath({ PATH: '/Tools:/Tools/:/tools' }, [], 'linux').PATH, '/Tools:/Tools/:/tools');
+});
+test('actual Windows PowerShell resolves one Node executable after environment preflight PATH patch', { skip: process.platform !== 'win32' }, async () => {
+  const nodeDirectory = path.dirname(process.execPath);
+  const selected = await preflight.environment({ ...environmentFixture(), toolDirectories: [nodeDirectory.replaceAll('\\', '/') + '/'] },
+    [{ checks: [{ executable: 'python', args: [] }] }], {
+      env: { ...process.env, Path: `${nodeDirectory};${nodeDirectory.replaceAll('\\', '/')}/` },
+      run: () => ({ status: 0, stdout: 'bounded Python identity fixture' }),
+    });
+  const env = selected.env;
+  assert.equal(env.PATH, selected.environmentPatch.PATH);
+  assert.deepEqual(Object.keys(env).filter(key => key.toUpperCase() === 'PATH'), ['PATH']);
+  const executable = path.join(process.env.SystemRoot, 'System32/WindowsPowerShell/v1.0/powershell.exe');
+  const script = "$ErrorActionPreference='Stop'; ConvertTo-Json -Compress -InputObject @(Get-Command node -All -CommandType Application | ForEach-Object { $_.Source })";
+  const child = require('node:child_process').spawnSync(executable, ['-NoProfile', '-NonInteractive', '-Command', script],
+    { env, encoding: 'utf8', windowsHide: true });
+  assert.equal(child.status, 0, child.error?.message || child.stderr);
+  const sources = JSON.parse(child.stdout.trim());
+  assert.equal(sources.filter(source => path.win32.normalize(source).toLowerCase() === path.win32.normalize(process.execPath).toLowerCase()).length, 1);
+});
 const sdkFeatures = [{ checks: [{ executable: 'node', args: ['scripts/check-question-withdrawal-sdk.cjs'], level: 'source' },
   { id: 'native', executable: 'node', args: ['scripts/check-api-context.cjs'], cargoPreflight: 'selected-tests-v1' }] }];
 function environmentFixture() {

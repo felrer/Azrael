@@ -70,7 +70,12 @@ function composePath(env, directories, platform = process.platform) {
   const entries = [...directories, ...inherited.flatMap(value => value.split(delimiter))].filter(Boolean);
   const seen = new Set();
   output.PATH = entries.filter(entry => {
-    const id = platform === 'win32' ? entry.toLowerCase() : entry;
+    let id = entry;
+    if (platform === 'win32') {
+      id = path.win32.normalize(entry);
+      if (id !== path.win32.parse(id).root) id = id.replace(/\\+$/, '');
+      id = id.toLowerCase();
+    }
     if (seen.has(id)) return false; seen.add(id); return true;
   }).join(delimiter);
   return output;
