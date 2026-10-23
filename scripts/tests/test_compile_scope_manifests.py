@@ -63,6 +63,21 @@ class CompileScopePolicyTests(unittest.TestCase):
                 )
                 self.assertTrue(any("limit `[features]`" in error for error in errors))
 
+    def test_daemon_encoding_dependency_stays_exact_and_lifecycle_scoped(self):
+        path_key = "codex-rs/app-server-daemon/Cargo.toml"
+        manifest = policy.load_manifest(policy.ROOT / path_key)
+        self.assertEqual(manifest["features"]["default"], ["lifecycle"])
+        self.assertIn("dep:data-encoding", manifest["features"]["lifecycle"])
+        self.assertTrue(manifest["dependencies"]["data-encoding"]["optional"])
+
+        def edit(manifest):
+            manifest["features"]["lifecycle"].append("dep:unapproved-encoding")
+            manifest["dependencies"]["unapproved-encoding"] = {"optional": True}
+
+        errors, _ = self.check_manifest(path_key, edit)
+        self.assertTrue(any("limit `[features]`" in error for error in errors))
+        self.assertTrue(any("remove `optional = true`" in error for error in errors))
+
     def test_new_features_and_optional_dependencies_stay_forbidden(self):
         def edit(manifest):
             manifest["features"] = {"unapproved": []}

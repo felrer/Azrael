@@ -9,6 +9,7 @@ const { createHash } = require('node:crypto');
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
+  'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
   'check-model-harness-profiles': 'a38d1ac09f80351d662d824245dbdcb03a6e9f320e8c550bed9c7066e2ae3928',
   'check-root-resume-reasoning': '0158f4af4864a884036821e42228d0d74e4396a7d9cc3856bcd7f4db190a76e4',
@@ -42,6 +43,9 @@ function reviewedRecipes(wrapper, tail, platform) {
     return Object.hasOwn(choices, name) ? choices[name] : undefined;
   };
   switch (wrapper) {
+    case 'check-usage-window':
+      if (!tail.length) args = [lib('codex-app-server', 'account_processor')];
+      break;
     case 'check-api-context':
       isolateHostEnvironment = false;
       args = scoped({ prompts: [lib('codex-prompts', 'api_projection'), lib('codex-prompts', 'configured_canonical_hint')],

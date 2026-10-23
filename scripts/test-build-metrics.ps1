@@ -1,6 +1,6 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([string]$OutputDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/logs/build-metrics-validation'))
+param([string]$OutputDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/logs/build-metrics-validation'), [switch]$PackagingOnly)
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $false
 $runDirectory = Join-Path $OutputDirectory ([guid]::NewGuid().ToString('N'))
@@ -31,6 +31,105 @@ function Expect-Failure([scriptblock]$Body, [string]$Pattern) {
     Assert-True ($null -ne $caught) 'Expected a terminating failure.'
     Assert-True ($caught.ToString() -match $Pattern) "Unexpected failure: $caught"
     return $caught
+}
+if ($PackagingOnly) {
+    $retained = Join-Path $runDirectory 'retained'
+    $working = Join-Path $runDirectory 'working'
+    $bundle = Join-Path $runDirectory 'bundle'
+    New-Item -ItemType Directory -Path (Join-Path $retained 'codex-rs'), $bundle | Out-Null
+    function Invoke-FixtureNative([string]$Command, [string[]]$Arguments) {
+        & $Command @Arguments | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "Fixture command failed ($LASTEXITCODE): $Command" }
+    }
+    '[workspace.package]' + "`n" + 'version = "0.159.3"' | Set-Content (Join-Path $retained 'codex-rs/Cargo.toml') -Encoding utf8NoBOM
+    'retained engine source' | Set-Content (Join-Path $retained 'source.txt') -Encoding utf8NoBOM
+    Invoke-FixtureNative git @('-C', $retained, 'init', '--quiet')
+    Invoke-FixtureNative git @('-C', $retained, 'config', 'user.email', 'packaging@example.invalid')
+    Invoke-FixtureNative git @('-C', $retained, 'config', 'user.name', 'Packaging Fixture')
+    Invoke-FixtureNative git @('-C', $retained, 'config', 'core.autocrlf', 'false')
+    Invoke-FixtureNative git @('-C', $retained, 'add', '.')
+    Invoke-FixtureNative git @('-C', $retained, 'commit', '--quiet', '-m', 'retained fixture')
+    Invoke-FixtureNative git @('-c', 'core.autocrlf=false', 'clone', '--quiet', '--no-hardlinks', $retained, $working)
+    foreach ($name in @('azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe')) { "fixture $name" | Set-Content (Join-Path $bundle $name) -Encoding utf8NoBOM }
+    $provenance = Join-Path $PSScriptRoot 'engine-provenance.py'
+    $snapshot = Join-Path $runDirectory 'source-before.json'
+    Invoke-FixtureNative python @('-B', $provenance, 'snapshot', '--root', $working, '--file', $snapshot)
+    Invoke-FixtureNative python @('-B', $provenance, 'record', '--root', $working, '--file', $snapshot, '--engine-dir', $bundle, '--code-mode-host-source', (Join-Path $bundle 'azrael-code-mode-host.exe'))
+    $vsix = Join-Path $runDirectory 'fixture.vsix'
+    $archive = [IO.Compression.ZipFile]::Open($vsix, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $writer = [IO.StreamWriter]::new($archive.CreateEntry('extension/package.json').Open())
+        try { $writer.Write('{"publisher":"azrael-ex-local","name":"azrael","version":"0.4.1"}') } finally { $writer.Dispose() }
+    } finally { $archive.Dispose() }
+    $package = Join-Path $PSScriptRoot 'package-azrael.ps1'
+    $common = @('-NoProfile', '-File', $package, '-EnginePath', (Join-Path $bundle 'azrael.exe'), '-BridgePath', (Join-Path $bundle 'azrael-bridge.exe'), '-CompanionVsixPath', $vsix, '-SourceRoot', $working)
+    Test-Case 'retained-source-package-success' {
+        $output = Join-Path $runDirectory 'retained-release'
+        & $pwsh @common -RetainedSourceRoot $retained -OutputDirectory $output *> (Join-Path $runDirectory 'retained-package.log')
+        Assert-True ($LASTEXITCODE -eq 0) 'Matching mutable/retained snapshots must package successfully.'
+        $info = Get-Content (Join-Path $output 'build-info.json') -Raw | ConvertFrom-Json
+        Assert-True ($info.engineSourceRoot -ceq (Resolve-Path $retained).Path) 'Build info must bind the resolved retained engine root.'
+        Invoke-FixtureNative python @('-B', $provenance, 'verify', '--root', $retained, '--engine-dir', (Join-Path $output 'engine'))
+    }
+    Test-Case 'default-source-package-preserved' {
+        $output = Join-Path $runDirectory 'default-release'
+        & $pwsh @common -OutputDirectory $output *> (Join-Path $runDirectory 'default-package.log')
+        Assert-True ($LASTEXITCODE -eq 0) 'Default packaging must retain existing behavior.'
+        Assert-True ((Get-Content (Join-Path $output 'build-info.json') -Raw | ConvertFrom-Json).engineSourceRoot -ceq (Resolve-Path $working).Path) 'Default build info source differs.'
+    }
+    foreach ($case in @(@{name='retained-mismatch';root=$retained}, @{name='mutable-mismatch';root=$working})) {
+        Test-Case $case.name {
+            $file = Join-Path $case.root 'source.txt'; $original = [IO.File]::ReadAllText($file)
+            try {
+                [IO.File]::WriteAllText($file, 'changed source')
+                $output = Join-Path $runDirectory $case.name
+                & $pwsh @common -RetainedSourceRoot $retained -OutputDirectory $output *> (Join-Path $runDirectory ($case.name + '.log'))
+                Assert-True ($LASTEXITCODE -ne 0) 'Mismatched source must reject packaging.'
+                Assert-True (-not (Test-Path $output)) 'Mismatched source reached output creation.'
+            } finally { [IO.File]::WriteAllText($file, $original) }
+        }
+    }
+    Test-Case 'retained-change-during-copy-rejected' {
+        $wrapper = Join-Path $runDirectory 'mutate-during-copy.ps1'
+        @'
+param($PackageScript, $Engine, $Bridge, $Vsix, $Working, $Retained, $Output)
+$global:retainedSourceFixtureMutationPath = Join-Path $Retained 'source.txt'
+$global:retainedSourceFixtureMutated = $false
+function Copy-Item {
+    param($LiteralPath, $Destination)
+    Microsoft.PowerShell.Management\Copy-Item -LiteralPath $LiteralPath -Destination $Destination
+    if (-not $global:retainedSourceFixtureMutated) {
+        $global:retainedSourceFixtureMutated = $true
+        [IO.File]::WriteAllText($global:retainedSourceFixtureMutationPath, 'changed during package copy')
+    }
+}
+& $PackageScript -EnginePath $Engine -BridgePath $Bridge -CompanionVsixPath $Vsix -SourceRoot $Working -RetainedSourceRoot $Retained -OutputDirectory $Output
+'@ | Set-Content $wrapper -Encoding utf8NoBOM
+        $file = Join-Path $retained 'source.txt'; $original = [IO.File]::ReadAllText($file)
+        try {
+            $output = Join-Path $runDirectory 'copy-race'
+            & $pwsh -NoProfile -File $wrapper -PackageScript $package -Engine (Join-Path $bundle 'azrael.exe') -Bridge (Join-Path $bundle 'azrael-bridge.exe') -Vsix $vsix -Working $working -Retained $retained -Output $output *> (Join-Path $runDirectory 'copy-race.log')
+            Assert-True ($LASTEXITCODE -ne 0) 'Retained mutation during copying must reject final provenance.'
+            Assert-True (Test-Path $output) 'Copy-race fixture must reach output creation.'
+            Assert-True (-not (Test-Path (Join-Path $output 'build-info.json'))) 'Copy-race failure published accepted build info.'
+        } finally { [IO.File]::WriteAllText($file, $original) }
+    }
+    Test-Case 'retained-source-handoff-and-preservation-root' {
+        $buildText = Get-Content (Join-Path $PSScriptRoot 'build-azrael.ps1') -Raw
+        $deployText = Get-Content (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
+        Assert-True ($buildText -match 'RetainedSourceRoot = \$RetainedSourceRoot') 'Build must forward retained root to package.'
+        Assert-True ($buildText.IndexOf("'engine-retained-source-check.log'") -lt $buildText.IndexOf("'release-packaging-and-copy'")) 'Retained check must precede packaging.'
+        Assert-True ($deployText -match "\('-RetainedSourceRoot', \`$RetainedSourceRoot\)") 'Deploy must pass selected retained root.'
+        foreach ($name in @('sourceConfig', 'enginePreservationConfig')) {
+            $block = [regex]::Match($deployText, ('\$' + $name + ' = \[ordered\]@\{(?<body>[\s\S]*?)\r?\n\s*\}')).Groups['body'].Value
+            Assert-True ($block -match 'engineSourceRoot = \[IO.Path\]::GetFullPath\(\$SourceRoot\)') "$name must keep the same mutable preflight/preservation root."
+        }
+    }
+    $failed = @($results | Where-Object status -eq failed)
+    [ordered]@{ passed=$results.Count-$failed.Count; failed=$failed.Count; results=@($results); runDirectory=$runDirectory } | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $runDirectory 'results.json')
+    Write-Output ([ordered]@{passed=$results.Count-$failed.Count; failed=$failed.Count; runDirectory=$runDirectory} | ConvertTo-Json -Compress)
+    if ($failed.Count) { $failed | ForEach-Object { Write-Host "$($_.name): $($_.error)" }; exit 1 }
+    exit 0
 }
 foreach ($code in @(0, 7, 8, -1)) {
     Test-Case "native-exit-$code" {

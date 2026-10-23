@@ -10,6 +10,7 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
     if (!runRoot) throw new Error("Writer checks require a registered run root");
     return [
       [process.execPath, ["scripts/test-artifact-run.cjs", path.join(runRoot, "temporary/helper")]],
+      [process.execPath, ["scripts/test-deployment-workspace.cjs", path.join(runRoot, "temporary/workspace")]],
       [process.execPath, ["scripts/test-artifact-check-ownership.cjs", path.join(runRoot, "temporary/checks")]],
       [process.execPath, ["scripts/test-artifact-render-ownership.cjs", "--output-root=" + path.join(runRoot, "temporary/renderers")]],
       [process.execPath, ["--test", "--test-name-pattern=instruction release ownership", "scripts/tests/instruction-package.test.cjs"]],
@@ -23,6 +24,8 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
   return [
     ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-metrics.ps1",
       ...(runRoot ? ["-OutputDirectory", path.join(runRoot, "temporary/metrics")] : [])]],
+    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-metrics.ps1", "-PackagingOnly",
+      ...(runRoot ? ["-OutputDirectory", path.join(runRoot, "temporary/retained-source")] : [])]],
     ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1"]],
     ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1", "-RegistryOnly",
       ...(runRoot ? ["-FixtureRoot", path.join(runRoot, "temporary/module-registry")] : [])]],

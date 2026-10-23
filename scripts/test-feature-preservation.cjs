@@ -435,3 +435,22 @@ const path = require('node:path');
     delete native.cargoPreflight;
     assert.throws(() => gate.validateManifest(manifest, root), /Cargo preflight declaration/);
   });
+
+  test('receipt retains selected native scheduling reasons without changing commands', async () => {
+    const { config, manifest } = setup();
+    config.area = 'engine';
+    const first = manifest.features.find(feature => feature.area === 'engine');
+    first.checks[0].args.push('first');
+    const second = JSON.parse(JSON.stringify(first));
+    second.id = 'engine.second'; second.checks[0].id = 'engine.second.check'; second.checks[0].args = ['scripts/check.cjs', 'second'];
+    manifest.features.push(second);
+    manifest.verificationSchedule = { priorities: { 'engine.second.check': 10 } };
+    const executed = []; const original = config.execute;
+    config.execute = async (executable, args, options) => { executed.push([...args]); return original(executable, args, options); };
+    const receipt = await gate.runPreservation(config);
+    assert.equal(receipt.status, 'passed', receipt.error);
+    assert.deepEqual(receipt.nativeExecutionOrder, ['engine.second.check', 'engine.fixture.check']);
+    assert.equal(receipt.nativeSchedule.length, 2);
+    assert.equal(receipt.nativeSchedule[0].priority, 10);
+    assert.deepEqual(executed, [['scripts/check.cjs', 'second'], ['scripts/check.cjs', 'first']]);
+  });

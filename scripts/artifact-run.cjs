@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { randomUUID, createHash } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
+const roles = ["inputs", "temporary", "logs", "reports", "outputs"];
 const inside = (parent, child) => { const rel = path.relative(parent, child); return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel)); };
 function safeId(value) {
   if (typeof value !== "string" || !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,159}$/.test(value) || /[. ]$/.test(value) || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(value)) throw Error("Invalid artifact run ID");
@@ -20,16 +21,19 @@ function checked(root, value) {
   }
   return result;
 }
-function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISOString().replace(/[-:.]/g, "") + "-" + randomUUID(), references = [], paths = {} }) {
+function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISOString().replace(/[-:.]/g, "") + "-" + randomUUID(), references = [], paths = {}, requireStopEvidence = false }) {
   projectRoot = fs.realpathSync(projectRoot);
   safeId(workId); safeId(runId);
+  if (typeof requireStopEvidence !== "boolean") throw Error("Boolean requireStopEvidence required");
   const runRoot = checked(projectRoot, path.join(projectRoot, "artifacts/tasks", workId, "runs", runId));
-  const run = { projectRoot, workId, owner, runId, lifecycleId: `run:${workId}:${runId}`, runRoot, references, children: new Set(), producerStopped: true };
-  for (const role of ["temporary", "logs", "reports", "outputs"]) run[role] = checked(projectRoot, paths[role] ?? path.join(runRoot, role));
-  const members = [{ path: runRoot, role: "run", generated: true, protection_known: true }, ...["temporary", "logs", "reports", "outputs"].map(role => ({ path: run[role], role, ...(inside(runRoot, run[role]) ? { generated: true, protection_known: true } : {}) }))];
-  for (const [role, value] of Object.entries(paths)) {
-    if (!["temporary", "logs", "reports", "outputs"].includes(role)) throw Error("Unknown artifact role");
-    if (inside(value, runRoot) || Object.entries(paths).some(([other, otherPath]) => other !== role && (inside(value, otherPath) || inside(otherPath, value)))) throw Error("Overlapping artifact destinations");
+  const run = { projectRoot, workId, owner, runId, lifecycleId: `run:${workId}:${runId}`, runRoot, references, requireStopEvidence, children: new Set(), producerStopped: true };
+  // Inputs owns handoff manifests only. Immutable payload dependencies use references.
+  for (const role of Object.keys(paths)) if (!roles.includes(role)) throw Error("Unknown artifact role");
+  for (const role of roles) run[role] = checked(projectRoot, paths[role] ?? path.join(runRoot, role));
+  const members = [{ path: runRoot, role: "run", generated: true, protection_known: true }, ...roles.map(role => ({ path: run[role], role, ...(inside(runRoot, run[role]) ? { generated: true, protection_known: true } : {}) }))];
+  for (const role of roles) {
+    const value = run[role];
+    if (inside(value, runRoot) || roles.some(other => other !== role && (inside(value, run[other]) || inside(run[other], value)))) throw Error("Overlapping artifact destinations");
   }
   const claimDirectory = path.join(projectRoot, "artifacts/maintenance/lifecycles");
   // recordLifecycle validates linked registry paths before writing its own lock.
@@ -56,7 +60,7 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
   process.once("exit", run.onExit);
   fs.mkdirSync(path.dirname(runRoot), { recursive: true });
   fs.mkdirSync(runRoot);
-  for (const role of ["temporary", "logs", "reports", "outputs"]) fs.mkdirSync(run[role], { recursive: true });
+  for (const role of roles) fs.mkdirSync(run[role], { recursive: true });
   return run;
   } finally { fs.closeSync(claim); fs.unlinkSync(claimPath); }
 }
@@ -66,17 +70,29 @@ function trackArtifactChild(run, child) {
   child.once("close", () => { child.artifactClosed = true; });
   return child;
 }
-function finishArtifactRun(run, { exitCode, producerStopped }) {
+function finishArtifactRun(run, { exitCode, signal = null, producerStopped, reason = "Owned producer and tracked children stopped", cancellation, stopEvidence }) {
   if (run.record.producer) return run.record;
-  const stopped = producerStopped === true && [...run.children].every(child => child.artifactClosed);
+  if (signal !== null && (typeof signal !== "string" || !/^SIG[A-Z0-9]+$/.test(signal) || signal.trim() !== signal)) throw Error("Actual producer signal must be null or a SIG name");
+  if (signal !== null && Number.isInteger(exitCode)) throw Error("Producer exit code and signal cannot both be present");
+  if (typeof reason !== "string" || !reason.trim()) throw Error("Nonblank producer reason required");
+  if (cancellation !== undefined && (!cancellation || typeof cancellation !== "object" || Array.isArray(cancellation))) throw Error("Cancellation metadata object required");
+  let verifiedStop;
+  if (stopEvidence !== undefined) {
+    if (stopEvidence?.producer_stopped_verified !== true) throw Error("Verified producer stop required");
+    verifiedStop = lifecycle.checkedEvidence(run.projectRoot, stopEvidence);
+  }
+  // Child close drains its streams. Only the controller can prove its owned tree stopped.
+  const stopped = producerStopped === true && [...run.children].every(child => child.artifactClosed) && (!run.requireStopEvidence || !!verifiedStop);
   const success = exitCode === 0 && stopped;
-  const state = success ? "complete" : stopped && Number.isInteger(exitCode) && exitCode !== 0 ? "failed" : "pending";
+  const knownOutcome = Number.isInteger(exitCode) || signal !== null;
+  const state = success ? "complete" : stopped && knownOutcome ? "failed" : "pending";
   const evidence = fs.existsSync(run.reports) ? path.join(run.reports, "producer.json") : path.join(run.projectRoot, "artifacts/maintenance/lifecycle-evidence", createHash("sha256").update(run.lifecycleId).digest("hex") + ".json");
   fs.mkdirSync(path.dirname(evidence), { recursive: true });
-  fs.writeFileSync(evidence, JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode: exitCode ?? null, producerStopped: stopped, children: [...run.children].map(child => ({ pid: child.pid ?? null, closed: child.artifactClosed })), state, membership_complete: stopped && Number.isInteger(exitCode) }, null, 2) + "\n");
+  if (verifiedStop && path.resolve(verifiedStop.evidence_ref) === path.resolve(evidence)) throw Error("Stop evidence cannot be overwritten by producer report");
+  fs.writeFileSync(evidence, JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode: Number.isInteger(exitCode) ? exitCode : null, signal, producerStopped: stopped, reason, ...(cancellation === undefined ? {} : { cancellation }), ...(verifiedStop ? { stopEvidence: verifiedStop } : {}), children: [...run.children].map(child => ({ pid: child.pid ?? null, closed: child.artifactClosed })), state, membership_complete: stopped && knownOutcome }, null, 2) + "\n");
   run.record = stopped ? lifecycle.closeLifecycle(run.projectRoot, run.lifecycleId, { owner: run.owner, expected_revision: run.record.revision,
-    producer_stopped_verified: true, outcome: Number.isInteger(exitCode) ? (success ? "success" : "failure") : "unknown", exit_code: Number.isInteger(exitCode) ? exitCode : null,
-    reason: "Owned producer and tracked children stopped", evidence_ref: evidence, evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence)).digest("hex") })
+    producer_stopped_verified: true, outcome: knownOutcome ? (success ? "success" : "failure") : "unknown", exit_code: Number.isInteger(exitCode) ? exitCode : null,
+    reason, evidence_ref: evidence, evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence)).digest("hex") })
     : lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: false, expected_revision: run.record.revision });
   process.removeListener("exit", run.onExit);
   return run.record;

@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory)][string]$BridgePath,
     [Parameter(Mandatory)][string]$CompanionVsixPath,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
+    [string]$RetainedSourceRoot,
     [string]$OutputDirectory = (Join-Path $PSScriptRoot ("../artifacts/releases/" + (Get-Date -Format 'yyyyMMdd-HHmmss-fff')))
 )
 
@@ -35,6 +36,15 @@ if ((Split-Path $engine -Parent) -cne (Split-Path $bridge -Parent)) { throw 'Eng
 $sourceReceiptText = & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Split-Path $engine -Parent)
 if ($LASTEXITCODE -ne 0) { throw 'Cannot package an engine without matching source provenance.' }
 $sourceReceipt = $sourceReceiptText | ConvertFrom-Json
+$resolvedRetainedSourceRoot = $sourceRoot
+if ($RetainedSourceRoot) {
+    if (-not [IO.Path]::IsPathFullyQualified($RetainedSourceRoot)) { throw 'RetainedSourceRoot must be absolute.' }
+    $resolvedRetainedSourceRoot = (Resolve-Path -LiteralPath ([IO.Path]::GetFullPath($RetainedSourceRoot))).Path
+    if (-not (Test-Path -LiteralPath $resolvedRetainedSourceRoot -PathType Container)) { throw 'RetainedSourceRoot must be a directory.' }
+    $retainedReceiptText = & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $resolvedRetainedSourceRoot --engine-dir (Split-Path $engine -Parent)
+    if ($LASTEXITCODE -ne 0) { throw 'Cannot package an engine without matching retained source provenance.' }
+    if (($retainedReceiptText -join "`n") -cne ($sourceReceiptText -join "`n")) { throw 'Mutable and retained engine provenance receipts differ.' }
+}
 $base = [string]$sourceReceipt.source.head
 if ($base -notmatch '^[0-9a-f]{40}$') { throw 'Could not read the verified engine source baseline.' }
 $engineVersion = & python -c 'import pathlib, sys, tomllib; print(tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))["workspace"]["package"]["version"])' (Join-Path $sourceRoot 'codex-rs/Cargo.toml')
@@ -58,6 +68,10 @@ if ($nativeHost) {
 $files = @('engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe', 'azrael-ex.vsix')
 & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Join-Path $destination 'engine') | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Packaged engine/source changed during copying. Release is not accepted.' }
+if ($RetainedSourceRoot) {
+    & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $resolvedRetainedSourceRoot --engine-dir (Join-Path $destination 'engine') | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Packaged engine/retained source changed during copying. Release is not accepted.' }
+}
 $hashes = [ordered]@{}
 foreach ($file in $files) { $hashes[$file] = (Get-FileHash -LiteralPath (Join-Path $destination $file) -Algorithm SHA256).Hash }
 [ordered]@{
@@ -67,7 +81,7 @@ foreach ($file in $files) { $hashes[$file] = (Get-FileHash -LiteralPath (Join-Pa
     engineVersion = $engineVersion.Trim()
     officialExtensionVersion = if ($nativeHost) { $null } else { '26.908.40401' }
     engineBaseCommit = $base
-    engineSourceRoot = $sourceRoot
+    engineSourceRoot = $resolvedRetainedSourceRoot
     engineIncludesLocalChanges = $true
     engineProvenance = Get-Content -LiteralPath (Join-Path $destination 'engine/azrael-engine-build.json') -Raw | ConvertFrom-Json
     generatedAt = [DateTimeOffset]::UtcNow.ToString('o')

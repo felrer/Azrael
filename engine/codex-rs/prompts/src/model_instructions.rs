@@ -36,6 +36,22 @@ pub fn render_model_instructions(_model_info: &ModelInfo) -> String {
     COMMON_AGENT_INSTRUCTIONS.to_owned()
 }
 
+/// Compare snapshotless initial behavior across raw and runtime-wrapped instructions.
+/// Only the exact leading runtime block and line-ending differences are ignored.
+pub fn initial_instructions_contain_behavior(initial: &str, current: &str) -> bool {
+    fn behavior<'a>(instructions: &'a str, runtime: &str) -> &'a str {
+        instructions
+            .strip_prefix(runtime)
+            .and_then(|rest| rest.strip_prefix('\n'))
+            .unwrap_or(instructions)
+    }
+
+    let initial = initial.replace("\r\n", "\n");
+    let current = current.replace("\r\n", "\n");
+    let runtime = HARNESS_RUNTIME_CORE.replace("\r\n", "\n");
+    behavior(&initial, &runtime).starts_with(behavior(&current, &runtime))
+}
+
 /// Explicit user/workspace instructions supplement the common behavior.
 /// Model-owned saved instructions are refreshed by the caller instead.
 pub fn compose_agent_instructions(custom: Option<&str>) -> String {

@@ -242,8 +242,9 @@ function extensionOwners(root) {
   return { owners, tests: tests.map(file => normalize(path.relative(root, file))), extension };
 }
 
-function scriptOwners(candidates, root, owners = new Map()) {
+function scriptOwners(candidates, root, owners = new Map(), evidence = new Map()) {
   const dependencies = new Map();
+  const dynamicOwners = [];
   for (const test of candidates.filter(file => /\.(?:cjs|mjs)$/.test(file))) {
     const visited = new Set();
     const visit = file => {
@@ -253,12 +254,26 @@ function scriptOwners(candidates, root, owners = new Map()) {
       // prevent one feature test from inheriting every unrelated injector.
       if (file === "scripts/namespace-azrael-host.cjs") return;
       if (!dependencies.has(file)) {
-        const imports = [];
+        const imports = [], dynamic = [];
         const filename = path.join(root, file);
         if (fs.existsSync(filename) && /\.(?:cjs|mjs|js)$/.test(file)) {
           const source = fs.readFileSync(filename, "utf8");
-          for (const match of source.matchAll(/require\s*\(\s*["'](\.{1,2}\/[^"']+)["']\s*\)/g)) {
-            let dependency = path.resolve(path.dirname(filename), match[1]);
+          const specifiers = [];
+          for (const match of source.matchAll(/\b(?:require|import)\s*\(\s*([^)]*)/g)) {
+            const literal = match[1].match(/^(["'`])([^"'`]+)\1\s*$/);
+            if (literal && !literal[2].includes("${")) {
+              if (literal[2].startsWith(".")) specifiers.push(literal[2]);
+            } else {
+              // A prefix narrows possible inputs, but never proves a computed
+              // dependency complete. Variable-only calls have directory scope.
+              const relative = match[1].match(/^["'`](\.{1,2}\/[^"'`$]*?)(?:["'`]|\$\{)/);
+              const prefix = relative ? normalize(path.relative(root, path.resolve(path.dirname(filename), relative[1]))) + (relative[1].endsWith("/") ? "/" : "") : `${normalize(path.dirname(file))}/`;
+              if (!prefix.startsWith("../")) dynamic.push({ source: file, prefix, bounded: !!relative && relative[1] !== "./" && relative[1] !== "../" });
+            }
+          }
+          for (const match of source.matchAll(/\b(?:import|export)\s+(?:[^;\n]*?\s+from\s*)?["'](\.{1,2}\/[^"']+)["']/g)) specifiers.push(match[1]);
+          for (const specifier of specifiers) {
+            let dependency = path.resolve(path.dirname(filename), specifier);
             try { dependency = require.resolve(dependency); } catch {
               // An unresolved literal still owns its deleted path.
             }
@@ -266,11 +281,15 @@ function scriptOwners(candidates, root, owners = new Map()) {
             if (!relative.startsWith("../") && !relative.includes("/node_modules/")) imports.push(relative);
           }
         }
-        dependencies.set(file, imports);
+        dependencies.set(file, { imports, dynamic });
       }
-      for (const dependency of dependencies.get(file)) {
+      for (const dependency of dependencies.get(file).dynamic) dynamicOwners.push({ ...dependency, test });
+      for (const dependency of dependencies.get(file).imports) {
         if (!owners.has(dependency)) owners.set(dependency, new Set());
         owners.get(dependency).add(test);
+        const key = `${dependency}\0${test}`;
+        if (!evidence.has(key)) evidence.set(key, new Set());
+        evidence.get(key).add("static-import");
         visit(dependency);
       }
     };
@@ -278,10 +297,10 @@ function scriptOwners(candidates, root, owners = new Map()) {
     // Declared dynamic feature inputs also retain their local helper dependencies.
     for (const [source, tests] of owners) if (tests.has(test)) visit(source);
   }
-  return owners;
+  return dynamicOwners;
 }
 
-function declaredFeatureOwners(owners, candidates, root) {
+function declaredFeatureOwners(owners, candidates, root, evidence) {
   const manifestPath = path.join(root, "scripts/azrael-feature-contracts.json");
   if (!fs.existsSync(manifestPath)) return;
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8").replace(/^\uFEFF/, ""));
@@ -292,7 +311,12 @@ function declaredFeatureOwners(owners, candidates, root) {
       const tests = check.args.filter(argument => candidates.includes(argument));
       for (const input of [...feature.owners, ...(check.cacheInputs?.files || [])]) {
         if (!owners.has(input)) owners.set(input, new Set());
-        for (const test of tests) owners.get(input).add(test);
+        for (const test of tests) {
+          owners.get(input).add(test);
+          const key = `${input}\0${test}`;
+          if (!evidence.has(key)) evidence.set(key, new Set());
+          evidence.get(key).add(feature.owners.includes(input) ? "manifest-owner" : "manifest-data");
+        }
       }
     }
   }
@@ -311,7 +335,7 @@ function selectChanged(options, root) {
   };
   const candidates = [...new Set([...discovered, ...NAMESPACE, ...BUILD, ...FEATURE_FIXTURES])]
     .filter(file => !operationalTestPhases[file] && fs.existsSync(path.join(root, file)));
-  const owners = new Map();
+  const owners = new Map(), evidence = new Map();
   // Owners using dynamic paths or PowerShell dot-sourcing cannot enter require discovery.
   for (const [source, test] of [
     ["extensions/azrael-ex/scripts/build-incremental.cjs", "scripts/test-incremental-extension-build.cjs"],
@@ -332,16 +356,16 @@ function selectChanged(options, root) {
     }
   }
   const files = new Set(), extensionFiles = new Set(), reasons = [], separateChecks = new Set();
-  try { declaredFeatureOwners(owners, candidates, root); }
+  try { declaredFeatureOwners(owners, candidates, root, evidence); }
   catch (error) { separateChecks.add(`Declared feature owner discovery requires a separate check: ${error.message}`); }
-  scriptOwners(candidates, root, owners);
+  const dynamicOwners = scriptOwners(candidates, root, owners, evidence);
   const newInputs = new Set();
   for (const args of [["ls-files", "--others", "--exclude-standard", "-z"], ["diff", "HEAD", "--diff-filter=A", "--name-only", "-z"]]) {
     const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
     if (result.status === 0) for (const file of result.stdout.split("\0")) if (file) newInputs.add(normalize(file));
   }
   let extension;
-  const add = (file, test, reason) => { files.add(test); reasons.push({ path: file, test, reason }); };
+  const add = (file, test, reason, evidence) => { files.add(test); reasons.push({ path: file, test, reason, ...(evidence ? { evidence } : {}) }); };
   for (const file of changed) {
     if (/\.(md|markdown)$/i.test(file)) {
       reasons.push({ path: file, reason: "Documentation only; no code tests selected" });
@@ -360,7 +384,10 @@ function selectChanged(options, root) {
       continue;
     }
     else {
-      for (const test of owners.get(file) || []) { add(file, test, "source dependency owner"); matched = true; }
+      for (const test of owners.get(file) || []) {
+        add(file, test, "source dependency owner", [...(evidence.get(`${file}\0${test}`) || ["explicit-owner"])]);
+        matched = true;
+      }
       if (/^extensions\/azrael-ex\/media\/student-avatars\//.test(file) && candidates.includes("scripts/test-student-avatar-assets.cjs")) {
         add(file, "scripts/test-student-avatar-assets.cjs", "student avatar asset contract owner");
         matched = true;
@@ -376,7 +403,7 @@ function selectChanged(options, root) {
         const tests = extension.tests.includes(file) ? [file] : [...(extension.owners.get(file) || [])];
         for (const test of tests) {
           extensionFiles.add(test);
-          reasons.push({ path: file, test, reason: test === file ? "changed extension test selects itself" : "TypeScript dependency owner" });
+          reasons.push({ path: file, test, reason: test === file ? "changed extension test selects itself" : "TypeScript dependency owner", ...(test === file ? {} : { evidence: ["static-import"] }) });
           matched = true;
         }
       } catch (error) {
@@ -386,9 +413,18 @@ function selectChanged(options, root) {
     if (file === "extensions/azrael-ex/tsconfig.json") {
       separateChecks.add(`${file}: Extension compiler configuration requires a separate extension build and test check`);
     }
+    const uncertain = dynamicOwners.filter(owner => file.startsWith(owner.prefix));
+    for (const owner of uncertain) {
+      // Unbounded calls cannot justify expanding every mapped source to the
+      // whole current suite. Preserve uncertainty for the separate scope review.
+      if (owner.bounded || !matched || files.has(owner.test))
+        add(file, owner.test, `Unresolved computed dependency in ${owner.source}; conservative family selection requires separate review`, ["conservative-fallback"]);
+    }
+    if (uncertain.length)
+      separateChecks.add(`${file}: Unresolved computed require/import dependencies may consume this input; conservative selection does not establish complete dependency coverage`);
     if (!matched) {
       const reason = "No direct test owner mapped; separate check required (no whole-suite fallback)";
-      reasons.push({ path: file, reason });
+      reasons.push({ path: file, reason, evidence: ["conservative-fallback"] });
       separateChecks.add(`${file}: ${reason}`);
     }
   }

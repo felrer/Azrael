@@ -34,6 +34,61 @@ async function orphan(options, record) {
   const ready = await new Promise((resolve, reject) => { child.once('message', resolve); child.once('error', reject); child.once('exit', code => reject(Error(`Child exited before ready: ${code} ${stderr}`))); });
   return { child, exited, ready };
 }
+function recoveryChild(request, interruptAfterClaim = false) {
+  const { fork } = require('node:child_process');
+  const source = `
+    const fs = require('node:fs').promises;
+    const writeFile = fs.writeFile;
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    process.on('message', () => release());
+    fs.writeFile = async function(filename, ...args) {
+      if (/retirement-claim-[a-f0-9]{64}\\.json$/.test(String(filename))) {
+        if (args[1]?.flag !== 'wx') throw Error('Recovery claim must use exclusive creation');
+        process.send({ ready: true });
+        await gate;
+        const result = await writeFile.call(this, filename, ...args);
+        if (${interruptAfterClaim}) process.exit(0);
+        return result;
+      }
+      return writeFile.call(this, filename, ...args);
+    };
+    const { recoverLease } = require(${JSON.stringify(require.resolve('./verification-result-cache.cjs'))});
+    recoverLease(${JSON.stringify(request)}).then(
+      value => process.send({ outcome: { status: 'fulfilled', value } }, () => process.exit(0)),
+      error => process.send({ outcome: { status: 'rejected', message: error.message } }, () => process.exit(0))
+    );`;
+  const child = fork('-e', [source], { execArgv: [], silent: true });
+  let stderr = '', outcome, readyResolve, readyReject;
+  child.stderr.on('data', bytes => { stderr += bytes; }); child.stdout.resume();
+  const ready = new Promise((resolve, reject) => { readyResolve = resolve; readyReject = reject; });
+  // Attach immediately so a fixture startup failure never becomes unhandled.
+  ready.catch(() => {});
+  child.on('message', message => { if (message.ready) readyResolve(); if (message.outcome) outcome = message.outcome; });
+  const exited = new Promise((resolve, reject) => {
+    child.once('error', error => { readyReject(error); reject(error); });
+    child.once('exit', (code, signal) => {
+      readyReject(Error(`Recovery child exited before claim gate: ${code}/${signal}: ${stderr}`));
+      if (code !== 0 || signal !== null) reject(Error(`Recovery child failed ${code}/${signal}: ${stderr}`));
+      else resolve(outcome);
+    });
+  });
+  exited.catch(() => {});
+  return { child, ready, exited, release() { if (child.connected) child.send('continue'); } };
+}
+async function abandonedGuard(name) {
+  const fixture = await setup(name), { options, record } = fixture;
+  const producer = await orphan(options, record); producer.child.send('exit'); await producer.exited;
+  await recoverLease(await retirement(options, sha(options.checkId)));
+  const guard = path.join(options.cacheRoot, '.lease-access'); await fs.mkdir(guard);
+  await fs.writeFile(path.join(guard, 'owner.json'), JSON.stringify({ token: 'dead-guard', pid: producer.child.pid }));
+  const owner = await inspectLease({ ...options, lease: '.lease-access' });
+  const bytes = JSON.stringify({ token: 'dead-claim', pid: producer.child.pid, ownerSha256: owner.ownerSha256 });
+  await fs.writeFile(path.join(guard, 'retirement.json'), bytes);
+  const request = await retirement(options, '.lease-access');
+  const claimed = await inspectLease(request);
+  return { ...fixture, guard, bytes, deadPid: producer.child.pid, request: { ...request, expectedRetirementName: claimed.retirement.name, expectedRetirementSha256: claimed.retirement.sha256 } };
+}
 async function main() {
   await test('blocked close coalesces, retains ownership and retries after exact fixture guard removal', async () => {
     const { options } = await setup('retry-close'); const handle = await begin(options);
@@ -152,8 +207,25 @@ async function main() {
     const claimed = await inspectLease(request);
     await assert.rejects(recoverLease(request), /Exact retirement claim identity/);
     const exact = { ...request, expectedRetirementName: claimed.retirement.name, expectedRetirementSha256: claimed.retirement.sha256 };
-    const outcomes = await Promise.allSettled([recoverLease(exact), recoverLease({ ...exact, receipt_ref: path.join(options.projectRoot, 'resume-other.json') })]);
-    assert.equal(outcomes.filter(result => result.status === 'fulfilled').length, 1); assert.equal(await exists(guard), false);
+    const writeFile = fs.writeFile;
+    let entered, release, claimAttempts = 0;
+    const atClaim = new Promise(resolve => { entered = resolve; });
+    const gate = new Promise(resolve => { release = resolve; });
+    fs.writeFile = async function (filename, ...args) {
+      if (path.dirname(filename) === guard && /^retirement-claim-/.test(path.basename(filename))) {
+        claimAttempts++; assert.equal(args[1].flag, 'wx'); entered(); await gate;
+      }
+      return writeFile.call(this, filename, ...args);
+    };
+    let first, second, outcomes;
+    try {
+      first = recoverLease(exact); await atClaim;
+      second = recoverLease({ ...exact, receipt_ref: path.join(options.projectRoot, 'resume-other.json') });
+      release(); outcomes = await Promise.allSettled([first, second]);
+    } finally { release(); await Promise.allSettled([first, second].filter(Boolean)); fs.writeFile = writeFile; }
+    assert.equal(claimAttempts, 1, 'the local access turn excludes the second stale claimant');
+    assert.equal(outcomes.filter(result => result.status === 'fulfilled').length, 1);
+    assert.equal(outcomes.filter(result => result.status === 'rejected').length, 1); assert.equal(await exists(guard), false);
     const lifecycle = path.join(options.cacheRoot, '.lifecycle'); await fs.mkdir(lifecycle);
     await fs.writeFile(path.join(lifecycle, 'owner.json'), JSON.stringify({ token: 'dead-lifecycle', pid: producer.child.pid }));
     const original = await retirement(options, '.lifecycle');
@@ -161,6 +233,104 @@ async function main() {
     await assert.rejects(recoverLease(original), /identity changed/);
     await recoverLease(await retirement(options, '.lifecycle'));
     const hit = await begin(options); assert.equal(hit.hit.reused, true); await hit.close();
+  });
+  await test('distinct recovery processes race at exclusive successor creation and preserve passing evidence', async () => {
+    const { options, guard, request } = await abandonedGuard('recovery-process-race');
+    const children = [recoveryChild(request), recoveryChild({ ...request, receipt_ref: path.join(options.projectRoot, 'other-process-decision.json') })];
+    let outcomes;
+    try {
+      await Promise.all(children.map(child => child.ready));
+      // Both processes inspected the same predecessor before either exclusive write.
+      children.forEach(child => child.release());
+      outcomes = await Promise.all(children.map(child => child.exited));
+    } finally {
+      children.forEach(child => child.release());
+      await Promise.allSettled(children.map(child => child.exited));
+    }
+    assert.equal(outcomes.filter(result => result?.status === 'fulfilled' && result.value.recovered === true).length, 1);
+    assert.equal(outcomes.filter(result => result?.status === 'rejected').length, 1);
+    assert.equal(await exists(guard), false);
+    const hit = await begin(options); try { assert.equal(hit.hit.reused, true); } finally { await hit.close(); }
+  });
+  await test('terminated successor claimant resumes from the current complete predecessor chain', async () => {
+    const { options, guard, request } = await abandonedGuard('interrupted-successor');
+    const child = recoveryChild(request, true);
+    try { await child.ready; child.release(); await child.exited; }
+    finally { child.release(); await child.exited; }
+    const interrupted = await inspectLease(request);
+    assert.equal(interrupted.retirement.name, `retirement-claim-${request.expectedRetirementSha256}.json`);
+    assert.equal(interrupted.retirement.claim.pid, child.child.pid);
+    assert.deepEqual(interrupted.retirement.claim.predecessor, { name: request.expectedRetirementName, sha256: request.expectedRetirementSha256 });
+    assert.equal(interrupted.retirement.claim.evidence_sha256, request.evidence_sha256);
+    assert.equal((await fs.readdir(guard)).length, 3, 'retain predecessor until ordinary guard removal');
+    await assert.rejects(recoverLease(request), /Exact retirement claim identity/);
+    const current = await retirement(options, '.lease-access');
+    assert.equal((await recoverLease({ ...current, expectedRetirementName: interrupted.retirement.name, expectedRetirementSha256: interrupted.retirement.sha256 })).recovered, true);
+    assert.equal(await exists(guard), false);
+    const hit = await begin(options); try { assert.equal(hit.hit.reused, true); } finally { await hit.close(); }
+  });
+  await test('legacy renamed dead claim remains recoverable with exact bytes and passing evidence', async () => {
+    const { options, guard, bytes, deadPid, request } = await abandonedGuard('legacy-renamed-claim');
+    const name = `retirement-${deadPid}-${crypto.randomUUID()}.json`;
+    await fs.rename(path.join(guard, request.expectedRetirementName), path.join(guard, name));
+    assert.equal(await fs.readFile(path.join(guard, name), 'utf8'), bytes);
+    const current = await retirement(options, '.lease-access');
+    const identity = await inspectLease(current);
+    assert.equal(identity.retirement.name, name);
+    assert.equal(identity.retirement.sha256, request.expectedRetirementSha256);
+    assert.equal(identity.retirement.claimantPid, deadPid);
+    assert.equal((await recoverLease({ ...current, expectedRetirementName: name, expectedRetirementSha256: identity.retirement.sha256 })).recovered, true);
+    assert.equal(await exists(guard), false);
+    const hit = await begin(options); try { assert.equal(hit.hit.reused, true); } finally { await hit.close(); }
+  });
+  await test('successor token changed after decision write prevents deletion and a live claimant prevents retry', async () => {
+    const { options, guard, request } = await abandonedGuard('successor-changed-after-decision');
+    const writeFile = fs.writeFile;
+    const claimPath = path.join(guard, `retirement-claim-${request.expectedRetirementSha256}.json`);
+    let changed = false, originalClaim;
+    fs.writeFile = async function (filename, ...args) {
+      const result = await writeFile.call(this, filename, ...args);
+      if (filename === request.receipt_ref) {
+        originalClaim = JSON.parse(await fs.readFile(claimPath, 'utf8'));
+        await writeFile.call(this, claimPath, JSON.stringify({ ...originalClaim, token: crypto.randomUUID() }));
+        changed = true;
+      }
+      return result;
+    };
+    try { await assert.rejects(recoverLease(request), /Lease identity changed/); }
+    finally { fs.writeFile = writeFile; }
+    assert.equal(changed, true, 'mutation follows the completed immutable decision write');
+    assert.equal(await exists(guard), true);
+    const decisionBytes = await fs.readFile(request.receipt_ref, 'utf8');
+    const decision = JSON.parse(decisionBytes);
+    assert.equal(decision.retirementClaim.claim.token, originalClaim.token);
+    const identity = await inspectLease(request);
+    assert.notEqual(identity.retirement.claim.token, originalClaim.token);
+    assert.notEqual(identity.retirement.sha256, decision.retirementClaim.sha256);
+    assert.deepEqual(identity.retirement.claim.predecessor, originalClaim.predecessor);
+    assert.equal(identity.retirement.claim.pid, process.pid);
+    const current = await retirement(options, '.lease-access');
+    await assert.rejects(recoverLease({ ...current, expectedRetirementName: identity.retirement.name, expectedRetirementSha256: identity.retirement.sha256 }), /PID is live/);
+    assert.equal(await exists(guard), true);
+    assert.equal(await fs.readFile(request.receipt_ref, 'utf8'), decisionBytes);
+    assert.equal(await exists(current.receipt_ref), false, 'refused retry must not publish a decision');
+  });
+  await test('malformed, missing, changed and forked predecessor chains refuse without deleting evidence', async () => {
+    for (const variant of ['malformed', 'missing', 'changed', 'forked', 'unknown']) {
+      const { options, guard, request, deadPid } = await abandonedGuard(`chain-${variant}`);
+      const name = `retirement-claim-${request.expectedRetirementSha256}.json`;
+      const claim = { token: 'interrupted-successor', pid: deadPid, ownerSha256: request.expectedOwnerSha256, evidence_sha256: request.evidence_sha256, predecessor: { name: request.expectedRetirementName, sha256: request.expectedRetirementSha256 } };
+      await fs.writeFile(path.join(guard, name), variant === 'malformed' ? '{invalid' : JSON.stringify(claim));
+      if (variant === 'missing') await fs.unlink(path.join(guard, request.expectedRetirementName));
+      if (variant === 'changed') await fs.appendFile(path.join(guard, request.expectedRetirementName), ' ');
+      if (variant === 'forked') await fs.writeFile(path.join(guard, `retirement-${deadPid}-${crypto.randomUUID()}.json`), JSON.stringify({ token: 'other-root', pid: deadPid, ownerSha256: request.expectedOwnerSha256 }));
+      if (variant === 'unknown') await fs.writeFile(path.join(guard, 'retirement-claim-unknown.json'), 'keep');
+      const before = (await fs.readdir(guard)).sort();
+      await assert.rejects(inspectLease({ ...options, lease: '.lease-access' }));
+      await assert.rejects(recoverLease(request));
+      assert.deepEqual((await fs.readdir(guard)).sort(), before, `${variant} evidence must remain intact`);
+      assert.equal(await exists(path.join(guard, 'owner.json')), true);
+    }
   });
   await test('cold publish, exact hit and independent copied logs after replacement', async () => {
     const { options, record, slot } = await setup('hit');

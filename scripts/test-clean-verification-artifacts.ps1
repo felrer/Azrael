@@ -38,6 +38,31 @@ function Start-Reference([string]$Reference) {
     [Diagnostics.Process]::Start($info)
 }
 try {
+    foreach ($case in @('ok','unregistered','wrong-owner','pending','incomplete','referenced','protected')) {
+        $short = Join-Path $testRoot "artifacts/v-$case"
+        Write-Json (Join-Path $short 'check-result.json') @{passed=$true;exitCodes=@{initialInventory=0;hostInstall=0;finalInventory=0;namespace=0;standaloneHost=0;host=0}}
+        if ($case -ne 'unregistered') {
+            $owner = if ($case -eq 'wrong-owner') {'other-owner'} else {'azrael-release'}
+            $state = if ($case -eq 'pending') {'pending'} else {'complete'}
+            $null = Register-ArtifactLifecycle -ProjectRoot $testRoot -Id "run:verification:short-$case" -Kind run -Owner $owner -Generated -ProtectionKnown -State $state -MembershipComplete ($case -notin @('pending','incomplete')) -Members @{fixture=$short}
+        }
+        if ($case -eq 'referenced') { $null = Register-ArtifactLifecycle -ProjectRoot $testRoot -Id 'run:short-consumer' -Kind run -Owner fixture -State pending -MembershipComplete $false -Members @{fixture=(Join-Path $testRoot 'artifacts/short-consumer')} -References @{'run:verification:short-referenced'='active test consumer'} }
+        [string[]]$protected = @()
+        if ($case -eq 'protected') { $protected = @($short) }
+        $preview = Run-Clean $short $protected $false
+        Assert (Test-Path -LiteralPath $short) "Short fixture preview mutated $case."
+        $report = Run-Clean $short $protected
+        if ($case -eq 'ok') {
+            Assert ($preview.candidates[0].status -eq 'selected' -and $report.candidates[0].status -eq 'deleted' -and -not (Test-Path -LiteralPath $short)) "Registered short fixture result: preview=$($preview.candidates[0].status), apply=$($report.candidates[0].status), remaining=$(Test-Path -LiteralPath $short), path=$short, reason=$($report.candidates[0].reason), errors=$(@($preview.errors + $report.errors) -join '; ')"
+        } else { Assert ($report.candidates[0].status -eq 'retained' -and (Test-Path -LiteralPath $short)) "Uncertain or protected short fixture deleted: $case" }
+    }
+    $shortTarget = Join-Path $testRoot 'artifacts/short-target'
+    Write-Json (Join-Path $shortTarget 'preserve.json') @{original='test-owned target'}
+    $shortLink = Join-Path $testRoot 'artifacts/v-link'
+    New-Item -ItemType Junction -Path $shortLink -Target $shortTarget | Out-Null
+    $linkedReport = Run-Clean $shortLink
+    Assert ($linkedReport.candidates[0].status -eq 'retained' -and $linkedReport.candidates[0].reason -match 'Linked path' -and (Test-Path -LiteralPath (Join-Path $shortTarget 'preserve.json'))) 'Short fixture link guard failed.'
+    Remove-Item -LiteralPath $shortLink
     $fixture = New-Fixture 'completed spaces 한글'
     $preview = Run-Clean $fixture @() $false
     Assert ($preview.candidates[0].status -eq 'selected' -and (Test-Path -LiteralPath $fixture)) 'Preview changed fixture.'
