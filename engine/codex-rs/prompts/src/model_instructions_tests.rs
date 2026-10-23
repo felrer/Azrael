@@ -113,6 +113,76 @@ fn custom_instructions_supplement_common_behavior_without_duplication() {
 }
 
 #[test]
+fn initial_behavior_matches_raw_and_runtime_wrapped_prompts_with_custom_suffixes() {
+    let raw = render_model_instructions(&test_model(None));
+    let wrapped = compose_harness_instructions("builtin/azrael-default", None, false, None);
+    for initial in [&raw, &wrapped] {
+        for current in [&raw, &wrapped] {
+            for initial_crlf in [false, true] {
+                for current_crlf in [false, true] {
+                    let initial = format!(
+                        "{initial}\n<custom_agent_instructions>\npreserved\n</custom_agent_instructions>"
+                    );
+                    let initial = if initial_crlf {
+                        initial.replace("\r\n", "\n").replace('\n', "\r\n")
+                    } else {
+                        initial.replace("\r\n", "\n")
+                    };
+                    let current = if current_crlf {
+                        current.replace("\r\n", "\n").replace('\n', "\r\n")
+                    } else {
+                        current.replace("\r\n", "\n")
+                    };
+                    assert!(initial_instructions_contain_behavior(&initial, &current));
+                }
+            }
+        }
+    }
+    assert!(initial_instructions_contain_behavior(&raw, &wrapped));
+    assert!(initial_instructions_contain_behavior(&wrapped, &raw));
+    assert_eq!(render_model_instructions(&test_model(None)), raw);
+    assert_eq!(
+        compose_harness_instructions("builtin/azrael-default", None, false, None),
+        wrapped
+    );
+}
+
+#[test]
+fn initial_behavior_comparison_preserves_changed_behavior_and_custom_prefixes() {
+    let raw = render_model_instructions(&test_model(None));
+    let wrapped = compose_harness_instructions("builtin/azrael-default", None, false, None);
+    for changed in [
+        compose_harness_instructions("builtin/azrael-default", Some("TEAM_BEHAVIOR"), false, None),
+        compose_harness_instructions("builtin/anthropic-default", None, true, None),
+        compose_harness_instructions("builtin/claude-lean", None, true, None),
+    ] {
+        assert!(!initial_instructions_contain_behavior(&raw, &changed));
+        assert!(!initial_instructions_contain_behavior(&wrapped, &changed));
+    }
+    for prefixed in [
+        format!("custom prefix\n{wrapped}"),
+        format!("custom prefix\n{raw}"),
+        format!("{HARNESS_RUNTIME_CORE}custom prefix\n{raw}"),
+    ] {
+        assert!(!initial_instructions_contain_behavior(&prefixed, &wrapped));
+        assert!(!initial_instructions_contain_behavior(&wrapped, &prefixed));
+    }
+}
+
+#[test]
+fn initial_behavior_matches_after_omitting_update_plan_instructions() {
+    let raw =
+        crate::without_update_plan_instructions(&render_model_instructions(&test_model(None)));
+    let wrapped = crate::without_update_plan_instructions(&compose_harness_instructions(
+        "builtin/azrael-default",
+        None,
+        false,
+        None,
+    ));
+    assert!(initial_instructions_contain_behavior(&raw, &wrapped));
+}
+
+#[test]
 fn api_projection_changes_only_the_exact_common_prefix() {
     let projected = project_api_base_instructions(COMMON_AGENT_INSTRUCTIONS);
     assert!(!projected.contains("functions.exec"));

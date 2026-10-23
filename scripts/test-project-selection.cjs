@@ -130,7 +130,8 @@ test("registered fixture owners enter changed-only selection without live native
     assert.ok(!result.files.includes("scripts/test-window-use-native.cjs"));
     assert.ok(!result.files.includes("scripts/test-deploy-azrael.ps1"));
     assert.ok(!result.commands.some(command => command.executable === "npm"));
-    assert.ok(!result.separateChecks.some(check => check.startsWith(source + ":")));
+    assert.ok(!result.separateChecks.some(check => check.startsWith(source + ":") && !/Unresolved computed/.test(check)));
+    assert.equal(result.coverageStatus, result.separateChecks.length ? "requires-separate-checks" : "selected-source-scope");
   }
 });
 
@@ -362,6 +363,72 @@ test("changed-only known dynamic owners remain bounded", () => {
       fs.writeFileSync(path.join(directory, `scripts/${name}.cjs`), "module.exports = {};");
       assert.deepEqual(select(parseArgs(["--changed-only", "--changed", `scripts/${name}.cjs`]), directory).files, [`scripts/test-${name}.cjs`]);
     }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
+});
+
+test("changed-only reports static imports and manifest module/data evidence separately", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-selection-evidence-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts"));
+    fs.writeFileSync(path.join(directory, "scripts/test-owner.cjs"), "require('node:test'); import('./bridge.mjs');");
+    fs.writeFileSync(path.join(directory, "scripts/bridge.mjs"), "export { value } from './leaf.mjs';");
+    fs.writeFileSync(path.join(directory, "scripts/leaf.mjs"), "export const value = 1;");
+    fs.writeFileSync(path.join(directory, "scripts/owner.cjs"), "module.exports = {};");
+    fs.writeFileSync(path.join(directory, "scripts/data.json"), "{}");
+    fs.writeFileSync(path.join(directory, "scripts/azrael-feature-contracts.json"), JSON.stringify({ features: [{ area: "ui", owners: ["scripts/owner.cjs"], checks: [{ level: "source", args: ["--test", "scripts/test-owner.cjs"], cacheInputs: { files: ["scripts/data.json"] } }] }] }));
+    for (const [input, evidence] of [["leaf.mjs", "static-import"], ["owner.cjs", "manifest-owner"], ["data.json", "manifest-data"]]) {
+      const result = select(parseArgs(["--changed-only", "--changed", `scripts/${input}`]), directory);
+      assert.deepEqual(result.files, ["scripts/test-owner.cjs"]);
+      assert.ok(result.reasons.some(reason => reason.evidence?.includes(evidence)));
+      assert.equal(result.coverageStatus, "selected-source-scope");
+    }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
+});
+
+test("computed relative module and data inputs retain family checks and explicit uncertainty", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-computed-selection-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts/family"), { recursive: true });
+    fs.mkdirSync(path.join(directory, "engine"));
+    fs.writeFileSync(path.join(directory, "scripts/test-owner.cjs"), "require('node:test'); require('./family/loader.cjs');");
+    fs.writeFileSync(path.join(directory, "scripts/test-other.cjs"), "require('node:test');");
+    fs.writeFileSync(path.join(directory, "scripts/family/loader.cjs"), "require('./' + name); import(`./${name}.mjs`);");
+    fs.writeFileSync(path.join(directory, "scripts/family/module.cjs"), "module.exports = {};");
+    fs.writeFileSync(path.join(directory, "scripts/family/data.json"), "{}");
+    fs.writeFileSync(path.join(directory, "engine/unrelated.rs"), "");
+    for (const input of ["module.cjs", "data.json"]) {
+      const result = select(parseArgs(["--changed-only", "--changed", `scripts/family/${input}`]), directory);
+      assert.deepEqual(result.files, ["scripts/test-owner.cjs"]);
+      assert.equal(result.coverageStatus, "requires-separate-checks");
+      assert.ok(result.reasons.some(reason => reason.test === "scripts/test-owner.cjs" && reason.evidence?.includes("conservative-fallback") && /Unresolved/.test(reason.reason)));
+      assert.ok(result.separateChecks.some(reason => /complete dependency coverage/.test(reason)));
+    }
+    const engine = select(parseArgs(["--changed-only", "--changed", "engine/unrelated.rs"]), directory);
+    assert.deepEqual(engine.files, []);
+    assert.ok(engine.separateChecks.some(reason => /No direct test owner/.test(reason)));
+    assert.ok(!engine.separateChecks.some(reason => /computed/.test(reason)));
+    const own = select(parseArgs(["--changed-only", "--changed", "scripts/family/loader.cjs"]), directory);
+    assert.ok(own.reasons.some(reason => reason.evidence?.includes("static-import")));
+    assert.equal(own.coverageStatus, "requires-separate-checks");
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
+});
+
+test("bounded computed prefixes preserve mapped owners and variable-only fallback stays uncertain", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-prefix-selection-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts"));
+    fs.writeFileSync(path.join(directory, "scripts/test-dynamic.cjs"), "require('node:test'); import('./dynamic-' + name + '.mjs');");
+    fs.writeFileSync(path.join(directory, "scripts/test-variable.cjs"), "require('node:test'); require(modulePath);");
+    fs.writeFileSync(path.join(directory, "scripts/test-static.cjs"), "require('node:test'); require('./dynamic-leaf.mjs');");
+    fs.writeFileSync(path.join(directory, "scripts/dynamic-leaf.mjs"), "export const value = 1;");
+    fs.writeFileSync(path.join(directory, "scripts/unmapped.json"), "{}");
+    const bounded = select(parseArgs(["--changed-only", "--changed", "scripts/dynamic-leaf.mjs"]), directory);
+    assert.deepEqual(bounded.files, ["scripts/test-dynamic.cjs", "scripts/test-static.cjs"]);
+    assert.equal(bounded.coverageStatus, "requires-separate-checks");
+    const unknown = select(parseArgs(["--changed-only", "--changed", "scripts/unmapped.json"]), directory);
+    assert.deepEqual(unknown.files, ["scripts/test-variable.cjs"]);
+    assert.ok(unknown.separateChecks.some(reason => /No direct test owner/.test(reason)));
+    assert.equal(unknown.coverageStatus, "requires-separate-checks");
   } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 

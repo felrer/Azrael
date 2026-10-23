@@ -10,6 +10,7 @@ const verificationCache = require('./verification-result-cache.cjs');
 const nativeCache = require('./native-verification-cache.cjs');
 const cargoCache = require('./cargo-verification-cache.cjs');
 const { validateCargoPreflight } = require('./cargo-verification.cjs');
+const { planVerificationSchedule } = require('./verification-schedule.cjs');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
@@ -44,17 +45,28 @@ function validateCargoSchedule(feature, check) {
     throw Error(`Invalid Cargo scheduling hint: ${check.id}`);
   }
 }
-function scheduleNativeGroups(groups) {
-  const batches = new Map(), remaining = [];
-  for (const group of groups) {
-    for (const entry of group.entries) validateCargoSchedule(entry.feature, entry.check);
-    const labels = group.entries.map(entry => entry.check.cargoScheduleGroup);
-    const label = labels[0];
-    if (!label || labels.some(value => value !== label)) { remaining.push(group); continue; }
-    if (!batches.has(label)) batches.set(label, []);
-    batches.get(label).push(group);
+function nativeSchedulePlan(groups, options = {}) {
+  for (const group of groups) for (const entry of group.entries) validateCargoSchedule(entry.feature, entry.check);
+  if (!options || typeof options !== 'object' || Array.isArray(options) ||
+      Object.keys(options).some(key => !['priorities', 'dependencies', 'estimatedDurationMs'].includes(key))) {
+    throw Error('Invalid verificationSchedule options');
   }
-  return [...batches.values()].flat().concat(remaining);
+  return planVerificationSchedule(groups, options);
+}
+function scheduleNativeGroups(groups, options = {}) { return nativeSchedulePlan(groups, options).groups; }
+function manifestNativeGroups(manifest) {
+  return manifest.features.flatMap(feature => feature.checks.filter(check => check.level === 'native')
+    .map(check => ({ check, entries: [{ feature, check }] })));
+}
+function selectedScheduleOptions(options, groups) {
+  const selected = new Set(groups.flatMap(group => group.entries.map(entry => entry.check.id)));
+  return Object.fromEntries(Object.entries(options).map(([key, values]) => [key,
+    Object.fromEntries(Object.entries(values ?? {}).filter(([id]) => selected.has(id)).map(([id, value]) => {
+      if (key === 'dependencies') for (const dep of value) {
+        if (!selected.has(dep)) throw Error(`Selected verification check ${id} requires unselected dependency: ${dep}`);
+      }
+      return [id, value];
+    }))]));
 }
 function sourceTestPolicy(config) {
   if (config.sourceTestPolicy === undefined) return null;
@@ -113,6 +125,7 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
     }
   }
   for (const key of Object.keys(transformRules).filter(key => /^inject-.*\.cjs$/.test(key))) if (!covered.has(key)) throw Error(`Unregistered UI injector: ${key}`);
+  if (Object.hasOwn(manifest, 'verificationSchedule')) nativeSchedulePlan(manifestNativeGroups(manifest), manifest.verificationSchedule);
   return manifest;
 }
 function validateTransformReport(manifest, report) {
@@ -336,6 +349,8 @@ async function runPreservation(config) {
     if (testPolicy) receipt.testPolicy = { ...testPolicy, omitted: [] };
     manifest = config.manifest ?? loadManifest(config.projectRoot); rules = rulesFor(config);
     validateManifest(manifest, config.projectRoot, rules);
+    const scheduleOptions = config.verificationSchedule === undefined ? manifest.verificationSchedule ?? {} : config.verificationSchedule;
+    nativeSchedulePlan(manifestNativeGroups(manifest), scheduleOptions);
     features = selected(manifest, config.area, config);
     receipt.featureIds = features.map(feature => feature.id);
     receipt.notApplicableFeatureIds = manifest.features.filter(feature =>
@@ -380,6 +395,12 @@ async function runPreservation(config) {
       group.entries.push({ feature, check, index: records.length });
       records.push(undefined);
     }
+    const scheduledGroups = [...shared.values()].filter(group => group.native);
+    const nativePlan = nativeSchedulePlan(scheduledGroups, selectedScheduleOptions(scheduleOptions, scheduledGroups));
+    const nativeSchedule = nativePlan.groups;
+    receipt.nativeSchedule = nativePlan.steps;
+    receipt.nativeExecutionOrder = nativeSchedule.flatMap(group => group.entries.map(entry => entry.check.id));
+    await persist();
     const cacheRoot = path.join(config.projectRoot, 'artifacts', 'cache', 'verification-results');
     const eligibleGroups = [...shared.values()].filter(group => !group.native && config.reuseSourceChecks !== false &&
       group.entries.every(({ feature, check }) => feature.area === 'ui' && check.level === 'source' && check.cacheInputs));
@@ -512,8 +533,6 @@ async function runPreservation(config) {
       }
     }));
     if (executionError) throw executionError;
-    const nativeSchedule = scheduleNativeGroups([...shared.values()].filter(group => group.native));
-    receipt.nativeExecutionOrder = nativeSchedule.flatMap(group => group.entries.map(entry => entry.check.id));
     for (const group of nativeSchedule) await runGroup(group);
     identityStarted = performance.now();
     if (!same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');

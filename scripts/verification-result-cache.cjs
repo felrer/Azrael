@@ -167,8 +167,8 @@ async function inspectLease(options) {
   await directory(path.dirname(target));
   if (!await inspect(target, 'directory', true)) return { lease: options.lease, path: target, exists: false };
   const names = await fs.readdir(target);
-  const claimNames = names.filter(name => /^retirement(?:-[1-9][0-9]*-[a-f0-9-]{36})?\.json$/.test(name));
-  if (!names.includes('owner.json') || claimNames.length > 1 || names.some(name => name !== 'owner.json' && !(options.lease === '.lease-access' && claimNames.includes(name)))) throw Error('Unidentified lease contents; exact retirement requires owner.json');
+  const claimNames = names.filter(name => /^retirement(?:-[1-9][0-9]*-[a-f0-9-]{36}|-claim-[a-f0-9]{64})?\.json$/.test(name));
+  if (!names.includes('owner.json') || names.some(name => name !== 'owner.json' && !(options.lease === '.lease-access' && claimNames.includes(name)))) throw Error('Unidentified lease contents; exact retirement requires owner.json');
   const filename = path.join(target, 'owner.json');
   const stat = await inspect(filename, 'file');
   if (stat.size > 16384) throw Error('Oversized lease owner');
@@ -178,12 +178,33 @@ async function inspectLease(options) {
   const token = owner && typeof owner.token === 'string' && owner.token ? owner.token : null;
   let retirement = null;
   if (claimNames.length) {
-    const name = claimNames[0], claimPath = path.join(target, name);
-    const stat = await inspect(claimPath, 'file');
-    if (stat.size > 16384) throw Error('Oversized retirement claim');
-    const bytes = await fs.readFile(claimPath), claim = JSON.parse(bytes);
-    const resumedPid = /^retirement-([1-9][0-9]*)-/.exec(name);
-    retirement = { name, claim, claimantPid: resumedPid ? Number(resumedPid[1]) : claim.pid, sha256: sha(bytes) };
+    const claims = new Map(), predecessors = new Set();
+    for (const name of claimNames) {
+      const claimPath = path.join(target, name), stat = await inspect(claimPath, 'file');
+      if (stat.size > 16384) throw Error('Oversized retirement claim');
+      const claimBytes = await fs.readFile(claimPath), claim = JSON.parse(claimBytes);
+      if (!claim || typeof claim.token !== 'string' || !claim.token || !Number.isSafeInteger(claim.pid) || claim.pid <= 0 || claim.ownerSha256 !== sha(bytes)) throw Error('Unidentified retirement claim identity');
+      const resumedPid = /^retirement-([1-9][0-9]*)-/.exec(name);
+      claims.set(name, { name, claim, claimantPid: resumedPid ? Number(resumedPid[1]) : claim.pid, sha256: sha(claimBytes) });
+    }
+    for (const entry of claims.values()) {
+      const prior = entry.claim.predecessor;
+      if (prior === undefined) {
+        if (entry.name.startsWith('retirement-claim-')) throw Error('Unidentified retirement claim predecessor');
+        continue;
+      }
+      if (!prior || typeof prior.name !== 'string' || !isHash(prior.sha256) || entry.name !== `retirement-claim-${prior.sha256}.json` || claims.get(prior.name)?.sha256 !== prior.sha256 || predecessors.has(prior.name)) throw Error('Unidentified retirement claim chain');
+      predecessors.add(prior.name);
+    }
+    const tips = [...claims.values()].filter(entry => !predecessors.has(entry.name));
+    if (tips.length !== 1) throw Error('Unidentified retirement claim chain');
+    const visited = new Set();
+    for (let entry = tips[0]; entry; entry = claims.get(entry.claim.predecessor?.name)) {
+      if (visited.has(entry.name)) throw Error('Unidentified retirement claim cycle');
+      visited.add(entry.name);
+    }
+    if (visited.size !== claims.size) throw Error('Unidentified retirement claim chain');
+    retirement = tips[0];
   }
   return { lease: options.lease, path: target, exists: true, owner, token, ownerSha256: sha(bytes), retirement };
 }
@@ -192,6 +213,9 @@ function refuseLivePid(pid) {
     try { process.kill(pid, 0); throw Error('Lease producer PID is live; retirement refused'); }
     catch (error) { if (error.code !== 'ESRCH') throw error; }
   }
+}
+function ownsRetirement(actual, expected) {
+  return actual?.name === expected.name && actual.sha256 === expected.sha256 && actual.claimantPid === process.pid && actual.claim.token === expected.claim.token;
 }
 async function externalFile(projectRoot, cacheRoot, value, create = false) {
   if (typeof value !== 'string' || !path.isAbsolute(value) || value.split(/[\\/]/).includes('..')) throw Error('Absolute project evidence path required');
@@ -213,7 +237,10 @@ async function recoverLease(options) {
   const verifyEvidence = async () => { await externalFile(projectRoot, cacheRoot, evidence); if (sha(await fs.readFile(evidence)) !== options.evidence_sha256) throw Error('Retirement evidence changed'); };
   await verifyEvidence();
   let unlock, retirementClaim = null;
-  if (options.lease !== '.lease-access') unlock = await access(cacheRoot, { operation: 'verified-retirement', lease: options.lease });
+  // Recovery cannot acquire the disk guard it is retiring. It still shares the
+  // local FIFO with ordinary guard users until its final ownership check ends.
+  if (options.lease === '.lease-access') unlock = await localTurn(accessQueues, cacheRoot);
+  else unlock = await access(cacheRoot, { operation: 'verified-retirement', lease: options.lease });
   try {
     const current = await inspectLease(options);
     if (!current.exists || current.token !== options.expectedToken || current.ownerSha256 !== options.expectedOwnerSha256) throw Error('Lease identity changed');
@@ -221,22 +248,25 @@ async function recoverLease(options) {
     if (options.lease === '.lease-access') {
       // A claim stays in the dead guard on interruption. Only its exact proven
       // dead claimant can be resumed; competitors never remove this claim.
-      const claimPath = path.join(current.path, 'retirement.json');
+      let name = 'retirement.json';
+      const claim = { token: crypto.randomUUID(), pid: process.pid, ownerSha256: current.ownerSha256, evidence_sha256: options.evidence_sha256 };
       if (current.retirement) {
         if (!isHash(options.expectedRetirementSha256) || current.retirement.sha256 !== options.expectedRetirementSha256 || options.expectedRetirementName !== current.retirement.name) throw Error('Exact retirement claim identity required');
         refuseLivePid(current.retirement.claimantPid);
-        // Claim names are never reused. Atomic rename transfers the exact old
-        // claim once, so two resumptions cannot both own the same retirement.
-        await fs.rename(path.join(current.path, current.retirement.name), path.join(current.path, `retirement-${process.pid}-${crypto.randomUUID()}.json`));
+        // Windows can complete two concurrent renames of the same source. A
+        // fixed successor name and exclusive creation select only one resumer.
+        name = `retirement-claim-${current.retirement.sha256}.json`;
+        claim.predecessor = { name: current.retirement.name, sha256: current.retirement.sha256 };
       } else {
         if (options.expectedRetirementSha256 !== undefined) throw Error('Retirement claim identity changed');
-        await fs.writeFile(claimPath, JSON.stringify({ token: crypto.randomUUID(), pid: process.pid, ownerSha256: current.ownerSha256, evidence_sha256: options.evidence_sha256 }), { flag: 'wx' });
       }
+      const claimBytes = JSON.stringify(claim);
+      await fs.writeFile(path.join(current.path, name), claimBytes, { flag: 'wx' });
       // New acquisitions remain excluded by the existing directory. All other
       // recovery attempts are excluded by the exclusively created claim.
+      retirementClaim = { name, claim, claimantPid: process.pid, sha256: sha(claimBytes) };
       const claimed = await inspectLease(options);
-      if (claimed.ownerSha256 !== current.ownerSha256 || claimed.token !== current.token || claimed.retirement.claim.ownerSha256 !== current.ownerSha256 || claimed.retirement.claimantPid !== process.pid) throw Error('Lease identity changed');
-      retirementClaim = claimed.retirement;
+      if (claimed.ownerSha256 !== current.ownerSha256 || claimed.token !== current.token || !ownsRetirement(claimed.retirement, retirementClaim)) throw Error('Lease identity changed');
     }
     await verifyEvidence();
     await safeTree(cacheRoot, current.path);
@@ -245,7 +275,7 @@ async function recoverLease(options) {
     await fs.writeFile(receipt, JSON.stringify(decision, null, 2) + '\n', { flag: 'wx' });
     await verifyEvidence();
     const final = await inspectLease(options);
-    if (final.token !== current.token || final.ownerSha256 !== current.ownerSha256) throw Error('Lease identity changed');
+    if (final.token !== current.token || final.ownerSha256 !== current.ownerSha256 || (retirementClaim && !ownsRetirement(final.retirement, retirementClaim))) throw Error('Lease identity changed');
     await remove(cacheRoot, current.path);
     return { recovered: true, lease: options.lease, receipt_ref: receipt, evidence_sha256: options.evidence_sha256 };
   } finally { if (unlock) await unlock(); }

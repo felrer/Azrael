@@ -724,13 +724,18 @@
         {
           "id": "engine.managed-tool-identities.adapter",
           "executable": "node",
-          "args": ["scripts/check-unavailable-tool-adapter.cjs"],
+          "args": [
+            "scripts/check-unavailable-tool-adapter.cjs"
+          ],
           "level": "source"
         },
         {
           "id": "engine.managed-tool-identities.native",
           "executable": "node",
-          "args": ["scripts/check-unavailable-tool-native.cjs", "{engineSourceRoot}"],
+          "args": [
+            "scripts/check-unavailable-tool-native.cjs",
+            "{engineSourceRoot}"
+          ],
           "level": "native"
         }
       ],
@@ -1177,7 +1182,10 @@
         {
           "id": "ui.account-settings.timer",
           "executable": "node",
-          "args": ["--test", "scripts/test-usage-window-ui.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-usage-window-ui.cjs"
+          ],
           "level": "source"
         },
         {
@@ -3200,7 +3208,10 @@
         {
           "id": "engine.usage-window.native",
           "executable": "node",
-          "args": ["scripts/check-usage-window.cjs", "{engineSourceRoot}"],
+          "args": [
+            "scripts/check-usage-window.cjs",
+            "{engineSourceRoot}"
+          ],
           "level": "native",
           "cargoPreflight": "selected-tests-v1"
         }
@@ -3473,7 +3484,12 @@
         "scripts/create-ui-design-preview.cjs",
         "scripts/create-ui-icon-review.cjs",
         "scripts/verify-auto-review-render.mjs",
-        "scripts/verify-ticket-usage-render.mjs"
+        "scripts/verify-ticket-usage-render.mjs",
+        "scripts/verification-schedule.cjs",
+        "scripts/test-verification-schedule.cjs",
+        "scripts/test-cargo-scheduling.cjs",
+        "scripts/deployment-workspace.cjs",
+        "scripts/test-deployment-workspace.cjs"
       ],
       "contract": "docs/architecture/project-maintenance.md",
       "checks": [
@@ -3572,6 +3588,16 @@
             "writers"
           ],
           "level": "source"
+        },
+        {
+          "id": "tool.project-maintenance.verification-schedule",
+          "level": "source",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-verification-schedule.cjs",
+            "scripts/test-cargo-scheduling.cjs"
+          ]
         }
       ],
       "reportFields": []
@@ -3732,14 +3758,20 @@
         {
           "id": "engine.mcp-lazy-startup.native",
           "executable": "node",
-          "args": ["scripts/check-mcp-lazy-startup.cjs", "{engineSourceRoot}"],
+          "args": [
+            "scripts/check-mcp-lazy-startup.cjs",
+            "{engineSourceRoot}"
+          ],
           "level": "native",
           "cargoPreflight": "selected-tests-v1"
         },
         {
           "id": "engine.mcp-lazy-startup.wrapper",
           "executable": "node",
-          "args": ["--test", "scripts/test-mcp-lazy-startup.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-mcp-lazy-startup.cjs"
+          ],
           "level": "source"
         }
       ],
@@ -3785,5 +3817,16 @@
       ],
       "reportFields": []
     }
-  ]
+  ],
+  "verificationSchedule": {
+    "priorities": {
+      "engine.model-harness-profiles.context": 100,
+      "engine.model-harness-profiles.config": 90,
+      "tool.project-maintenance.windows-cleanup": 80
+    },
+    "estimatedDurationMs": {
+      "engine.model-harness-profiles.context": 424000,
+      "engine.model-harness-profiles.config": 229000
+    }
+  }
 }

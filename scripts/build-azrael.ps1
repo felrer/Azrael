@@ -5,6 +5,7 @@ param(
     [string]$ReleaseName = (Get-Date -Format 'yyyyMMdd-HHmmss-fff'),
     [switch]$SkipEngineBuild,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
+    [string]$RetainedSourceRoot,
     [string]$EngineTargetDirectory,
     [string]$ModuleCacheProjectRoot,
     [string]$WindowControlTargetDirectory,
@@ -37,6 +38,11 @@ $sourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 $rustRoot = Join-Path $sourceRoot 'codex-rs'
 if (-not (Test-Path -LiteralPath (Join-Path $rustRoot 'Cargo.toml') -PathType Leaf)) {
     throw 'SourceRoot must contain codex-rs/Cargo.toml.'
+}
+if ($RetainedSourceRoot) {
+    if (-not [IO.Path]::IsPathFullyQualified($RetainedSourceRoot)) { throw 'RetainedSourceRoot must be absolute.' }
+    $RetainedSourceRoot = (Resolve-Path -LiteralPath $RetainedSourceRoot).Path
+    if (-not (Test-Path -LiteralPath (Join-Path $RetainedSourceRoot 'codex-rs/Cargo.toml') -PathType Leaf)) { throw 'RetainedSourceRoot must contain codex-rs/Cargo.toml.' }
 }
 if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
 if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
@@ -112,6 +118,9 @@ if (-not $SkipEngineBuild) {
 }
 $phase = Start-BuildStage $buildMetrics 'engine-provenance-and-binary-check'
 Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', $EngineDirectory) 'engine-source-check.log'
+if ($RetainedSourceRoot) {
+    Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', $RetainedSourceRoot, '--engine-dir', $EngineDirectory) 'engine-retained-source-check.log'
+}
 $engine = Join-Path $EngineDirectory 'azrael.exe'
 $bridge = Join-Path $EngineDirectory 'azrael-bridge.exe'
 $codeModeHost = Join-Path $EngineDirectory 'azrael-code-mode-host.exe'
@@ -139,7 +148,7 @@ if (-not $CompanionVsixPath) {
 $phase = Start-BuildStage $buildMetrics 'release-packaging-and-copy'
 Invoke-BuildScript (Join-Path $PSScriptRoot 'package-azrael.ps1') @{
     EnginePath = $engine; BridgePath = $bridge; CompanionVsixPath = $CompanionVsixPath
-    SourceRoot = $sourceRoot; OutputDirectory = $release
+    SourceRoot = $sourceRoot; RetainedSourceRoot = $RetainedSourceRoot; OutputDirectory = $release
 } 'package.log'
 Complete-BuildStage $buildMetrics $phase
 $phase = Start-BuildStage $buildMetrics 'computer-use-runtime-staging'
@@ -221,6 +230,9 @@ if ($IncludeProviderAccounts) {
     }
 }
 $phase = Start-BuildStage $buildMetrics 'packaged-engine-provenance-check'
+if ($RetainedSourceRoot) {
+    Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', $RetainedSourceRoot, '--engine-dir', (Join-Path $release 'engine')) 'packaged-retained-source-check.log'
+}
 Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', (Join-Path $release 'engine')) 'packaged-source-check.log'
 Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'verify-release', '--release', $release, '--source-root', $windowSource) 'packaged-window-control-source-check.log'
 Complete-BuildStage $buildMetrics $phase

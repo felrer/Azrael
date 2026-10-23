@@ -13,6 +13,8 @@
     "artifacts/releases",
     "artifacts/app-releases",
     "artifacts/vsix",
+    "artifacts/inputs",
+    "artifacts/workspaces",
     "engine/codex-rs/target"
   ],
   "protected_paths": [

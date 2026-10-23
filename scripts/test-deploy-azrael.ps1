@@ -371,6 +371,29 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         } finally { $env:TEMP = $savedTemp; $env:TMP = $savedTmp }
         return
     }
+    if($Mode -eq 'fixture-path-selection'){
+        $deployText = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
+        $start = $deployText.IndexOf('$fixture = Join-Path $project')
+        $end = $deployText.IndexOf('$accountControlsState =', $start)
+        Assert-True ($start -ge 0 -and $end -gt $start) 'fixture path selection boundary missing'
+        $select = [scriptblock]::Create($deployText.Substring($start, $end - $start))
+        $savedProject = $project
+        try {
+            $project = $root; $run = 'deploy-chosen'
+            foreach ($candidate in @('', (Join-Path $a 'v'), (Join-Path $a 'v-other'))) {
+                $VerificationFixtureRoot = $candidate
+                . $select
+                $expected = if ($candidate) {$candidate} else {Join-Path $a 'verification/deploy-chosen'}
+                Assert-True ($fixture -ceq $expected) 'fixture selection changed the exact path'
+            }
+            foreach ($candidate in @('relative/v', $a, (Join-Path $root 'engine'), (Join-Path $a 'maintenance'), (Join-Path $a 'build/v'), (Join-Path $a 'v/../maintenance'))) {
+                $VerificationFixtureRoot = $candidate; $rejected = $false
+                try { . $select } catch { $rejected = $true }
+                Assert-True $rejected "unsafe verification fixture accepted: $candidate"
+            }
+        } finally { $project = $savedProject }
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null});return
+    }
     if($Mode -eq 'registered-owner-selection'){
         $deployText=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
         $ast=[Management.Automation.Language.Parser]::ParseInput($deployText,[ref]$null,[ref]$null)
@@ -575,6 +598,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     $windowTarget=if($SharedModuleOwner){Join-Path $a 'shared window target 한글'}else{''}
     if($SharedModuleOwner){$argsList += @('-ModuleCacheProjectRoot',$moduleOwner,'-WindowControlTargetDirectory',$windowTarget,'-CargoVerificationCacheProjectRoot',$moduleOwner,'-NamespaceCacheProjectRoot',$moduleOwner)}
     if($Mode -like 'account-*' -or $Mode -eq 'source-fail-after-build'){$argsList += '-VerifyAccountControls'}
+    if($Name -eq 'short fixture install'){$argsList += @('-VerificationFixtureRoot',(Join-Path $a 'v'))}
     foreach($arg in $argsList){$info.ArgumentList.Add($arg)}
     $proc=[Diagnostics.Process]::Start($info)
     $stdout=$proc.StandardOutput.ReadToEndAsync();$stderr=$proc.StandardError.ReadToEndAsync()
@@ -773,14 +797,22 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         $prepare=Get-Content (Join-Path $a 'prepare-invocation.json') -Raw | ConvertFrom-Json
         Assert-True ($prepare.NamespaceCacheProjectRoot -ceq $moduleOwner) 'namespace transform cache owner was not forwarded exactly'
         $check=Get-Content (Join-Path $a 'check-invocation.json') -Raw | ConvertFrom-Json
+        if($Name -eq 'short fixture install') {
+            Assert-True (Test-Path -LiteralPath $check.FixtureRoot) 'CLI-selected fixture lost its active command reference protection'
+            $afterExit = & (Join-Path $scripts 'clean-verification-artifacts.ps1') -ProjectRoot $root -FixtureRoot $check.FixtureRoot -Apply -ReportPath (Join-Path $a 'logs/short-fixture-after-exit.json')
+            Assert-True ($afterExit.candidates[0].status -ceq 'deleted') 'short fixture was not cleaned after its CLI producer exited'
+        }
         Assert-True (-not (Test-Path -LiteralPath $check.FixtureRoot)) 'successful verification fixture was not cleaned after child disposal'
         Assert-True ((Test-Path -LiteralPath $metrics.acceptanceResult) -and $metrics.acceptanceResult -match 'verification-evidence') 'archived acceptance reference missing'
-        Assert-True ($metrics.verificationCleanup.candidates[0].status -ceq 'deleted') 'successful cleanup report missing'
+        if($Name -eq 'short fixture install') {
+            Assert-True ($metrics.verificationCleanup.candidates[0].status -ceq 'retained' -and $metrics.verificationCleanup.candidates[0].reason -match '^Active command path:') 'CLI reference deferral was not recorded truthfully'
+        } else { Assert-True ($metrics.verificationCleanup.candidates[0].status -ceq 'deleted') 'successful cleanup report missing' }
         $expectedTool=if($ModuleCache){Join-Path $a 'cache/modules/companion/pinned/companion/node_modules/typescript/lib/typescript.js'}else{Join-Path $a 'build/chosen/companion/node_modules/typescript/lib/typescript.js'}
         Assert-True ($prepare.TypeScriptPath -ceq $expectedTool) 'wrong pinned TypeScript'
         Assert-True ($check.TypeScriptPath -ceq $prepare.TypeScriptPath -and $check.UseFreshState -eq $true) 'acceptance did not reuse explicit tools/fresh state'
         Assert-True ($check.HostVsixPath -ceq (Join-Path $prepare.OutputDirectory 'azrael-host.vsix')) 'acceptance used a different package'
         Assert-True ($check.StateRoot -ceq (Join-Path $check.FixtureRoot 'state')) 'fixture state was not isolated'
+        if($Name -eq 'short fixture install') { Assert-True ($check.FixtureRoot -ceq (Join-Path $a 'v')) 'explicit short fixture was not forwarded' }
         Assert-True ((@($prepare.SourceTestPolicy.changedPaths) -join '|') -ceq ($expectedPolicyPaths -join '|') -and $prepare.SourceTestPolicy.exhaustive -eq $Exhaustive) 'prepare source policy handoff lost'
         Assert-True ($prepare.ChangedOnlyTests -is [bool] -and $prepare.ChangedOnlyTests -eq (-not $FullRegression)) 'prepare changed-only policy lost'
         Assert-True ($prepare.ChangedOnlyTestsBound -eq (-not $FullRegression)) 'full prepare must omit ChangedOnlyTests'
@@ -856,12 +888,13 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         Assert-True ($temporaryRecords.Count -eq 1 -and $temporaryRecords[0].state -ceq 'complete') 'stable temporary lifecycle missing after successful deployment'
         Assert-True (@($temporaryRecords[0].references | Where-Object { $_.id -ceq 'version:chosen' -and $_.kind -ceq 'execution' }).Count -eq 0) 'completed deployment temporary execution reference retained'
         Assert-True (@($temporaryRecords[0].references | Where-Object { $_.id -ceq 'version:other-consumer' -and $_.kind -ceq 'execution' }).Count -eq 1) 'another active temporary consumer reference was released'
-        Assert-True ($temporaryRecords[0].members[0].path -ceq (Join-Path $a 'verification/build-temp')) 'deployment temporary output used an unstable path'
+        Assert-True ($temporaryRecords[0].members[0].path -ceq (Join-Path $a 't')) 'deployment temporary output used an unstable path'
     }
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'
+    Invoke-Case 'fixture path selection' 'fixture-path-selection'
     Invoke-Case 'registered engine owner selection' 'registered-owner-selection'
     Invoke-Case 'missing registered cache project' 'missing-registered-cache-project'
     Invoke-Case 'temporary references preserved' 'success'
@@ -871,6 +904,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'parallel prepare' 'success' $true
     Invoke-Case 'verify only' 'success' $true
     Invoke-Case 'full install' 'success'
+    Invoke-Case 'short fixture install' 'success'
     Invoke-Case 'module cache install' 'success' -ModuleCache $true
     Invoke-Case 'exhaustive regression verify only' 'success' $true -Exhaustive $true
     Invoke-Case 'related integration verify only' 'success' $true -PolicyChangedPath 'engine/codex-rs/core/src/session/mod.rs'

@@ -134,7 +134,17 @@ try {
             $packageRoot = [IO.Path]::GetDirectoryName($target)
             $deploymentRoot = [IO.Path]::GetDirectoryName($packageRoot)
             $ownedPackageStage = $FixtureRoot -and $IncludeDiagnosedFixtures -and [IO.Path]::GetFileName($packageRoot) -ceq 'package' -and [IO.Path]::GetDirectoryName($deploymentRoot) -ieq $deployments -and [IO.Path]::GetFileName($deploymentRoot) -cmatch '^(?:deploy|manual)-[A-Za-z0-9_.-]+$' -and [IO.Path]::GetFileName($target) -cmatch '^stage-[0-9a-f]{32}$'
-            if (-not $ownedPackageStage -and ($target -ieq $root -or -not (Test-Within $target $root) -or ([IO.Path]::GetDirectoryName($target) -ine $root -and -not $ownedTransaction))) { throw 'Fixture must be an immediate verification child, an explicitly selected diagnosed config transaction run, or a diagnosed deployment package stage.' }
+            $ownedShortFixture = $false
+            if ($FixtureRoot -and [IO.Path]::GetDirectoryName($target) -ieq (Join-Path $project 'artifacts') -and [IO.Path]::GetFileName($target) -cmatch '^v(?:-[A-Za-z0-9_-]+)?$') {
+                Assert-Unlinked $target
+                $boundaryPlan = Get-ArtifactLifecyclePlan -ProjectRoot $project -Candidates @($target)
+                if (@($boundaryPlan.groups).Count -eq 1 -and @($boundaryPlan.standalone).Count -eq 0 -and $boundaryPlan.groups[0].id -cmatch '^run:verification:[A-Za-z0-9][A-Za-z0-9_-]*$') {
+                    $registered = (Invoke-ArtifactLifecycleNode @('register', '--project-root', $project, '--id', $boundaryPlan.groups[0].id)).group
+                    $ownedShortFixture = $registered.kind -ceq 'run' -and $registered.owner -ceq 'azrael-release' -and $registered.membership_complete -eq $true -and @($registered.members).Count -eq 1 -and $registered.members[0].role -ceq 'fixture' -and (Normalize-Path $registered.members[0].path) -ieq $target -and $registered.members[0].generated -eq $true -and $registered.members[0].protection_known -eq $true
+                }
+                if (-not $ownedShortFixture) { throw 'Short fixture requires one exact complete generated azrael-release verification registration.' }
+            }
+            if (-not $ownedShortFixture -and -not $ownedPackageStage -and ($target -ieq $root -or -not (Test-Within $target $root) -or ([IO.Path]::GetDirectoryName($target) -ine $root -and -not $ownedTransaction))) { throw 'Fixture must be an immediate verification child, an explicitly selected registered short fixture, a diagnosed config transaction run, or a diagnosed deployment package stage.' }
             if ($ownedPackageStage) {
                 Assert-Unlinked $deploymentRoot
                 $deploymentReceipt = Join-Path $deploymentRoot 'deployment.json'

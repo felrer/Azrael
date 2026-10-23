@@ -36,9 +36,10 @@ impl ModelInstructionsState {
     }
 
     pub(crate) fn with_initial_instructions(mut self, initial_instructions: &str) -> Self {
-        self.initial_behavior_matches = initial_instructions
-            .replace("\r\n", "\n")
-            .starts_with(&self.instructions.replace("\r\n", "\n"));
+        self.initial_behavior_matches = codex_prompts::initial_instructions_contain_behavior(
+            initial_instructions,
+            &self.instructions,
+        );
         self
     }
 

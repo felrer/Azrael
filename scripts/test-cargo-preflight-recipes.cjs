@@ -16,6 +16,16 @@ function check(wrapper, tail = [], id = wrapper) {
 const oauth = stage => check('check-mcp-oauth-store', ['--stage', stage], `oauth-${stage}`);
 const capacity = check('check-capacity-recovery');
 
+test('usage window recipe preserves account processor selection and host isolation', () => {
+  const result = recipesForCheck(config, check('check-usage-window'));
+  assert.deepEqual(result.gaps, []);
+  assert.deepEqual(result.cargoPreparations.map(recipe => recipe.args), [
+    ['test', '-p', 'codex-app-server', '--lib', 'account_processor', '--locked', '--offline', '--', '--test-threads=1'],
+  ]);
+  assert.equal(result.cargoPreparations[0].isolateHostEnvironment, true);
+  assert.equal(recipesForCheck(config, check('check-usage-window', ['extra'])).gaps.length, 1);
+});
+
 test('TPS core recipe preserves timing and fork isolation checks', () => {
   const result = recipesForCheck(config, check('check-response-tps-native', ['core']));
   assert.deepEqual(result.gaps, []);

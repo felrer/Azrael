@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const { buildCargoTestCommand } = require('./cargo-verification.cjs');
 const { compilationSignature } = require('./cargo-target-owner.cjs');
 const gate = require('./feature-preservation.cjs');
+const { scheduleVerificationGroups } = require('./verification-schedule.cjs');
 
 function group(id, label, wrapper = 'scripts/check-api-context.cjs', scope = 'core') {
   const check = { id, level: 'native', executable: 'node', args: [wrapper, '{engineSourceRoot}', scope],
@@ -24,6 +25,49 @@ test('Cargo scheduling groups independent checks without merging or changing any
   assert.equal(new Set(ordered).size, groups.length);
   for (const item of ordered) assert(groups.includes(item));
   assert.deepEqual(groups, before);
+});
+
+test('Cargo locality is a soft preference below explicit risk, cost and dependency order', () => {
+  const groups = [group('core-one', 'core-lib'), group('protocol-one', 'protocol-lib'),
+    group('core-two', 'core-lib'), group('early-failure')];
+  assert.deepEqual(scheduleVerificationGroups(groups), gate.scheduleNativeGroups(groups));
+  const before = structuredClone(groups);
+  const ordered = scheduleVerificationGroups(groups, { priorities: { 'early-failure': 10 },
+    estimatedDurationMs: { 'protocol-one': 1, 'core-two': 2 }, dependencies: { 'core-one': ['protocol-one'] } });
+  assert.deepEqual(ordered.map(g => g.check.id), ['early-failure', 'protocol-one', 'core-two', 'core-one']);
+  assert.deepEqual(groups, before);
+  assert.deepEqual(ordered.map(g => g.check.id).sort(), groups.map(g => g.check.id).sort());
+  assert.deepEqual(gate.scheduleNativeGroups(groups, { priorities: { 'early-failure': 10 },
+    estimatedDurationMs: { 'protocol-one': 1, 'core-two': 2 }, dependencies: { 'core-one': ['protocol-one'] } }), ordered);
+});
+
+test('native scheduling rejects malformed options and cycles after validating Cargo hints', () => {
+  const groups = [group('a'), group('b')];
+  for (const options of [null, [], { priority: {} }, { dependencies: { a: ['unknown'] } },
+    { dependencies: { a: ['b'], b: ['a'] } }, { estimatedDurationMs: { a: -1 } }]) {
+    assert.throws(() => gate.scheduleNativeGroups(groups, options), /Invalid|Unknown|cycle/);
+  }
+  const unsafe = group('unsafe', 'core'); unsafe.check.args[0] = 'scripts/unknown-wrapper.cjs';
+  assert.throws(() => gate.scheduleNativeGroups([unsafe], null), /Invalid Cargo scheduling hint/);
+});
+
+test('manifest scheduling metadata validates native IDs and dependency cycles without changing commands', () => {
+  const root = path.resolve(__dirname, '..');
+  const manifest = { schema: 1, features: [{ id: 'engine.schedule-fixture', area: 'engine',
+    owners: ['scripts/feature-preservation.cjs'], contract: 'docs/architecture/upstream-preservation.md', reportFields: [],
+    checks: ['fixture.first', 'fixture.second'].map(id => ({ id, executable: 'node',
+      args: ['scripts/test-cargo-scheduling.cjs'], level: 'native' })) }] };
+  const ids = manifest.features.flatMap(feature => feature.checks.filter(check => check.level === 'native').map(check => check.id));
+  assert(ids.length >= 2);
+  const snapshot = structuredClone(manifest.features);
+  manifest.verificationSchedule = { priorities: { [ids[0]]: 10 }, estimatedDurationMs: { [ids[1]]: 2 } };
+  assert.equal(gate.validateManifest(manifest, root), manifest);
+  assert.deepEqual(manifest.features, snapshot);
+  for (const options of [null, [], { unknown: {} }, { priorities: { missing: 1 } },
+    { dependencies: { [ids[0]]: [ids[1]], [ids[1]]: [ids[0]] } }]) {
+    manifest.verificationSchedule = options;
+    assert.throws(() => gate.validateManifest(manifest, root), /Invalid|Unknown|cycle/);
+  }
 });
 
 test('declared families match every actual wrapper compilation signature', () => {

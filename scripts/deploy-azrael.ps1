@@ -3,6 +3,7 @@
 param(
     [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9][A-Za-z0-9_-]*$')][string]$ReleaseName,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
+    [string]$RetainedSourceRoot,
     [string]$EngineTargetDirectory,
     [string]$ModuleCacheProjectRoot,
     [string]$CargoVerificationCacheProjectRoot,
@@ -27,6 +28,7 @@ param(
     [string]$WorkspacePath = (Split-Path $PSScriptRoot -Parent),
     [string]$ExtensionsDir = (Join-Path $env:USERPROFILE '.vscode/extensions'),
     [string]$UserDataDir,
+    [string]$VerificationFixtureRoot,
     [switch]$VerifyOnly,
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$FullRegression,
@@ -48,6 +50,13 @@ $logs = Join-Path $project "artifacts/logs/$run"
 $release = Join-Path $project "artifacts/releases/$ReleaseName"
 $package = Join-Path $project "artifacts/deployments/$run/package"
 $fixture = Join-Path $project "artifacts/verification/$run"
+if ($VerificationFixtureRoot) {
+    if (-not [IO.Path]::IsPathFullyQualified($VerificationFixtureRoot)) { throw 'VerificationFixtureRoot must be absolute.' }
+    $fixture = [IO.Path]::GetFullPath($VerificationFixtureRoot).TrimEnd('\', '/')
+    if ([IO.Path]::GetDirectoryName($fixture) -ine (Join-Path $project 'artifacts') -or [IO.Path]::GetFileName($fixture) -cnotmatch '^v(?:-[A-Za-z0-9_-]+)?$') {
+        throw 'VerificationFixtureRoot must be a fresh immediate artifacts/v or artifacts/v-<name> directory.'
+    }
+}
 $accountControlsState = Join-Path $project "artifacts/verification/account-controls-$ReleaseName"
 . (Join-Path $PSScriptRoot 'verification-state.ps1')
 Assert-AzraelVerificationStatePath -StateRoot $StateRoot
@@ -270,6 +279,7 @@ try {
     @{changedPaths = @($policyPaths); exhaustive = [bool]$ExhaustiveRegression} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceTestPolicyPath -Encoding utf8NoBOM
     $focusedEngineFeatureIds = @(if (-not $FullRegression) { Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) })
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot, '-LifecycleParentActive')
+    if ($RetainedSourceRoot) { $buildArgs += @('-RetainedSourceRoot', $RetainedSourceRoot) }
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
     if ($WindowControlTargetDirectory) { $buildArgs += @('-WindowControlTargetDirectory', $WindowControlTargetDirectory) }
@@ -295,7 +305,7 @@ try {
         outputDirectory = (Join-Path $logs 'engine-source-preflight'); area = 'engine'; checkPhase = 'source'
         reuseNativeChecks = -not [bool]$ForceNativeVerification
         cargoTarget = 'x86_64-pc-windows-msvc'
-        temporaryDirectory = (Join-Path $project 'artifacts/verification/build-temp')
+        temporaryDirectory = (Join-Path $project 'artifacts/t')
     }
     if ($PreflightToolDirectory) { $sourceConfig.toolDirectories = @($PreflightToolDirectory) }
     if ($RequiredFreeBytes -lt 0) { throw 'RequiredFreeBytes must not be negative.' }
@@ -344,7 +354,7 @@ try {
     Assert-ProjectSnapshot 'post-build'
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
-        projectRoot = $project; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
+        projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
         uiRoot = $UiSourcePath
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
         reuseNativeChecks = -not [bool]$ForceNativeVerification

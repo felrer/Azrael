@@ -20,6 +20,7 @@ pub use guardian_instructions::render_guardian_rejection;
 pub use model_instructions::COMMON_AGENT_INSTRUCTIONS;
 pub use model_instructions::compose_agent_instructions;
 pub use model_instructions::compose_harness_instructions;
+pub use model_instructions::initial_instructions_contain_behavior;
 pub use model_instructions::project_api_base_instructions;
 pub use model_instructions::render_model_instructions;
 pub use model_messages::ResolvedAutoReviewMessages;

@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
+const { createHash } = require("node:crypto");
 const { beginArtifactRun, finishArtifactRun, trackArtifactChild } = require("./artifact-run.cjs");
 const { catalog, recordLifecycle } = require("./artifact-lifecycle.cjs");
 // Caller owns and registers this fresh test directory before invocation.
@@ -16,6 +17,8 @@ const run = start("normal");
 assert.equal(catalog(project)[0].state, "pending");
 assert.equal(catalog(project)[0].membership_complete, false);
 assert(fs.existsSync(run.outputs));
+assert(fs.existsSync(run.inputs));
+assert(run.record.members.some(member => member.role === "inputs" && member.path === run.inputs));
 fs.writeFileSync(path.join(run.outputs, "payload.txt"), "retained");
 assert.equal(finishArtifactRun(run, { exitCode: 0, producerStopped: true }).state, "complete");
 assert.throws(() => start("normal"), /already exists|claimed|revision/);
@@ -29,6 +32,89 @@ const unknown = start("unknown"); unknown.producerStopped = false;
 assert.equal(finishArtifactRun(unknown, { exitCode: null, producerStopped: false }).state, "pending");
 assert.equal(unknown.record.membership_complete, false);
 checks.push("known failed producer closes while unknown termination remains incomplete");
+const immutable = path.join(project, "artifacts/inputs/source");
+recordLifecycle(project, { id: "immutable-input", kind: "work", owner: "input-owner", state: "pending", membership_complete: false, members: [{ path: immutable, role: "input" }], expected_revision: 0 });
+fs.mkdirSync(immutable, { recursive: true });
+fs.writeFileSync(path.join(immutable, "snapshot.txt"), "immutable source");
+const inputConsumer = start("input-consumer", { references: [
+  { id: "immutable-input", reason: "immutable source dependency", kind: "dependency" },
+  { id: "controller", reason: "active controller", kind: "execution" }
+] });
+fs.writeFileSync(path.join(inputConsumer.inputs, "handoff.json"), JSON.stringify({ lifecycleId: "immutable-input", path: immutable }));
+finishArtifactRun(inputConsumer, { exitCode: 0, producerStopped: true });
+assert.deepEqual(inputConsumer.record.references.map(ref => ref.id), ["immutable-input"]);
+assert(!inputConsumer.record.members.some(member => member.path === immutable));
+assert.equal(fs.readFileSync(path.join(immutable, "snapshot.txt"), "utf8"), "immutable source");
+checks.push("input handoff has a distinct role; immutable dependency survives execution reference release without payload ownership");
+const proof = run => {
+  const evidence_ref = path.join(run.reports, "tree-stopped.json");
+  fs.writeFileSync(evidence_ref, JSON.stringify({ fixture: "controller proof", stopped: true }));
+  return { producer_stopped_verified: true, evidence_ref, evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence_ref)).digest("hex"), reason: "Controller verified owned process tree stopped" };
+};
+for (const [id, exitCode, expected, cancellation] of [
+  ["strict-success", 0, "complete", undefined],
+  ["strict-failure", 7, "failed", undefined],
+  ["strict-cancel", 130, "failed", { requested: true, reason: "User cancelled", signal: "SIGTERM" }],
+  ["strict-unknown", null, "pending", { requested: true, reason: "Exit unavailable" }]
+]) {
+  const strict = start(id, { requireStopEvidence: true });
+  const stopEvidence = proof(strict);
+  const reason = cancellation?.reason ?? "Controller completed";
+  assert.equal(finishArtifactRun(strict, { exitCode, producerStopped: true, stopEvidence, reason, cancellation }).state, expected);
+  assert.equal(strict.record.producer.exit_code, exitCode);
+  assert.equal(strict.record.producer.outcome, exitCode === null ? "unknown" : exitCode === 0 ? "success" : "failure");
+  assert.equal(strict.record.membership_complete, exitCode !== null);
+  const report = JSON.parse(fs.readFileSync(path.join(strict.reports, "producer.json"), "utf8"));
+  assert.equal(report.reason, reason);
+  assert.deepEqual(report.cancellation, cancellation);
+  assert.equal(report.stopEvidence.evidence_sha256, stopEvidence.evidence_sha256);
+}
+const unproven = start("strict-unproven", { requireStopEvidence: true });
+unproven.onExit(0);
+assert.equal(unproven.record.state, "pending");
+assert.equal(unproven.record.membership_complete, false);
+assert.equal(unproven.record.producer, undefined);
+const stopEvidence = proof(unproven);
+assert.throws(() => finishArtifactRun(unproven, { exitCode: 0, producerStopped: true, stopEvidence: { ...stopEvidence, producer_stopped_verified: false } }), /Verified/);
+assert.throws(() => finishArtifactRun(unproven, { exitCode: 0, producerStopped: true, stopEvidence: { ...stopEvidence, evidence_sha256: "0".repeat(64) } }), /SHA256/);
+assert.throws(() => finishArtifactRun(unproven, { exitCode: 0, producerStopped: true, stopEvidence: { ...stopEvidence, evidence_ref: fixture } }), /outside project/);
+const proofLink = path.join(unproven.reports, "linked-proof");
+fs.symlinkSync(immutable, proofLink, process.platform === "win32" ? "junction" : "dir");
+try {
+  assert.throws(() => finishArtifactRun(unproven, { exitCode: 0, producerStopped: true, stopEvidence: { ...stopEvidence, evidence_ref: path.join(proofLink, "snapshot.txt") } }), /Linked/);
+} finally { fs.unlinkSync(proofLink); }
+const reportProof = path.join(unproven.reports, "producer.json");
+assert.throws(() => finishArtifactRun(unproven, { exitCode: 0, producerStopped: true, stopEvidence: { ...stopEvidence, evidence_ref: reportProof, evidence_sha256: createHash("sha256").update(fs.readFileSync(reportProof)).digest("hex") } }), /overwritten/);
+assert.equal(unproven.record.producer, undefined);
+assert.equal(finishArtifactRun(unproven, { exitCode: 0, producerStopped: true, stopEvidence }).state, "complete");
+checks.push("controller proof required on explicit finish and onExit; success, failure, cancellation and unknown actual exits retained; changed, outside and linked proof rejected");
+const signalled = start("strict-signalled", { requireStopEvidence: true });
+const signalCancellation = { requested: true, reason: "User cancelled" };
+assert.equal(finishArtifactRun(signalled, { exitCode: null, signal: "SIGTERM", producerStopped: true, cancellation: signalCancellation }).state, "pending");
+assert.equal(signalled.record.producer, undefined);
+assert.equal(signalled.record.membership_complete, false);
+const pendingSignal = JSON.parse(fs.readFileSync(path.join(signalled.reports, "producer.json"), "utf8"));
+assert.equal(pendingSignal.signal, "SIGTERM");
+assert.equal(pendingSignal.producerStopped, false);
+const signalProof = proof(signalled);
+for (const signal of ["TERM", "sigterm", "SIGTERM\n", "SIG-TERM", "", 15, {}, []]) {
+  assert.throws(() => finishArtifactRun(signalled, { exitCode: null, signal, producerStopped: true, stopEvidence: signalProof }), /signal/);
+}
+for (const exitCode of [0, 7, 130]) {
+  assert.throws(() => finishArtifactRun(signalled, { exitCode, signal: "SIGTERM", producerStopped: true, stopEvidence: signalProof }), /both/);
+}
+assert.equal(signalled.record.producer, undefined);
+assert.equal(finishArtifactRun(signalled, { exitCode: null, signal: "SIGTERM", producerStopped: true, stopEvidence: signalProof, reason: "Observed SIGTERM after cancellation", cancellation: signalCancellation }).state, "failed");
+assert.equal(signalled.record.producer.outcome, "failure");
+assert.equal(signalled.record.producer.exit_code, null);
+assert.equal(signalled.record.membership_complete, true);
+const signalReport = JSON.parse(fs.readFileSync(path.join(signalled.reports, "producer.json"), "utf8"));
+assert.equal(signalReport.signal, "SIGTERM");
+assert.equal(signalReport.exitCode, null);
+assert.equal(signalReport.reason, "Observed SIGTERM after cancellation");
+assert.deepEqual(signalReport.cancellation, signalCancellation);
+assert.equal(JSON.parse(fs.readFileSync(path.join(project, "artifacts/tasks/writers/runs/strict-unknown/reports/producer.json"), "utf8")).signal, null);
+checks.push("observed signal with controller stop proof closes failure with actual null exit; signal without proof stays pending; malformed/conflicting signal input rejected; cancellation alone remains unknown");
 for (const id of ["../escape", "a/b", "NUL", "CON.txt", "trailing."]) assert.throws(() => start(id), /Invalid artifact/);
 assert.throws(() => start("outside", { paths: { temporary: path.dirname(project) } }), /outside/);
 const external = path.join(project, "artifacts/verification/explicit");
@@ -37,6 +123,17 @@ assert.equal(explicit.temporary, external);
 assert(explicit.record.members.some(member => member.path === external));
 assert.throws(() => start("explicit-collision", { paths: { temporary: external } }), /exists|claimed/);
 checks.push("safe IDs, containment and explicit path ownership");
+const externalInputs = path.join(project, "artifacts/verification/input-handoffs");
+const customInputs = start("custom-inputs", { paths: { inputs: externalInputs } });
+assert.equal(customInputs.inputs, externalInputs);
+assert(customInputs.record.members.some(member => member.path === externalInputs && member.role === "inputs"));
+assert.throws(() => start("immutable-claim", { paths: { inputs: immutable } }), /exists|claimed/);
+const overlapRoot = path.join(project, "artifacts/tasks/writers/runs/role-overlap");
+assert.throws(() => start("role-overlap", { paths: { inputs: path.join(overlapRoot, "temporary/nested") } }), /Overlapping/);
+assert.throws(() => start("same-role", { paths: { inputs: externalInputs, logs: externalInputs } }), /Overlapping/);
+assert.throws(() => start("ancestor-role", { paths: { inputs: path.join(project, "artifacts/tasks") } }), /Overlapping/);
+assert(!fs.existsSync(overlapRoot));
+checks.push("custom input destinations retain ownership guards; resolved default/custom role overlap rejected before creation");
 const claimed = path.join(project, "artifacts/tasks/writers/runs/claimed");
 recordLifecycle(project, { id: "prior-claim", kind: "run", owner: "other", state: "pending", membership_complete: false, members: [{ path: claimed, role: "run" }], expected_revision: 0 });
 assert.throws(() => start("claimed"), /claimed/); assert(!fs.existsSync(claimed));
@@ -70,6 +167,17 @@ assert.equal(finishArtifactRun(unknown, { exitCode: 0, producerStopped: true }).
 fake.emit("close"); unknown.producerStopped = true;
 assert.equal(finishArtifactRun(unknown, { exitCode: 0, producerStopped: true }).state, "complete");
 checks.push("unclosed owned child prevents success until actual close");
+const strictChild = start("strict-child", { requireStopEvidence: true });
+const child = new (require("node:events").EventEmitter)();
+trackArtifactChild(strictChild, child);
+const childProof = proof(strictChild);
+assert.equal(finishArtifactRun(strictChild, { exitCode: 0, producerStopped: true, stopEvidence: childProof }).state, "pending");
+child.emit("close");
+assert.equal(finishArtifactRun(strictChild, { exitCode: 0, producerStopped: true }).state, "pending");
+assert.equal(finishArtifactRun(strictChild, { exitCode: null, producerStopped: true, stopEvidence: childProof }).state, "pending");
+assert.equal(strictChild.record.producer.outcome, "unknown");
+assert.equal(strictChild.record.membership_complete, false);
+checks.push("child close alone cannot prove a controller tree stopped; proven stop with unknown exit remains protected");
 const reportFailure = start("report-failure");
 fs.renameSync(reportFailure.reports, reportFailure.reports + "-retained");
 fs.writeFileSync(reportFailure.reports, "blocked report directory");

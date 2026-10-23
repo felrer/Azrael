@@ -81,6 +81,50 @@ fn first_request_does_not_repeat_behavior_already_in_initial_instructions() {
 }
 
 #[test]
+fn snapshotless_model_switch_compares_actual_composed_behavior() {
+    let instructions =
+        codex_prompts::compose_harness_instructions("builtin/azrael-default", None, false, None);
+    let initial = format!(
+        "{}\n<custom_agent_instructions>\npreserved\n</custom_agent_instructions>",
+        codex_prompts::COMMON_AGENT_INSTRUCTIONS
+    );
+    let state = model_state("gpt-new", Some("gpt-old"), instructions.clone())
+        .with_initial_instructions(&initial);
+    assert!(state.initial_behavior_matches);
+    assert!(
+        state
+            .render_fragment_diff(PreviousSectionState::Absent)
+            .1
+            .is_none()
+    );
+    assert_eq!(
+        state
+            .render_fragment_diff(PreviousSectionState::Unknown)
+            .1
+            .expect("unknown retained behavior must refresh")
+            .markers(),
+        ModelSwitchInstructions::type_markers()
+    );
+    let provider_change = ModelInstructionsState::new(
+        "gpt-new",
+        "provider-b",
+        Some("gpt-old"),
+        Some("provider-a"),
+        instructions,
+    )
+    .with_initial_instructions(&initial);
+    assert!(provider_change.initial_behavior_matches);
+    assert_eq!(
+        provider_change
+            .render_fragment_diff(PreviousSectionState::Absent)
+            .1
+            .expect("provider changes must refresh matching composed behavior")
+            .markers(),
+        ModelSwitchInstructions::type_markers()
+    );
+}
+
+#[test]
 fn model_switch_with_identical_behavior_updates_identity_without_repeating_instructions() {
     let initial = model_state("gpt-a", None, "shared behavior".into());
     let mut previous = initial.snapshot();

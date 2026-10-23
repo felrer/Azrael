@@ -325,5 +325,5 @@ function main(argv = process.argv.slice(2)) {
   }
   throw new Error("Expected record, plan, register, catalog or finalize");
 }
-module.exports = { withCatalogLock, closeLifecycle, releaseReferences, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
+module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }
