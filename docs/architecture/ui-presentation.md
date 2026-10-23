@@ -10,7 +10,8 @@ Question-panel replies carry explicit `questionReply` queue provenance when
 queued. Their row does not show a pending-question wait for the answer it
 already contains. Remaining ordinary rows still show unanswered-question
 holds. Automatic selection may choose the earliest reply behind ordinary rows;
-approval, interruption and account holds remain visible and enforced. Text
+approval and interruption holds remain visible and enforced. Typed replies are
+exempt from pending account-switch waiting; ordinary rows retain that status. Text
 tags in an ordinary queued message do not change its kind. Restoring a typed
 reply also restores its question-panel submission trigger.
 

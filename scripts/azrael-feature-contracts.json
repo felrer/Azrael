@@ -97,6 +97,7 @@
         "engine/codex-rs/ext/queue/src/service.rs",
         "engine/codex-rs/ext/queue/tests/queue_service.rs",
         "engine/codex-rs/app-server/src/request_processors/thread_queue_processor.rs",
+        "engine/codex-rs/app-server/src/message_processor.rs",
         "scripts/check-question-withdrawal-native.cjs",
         "scripts/check-question-withdrawal-sdk.cjs",
         "engine/codex-rs/core/Cargo.toml",

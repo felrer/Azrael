@@ -371,7 +371,7 @@ fn question_reply_account_admission(request: &ClientRequest) -> bool {
                 .input
                 .iter()
                 .cloned()
-                .map(Into::into)
+                .map(codex_app_server_protocol::UserInput::into_core)
                 .collect::<Vec<_>>(),
         )
         .is_ok()
