@@ -68,8 +68,18 @@ const TINY_PNG_BYTES: &[u8] = &[
 const TINY_PNG_DATA_URL: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=";
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn async_question_partial_withdrawal_retains_queue_until_last_withdrawal()
+async fn async_question_reply_retains_queue_until_new_request_supersedes_questions()
 -> anyhow::Result<()> {
+    question_reply_queue_scenario(false).await
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn async_question_reply_bypasses_pending_account_but_waits_for_commit() -> anyhow::Result<()>
+{
+    question_reply_queue_scenario(true).await
+}
+
+async fn question_reply_queue_scenario(pending_account: bool) -> anyhow::Result<()> {
     let server = start_mock_server().await;
     let call = |response: &str, call: &str, tool: &str, args: serde_json::Value| {
         responses::sse(vec![
@@ -125,16 +135,46 @@ async fn async_question_partial_withdrawal_retains_queue_until_last_withdrawal()
         ],
     )
     .await;
+    let admission = test.thread_manager.auth_manager().azrael_admission();
+    let pending = pending_account
+        .then(|| admission.begin_switch())
+        .transpose()?;
+    let commit = pending
+        .as_ref()
+        .map(|p| p.try_commit().context("idle switch commit"))
+        .transpose()?;
     let queued = queue
         .enqueue(thread_id, user_input("Run after questions are cleared."))
         .await?;
     assert_eq!(queue.list(thread_id).await?.len(), 1);
     assert_eq!(requests.requests().len(), 2);
-    test.submit_text_turn("Withdraw the first question.")
+    let reply = format!(
+        "<send_user_message_question_reply>\n{}\n</send_user_message_question_reply>",
+        serde_json::json!([{"questionItemId": ids[0], "question": "First?", "answer": "First answer"}]),
+    );
+    let queued_reply = queue
+        .enqueue_question_reply(thread_id, user_input(&reply))
         .await?;
+    if commit.is_some() {
+        emit_idle(queue.as_ref(), thread_id).await;
+        assert_eq!(partial.requests().len(), 0);
+        assert_eq!(queue.list(thread_id).await?.len(), 2);
+    }
+    drop(commit);
+    emit_idle(queue.as_ref(), thread_id).await;
+    // The ordinary head remains held; only the typed reply may pass the question hold.
+    wait_for_event_match(test.codex.as_ref(), |event| {
+        matches!(event, EventMsg::TurnComplete(_)).then_some(())
+    })
+    .await;
+    assert!(matches!(
+        queued_reply.input,
+        QueuedInput::QuestionReply { .. }
+    ));
     assert_eq!(thread.pending_question_count(), 1);
     assert_eq!(queue.list(thread_id).await?[0].id, queued.id);
     assert_eq!(partial.requests().len(), 2);
+    drop(pending);
     let last = responses::mount_sse_sequence(
         &server,
         vec![
@@ -451,6 +491,48 @@ async fn queued_input_and_unique_event_ids_round_trip() -> anyhow::Result<()> {
         }
         assert_ne!(events[0].id, events[1].id);
     }
+    Ok(())
+}
+
+#[tokio::test]
+async fn queued_question_reply_provenance_survives_storage_reload_and_edit() -> anyhow::Result<()> {
+    let (queue, _home) = test_queue().await?;
+    let service = QueuedItemService::new(
+        Arc::clone(&queue),
+        Weak::new(),
+        Arc::new(NoopExtensionEventSink),
+    );
+    let thread_id = ThreadId::new();
+    let envelope = "<send_user_message_question_reply>\n{\"questionItemId\":\"id\",\"question\":\"Continue?\",\"answer\":\"Yes\"}\n</send_user_message_question_reply>";
+    let ordinary = service.enqueue(thread_id, user_input(envelope)).await?;
+    let reply = service
+        .enqueue_question_reply(thread_id, user_input(envelope))
+        .await?;
+    assert!(matches!(ordinary.input, QueuedInput::UserInput { .. }));
+    assert!(matches!(reply.input, QueuedInput::QuestionReply { .. }));
+    let restored = QueuedItemService::new(queue, Weak::new(), Arc::new(NoopExtensionEventSink));
+    assert_eq!(
+        restored.list(thread_id).await?,
+        vec![ordinary.clone(), reply.clone()]
+    );
+    let edited = restored
+        .update(thread_id, reply.id.clone(), user_input(envelope))
+        .await?
+        .unwrap();
+    assert!(matches!(edited.input, QueuedInput::QuestionReply { .. }));
+    assert!(
+        restored
+            .update(thread_id, reply.id, user_input("plain message"))
+            .await
+            .is_err()
+    );
+    assert!(
+        restored
+            .enqueue_question_reply(thread_id, user_input("plain message"))
+            .await
+            .is_err()
+    );
+    assert_eq!(restored.list(thread_id).await?[0], ordinary);
     Ok(())
 }
 

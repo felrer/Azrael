@@ -1,0 +1,14 @@
+{
+  "lifecycleId": "run:DJ-01:native-a-r2",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r2",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\native-memory-probe.mjs",
+    "--run"
+  ],
+  "exitCode": 1,
+  "producerStopped": true,
+  "children": [],
+  "state": "failed",
+  "membership_complete": true
+}

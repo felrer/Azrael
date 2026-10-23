@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import { EventEmitter } from "node:events";
-import { BridgeTransport } from "./bridgeTransport";
+import { BridgeTransport, BridgeError, BridgeDiagnostic, EngineReadinessHook } from "./bridgeTransport";
 import { DevinAction, DevinStatus, parseDevinStatus } from "./devinProtocol";
 import { PROJECT_USAGE_METHOD, parseProjectUsageSnapshot, validateProjectUsageYear } from "./projectUsageProtocol";
 import type { ProjectUsageSnapshot } from "./projectUsagePresentation";
@@ -22,6 +22,9 @@ export interface AccountServiceOptions {
   expectedServerVersion: string;
   env: NodeJS.ProcessEnv;
   reconnectDelaysMs?: number[];
+  startupTimeoutMs?: number;
+  waitForEngineReady?: EngineReadinessHook;
+  onDiagnostic?: (event: BridgeDiagnostic) => void;
 }
 
 export class AccountService extends EventEmitter {
@@ -30,6 +33,7 @@ export class AccountService extends EventEmitter {
   private instanceId: string | undefined;
   private disposed = false;
   private connecting: Promise<AccountState> | undefined;
+  private startupAbort: AbortController | undefined;
   private retryTimer: NodeJS.Timeout | undefined;
   private retryReject: ((error: Error) => void) | undefined;
   state: AccountState | undefined;
@@ -116,6 +120,7 @@ export class AccountService extends EventEmitter {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.startupAbort?.abort();
     clearTimeout(this.retryTimer);
     this.retryTimer = undefined;
     const rejectRetry = this.retryReject;
@@ -128,20 +133,41 @@ export class AccountService extends EventEmitter {
   }
 
   private async connectWithRetries(): Promise<AccountState> {
-    const delays = this.options.reconnectDelaysMs ?? [1_000, 2_000, 4_000];
+    const deadline = performance.now() + (this.options.startupTimeoutMs ?? 70_000);
+    const remaining = () => Math.max(0, deadline - performance.now());
+    const abort = new AbortController();
+    this.startupAbort = abort;
+    const timer = setTimeout(() => abort.abort(), remaining());
     let retries = 0;
-    while (true) {
-      try {
-        return await this.connectOnce();
-      } catch (error) {
-        if (this.disposed) throw new Error("Account service is disposed.");
-        if (error instanceof IdentityMismatchError || retries >= delays.length) {
-          this.error = error instanceof Error ? error.message : String(error);
-          this.emit("errorState", this.error);
-          throw error;
-        }
-        await this.waitForRetry(delays[retries++]);
+    try {
+      if (this.options.waitForEngineReady) {
+        await new Promise<void>((resolve, reject) => {
+          const cancel = () => reject(this.disposed ? new Error("Account service is disposed.") : new BridgeError("connect", "timeout", true));
+          abort.signal.addEventListener("abort", cancel, { once: true });
+          Promise.resolve().then(() => this.options.waitForEngineReady!(remaining(), abort.signal)).then(resolve, () => reject(new BridgeError("connect", "internal", false))).finally(() => abort.signal.removeEventListener("abort", cancel));
+        });
       }
+      while (true) {
+        if (remaining() <= 0 || abort.signal.aborted) throw new BridgeError("connect", "timeout", true);
+        try { return await this.connectOnce(remaining, retries + 1); }
+        catch (error) {
+          if (this.disposed) throw new Error("Account service is disposed.");
+          const explicitDelays = this.options.reconnectDelaysMs;
+          if (error instanceof IdentityMismatchError || (error instanceof BridgeError && (!error.retryable || error.code === "permission_denied" || error.code === "protocol_error")) ||
+              remaining() <= 0 || (explicitDelays && retries >= explicitDelays.length)) throw error;
+          const delay = explicitDelays ? explicitDelays[retries] : Math.min(4_000, 1_000 * 2 ** Math.min(retries, 2));
+          retries++;
+          await this.waitForRetry(Math.min(delay, remaining()));
+        }
+      }
+    } catch (error) {
+      if (this.disposed) throw new Error("Account service is disposed.");
+      this.error = error instanceof Error ? error.message : "Bridge connection failed.";
+      this.emit("errorState", this.error);
+      throw error;
+    } finally {
+      clearTimeout(timer);
+      if (this.startupAbort === abort) this.startupAbort = undefined;
     }
   }
 
@@ -157,13 +183,15 @@ export class AccountService extends EventEmitter {
     });
   }
 
-  private async connectOnce(): Promise<AccountState> {
+  private async connectOnce(remaining: () => number, attempt: number): Promise<AccountState> {
     this.transport?.dispose();
     this.transportVerified = false;
     const transport = new BridgeTransport({
       executable: this.options.executable,
       socket: this.options.socket,
-      env: this.options.env
+      env: this.options.env,
+      startupTimeoutMs: Math.min(65_000, remaining()),
+      attempt, onDiagnostic: this.options.onDiagnostic
     });
     this.transport = transport;
     transport.on("notification", (method: string, params: unknown) => {
@@ -184,9 +212,11 @@ export class AccountService extends EventEmitter {
     try {
       const connected = await transport.start();
       if (!samePath(connected.codexHome, this.options.codexHome)) throw new IdentityMismatchError("Bridge CODEX_HOME does not match this azrael-ex instance.");
-      if (connected.serverVersion !== this.options.expectedServerVersion) throw new IdentityMismatchError(`Unsupported engine version ${connected.serverVersion}; this release expects ${this.options.expectedServerVersion}.`);
-      const raw = await transport.request(ACCOUNT_METHOD, { action: "list" });
-      const response = parseAccountResponse(raw);
+      if (connected.serverVersion !== this.options.expectedServerVersion) throw new IdentityMismatchError("Unsupported engine version for this release.");
+      if (remaining() <= 0) throw new BridgeError("connect", "timeout", true);
+      const raw = await transport.request(ACCOUNT_METHOD, { action: "list" }, remaining());
+      let response: AccountResponse;
+      try { response = parseAccountResponse(raw); } catch { throw new BridgeError("protocol", "protocol_error", false); }
       if (!samePath(response.state.codexHome, this.options.codexHome)) throw new IdentityMismatchError("Account state belongs to a different CODEX_HOME.");
       if (this.instanceId && response.state.instanceId !== this.instanceId) throw new IdentityMismatchError("Reconnected bridge belongs to a different engine instance.");
       if (this.transport !== transport) throw new Error("Bridge disconnected during identity verification.");
@@ -220,13 +250,16 @@ export class AccountService extends EventEmitter {
     return state;
   }
 
-  private onDisconnect(source: BridgeTransport, _error: Error): void {
+  private onDisconnect(source: BridgeTransport, error: Error): void {
     if (this.transport !== source || this.disposed) return;
     this.transport = undefined;
     this.transportVerified = false;
     this.emit("rootResumeConnection", false);
     if (this.state) this.emit("state", this.state);
-    if (!this.connecting) void this.connect().catch(() => undefined);
+    if (!this.connecting && error instanceof BridgeError && (!error.retryable || error.code === "permission_denied" || error.code === "protocol_error")) {
+      this.error = error.message;
+      this.emit("errorState", this.error);
+    } else if (!this.connecting) void this.connect().catch(() => undefined);
   }
 }
 

@@ -1,0 +1,22 @@
+{
+  "state": "blocked_by_occupied_maintenance_lock",
+  "lock": "artifacts/maintenance/maintenance.lock",
+  "observedOwnerPid": 61016,
+  "owner": "running managed Azrael engine; lock not removed",
+  "groups": [
+    "run:verify-window-native-approval-render:20261022T113016590Z-a193223e-cb88-4a35-8f35-2c13327a4aac",
+    "run:DB-01-window-child-logoff:20261022T112128121Z-720c89f3-3a15-44fc-b492-7559d15c68e2",
+    "run:DB-01-window-child-logoff:20261022T112313606Z-ac8c592f-69b2-43a8-be9f-6e0c232a6d62",
+    "run:verify-window-native-approval-render:20261022T113419977Z-064be87f-5883-4aa2-8737-0a56037a3e8a",
+    "run:DB-01-window-child-logoff:20261022T112628976Z-944f6ad6-3dbf-4a03-982c-0934b0e8388d",
+    "run:DB-01-window-child-logoff:20261022T113006448Z-c6681aea-7434-44ce-a353-ce7d794f839b",
+    "run:DB-01-window-child-logoff:20261022T112933649Z-da337ac1-3948-44fb-9029-ee77f189e463",
+    "run:DB-01-window-child-logoff:20261022T113409807Z-e23da1f6-0361-4a12-9a8b-ccbe5dac5fa8",
+    "run:verify-window-native-approval-render:20261022T112907553Z-86f80cad-9a32-43ba-a456-7e4310bd9276",
+    "run:DB01:native-r1",
+    "run:DB01:native-r2"
+  ],
+  "decision": "retain pending supported registration and cleanup review; no cleanup applied",
+  "reason": "Native registration refused because the maintenance lock is occupied. Producer registry evidence retained; interrupted run remains pending, not successful.",
+  "revisit_condition": "After the maintenance owner releases its lock, register final membership through supported APIs, review exact groups, preserve acceptance evidence and remove unused fixtures. Resolve interrupted run producer evidence before deletion."
+}

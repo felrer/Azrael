@@ -1,0 +1,692 @@
+{
+  "threads": [
+    {
+      "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+      "count": 38863,
+      "maxItemBytes": 81291,
+      "over1MiBItems": 0,
+      "types": [
+        {
+          "type": "commandExecution",
+          "count": 12453,
+          "maxItemBytes": 81291,
+          "bytes": 84358226
+        },
+        {
+          "type": "webSearch",
+          "count": 39,
+          "maxItemBytes": 12311,
+          "bytes": 136680
+        },
+        {
+          "type": "fileChange",
+          "count": 664,
+          "maxItemBytes": 11665,
+          "bytes": 2572927
+        },
+        {
+          "type": "subAgentActivity",
+          "count": 6760,
+          "maxItemBytes": 4203,
+          "bytes": 1857501
+        },
+        {
+          "type": "agentMessage",
+          "count": 1933,
+          "maxItemBytes": 2385,
+          "bytes": 981271
+        },
+        {
+          "type": "userMessage",
+          "count": 58,
+          "maxItemBytes": 889,
+          "bytes": 21210
+        },
+        {
+          "type": "imageView",
+          "count": 8,
+          "maxItemBytes": 290,
+          "bytes": 2264
+        },
+        {
+          "type": "collabAgentToolCall",
+          "count": 2,
+          "maxItemBytes": 257,
+          "bytes": 514
+        },
+        {
+          "type": "reasoning",
+          "count": 16798,
+          "maxItemBytes": 107,
+          "bytes": 1797386
+        },
+        {
+          "type": "contextCompaction",
+          "count": 148,
+          "maxItemBytes": 72,
+          "bytes": 10656
+        }
+      ]
+    },
+    {
+      "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+      "count": 2732,
+      "maxItemBytes": 18446125,
+      "over1MiBItems": 8,
+      "types": [
+        {
+          "type": "mcpToolCall",
+          "count": 21,
+          "maxItemBytes": 18446125,
+          "bytes": 20789049
+        },
+        {
+          "type": "fileChange",
+          "count": 208,
+          "maxItemBytes": 6200289,
+          "bytes": 19221109
+        },
+        {
+          "type": "commandExecution",
+          "count": 878,
+          "maxItemBytes": 1206005,
+          "bytes": 7046158
+        },
+        {
+          "type": "userMessage",
+          "count": 25,
+          "maxItemBytes": 1014286,
+          "bytes": 1192666
+        },
+        {
+          "type": "webSearch",
+          "count": 14,
+          "maxItemBytes": 19023,
+          "bytes": 73487
+        },
+        {
+          "type": "agentMessage",
+          "count": 140,
+          "maxItemBytes": 3323,
+          "bytes": 92866
+        },
+        {
+          "type": "imageView",
+          "count": 276,
+          "maxItemBytes": 252,
+          "bytes": 52324
+        },
+        {
+          "type": "subAgentActivity",
+          "count": 158,
+          "maxItemBytes": 249,
+          "bytes": 35931
+        },
+        {
+          "type": "reasoning",
+          "count": 1002,
+          "maxItemBytes": 107,
+          "bytes": 107214
+        },
+        {
+          "type": "contextCompaction",
+          "count": 10,
+          "maxItemBytes": 72,
+          "bytes": 720
+        }
+      ]
+    },
+    {
+      "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+      "count": 3549,
+      "maxItemBytes": 2043979,
+      "over1MiBItems": 4,
+      "types": [
+        {
+          "type": "mcpToolCall",
+          "count": 664,
+          "maxItemBytes": 2043979,
+          "bytes": 27759647
+        },
+        {
+          "type": "userMessage",
+          "count": 57,
+          "maxItemBytes": 1652588,
+          "bytes": 8567476
+        },
+        {
+          "type": "commandExecution",
+          "count": 1256,
+          "maxItemBytes": 77768,
+          "bytes": 6951094
+        },
+        {
+          "type": "fileChange",
+          "count": 150,
+          "maxItemBytes": 21925,
+          "bytes": 506578
+        },
+        {
+          "type": "webSearch",
+          "count": 16,
+          "maxItemBytes": 10452,
+          "bytes": 66223
+        },
+        {
+          "type": "agentMessage",
+          "count": 225,
+          "maxItemBytes": 4771,
+          "bytes": 126528
+        },
+        {
+          "type": "subAgentActivity",
+          "count": 51,
+          "maxItemBytes": 247,
+          "bytes": 11759
+        },
+        {
+          "type": "imageView",
+          "count": 72,
+          "maxItemBytes": 194,
+          "bytes": 12728
+        },
+        {
+          "type": "reasoning",
+          "count": 1046,
+          "maxItemBytes": 107,
+          "bytes": 111922
+        },
+        {
+          "type": "sleep",
+          "count": 1,
+          "maxItemBytes": 80,
+          "bytes": 80
+        },
+        {
+          "type": "contextCompaction",
+          "count": 11,
+          "maxItemBytes": 72,
+          "bytes": 792
+        }
+      ]
+    },
+    {
+      "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+      "count": 4149,
+      "maxItemBytes": 179991,
+      "over1MiBItems": 0,
+      "types": [
+        {
+          "type": "mcpToolCall",
+          "count": 32,
+          "maxItemBytes": 179991,
+          "bytes": 815314
+        },
+        {
+          "type": "userMessage",
+          "count": 38,
+          "maxItemBytes": 65853,
+          "bytes": 79210
+        },
+        {
+          "type": "commandExecution",
+          "count": 1564,
+          "maxItemBytes": 61413,
+          "bytes": 6796480
+        },
+        {
+          "type": "fileChange",
+          "count": 163,
+          "maxItemBytes": 13597,
+          "bytes": 388675
+        },
+        {
+          "type": "webSearch",
+          "count": 5,
+          "maxItemBytes": 8246,
+          "bytes": 11304
+        },
+        {
+          "type": "agentMessage",
+          "count": 331,
+          "maxItemBytes": 1804,
+          "bytes": 177074
+        },
+        {
+          "type": "imageView",
+          "count": 151,
+          "maxItemBytes": 255,
+          "bytes": 33859
+        },
+        {
+          "type": "subAgentActivity",
+          "count": 236,
+          "maxItemBytes": 253,
+          "bytes": 53916
+        },
+        {
+          "type": "reasoning",
+          "count": 1614,
+          "maxItemBytes": 107,
+          "bytes": 172698
+        },
+        {
+          "type": "sleep",
+          "count": 2,
+          "maxItemBytes": 72,
+          "bytes": 144
+        },
+        {
+          "type": "contextCompaction",
+          "count": 13,
+          "maxItemBytes": 72,
+          "bytes": 907
+        }
+      ]
+    },
+    {
+      "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+      "count": 2518,
+      "maxItemBytes": 426308,
+      "over1MiBItems": 0,
+      "types": [
+        {
+          "type": "userMessage",
+          "count": 32,
+          "maxItemBytes": 426308,
+          "bytes": 2517349
+        },
+        {
+          "type": "commandExecution",
+          "count": 991,
+          "maxItemBytes": 70549,
+          "bytes": 4959630
+        },
+        {
+          "type": "mcpToolCall",
+          "count": 262,
+          "maxItemBytes": 69344,
+          "bytes": 12550001
+        },
+        {
+          "type": "fileChange",
+          "count": 168,
+          "maxItemBytes": 36067,
+          "bytes": 570220
+        },
+        {
+          "type": "webSearch",
+          "count": 7,
+          "maxItemBytes": 11683,
+          "bytes": 45576
+        },
+        {
+          "type": "agentMessage",
+          "count": 157,
+          "maxItemBytes": 4560,
+          "bytes": 89007
+        },
+        {
+          "type": "subAgentActivity",
+          "count": 25,
+          "maxItemBytes": 237,
+          "bytes": 5637
+        },
+        {
+          "type": "imageView",
+          "count": 41,
+          "maxItemBytes": 202,
+          "bytes": 7760
+        },
+        {
+          "type": "reasoning",
+          "count": 827,
+          "maxItemBytes": 107,
+          "bytes": 88489
+        },
+        {
+          "type": "contextCompaction",
+          "count": 8,
+          "maxItemBytes": 72,
+          "bytes": 576
+        }
+      ]
+    },
+    {
+      "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+      "count": 4769,
+      "maxItemBytes": 68812,
+      "over1MiBItems": 0,
+      "types": [
+        {
+          "type": "commandExecution",
+          "count": 2042,
+          "maxItemBytes": 68812,
+          "bytes": 9382822
+        },
+        {
+          "type": "mcpToolCall",
+          "count": 19,
+          "maxItemBytes": 66148,
+          "bytes": 540524
+        },
+        {
+          "type": "webSearch",
+          "count": 2,
+          "maxItemBytes": 10440,
+          "bytes": 14565
+        },
+        {
+          "type": "fileChange",
+          "count": 65,
+          "maxItemBytes": 8798,
+          "bytes": 123574
+        },
+        {
+          "type": "agentMessage",
+          "count": 322,
+          "maxItemBytes": 1113,
+          "bytes": 158594
+        },
+        {
+          "type": "userMessage",
+          "count": 21,
+          "maxItemBytes": 878,
+          "bytes": 10300
+        },
+        {
+          "type": "subAgentActivity",
+          "count": 132,
+          "maxItemBytes": 246,
+          "bytes": 30045
+        },
+        {
+          "type": "imageView",
+          "count": 9,
+          "maxItemBytes": 228,
+          "bytes": 1983
+        },
+        {
+          "type": "reasoning",
+          "count": 2138,
+          "maxItemBytes": 107,
+          "bytes": 228766
+        },
+        {
+          "type": "sleep",
+          "count": 4,
+          "maxItemBytes": 80,
+          "bytes": 304
+        },
+        {
+          "type": "contextCompaction",
+          "count": 15,
+          "maxItemBytes": 72,
+          "bytes": 1080
+        }
+      ]
+    }
+  ],
+  "projection": [
+    {
+      "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+      "beforeVersion": 5,
+      "afterVersion": 5,
+      "beforeItems": 38863,
+      "afterItems": 38863
+    },
+    {
+      "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+      "beforeVersion": 3,
+      "afterVersion": 5,
+      "beforeItems": 2732,
+      "afterItems": 2732
+    },
+    {
+      "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+      "beforeVersion": 5,
+      "afterVersion": 5,
+      "beforeItems": 3549,
+      "afterItems": 3549
+    },
+    {
+      "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+      "beforeVersion": 3,
+      "afterVersion": 5,
+      "beforeItems": 4149,
+      "afterItems": 4149
+    },
+    {
+      "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+      "beforeVersion": 5,
+      "afterVersion": 5,
+      "beforeItems": 2518,
+      "afterItems": 2518
+    },
+    {
+      "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+      "beforeVersion": 5,
+      "afterVersion": 5,
+      "beforeItems": 4769,
+      "afterItems": 4769
+    }
+  ],
+  "pagedReads": [
+    {
+      "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+      "label": "cumulative-1",
+      "pageCount": 389,
+      "itemCount": 38863,
+      "responseBytes": 96390726,
+      "itemDelta": 0,
+      "elapsedMs": 11471
+    },
+    {
+      "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+      "label": "cumulative-2",
+      "pageCount": 28,
+      "itemCount": 2732,
+      "responseBytes": 48938575,
+      "itemDelta": 0,
+      "elapsedMs": 2976
+    },
+    {
+      "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+      "label": "cumulative-4",
+      "pageCount": 36,
+      "itemCount": 3549,
+      "responseBytes": 44539597,
+      "itemDelta": 0,
+      "elapsedMs": 3173
+    },
+    {
+      "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+      "label": "cumulative-4",
+      "pageCount": 42,
+      "itemCount": 4149,
+      "responseBytes": 9025554,
+      "itemDelta": 0,
+      "elapsedMs": 1084
+    },
+    {
+      "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+      "label": "cumulative-6",
+      "pageCount": 26,
+      "itemCount": 2518,
+      "responseBytes": 21135734,
+      "itemDelta": 0,
+      "elapsedMs": 1623
+    },
+    {
+      "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+      "label": "cumulative-6",
+      "pageCount": 48,
+      "itemCount": 4769,
+      "responseBytes": 11063303,
+      "itemDelta": 0,
+      "elapsedMs": 1479
+    }
+  ],
+  "fullReads": [
+    {
+      "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+      "label": "six-loaded-full-read-1",
+      "kind": "compatibility-stress",
+      "responseBytes": 92014507,
+      "turnCount": 468,
+      "itemCount": 38863,
+      "itemBytes": 91738635,
+      "byItemType": {
+        "userMessage": 58,
+        "agentMessage": 1933,
+        "commandExecution": 12453,
+        "reasoning": 16798,
+        "subAgentActivity": 6760,
+        "fileChange": 664,
+        "contextCompaction": 148,
+        "webSearch": 39,
+        "imageView": 8,
+        "collabAgentToolCall": 2
+      },
+      "comparison": {
+        "turnDelta": 0,
+        "itemDelta": 0
+      },
+      "elapsedMs": 13481
+    },
+    {
+      "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+      "label": "six-loaded-full-read-2",
+      "kind": "compatibility-stress",
+      "responseBytes": 48623820,
+      "turnCount": 25,
+      "itemCount": 2732,
+      "itemBytes": 48611524,
+      "byItemType": {
+        "userMessage": 25,
+        "agentMessage": 140,
+        "webSearch": 14,
+        "commandExecution": 878,
+        "reasoning": 1002,
+        "mcpToolCall": 21,
+        "subAgentActivity": 158,
+        "fileChange": 208,
+        "contextCompaction": 10,
+        "imageView": 276
+      },
+      "comparison": {
+        "turnDelta": 0,
+        "itemDelta": 0
+      },
+      "elapsedMs": 3223
+    },
+    {
+      "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+      "label": "six-loaded-full-read-3",
+      "kind": "compatibility-stress",
+      "responseBytes": 44133559,
+      "turnCount": 45,
+      "itemCount": 3549,
+      "itemBytes": 44114827,
+      "byItemType": {
+        "userMessage": 57,
+        "agentMessage": 225,
+        "commandExecution": 1256,
+        "reasoning": 1046,
+        "subAgentActivity": 51,
+        "fileChange": 150,
+        "imageView": 72,
+        "contextCompaction": 11,
+        "mcpToolCall": 664,
+        "sleep": 1,
+        "webSearch": 16
+      },
+      "comparison": {
+        "turnDelta": 0,
+        "itemDelta": 0
+      },
+      "elapsedMs": 2681
+    },
+    {
+      "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+      "label": "six-loaded-full-read-4",
+      "kind": "compatibility-stress",
+      "responseBytes": 8558149,
+      "turnCount": 77,
+      "itemCount": 4149,
+      "itemBytes": 8529581,
+      "byItemType": {
+        "userMessage": 38,
+        "agentMessage": 331,
+        "subAgentActivity": 236,
+        "mcpToolCall": 32,
+        "contextCompaction": 13,
+        "reasoning": 1614,
+        "commandExecution": 1564,
+        "imageView": 151,
+        "fileChange": 163,
+        "sleep": 2,
+        "webSearch": 5
+      },
+      "comparison": {
+        "turnDelta": 0,
+        "itemDelta": 0
+      },
+      "elapsedMs": 1179
+    },
+    {
+      "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+      "label": "six-loaded-full-read-5",
+      "kind": "compatibility-stress",
+      "responseBytes": 20847128,
+      "turnCount": 29,
+      "itemCount": 2518,
+      "itemBytes": 20834245,
+      "byItemType": {
+        "userMessage": 32,
+        "agentMessage": 157,
+        "commandExecution": 991,
+        "reasoning": 827,
+        "mcpToolCall": 262,
+        "fileChange": 168,
+        "imageView": 41,
+        "webSearch": 7,
+        "contextCompaction": 8,
+        "subAgentActivity": 25
+      },
+      "comparison": {
+        "turnDelta": 0,
+        "itemDelta": 0
+      },
+      "elapsedMs": 1370
+    },
+    {
+      "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+      "label": "six-loaded-full-read-6",
+      "kind": "compatibility-stress",
+      "responseBytes": 10507008,
+      "turnCount": 20,
+      "itemCount": 4769,
+      "itemBytes": 10492557,
+      "byItemType": {
+        "userMessage": 21,
+        "agentMessage": 322,
+        "commandExecution": 2042,
+        "reasoning": 2138,
+        "mcpToolCall": 19,
+        "contextCompaction": 15,
+        "fileChange": 65,
+        "subAgentActivity": 132,
+        "sleep": 4,
+        "webSearch": 2,
+        "imageView": 9
+      },
+      "comparison": {
+        "turnDelta": 0,
+        "itemDelta": 0
+      },
+      "elapsedMs": 982
+    }
+  ],
+  "note": "Aggregate bytes from the stopped isolated projection; no item bodies retained."
+}

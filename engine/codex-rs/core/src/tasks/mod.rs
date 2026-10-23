@@ -285,9 +285,6 @@ impl Session {
         input: Vec<TurnInput>,
         task: T,
     ) {
-        if !self.reserve_task_start_unless_shutting_down().await {
-            return;
-        }
         if self.account_is_retired_for_model(&turn_context.model_info().slug) {
             return;
         }
@@ -306,6 +303,9 @@ impl Session {
         input: Vec<TurnInput>,
         task: T,
     ) {
+        if !self.reserve_task_start_unless_shutting_down().await {
+            return;
+        }
         let admission = self.execution_admission_for_model(&turn_context.model_info().slug);
         if self.account_is_retired_for_model(&turn_context.model_info().slug)
             || admission.requires_recovery()

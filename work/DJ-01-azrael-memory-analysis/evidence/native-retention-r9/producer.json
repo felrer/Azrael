@@ -1,0 +1,119 @@
+{
+  "lifecycleId": "run:DJ-01:native-retention-r9",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-retention-r9",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\native-memory-probe.mjs",
+    "--retention"
+  ],
+  "exitCode": 0,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 5744,
+      "closed": true
+    },
+    {
+      "pid": 16280,
+      "closed": true
+    },
+    {
+      "pid": 50920,
+      "closed": true
+    },
+    {
+      "pid": 43484,
+      "closed": true
+    },
+    {
+      "pid": 24812,
+      "closed": true
+    },
+    {
+      "pid": 20268,
+      "closed": true
+    },
+    {
+      "pid": 16148,
+      "closed": true
+    },
+    {
+      "pid": 12056,
+      "closed": true
+    },
+    {
+      "pid": 73916,
+      "closed": true
+    },
+    {
+      "pid": 63616,
+      "closed": true
+    },
+    {
+      "pid": 68352,
+      "closed": true
+    },
+    {
+      "pid": 62100,
+      "closed": true
+    },
+    {
+      "pid": 16908,
+      "closed": true
+    },
+    {
+      "pid": 40308,
+      "closed": true
+    },
+    {
+      "pid": 33288,
+      "closed": true
+    },
+    {
+      "pid": 60548,
+      "closed": true
+    },
+    {
+      "pid": 64444,
+      "closed": true
+    },
+    {
+      "pid": 39236,
+      "closed": true
+    },
+    {
+      "pid": 65920,
+      "closed": true
+    },
+    {
+      "pid": 21004,
+      "closed": true
+    },
+    {
+      "pid": 70556,
+      "closed": true
+    },
+    {
+      "pid": 19432,
+      "closed": true
+    },
+    {
+      "pid": 55720,
+      "closed": true
+    },
+    {
+      "pid": 34864,
+      "closed": true
+    },
+    {
+      "pid": 60040,
+      "closed": true
+    },
+    {
+      "pid": 33876,
+      "closed": true
+    }
+  ],
+  "state": "complete",
+  "membership_complete": true
+}

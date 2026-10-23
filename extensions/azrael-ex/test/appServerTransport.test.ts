@@ -121,3 +121,25 @@ test("supervised app-server restarts after SIGKILL and performs a new handshake"
     assert.equal(server.pid, undefined, "disposal cancels the pending restart");
   } finally { server.dispose(); }
 });
+
+test("readiness observes one owner handshake and supports cancellation and disposal", async () => {
+  const server = transport();
+  try {
+    const readiness = server.waitForReady(new AbortController().signal);
+    assert.equal(server.pid, undefined, "readiness must not spawn an engine");
+    await server.start();
+    await readiness;
+    await server.waitForReady(new AbortController().signal);
+  } finally { server.dispose(); }
+  await assert.rejects(server.waitForReady(new AbortController().signal), /cancelled/);
+  const idle = transport();
+  const abort = new AbortController();
+  const cancelled = idle.waitForReady(abort.signal);
+  abort.abort();
+  await assert.rejects(cancelled, /cancelled/);
+  const disposed = idle.waitForReady(new AbortController().signal);
+  idle.dispose();
+  await assert.rejects(disposed, /cancelled/);
+  assert.equal(idle.listenerCount("ready"), 0);
+  assert.equal(idle.listenerCount("disposed"), 0);
+});

@@ -1,0 +1,84 @@
+{
+  "lifecycleId": "run:DJ-01:real-history-r14",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r14",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\real-session-memory-probe.mjs",
+    "--run",
+    "--continue-B"
+  ],
+  "exitCode": 1,
+  "producerStopped": false,
+  "children": [
+    {
+      "pid": 37184,
+      "closed": true
+    },
+    {
+      "pid": 35228,
+      "closed": true
+    },
+    {
+      "pid": 29336,
+      "closed": true
+    },
+    {
+      "pid": 48352,
+      "closed": true
+    },
+    {
+      "pid": 24016,
+      "closed": true
+    },
+    {
+      "pid": 48808,
+      "closed": true
+    },
+    {
+      "pid": 24176,
+      "closed": true
+    },
+    {
+      "pid": 29792,
+      "closed": true
+    },
+    {
+      "pid": 64920,
+      "closed": true
+    },
+    {
+      "pid": 74692,
+      "closed": true
+    },
+    {
+      "pid": 41460,
+      "closed": true
+    },
+    {
+      "pid": 54528,
+      "closed": true
+    },
+    {
+      "pid": 57896,
+      "closed": true
+    },
+    {
+      "pid": 28256,
+      "closed": true
+    },
+    {
+      "pid": 74580,
+      "closed": true
+    },
+    {
+      "pid": 49564,
+      "closed": true
+    },
+    {
+      "pid": 48464,
+      "closed": true
+    }
+  ],
+  "state": "pending",
+  "membership_complete": false
+}

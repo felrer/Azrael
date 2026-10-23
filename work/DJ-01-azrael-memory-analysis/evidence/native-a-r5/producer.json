@@ -1,0 +1,59 @@
+{
+  "lifecycleId": "run:DJ-01:native-a-r5",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r5",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\native-memory-probe.mjs",
+    "--run"
+  ],
+  "exitCode": 1,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 47148,
+      "closed": true
+    },
+    {
+      "pid": 40868,
+      "closed": true
+    },
+    {
+      "pid": 32280,
+      "closed": true
+    },
+    {
+      "pid": 56908,
+      "closed": true
+    },
+    {
+      "pid": 20340,
+      "closed": true
+    },
+    {
+      "pid": 55700,
+      "closed": true
+    },
+    {
+      "pid": 38392,
+      "closed": true
+    },
+    {
+      "pid": 3540,
+      "closed": true
+    },
+    {
+      "pid": 20276,
+      "closed": true
+    },
+    {
+      "pid": 13452,
+      "closed": true
+    },
+    {
+      "pid": 73792,
+      "closed": true
+    }
+  ],
+  "state": "failed",
+  "membership_complete": true
+}

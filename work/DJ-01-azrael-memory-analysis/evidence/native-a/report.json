@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m",
+  "lifecycleIds": [
+    "run:DJ-01:native-a"
+  ],
+  "startedUtc": "2026-10-22T16:25:02.978Z",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "frozenSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "platform": "win32",
+  "arch": "x64",
+  "status": "failed",
+  "modes": [
+    {
+      "name": "no-mcp",
+      "lifecycleId": "run:DJ-01:native-a",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\tasks\\DJ-01\\runs\\native-a\\reports",
+      "status": "failed",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\a",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\tasks\\DJ-01\\runs\\native-a\\workspace",
+      "startedUtc": "2026-10-22T16:25:03.019Z",
+      "checkpoints": [],
+      "stopped": false,
+      "children": [],
+      "cleanupErrors": [
+        "backend identity unavailable:Error: ENOENT: no such file or directory, open 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\a\\app-server-daemon\\engines\\0448eb893119b0a359de64cc3a893058605e055b47358fe28c5db8d1d9bebc2a\\azrael.pid'"
+      ]
+    }
+  ],
+  "limitations": [
+    "One-off synthetic measurement; no leak conclusion",
+    "Root event queue sizes unknown: no exposed metric",
+    "No real MCP tool calls, capture, OS input, external provider, or credentials",
+    "Slow-consumer scenario not selected",
+    "CIM snapshots are observations, not continuous peak measurements; driver/sampler/mock host overhead excluded from test private limit"
+  ],
+  "engineVersion": "0.162.0",
+  "error": "AssertionError [ERR_ASSERTION]: Windows AF_UNIX path requires a shorter explicit isolated fixture root: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\a\\app-server-control\\0448eb893119b0a359de64cc.sock\n    at checkSocketPath (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/check-shared-engine.mjs:135:29)\n    at main (file:///C:/Users/felre/Desktop/pi-harness-init/work/DJ-01-azrael-memory-analysis/native-memory-probe.mjs:155:7)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "cleanupErrors": [
+    "Error: backend identity unavailable:Error: ENOENT: no such file or directory, open 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\a\\app-server-daemon\\engines\\0448eb893119b0a359de64cc3a893058605e055b47358fe28c5db8d1d9bebc2a\\azrael.pid'"
+  ],
+  "provider": {
+    "requests": [],
+    "errors": []
+  },
+  "producerStopped": false,
+  "endedUtc": "2026-10-22T16:25:05.774Z"
+}

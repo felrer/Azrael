@@ -3874,6 +3874,7 @@ class ProviderCatalogStatus(BaseModel):
 
 class QueuedSubmissionKind(Enum):
     user_input = "userInput"
+    question_reply = "questionReply"
     context_compaction = "contextCompaction"
 
 

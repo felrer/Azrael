@@ -1,0 +1,208 @@
+{
+  "status": "in-progress",
+  "projectRoot": "C:/Users/felre/Desktop/pi-harness-init/.m",
+  "startedUtc": "2026-10-22T17:26:21.250Z",
+  "excludedAlreadyDeleted": [
+    "run:DJ-01:ui-default"
+  ],
+  "consumerRelease": "Root explicitly released immutable c88 seed and downstream consumers after UI6 stopped; no further UI executions",
+  "completedGroups": [
+    {
+      "id": "run:DJ-01:native-a-r3",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-a-r4",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-a-r5",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-a-r6",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-a-r7",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-b-r7",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-h1-r8",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-h2-r8",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-h4-r8",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-h64-r10",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-h8-r8",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:native-retention-r9",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    },
+    {
+      "id": "run:DJ-01:ui-default-2",
+      "status": "finalized",
+      "remaining": [],
+      "references": []
+    }
+  ],
+  "pendingGroups": [
+    "run:DJ-01:ui-default-3",
+    "run:DJ-01:ui-default-5",
+    "run:DJ-01:ui-default-4"
+  ],
+  "evidence": [
+    {
+      "id": "run:DJ-01:native-retention-r9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-retention-r9\\producer.json",
+      "sha256": "d29d2bf6c301d9ddfba6776d29137de6c38063716ff7740af804b2cb355ba0a7",
+      "verified": true,
+      "originalExit": 0
+    },
+    {
+      "id": "run:DJ-01:native-h1-r8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-h1-r8\\producer.json",
+      "sha256": "9ee5b36254d90f3fed89f776576971d83e95fbff7666b03d0d5c81d69d128772",
+      "verified": true,
+      "originalExit": 0
+    },
+    {
+      "id": "run:DJ-01:native-b-r7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-b-r7\\producer.json",
+      "sha256": "1fbd329f58373b09fe7faf9caeeb4babee8c097a3e9cc72549694951154d1022",
+      "verified": true,
+      "originalExit": 0
+    },
+    {
+      "id": "run:DJ-01:native-a-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-a-r4\\recovery.json",
+      "sha256": "47fa6421fbaefa8aa3915e4b491d65bccf1ed3d9264d56bcdd9b98f1d7098edc",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:ui-default-2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\ui-default-2\\recovery-processes.json",
+      "sha256": "47c8baffe3bee279d27bf9005c222c6823daaad8f06de9faf5293fe747a2edf2",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:native-a-r6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-a-r6\\producer.json",
+      "sha256": "2218718c7df4554c6cd0e7a47899e2619556b8b948e5f573db0e682d17dcee58",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:native-h8-r8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-h8-r8\\producer.json",
+      "sha256": "0fea06706945a74e5ca0e51c873b08a74c6bf6a870d18673e014be81c6262953",
+      "verified": true,
+      "originalExit": 0
+    },
+    {
+      "id": "run:DJ-01:ui-default-3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\ui-default-3\\producer.json",
+      "sha256": "7cbe9262ade60f8dba71fb11d25c9bb0c16d2a3060fd6ca4c33a43af9112df24",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:native-a-r5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-a-r5\\producer.json",
+      "sha256": "f30f791de363c3dba22c330a83dceeb915268b9e2c4539667efa0ce0ebac7ca9",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:native-a-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-a-r3\\recovery.json",
+      "sha256": "6a284f53d2d9072585dcb79a4071decaaf8f14aa65ba900dc6a69165f764deae",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:native-h64-r10",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-h64-r10\\producer.json",
+      "sha256": "c2d74903718dadcb43ac88b42c996b023d6973ae0a5a3c74e439977be4a5bc45",
+      "verified": true,
+      "originalExit": 0
+    },
+    {
+      "id": "run:DJ-01:native-h4-r8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-h4-r8\\producer.json",
+      "sha256": "4e0871076e8d50bbfcb967e47e46bd96d7b24c3b3abb0382d68522ace356de47",
+      "verified": true,
+      "originalExit": 0
+    },
+    {
+      "id": "run:DJ-01:native-a-r7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-a-r7\\producer.json",
+      "sha256": "ad569ddde1ec9cf21f0eb74d8f07370de283536e3b310ddb0d9972b0b037eab6",
+      "verified": true,
+      "originalExit": 0
+    },
+    {
+      "id": "run:DJ-01:ui-default-5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\ui-default-5\\producer.json",
+      "sha256": "b4a386127afa3a0519f058bb09c58bd0797a65fb43cae31b91f584aa9e9446bd",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:ui-default-4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\ui-default-4\\producer.json",
+      "sha256": "d8d4798e5f78d56ce1ba0ce65e3d3e780d4e34d2f3501db66ed8b4757037dcd4",
+      "verified": true,
+      "originalExit": 1
+    },
+    {
+      "id": "run:DJ-01:native-h2-r8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\evidence\\native-h2-r8\\producer.json",
+      "sha256": "aaa152cc7367bad13134a56aaf7a4063aac14f8c1bc8272f0d96a79581c733d4",
+      "verified": true,
+      "originalExit": 0
+    }
+  ]
+}

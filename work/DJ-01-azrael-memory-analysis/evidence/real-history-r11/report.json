@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "lifecycleId": "run:DJ-01:real-history-r11",
+  "startedUtc": "2026-10-23T00:15:03.677Z",
+  "status": "failed",
+  "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p11",
+  "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r11\\workspace",
+  "platform": "win32",
+  "arch": "x64",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "limits": {
+    "nativePrivateBytes": 4294967296,
+    "freeBytes": 3221225472,
+    "driverRssBytes": 2147483648
+  },
+  "modes": [],
+  "childOutcomes": [
+    {
+      "kind": "own_git_boundary",
+      "pid": 48844,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "scope": "Copied real paginated history; resume/read/unsubscribe only; no inference or tool replay",
+  "limitations": [
+    "Windows x64 only; no leak conclusion from one experiment",
+    "Polling cannot measure every transient peak",
+    "Continuous interval is CIM execution time plus 250ms; per-observation elapsedMs is retained",
+    "Native cap excludes driver and sampler; driver RSS has its own cap",
+    "Cases B/C reuse the profile after A; native resume may append owned rollouts",
+    "Local primary UI uses excludeTurns when paginated history and tail hydration are enabled; current runtime flag value is not established",
+    "Reading every item page is an aggressive API comparison; this does not establish that the UI eagerly reads the complete transcript",
+    "Full reads are explicit compatibility/stress cases, not an assertion of the default UI behavior",
+    "Count differences are reported exactly; no legacy conversion or fabrication",
+    "No RPC/error/stderr bodies are retained in reports; native private logs remain inside the owned profile"
+  ],
+  "failure": {
+    "stage": "snapshot",
+    "name": "AssertionError",
+    "code": "ERR_ASSERTION"
+  },
+  "producerStopped": true,
+  "endedUtc": "2026-10-23T00:15:08.582Z"
+}

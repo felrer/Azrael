@@ -1,0 +1,32 @@
+{
+  "owner": "/root/native_logoff",
+  "source": "native/windows-child-session/ChildSession.cs",
+  "command": "csc x64; --self-test",
+  "plannedOutputs": [
+    "ChildSession.cs",
+    "windows-child-session.exe",
+    "compile.log",
+    "self-test.json",
+    "receipt.json"
+  ],
+  "state": "stopped",
+  "purpose": "compile and pure self-test; no connection or logoff",
+  "outcome": "success",
+  "runs": [
+    {
+      "path": "artifacts/tasks/DB-01-window-child-logoff/runs/native-r1",
+      "compileExit": 1,
+      "reason": "CS1504 absolute path syntax",
+      "retained": true
+    },
+    {
+      "path": "artifacts/tasks/DB-01-window-child-logoff/runs/native-r2/verified",
+      "compileExit": 0,
+      "selfTestExit": 0,
+      "checks": 31,
+      "sourceSha256": "08f98dc84ea13a7b5cee020c87d6282a25bcc01780c6498fe938e493ffccf921",
+      "exeSha256": "ee0f7b19fbbcc62af7f404bc7d15efba42dccea5741f276dc62da5f8eae66cb8"
+    }
+  ],
+  "remaining": "No product packaging, installation, live inspection, UAC or child-session logoff executed"
+}

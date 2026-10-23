@@ -251,6 +251,16 @@ pub(super) async fn handle(
     }
     let _reservation_guard = session.root_resume_submission_guard().await;
     let origin = UserInputOrigin::from_turn_trigger(request.start.turn_trigger.as_deref());
+    let queued_question_reply =
+        request.start.turn_trigger.as_deref() == Some("queue_question_reply");
+    if queued_question_reply {
+        let SubmittedTurnInput::UserInput { content, .. } = &request.input else {
+            return Err(CodexErr::InvalidRequest(
+                "queued question reply requires user input".into(),
+            ));
+        };
+        session.validate_queued_question_reply(content)?;
+    }
     if let Some((turn_id, root_turn_id)) = session
         .accepted_input_retry_with_root(&mut request.input, &request.additional_context, origin)
         .await?
@@ -267,7 +277,7 @@ pub(super) async fn handle(
     }
     if matches!(&mode, TurnInputMode::StartIfIdle)
         && request.start.turn_trigger.as_deref() != Some("queue_user")
-        && (session.pending_question_count() > 0
+        && ((session.pending_question_count() > 0 && !queued_question_reply)
             || session.pending_approval_count() > 0
             || session.has_host_approval_resume())
     {

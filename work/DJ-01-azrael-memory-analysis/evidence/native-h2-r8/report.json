@@ -1,0 +1,2049 @@
+{
+  "schema": 1,
+  "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m",
+  "lifecycleIds": [
+    "run:DJ-01:native-h1-r8",
+    "run:DJ-01:native-h2-r8",
+    "run:DJ-01:native-h4-r8",
+    "run:DJ-01:native-h8-r8"
+  ],
+  "startedUtc": "2026-10-22T16:40:13.567Z",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "frozenSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "platform": "win32",
+  "arch": "x64",
+  "scope": "Offline authored history load/read/subscriber-removal; no inference or live turns",
+  "status": "complete",
+  "modes": [
+    {
+      "name": "history",
+      "historyTurns": 1,
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h1-r8\\reports",
+      "status": "complete",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c81",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h1-r8\\workspace",
+      "startedUtc": "2026-10-22T16:40:13.679Z",
+      "checkpoints": [
+        {
+          "label": "roots-0",
+          "loadedCount": 0,
+          "elapsedMs": 6356,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:40:34.188Z",
+              "freeBytes": 7079002112,
+              "privateBytes": 59863040,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:40:36.452Z",
+              "freeBytes": 6802612224,
+              "privateBytes": 59912192,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:40:38.708Z",
+              "freeBytes": 6589235200,
+              "privateBytes": 59912192,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "authored-turns-1",
+          "loadedCount": 1,
+          "elapsedMs": 6704,
+          "id": "464988c2-8cd8-42d9-91c9-a62c3835d9ba",
+          "kind": "large-history",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c81\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-40-28.000Z-464988c2-8cd8-42d9-91c9-a62c3835d9ba.jsonl",
+          "completedTurns": 1,
+          "userPayloadBytes": 131072,
+          "authoredFileBytes": 264013,
+          "readResponseBytes": 263949,
+          "loadReadElapsedMs": 1732,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:40:42.311Z",
+              "freeBytes": 6386810880,
+              "privateBytes": 89333760,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:40:44.288Z",
+              "freeBytes": 6764523520,
+              "privateBytes": 89333760,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:40:47.150Z",
+              "freeBytes": 6875529216,
+              "privateBytes": 89612288,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "all-unsubscribed-after-30s",
+          "loadedCount": 1,
+          "elapsedMs": 5295,
+          "interpretation": "Observed retention after subscriber removal; no unload assumption",
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:41:18.574Z",
+              "freeBytes": 6638759936,
+              "privateBytes": 87904256,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:41:20.455Z",
+              "freeBytes": 6628413440,
+              "privateBytes": 87904256,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:41:22.500Z",
+              "freeBytes": 6488068096,
+              "privateBytes": 87904256,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "second-owner-closed",
+          "loadedCount": 1,
+          "elapsedMs": 5391,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:41:23.952Z",
+              "freeBytes": 6545817600,
+              "privateBytes": 80961536,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:41:25.875Z",
+              "freeBytes": 6581420032,
+              "privateBytes": 81006592,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:41:27.931Z",
+              "freeBytes": 6616854528,
+              "privateBytes": 81006592,
+              "processCount": 3,
+              "mcpCount": 0
+            }
+          ]
+        }
+      ],
+      "backend": {
+        "pid": 69740,
+        "processStartTime": "134371608222208166",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c81\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c81\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "isolationVerified": true,
+      "history": {
+        "id": "464988c2-8cd8-42d9-91c9-a62c3835d9ba",
+        "kind": "large-history",
+        "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c81\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-40-28.000Z-464988c2-8cd8-42d9-91c9-a62c3835d9ba.jsonl",
+        "completedTurns": 1,
+        "userPayloadBytes": 131072,
+        "authoredFileBytes": 264013,
+        "readResponseBytes": 263949,
+        "loadReadElapsedMs": 1732
+      },
+      "unsubscribeResponses": [
+        {
+          "threadId": "464988c2-8cd8-42d9-91c9-a62c3835d9ba",
+          "status": "unsubscribed"
+        }
+      ],
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 6601441280,
+        "atUtc": "2026-10-22T16:41:32.876Z"
+      },
+      "stopped": true,
+      "children": [
+        {
+          "pid": 65140,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 25080,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 11132,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 21828,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "endedUtc": "2026-10-22T16:41:32.876Z",
+      "observedIdentities": [
+        {
+          "pid": 69740,
+          "creation": "134371608222208160"
+        },
+        {
+          "pid": 25080,
+          "creation": "134371608265177290"
+        },
+        {
+          "pid": 70608,
+          "creation": "134371608164438460"
+        },
+        {
+          "pid": 49472,
+          "creation": "134371608265225970"
+        },
+        {
+          "pid": 65140,
+          "creation": "134371608164325220"
+        }
+      ]
+    },
+    {
+      "name": "history",
+      "historyTurns": 2,
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h2-r8\\reports",
+      "status": "complete",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c82",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h2-r8\\workspace",
+      "startedUtc": "2026-10-22T16:41:33.009Z",
+      "checkpoints": [
+        {
+          "label": "roots-0",
+          "loadedCount": 0,
+          "elapsedMs": 5775,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:41:48.544Z",
+              "freeBytes": 6923898880,
+              "privateBytes": 56819712,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:41:50.971Z",
+              "freeBytes": 6665846784,
+              "privateBytes": 56819712,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:41:52.881Z",
+              "freeBytes": 6858547200,
+              "privateBytes": 56901632,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "authored-turns-2",
+          "loadedCount": 1,
+          "elapsedMs": 6056,
+          "id": "2ebff070-f6af-4e1f-9503-1c34fc3fb830",
+          "kind": "large-history",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c82\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-41-32.000Z-2ebff070-f6af-4e1f-9503-1c34fc3fb830.jsonl",
+          "completedTurns": 2,
+          "userPayloadBytes": 262144,
+          "authoredFileBytes": 527493,
+          "readResponseBytes": 395572,
+          "loadReadElapsedMs": 1098,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:41:55.673Z",
+              "freeBytes": 6816378880,
+              "privateBytes": 83259392,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:41:57.711Z",
+              "freeBytes": 6861328384,
+              "privateBytes": 83259392,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:42:00.045Z",
+              "freeBytes": 6856933376,
+              "privateBytes": 83259392,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "all-unsubscribed-after-30s",
+          "loadedCount": 1,
+          "elapsedMs": 6120,
+          "interpretation": "Observed retention after subscriber removal; no unload assumption",
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:42:31.627Z",
+              "freeBytes": 5744959488,
+              "privateBytes": 81833984,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:42:34.006Z",
+              "freeBytes": 5663817728,
+              "privateBytes": 81833984,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:42:36.185Z",
+              "freeBytes": 5435179008,
+              "privateBytes": 81801216,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "second-owner-closed",
+          "loadedCount": 1,
+          "elapsedMs": 6320,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:42:37.838Z",
+              "freeBytes": 5384683520,
+              "privateBytes": 74907648,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:42:40.257Z",
+              "freeBytes": 5296570368,
+              "privateBytes": 74801152,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:42:42.531Z",
+              "freeBytes": 5428584448,
+              "privateBytes": 74862592,
+              "processCount": 3,
+              "mcpCount": 0
+            }
+          ]
+        }
+      ],
+      "backend": {
+        "pid": 37156,
+        "processStartTime": "134371608988120127",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c82\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c82\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "isolationVerified": true,
+      "history": {
+        "id": "2ebff070-f6af-4e1f-9503-1c34fc3fb830",
+        "kind": "large-history",
+        "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c82\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-41-32.000Z-2ebff070-f6af-4e1f-9503-1c34fc3fb830.jsonl",
+        "completedTurns": 2,
+        "userPayloadBytes": 262144,
+        "authoredFileBytes": 527493,
+        "readResponseBytes": 395572,
+        "loadReadElapsedMs": 1098
+      },
+      "unsubscribeResponses": [
+        {
+          "threadId": "2ebff070-f6af-4e1f-9503-1c34fc3fb830",
+          "status": "unsubscribed"
+        }
+      ],
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 5145022464,
+        "atUtc": "2026-10-22T16:42:46.890Z"
+      },
+      "stopped": true,
+      "children": [
+        {
+          "pid": 71348,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 63700,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 14476,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 72800,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "endedUtc": "2026-10-22T16:42:46.890Z",
+      "observedIdentities": [
+        {
+          "pid": 63700,
+          "creation": "134371609017806810"
+        },
+        {
+          "pid": 37156,
+          "creation": "134371608988120120"
+        },
+        {
+          "pid": 20748,
+          "creation": "134371609017866050"
+        },
+        {
+          "pid": 72768,
+          "creation": "134371608943421220"
+        },
+        {
+          "pid": 71348,
+          "creation": "134371608943378220"
+        }
+      ]
+    },
+    {
+      "name": "history",
+      "historyTurns": 4,
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h4-r8\\reports",
+      "status": "complete",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c84",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h4-r8\\workspace",
+      "startedUtc": "2026-10-22T16:42:47.047Z",
+      "checkpoints": [
+        {
+          "label": "roots-0",
+          "loadedCount": 0,
+          "elapsedMs": 7357,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:43:11.325Z",
+              "freeBytes": 6797217792,
+              "privateBytes": 56020992,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:43:13.849Z",
+              "freeBytes": 6766297088,
+              "privateBytes": 56020992,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:43:16.590Z",
+              "freeBytes": 6548905984,
+              "privateBytes": 56020992,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "authored-turns-4",
+          "loadedCount": 1,
+          "elapsedMs": 7439,
+          "id": "ceb11daa-1a9d-4f49-af4f-1823a3eaf595",
+          "kind": "large-history",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c84\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-42-36.000Z-ceb11daa-1a9d-4f49-af4f-1823a3eaf595.jsonl",
+          "completedTurns": 4,
+          "userPayloadBytes": 524288,
+          "authoredFileBytes": 1054459,
+          "readResponseBytes": 658818,
+          "loadReadElapsedMs": 1270,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:43:20.250Z",
+              "freeBytes": 6306562048,
+              "privateBytes": 85970944,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:43:22.632Z",
+              "freeBytes": 6478532608,
+              "privateBytes": 86044672,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:43:25.309Z",
+              "freeBytes": 6399942656,
+              "privateBytes": 86044672,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "all-unsubscribed-after-30s",
+          "loadedCount": 1,
+          "elapsedMs": 5041,
+          "interpretation": "Observed retention after subscriber removal; no unload assumption",
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:43:56.669Z",
+              "freeBytes": 6145605632,
+              "privateBytes": 84299776,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:43:58.585Z",
+              "freeBytes": 6483603456,
+              "privateBytes": 84299776,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:44:00.394Z",
+              "freeBytes": 6578884608,
+              "privateBytes": 84348928,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "second-owner-closed",
+          "loadedCount": 1,
+          "elapsedMs": 5038,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:44:01.674Z",
+              "freeBytes": 6586949632,
+              "privateBytes": 77467648,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:44:03.406Z",
+              "freeBytes": 6621110272,
+              "privateBytes": 77467648,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:44:05.454Z",
+              "freeBytes": 6550188032,
+              "privateBytes": 77467648,
+              "processCount": 3,
+              "mcpCount": 0
+            }
+          ]
+        }
+      ],
+      "backend": {
+        "pid": 66472,
+        "processStartTime": "134371609757316744",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c84\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c84\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "isolationVerified": true,
+      "history": {
+        "id": "ceb11daa-1a9d-4f49-af4f-1823a3eaf595",
+        "kind": "large-history",
+        "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c84\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-42-36.000Z-ceb11daa-1a9d-4f49-af4f-1823a3eaf595.jsonl",
+        "completedTurns": 4,
+        "userPayloadBytes": 524288,
+        "authoredFileBytes": 1054459,
+        "readResponseBytes": 658818,
+        "loadReadElapsedMs": 1270
+      },
+      "unsubscribeResponses": [
+        {
+          "threadId": "ceb11daa-1a9d-4f49-af4f-1823a3eaf595",
+          "status": "unsubscribed"
+        }
+      ],
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 6695792640,
+        "atUtc": "2026-10-22T16:44:09.625Z"
+      },
+      "stopped": true,
+      "children": [
+        {
+          "pid": 20404,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 47408,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 63496,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 58356,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "endedUtc": "2026-10-22T16:44:09.625Z"
+    },
+    {
+      "name": "history",
+      "historyTurns": 8,
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h8-r8\\reports",
+      "status": "complete",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h8-r8\\workspace",
+      "startedUtc": "2026-10-22T16:44:09.747Z",
+      "checkpoints": [
+        {
+          "label": "roots-0",
+          "loadedCount": 0,
+          "elapsedMs": 16007,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:44:39.486Z",
+              "freeBytes": 4956999680,
+              "privateBytes": 58621952,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:44:43.944Z",
+              "freeBytes": 4550361088,
+              "privateBytes": 58470400,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:44:49.786Z",
+              "freeBytes": 4063936512,
+              "privateBytes": 56352768,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "authored-turns-8",
+          "loadedCount": 1,
+          "elapsedMs": 13445,
+          "id": "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c",
+          "kind": "large-history",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-43-29.000Z-e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c.jsonl",
+          "completedTurns": 8,
+          "userPayloadBytes": 1048576,
+          "authoredFileBytes": 2108391,
+          "readResponseBytes": 1185317,
+          "loadReadElapsedMs": 16482,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:45:11.217Z",
+              "freeBytes": 4548874240,
+              "privateBytes": 97460224,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:45:15.556Z",
+              "freeBytes": 5386432512,
+              "privateBytes": 97427456,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:45:19.763Z",
+              "freeBytes": 5182431232,
+              "privateBytes": 95621120,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "seed-four-completed",
+          "loadedCount": 4,
+          "elapsedMs": 23479,
+          "seedThreadIds": [
+            "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+            "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+            "4217ab65-d3d9-429b-a0a1-7775f837a0b4",
+            "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c"
+          ],
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:45:36.158Z",
+              "freeBytes": 4771586048,
+              "privateBytes": 108486656,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:45:43.318Z",
+              "freeBytes": 4659322880,
+              "privateBytes": 106868736,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:45:52.169Z",
+              "freeBytes": 4366180352,
+              "privateBytes": 106803200,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "all-unsubscribed-after-30s",
+          "loadedCount": 4,
+          "elapsedMs": 21489,
+          "interpretation": "Observed retention after subscriber removal; no unload assumption",
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:46:28.219Z",
+              "freeBytes": 4387348480,
+              "privateBytes": 106897408,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:46:36.371Z",
+              "freeBytes": 4545507328,
+              "privateBytes": 106696704,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:46:43.863Z",
+              "freeBytes": 4230369280,
+              "privateBytes": 106622976,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "second-owner-closed",
+          "loadedCount": 4,
+          "elapsedMs": 11218,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:46:48.555Z",
+              "freeBytes": 4084187136,
+              "privateBytes": 99856384,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:46:52.164Z",
+              "freeBytes": 4569882624,
+              "privateBytes": 99856384,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:46:55.469Z",
+              "freeBytes": 4461826048,
+              "privateBytes": 95444992,
+              "processCount": 3,
+              "mcpCount": 0
+            }
+          ]
+        }
+      ],
+      "backend": {
+        "pid": 2412,
+        "processStartTime": "134371610563935486",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "isolationVerified": true,
+      "history": {
+        "id": "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c",
+        "kind": "large-history",
+        "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-43-29.000Z-e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c.jsonl",
+        "completedTurns": 8,
+        "userPayloadBytes": 1048576,
+        "authoredFileBytes": 2108391,
+        "readResponseBytes": 1185317,
+        "loadReadElapsedMs": 16482
+      },
+      "seedThreads": [
+        {
+          "id": "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+          "kind": "small",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-09.000Z-da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50.jsonl",
+          "completedTurns": 1,
+          "userPayloadBytes": 256,
+          "authoredFileBytes": 2381,
+          "readResponseBytes": 2317,
+          "loadReadElapsedMs": 1686
+        },
+        {
+          "id": "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+          "kind": "small",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-11.000Z-d23afaa5-f06e-4214-bcb8-81be232c63e1.jsonl",
+          "completedTurns": 1,
+          "userPayloadBytes": 256,
+          "authoredFileBytes": 2381,
+          "readResponseBytes": 2317,
+          "loadReadElapsedMs": 2870
+        },
+        {
+          "id": "4217ab65-d3d9-429b-a0a1-7775f837a0b4",
+          "kind": "small",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-14.000Z-4217ab65-d3d9-429b-a0a1-7775f837a0b4.jsonl",
+          "completedTurns": 1,
+          "userPayloadBytes": 256,
+          "authoredFileBytes": 2381,
+          "readResponseBytes": 2317,
+          "loadReadElapsedMs": 4339
+        },
+        {
+          "id": "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c",
+          "kind": "large-history",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-43-29.000Z-e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c.jsonl",
+          "completedTurns": 8,
+          "userPayloadBytes": 1048576,
+          "authoredFileBytes": 2108391,
+          "readResponseBytes": 1185317,
+          "loadReadElapsedMs": 16482
+        }
+      ],
+      "unsubscribeResponses": [
+        {
+          "threadId": "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c",
+          "status": "unsubscribed"
+        },
+        {
+          "threadId": "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+          "status": "unsubscribed"
+        },
+        {
+          "threadId": "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+          "status": "unsubscribed"
+        },
+        {
+          "threadId": "4217ab65-d3d9-429b-a0a1-7775f837a0b4",
+          "status": "unsubscribed"
+        }
+      ],
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 4227420160,
+        "atUtc": "2026-10-22T16:47:01.510Z"
+      },
+      "stopped": true,
+      "children": [
+        {
+          "pid": 5348,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 35240,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 71608,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 72656,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "endedUtc": "2026-10-22T16:47:01.510Z"
+    }
+  ],
+  "limitations": [
+    "One-off synthetic measurement; no leak conclusion",
+    "Root event queue sizes unknown: no exposed metric",
+    "No real MCP tool calls, capture, OS input, external provider, or credentials",
+    "Slow-consumer scenario not selected",
+    "Unsubscribe removes subscription and does not guarantee runtime unloading",
+    "History replay is authored native JSONL, not inference-generated or transient streaming memory",
+    "CIM snapshots are observations, not continuous peak measurements; driver/sampler/mock host overhead excluded from test private limit"
+  ],
+  "childOutcomes": [
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "own project boundary",
+      "pid": 51684,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "version",
+      "pid": 72800,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "endpoint-discovery",
+      "pid": 65660,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 7740,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 52732,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 34320,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 47388,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 17216,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 11048,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 66792,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 69276,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 25708,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 39420,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "connector-1",
+      "pid": 25080,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "mock-host-1",
+      "pid": 21828,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 12124,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 24676,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 51588,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "connector-0",
+      "pid": 65140,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "mock-host-0",
+      "pid": 11132,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 8720,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 56420,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h1-r8",
+      "kind": "CIM sample",
+      "pid": 17216,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "own project boundary",
+      "pid": 67996,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "endpoint-discovery",
+      "pid": 32288,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 66100,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 9600,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 42580,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 26936,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 70608,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 8988,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 68640,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 71780,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 65200,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 60632,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "connector-1",
+      "pid": 63700,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "mock-host-1",
+      "pid": 72800,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 48924,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 56684,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 45228,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "connector-0",
+      "pid": 71348,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "mock-host-0",
+      "pid": 14476,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 73924,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h2-r8",
+      "kind": "CIM sample",
+      "pid": 5020,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "own project boundary",
+      "pid": 33244,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "endpoint-discovery",
+      "pid": 60520,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 65144,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 47448,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 22344,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 43748,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 22132,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 40988,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 25328,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 70852,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 27060,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 54504,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "connector-1",
+      "pid": 47408,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "mock-host-1",
+      "pid": 58356,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 18732,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 49316,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 56028,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "connector-0",
+      "pid": 20404,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "mock-host-0",
+      "pid": 63496,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 45000,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 35796,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h4-r8",
+      "kind": "CIM sample",
+      "pid": 34340,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "own project boundary",
+      "pid": 26728,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "endpoint-discovery",
+      "pid": 65168,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 10424,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 49296,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 51680,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 69560,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 51464,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 57560,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 7864,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 69980,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 65368,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 51208,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 62008,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 8920,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 73020,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "connector-1",
+      "pid": 35240,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "mock-host-1",
+      "pid": 72656,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 10928,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 51632,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 70736,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "connector-0",
+      "pid": 5348,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "mock-host-0",
+      "pid": 71608,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 62020,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h8-r8",
+      "kind": "CIM sample",
+      "pid": 41748,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "engineVersion": "0.162.0",
+  "seedHome": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88",
+  "seedThreads": [
+    {
+      "id": "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+      "kind": "small",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-09.000Z-da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50.jsonl",
+      "completedTurns": 1,
+      "userPayloadBytes": 256,
+      "authoredFileBytes": 2381,
+      "readResponseBytes": 2317,
+      "loadReadElapsedMs": 1686
+    },
+    {
+      "id": "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+      "kind": "small",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-11.000Z-d23afaa5-f06e-4214-bcb8-81be232c63e1.jsonl",
+      "completedTurns": 1,
+      "userPayloadBytes": 256,
+      "authoredFileBytes": 2381,
+      "readResponseBytes": 2317,
+      "loadReadElapsedMs": 2870
+    },
+    {
+      "id": "4217ab65-d3d9-429b-a0a1-7775f837a0b4",
+      "kind": "small",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-14.000Z-4217ab65-d3d9-429b-a0a1-7775f837a0b4.jsonl",
+      "completedTurns": 1,
+      "userPayloadBytes": 256,
+      "authoredFileBytes": 2381,
+      "readResponseBytes": 2317,
+      "loadReadElapsedMs": 4339
+    },
+    {
+      "id": "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c",
+      "kind": "large-history",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-43-29.000Z-e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c.jsonl",
+      "completedTurns": 8,
+      "userPayloadBytes": 1048576,
+      "authoredFileBytes": 2108391,
+      "readResponseBytes": 1185317,
+      "loadReadElapsedMs": 16482
+    }
+  ],
+  "producerStopped": true,
+  "endedUtc": "2026-10-22T16:47:01.511Z"
+}

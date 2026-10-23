@@ -1,0 +1,167 @@
+{
+  "lifecycleId": "run:DJ-01:native-a-r7",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r7",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\native-memory-probe.mjs",
+    "--run"
+  ],
+  "exitCode": 0,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 12940,
+      "closed": true
+    },
+    {
+      "pid": 34872,
+      "closed": true
+    },
+    {
+      "pid": 49996,
+      "closed": true
+    },
+    {
+      "pid": 31708,
+      "closed": true
+    },
+    {
+      "pid": 51780,
+      "closed": true
+    },
+    {
+      "pid": 51800,
+      "closed": true
+    },
+    {
+      "pid": 62152,
+      "closed": true
+    },
+    {
+      "pid": 9292,
+      "closed": true
+    },
+    {
+      "pid": 50132,
+      "closed": true
+    },
+    {
+      "pid": 63484,
+      "closed": true
+    },
+    {
+      "pid": 10812,
+      "closed": true
+    },
+    {
+      "pid": 64800,
+      "closed": true
+    },
+    {
+      "pid": 60432,
+      "closed": true
+    },
+    {
+      "pid": 51432,
+      "closed": true
+    },
+    {
+      "pid": 14576,
+      "closed": true
+    },
+    {
+      "pid": 69472,
+      "closed": true
+    },
+    {
+      "pid": 53068,
+      "closed": true
+    },
+    {
+      "pid": 73120,
+      "closed": true
+    },
+    {
+      "pid": 50344,
+      "closed": true
+    },
+    {
+      "pid": 42096,
+      "closed": true
+    },
+    {
+      "pid": 60720,
+      "closed": true
+    },
+    {
+      "pid": 25168,
+      "closed": true
+    },
+    {
+      "pid": 22652,
+      "closed": true
+    },
+    {
+      "pid": 30764,
+      "closed": true
+    },
+    {
+      "pid": 25412,
+      "closed": true
+    },
+    {
+      "pid": 57364,
+      "closed": true
+    },
+    {
+      "pid": 68132,
+      "closed": true
+    },
+    {
+      "pid": 67228,
+      "closed": true
+    },
+    {
+      "pid": 40804,
+      "closed": true
+    },
+    {
+      "pid": 38804,
+      "closed": true
+    },
+    {
+      "pid": 25912,
+      "closed": true
+    },
+    {
+      "pid": 45228,
+      "closed": true
+    },
+    {
+      "pid": 73700,
+      "closed": true
+    },
+    {
+      "pid": 30708,
+      "closed": true
+    },
+    {
+      "pid": 64028,
+      "closed": true
+    },
+    {
+      "pid": 62064,
+      "closed": true
+    },
+    {
+      "pid": 27872,
+      "closed": true
+    },
+    {
+      "pid": 53484,
+      "closed": true
+    }
+  ],
+  "state": "complete",
+  "membership_complete": true
+}

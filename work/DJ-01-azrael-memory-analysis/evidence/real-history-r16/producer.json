@@ -1,0 +1,264 @@
+{
+  "lifecycleId": "run:DJ-01:real-history-r16",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r16",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\real-session-memory-probe.mjs",
+    "--run",
+    "--matrix"
+  ],
+  "exitCode": 0,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 27700,
+      "closed": true
+    },
+    {
+      "pid": 65160,
+      "closed": true
+    },
+    {
+      "pid": 47044,
+      "closed": true
+    },
+    {
+      "pid": 50272,
+      "closed": true
+    },
+    {
+      "pid": 7028,
+      "closed": true
+    },
+    {
+      "pid": 66920,
+      "closed": true
+    },
+    {
+      "pid": 37200,
+      "closed": true
+    },
+    {
+      "pid": 69036,
+      "closed": true
+    },
+    {
+      "pid": 59796,
+      "closed": true
+    },
+    {
+      "pid": 50164,
+      "closed": true
+    },
+    {
+      "pid": 30180,
+      "closed": true
+    },
+    {
+      "pid": 71468,
+      "closed": true
+    },
+    {
+      "pid": 67416,
+      "closed": true
+    },
+    {
+      "pid": 55020,
+      "closed": true
+    },
+    {
+      "pid": 12408,
+      "closed": true
+    },
+    {
+      "pid": 74204,
+      "closed": true
+    },
+    {
+      "pid": 64504,
+      "closed": true
+    },
+    {
+      "pid": 64068,
+      "closed": true
+    },
+    {
+      "pid": 12164,
+      "closed": true
+    },
+    {
+      "pid": 23532,
+      "closed": true
+    },
+    {
+      "pid": 69352,
+      "closed": true
+    },
+    {
+      "pid": 73672,
+      "closed": true
+    },
+    {
+      "pid": 71052,
+      "closed": true
+    },
+    {
+      "pid": 40324,
+      "closed": true
+    },
+    {
+      "pid": 66944,
+      "closed": true
+    },
+    {
+      "pid": 36484,
+      "closed": true
+    },
+    {
+      "pid": 38556,
+      "closed": true
+    },
+    {
+      "pid": 39616,
+      "closed": true
+    },
+    {
+      "pid": 4324,
+      "closed": true
+    },
+    {
+      "pid": 48800,
+      "closed": true
+    },
+    {
+      "pid": 19204,
+      "closed": true
+    },
+    {
+      "pid": 61104,
+      "closed": true
+    },
+    {
+      "pid": 17832,
+      "closed": true
+    },
+    {
+      "pid": 14136,
+      "closed": true
+    },
+    {
+      "pid": 55532,
+      "closed": true
+    },
+    {
+      "pid": 42712,
+      "closed": true
+    },
+    {
+      "pid": 70624,
+      "closed": true
+    },
+    {
+      "pid": 50720,
+      "closed": true
+    },
+    {
+      "pid": 39488,
+      "closed": true
+    },
+    {
+      "pid": 49212,
+      "closed": true
+    },
+    {
+      "pid": 22004,
+      "closed": true
+    },
+    {
+      "pid": 72028,
+      "closed": true
+    },
+    {
+      "pid": 23816,
+      "closed": true
+    },
+    {
+      "pid": 66216,
+      "closed": true
+    },
+    {
+      "pid": 14312,
+      "closed": true
+    },
+    {
+      "pid": 41636,
+      "closed": true
+    },
+    {
+      "pid": 32364,
+      "closed": true
+    },
+    {
+      "pid": 4144,
+      "closed": true
+    },
+    {
+      "pid": 41204,
+      "closed": true
+    },
+    {
+      "pid": 54532,
+      "closed": true
+    },
+    {
+      "pid": 67096,
+      "closed": true
+    },
+    {
+      "pid": 29208,
+      "closed": true
+    },
+    {
+      "pid": 23384,
+      "closed": true
+    },
+    {
+      "pid": 69028,
+      "closed": true
+    },
+    {
+      "pid": 16712,
+      "closed": true
+    },
+    {
+      "pid": 45848,
+      "closed": true
+    },
+    {
+      "pid": 63332,
+      "closed": true
+    },
+    {
+      "pid": 28860,
+      "closed": true
+    },
+    {
+      "pid": 74080,
+      "closed": true
+    },
+    {
+      "pid": 59420,
+      "closed": true
+    },
+    {
+      "pid": 54932,
+      "closed": true
+    },
+    {
+      "pid": 59068,
+      "closed": true
+    }
+  ],
+  "state": "complete",
+  "membership_complete": true
+}

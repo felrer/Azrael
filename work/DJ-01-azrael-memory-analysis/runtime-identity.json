@@ -1,0 +1,23 @@
+﻿{
+    "engineSourceRoot":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+    "engineBaseCommit":  "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "engineVersion":  "0.162.0",
+    "includesLocalChanges":  true,
+    "checks":  [
+                   {
+                       "path":  "engine/azrael.exe",
+                       "matchesReceipt":  true,
+                       "sha256":  "39CE6B6E7AFEFEF44BC2EAE790412078DFDFDDA0486AAD4D52EFE41C87C5CAF5"
+                   },
+                   {
+                       "path":  "engine/azrael-bridge.exe",
+                       "matchesReceipt":  true,
+                       "sha256":  "0E222D9FE03B346E73B1DF717D5FA59FAA991A30C4F5852D2411480654619175"
+                   },
+                   {
+                       "path":  "engine/azrael-code-mode-host.exe",
+                       "matchesReceipt":  true,
+                       "sha256":  "EC91F7A04DCB1A36F0E2ED87885777BF78900C2EA3295E82621C5721FD5D9F41"
+                   }
+               ]
+}

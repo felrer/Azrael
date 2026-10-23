@@ -1,0 +1,19 @@
+{
+  "lifecycleId": "run:DJ-01:real-history-r11",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r11",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\real-session-memory-probe.mjs",
+    "--run"
+  ],
+  "exitCode": 1,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 48844,
+      "closed": true
+    }
+  ],
+  "state": "failed",
+  "membership_complete": true
+}

@@ -1,0 +1,186 @@
+{
+  "status": "complete",
+  "projectRoot": "C:/Users/felre/Desktop/pi-harness-init/artifacts/m",
+  "startedUtc": "2026-10-22T17:22:25.661Z",
+  "completedUtc": "2026-10-22T17:23:12.818Z",
+  "planned": {
+    "delete": [
+      "run:DJ-01:native-a-r2"
+    ],
+    "defer": [
+      "run:DJ-01:native-a"
+    ]
+  },
+  "evidencePreservedByParent": [
+    "work/DJ-01-azrael-memory-analysis/evidence/native-a",
+    "work/DJ-01-azrael-memory-analysis/evidence/native-a-r2"
+  ],
+  "registration": [
+    {
+      "id": "run:DJ-01:native-a-r2",
+      "membership_complete": true,
+      "memberIds": [
+        "b475dd0e69351674653b5d9027304c1f087bbfd468a1579f519b844102df7736"
+      ]
+    },
+    {
+      "id": "run:DJ-01:native-a",
+      "membership_complete": false,
+      "memberIds": [
+        "654fd1b5bd1ee01d15919f78e6e048b8366c20336e253fe59c7fc8d93de9162c",
+        "9da7ca62e82f4b3237e42ba3cd2c05da00efacc083fc7b00cf92dee3411b90cb"
+      ]
+    }
+  ],
+  "review": [
+    {
+      "id": "654fd1b5bd1ee01d15919f78e6e048b8366c20336e253fe59c7fc8d93de9162c",
+      "group": "run:DJ-01:native-a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\tasks\\DJ-01\\runs\\native-a",
+      "token": "9d1bcc9b3133454fcb055d3e93fbd37f4e0529a0f1ce74caa1a69fcecfd74172",
+      "verification": "registered",
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete",
+        "a lifecycle group member is protected"
+      ],
+      "logical_bytes": 31399
+    },
+    {
+      "id": "9da7ca62e82f4b3237e42ba3cd2c05da00efacc083fc7b00cf92dee3411b90cb",
+      "group": "run:DJ-01:native-a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\a",
+      "token": "4b159a797dae2060123c2015f45a3f0b582b265d1dcfc6ff7f83e1b4f53025bf",
+      "verification": "registered",
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete",
+        "a lifecycle group member is protected"
+      ],
+      "logical_bytes": 242
+    },
+    {
+      "id": "b475dd0e69351674653b5d9027304c1f087bbfd468a1579f519b844102df7736",
+      "group": "run:DJ-01:native-a-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r2",
+      "token": "a30ae8e6cc4a3381412907afbc95b019de042f1c37c56e2f4a140a995500c987",
+      "verification": "registered",
+      "blockers": [],
+      "logical_bytes": 459
+    }
+  ],
+  "decisions": [
+    {
+      "id": "654fd1b5bd1ee01d15919f78e6e048b8366c20336e253fe59c7fc8d93de9162c",
+      "token": "9d1bcc9b3133454fcb055d3e93fbd37f4e0529a0f1ce74caa1a69fcecfd74172",
+      "decision": "defer",
+      "reason": "Incomplete prelaunch producer reconciliation; retain original pending/unknown stop state",
+      "revisit_condition": "Owner supplies accepted exact child-stop proof and completes supported producer close; then refresh membership and review again"
+    },
+    {
+      "id": "9da7ca62e82f4b3237e42ba3cd2c05da00efacc083fc7b00cf92dee3411b90cb",
+      "token": "4b159a797dae2060123c2015f45a3f0b582b265d1dcfc6ff7f83e1b4f53025bf",
+      "decision": "defer",
+      "reason": "Incomplete prelaunch producer reconciliation; retain original pending/unknown stop state",
+      "revisit_condition": "Owner supplies accepted exact child-stop proof and completes supported producer close; then refresh membership and review again"
+    },
+    {
+      "id": "b475dd0e69351674653b5d9027304c1f087bbfd468a1579f519b844102df7736",
+      "token": "a30ae8e6cc4a3381412907afbc95b019de042f1c37c56e2f4a140a995500c987",
+      "decision": "delete",
+      "reason": "Failed preflight producer verified stopped; no consumers or blockers; JSON evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/native-a-r2"
+    }
+  ],
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DJ-01:native-a",
+        "status": "deferred"
+      },
+      {
+        "id": "run:DJ-01:native-a-r2",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "654fd1b5bd1ee01d15919f78e6e048b8366c20336e253fe59c7fc8d93de9162c",
+        "lifecycle_group_id": "run:DJ-01:native-a",
+        "reason": "Incomplete prelaunch producer reconciliation; retain original pending/unknown stop state",
+        "remaining": true,
+        "revisit_condition": "Owner supplies accepted exact child-stop proof and completes supported producer close; then refresh membership and review again",
+        "status": "deferred",
+        "token": "9d1bcc9b3133454fcb055d3e93fbd37f4e0529a0f1ce74caa1a69fcecfd74172"
+      },
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "9da7ca62e82f4b3237e42ba3cd2c05da00efacc083fc7b00cf92dee3411b90cb",
+        "lifecycle_group_id": "run:DJ-01:native-a",
+        "reason": "Incomplete prelaunch producer reconciliation; retain original pending/unknown stop state",
+        "remaining": true,
+        "revisit_condition": "Owner supplies accepted exact child-stop proof and completes supported producer close; then refresh membership and review again",
+        "status": "deferred",
+        "token": "4b159a797dae2060123c2015f45a3f0b582b265d1dcfc6ff7f83e1b4f53025bf"
+      },
+      {
+        "attempt_id": "attempt-61016-4-1792689775681",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "b475dd0e69351674653b5d9027304c1f087bbfd468a1579f519b844102df7736",
+        "lifecycle_group_id": "run:DJ-01:native-a-r2",
+        "reason": "Failed preflight producer verified stopped; no consumers or blockers; JSON evidence preserved in work/DJ-01-azrael-memory-analysis/evidence/native-a-r2",
+        "remaining": false,
+        "status": "deleted",
+        "token": "a30ae8e6cc4a3381412907afbc95b019de042f1c37c56e2f4a140a995500c987"
+      }
+    ]
+  },
+  "postcheck": {
+    "controlRootExists": true,
+    "configExists": true,
+    "paths": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r2",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\tasks\\DJ-01\\runs\\native-a",
+        "exists": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\m\\artifacts\\a",
+        "exists": true
+      }
+    ],
+    "producerStates": [
+      {
+        "id": "run:DJ-01:native-a-r2",
+        "state": "failed",
+        "membership_complete": true,
+        "producer": {
+          "status": "stopped",
+          "outcome": "failure",
+          "exit_code": 1
+        }
+      },
+      {
+        "id": "run:DJ-01:native-a",
+        "state": "pending",
+        "membership_complete": false,
+        "producer": null
+      }
+    ]
+  }
+}

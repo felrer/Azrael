@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checks": [
+    "read-only source",
+    "schema/checksum BLOB cloning",
+    "exact checkpoint/prefix",
+    "four selected IDs/counts/types",
+    "fixture-only paths",
+    "project/section isolation"
+  ],
+  "sourceHome": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r14\\temporary\\source",
+  "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r14\\temporary\\copy"
+}

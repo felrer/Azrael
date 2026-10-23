@@ -40,10 +40,14 @@ test("standalone activation starts one chat session before account bridge and vi
   try {
     const { ChatSession } = require("../src/chatSession") as typeof import("../src/chatSession");
     const { AccountService } = require("../src/accountService") as typeof import("../src/accountService");
+    const { AppServerTransport } = require("../src/appServerTransport") as typeof import("../src/appServerTransport");
+    const originalOwnerStart = AppServerTransport.prototype.start;
+    let starts = 0;
+    AppServerTransport.prototype.start = async function () { starts++; (this as any).connected = true; this.emit("ready"); return {}; };
     const originalStart = ChatSession.prototype.start;
     const originalConnect = AccountService.prototype.connect;
-    ChatSession.prototype.start = async function () { events.push("chat"); };
-    AccountService.prototype.connect = async function () { events.push("account"); return {} as any; };
+    ChatSession.prototype.start = async function () { events.push("chat"); await (this as any).wire.start(); };
+    AccountService.prototype.connect = async function () { events.push("account"); await (this as any).options.waitForEngineReady(1000, new AbortController().signal); return {} as any; };
     try {
       const extension = require("../src/extension") as typeof import("../src/extension");
       await extension.activate({
@@ -54,6 +58,7 @@ test("standalone activation starts one chat session before account bridge and vi
         subscriptions: []
       } as never);
       assert.deepEqual(events, ["chat", "account"]);
+      assert.equal(starts, 1);
       assert.ok(joinedPaths.includes(path.join(directory, "media", "fonts")));
       assert.ok(provider);
       provider.resolveWebviewView({
@@ -63,13 +68,14 @@ test("standalone activation starts one chat session before account bridge and vi
       assert.deepEqual(events, ["chat", "account"]);
       extension.deactivate();
     } finally {
+      AppServerTransport.prototype.start = originalOwnerStart;
       ChatSession.prototype.start = originalStart;
       AccountService.prototype.connect = originalConnect;
     }
   } finally {
     moduleApi._load = originalLoad;
     assert.ok(path.resolve(directory).startsWith(path.resolve(os.tmpdir()) + path.sep));
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { recursive: true });
   }
 });
 

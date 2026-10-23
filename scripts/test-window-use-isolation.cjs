@@ -45,6 +45,15 @@ async function fixture(t, options = {}) {
   return { controller, childSession, resources, calls, state, identity, setAllowed: value => { allowed = value; }, setAppAllowed: value => { appAllowed = value; }, setReleaseOk: value => { releaseOk = value; } };
 }
 async function ready(f) { const started = await f.controller.start({ ownerId: 'one' }); const launched = await f.controller.launch({ ownerId: 'one', parentIdentity: 'approved-parent' }); const captured = await f.controller.capture({ ownerId: 'one', targetId: launched.targetId }); return { started, launched, captured }; }
+test('explicit confirmed logoff discards old targets without forging disposable cleanup evidence',async t=>{
+  const f=await fixture(t),{launched,captured}=await ready(f);let forgotten=0;
+  f.childSession.forgetLoggedOff=async proof=>{forgotten++;assert.equal(proof.logoffConfirmed,true);return {retired:true};};
+  const result=await f.controller.explicitLogoff({logoffConfirmed:true,processesStopped:true,identity:f.identity});
+  assert.equal(result.retired,true);assert.equal(forgotten,1);
+  await assert.rejects(f.controller.capture({ownerId:'one',targetId:launched.targetId}),/lease|target/i);
+  await assert.rejects(f.controller.input({ownerId:'one',targetId:launched.targetId,observationId:captured.observationId,input:{kind:'text',text:'stale'}}),/lease|target/i);
+  assert.ok((await f.resources.inspect()).resources.length>0,'resource records require independent closure and cleanup');
+});
 
 test('fresh host observes exact external closure without adopting or stopping a live session', async t => {
   const f = await fixture(t);

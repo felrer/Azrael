@@ -1,0 +1,16 @@
+{
+  "lifecycleId": "run:DJ-01:native-a-r6",
+  "lifecycleIds": [
+    "run:DJ-01:native-a-r6"
+  ],
+  "status": "failed",
+  "caseStatus": "failed",
+  "producerStopped": true,
+  "startedUtc": "2026-10-22T16:33:26.610Z",
+  "endedUtc": "2026-10-22T16:34:28.407Z",
+  "seedHome": null,
+  "threadIds": [],
+  "seedThreads": [],
+  "seedReady": false,
+  "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r6\\reports\\report.json"
+}

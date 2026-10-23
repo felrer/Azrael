@@ -1,0 +1,683 @@
+{
+  "status": "failed",
+  "mode": "default",
+  "startedUtc": "2026-10-22T16:56:49.021Z",
+  "lifecycleId": "run:DJ-01:ui-default-3",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-3",
+  "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\d3",
+  "seed": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88",
+  "threadIds": [
+    "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+    "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+    "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c"
+  ],
+  "samples": [
+    {
+      "stage": "activated-no-conversation",
+      "atUtc": "2026-10-22T16:58:03.718Z",
+      "ui": {
+        "panels": [],
+        "pendingRequests": 0
+      },
+      "privateBytes": 1554059264,
+      "rendererPrivateBytes": 441532416,
+      "utilityPrivateBytes": 672464896,
+      "enginePrivateBytes": 5132288,
+      "rows": [
+        {
+          "atUtc": "2026-10-22T16:57:58.7861329Z",
+          "freeBytes": 4064903168,
+          "processes": [
+            {
+              "pid": 60940,
+              "ppid": 68224,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.1894650Z",
+              "privateBytes": 147689472,
+              "workingSetBytes": 256827392,
+              "handles": 1164,
+              "threads": 61
+            },
+            {
+              "pid": 58004,
+              "ppid": 60940,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.4236900Z",
+              "privateBytes": 9699328,
+              "workingSetBytes": 124567552,
+              "handles": 212,
+              "threads": 9
+            },
+            {
+              "pid": 13988,
+              "ppid": 60940,
+              "role": "gpu",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.5682870Z",
+              "privateBytes": 139468800,
+              "workingSetBytes": 195551232,
+              "handles": 674,
+              "threads": 52
+            },
+            {
+              "pid": 59088,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.5723200Z",
+              "privateBytes": 13250560,
+              "workingSetBytes": 132923392,
+              "handles": 374,
+              "threads": 25
+            },
+            {
+              "pid": 18616,
+              "ppid": 60940,
+              "role": "renderer",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.9374860Z",
+              "privateBytes": 440938496,
+              "workingSetBytes": 509702144,
+              "handles": 441,
+              "threads": 28
+            },
+            {
+              "pid": 41580,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:40.6313500Z",
+              "privateBytes": 196128768,
+              "workingSetBytes": 245374976,
+              "handles": 354,
+              "threads": 29
+            },
+            {
+              "pid": 70988,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.1934950Z",
+              "privateBytes": 194945024,
+              "workingSetBytes": 227209216,
+              "handles": 341,
+              "threads": 30
+            },
+            {
+              "pid": 56164,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.2119250Z",
+              "privateBytes": 80838656,
+              "workingSetBytes": 162099200,
+              "handles": 337,
+              "threads": 31
+            },
+            {
+              "pid": 55708,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.3520850Z",
+              "privateBytes": 187293696,
+              "workingSetBytes": 267935744,
+              "handles": 401,
+              "threads": 30
+            },
+            {
+              "pid": 68288,
+              "ppid": 41580,
+              "role": "copilot-runtime.exe",
+              "name": "copilot-runtime.exe",
+              "path": "c:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\2d0b7506a3\\resources\\app\\node_modules.asar.unpacked\\@github\\copilot-sdk-win32-x64\\prebuilds\\win32-x64\\copilot-runtime.exe",
+              "createdUtc": "2026-10-22T16:57:43.4106550Z",
+              "privateBytes": 102875136,
+              "workingSetBytes": 72306688,
+              "handles": 187,
+              "threads": 40
+            },
+            {
+              "pid": 29296,
+              "ppid": 68288,
+              "role": "conhost.exe",
+              "name": "conhost.exe",
+              "path": "C:\\WINDOWS\\system32\\conhost.exe",
+              "createdUtc": "2026-10-22T16:57:43.4449450Z",
+              "privateBytes": 1265664,
+              "workingSetBytes": 7778304,
+              "handles": 96,
+              "threads": 4
+            },
+            {
+              "pid": 42324,
+              "ppid": 55708,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:45.4902030Z",
+              "privateBytes": 30121984,
+              "workingSetBytes": 142299136,
+              "handles": 211,
+              "threads": 12
+            },
+            {
+              "pid": 57900,
+              "ppid": 55708,
+              "role": "azrael.exe",
+              "name": "azrael.exe",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+              "createdUtc": "2026-10-22T16:57:53.9671710Z",
+              "privateBytes": 5300224,
+              "workingSetBytes": 133492736,
+              "handles": 186,
+              "threads": 24
+            },
+            {
+              "pid": 74352,
+              "ppid": 57900,
+              "role": "conhost.exe",
+              "name": "conhost.exe",
+              "path": "C:\\WINDOWS\\system32\\conhost.exe",
+              "createdUtc": "2026-10-22T16:57:53.9943140Z",
+              "privateBytes": 1232896,
+              "workingSetBytes": 7602176,
+              "handles": 99,
+              "threads": 3
+            }
+          ]
+        },
+        {
+          "atUtc": "2026-10-22T16:58:01.1929817Z",
+          "freeBytes": 3894697984,
+          "processes": [
+            {
+              "pid": 60940,
+              "ppid": 68224,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.1894650Z",
+              "privateBytes": 147689472,
+              "workingSetBytes": 256827392,
+              "handles": 1164,
+              "threads": 61
+            },
+            {
+              "pid": 58004,
+              "ppid": 60940,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.4236900Z",
+              "privateBytes": 9699328,
+              "workingSetBytes": 124567552,
+              "handles": 212,
+              "threads": 9
+            },
+            {
+              "pid": 13988,
+              "ppid": 60940,
+              "role": "gpu",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.5682870Z",
+              "privateBytes": 136650752,
+              "workingSetBytes": 194719744,
+              "handles": 676,
+              "threads": 52
+            },
+            {
+              "pid": 59088,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.5723200Z",
+              "privateBytes": 13250560,
+              "workingSetBytes": 132923392,
+              "handles": 374,
+              "threads": 25
+            },
+            {
+              "pid": 18616,
+              "ppid": 60940,
+              "role": "renderer",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.9374860Z",
+              "privateBytes": 441532416,
+              "workingSetBytes": 510246912,
+              "handles": 441,
+              "threads": 28
+            },
+            {
+              "pid": 41580,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:40.6313500Z",
+              "privateBytes": 196128768,
+              "workingSetBytes": 245374976,
+              "handles": 354,
+              "threads": 29
+            },
+            {
+              "pid": 70988,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.1934950Z",
+              "privateBytes": 194945024,
+              "workingSetBytes": 227209216,
+              "handles": 341,
+              "threads": 30
+            },
+            {
+              "pid": 56164,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.2119250Z",
+              "privateBytes": 80838656,
+              "workingSetBytes": 162099200,
+              "handles": 337,
+              "threads": 31
+            },
+            {
+              "pid": 55708,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.3520850Z",
+              "privateBytes": 187301888,
+              "workingSetBytes": 268009472,
+              "handles": 401,
+              "threads": 30
+            },
+            {
+              "pid": 68288,
+              "ppid": 41580,
+              "role": "copilot-runtime.exe",
+              "name": "copilot-runtime.exe",
+              "path": "c:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\2d0b7506a3\\resources\\app\\node_modules.asar.unpacked\\@github\\copilot-sdk-win32-x64\\prebuilds\\win32-x64\\copilot-runtime.exe",
+              "createdUtc": "2026-10-22T16:57:43.4106550Z",
+              "privateBytes": 102875136,
+              "workingSetBytes": 72306688,
+              "handles": 187,
+              "threads": 40
+            },
+            {
+              "pid": 29296,
+              "ppid": 68288,
+              "role": "conhost.exe",
+              "name": "conhost.exe",
+              "path": "C:\\WINDOWS\\system32\\conhost.exe",
+              "createdUtc": "2026-10-22T16:57:43.4449450Z",
+              "privateBytes": 1265664,
+              "workingSetBytes": 7778304,
+              "handles": 96,
+              "threads": 4
+            },
+            {
+              "pid": 42324,
+              "ppid": 55708,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:45.4902030Z",
+              "privateBytes": 30121984,
+              "workingSetBytes": 142299136,
+              "handles": 211,
+              "threads": 12
+            },
+            {
+              "pid": 57900,
+              "ppid": 55708,
+              "role": "azrael.exe",
+              "name": "azrael.exe",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+              "createdUtc": "2026-10-22T16:57:53.9671710Z",
+              "privateBytes": 5394432,
+              "workingSetBytes": 133746688,
+              "handles": 193,
+              "threads": 24
+            },
+            {
+              "pid": 74352,
+              "ppid": 57900,
+              "role": "conhost.exe",
+              "name": "conhost.exe",
+              "path": "C:\\WINDOWS\\system32\\conhost.exe",
+              "createdUtc": "2026-10-22T16:57:53.9943140Z",
+              "privateBytes": 1232896,
+              "workingSetBytes": 7602176,
+              "handles": 99,
+              "threads": 3
+            },
+            {
+              "pid": 20084,
+              "ppid": 57900,
+              "role": "engine",
+              "name": "azrael.exe",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+              "createdUtc": "2026-10-22T16:57:59.9508720Z",
+              "privateBytes": 5132288,
+              "workingSetBytes": 132632576,
+              "handles": 161,
+              "threads": 22
+            }
+          ]
+        },
+        {
+          "atUtc": "2026-10-22T16:58:03.5848761Z",
+          "freeBytes": 3821735936,
+          "processes": [
+            {
+              "pid": 60940,
+              "ppid": 68224,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.1894650Z",
+              "privateBytes": 147689472,
+              "workingSetBytes": 256827392,
+              "handles": 1164,
+              "threads": 61
+            },
+            {
+              "pid": 58004,
+              "ppid": 60940,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.4236900Z",
+              "privateBytes": 9699328,
+              "workingSetBytes": 124567552,
+              "handles": 212,
+              "threads": 9
+            },
+            {
+              "pid": 13988,
+              "ppid": 60940,
+              "role": "gpu",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.5682870Z",
+              "privateBytes": 135933952,
+              "workingSetBytes": 194166784,
+              "handles": 676,
+              "threads": 52
+            },
+            {
+              "pid": 59088,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.5723200Z",
+              "privateBytes": 13250560,
+              "workingSetBytes": 132923392,
+              "handles": 374,
+              "threads": 25
+            },
+            {
+              "pid": 18616,
+              "ppid": 60940,
+              "role": "renderer",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:38.9374860Z",
+              "privateBytes": 442830848,
+              "workingSetBytes": 511373312,
+              "handles": 441,
+              "threads": 28
+            },
+            {
+              "pid": 41580,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:40.6313500Z",
+              "privateBytes": 196128768,
+              "workingSetBytes": 245374976,
+              "handles": 354,
+              "threads": 29
+            },
+            {
+              "pid": 70988,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.1934950Z",
+              "privateBytes": 194945024,
+              "workingSetBytes": 227209216,
+              "handles": 341,
+              "threads": 30
+            },
+            {
+              "pid": 56164,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.2119250Z",
+              "privateBytes": 80846848,
+              "workingSetBytes": 162107392,
+              "handles": 337,
+              "threads": 31
+            },
+            {
+              "pid": 55708,
+              "ppid": 60940,
+              "role": "utility",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:41.3520850Z",
+              "privateBytes": 187301888,
+              "workingSetBytes": 268140544,
+              "handles": 410,
+              "threads": 30
+            },
+            {
+              "pid": 68288,
+              "ppid": 41580,
+              "role": "copilot-runtime.exe",
+              "name": "copilot-runtime.exe",
+              "path": "c:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\2d0b7506a3\\resources\\app\\node_modules.asar.unpacked\\@github\\copilot-sdk-win32-x64\\prebuilds\\win32-x64\\copilot-runtime.exe",
+              "createdUtc": "2026-10-22T16:57:43.4106550Z",
+              "privateBytes": 102875136,
+              "workingSetBytes": 72306688,
+              "handles": 187,
+              "threads": 40
+            },
+            {
+              "pid": 29296,
+              "ppid": 68288,
+              "role": "conhost.exe",
+              "name": "conhost.exe",
+              "path": "C:\\WINDOWS\\system32\\conhost.exe",
+              "createdUtc": "2026-10-22T16:57:43.4449450Z",
+              "privateBytes": 1265664,
+              "workingSetBytes": 7778304,
+              "handles": 96,
+              "threads": 4
+            },
+            {
+              "pid": 42324,
+              "ppid": 55708,
+              "role": "code-other",
+              "name": "Code.exe",
+              "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+              "createdUtc": "2026-10-22T16:57:45.4902030Z",
+              "privateBytes": 30126080,
+              "workingSetBytes": 142311424,
+              "handles": 211,
+              "threads": 12
+            },
+            {
+              "pid": 57900,
+              "ppid": 55708,
+              "role": "azrael.exe",
+              "name": "azrael.exe",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+              "createdUtc": "2026-10-22T16:57:53.9671710Z",
+              "privateBytes": 5783552,
+              "workingSetBytes": 134373376,
+              "handles": 207,
+              "threads": 25
+            },
+            {
+              "pid": 74352,
+              "ppid": 57900,
+              "role": "conhost.exe",
+              "name": "conhost.exe",
+              "path": "C:\\WINDOWS\\system32\\conhost.exe",
+              "createdUtc": "2026-10-22T16:57:53.9943140Z",
+              "privateBytes": 1232896,
+              "workingSetBytes": 7602176,
+              "handles": 99,
+              "threads": 3
+            },
+            {
+              "pid": 20084,
+              "ppid": 57900,
+              "role": "engine",
+              "name": "azrael.exe",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+              "createdUtc": "2026-10-22T16:57:59.9508720Z",
+              "privateBytes": 16687104,
+              "workingSetBytes": 142651392,
+              "handles": 262,
+              "threads": 39
+            },
+            {
+              "pid": 25500,
+              "ppid": 55708,
+              "role": "azrael-bridge.exe",
+              "name": "azrael-bridge.exe",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael-bridge.exe",
+              "createdUtc": "2026-10-22T16:58:02.6849090Z",
+              "privateBytes": 1142784,
+              "workingSetBytes": 11345920,
+              "handles": 16,
+              "threads": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "stages": [],
+  "modifications": [
+    "fixture state home",
+    "diagnostic globals in copied host",
+    "synthetic auth responses; no valid credential",
+    "fixture thread/resume provider binding",
+    "external Devin CLI probes omitted from fixture"
+  ],
+  "limitations": [
+    "Windows x64 only",
+    "synthetic history; no live provider or active jobs",
+    "other host workloads may contend",
+    "renderer working sets include shared pages; heaps must not be added across contexts"
+  ],
+  "sourceManifestHash": "7053e2d78d4d68ce2dcf20279f44cfe6928634bbf202d5d238a3599b60606a1d",
+  "sourceHostHash": "42b414e1e84355cc81e09c2e8892792a7232457936164b23da2843e7ec1679ed",
+  "instrumentedHostHash": "78360fe3cc47c1cc9ea4120f1575745c02e8a5e801b2043a67fc8244c6bee388",
+  "launchPid": 60940,
+  "ports": {
+    "inspector": 12243,
+    "renderer": 12244
+  },
+  "extensionHostPid": 55708,
+  "error": "AssertionError [ERR_ASSERTION]: native history rows not rendered\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs:122:62)",
+  "normalCloseSent": true,
+  "processesStopped": true,
+  "observedProcesses": [
+    {
+      "pid": 60940,
+      "createdUtc": "2026-10-22T16:57:38.1894650Z"
+    },
+    {
+      "pid": 58004,
+      "createdUtc": "2026-10-22T16:57:38.4236900Z"
+    },
+    {
+      "pid": 13988,
+      "createdUtc": "2026-10-22T16:57:38.5682870Z"
+    },
+    {
+      "pid": 59088,
+      "createdUtc": "2026-10-22T16:57:38.5723200Z"
+    },
+    {
+      "pid": 18616,
+      "createdUtc": "2026-10-22T16:57:38.9374860Z"
+    },
+    {
+      "pid": 41580,
+      "createdUtc": "2026-10-22T16:57:40.6313500Z"
+    },
+    {
+      "pid": 70988,
+      "createdUtc": "2026-10-22T16:57:41.1934950Z"
+    },
+    {
+      "pid": 56164,
+      "createdUtc": "2026-10-22T16:57:41.2119250Z"
+    },
+    {
+      "pid": 55708,
+      "createdUtc": "2026-10-22T16:57:41.3520850Z"
+    },
+    {
+      "pid": 68288,
+      "createdUtc": "2026-10-22T16:57:43.4106550Z"
+    },
+    {
+      "pid": 29296,
+      "createdUtc": "2026-10-22T16:57:43.4449450Z"
+    },
+    {
+      "pid": 42324,
+      "createdUtc": "2026-10-22T16:57:45.4902030Z"
+    },
+    {
+      "pid": 57900,
+      "createdUtc": "2026-10-22T16:57:53.9671710Z"
+    },
+    {
+      "pid": 74352,
+      "createdUtc": "2026-10-22T16:57:53.9943140Z"
+    },
+    {
+      "pid": 20084,
+      "createdUtc": "2026-10-22T16:57:59.9508720Z"
+    },
+    {
+      "pid": 25500,
+      "createdUtc": "2026-10-22T16:58:02.6849090Z"
+    }
+  ],
+  "launchExitCode": 0,
+  "finishedUtc": "2026-10-22T16:58:29.093Z",
+  "exitCode": 1
+}

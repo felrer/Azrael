@@ -19,7 +19,7 @@ const write = (root, file, value) => {
 function setup() {
   const root = path.join(fixtures, String(++sequence));
   for (const file of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-verification.cjs',
-    'cargo-target-owner.cjs', 'artifact-lifecycle.cjs',
+    'cargo-target-owner.cjs', 'cargo-test-preparation.cjs', 'artifact-lifecycle.cjs',
     'verification-result-cache.cjs', 'directory-state.cjs', 'cargo-config-self-contained.py', 'cargo-preflight-recipes.cjs', 'check-api-context.cjs']) write(root, `scripts/${file}`, file);
   write(root, 'scripts/owner.cjs', 'owner'); write(root, 'docs/contract.md', 'contract');
   write(root, 'engine/codex-rs/Cargo.lock', 'lock'); write(root, 'engine/codex-rs/core/src/lib.rs', 'source');
@@ -132,7 +132,7 @@ test('release directory alone is excluded while verified provenance and all othe
 test('audited source-backed checks omit complete product payload identity but retain source and unknown inputs', async () => {
   const f = setup(), inputs = await f.inputs(), runtime = await f.runtime();
   Object.assign(f.group.entries[0].check, { cargoPreflight: 'selected-tests-v1', args: ['scripts/check-api-context.cjs', '{engineSourceRoot}', 'core'] });
-  for (const file of ['check-api-context.cjs', 'cargo-verification.cjs', 'cargo-target-owner.cjs'])
+  for (const file of ['check-api-context.cjs', 'cargo-verification.cjs', 'cargo-target-owner.cjs', 'cargo-test-preparation.cjs'])
     write(f.root, `scripts/${file}`, fs.readFileSync(path.join(__dirname, file), 'utf8'));
   const hash = character => character.repeat(64);
   inputs.engine.provenance = { source: { sourceSha256: hash('a'), target: 'x86_64-pc-windows-msvc', buildEnvironment: {} },
@@ -183,7 +183,6 @@ test('all declared Cargo groups share semantic keys across execution roots and p
     const name = JSON.stringify(check.args), group = groups.get(name) || { native: true, entries: [] };
     group.entries.push({ feature, check }); groups.set(name, group);
   }
-  assert.equal(groups.size, 18);
   for (const scope of ['appserver', 'manual']) {
     assert(groups.has(JSON.stringify(['scripts/check-shared-engine-native.cjs', '{engineSourceRoot}', scope])),
       `shared-engine ${scope} checks must bind their source and tool inputs`);

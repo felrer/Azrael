@@ -29,7 +29,7 @@ try {
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
 $changedCases = @('policy selection', 'full install', 'module cache install', 'exhaustive regression verify only', 'related integration verify only', 'explicit policy verify only', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 $pwsh = (Get-Process -Id $PID).Path
-$changedCases += @('environment preflight failure', 'cargo planner gap', 'test preparation failure', 'missing registered cache project', 'test preparation input mutation', 'temporary references preserved', 'registered engine owner selection', 'account socket path')
+$changedCases += @('environment preflight failure', 'missing registered cache project', 'temporary references preserved', 'registered engine owner selection', 'account socket path')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -387,10 +387,16 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             $selected=@(Get-FocusedEngineFeatureIds -PolicyPaths @('engine/codex-rs/oauth/src/store_tests.rs') -EngineSourceRoot $engine)
             Assert-True ('engine.oauth' -cin $selected -and 'engine.other' -cnotin $selected) 'changed registered Rust test owner not selected precisely'
             $docs=@(Get-FocusedEngineFeatureIds -PolicyPaths @('docs/README.md') -EngineSourceRoot $engine)
-            Assert-True (($docs -join '|') -ceq 'engine.provider-context|engine.recovery|engine.accepted-input') 'documentation-only input expanded engine selection'
+            Assert-True ($docs.Count -eq 0) 'documentation-only input expanded engine selection'
             foreach($changed in @('engine/codex-rs/unowned.rs','scripts/cargo-verification.cjs')){
-                $all=@(Get-FocusedEngineFeatureIds -PolicyPaths @($changed) -EngineSourceRoot $engine)
-                Assert-True ('engine.oauth' -cin $all -and 'engine.other' -cin $all -and 'ui.fixture' -cnotin $all) 'unmapped Rust or shared Cargo owner did not select registered engine checks conservatively'
+                $rejected = $false
+                try { Get-FocusedEngineFeatureIds -PolicyPaths @($changed) -EngineSourceRoot $engine | Out-Null }
+                catch { $rejected = $_.Exception.Message -match 'Unmapped engine verification scope.*EngineFeatureId' }
+                Assert-True $rejected 'unmapped native scope did not require an explicit bundle choice'
+                $explicit = @(Get-FocusedEngineFeatureIds -PolicyPaths @($changed) -EngineSourceRoot $engine -EngineFeatureId @('engine.other') -ExplicitSelection)
+                Assert-True (($explicit -join '|') -ceq 'engine.other') 'explicit engine bundle selection lost'
+                $empty = @(Get-FocusedEngineFeatureIds -PolicyPaths @($changed) -EngineSourceRoot $engine -EngineFeatureId @() -ExplicitSelection)
+                Assert-True ($empty.Count -eq 0) 'explicit empty engine bundle selection lost'
             }
         }finally{$project=$savedProject}
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null});return
@@ -404,36 +410,6 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         try {
             $project = $root
             $defaultEngine = Join-Path $root 'engine'
-            $baseFeatures = 'engine.provider-context|engine.recovery|engine.accepted-input'
-            $integrationFeatures = "$baseFeatures|engine.thread-auto-compaction-integration"
-            $displayPath = 'extensions/azrael-ex/src/usagePresentation.ts'
-            foreach ($paths in @(@('docs/README.md'), @($displayPath), @($displayPath, 'docs/README.md', 'scripts/inject-content-fonts.cjs'))) {
-                $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot $defaultEngine)
-                Assert-True (($selected -join '|') -ceq $baseFeatures) 'display-only selection changed the fixed base features or retained integration'
-                $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot (Join-Path $root 'external-engine'))
-                Assert-True (($selected -join '|') -ceq $integrationFeatures) 'external engine omitted integration or fixed base features'
-            }
-            $relatedPaths = @(
-                'engine/codex-rs/unlisted/new.rs', 'scripts/source-test-policy.cjs',
-                'extensions/azrael-ex/src/usageView.ts', 'extensions/azrael-ex/src/protocol.ts',
-                'extensions/azrael-ex/src/providerAccountProtocol.ts', 'extensions/azrael-ex/src/providerBrandAssets.ts',
-                'extensions/azrael-ex/media/content-font-policy.cjs', 'extensions/azrael-ex/src/extension.ts',
-                'extensions/azrael-ex/src/hostRequest.ts', 'extensions/azrael-ex/src/context.ts',
-                'extensions/azrael-ex/src/queue.ts', 'extensions/azrael-ex/src/recovery.ts',
-                'extensions/azrael-ex/src/unlisted.ts', 'extensions/another/src/usagePresentation.ts',
-                'extension/usagePresentation.ts', 'extensions/azrael-ex/src/usagePresentation.ts/new.ts',
-                'extensions/azrael-ex/src/UsagePresentation.ts', '', ' '
-            )
-            foreach ($path in $relatedPaths) {
-                foreach ($paths in @(@($path), @($displayPath, $path))) {
-                    $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot $defaultEngine)
-                    Assert-True (($selected -join '|') -ceq $integrationFeatures) "related or mixed input omitted integration or fixed base features: $path"
-                }
-            }
-            foreach ($paths in @($null, @())) {
-                $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot $defaultEngine)
-                Assert-True (($selected -join '|') -ceq $integrationFeatures) 'unknown input omitted integration or fixed base features'
-            }
             Write-Utf8 (Join-Path $root 'tracked.txt') 'baseline'
             & git -C $root init --quiet
             Assert-True ($LASTEXITCODE -eq 0) 'policy fixture init failed'
@@ -477,7 +453,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             foreach ($changed in $largePaths) { $sourceTestArgs += @('--changed', $changed) }
             $sourceTestArgs += '--list'
             $transportStart = $deployText.IndexOf("    `$sourceTestArgsPath = Join-Path")
-            $transportEnd = $deployText.IndexOf("    `$testPreparation =", $transportStart)
+            $transportEnd = $deployText.IndexOf("    `$build =", $transportStart)
             function Start-OwnedCommand { param($Name, $Executable, [string[]]$Arguments) [pscustomobject]@{Executable=$Executable;Arguments=$Arguments} }
             $metrics = [ordered]@{}
             . ([scriptblock]::Create($deployText.Substring($transportStart, $transportEnd - $transportStart)))
@@ -534,24 +510,11 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
   }
   console.log(JSON.stringify({environmentPatch:{TEMP:config.temporaryDirectory,TMP:config.temporaryDirectory,TMPDIR:config.temporaryDirectory},required:{python:false,cargo:false}}));return;
  }
- if(process.argv.includes('--prepare-tests')){
-  if(['test-preparation-fail','test-preparation-mutation'].includes(s.mode)){
-   const deadline=Date.now()+10000;
-   while(!fs.existsSync(path.join(a,'source-start.json'))){if(Date.now()>deadline)throw Error('owned source sibling did not start');await new Promise(resolve=>setTimeout(resolve,20));}
-   if(s.mode==='test-preparation-fail'){console.error('causal test type preparation failure');process.exitCode=62;return;}
-   fs.writeFileSync(path.join(root,'input.txt'),'mutated by test preparation');
-  }
-  console.log(JSON.stringify({status:0,preparations:[]}));return;
- }
  if(s.mode==='dependencies-fail'){console.error('causal dependency failure');process.exitCode=52;return;}
  console.log('{}');
 })().catch(error=>{console.error(error);process.exitCode=9;});
 '@
-    Write-Utf8 (Join-Path $scripts 'cargo-preflight-recipes.cjs') @'
-const fs=require('node:fs'),path=require('node:path');
-const s=JSON.parse(fs.readFileSync(path.join(path.dirname(__dirname),'artifacts/scenario.json')));
-console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-gap'?[{path:'engine/codex-rs/unowned/tests.rs',reason:'No registered preparation recipe'}]:[],skipped:[]}));
-'@
+    @{features=@(@{id='engine.fixture';area='engine';owners=@('engine/codex-rs/core/src/session/mod.rs')})} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $scripts 'azrael-feature-contracts.json') -Encoding utf8NoBOM
     Write-Utf8 (Join-Path $scripts 'build-azrael.ps1') $buildStub
     Write-Utf8 (Join-Path $scripts 'check-accounts.mjs') $accountControlsStub
     Write-Utf8 (Join-Path $scripts 'prepare-independent-vscode.ps1') $prepareStub
@@ -634,34 +597,15 @@ console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-ga
         return
     }
     $metrics=Get-Content -LiteralPath $metricsPath -Raw | ConvertFrom-Json
-    if($Mode -in @('environment-preflight-fail','cargo-planner-gap','test-preparation-fail','missing-registered-cache-project','test-preparation-mutation')){
-        Assert-True ($exit -ne 0 -and $metrics.status -ceq 'failed') 'early preparation rejection did not abort deploy'
-        foreach($marker in @('build-start.json','native-start.json','prepare-invocation.json','account-invocation.json','check-invocation.json','install-invocation.json')){
-            Assert-True (-not (Test-Path -LiteralPath (Join-Path $a $marker))) "early preparation rejection started downstream: $marker"
-        }
-        $stages=@($metrics.stages)
-        if($Mode -in @('environment-preflight-fail','cargo-planner-gap','missing-registered-cache-project')){
-            Assert-True (-not (Test-Path -LiteralPath (Join-Path $a 'source-start.json'))) 'early prerequisite rejection started source tests'
-            Assert-True (@($stages | Where-Object name -eq 'changed-test-type-preparation').Count -eq 0) 'early prerequisite rejection started compilation'
+    if($Mode -in @('environment-preflight-fail','missing-registered-cache-project')){
+        Assert-True ($exit -ne 0 -and $metrics.status -ceq 'failed') 'early prerequisite rejection did not abort deploy'
+        foreach($marker in @('source-start.json','build-start.json','native-start.json','prepare-invocation.json','account-invocation.json','check-invocation.json','install-invocation.json')){
+            Assert-True (-not (Test-Path -LiteralPath (Join-Path $a $marker))) "early prerequisite rejection started downstream: $marker"
         }
         if($Mode -eq 'environment-preflight-fail'){
-            Assert-True (@($stages | Where-Object { $_.name -eq 'environment-preflight' -and $_.exitCode -eq 61 }).Count -eq 1) 'actual environment preflight exit lost'
-        }elseif($Mode -eq 'cargo-planner-gap'){
-            Assert-True (@($stages | Where-Object { $_.name -eq 'cargo-preparation-plan' -and $_.exitCode -eq 0 }).Count -eq 1) 'planner successful command exit lost'
-            Assert-True ((Get-Content -LiteralPath $stages[-1].stdout -Raw | ConvertFrom-Json).gaps.Count -eq 1) 'planner gap evidence lost'
-        }elseif($Mode -eq 'missing-registered-cache-project'){
-            Assert-True ((Get-Content -LiteralPath (Join-Path $logs "$Name.stderr.log") -Raw) -match 'Missing registered cache project') 'cache project registry cause lost'
+            Assert-True (@($metrics.stages | Where-Object { $_.name -eq 'environment-preflight' -and $_.exitCode -eq 61 }).Count -eq 1) 'actual environment preflight exit lost'
         }else{
-            $preparation=@($stages | Where-Object name -eq 'changed-test-type-preparation')
-            $source=@($stages | Where-Object name -eq 'source-tests')
-            Assert-True ($preparation.Count -eq 1 -and $preparation[0].exitCode -eq $(if($Mode -eq 'test-preparation-fail'){62}else{0})) 'actual preparation exit lost'
-            Assert-True ($source.Count -eq 1 -and $source[0].terminated -and $null -ne $source[0].exitCode) 'owned source sibling was not collected'
-            $ownedPid=(Get-Content -LiteralPath (Join-Path $a 'source-start.json') -Raw | ConvertFrom-Json).pid
-            Assert-True ($null -eq (Get-Process -Id $ownedPid -ErrorAction SilentlyContinue)) 'owned source sibling survived rejection'
-            if($Mode -eq 'test-preparation-mutation'){
-                $difference=Get-Content -LiteralPath (Join-Path $a 'logs/deploy-chosen/input-changes-post-test-preparation.json') -Raw | ConvertFrom-Json
-                Assert-True ($difference.status -ceq 'consumed-inputs-changed' -and @($difference.changes).Count -eq 1 -and $difference.changes[0].path -ceq 'input.txt' -and $difference.changes[0].kind -ceq 'modified') 'preparation mutation did not produce the exact consumed input difference'
-            }
+            Assert-True ((Get-Content -LiteralPath (Join-Path $logs "$Name.stderr.log") -Raw) -match 'Missing registered cache project') 'cache project registry cause lost'
         }
         $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath});return
     }
@@ -707,7 +651,7 @@ console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-ga
         Assert-True ($metrics.status -ceq 'failed') 'preservation rejection was not reported as failed'
         $calls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         $stageNames=@($metrics.stages.name)
-        $expectedStages='environment-preflight|cargo-preparation-plan|verification-dependencies|engine-source-preflight|source-tests|changed-test-type-preparation|build|engine-preservation|prepare'
+        $expectedStages='environment-preflight|verification-dependencies|engine-source-preflight|source-tests|build|engine-preservation|prepare'
         $expectedActions='run|run'
         $markers=@('check-invocation.json','install-invocation.json')
         if($Mode -like 'package-preservation-*'){
@@ -799,14 +743,14 @@ console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-ga
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
             Assert-True ($call.config.reuseNativeChecks -is [bool] -and $call.config.reuseNativeChecks -eq (-not $ForceNative)) 'native preservation reuse policy lost'
             if($FullRegression){Assert-True ($null -eq $call.config.PSObject.Properties['featureIds']) 'full engine preservation was restricted'}
-            else{Assert-True ((@($call.config.featureIds) -join '|') -ceq 'engine.provider-context|engine.recovery|engine.accepted-input|engine.thread-auto-compaction-integration') 'changed engine preservation scope lost'}
+            else{Assert-True ((@($call.config.featureIds) -join '|') -ceq $(if($PolicyChangedPath -ceq 'engine/codex-rs/core/src/session/mod.rs'){'engine.fixture'}else{''})) 'changed engine preservation scope lost'}
         }
         $expectedUiIds=if($FullRegression){$uiFeatureIds}else{@()}
         foreach($call in @($preservationCalls | Where-Object action -eq 'verify')){
             Assert-True ($null -ne $call.config.PSObject.Properties['featureIds']) 'package verification feature selection missing'
             Assert-True ((@($call.config.featureIds) -join '|') -ceq (@($expectedUiIds) -join '|')) 'package verification feature scope lost'
         }
-        Assert-True (($metrics.inputChecks.phase -join '|') -ceq 'initial|post-test-preparation|post-build|pre-install') 'whole-project guard phases changed or redundant guard returned'
+        Assert-True (($metrics.inputChecks.phase -join '|') -ceq 'initial|post-build|pre-install') 'whole-project guard phases changed or redundant guard returned'
         foreach($inputCheck in $metrics.inputChecks){
             Assert-True ($inputCheck.exitCode -eq 0 -and $inputCheck.durationMs -ge 0 -and $inputCheck.fileCount -gt 0 -and $inputCheck.bytes -gt 0) 'missing successful content-snapshot metrics'
             Assert-True ($inputCheck.sha256 -ceq $metrics.projectInputSha256 -and (Test-Path -LiteralPath $inputCheck.report)) 'input guard digest/report lost'
@@ -919,10 +863,7 @@ console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-ga
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'
     Invoke-Case 'registered engine owner selection' 'registered-owner-selection'
-    Invoke-Case 'cargo planner gap' 'cargo-planner-gap'
-    Invoke-Case 'test preparation failure' 'test-preparation-fail'
     Invoke-Case 'missing registered cache project' 'missing-registered-cache-project'
-    Invoke-Case 'test preparation input mutation' 'test-preparation-mutation'
     Invoke-Case 'temporary references preserved' 'success'
     Invoke-Case 'policy selection' 'policy-selection'
     Invoke-Case 'engine-source-preflight-fail' 'engine-source-preflight-fail'

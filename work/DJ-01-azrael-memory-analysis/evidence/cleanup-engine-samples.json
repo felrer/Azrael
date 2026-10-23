@@ -1,0 +1,35 @@
+﻿[
+    {
+        "utc":  "2026-10-22T20:21:40.7293102Z",
+        "pid":  61336,
+        "startUtc":  "2026-10-22T18:24:33.1746029Z",
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "privateMiB":  3136.65,
+        "workingSetMiB":  2221.42,
+        "cpuSeconds":  6634.921875,
+        "handles":  1598,
+        "freeGiB":  13.13
+    },
+    {
+        "utc":  "2026-10-22T20:21:42.9644389Z",
+        "pid":  61336,
+        "startUtc":  "2026-10-22T18:24:33.1746029Z",
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "privateMiB":  3136.65,
+        "workingSetMiB":  2221.42,
+        "cpuSeconds":  6637.328125,
+        "handles":  1599,
+        "freeGiB":  13.15
+    },
+    {
+        "utc":  "2026-10-22T20:21:45.1901035Z",
+        "pid":  61336,
+        "startUtc":  "2026-10-22T18:24:33.1746029Z",
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "privateMiB":  3137.65,
+        "workingSetMiB":  2222.16,
+        "cpuSeconds":  6639.78125,
+        "handles":  1598,
+        "freeGiB":  12.9
+    }
+]

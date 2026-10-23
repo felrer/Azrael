@@ -1,0 +1,12 @@
+{
+  "engineInitialized": true,
+  "bridgeConnected": true,
+  "profileCount": 3,
+  "hasCurrentAccount": true,
+  "hasActiveProfile": true,
+  "hasActiveTurns": false,
+  "requiresOpenaiAuth": true,
+  "accountPresent": true,
+  "accountType": "chatgpt",
+  "authUnchanged": true
+}

@@ -206,9 +206,14 @@ async function verifyLogs(receipt) {
     if (!check.logPath || !check.errorPath || await fileHash(check.logPath) !== check.logSha256 || await fileHash(check.errorPath) !== check.errorSha256) throw Error(`Check evidence changed: ${check.checkId}`);
   }
 }
-function checkEnvironment(config) {
+function checkEnvironment(config, preparation) {
   return { ...process.env, ...(config.cargoTargetDirectory ? { CARGO_TARGET_DIR: config.cargoTargetDirectory } : {}), AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
-    AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js') };
+    AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js'),
+    ...(preparation?.sourceIdentity ? {
+      AZRAEL_CARGO_PREPARATION_DIR: preparation.directory,
+      AZRAEL_CARGO_PREPARATION_SOURCE_IDENTITY: preparation.sourceIdentity,
+      ...(preparation.runtimeIdentity ? { AZRAEL_CARGO_PREPARATION_RUNTIME_IDENTITY: preparation.runtimeIdentity } : {}),
+    } : {}) };
 }
 async function sourceExecutionIdentity(config) {
   return { executable: process.execPath, sha256: await fileHash(process.execPath),
@@ -466,7 +471,10 @@ async function runPreservation(config) {
         const reused = Boolean(handle?.hit);
         const started = performance.now();
         const result = { ...(handle?.hit || await execution(check.executable, args, { cwd: config.projectRoot,
-          env: checkEnvironment(config), logPath, errorPath })), logPath, errorPath };
+          env: checkEnvironment(config, group.native ? {
+            directory: path.join(runDirectory, 'cargo-preparation'), sourceIdentity: receipt.inputs.engineSource?.sha256,
+            runtimeIdentity: cargoRuntime ? hash(canonical(cargoRuntime)) : undefined,
+          } : undefined), logPath, errorPath })), logPath, errorPath };
         if (handle) cacheHandles.find(entry => entry.handle === handle).record = result;
         receipt.cache[reused ? 'reused' : 'executed']++;
         if (group.native) (kind === 'cargo' ? receipt.cargoCache : receipt.nativeCache)[reused ? 'reused' : 'executed']++;

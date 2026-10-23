@@ -6,6 +6,8 @@
       "area": "ui",
       "owners": [
         "scripts/inject-question-withdrawal.cjs",
+        "scripts/test-question-withdrawal.cjs",
+        "scripts/verify-question-withdrawal-render.mjs",
         "scripts/inject-question-queue.cjs",
         "scripts/namespace-azrael-host.cjs",
         "scripts/namespace-cache-owner.cjs",
@@ -54,6 +56,7 @@
         "engine/codex-rs/core/src/tools/handlers/request_user_input_async.rs",
         "engine/codex-rs/core/src/session/user_questions.rs",
         "engine/codex-rs/core/src/session/accepted_user_inputs.rs",
+        "engine/codex-rs/core/src/session/accepted_user_inputs_tests.rs",
         "engine/codex-rs/core/src/session/turn_input.rs",
         "engine/codex-rs/core/src/session/compact_input.rs",
         "engine/codex-rs/core/src/tools/handlers/claude_controls.rs",
@@ -65,6 +68,8 @@
         "engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs",
         "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
         "engine/codex-rs/app-server-protocol/schema/typescript/v2/AsyncUserInputQuestion.ts",
+        "engine/codex-rs/app-server-protocol/schema/typescript/v2/QueuedSubmissionKind.ts",
+        "engine/codex-rs/app-server-protocol/schema/json/ClientRequest.json",
         "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json",
         "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
         "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
@@ -90,6 +95,7 @@
         "engine/codex-rs/app-server-protocol/schema/json/v2/TurnStartedNotification.json",
         "engine/sdk/python/src/openai_codex/generated/v2_all.py",
         "engine/codex-rs/ext/queue/src/service.rs",
+        "engine/codex-rs/ext/queue/tests/queue_service.rs",
         "engine/codex-rs/app-server/src/request_processors/thread_queue_processor.rs",
         "scripts/check-question-withdrawal-native.cjs",
         "scripts/check-question-withdrawal-sdk.cjs",
@@ -97,6 +103,7 @@
         "engine/codex-rs/core/tests/all.rs",
         "engine/codex-rs/core/tests/suite/mod.rs",
         "engine/codex-rs/core/tests/request_user_input_async.rs",
+        "engine/codex-rs/core/tests/suite/request_user_input_async.rs",
         "engine/codex-rs/core/tests/integration_test_setup.rs"
       ],
       "contract": "docs/architecture/queued-compaction.md",
@@ -128,8 +135,15 @@
       "id": "engine.shared-engine",
       "area": "engine",
       "owners": [
+        "extensions/azrael-ex/src/appServerTransport.ts",
+        "extensions/azrael-ex/src/extension.ts",
+        "extensions/azrael-ex/test/appServerTransport.test.ts",
+        "extensions/azrael-ex/test/standaloneChatActivation.test.ts",
         "engine/codex-rs/Cargo.toml",
         "engine/codex-rs/app-server/src/azrael_shared_server.rs",
+        "engine/codex-rs/app-server/src/azrael_session_handoff.rs",
+        "engine/codex-rs/app-server-daemon/src/session_handoff.rs",
+        "engine/codex-rs/core/src/session/handoff.rs",
         "engine/codex-rs/app-server/src/azrael_shutdown.rs",
         "engine/codex-rs/app-server-daemon/src/azrael_lifecycle.rs",
         "engine/codex-rs/app-server-daemon/src/lib.rs",
@@ -162,18 +176,7 @@
         "engine/codex-rs/utils/pty/src/windows_tests.rs",
         "engine/codex-rs/utils/pty/src/win/job.rs",
         "engine/codex-rs/utils/pty/src/win/psuedocon.rs",
-        "engine/codex-rs/app-server-client/src/remote.rs",
-        "engine/codex-rs/app-server-client/src/bin/azrael-bridge.rs",
-        "engine/codex-rs/core/src/azrael_manual_resume.rs",
-        "engine/codex-rs/core/src/session/root_resume.rs",
-        "engine/codex-rs/core/src/session/root_resume_timing.rs",
-        "engine/codex-rs/ext/queue/src/service.rs",
         "scripts/ordinary-runtime.cjs",
-        "scripts/check-startup-performance-native.cjs",
-        "engine/codex-rs/app-server/src/request_processors/resume_history_reuse_tests.rs",
-        "engine/codex-rs/thread-store/src/store.rs",
-        "engine/codex-rs/thread-store/src/local/mod.rs",
-        "engine/codex-rs/thread-store/src/local/history_revision.rs",
         "scripts/shared-engine-host.cjs",
         "scripts/integrated-azrael-entry.cjs",
         "scripts/azrael-recovery.cjs",
@@ -188,9 +191,9 @@
         "scripts/test-shared-engine-host.cjs",
         "scripts/test-ordinary-runtime-node.cjs",
         "scripts/test-integrated-entry.cjs",
-        "engine/codex-rs/core/src/session/root_resume_tests.rs",
-        "engine/codex-rs/ext/queue/tests/queue_service.rs",
         "scripts/cargo-target-owner.cjs",
+        "scripts/cargo-test-preparation.cjs",
+        "scripts/test-cargo-test-preparation.cjs",
         "scripts/test-cargo-target-owner.cjs",
         "scripts/test-cargo-scheduling.cjs",
         "engine/codex-rs/app-server/Cargo.toml",
@@ -234,10 +237,7 @@
         "engine/codex-rs/app-server-transport/src/transport/mod.rs",
         "engine/codex-rs/app-server-transport/src/transport/unix_socket_tests.rs",
         "scripts/verification-state.ps1",
-        "scripts/test-verification-state.ps1",
-        "engine/codex-rs/app-server/src/azrael_session_handoff.rs",
-        "engine/codex-rs/app-server-daemon/src/session_handoff.rs",
-        "engine/codex-rs/core/src/session/handoff.rs"
+        "scripts/test-verification-state.ps1"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "reportFields": [],
@@ -253,6 +253,7 @@
             "scripts/test-pipeline-preflight.cjs",
             "scripts/test-cargo-preflight-recipes.cjs",
             "scripts/test-cargo-target-owner.cjs",
+            "scripts/test-cargo-test-preparation.cjs",
             "scripts/test-cargo-scheduling.cjs",
             "scripts/test-cargo-verification-cache.cjs",
             "scripts/test-verification-result-cache.cjs",
@@ -286,33 +287,12 @@
           "cargoPreflight": "selected-tests-v1"
         },
         {
-          "id": "engine.shared-engine.startup-performance",
-          "executable": "node",
-          "args": [
-            "scripts/check-startup-performance-native.cjs",
-            "{engineSourceRoot}"
-          ],
-          "level": "native",
-          "cargoPreflight": "selected-tests-v1"
-        },
-        {
-          "id": "engine.shared-engine.manual-resume",
+          "id": "engine.shared-engine.session-handoff",
           "executable": "node",
           "args": [
             "scripts/check-shared-engine-native.cjs",
             "{engineSourceRoot}",
-            "manual"
-          ],
-          "level": "native",
-          "cargoPreflight": "selected-tests-v1"
-        },
-        {
-          "id": "engine.shared-engine.bridge",
-          "executable": "node",
-          "args": [
-            "scripts/check-shared-engine-native.cjs",
-            "{engineSourceRoot}",
-            "bridge"
+            "handoff"
           ],
           "level": "native",
           "cargoPreflight": "selected-tests-v1"
@@ -325,14 +305,84 @@
             "scripts/tests/test_compile_scope_manifests.py"
           ],
           "level": "source"
-        },
+        }
+      ]
+    },
+    {
+      "id": "engine.manual-resume",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/azrael_manual_resume.rs",
+        "engine/codex-rs/core/src/session/root_resume.rs",
+        "engine/codex-rs/core/src/session/root_resume_timing.rs",
+        "engine/codex-rs/core/src/session/root_resume_tests.rs",
+        "engine/codex-rs/ext/queue/src/service.rs",
+        "engine/codex-rs/ext/queue/tests/queue_service.rs"
+      ],
+      "contract": "docs/architecture/azrael-runtime.md",
+      "reportFields": [],
+      "checks": [
         {
-          "id": "engine.shared-engine.session-handoff",
+          "id": "engine.shared-engine.manual-resume",
           "executable": "node",
           "args": [
             "scripts/check-shared-engine-native.cjs",
             "{engineSourceRoot}",
-            "handoff"
+            "manual"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        }
+      ]
+    },
+    {
+      "id": "engine.startup-performance",
+      "area": "engine",
+      "owners": [
+        "scripts/check-startup-performance-native.cjs",
+        "engine/codex-rs/app-server/src/request_processors/resume_history_reuse_tests.rs",
+        "engine/codex-rs/thread-store/src/store.rs",
+        "engine/codex-rs/thread-store/src/local/mod.rs",
+        "engine/codex-rs/thread-store/src/local/history_revision.rs"
+      ],
+      "contract": "docs/architecture/azrael-runtime.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "engine.shared-engine.startup-performance",
+          "executable": "node",
+          "args": [
+            "scripts/check-startup-performance-native.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        }
+      ]
+    },
+    {
+      "id": "engine.bridge",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/app-server-client/src/remote.rs",
+        "engine/codex-rs/app-server-client/src/bin/azrael-bridge.rs",
+        "extensions/azrael-ex/src/bridgeTransport.ts",
+        "extensions/azrael-ex/src/accountService.ts",
+        "extensions/azrael-ex/test/bridgeTransport.test.ts",
+        "extensions/azrael-ex/test/accountService.test.ts",
+        "extensions/azrael-ex/test/bridge-fixture.ts",
+        "extensions/azrael-ex/test/account-service-fixture.ts"
+      ],
+      "contract": "docs/architecture/accounts.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "engine.shared-engine.bridge",
+          "executable": "node",
+          "args": [
+            "scripts/check-shared-engine-native.cjs",
+            "{engineSourceRoot}",
+            "bridge"
           ],
           "level": "native",
           "cargoPreflight": "selected-tests-v1"
@@ -515,6 +565,10 @@
         "engine/codex-rs/config/src/harness_profiles.rs",
         "engine/codex-rs/protocol/src/protocol.rs",
         "engine/codex-rs/prompts/src/model_instructions.rs",
+        "engine/codex-rs/prompts/src/model_instructions_tests.rs",
+        "engine/codex-rs/core/src/tools/spec_plan_tests.rs",
+        "engine/codex-rs/core/src/tools/router_tests.rs",
+        "providers/opencodex/tests/harness-mapping.test.mjs",
         "engine/codex-rs/core/src/tools/spec_plan.rs",
         "engine/codex-rs/core/src/tools/router.rs",
         "engine/codex-rs/core/src/session/turn.rs",
@@ -649,7 +703,10 @@
       "area": "engine",
       "owners": [
         "providers/opencodex/inference-mapping.mjs",
-        "providers/opencodex/inference.ts"
+        "providers/opencodex/inference.ts",
+        "engine/codex-rs/core/src/devin/native_runtime_tools.rs",
+        "engine/codex-rs/core/src/tools/router.rs",
+        "scripts/check-unavailable-tool-native.cjs"
       ],
       "contract": "docs/architecture/managed-providers.md",
       "checks": [
@@ -658,9 +715,22 @@
           "executable": "node",
           "args": [
             "--test",
-            "providers/opencodex/tests/tool-diagnostics.test.mjs"
+            "providers/opencodex/tests/tool-diagnostics.test.mjs",
+            "providers/opencodex/tests/unavailable-tool.test.mjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "engine.managed-tool-identities.adapter",
+          "executable": "node",
+          "args": ["scripts/check-unavailable-tool-adapter.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "engine.managed-tool-identities.native",
+          "executable": "node",
+          "args": ["scripts/check-unavailable-tool-native.cjs", "{engineSourceRoot}"],
+          "level": "native"
         }
       ],
       "reportFields": []
@@ -1081,6 +1151,13 @@
       "id": "ui.account-settings",
       "area": "ui",
       "owners": [
+        "extensions/azrael-ex/src/usagePresentation.ts",
+        "extensions/azrael-ex/src/usageWindowService.ts",
+        "extensions/azrael-ex/src/usageView.ts",
+        "extensions/azrael-ex/test/usagePresentation.test.ts",
+        "extensions/azrael-ex/test/usageWindowService.test.ts",
+        "extensions/azrael-ex/test/usageTimerView.test.ts",
+        "scripts/test-usage-window-ui.cjs",
         "scripts/inject-account-settings.cjs",
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
@@ -1094,6 +1171,12 @@
             "--test",
             "scripts/test-account-settings.cjs"
           ],
+          "level": "source"
+        },
+        {
+          "id": "ui.account-settings.timer",
+          "executable": "node",
+          "args": ["--test", "scripts/test-usage-window-ui.cjs"],
           "level": "source"
         },
         {
@@ -1541,6 +1624,8 @@
         "scripts/window-use-resources.cjs",
         "scripts/window-child-session.cjs",
         "scripts/window-child-session-cleanup.cjs",
+        "scripts/check-window-child-logoff.cjs",
+        "scripts/test-window-child-explicit-logoff.cjs",
         "scripts/request-window-child-logoff.ps1",
         "native/window-control/src/uia.rs",
         "native/windows-child-session/ChildSession.cs",
@@ -1572,6 +1657,14 @@
             "--test-name-pattern",
             "user stop|recovery instructions|tool errors retain|minimized pause metadata",
             "scripts/test-window-control-errors.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.window-control.explicit-logoff",
+          "executable": "node",
+          "args": [
+            "scripts/check-window-child-logoff.cjs"
           ],
           "level": "source"
         },
@@ -3085,6 +3178,30 @@
             "{engineSourceRoot}/codex-rs/models-manager/models.json"
           ],
           "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.usage-window",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/app-server/src/request_processors/account_processor.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/usage_identity_tests.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/usage_window.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/usage_window_store.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/usage_window_store_tests.rs",
+        "scripts/check-usage-window.cjs"
+      ],
+      "contract": "docs/architecture/accounts.md",
+      "checks": [
+        {
+          "id": "engine.usage-window.native",
+          "executable": "node",
+          "args": ["scripts/check-usage-window.cjs", "{engineSourceRoot}"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
         }
       ],
       "reportFields": []

@@ -154,6 +154,7 @@ try {
     $Apply = $true
     $result = Invoke-LegacyReleaseCleanup
     Assert (-not (Test-Path -LiteralPath $old)) 'Old release still exists.'
+    if (Test-Path -LiteralPath (Join-Path $fixture 'artifacts/logs/old')) { Write-Json (Join-Path $RunDirectory 'legacy-failure-result.json') $result }
     Assert (-not (Test-Path -LiteralPath (Join-Path $fixture 'artifacts/logs/old'))) 'Associated old build log was orphaned.'
     $deleted = @($result.candidates | Where-Object status -eq 'deleted')
     Assert ($deleted.Count -eq 1 -and $deleted[0].absent -and $deleted[0].identity.receiptSha256.Length -eq 64) 'Deletion absence/compact hash evidence missing.'

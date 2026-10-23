@@ -48,6 +48,10 @@ pub enum QueuedInput {
         content: Vec<UserInput>,
         client_id: Option<String>,
     },
+    QuestionReply {
+        content: Vec<UserInput>,
+        client_id: Option<String>,
+    },
     ContextCompaction {
         client_id: String,
     },
@@ -160,9 +164,6 @@ impl QueuedItemService {
             let admission = manager.auth_manager().azrael_admission();
             admission_changes.get_or_insert_with(|| admission.subscribe_changes());
             if admission_changed {
-                if admission.is_pending() {
-                    continue;
-                }
                 // Revisit durable queues once when admission reopens, even if no
                 // storage revision changed while an account switch was pending.
                 newly_loaded_threads.extend(manager.list_thread_ids().await);
@@ -276,9 +277,6 @@ impl QueuedItemService {
                             ) {
                                 return;
                             }
-                            if thread.auth_admission().await.is_pending() {
-                                return;
-                            }
                             if matches!(
                                 thread.agent_status().await,
                                 AgentStatus::Running
@@ -336,6 +334,21 @@ impl QueuedItemService {
         self.enqueue_input(thread_id, input).await
     }
 
+    pub async fn enqueue_question_reply(
+        &self,
+        thread_id: ThreadId,
+        input: TurnInput,
+    ) -> Result<QueuedItem, QueueServiceError> {
+        let QueuedInput::UserInput { content, client_id } =
+            prepare_queued_user_input(input).await?
+        else {
+            return Err(QueueServiceError::InvalidInput);
+        };
+        CodexThread::validate_queued_question_reply_shape(&content)?;
+        self.enqueue_input(thread_id, QueuedInput::QuestionReply { content, client_id })
+            .await
+    }
+
     pub async fn enqueue_compaction(
         &self,
         thread_id: ThreadId,
@@ -387,17 +400,23 @@ impl QueuedItemService {
         mut input: TurnInput,
     ) -> Result<Option<QueuedItem>, QueueServiceError> {
         let _dispatch_guard = self.dispatch_guard(thread_id).await;
+        let mut question_reply = false;
         if let Some(existing) = self
             .list(thread_id)
             .await?
             .into_iter()
             .find(|item| item.id == queued_item_id)
         {
+            question_reply = matches!(&existing.input, QueuedInput::QuestionReply { .. });
             match existing.input {
                 QueuedInput::ContextCompaction { .. } => {
                     return Err(QueueServiceError::InvalidInput);
                 }
                 QueuedInput::UserInput {
+                    client_id: existing_client_id,
+                    ..
+                }
+                | QueuedInput::QuestionReply {
                     client_id: existing_client_id,
                     ..
                 } => {
@@ -407,7 +426,11 @@ impl QueuedItemService {
                 }
             }
         }
-        let input = prepare_queued_user_input(input).await?;
+        let mut input = prepare_queued_user_input(input).await?;
+        if question_reply && let QueuedInput::UserInput { content, client_id } = input {
+            CodexThread::validate_queued_question_reply_shape(&content)?;
+            input = QueuedInput::QuestionReply { content, client_id };
+        }
         let payload = serde_json::to_string(&input)?;
         let item = self
             .queue
@@ -523,18 +546,19 @@ impl QueuedItemService {
             ) {
                 return Ok(());
             }
-            let _account_guard = match thread.auth_admission().await.admit_request().await {
-                Ok(guard) => guard,
-                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => return Ok(()),
-                Err(error) => return Err(QueueServiceError::AdmissionDenied(error)),
+            let admission = thread.auth_admission().await;
+            let records = self.queue.list_page(thread_id, 0, MAX_QUEUE_ITEMS).await?;
+            let reply_index = if thread.pending_question_count() > 0 || admission.is_pending() {
+                records.iter().position(|record| {
+                    matches!(
+                        serde_json::from_str::<QueuedInput>(&record.payload),
+                        Ok(QueuedInput::QuestionReply { .. })
+                    )
+                })
+            } else {
+                None
             };
-            let Some(record) = self
-                .queue
-                .list_page(thread_id, /*offset*/ 0, /*limit*/ 1)
-                .await?
-                .into_iter()
-                .next()
-            else {
+            let Some(record) = records.into_iter().nth(reply_index.unwrap_or(0)) else {
                 return Ok(());
             };
             let queued_item_id = record.id.clone();
@@ -546,6 +570,16 @@ impl QueuedItemService {
                     self.delete_locked(thread_id, queued_item_id).await?;
                     continue;
                 }
+            };
+            let account_guard = if matches!(&input, QueuedInput::QuestionReply { .. }) {
+                admission.admit_queued_request()
+            } else {
+                admission.admit_request().await
+            };
+            let _account_guard = match account_guard {
+                Ok(guard) => guard,
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => return Ok(()),
+                Err(error) => return Err(QueueServiceError::AdmissionDenied(error)),
             };
             if codex_core::azrael_manual_resume::requires_manual_resume(
                 thread.config().await.codex_home.as_path(),
@@ -644,6 +678,30 @@ async fn submit_queued_input(
                 },
             )
         }
+        QueuedInput::QuestionReply { content, client_id } => Ok(
+            match thread
+                .start_turn_if_idle(
+                    TurnInputRequest::new(TurnInput::UserInput { content, client_id })
+                        .with_trace(trace)
+                        .on_start(TurnStartOptions {
+                            turn_trigger: Some("queue_question_reply".to_string()),
+                            ..Default::default()
+                        }),
+                )
+                .await?
+            {
+                StartIfIdleSubmission::Started {
+                    turn_id,
+                    root_turn_id,
+                } => QueuedItemSubmission::Started {
+                    turn_id,
+                    root_turn_id,
+                },
+                StartIfIdleSubmission::NotSubmitted { reason } => {
+                    QueuedItemSubmission::NotSubmitted { reason }
+                }
+            },
+        ),
         QueuedInput::ContextCompaction { client_id } => Ok(
             match if explicit {
                 thread.compact_if_idle_explicit().await?

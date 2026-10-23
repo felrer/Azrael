@@ -75,6 +75,24 @@ async fn async_question_reused_provider_call_id_creates_distinct_message_ids() -
                 text_elements: Vec::new(),
             }]))
             .await?;
+        if index > 0 {
+            let withdrawn = wait_for_event_match(test.codex.as_ref(), |event| match event {
+                EventMsg::ItemCompleted(event) => match &event.item {
+                    TurnItem::AgentMessage(message) if message.id == ids[index - 1] => {
+                        Some(message.clone())
+                    }
+                    _ => None,
+                },
+                _ => None,
+            })
+            .await;
+            assert!(
+                withdrawn
+                    .questions
+                    .as_ref()
+                    .is_some_and(|questions| questions.iter().all(|question| question.withdrawn))
+            );
+        }
         let message = wait_for_event_match(test.codex.as_ref(), |event| match event {
             EventMsg::ItemCompleted(event) => match &event.item {
                 TurnItem::AgentMessage(message) if message.questions.is_some() => {

@@ -1,0 +1,163 @@
+{
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:DJ-01:real-snapshot-unit-r11",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "31352eb9143383f8e5569be9cee6c57353641541be87223ae065b64537dc30cb",
+        "owner": "real-history-snapshot-check",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\066a9c5362255c79eb5b48ff6c598fd1e333c0c69c988a65dd30ab79849626e6.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "d449105d5c307baefec368b5e776668902c561b79ed164dc37a9ee90de7adc77"
+        ],
+        "group_token": "0020ef2b794adabfdf4b9d2045ae6751f602e7c5584a55fb3ba46384143a23c5",
+        "id": "d449105d5c307baefec368b5e776668902c561b79ed164dc37a9ee90de7adc77",
+        "identity": "b3fdf44a8577c2439de7eb1e934cd21068b82887bfa09af12835f689527e2357",
+        "lifecycle_group_id": "run:DJ-01:real-snapshot-unit-r11",
+        "logical_bytes": 100442,
+        "measured_at_ms": 1792714257043,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "31352eb9143383f8e5569be9cee6c57353641541be87223ae065b64537dc30cb",
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11\\reports\\producer.json",
+              "evidence_sha256": "ff1824c11954addd9743a339c770065b722b17c7018f1649823eb8514a512db5",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "f46c334287ecb752f3d081af2cf78a067dab8986433d0a5f26319fbffca68e23"
+            },
+            "created_at": "2026-10-23T00:09:46.205Z",
+            "id": "run:DJ-01:real-snapshot-unit-r11",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "real-history-snapshot-check",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11\\reports\\producer.json",
+              "evidence_sha256": "ff1824c11954addd9743a339c770065b722b17c7018f1649823eb8514a512db5",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-23T00:09:46.708Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792714257113,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r11",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              214,
+              224,
+              28,
+              0,
+              0,
+              0,
+              20,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "faf2c32275e55d142bb73ede336f8f143158244c683f43c2264b107d9a236156",
+        "verification": "registered"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DJ-01:real-snapshot-unit-r11",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-61336-120-1792714268623",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "d449105d5c307baefec368b5e776668902c561b79ed164dc37a9ee90de7adc77",
+        "lifecycle_group_id": "run:DJ-01:real-snapshot-unit-r11",
+        "reason": "Stopped passing tiny snapshot preflight; independent result/producer evidence preserved in work; no consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "faf2c32275e55d142bb73ede336f8f143158244c683f43c2264b107d9a236156"
+      }
+    ]
+  }
+}

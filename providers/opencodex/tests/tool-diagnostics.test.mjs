@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createToolDiagnostics } from '../tool-diagnostics.mjs';
-import { compileRequest, mapStream } from '../inference-mapping.mjs';
+import { compileRequest, mapStream, UNAVAILABLE_TOOL_NAMESPACE } from '../inference-mapping.mjs';
 import { createProgressMonitor } from '../../devin/progress.mjs';
 
 const base = (tools, input = []) => ({ protocol_version: 1, type: 'request', request_id: 'probe',
@@ -50,12 +50,14 @@ test('name diagnostics distinguish accepted current names from undeclared histor
     const d = createToolDiagnostics(); d.catalog(compiled);
     const frames = [];
     const accepted = match === 'current_original' || match === 'current_qualified';
-    if (accepted) await mapStream(events(name), { ...compiled, toolDiagnostics: d }, frame => frames.push(frame), 'probe');
-    else await assert.rejects(mapStream(events(name), { ...compiled, toolDiagnostics: d }, frame => frames.push(frame), 'probe'), /undeclared_tool/);
+    if (!name) await assert.rejects(mapStream(events(name), { ...compiled, toolDiagnostics: d }, frame => frames.push(frame), 'probe'), /invalid_tool_identity/);
+    else await mapStream(events(name), { ...compiled, toolDiagnostics: d }, frame => frames.push(frame), 'probe');
     assert.equal(d.snapshot().name_match, match); assert.equal(d.snapshot().name_style, style);
     assert.equal(d.snapshot().mapping_result, accepted ? 'validated' : 'undeclared'); assert.equal(d.snapshot().call_state, accepted ? 'validated' : 'rejected');
     assert.equal(d.snapshot().history_alias_count, 1);
-    assert.equal(frames.some(frame => frame.item?.type === 'function_call'), accepted);
+    assert.equal(frames.some(frame => frame.item?.type === 'function_call' && frame.item.namespace !== UNAVAILABLE_TOOL_NAMESPACE), accepted);
+    assert.equal(frames.some(frame => frame.item?.namespace === UNAVAILABLE_TOOL_NAMESPACE), !accepted && !!name);
+    assert.equal(frames.at(-1)?.type === 'completed', !!name);
     assert(!JSON.stringify(d.snapshot()).includes('SECRET'));
   }
 });

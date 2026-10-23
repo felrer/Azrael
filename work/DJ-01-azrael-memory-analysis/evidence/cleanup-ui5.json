@@ -1,0 +1,402 @@
+{
+  "status": "complete",
+  "id": "run:DJ-01:ui-default-5",
+  "startedUtc": {
+    "current_time": "2026-10-22 19:18:39 UTC"
+  },
+  "register": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:DJ-01:ui-default-5",
+      "kind": "run",
+      "members": [
+        "1e9ab3c8bd3ca692f0b969d5ef084fbc5fd765823240d14502a2ccbdb898aacb",
+        "666c19675ba19f516b94a7e8d511ec2e47b2e85d58e33678ce522871609d76c9"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "dacb5d6e1b2a3cd8ca6d7854356af72b2b4a369839207ef581ba9dae54e3dfeb",
+      "owner": "ui-memory-probe",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\c73dee41ace2e2873177273fffa441a44926166a21b670f076810b993ce38a16.json",
+      "registered_at_ms": 1792697177651,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "1e9ab3c8bd3ca692f0b969d5ef084fbc5fd765823240d14502a2ccbdb898aacb",
+        "identity": "1979cd6eb1c09165738ce559d03ff15767cf9c77bc5f68b0e4ef54f981da0780",
+        "kind": "run",
+        "lifecycle_group_id": "run:DJ-01:ui-default-5",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 6360,
+        "measured_at_ms": 1792696719635,
+        "owner": "ui-memory-probe",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\c73dee41ace2e2873177273fffa441a44926166a21b670f076810b993ce38a16.json",
+        "references": [],
+        "registered_at_ms": 1792696719635,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      },
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "666c19675ba19f516b94a7e8d511ec2e47b2e85d58e33678ce522871609d76c9",
+        "identity": "68a4464b671d8a3e398a54b7e6fe354f2bfe25670a3e94736034a07807e32a03",
+        "kind": "fixture",
+        "lifecycle_group_id": "run:DJ-01:ui-default-5",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 1321892289,
+        "measured_at_ms": 1792697177597,
+        "owner": "ui-memory-probe",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\d5",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\c73dee41ace2e2873177273fffa441a44926166a21b670f076810b993ce38a16.json",
+        "references": [],
+        "registered_at_ms": 1792697177597,
+        "remaining": true,
+        "role": "fixture",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "registerEnded": {
+    "current_time": "2026-10-22 20:18:52 UTC"
+  },
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 2,
+        "cleanup_status": null,
+        "id": "run:DJ-01:ui-default-5",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "dacb5d6e1b2a3cd8ca6d7854356af72b2b4a369839207ef581ba9dae54e3dfeb",
+        "owner": "ui-memory-probe",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\c73dee41ace2e2873177273fffa441a44926166a21b670f076810b993ce38a16.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "1e9ab3c8bd3ca692f0b969d5ef084fbc5fd765823240d14502a2ccbdb898aacb",
+          "666c19675ba19f516b94a7e8d511ec2e47b2e85d58e33678ce522871609d76c9"
+        ],
+        "group_token": "83debac1499df449b5d8001070d5ee7b88979c57bdab55898dd5339a85ae111b",
+        "id": "1e9ab3c8bd3ca692f0b969d5ef084fbc5fd765823240d14502a2ccbdb898aacb",
+        "identity": "1979cd6eb1c09165738ce559d03ff15767cf9c77bc5f68b0e4ef54f981da0780",
+        "lifecycle_group_id": "run:DJ-01:ui-default-5",
+        "logical_bytes": 6360,
+        "measured_at_ms": 1792696719635,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "dacb5d6e1b2a3cd8ca6d7854356af72b2b4a369839207ef581ba9dae54e3dfeb",
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\reports\\producer.json",
+              "evidence_sha256": "b4a386127afa3a0519f058bb09c58bd0797a65fb43cae31b91f584aa9e9446bd",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "4cc44dc887fd2663f7a5f1e9d049a143a3dcb5683df70d5882e5a1caf62e25e6"
+            },
+            "created_at": "2026-10-22T17:03:28.212Z",
+            "id": "run:DJ-01:ui-default-5",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\d5",
+                "protection_known": true,
+                "role": "fixture"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "ui-memory-probe",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\reports\\producer.json",
+              "evidence_sha256": "b4a386127afa3a0519f058bb09c58bd0797a65fb43cae31b91f584aa9e9446bd",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 3,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-22T17:06:33.496Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792700332634,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              104,
+              250,
+              212,
+              0,
+              0,
+              0,
+              18,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "49da058943871e13b318d55ce1a703a0cfd5f4896ce50d0cdfe46e72339bca1c",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "1e9ab3c8bd3ca692f0b969d5ef084fbc5fd765823240d14502a2ccbdb898aacb",
+          "666c19675ba19f516b94a7e8d511ec2e47b2e85d58e33678ce522871609d76c9"
+        ],
+        "group_token": "83debac1499df449b5d8001070d5ee7b88979c57bdab55898dd5339a85ae111b",
+        "id": "666c19675ba19f516b94a7e8d511ec2e47b2e85d58e33678ce522871609d76c9",
+        "identity": "68a4464b671d8a3e398a54b7e6fe354f2bfe25670a3e94736034a07807e32a03",
+        "lifecycle_group_id": "run:DJ-01:ui-default-5",
+        "logical_bytes": 1321892289,
+        "measured_at_ms": 1792697177597,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "dacb5d6e1b2a3cd8ca6d7854356af72b2b4a369839207ef581ba9dae54e3dfeb",
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\reports\\producer.json",
+              "evidence_sha256": "b4a386127afa3a0519f058bb09c58bd0797a65fb43cae31b91f584aa9e9446bd",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "4cc44dc887fd2663f7a5f1e9d049a143a3dcb5683df70d5882e5a1caf62e25e6"
+            },
+            "created_at": "2026-10-22T17:03:28.212Z",
+            "id": "run:DJ-01:ui-default-5",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\d5",
+                "protection_known": true,
+                "role": "fixture"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "ui-memory-probe",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5\\reports\\producer.json",
+              "evidence_sha256": "b4a386127afa3a0519f058bb09c58bd0797a65fb43cae31b91f584aa9e9446bd",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 3,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-22T17:06:33.496Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792700332636,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\d5",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              252,
+              136,
+              106,
+              0,
+              0,
+              0,
+              8,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "e60de22a586810ff8ff109185b85751194c3dc91b3286ca2b1de1caf6392f5af",
+        "verification": "registered"
+      }
+    ]
+  },
+  "applyStarted": {
+    "current_time": "2026-10-22 20:18:52 UTC"
+  },
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DJ-01:ui-default-5",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-61336-113-1792700332998",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "1e9ab3c8bd3ca692f0b969d5ef084fbc5fd765823240d14502a2ccbdb898aacb",
+        "lifecycle_group_id": "run:DJ-01:ui-default-5",
+        "reason": "Stopped failed isolated UI5 fixture; exact independent producer evidence preserved under work; consumers released; no blockers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "49da058943871e13b318d55ce1a703a0cfd5f4896ce50d0cdfe46e72339bca1c"
+      },
+      {
+        "attempt_id": "attempt-61336-116-1792700376500",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "666c19675ba19f516b94a7e8d511ec2e47b2e85d58e33678ce522871609d76c9",
+        "lifecycle_group_id": "run:DJ-01:ui-default-5",
+        "reason": "Stopped failed isolated UI5 fixture; exact independent producer evidence preserved under work; consumers released; no blockers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "e60de22a586810ff8ff109185b85751194c3dc91b3286ca2b1de1caf6392f5af"
+      }
+    ]
+  },
+  "applyEnded": {
+    "current_time": "2026-10-22 20:22:17 UTC"
+  },
+  "finalize": {
+    "chunk_id": "5317b2",
+    "exit_code": 0,
+    "original_token_count": 68,
+    "output": "{\"id\":\"run:DJ-01:ui-default-5\",\"status\":\"finalized\",\"remaining\":[],\"references\":[],\"blockers\":[],\"registryPath\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\.m\\\\artifacts\\\\maintenance\\\\lifecycles\\\\c73dee41ace2e2873177273fffa441a44926166a21b670f076810b993ce38a16.json\"}\n",
+    "wall_time_seconds": 0.1817091
+  },
+  "finishedUtc": {
+    "current_time": "2026-10-22 20:22:18 UTC"
+  }
+}

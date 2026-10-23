@@ -1,12 +1,102 @@
-상태: R01·R02·R05 확정 변경을 원본·내장 사본에 반영했고 관련 source 검사 5개가 통과했다. 공유 출처 기록 불일치로 이번 수정의 출처 갱신·작업 커밋은 대기 상태다. R03·R04는 현행 유지로 확정했고 R05의 병렬 결과 확인·출력 구분도 현행 유지를 확정했다. R06을 이번 응답에서 제시하며 사용자 검토 전이다.
+상태: 승인된 공통 행동 본문과 기존 Azrael 기본 프로필 변경을 구현했고, 모든 제공자의 기본값·선택 가능성·실제 도구 호출을 Windows x64에서 검증했다. 프로필 선택·상속·사용자 템플릿 대체 기능을 유지하고 Anthropic 자동 분기와 Azrael 도구 거부 검사를 삭제했다. 제품 빌드·설치는 수행하지 않았다. 임시 검증 자료 정리는 완료했으며, 다른 작업의 엔진 출처 불일치로 SOURCE 갱신과 작업 커밋은 아직 수행하지 않았다.
 
 # 모델 시스템 컨텍스트 직역 검토 계획
 
+## 현재 구현·검증 실행
+
+공통 변경 대상은 Windows x64·Linux x64·macOS ARM64이며 실제 실행 호스트는 Windows x64다. 기존 합성·선택·registry 구현을 재사용하고 새로운 프로필 체계나 의존성을 추가하지 않는다. 승인된 본문 원본/내장 사본, 기본 합성·API 선두 투영·저장된 공통 본문 중복 처리, resolver의 자동 분기와 거부 검사, 관련 fixture와 owning 문서를 같은 작업으로 변경한다.
+
+검증 시작 전에 `artifacts/verification/cj-default-r1/`을 이번 작업 소유 run으로 등록한다. `engine/` 고정 입력, runner, 임시 fixture·pending 출력과 상세 로그가 이 run에 속한다. Cargo는 기존 `engine/codex-rs/target/` 캐시를 한 producer씩 사용하고 제품 빌드와 구분한다. 원본 prompt/config/registry 테스트와 관리 provider 변환 fixture를 우선하며, native 도구 smoke는 실제 patch → 파일 내용 변경 → 명령으로 읽기 → 결과 반환을 확인한다. 프로필 전환·전체 provider 행렬은 추가하지 않는다. 새 smoke는 정상 동작과 기본값 변경을 보호하는 계약 검사로 유지하며, run 전용 스크립트·고정 입력·로그는 필요한 재검증과 검토 후 정리 여부를 결정한다. 기존 다른 작업의 수정과 SOURCE 출처 불일치는 흡수하지 않는다.
+
+소스 검사: `node --test scripts/test-common-agent-instructions.cjs providers/opencodex/tests/harness-mapping.test.mjs` 10/10, actual exit 0 (`logs/source-r3.stdout.log`). 새 transport fixture의 과거 호출 ID 재사용과 Anthropic XML 결과 wrapper 기대값을 수정한 후 통과했다. 본문 최종 표현 조정 이후 사본 검사를 다시 수행한다. `git diff --check`는 byte-exact CRLF 파일을 보존하는 `core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol` 설정에서 통과했다.
+
+2026-10-22 10:21 UTC native 첫 시도는 다른 작업 `CY-01-resume-profile-r1-instrumentation`이 같은 Cargo target을 점유해 시작 전 거부됐다(actual exit 1, `logs/native.stderr.log`). 해당 producer를 종료하거나 lease를 변경하지 않는다. 캐시 해제 filesystem event를 기다린 뒤 검증을 실행한다. 최초 고정 입력은 `inputs.json`의 SHA-256 `4f0e0b075948cbbd947f2e32394cf43d2785f5d9d390363ef6c720bac1a10399`이며, native 실행 전 본문 최종 표현·Rust 서식 조정을 별도 `engine-r2`/`inputs-r2.json`으로 고정한다. 처음 고정 입력은 덮어쓰지 않는다.
+
+출처 선행조건: 공유 `engine/SOURCE.json` hash는 `eed776104d75625f69b2d79493261eb445678ca7dac6a7253ba2361084fd3a47`이다. 이번 작업 외 `codex-rs/app-server-client/src/bin/azrael-bridge.rs`와 `codex-rs/ext/skills/src/host_roots_tests.rs`가 receipt와 여전히 불일치한다. 이를 임의로 수록하지 않으며, 정확한 이번 delta만 수록해야 하는 official source recorder와 최종 commit의 제약으로 남긴다. 고정 입력의 native 시험은 제품 출처/설치 수용을 대신하지 않는다.
+
+최종 고정 입력은 `engine-r3`/`inputs-r3.json` SHA-256 `ae1e759601aa796619eee46e40936269c0078ebc01e689906c46e55ae0ef24b7`이다. 변경한 Rust·공통 template 6개는 실제 소스와 일치한다. 최종 본문 source 검사는 `logs/source-final-r2.stdout.log`에서 10/10 actual exit 0, 검사 선택 범위는 `logs/compile-scope.stdout.log`에서 7/7 actual exit 0이다. native 실행은 exec session `60969`, 완료 신호 `39bb2769-08f5-4b9a-96fd-8212056abb52`로 관측한다. 10:32 UTC 첫 대기 점검에서 공용 target의 기존 coordinator `48612`와 그 rustup child `36220`이 실제 실행 중임을 확인했으며 강제 종료·lease 회수는 하지 않았다. filesystem event로 캐시가 해제되면 이번 native 검증이 시작된다. 결과를 실제 확인하기 전까지 native 통과·작업 완료로 간주하지 않는다.
+
+10:47 UTC 수동 재개에서 완료 신호는 running이었다. exec session도 실행 중이고 stdout에는 캐시 해제 대기만 기록돼 있었다. 기존 owner token이 동일하며 coordinator `48612` → rustup `36220` → cargo `69508`이 실제 실행 중임을 한 번 점검했다. 이번 native 검사는 아직 시작하지 않았고, 다른 producer의 중복 실행·강제 종료 없이 같은 완료 신호를 기다린다.
+
+10:52 UTC 재개에서는 원래 실행 세션이 사라지고 Cargo lease만 남았다. 기존에 관측한 정확한 node → rustup → cargo 트리의 잔여 자식, 전체 compiler/linker 프로세스, 두 run에 연결된 node producer가 모두 없음을 현재 process enumeration으로 확인했다. 단순 PID 부재만 사용하지 않았으며 `recovery-evidence.json`에 근거를 보존했다. `inspectTargetOwner`/`recoverTargetOwner`의 token·owner hash·evidence hash 검사를 통과해 lease를 복구했고, 원래 결과는 unknown/exitCode null로 유지됐다(`cargo-recovery.json`). 이전 대기 실행 완료 신호는 failed/exitCode null로 종료 처리했다.
+
+새 native 실행은 동일한 `engine-r3` 고정 입력을 사용한다. exec session `85687`, 완료 신호 `62bafe24-5e81-4d45-bfaa-4722e636b58b`, `logs/native-r3.stdout.log`/`logs/native-r3.stderr.log`를 사용하고 Cargo jobs는 2로 제한했다. 이 실행은 제품 빌드가 아닌 승인된 검증용 compilation/test다.
+
+해당 시도의 `codex-prompts` test-profile 타입 검사(`cargo check -p codex-prompts --lib --tests --locked --offline --target x86_64-pc-windows-msvc --profile test`)는 actual exit 0, 415412 ms로 통과했다. 다음 libtest 선택 단계 직전 다른 CY build가 새 token `b2a46263-1045-4102-b4e6-a205753cfa2b`로 target을 재점유해 helper가 명령 시작을 거부했다. 테스트 실행 결과는 없고 이 시도는 exit 1이다. 코드 오류로 분류하지 않는다.
+
+다음 시도는 같은 고정 입력과 Cargo jobs 2를 유지하고, 오직 시작 전 캐시 소유 충돌에서만 filesystem event를 기다려 해당 check를 계속한다. 이미 끝난 명령의 결과는 보존하고 실행 중 producer를 중복 시작하지 않는다. 실제 컴파일/테스트 오류는 재시도하지 않고 그대로 종료한다. task-only 실행기만 조정했으며 공통 Cargo helper나 제품 동작은 바꾸지 않았다. 완료 신호는 `5a878be2-3c25-4546-9176-886c514822ff`, 상세 로그는 `logs/native-r4.stdout.log`/`logs/native-r4.stderr.log`이다.
+
+11:23 UTC 예정 점검: 이 시도도 `codex-prompts` test-profile 타입 검사를 actual exit 0(213032 ms)으로 완료했다. 11:19:31 UTC부터 libtest 선택을 위한 `cargo test` 단계가 이번 producer `63708`의 target lease에서 실행 중이다. 완료한 test 결과는 아직 없으며, 추가 build를 중복 실행하지 않는다.
+
+11:44 UTC 예정 점검: `codex-prompts`의 `model_instructions` 7개가 11:25:39 UTC에 actual exit 0으로 통과했다. `codex-config`의 `harness` 10개가 11:34:44 UTC에 actual exit 0으로 통과했다. 두 검사 모두 nonzero 선택과 사전 타입 검사를 거쳤다. 이제 `codex-core`의 기본 tool registry와 실제 patch/read/command smoke를 위한 타입 검사가 진행 중이다. 통과 결과는 `results.json`과 `logs/native-r4.stdout.log`에 보존하며, 완료된 두 검사를 반복하지 않는다.
+
+첫 core 사전 타입 검사는 actual exit 101로 종료됐다. 원인은 이번에 바꾼 두 테스트 fixture가 `HarnessProfiles::from_templates` 비공개 함수를 호출한 E0624 두 건이다. 공개 async `HarnessProfiles::load`와 기존 test filesystem을 사용하도록 fixture를 수정했다. 제품 코드와 이미 통과한 prompt/config 입력은 바뀌지 않았다. 두 core fixture만 새 `engine-r4`/`inputs-r4.json`에 반영하고 기본 registry·실제 patch/read/command·명시적 Claude discovery 세 검사만 다시 수행한다. 완료 신호는 `6a70f743-5e27-4f7d-b2d9-1790fdbeefa4`, 결과는 `results-core-r5.json`, 로그는 `logs/native-r5.stdout.log`와 `logs/native-r5.stderr.log`다. 이전 실패와 통과 결과는 덮어쓰지 않는다.
+
+12:04 UTC 예정 점검: 새 고정 입력 `engine-r4` SHA-256은 `c9ea0526147c121406e15aaf2060303fe0b65aa57d82db99fc677789d68558f6`이다. 수정된 core test-profile 사전 타입 검사는 actual exit 0, 489318 ms로 통과했다. 실행 세션 `76242`는 진행 중이며 아직 최종 core test 결과가 없다. 완료한 prompt/config 검사는 반복하지 않았다.
+
+12:30 UTC 예정 점검: core 바이너리 준비 후 `azrael_defaults_and_explicit_claude_profile_select_executable_tools` 1개가 actual exit 0으로 통과했다(테스트 실행 5.35초). 기본 Anthropic/native 구성과 명시적 Claude 구성의 registry를 확인했다. 실제 patch/read/command와 Claude discovery 검사는 같은 runner에서 이어서 진행 중이다.
+
+첫 core registry 결과 이후 12:26 UTC부터 다른 CY 작업이 공용 target을 점유했다. 13:22 UTC 점검에서도 coordinator `62300`의 `session_restore_` libtest 준비 lease가 유지되고 있어 이번 runner는 시작 전 충돌만 기록하고 filesystem event를 기다린다. 통과한 검사를 반복하거나 경쟁 producer를 종료하지 않는다. 이 지연은 제품 오류나 도구 호출 실패 결과가 아니다.
+
+13:55 UTC 실제 `anthropic_azrael_tools_patch_read_and_execute` 1개가 actual exit 0으로 통과했다(실행 1.45초). native router의 apply_patch로 fixture를 변경하고 exec_command로 변경 marker를 읽어 파일 bytes와 반환 결과를 확인했다. provider API의 유료 호출이나 설치 앱 수용은 수행하지 않았다. 이후 마지막 명시적 Claude discovery 검사는 다른 작업의 공용 target 재점유로 시작 전 이벤트 대기 중이다.
+
+## 최종 검증 근거와 종료
+
+2026-10-22 14:42:21 UTC 마지막 core 검사가 actual exit 0으로 종료됐고, exec session `76242`와 완료 신호 `6a70f743-5e27-4f7d-b2d9-1790fdbeefa4`의 실제 성공 종료를 확인했다. 원래 E0624 두 건은 공개 async loader로 수정 후 재검증했다. 이전 exit 101·캐시 충돌·미확인 중단 기록을 성공으로 바꾸지 않는다. `engine-r4`와 현재 변경 소스 중 5개는 SHA-256이 일치한다. `router_tests.rs`에는 다른 작업의 unavailable-tool 검사 2개가 선두에 추가돼 전체 hash는 달라졌지만 이번 작업의 fixture·smoke 범위는 그대로임을 snapshot 대조 diff로 확인했다. 공통 본문 원본/내장 사본 동일성, CRLF를 보존한 scoped diff check exit 0도 확인했다. 고정 입력의 통과와 이후 다른 작업을 포함한 전체 checkout 검증을 구분한다.
+
+| 검사 범위 | 실제 결과 | 입력/근거 |
+| --- | --- | --- |
+| common instructions + provider harness mapping | 10/10, exit 0 | `source-final-r2.stdout.log` |
+| compile scope selection | 7/7, exit 0 | `compile-scope.stdout.log` |
+| codex-prompts `model_instructions` | 7/7, exit 0 | `engine-r3`; runtime → common 합성, API 투영, 사용자 suffix·템플릿 교체 |
+| codex-config `harness` | 10/10, exit 0 | `engine-r3`; 모든 provider 기본값, 명시적 override·상속·오류 |
+| core `azrael_defaults_and_explicit_claude_profile_select_executable_tools` | 1/1, exit 0 | `engine-r4`; native 기본값과 명시적 Claude registry |
+| core `anthropic_azrael_tools_patch_read_and_execute` | 1/1, exit 0 | `engine-r4`; 실제 patch·파일 bytes·명령 읽기·결과 반환 |
+| core `claude_tool_search_loads_and_dispatches_a_deferred_tool` | 1/1, exit 0 | `engine-r4`; 명시적 Claude 검색·지연 도구 호출·반환, 실행 1.67초 |
+
+원본 결과 JSON은 run의 `results.json`(prompt/config 성공과 첫 core 실패를 그대로 포함), `results-core-r5.json`(core 세 성공)이며, 각 native 검사는 사전 타입 검사와 nonzero 테스트 선택을 확인했다. 위 표와 고정 입력 SHA를 이 작업 기록에 독립적으로 보존한 뒤 재현용 snapshot·run 전용 실행기·raw 로그는 정리한다. 새 retained smoke와 합성/설정/transport 검사는 승인한 기본값·실행 계약을 보호하므로 소스에 유지한다. 일회용 검증 스크립트는 제품 테스트로 남기지 않는다.
+
+실제 검증은 Windows x64에 한정한다. Linux x64·macOS ARM64·유료 live provider API·현재 설치 앱은 검증하지 않았고, 본문 지침의 모델 준수 효과까지 입증한 것은 아니다. native 시도는 10:21–14:42 UTC에 걸쳤으며 캐시 경합 대기와 다른 source snapshot 사용에 따른 재컴파일이 포함된다. 겹친 실행 시간을 합산해 총 시간으로 보고하지 않는다.
+
+마지막 source preflight에서도 `engine/SOURCE.json` SHA-256 `eed776104d75625f69b2d79493261eb445678ca7dac6a7253ba2361084fd3a47`와 다른 작업 소유 두 파일의 불일치가 유지됐다. 위에 기록한 실제/receipt hash는 변하지 않았다. 정확한 이번 delta만 기록해야 하는 official recorder의 선행조건이 충족되지 않아 SOURCE를 임의로 고치거나 타 작업을 흡수하지 않는다. 작업 커밋도 이 출처 정합화 이후 남은 단계다.
+
+정리 결과: producer close revision 3에서 실제 종료·구성 완결·참조 없음으로 등록한 `run:CJ-01:default-r1`을 native review했다. blocker가 없었으며 exact item `666559dc00ab463de22fe2e0ea9a8f63af4e7e560a2cbf9aa52fe1ddc92c57c1`에 delete를 적용했다. `attempt-61016-1480-1792681127798`은 `aborted:false`, group/item `deleted`, error null, `remaining:false`를 반환했다. 등록 logical bytes는 777625661이며 physical reclaimed bytes는 도구가 측정하지 않았다. `artifacts/verification/cj-default-r1/` 전체의 snapshot·run 전용 스크립트·raw 로그를 삭제했다. 위 표는 삭제된 로그를 다시 열어야 이해되는 링크가 아니라 독립적인 최종 결과 기록이다. active warm Cargo target이나 다른 작업 자료는 삭제 범위에 포함하지 않았다.
+
+producer lifecycle finalize도 `finalized`, remaining/references/blockers 모두 빈 배열로 완료됐다. 최종 source preflight의 receipt hash와 위 두 타 작업 파일 불일치는 그대로다. mandatory 출처 갱신 및 작업 커밋을 완료했다고 주장하지 않으며, 정합화 후 이번 변경만 기록·커밋하는 작업이 남아 있다.
+
+## 후속 Cargo 점유 비용 조사
+
+사용자 요청은 여러 작업이 캐시를 점유한 동안 무엇에 시간을 썼는지 기존 로그로 조사하는 것이다. 이번 후속 조사는 읽기·통계와 이 기록 갱신에 한정한다. 제품 코드·캐시·작업 스케줄링을 변경하거나 새 Cargo 실행을 시작하지 않았다. Windows x64의 2026-10-20 및 10-22 UTC 기록을 표본으로 사용한다. 실제 KST 날짜는 10-20~10-23이며 모든 작업·플랫폼의 전수 통계가 아니다.
+
+`DA`·`DC`·`DD`·`CX`·`CU`의 지정된 native log 32개를 읽었다. 조회 중 생성된 `DC/native-8`은 완료 결과가 없어 제외했다. 로그의 `[cargo-owner]` token 158개는 모두 고유하며 누적 `[cargo-preflight]`는 phase/start/args로 중복 제거했다. flat preflight 형식 중 duration이 없는 기록과 파싱되지 않은 CX marker 한 건은 단계 시간에 넣지 않았다. `DD` 두 로그는 시작 전 guard 거부였고 실제 Cargo 준비 시간은 없다. 원래 `CY` raw log는 작업 정리로 삭제됐으므로 `work/CY-01-session-loading-review/04-native-verification.json`의 종료·사전 검사·직접 바이너리 실행 근거를 별도 사용했다.
+
+| 작업 | 완료 Cargo 준비 명령 수 | Cargo `Finished` 준비 시간 누적 | libtest 본문 시간 누적 |
+| --- | ---: | ---: | ---: |
+| DA reload/handoff, 별도 `target-daemon` | 42 | 10157.34초 | 35.32초 |
+| DC queue/question wait | 15 | 3895.10초 | 76.58초 |
+| CX auth/shutdown | 88 | 4742.84초 | 49.09초 |
+| CU OAuth, default·preserve-order 포함 | 6 | 644.19초 | 112.34초 |
+| 합계 | 151 | 19439.47초(5시간 23분 59초) | 273.33초(4분 33초) |
+
+이 표는 Cargo가 `Finished`로 보고한 완료 준비 구간과 libtest가 보고한 본문 실행 시간을 합친 명령 누적치다. 작업 간 겹친 시간을 포함하므로 전체 wall time이나 정확한 캐시 lease 점유 총시간으로 해석하지 않는다. 큐 대기 시간은 합산하지 않았다. 실패로 `Finished`가 없는 7개 컴파일 명령은 준비 합계에서 제외됐으며, 별도 측정된 4개 실패 typeCheck만 1875.269초(31분 15초)다. 54개 libtest 결과 그룹의 525회 실행(재실행·동일 테스트 중복 포함), 본문 실패 4건/3그룹을 포함한다. 성공한 고유 테스트 수로 재분류하지 않는다. 준비 시간은 기록된 테스트 본문 합계의 약 71.1배이며, 위 151개 명령의 준비 시간과 preflight 단계 합은 겹치므로 다시 더하지 않는다.
+
+구체적인 반복 비용과 재사용 근거:
+
+- CY는 `cargoPreflight`의 고유 typeCheck 1615799ms, selection 1862793ms, 합 57분 59초였다. 이 selection은 테스트 선택용 바이너리 준비를 포함한다. 이후 고정된 동일 바이너리로 8개 필터를 nonzero 선택·실행한 전체 구간은 13:28:10.042–13:29:22.894 UTC, 72.852초였고 64회/61개 고유 테스트가 통과했다. 직접 바이너리 실행은 원래 Cargo wrapper의 cache-conflict exit 1을 성공으로 바꾼 근거가 아니다.
+- DC/native-7의 codex-core 첫 typeCheck+selection은 547663+834470=1382133ms(23분 2초), 같은 입력의 compact 필터는 11331+5624=16955ms, turn 필터는 5362+5965=11327ms였다. 따라서 필터 분할만으로 항상 전체 재컴파일이 발생한다고 단정하지 않는다. 변경된 입력과 준비 결과 재사용 여부가 큰 차이를 만든다.
+- DA에는 별도 target에서도 codex-core selection 2047671ms(34분 8초), 이후 source 세대에서 878078ms가 기록됐다. 단순 캐시 분리만으로 준비 비용이 사라지지 않는다. source 세대·package/features가 바뀐 비용과 회피 가능한 반복을 구분해야 한다. CU의 default/preserve-order는 의도된 feature 차이이므로 두 빌드를 곧바로 낭비로 분류하지 않는다.
+- DA/native-r2의 E0624는 `core/src/tools/router_tests.rs:330`의 이번 CJ 비공개 `HarnessProfiles::from_templates` 호출이었다. CJ에서 만든 fixture 오류가 다른 작업의 고정 입력에도 포함돼 검증 비용을 전파했다. DA에는 별도 E0507 및 E0616 실패도 있다.
+- DC/native-6의 E0599 이후 `native-7/reports/cache-invalidation.json`은 선택 소스에 해당 variant가 있으나 Cargo가 없다고 보고해, 파일 bytes를 바꾸지 않고 mtime을 갱신해 dependency freshness를 다시 계산했다고 기록한다. 이것만으로 Cargo 내부 원인을 확정하지 않으며, 추가 빌드 재시도 전에 입력/산출물 신선도를 진단할 필요가 있다는 근거로 사용한다.
+
+보존된 원본은 `artifacts/verification/da1/logs/native-*.log`, `artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-{5,6,7}/logs/`, `artifacts/tasks/CX-01-azrael-auth-recovery/runs/shutdown-r1/logs/native*.log`, `artifacts/tasks/CU-01-laio-oauth-store-review/native-{1,2}/out/oauth*.log`다. 해당 작업들의 이후 정리는 각 소유자가 결정한다.
+
+개선 우선순위는 입력·공개 API/동시 변경의 준비 상태 확인으로 실패 전파 줄이기, 정확히 같은 source/features/target/toolchain의 준비 바이너리와 타입 검사 근거 재사용, 변경 입력의 재컴파일 사유·범위를 확인한 뒤 필요 범위만 재준비하기다. 기존 nonzero 선택·실행과 필수 검사를 생략하자는 제안은 아니다. 조사한 main/DA target에는 crate별 Cargo timing report가 없고, `Finished`만으로 컴파일·코드 생성·링크·CPU·디스크 비용을 분리할 수 없다. 다음 실행부터 명령 종료 시각, 입력 식별자, crate별 준비 시간과 재컴파일 이유를 작은 구조화 요약으로 보존하면 판단 근거가 개선된다. 아직 이러한 실행기 변경은 수행하지 않았다.
+
 ## 목표와 현재 권한
 
-모델에 제공되는 컨텍스트를 원문에 대응하는 한글 직역으로 조금씩 검토한다. 프로필별 차이와 모든 도구의 설명·입력 계약을 포함하고, 전체 원문을 한 번에 제시하지 않는다. 범위 조사와 계획 작성을 마쳤고, 공통 행동 지침을 6부분으로 나누어 제시한다. R01·R02 변경과 R03·R04 유지가 확정됐다. R05는 검색 문구 수정·60초 대기 제한 삭제·여러 줄 본문 전달·테스트 지침 변경에 이어 제품 표시 문구 규칙 변경도 승인받았고, 나머지는 현행 유지로 확정했다. 현재는 이 마지막 확정 문구를 반영하고 R06을 직역한다. 기존 feature owner 연결을 재사용한다. 제품 빌드·설치는 포함하지 않는다.
+모델에 제공되는 컨텍스트를 원문에 대응하는 한글 직역으로 조금씩 검토한다. 프로필별 차이와 모든 도구의 설명·입력 계약을 포함하고, 전체 원문을 한 번에 제시하지 않는다. 범위 조사와 계획 작성을 마쳤고, 공통 행동 지침을 6부분으로 나누어 제시한다. R01·R02 변경과 R03·R04 유지가 확정됐다. R05는 검색 문구 수정·60초 대기 제한 삭제·여러 줄 본문 전달·테스트 지침 변경에 이어 제품 표시 문구 규칙 변경도 승인받았고, 나머지는 현행 유지로 확정했다. R06은 사용자 지정 세 문구를 수정하고 전체 직역본을 다시 제시한다. 기존 feature owner 연결을 재사용한다. 제품 빌드·설치는 포함하지 않는다.
 
-사용자가 확정한 사항은 프로필별 검토, 도구 컨텍스트 전수 검토, 부분별 직역과 공통 행동의 6부분 분할, 아래 R01·R02·R05 문구와 적용 권한, R03·R04의 현행 유지다. 한 번에 한 단위를 제시하며 다음은 R06이다. 아래 후속 순서와 분량은 권장안이다.
+사용자가 확정한 사항은 프로필별 검토, 도구 컨텍스트 전수 검토, 부분별 직역과 공통 행동의 6부분 분할, 아래 R01·R02·R05·R06 문구와 적용 권한, R03·R04의 현행 유지다. 한 번에 한 단위를 제시하며 현재는 수정된 R06을 다시 제시한다. 아래 후속 순서와 분량은 권장안이다.
 
 ## R01 확정 문구와 반영 범위
 
@@ -46,6 +136,66 @@ R02 검증은 Windows x64에서 `project_tests`의 retained `common-instructions
 Windows x64에서 retained `common-instructions` bundle을 최신 확정 변경에 대해 plan/run했다. 실행은 `node --test scripts/test-common-agent-instructions.cjs`, actual exit 0, 5/5 통과, producer_completed=true, integrity valid다. run ID는 `run-45928-1312-1792426349201133800`, bounded 로그는 `tool-call:exec-c26d26d1-e010-4d28-a9a7-63b00f658baf:step-5b7314565fd7a026b66169e24b53c408ac63a89e29db4bec7efa49fbd69c55ad`다. 사본 동일성 및 이전 prompt를 역구성한 SHA-256 대조로 이번 제품 표시 문구 한 불릿 외의 변경이 없음을 확인했고, scoped `git diff --check`도 exit 0이다. 별도 테스트·로그·백업·프로필·빌드·설치 산출물을 만들지 않았다. 최신 source preflight에서도 아래 알려진 thread_processor.rs 불일치가 남아 있음을 확인했다.
 
 출처 preflight에서 공유 SOURCE hash는 `eed776104d75625f69b2d79493261eb445678ca7dac6a7253ba2361084fd3a47`로 바뀌었고 originalReceipt는 기존 immutable baseline과 같았다. R01·R02 prompt hash는 이미 공유 receipt에 기록되어 있었다. 이전에 불일치한 네 경로 중 thread-store 세 경로는 현재 기록과 일치했지만 `codex-rs/app-server/src/request_processors/thread_processor.rs`는 기록된 hash `a350c38adab0a2b745c8c1d7545f2f47853971870a91dc59e24858c8f111dc37`와 실제 `948b40bfd165fbcd37f272cfc9ced262b39b35b9ced956b78f35b51a3ccbced8`가 여전히 달랐다. 이는 전체 inventory의 미기록 경로가 이 하나뿐이라는 검증은 아니다. 알려진 선행 불일치가 남아 있으므로 실패할 recorder 전체 실행을 반복하지 않고, 해당 소유 작업에서 정합화한 뒤 이번 prompt 한 경로를 기록하는 순서를 유지한다. 공유 SOURCE를 수정하거나 다른 작업을 stage/commit하지 않는다.
+
+## R06 확정 변경과 검증
+
+사용자는 키워드·피상적 관련성만으로 스킬을 사용하지 말라는 문장과 가능한 재독 회피 문장을 삭제하고, 스킬을 끝내 찾지 못하면 문제를 짧게 알리고 최선의 대안으로 계속 진행하도록 바꾸는 것을 승인했다. 누락된 파일의 다른 위치 검색은 유지한다. 원본·내장 사본의 해당 세 문장과 owning architecture만 갱신하며 앱·플러그인 및 별도 조건부 카탈로그 문구는 유지한다. 조건부 카탈로그의 강제 사용·누락 처리·패키지 접근과 공통 지침 사이의 차이는 후속 검토 대상이다.
+
+공통 플랫폼 문구 변경이며 Windows x64에서 source 검사를 수행했다. `common-instructions` retained bundle을 plan/run했고 `node --test scripts/test-common-agent-instructions.cjs` actual exit 0, 5/5 통과, producer_completed=true, integrity valid다. run ID는 `run-12672-1396-1792651142725213000`, bounded 로그는 `tool-call:exec-1a6aa1da-9352-476e-be42-e0ba0558db26:step-81b88b9d58516ef91dfada1c52a0d66b00c3e52bf5c2c8ef04649a5e393f36a8`다. 사본 byte 동일성 및 HEAD에서 지정 세 문장만 치환한 결과와의 동일성을 확인했고 scoped `git diff --check`도 exit 0이다. 전체 154행·17,654 bytes, SHA-256 `d650b869760c7a71cdedc803fc6a9d296fafc777c939418273bd3b07af764cb7`다. 실제 대화에서의 스킬 선택 효과나 설치 앱은 검증하지 않았다. 새 테스트·로그·백업·빌드 산출물을 만들지 않았고 기존 retained 검사는 보존한다.
+
+현재 source receipt SHA-256은 `eed776104d75625f69b2d79493261eb445678ca7dac6a7253ba2361084fd3a47`다. 이번 preflight에서 다른 작업이 변경한 `codex-rs/app-server-client/src/bin/azrael-bridge.rs`와 `codex-rs/ext/skills/src/host_roots_tests.rs`의 실제 hash가 receipt와 다름을 확인했다. 전체 inventory의 불일치가 이 둘뿐이라는 의미는 아니다. 이전 thread_processor 불일치 기록은 이전 실행 근거이며 이번 확인 대상으로 재사용하지 않았다. 출처 갱신은 소유 작업의 정합화 이후 수행하고 공유 receipt나 타 작업을 stage/commit하지 않는다. 이번 범위의 작업 커밋은 그 선행조건을 기다린다.
+
+## 전체 제공자·모델 공통화 검토안
+
+사용자는 P03과 R01–R06의 중복·조건 차이를 정리한 공통 행동 본문 방향에 동의하고 원문·사용자안·권장안을 대조해 병합 문구를 선택했다. 현재는 문구 확정 작업이며 행동 파일·합성 코드·도구 설정의 실행 권한으로 확대하지 않는다. 구성 방향은 P01 → 통합 공통 행동으로, P03을 별도로 반복 주입하지 않는다. 아래 선택이 앞선 병합 권장안보다 우선하며, 사용자가 제외한 P03 고유 규칙을 임의로 추가하지 않는다.
+
+- 1번은 “사려 깊고 솔직한 협력자로 작업하세요. 명확하고 간결하며 문장들이 이어지는 산문으로 핵심을 먼저 말하세요. 능동태와 직접적인 진술을 우선하세요.”를 채택한다. 기존 추상적 성격 문구 제거 결정은 이 명시적 선택으로 변경됐다.
+- 2번은 “불필요한 서두·맺음말·작업 설명의 반복을 줄이세요.”만 남긴다. 대응하는 제목·요약 표현·전문 용어·어려운 개념 설명 문장은 사용자 삭제 범위에 맞춰 정리한다.
+- 3번은 사용자 진행·언어·결과 보고 문단에 코드 식별자·명령어·경로·필수 인용문의 원래 언어 유지 및 영어 도구 설명이 응답 언어를 바꾸지 않는 예외를 보존한다. 변경 보고 문장은 3번에만 둔다.
+- 4번은 사용자안을 유지한다. 특히 “사용자가 중간에 작업을 요청하면 필요한 실행과 후속 조치를 수행하세요.”에 권장했던 “이미 승인된 범위 안에서”를 추가하지 않는다. 같은 문단의 기존 권한·계획 범위 규칙과 P01은 유지된다.
+- 5번은 “통상적인 기술 선택은 스스로 결정하세요. 사용자의 판단이 필요한 중요한 선택은 일찍 확인하세요. 답을 기다리는 동안 그 답에 의존하지 않는 유용한 작업을 계속하세요.”를 채택한다.
+- 6번은 새 메시지 처리에 명시적 작업 취소·대체 예외를 보존하고, 압축 후 가정은 승인 범위와 요구사항을 바꾸지 않는 범위로 한정하는 권장안을 채택한다.
+- 7·8·10번은 앞서 제시한 사용자 문구를 기준으로 두며 추가 수정 요청은 없다. 7번 스킬 누락 시 대안 진행, 8번 채널·질문 도구, 10번 검색·병렬 실행을 유지한다.
+- 9번은 사용자가 승인한 작업에서 스킬·플러그인 지침에 따라 메시지를 보냈다면 이름·링크를 최종 보고하는 권장안을 채택하고, 권한 경계 설명은 확인·허가 요청의 이유·근거 문장으로 합친다.
+- 11번은 아래 사용자 확정 문구를 채택한다. 권장안에 있던 기존 회귀 테스트·필수 검사 보존 문장을 이 문단에 다시 넣지 않는다. 이 문구 확정만으로 기존 테스트 삭제를 실행하지 않는다.
+- 12번은 셸 인용·이스케이프에 관한 기존 사용자 문구 유지 권장안을 채택한다.
+- 13번은 앞선 요청에서 상세 로그 보관 문장 추가와 규약 연결 확장을 선택했다. 로그는 R05의 검증 문단 뒤에 두는 제안이며, 테스트·검증·커밋·정리·빌드 입력·플랫폼에 관한 프로젝트·스킬 연결은 한 번만 배치한다. 그 밖의 P03 고유 문장은 추가하지 않는다.
+
+11번 확정 문구: “테스트와 검증은 해당 작업에 적용되는 프로젝트 지침과 스킬을 따르세요. 새로 작성한 작업 전용 테스트는 기본적으로 일회용으로 두고, 필요한 검증·재검증과 결과 검토가 끝난 뒤 즉시 삭제하세요. 작업 전용 테스트를 남겨야 한다면 이유를 밝히고 남기는 테스트들을 사용자에게 요약해서 보고하세요. 테스트의 존재·개수·문구·구조만 확인하고 제품 동작이나 필수 계약을 검증하지 않는 메타 테스트를 작성하지 마세요.”
+
+사용자는 기존 Azrael 기본 프로필에 P01과 병합한 공통 행동을 적용하고 이를 모든 provider/model의 기본값으로 사용하기를 원한다. 별도 프로필을 강제로 같은 합성 경로로 통일하지 않고, 사용자가 명시적으로 프로필을 바꾸면 그 선택을 적용한다. 사용자 정의 템플릿의 기존 대체 의미도 유지한다. 현재는 계획이며 실제 구현·설치 및 모든 제공자의 호환 검증을 완료한 상태가 아니다.
+
+기본 Azrael 분기는 기존 `compose_agent_instructions` 결과를 반환하고 테스트도 기존 합성과의 동일성을 검증한다. P01을 이 분기에 포함할 수 없다는 기술적 근거는 없으며 당시 정확한 작성 동기는 확인하지 못했다. 현재 Anthropic의 Azrael 도구 지정은 resolver에서 거부된다. 전체 통일은 config 수정만으로 되지 않으며 resolver·registry·검색·code mode·provider 변환을 함께 검토해야 한다. 실제 Anthropic 도구 호출 호환성은 미검증이다.
+
+P03과 공통 행동의 중복·조건 차이는 위 확정 문구로 정리해 Azrael 기본 행동에 반영한다. 실제 모델 능률에 미칠 영향은 미검증이다. Azrael 기본 프로필에 P01을 추가하므로 API 문구 투영과 saved custom 중복 제거를 함께 맞춰야 한다. 다른 프로필의 고유 동작과 사용자 템플릿의 기존 대체 의미는 유지하는 것으로 확정했다. 현재 Windows x64에서 정적 소스만 조사했으며 코드 실행 수용은 구현 뒤 기본 도구 동작 확인으로 구분한다.
+
+## 공통 행동·프로필·도구 변경 구현 계획
+
+### 목표와 실행 경계
+
+현재 사용자 요청은 실제 변경 계획의 정정이다. 기존 `builtin/azrael-default` 프롬프트를 P01 → 통합 공통 행동으로 수정하고, 명시적 선택이 없으면 모든 provider/model이 Azrael 기본 프롬프트·도구를 사용하도록 한다. P03 단독·Anthropic 호환·사용자 정의 프로필은 선택 가능하게 유지하고, 사용자가 선택했을 때 해당 프로필의 합성을 적용한다. 프로필 전환은 기존 설정 재로딩·요청 스냅샷 경계에 따르며 실행 중 요청을 바꾸지 않는다. Guardian·classifier 등의 특수 목적 요청은 임의로 교체하지 않는다. 제품 대상은 Windows x64·Linux x64·macOS ARM64의 공통 로직이며 실제 검증 환경은 Windows다. 제품 빌드·설치·외부 게시를 이 계획 정정만으로 실행하지 않는다.
+
+### 변경 소유 범위와 순서
+
+1. `instructions/instructions/agent-behavior.md`에 확정된 1–13번을 기존 대응 문장 교체 방식으로 반영하고 `engine/codex-rs/prompts/templates/agent_behavior.md`를 동일하게 갱신한다. P01은 별도 원본·사본 한 쌍으로 유지한다. R에서 발췌하지 않은 지침을 삭제하지 않고, 제외된 P03 고유 규칙을 추가하지 않는다. 4번 사용자안과 11번의 “즉시 삭제” 및 기존 회귀 보존 문장 미삽입 결정을 보존한다.
+2. `prompts/src/model_instructions.rs`의 기존 Azrael 기본 분기에 P01과 갱신된 공통 본문을 포함한다. 다른 프롬프트·도구 프로필의 합성과 명시적 사용자 템플릿 대체 기능은 유지한다. API 병렬 문구 투영과 saved custom의 harness-owned 접두부 갱신을 기본 프로필의 새 구조에 맞추되 사용자 본문을 전역 치환하거나 임의 제거하지 않는다.
+3. `config/src/harness_profiles.rs`에서 Anthropic 자동 프로필 선택 분기와 Anthropic의 Azrael 도구 선택을 거부하는 검사를 삭제한다. 선택 순서는 Azrael 기본값 → 설정된 전역 기본 프로필 → 제공자별 명시 설정 → 모델별 명시 설정으로 유지한다. 작업 프로필의 명시적 선택도 기존 계약에 따른다. 내장 프로필 ID나 사용자 정의 프로필을 폐지하거나 동일 내용으로 강제하지 않는다.
+4. `core/src/tools/spec_plan.rs`, `tools/router.rs`, `session/step_context.rs`, `session/turn.rs`와 managed provider mapping을 함께 대조한다. Azrael의 직접·중첩·deferred 도구가 선언·검색·실행에서 같은 선택을 사용하게 하고 과거 Claude 도구 검색 결과가 현재 도구 실행 권한으로 쓰이지 않게 한다. 실제 도구 capability, MCP namespace, 샌드박스·승인·작업/프로세스 소유권은 유지한다. Anthropic wire 변환·도구 이름 복원·결과 전달은 Azrael 도구에서 검증한다.
+5. 기본 프로필 변경이 기존 snapshot·지침 비교·API 투영을 깨지 않게 필요한 연결만 수정한다. 기존 모델/provider 전환·재개·압축 전체를 대상으로 새 전수 검증을 추가하지 않는다. 요청 실행 중에는 캡처한 입력을 바꾸지 않는다.
+6. owning `docs/architecture/model-harness-profiles.md`, `docs/architecture/instructions.md`와 `engine.model-harness-profiles`의 구현 owner·필수 검사 연결을 갱신한다. feature inventory의 다른 작업 변경은 보존한다. 공식 source recorder에 이번 소유 변경만 반영하고 작업 단위 커밋한다. 타 작업의 출처 불일치를 임의로 흡수하지 않는다.
+
+### 프로필 선택과 템플릿 처리
+
+기존 `behavior_template_file`의 행동 본문 대체 의미, 프로필 상속 및 명시적 override를 유지한다. 공통 본문을 모든 프로필에 강제로 추가하거나 사용자 템플릿을 추가 전용으로 바꾸는 이전 제안은 폐기한다. 모든 제공자에 적용한다는 의미는 기본 선택의 통일이며 사용자의 후속 선택을 차단하는 강제 정책이 아니다. 전환은 기존 설정과 다음 유효 요청 스냅샷에 반영한다.
+
+### 검증과 완료 기준
+
+- 먼저 기존 source 검사와 provider mapping fixture로 공통 문구 사본·정상 입력·도구 call/result 왕복·미선언 호출 거부를 확인한다. 원문 개수·테스트 이름만 보는 메타 테스트를 새로 작성하지 않고 실제 합성 결과·registry 선택·호출 결과를 검증한다.
+- 기존 필수 검사 중 변경된 계약에 해당하는 검사를 새 목표에 맞게 갱신한다. 실제 오류를 숨기는 검사 삭제나 빈 필터 통과로 대체하지 않는다. 사용자 지정 추가 검증은 기본 동작 확인으로 한정하고 새 전수 행렬·장시간 광범위 회귀 검사를 추가하지 않는다.
+- 기본값 해석과 다른 프로필의 명시적 선택이 가능한지 작은 범위로 확인한다. Anthropic의 Azrael 파일 읽기·패치·명령 실행과 결과 반환을 로컬 전송 fixture 및 가능한 native 경로에서 확인한다. 도구 호출 → 실행 → 결과 반환 성공을 수용 기준으로 하며 모든 오류·모델·provider 조합의 무결함을 보장하지 않는다. live 유료 모델 호출과 설치 앱 수용은 별도 범위다.
+- 장시간 native 검사 전에는 작은 source/mapping 검사로 재실행 원인을 줄이고 입력·캐시 소유·필수 provenance 조건을 고정한다. 공유 producer가 실행 중이면 중복 실행하지 않는다. 로그·출력은 실행 전에 작업 소유 위치를 정한다.
+- 새 작업 전용 검사는 필요한 재검증·결과 검토가 끝난 뒤 즉시 정리하고, 보존 시 이유·검사 목록을 보고한다. 기존 필수 검사와 제품 계약을 검증하는 검사는 작업 전용이라는 이름만으로 삭제하지 않는다. 실패·활성 producer·복구 참조 등 native 보호가 있는 산출물은 실제 종료·참조 해제·검토 결과를 거쳐 정리한다.
+- 결과 보고에는 실제 변경·실행한 범위·exit code·로그 경로·미검증 provider/OS·source metadata/commit 상태를 분리한다. 모델의 실제 승인 해석과 테스트 삭제 정책 준수는 문구 검사만으로 검증됐다고 하지 않는다.
 
 ## 범위의 정의와 기준
 
@@ -162,7 +312,7 @@ Native 검토 묶음은 다음과 같다.
 | R05 | 100–111행 | 작업 도구·검색·병렬 호출·검증 규칙 |
 | R06 | 112–154행 | 스킬·앱·플러그인 사용 |
 
-R01·R02·R05는 변경·유지 사항이 확정됐고 승인된 수정을 원본과 내장 사본에 적용했다. R03의 47–70행과 R04의 71–99행은 현행 유지로 확정했다. R06은 이번 응답에서 112–154행을 직역하며 제시만으로 사용자 검토 완료로 처리하지 않는다. 현재 원문 범위와 hash는 위 R05 절을 따르며 원본·내장 사본은 byte 동일하다.
+R01·R02·R05는 변경·유지 사항이 확정됐고 승인된 수정을 원본과 내장 사본에 적용했다. R03의 47–70행과 R04의 71–99행은 현행 유지로 확정했다. R06은 승인된 세 문구를 수정한 뒤 112–154행을 다시 직역하며, 재제시만으로 나머지 검토 완료를 추정하지 않는다. 현재 원문 범위와 hash는 위 R06 절을 따르며 원본·내장 사본은 byte 동일하다.
 
 한 번에 한 단위를 제시한다. 원문 약 300–600단어를 기본 상한으로 삼고 조건·규칙이 밀집하면 더 짧게 나눈다. 행 수가 짧아도 긴 문단은 분할하며, 도구 한 개가 길면 설명·parameter·예제 단위로 나누되 조건·예외를 다음 회차에서 누락하지 않게 연결한다. 회차는 확정하지 않는다. 771개를 단순히 5개씩만 나누어도 155묶음이므로 외부 도구까지 10–20회로 끝난다고 약속할 수 없다. 공통 boilerplate의 동일성 대조와 고유 본문 크기별 분할 후 실제 회차를 산정한다.
 

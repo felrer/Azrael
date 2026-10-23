@@ -1,0 +1,16 @@
+{
+  "lifecycleId": "run:DJ-01:native-retention-r9",
+  "lifecycleIds": [
+    "run:DJ-01:native-retention-r9"
+  ],
+  "status": "complete",
+  "caseStatus": "complete",
+  "producerStopped": true,
+  "startedUtc": "2026-10-22T16:48:07.566Z",
+  "endedUtc": "2026-10-22T16:50:35.413Z",
+  "seedHome": null,
+  "threadIds": [],
+  "seedThreads": [],
+  "seedReady": false,
+  "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-retention-r9\\reports\\report.json"
+}

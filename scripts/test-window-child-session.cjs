@@ -156,6 +156,12 @@ test('trusted transport requires explicit authority before any native start', as
   assert.equal((await f.manager.start({ ownerId: 'task-a' })).code, 'child_session_authority_required');
   assert.equal(f.calls.length, 0);
 });
+test('explicit logoff does not discard live manager state until its transport producer exit is verified',async()=>{
+  const f=connectedFixture();const started=await f.manager.start({ownerId:'task-a'});
+  const result=await f.manager.forgetLoggedOff({logoffConfirmed:true,processesStopped:true,identity:started.identity});
+  assert.equal(result.retired,false);assert.equal(result.cleanupUnconfirmed,true);assert.equal(f.disconnected(),true);
+  await assert.rejects(f.manager.forgetLoggedOff({logoffConfirmed:false,identity:started.identity}),/Confirmed/);
+});
 
 test('complete mock platform proof admits only its exact owned worker; one owner controls operations and stop', async () => {
   const f = connectedFixture();

@@ -1,0 +1,82 @@
+﻿{
+    "atUtc":  "2026-10-22T16:05:20.9454153Z",
+    "release":  "w11aa",
+    "enginePid":  61016,
+    "processRoles":  [
+                         {
+                             "role":  "shared-engine",
+                             "count":  1,
+                             "privateMiB":  4316.4,
+                             "wsMiB":  2664.6
+                         },
+                         {
+                             "role":  "window-control-mcp",
+                             "count":  50,
+                             "privateMiB":  1111.8,
+                             "wsMiB":  1287.3
+                         },
+                         {
+                             "role":  "node.exe",
+                             "count":  6,
+                             "privateMiB":  581.9,
+                             "wsMiB":  258.4
+                         },
+                         {
+                             "role":  "engine-connector/other",
+                             "count":  8,
+                             "privateMiB":  211.7,
+                             "wsMiB":  263
+                         },
+                         {
+                             "role":  "code-mode-host",
+                             "count":  6,
+                             "privateMiB":  198,
+                             "wsMiB":  187.7
+                         },
+                         {
+                             "role":  "node_repl.exe",
+                             "count":  50,
+                             "privateMiB":  146.3,
+                             "wsMiB":  448.5
+                         },
+                         {
+                             "role":  "bridge",
+                             "count":  6,
+                             "privateMiB":  28.8,
+                             "wsMiB":  67.5
+                         },
+                         {
+                             "role":  "azrael-window-control.exe",
+                             "count":  2,
+                             "privateMiB":  13.2,
+                             "wsMiB":  37.3
+                         }
+                     ],
+    "codeRoles":  [
+                      {
+                          "role":  "main/other",
+                          "count":  11,
+                          "privateMiB":  490,
+                          "wsMiB":  490.4
+                      },
+                      {
+                          "role":  "gpu",
+                          "count":  1,
+                          "privateMiB":  666.4,
+                          "wsMiB":  255.4
+                      },
+                      {
+                          "role":  "utility",
+                          "count":  16,
+                          "privateMiB":  2778.1,
+                          "wsMiB":  1538.8
+                      },
+                      {
+                          "role":  "renderer",
+                          "count":  18,
+                          "privateMiB":  6485.8,
+                          "wsMiB":  5263.7
+                      }
+                  ],
+    "note":  "Executable-path-based release attribution; VS Code totals include unrelated extensions and editors. Working sets include shared pages."
+}

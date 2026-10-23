@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m",
+  "lifecycleIds": [
+    "run:DJ-01:native-a-r4"
+  ],
+  "startedUtc": "2026-10-22T16:30:55.963Z",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "frozenSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "platform": "win32",
+  "arch": "x64",
+  "status": "failed",
+  "modes": [
+    {
+      "name": "no-mcp",
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r4\\reports",
+      "status": "failed",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a4",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r4\\workspace",
+      "startedUtc": "2026-10-22T16:30:56.016Z",
+      "checkpoints": [],
+      "backend": {
+        "pid": 66240,
+        "processStartTime": "134371602636005157",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a4\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a4\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "children": [
+        {
+          "pid": 56496,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 40804,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 20620,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 8640,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "cleanupErrors": [
+        "AssertionError [ERR_ASSERTION]: backend generation identity\n+ actual - expected\n\n+ '134371602636005150'\n- '134371602636005157'\n                    ^\n"
+      ]
+    }
+  ],
+  "limitations": [
+    "One-off synthetic measurement; no leak conclusion",
+    "Root event queue sizes unknown: no exposed metric",
+    "No real MCP tool calls, capture, OS input, external provider, or credentials",
+    "Slow-consumer scenario not selected",
+    "CIM snapshots are observations, not continuous peak measurements; driver/sampler/mock host overhead excluded from test private limit"
+  ],
+  "childOutcomes": [
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "own project boundary",
+      "pid": 24336,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "version",
+      "pid": 49636,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "endpoint-discovery",
+      "pid": 61000,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "CIM sample",
+      "pid": 25064,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "connector-0",
+      "pid": 56496,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "connector-1",
+      "pid": 40804,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "mock-host-0",
+      "pid": 20620,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "mock-host-1",
+      "pid": 8640,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r4",
+      "kind": "CIM sample",
+      "pid": 64632,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "engineVersion": "0.162.0",
+  "error": "AssertionError [ERR_ASSERTION]: backend generation identity\n+ actual - expected\n\n+ '134371602636005150'\n- '134371602636005157'\n                    ^\n\n    at observe (file:///C:/Users/felre/Desktop/pi-harness-init/work/DJ-01-azrael-memory-analysis/native-memory-probe.mjs:92:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async loadBackend (file:///C:/Users/felre/Desktop/pi-harness-init/work/DJ-01-azrael-memory-analysis/native-memory-probe.mjs:139:5)\n    at async main (file:///C:/Users/felre/Desktop/pi-harness-init/work/DJ-01-azrael-memory-analysis/native-memory-probe.mjs:177:7)",
+  "cleanupErrors": [
+    "Error: AssertionError [ERR_ASSERTION]: backend generation identity\n+ actual - expected\n\n+ '134371602636005150'\n- '134371602636005157'\n                    ^\n"
+  ],
+  "provider": {
+    "requests": [],
+    "errors": []
+  },
+  "producerStopped": false,
+  "endedUtc": "2026-10-22T16:31:12.112Z"
+}

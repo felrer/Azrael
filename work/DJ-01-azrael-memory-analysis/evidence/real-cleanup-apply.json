@@ -1,0 +1,267 @@
+{
+  "aborted": false,
+  "groups": [
+    {
+      "id": "run:DJ-01:real-history-r11",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:real-history-r12",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:real-history-r13",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:real-history-r14",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:real-history-r16",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:real-snapshot-unit-r12",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:real-snapshot-unit-r13",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DJ-01:real-snapshot-unit-r14",
+      "status": "deleted"
+    }
+  ],
+  "results": [
+    {
+      "attempt_id": "attempt-61336-131-1792716003850",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r11\\workspace\\.git"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "06dd1b1930350c903750086edca8733e47eb9cbaed7965aca76af8a44b868029",
+      "lifecycle_group_id": "run:DJ-01:real-history-r11",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "f19a9a89dc69ac3b5c1f9f136c40cc28d2d92f251b328aff2ba10c60b25592ff"
+    },
+    {
+      "attempt_id": "attempt-61336-134-1792716005301",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "673a3f9c98c5cb612a5a51ee562d3e7190ba706aaebdc0967af5d198710b7e40",
+      "lifecycle_group_id": "run:DJ-01:real-history-r11",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "1a3c0522c08c6d225b0ef8ee3a6621c954bc61181baa868b49f424f825c4f503"
+    },
+    {
+      "attempt_id": "attempt-61336-137-1792716006718",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "0d0778ef3416c6f411aea1960d6dc307548291d5c8e16a3ac6dce1f23c2366bc",
+      "lifecycle_group_id": "run:DJ-01:real-snapshot-unit-r14",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "b5707965c119da1b135c14830c6b5ffb2ef49f70a498a5d4a3bfb34155577d6f"
+    },
+    {
+      "attempt_id": "attempt-61336-140-1792716008141",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r12\\workspace\\.git"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "2055356195e820cbf4b520267d02222826bf8d43fb79ed949c727ab67da23b35",
+      "lifecycle_group_id": "run:DJ-01:real-history-r12",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "0ab76066e6ec93451f5210b8d91f34a293cd3b58fb08b6ad909fa141f9538ba1"
+    },
+    {
+      "attempt_id": "attempt-61336-143-1792716009842",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "8e1e7bb1294532a6596deb6bc605ad84263132a10d99a09bfe0ec7c6934d60d0",
+      "lifecycle_group_id": "run:DJ-01:real-history-r12",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "7cf69aebc10dd3aabd4afd07a9db59dd90b0be03de493f204f662c79d09e8e33"
+    },
+    {
+      "attempt_id": "attempt-61336-146-1792716012810",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "4fd8a951f757967f3efbe055b4a6c2bd9a2bbbb2daefe76415acad95a0e6a857",
+      "lifecycle_group_id": "run:DJ-01:real-history-r16",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "7692bdf67df37f81e914e5bedd5184d4bb81158ff61f60cea943d8ef171e2a98"
+    },
+    {
+      "attempt_id": "attempt-61336-149-1792716015714",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r16\\workspace\\.git"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "972e96e49584dd2b600f1720e2b5f0135a0afb7cf67fde68a9b1cd1b6fbaf9f0",
+      "lifecycle_group_id": "run:DJ-01:real-history-r16",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "18e7e312264c96273edfcc53c261eff50a34ff33bdac23253450ebd0bd4ac4a1"
+    },
+    {
+      "attempt_id": "attempt-61336-152-1792716017375",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r14\\workspace\\.git"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "740cf5a080d57c8d57484947324c6dccf2bb5a6594758e5b57e17f06284fd286",
+      "lifecycle_group_id": "run:DJ-01:real-history-r14",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "e0a5efae49eba299c99a0e43c36f639f54970343f7d3aa45ed84acab100bf175"
+    },
+    {
+      "attempt_id": "attempt-61336-155-1792716019012",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "d7c08b0e1d89a8e6464e33be208d61c533bae5215f3aafcb8c462133351a2c83",
+      "lifecycle_group_id": "run:DJ-01:real-snapshot-unit-r13",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "a63c4577681c05efbb33323a7f879a0011c779ac7929c4da35167d82b7be0eb6"
+    },
+    {
+      "attempt_id": "attempt-61336-158-1792716020539",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r13\\workspace\\.git"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "e3df983aa9ad7daa5373c9ed0d756271d198d56bd4d41a9f6badd113965446fe",
+      "lifecycle_group_id": "run:DJ-01:real-history-r13",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "57a6239ddf8bff7ae8615f0a5079f933895dd510c66f9507255fa43a0a62fdc4"
+    },
+    {
+      "attempt_id": "attempt-61336-161-1792716022008",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "f4208d2a6e2f7c5cdde315bf7f2a14e7fa0be056c629224bad8fc49d7c39c33e",
+      "lifecycle_group_id": "run:DJ-01:real-snapshot-unit-r12",
+      "reason": "Owned diagnostic producer stopped; numeric reports and independent verification retained in work evidence; real-history copies and temporary runs no longer have consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "707a7acd35be361132c8d7af84ba63da19a1c7412870b7cd412d35b831314e45"
+    }
+  ]
+}

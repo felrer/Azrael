@@ -1,3 +1,4 @@
+use crate::tools::router::UNAVAILABLE_TOOL_NAMESPACE;
 use codex_protocol::DEFAULT_FUNCTION_NAMESPACE;
 use codex_protocol::error::CodexErr;
 use codex_protocol::error::CodexErrorDetails;
@@ -27,6 +28,11 @@ impl ToolCatalog {
         let mut catalog = Self::default();
         for spec in specs {
             match spec {
+                ToolSpec::Namespace(namespace) if namespace.name == UNAVAILABLE_TOOL_NAMESPACE => {
+                    return Err(invalid(
+                        "native Devin tool catalog declares the internal unavailable tool namespace",
+                    ));
+                }
                 ToolSpec::Function(tool) => {
                     catalog.insert(DEFAULT_FUNCTION_NAMESPACE, &tool.name, ToolKind::Function)?
                 }
@@ -89,7 +95,15 @@ impl ToolCatalog {
                 if !arguments.is_object() {
                     return Err(fatal("native Devin returned non-object function arguments"));
                 }
-                self.verify_declared(namespace.as_deref(), name, ToolKind::Function)?;
+                if namespace.as_deref() == Some(UNAVAILABLE_TOOL_NAMESPACE) {
+                    if name.is_empty() {
+                        return Err(fatal(
+                            "native Devin returned an empty unavailable tool name",
+                        ));
+                    }
+                } else {
+                    self.verify_declared(namespace.as_deref(), name, ToolKind::Function)?;
+                }
             }
             ResponseItem::CustomToolCall {
                 namespace,
@@ -122,6 +136,11 @@ impl ToolCatalog {
     }
 
     fn insert(&mut self, namespace: &str, name: &str, kind: ToolKind) -> CodexResult<()> {
+        if namespace == UNAVAILABLE_TOOL_NAMESPACE {
+            return Err(invalid(
+                "native Devin tool catalog declares the internal unavailable tool namespace",
+            ));
+        }
         if namespace.is_empty() || name.is_empty() {
             return Err(invalid(
                 "native Devin tool catalog contains an empty identity",

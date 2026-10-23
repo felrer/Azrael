@@ -1,0 +1,128 @@
+﻿[
+    {
+        "atUtc":  "2026-10-22T16:02:04.7726589Z",
+        "systemFreeMiB":  6749.2,
+        "engine":  [
+                       {
+                           "pid":  61016,
+                           "createdUtc":  "2026-10-22T10:50:02.9795780Z",
+                           "privateMiB":  4193.5,
+                           "wsMiB":  2519.1,
+                           "threads":  317,
+                           "handles":  2897,
+                           "cpu100ns":  111130000000
+                       }
+                   ],
+        "codeCount":  46,
+        "codePrivateMiB":  10363.3,
+        "codeWsMiB":  7414.6
+    },
+    {
+        "atUtc":  "2026-10-22T16:02:26.2071120Z",
+        "systemFreeMiB":  6224.7,
+        "engine":  [
+                       {
+                           "pid":  61016,
+                           "createdUtc":  "2026-10-22T10:50:02.9795780Z",
+                           "privateMiB":  4286.3,
+                           "wsMiB":  2624.9,
+                           "threads":  317,
+                           "handles":  2887,
+                           "cpu100ns":  111577500000
+                       }
+                   ],
+        "codeCount":  46,
+        "codePrivateMiB":  10666.1,
+        "codeWsMiB":  7727.3
+    },
+    {
+        "atUtc":  "2026-10-22T16:02:47.4485720Z",
+        "systemFreeMiB":  6728.2,
+        "engine":  [
+                       {
+                           "pid":  61016,
+                           "createdUtc":  "2026-10-22T10:50:02.9795780Z",
+                           "privateMiB":  4284.7,
+                           "wsMiB":  2631.2,
+                           "threads":  321,
+                           "handles":  2866,
+                           "cpu100ns":  112030781250
+                       }
+                   ],
+        "codeCount":  46,
+        "codePrivateMiB":  10602.3,
+        "codeWsMiB":  7720.6
+    },
+    {
+        "atUtc":  "2026-10-22T16:03:08.2892186Z",
+        "systemFreeMiB":  6343.6,
+        "engine":  [
+                       {
+                           "pid":  61016,
+                           "createdUtc":  "2026-10-22T10:50:02.9795780Z",
+                           "privateMiB":  4290.2,
+                           "wsMiB":  2635.4,
+                           "threads":  321,
+                           "handles":  2856,
+                           "cpu100ns":  112354843750
+                       }
+                   ],
+        "codeCount":  47,
+        "codePrivateMiB":  10861.8,
+        "codeWsMiB":  8053.4
+    },
+    {
+        "atUtc":  "2026-10-22T16:03:29.2571598Z",
+        "systemFreeMiB":  6037.3,
+        "engine":  [
+                       {
+                           "pid":  61016,
+                           "createdUtc":  "2026-10-22T10:50:02.9795780Z",
+                           "privateMiB":  4311.4,
+                           "wsMiB":  2654,
+                           "threads":  322,
+                           "handles":  2855,
+                           "cpu100ns":  112644531250
+                       }
+                   ],
+        "codeCount":  46,
+        "codePrivateMiB":  10824.8,
+        "codeWsMiB":  7837.2
+    },
+    {
+        "atUtc":  "2026-10-22T16:03:50.1694113Z",
+        "systemFreeMiB":  8190.4,
+        "engine":  [
+                       {
+                           "pid":  61016,
+                           "createdUtc":  "2026-10-22T10:50:02.9795780Z",
+                           "privateMiB":  4311.5,
+                           "wsMiB":  2655.5,
+                           "threads":  323,
+                           "handles":  2853,
+                           "cpu100ns":  112842343750
+                       }
+                   ],
+        "codeCount":  46,
+        "codePrivateMiB":  10582.4,
+        "codeWsMiB":  7699.9
+    },
+    {
+        "atUtc":  "2026-10-22T16:04:11.0335776Z",
+        "systemFreeMiB":  8246.4,
+        "engine":  [
+                       {
+                           "pid":  61016,
+                           "createdUtc":  "2026-10-22T10:50:02.9795780Z",
+                           "privateMiB":  4311.5,
+                           "wsMiB":  2657,
+                           "threads":  323,
+                           "handles":  2858,
+                           "cpu100ns":  113021562500
+                       }
+                   ],
+        "codeCount":  46,
+        "codePrivateMiB":  10505.2,
+        "codeWsMiB":  7528.6
+    }
+]

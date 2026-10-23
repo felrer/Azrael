@@ -1,0 +1,275 @@
+{
+  "lifecycleId": "run:DJ-01:real-history-r12",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r12",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\real-session-memory-probe.mjs",
+    "--run"
+  ],
+  "exitCode": 1,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 30444,
+      "closed": true
+    },
+    {
+      "pid": 24140,
+      "closed": true
+    },
+    {
+      "pid": 55440,
+      "closed": true
+    },
+    {
+      "pid": 28536,
+      "closed": true
+    },
+    {
+      "pid": 65748,
+      "closed": true
+    },
+    {
+      "pid": 63796,
+      "closed": true
+    },
+    {
+      "pid": 20140,
+      "closed": true
+    },
+    {
+      "pid": 67520,
+      "closed": true
+    },
+    {
+      "pid": 14160,
+      "closed": true
+    },
+    {
+      "pid": 69316,
+      "closed": true
+    },
+    {
+      "pid": 47304,
+      "closed": true
+    },
+    {
+      "pid": 15372,
+      "closed": true
+    },
+    {
+      "pid": 52624,
+      "closed": true
+    },
+    {
+      "pid": 10876,
+      "closed": true
+    },
+    {
+      "pid": 31408,
+      "closed": true
+    },
+    {
+      "pid": 66864,
+      "closed": true
+    },
+    {
+      "pid": 5732,
+      "closed": true
+    },
+    {
+      "pid": 25108,
+      "closed": true
+    },
+    {
+      "pid": 9028,
+      "closed": true
+    },
+    {
+      "pid": 22668,
+      "closed": true
+    },
+    {
+      "pid": 34732,
+      "closed": true
+    },
+    {
+      "pid": 63632,
+      "closed": true
+    },
+    {
+      "pid": 25348,
+      "closed": true
+    },
+    {
+      "pid": 7668,
+      "closed": true
+    },
+    {
+      "pid": 1092,
+      "closed": true
+    },
+    {
+      "pid": 24252,
+      "closed": true
+    },
+    {
+      "pid": 64812,
+      "closed": true
+    },
+    {
+      "pid": 24416,
+      "closed": true
+    },
+    {
+      "pid": 73620,
+      "closed": true
+    },
+    {
+      "pid": 52148,
+      "closed": true
+    },
+    {
+      "pid": 64476,
+      "closed": true
+    },
+    {
+      "pid": 10032,
+      "closed": true
+    },
+    {
+      "pid": 40964,
+      "closed": true
+    },
+    {
+      "pid": 45416,
+      "closed": true
+    },
+    {
+      "pid": 16044,
+      "closed": true
+    },
+    {
+      "pid": 67600,
+      "closed": true
+    },
+    {
+      "pid": 43308,
+      "closed": true
+    },
+    {
+      "pid": 30616,
+      "closed": true
+    },
+    {
+      "pid": 74460,
+      "closed": true
+    },
+    {
+      "pid": 33232,
+      "closed": true
+    },
+    {
+      "pid": 69024,
+      "closed": true
+    },
+    {
+      "pid": 29064,
+      "closed": true
+    },
+    {
+      "pid": 19296,
+      "closed": true
+    },
+    {
+      "pid": 45456,
+      "closed": true
+    },
+    {
+      "pid": 74036,
+      "closed": true
+    },
+    {
+      "pid": 19096,
+      "closed": true
+    },
+    {
+      "pid": 41892,
+      "closed": true
+    },
+    {
+      "pid": 49776,
+      "closed": true
+    },
+    {
+      "pid": 16988,
+      "closed": true
+    },
+    {
+      "pid": 45260,
+      "closed": true
+    },
+    {
+      "pid": 29316,
+      "closed": true
+    },
+    {
+      "pid": 50148,
+      "closed": true
+    },
+    {
+      "pid": 8668,
+      "closed": true
+    },
+    {
+      "pid": 71384,
+      "closed": true
+    },
+    {
+      "pid": 16500,
+      "closed": true
+    },
+    {
+      "pid": 51320,
+      "closed": true
+    },
+    {
+      "pid": 13600,
+      "closed": true
+    },
+    {
+      "pid": 50568,
+      "closed": true
+    },
+    {
+      "pid": 35288,
+      "closed": true
+    },
+    {
+      "pid": 43660,
+      "closed": true
+    },
+    {
+      "pid": 70420,
+      "closed": true
+    },
+    {
+      "pid": 54628,
+      "closed": true
+    },
+    {
+      "pid": 48464,
+      "closed": true
+    },
+    {
+      "pid": 33972,
+      "closed": true
+    },
+    {
+      "pid": 6920,
+      "closed": true
+    }
+  ],
+  "state": "failed",
+  "membership_complete": true
+}

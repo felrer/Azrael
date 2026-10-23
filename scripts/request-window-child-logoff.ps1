@@ -1,14 +1,16 @@
 [CmdletBinding()]
 param(
   [Parameter(Mandatory=$true)][string]$StateRoot,
-  [Parameter(Mandatory=$true)][ValidatePattern('^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$')][string]$ResourceId,
+  [ValidatePattern('^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$')][string]$ResourceId,
   [Parameter(Mandatory=$true)][string]$NativeHelperPath,
   [Parameter(Mandatory=$true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$NativeHelperSha256,
   [Parameter(Mandatory=$true)][string]$NodePath,
   [Parameter(Mandatory=$true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$NodeSha256,
   [switch]$ElevatedOneShot,
   [string]$RequestFile,
-  [string]$RequestSha256
+  [string]$RequestSha256,
+  [switch]$CurrentChild,
+  [ValidatePattern('^[A-Za-z0-9+/=]{1,16384}$')][string]$IdentityBase64
 )
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') { throw 'Explicit child logoff requires local Windows.' }
@@ -56,14 +58,16 @@ function Test-SameIdentity($Left,$Right) {
 function Invoke-NativeLogoff($Request) {
   Assert-Hash $NativeHelperPath $NativeHelperSha256
   $start = New-Object Diagnostics.ProcessStartInfo
-  $start.FileName=$NativeHelperPath; $start.Arguments='--logoff-child'; $start.UseShellExecute=$false; $start.CreateNoWindow=$true
+  $start.FileName=$NativeHelperPath; $start.Arguments='--logoff-child'; if ($CurrentChild) { $start.Arguments='--logoff-current-child' }; $start.UseShellExecute=$false; $start.CreateNoWindow=$true
   $start.RedirectStandardInput=$true; $start.RedirectStandardOutput=$true; $start.RedirectStandardError=$true
   $process = New-Object Diagnostics.Process
   $process.StartInfo=$start
   try {
     [void]$process.Start()
     $outputTask=$process.StandardOutput.ReadToEndAsync(); $errorTask=$process.StandardError.ReadToEndAsync()
-    $wire = @{helperSha256=$NativeHelperSha256.ToLowerInvariant();identity=$Request.identity} | ConvertTo-Json -Compress -Depth 8
+    $wireValue=@{helperSha256=$NativeHelperSha256.ToLowerInvariant();identity=$Request.identity}
+    if ($CurrentChild) { $wireValue.approved=$true }
+    $wire = $wireValue | ConvertTo-Json -Compress -Depth 8
     if ($wire.Length -gt 8192) { throw 'Native identity request exceeded limit.' }
     $process.StandardInput.WriteLine($wire); $process.StandardInput.Close()
     if (-not $process.WaitForExit(60000)) { throw 'Native logoff timeout; completion unconfirmed.' }
@@ -80,6 +84,75 @@ $NodePath=Assert-SafePath $NodePath
 Assert-Hash $NativeHelperPath $NativeHelperSha256
 Assert-Hash $NodePath $NodeSha256
 $logoffRoot=Join-Path $StateRoot 'azrael/window-use/logoff-requests'
+if ($CurrentChild) {
+  if ($ResourceId -or $IdentityBase64 -eq '' -and -not $ElevatedOneShot) { throw 'Current-child logoff requires an exact inspected identity, without ResourceId.' }
+  if ($ElevatedOneShot) {
+    if (-not $logoffAdmin -or $RequestSha256 -notmatch '^[a-fA-F0-9]{64}$') { throw 'Bounded elevated invocation required.' }
+    $RequestFile=Assert-SafePath $RequestFile
+    $invocationDirectory=[IO.Path]::GetDirectoryName($RequestFile)
+    if ([IO.Path]::GetDirectoryName($invocationDirectory) -ine $logoffRoot -or [IO.Path]::GetFileName($RequestFile) -ne 'request.json' -or [IO.Path]::GetFileName($invocationDirectory) -notmatch '^[a-f0-9-]{36}$') { throw 'Current-child request escaped its invocation directory.' }
+    Assert-PrivateDirectory $logoffRoot; Assert-PrivateDirectory $invocationDirectory
+    Assert-Hash $RequestFile $RequestSha256
+    if ((Get-Item -LiteralPath $RequestFile).Length -gt 16384) { throw 'Request exceeded limit.' }
+    $request=Get-Content -LiteralPath $RequestFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($request.schemaVersion -ne 1 -or $request.operation -cne 'current-child-logoff' -or $request.nativeHelperPath -cne $NativeHelperPath -or $request.nativeHelperSha256 -cne $NativeHelperSha256 -or $request.identity.sid -cne $logoffSid.Value -or $request.identity.profile -ine [Environment]::GetFolderPath('UserProfile') -or $request.identity.parentSessionId -ne $logoffSession -or $request.identity.childSessionId -eq $logoffSession -or [DateTime]::Parse($request.expiresUtc).ToUniversalTime() -lt [DateTime]::UtcNow) { throw 'Current-child request identity or expiry mismatch.' }
+    $nativeResult=Invoke-NativeLogoff $request
+    Write-NewJson (Join-Path $invocationDirectory 'receipt.json') @{requestSha256=$RequestSha256;helperExitCode=$nativeResult.helperExitCode;proof=$nativeResult.proof}
+    exit $nativeResult.helperExitCode
+  }
+  if ($logoffAdmin -or $RequestFile -or $RequestSha256) { throw 'Use an ordinary parent token for current-child logoff.' }
+  $identity=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($IdentityBase64)) | ConvertFrom-Json
+  if ($identity.sid -cne $logoffSid.Value -or $identity.profile -ine [Environment]::GetFolderPath('UserProfile') -or $identity.parentSessionId -ne $logoffSession -or $identity.childSessionId -le 0 -or $identity.childSessionId -eq $logoffSession) { throw 'Inspected current-child identity mismatch.' }
+  # App approval occurs in Azrael before this wrapper runs; UAC authorizes only the bounded native operation.
+  if (-not (Test-Path -LiteralPath $logoffRoot)) {
+    [void](Assert-SafePath ([IO.Path]::GetDirectoryName($logoffRoot)) $true)
+    $security=New-Object Security.AccessControl.DirectorySecurity
+    $security.SetAccessRuleProtection($true,$false); $security.SetOwner($logoffSid)
+    $security.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($logoffSid,'FullControl','ContainerInherit,ObjectInherit','None','Allow')))
+    (New-Object IO.DirectoryInfo($logoffRoot)).Create($security)
+  }
+  Assert-PrivateDirectory $logoffRoot
+  $invocationId=[Guid]::NewGuid().ToString(); $invocationDirectory=Join-Path $logoffRoot $invocationId
+  $planPath=Join-Path $logoffRoot ($invocationId+'.plan.json')
+  Write-NewJson $planPath @{schemaVersion=1;operation='current-child-logoff';identity=$identity;outputs=@($invocationDirectory,(Join-Path $logoffRoot ($invocationId+'.verification.json')));createdUtc=[DateTime]::UtcNow.ToString('o')}
+  (New-Object IO.DirectoryInfo($invocationDirectory)).Create((Get-Item -LiteralPath $logoffRoot).GetAccessControl())
+  $requestPath=Join-Path $invocationDirectory 'request.json'; $receiptPath=Join-Path $invocationDirectory 'receipt.json'
+  Write-NewJson $requestPath @{schemaVersion=1;operation='current-child-logoff';identity=$identity;nativeHelperPath=$NativeHelperPath;nativeHelperSha256=$NativeHelperSha256;expiresUtc=[DateTime]::UtcNow.AddMinutes(10).ToString('o')}
+  $requestHash=(Get-FileHash -LiteralPath $requestPath -Algorithm SHA256).Hash
+  $result=@{logoffConfirmed=$false;processesStopped=$false;identity=$identity;filesCleanupState='deferred';code='child_logoff_unknown';mutationOutcome='unknown';remainingPaths=@($invocationDirectory)}
+  try {
+    $powershell=Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+    $arguments=@('-NoProfile','-NonInteractive','-File',(Quote-Argument $PSCommandPath),'-StateRoot',(Quote-Argument $StateRoot),'-CurrentChild','-NativeHelperPath',(Quote-Argument $NativeHelperPath),'-NativeHelperSha256',$NativeHelperSha256,'-NodePath',(Quote-Argument $NodePath),'-NodeSha256',$NodeSha256,'-ElevatedOneShot','-RequestFile',(Quote-Argument $requestPath),'-RequestSha256',$requestHash)
+    $elevated=Start-Process -FilePath $powershell -ArgumentList $arguments -Verb RunAs -WindowStyle Hidden -Wait -PassThru
+    Assert-PrivateDirectory $invocationDirectory
+    [void](Assert-SafePath $receiptPath)
+    if ((Get-Item -LiteralPath $receiptPath).Length -gt 32768) { throw 'Receipt exceeded limit.' }
+    $receipt=Get-Content -LiteralPath $receiptPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($receipt.requestSha256 -cne $requestHash) { throw 'Current-child receipt mismatch.' }
+    if ($receipt.proof.actionExecuted -eq $false) { $result.code=$receipt.proof.code; $result.actionExecuted=$false; $result.mutationOutcome='not_executed'; $result.message=$receipt.proof.message }
+    if ($receipt.helperExitCode -ne 0 -or $elevated.ExitCode -ne 0 -or $receipt.proof.ok -ne $true -or $receipt.proof.logoffConfirmed -ne $true -or $receipt.proof.processesStopped -ne $true -or $receipt.proof.identity.childSessionId -ne $identity.childSessionId -or $receipt.proof.identity.parentSessionId -ne $identity.parentSessionId -or $receipt.proof.identity.sid -cne $identity.sid -or $receipt.proof.identity.profile -cne $identity.profile) { throw 'Current-child logoff was not confirmed.' }
+    $result.logoffConfirmed=$true; $result.processesStopped=$true; $result.code='child_logged_off'; $result.mutationOutcome='executed'
+    # This mode has no registered payload identity: preserve profile, documents and resource manifests.
+    $result.filesCleanupState='not_requested'
+    Write-NewJson (Join-Path $logoffRoot ($invocationId+'.verification.json')) $result
+    Assert-Hash $requestPath $requestHash
+    Remove-Item -LiteralPath $requestPath
+    Remove-Item -LiteralPath $receiptPath
+    Remove-Item -LiteralPath $invocationDirectory
+    $result.remainingPaths=@()
+  } catch {
+    if (-not $result.message) { $result.message=$_.Exception.Message }
+    $cancelException=$_.Exception
+    for($depth=0;$cancelException -and $depth -lt 8;$depth++) {
+      if($cancelException.NativeErrorCode -eq 1223) {$result.code='approval_cancelled';$result.actionExecuted=$false;$result.mutationOutcome='not_executed';break}
+      $cancelException=$cancelException.InnerException
+    }
+    if ($result.logoffConfirmed) { $result.filesCleanupState='partial' }
+  }
+  $result | ConvertTo-Json -Compress -Depth 10
+  exit 0
+}
+if (-not $ResourceId -or $IdentityBase64) { throw 'Registered logoff requires ResourceId; identity input is reserved for CurrentChild.' }
 if ($ElevatedOneShot) {
   if (-not $logoffAdmin -or $RequestSha256 -notmatch '^[a-fA-F0-9]{64}$') { throw 'Bounded elevated invocation required.' }
   $RequestFile=Assert-SafePath $RequestFile

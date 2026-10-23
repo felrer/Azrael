@@ -7,6 +7,7 @@ import { loadConfig, saveConfig } from '../vendor/src/config.ts';
 import { saveCredential } from '../vendor/src/oauth/store.ts';
 import { createToolDiagnostics } from '../tool-diagnostics.mjs';
 import { createProgressMonitor } from '../../devin/progress.mjs';
+import { UNAVAILABLE_TOOL_NAMESPACE } from '../inference-mapping.mjs';
 
 const wire = (value: any) => `event: ${value.type}\ndata: ${JSON.stringify(value)}\n\n`;
 test('actual Anthropic adapter exposes safe raw/parser mapping evidence and ping-only argument stall', async () => {
@@ -42,9 +43,9 @@ test('actual Anthropic adapter exposes safe raw/parser mapping evidence and ping
         ].map(wire).join(''));
       }) as typeof fetch;
       try {
-        const execution = infer(request(), frame => frames.push(frame), fetcher, monitor);
-        if (mode === 'unknown') await expect(execution).rejects.toThrow('undeclared_tool');
-        else await execution;
+        const native = request();
+        const execution = infer(native, frame => frames.push(frame), fetcher, monitor);
+        await execution;
         const evidence = monitor.snapshot().tool_diagnostics;
         expect(evidence.catalog_tool_count).toBe(1);
         expect(evidence.raw_parser_name_equal).toBe(true);
@@ -53,7 +54,32 @@ test('actual Anthropic adapter exposes safe raw/parser mapping evidence and ping
         expect(evidence.mapping_result).toBe(mode === 'unknown' ? 'undeclared' : 'validated');
         if (mode === 'original') expect(evidence.name_match).toBe('current_original');
         expect(JSON.stringify(monitor.snapshot())).not.toContain('SECRET');
-        expect(frames.some(frame => frame.item?.type === 'function_call')).toBe(mode !== 'unknown');
+        const call = frames.find(frame => frame.item?.type === 'function_call')?.item;
+        expect(call).toBeDefined();
+        expect(call.namespace === UNAVAILABLE_TOOL_NAMESPACE).toBe(mode === 'unknown');
+        expect(frames.at(-1).type).toBe('completed');
+        if (mode === 'unknown') {
+          const nextFrames: any[] = [];
+          await infer({ ...native, request_id: 'follow-up', input: [...native.input,
+            ...frames.filter(frame => frame.type === 'item_done').map(frame => frame.item),
+            { type: 'function_call_output', call_id: call.call_id, output: 'Tool UNKNOWN_TOOL is not available. Use only tools in the current tool catalog.' }] },
+          frame => nextFrames.push(frame), (async (_url: any, init: any) => {
+            const messages = JSON.parse(init.body).messages;
+            const result = messages.at(-1).content.find((part: any) => part.type === 'tool_result');
+            expect(result.tool_use_id).toBe(call.call_id);
+            expect(JSON.stringify(result.content)).toContain('not available');
+            return new Response([
+              { type: 'message_start', message: { usage: { input_tokens: 2 } } },
+              { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+              { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Continuing.' } },
+              { type: 'content_block_stop', index: 0 },
+              { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 2 } },
+              { type: 'message_stop' },
+            ].map(wire).join(''));
+          }) as typeof fetch);
+          expect(nextFrames.at(-1).type).toBe('completed');
+          expect(nextFrames.some(frame => frame.type === 'text_delta' && frame.delta === 'Continuing.')).toBe(true);
+        }
       } finally { monitor.stop(); }
     }
     let time = 0;

@@ -561,7 +561,10 @@ impl AccountRequestProcessor {
             .await
             .ok_or_else(|| invalid_request("account profile authentication is unavailable"))?;
         let expected_identity = (auth.get_account_id(), auth.get_chatgpt_user_id());
-        if expected_identity.0.is_none() || expected_identity.1.is_none() {
+        if !profile_identity_matches(&profile, Some(&auth))
+            || expected_identity.0.is_none()
+            || expected_identity.1.is_none()
+        {
             return Err(invalid_request("account profile identity is unavailable"));
         }
         let params = GetAccountRateLimitsParams {
@@ -593,7 +596,11 @@ impl AccountRequestProcessor {
                         ));
                     }
                     let usage = self
-                        .account_rate_limits_response_from_backend(&auth, response, reset_credits)
+                        .account_rate_limits_response_from_backend(
+                            Some(&auth),
+                            response,
+                            reset_credits,
+                        )
                         .await
                         .map_err(|_| {
                             internal_error(

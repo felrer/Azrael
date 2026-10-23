@@ -87,6 +87,12 @@ function finishTargetOwner(lease, result) {
   fs.writeFileSync(ownerPath, JSON.stringify(owner, null, 2));
   recordPending(lease, owner.status === "unknown" ? "pending" : owner.status === "success" ? "complete" : "failed", owner.status !== "unknown");
   if (ended || neverStarted) { fs.unlinkSync(ownerPath); fs.rmdirSync(leasePath); }
+  if (lease.invocationStartedNs !== undefined) {
+    // Elapsed coordinator time includes ownership and observation work. It is
+    // not evidence that descendants ended when the child result is unknown.
+    owner.durationMs = Number(process.hrtime.bigint() - lease.invocationStartedNs) / 1e6;
+    if (!ended && !neverStarted) fs.writeFileSync(ownerPath, JSON.stringify(owner, null, 2));
+  }
   return owner;
 }
 
@@ -177,7 +183,11 @@ function recoverTargetOwner(options) {
   return { recovered: true, targetDirectory: current.targetDirectory, receipt_ref: receipt, result: decision.result };
 }
 
-function runManagedCargoSync(spec) {
+// onSuccess is a synchronous observer while ownership is held. Its thrown
+// Error (or string for other thrown values) is returned as observationError,
+// separate from the real child result.
+function runManagedCargoSync(spec, hooks = {}) {
+  const invocationStartedNs = process.hrtime.bigint();
   let pending = spec.env.INSTA_PENDING_DIR;
   if (pending) {
     if (!path.isAbsolute(pending)) throw new Error("INSTA_PENDING_DIR must be absolute");
@@ -194,6 +204,7 @@ function runManagedCargoSync(spec) {
   // Pin output aliases before acquiring ownership or allowing a producer.
   spec = { ...spec, env: { ...spec.env, ...(pending ? { INSTA_PENDING_DIR: pending } : {}) } };
   const lease = acquireTargetOwner(spec);
+  lease.invocationStartedNs = invocationStartedNs;
   let result;
   try {
     const { command, args, selectedSourceRoot, ...options } = spec;
@@ -207,6 +218,11 @@ function runManagedCargoSync(spec) {
     options.env = { ...options.env, CARGO_TARGET_DIR: lease.owner.targetDirectory };
     result = require("node:child_process").spawnSync(command, executionArgs, options);
   } catch (error) { result = { status: null, error }; }
+  lease.owner.resultObservedUtc = new Date().toISOString();
+  if (result.status === 0 && !result.error && !result.signal && hooks.onSuccess) {
+    try { hooks.onSuccess(result, lease.owner); }
+    catch (observationError) { result.observationError = observationError instanceof Error ? observationError : String(observationError); }
+  }
   const owner = finishTargetOwner(lease, result);
   // Keep Cargo JSON stdout byte-for-byte usable by native artifact discovery.
   process.stderr.write(`[cargo-owner] ${JSON.stringify(owner)}\n`);

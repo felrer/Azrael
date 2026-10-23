@@ -47,6 +47,21 @@ test("Spark limits are filtered by map key, limit ID, name, and model slug", () 
   assert.deepEqual(limits, [ordinary]);
 });
 
+test("quota order is Codex first then stable limit identity regardless of map insertion", () => {
+  const entries: [string, RateLimitSnapshot][] = [
+    ["z-key", limit({ limitId: "alpha", limitName: "Alpha" })],
+    ["a-key", limit({ limitId: "zeta", limitName: "Zeta" })],
+    ["codex", limit()],
+    ["spark", limit({ limitId: "spark" })],
+    ["beta", limit({ limitId: null, limitName: "Beta" })],
+  ];
+  const forward = usage(Object.fromEntries(entries));
+  const reversed = usage(Object.fromEntries([...entries].reverse()));
+  assert.deepEqual(visibleLimits(forward).map(item => item.limitId), ["codex", "alpha", null, "zeta"]);
+  assert.deepEqual(visibleLimits(forward), visibleLimits(reversed));
+  assert.equal(openAIQuotaHtml(forward), openAIQuotaHtml(reversed));
+});
+
 test("remaining percentage distinguishes zero from unavailable", () => {
   const exhausted = quotaHtml(window(100), "기본 한도");
   assert.match(exhausted, />0%</);

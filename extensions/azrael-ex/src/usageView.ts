@@ -21,6 +21,9 @@ const PROVIDER_ACTIONS = new Set(["providerAdd", "providerSelect", "providerRemo
 
 interface EmbeddedTarget {
   clientId: string;
+  html?: string;
+  pendingHtml?: string;
+  renderVersion?: number;
   panel?: vscode.WebviewPanel;
   disposal?: vscode.Disposable;
   visibility?: vscode.Disposable;
@@ -36,6 +39,7 @@ export class UsageView implements vscode.Disposable {
   private readonly ticketConsuming = new Map<string, string>();
   private readonly expanded = new Set<string>();
   private panel: vscode.WebviewPanel | undefined;
+  private readonly panelHtml = new WeakMap<vscode.WebviewPanel, string>();
   private readonly embedded = new Map<vscode.Webview, EmbeddedTarget>();
   private listening = false;
   private disposed = false;
@@ -539,7 +543,7 @@ export class UsageView implements vscode.Disposable {
     const schedule = this.usageWindows.forProfile(profile);
     const enabled = schedule?.enabled === true;
     const pending = this.automaticWindowPending.has(JSON.stringify([profile.workspaceAccountId, profile.userId]));
-    const label = pending ? "변경 중…" : schedule ? `자동 실행: ${enabled ? "켜짐" : "꺼짐"}` : "상태 확인 필요";
+    const label = pending ? "변경 중…" : schedule ? `Timer Unfreeze: ${enabled ? "켜짐" : "꺼짐"}` : "상태 확인 필요";
     return `<button data-action="${enabled ? "autoWindowDisable" : "autoWindowEnable"}" data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}" ${this.service.changesEnabled && !pending ? "" : "disabled"}>${label}</button>`;
   }
 
@@ -551,7 +555,7 @@ export class UsageView implements vscode.Disposable {
   private render(): void {
     if (this.disposed || (!this.panel && this.embedded.size === 0)) return;
     const html = this.renderMarkup();
-    if (this.panel) {
+    if (this.panel && this.panelHtml.get(this.panel) !== html) {
       const nonce = randomBytes(18).toString("base64");
       const webview = this.panel.webview;
       const fonts = this.fontRoot ? [
@@ -564,10 +568,22 @@ export class UsageView implements vscode.Disposable {
       }).join("") : "";
       this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style><script nonce="${nonce}">${FONT_PLATFORM_SCRIPT}</script></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();const calendar=document.querySelector('.puc-calendar-scroll');if(calendar){calendar.scrollLeft=vscode.getState()?.calendarLeft??0;calendar.addEventListener('scroll',()=>vscode.setState({...vscode.getState(),calendarLeft:calendar.scrollLeft}),{passive:true});}document.addEventListener('pointerdown',e=>{if(e.button!==0||!(e.target instanceof Element)||e.target.closest('.puc-tooltip'))return;const c=e.target.closest('.project-usage button,.puc-project');if(c instanceof HTMLElement){e.preventDefault();c.focus({preventScroll:true});}});document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action], [role="button"][data-action="toggleUsage"]');if(b instanceof HTMLElement&&!b.disabled)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind,creditId:b.dataset.credit,month:b.dataset.month});});document.addEventListener('keydown',e=>{const s=e.target;if((e.key==='Enter'||e.key===' ')&&s instanceof HTMLElement&&s.dataset.action==='toggleUsage'&&s.getAttribute('role')==='button'){e.preventDefault();s.click();}});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});document.addEventListener('toggle',e=>{const d=e.target;if(d instanceof HTMLDetailsElement&&d.classList.contains('ticket-details'))vscode.postMessage({action:'ticketDetails',profileId:d.dataset.profile,workspaceAccountId:d.dataset.workspace,open:d.open});},true);document.querySelector('button[data-ticket-confirming="true"]')?.focus({preventScroll:true});</script></body></html>`;
     }
+    if (this.panel) {
+      this.panelHtml.set(this.panel, html);
+    }
     for (const [webview, target] of this.embedded) {
+      if ((target.pendingHtml ?? target.html) === html) continue;
       try {
+        target.pendingHtml = html;
+        const version = target.renderVersion = (target.renderVersion ?? 0) + 1;
         void Promise.resolve(webview.postMessage({ type: "azrael-accounts-html", clientId: target.clientId, html }))
-          .then(sent => { if (!sent) this.removeEmbedded(webview, target); }, () => this.removeEmbedded(webview, target));
+          .then(sent => {
+            if (!sent) this.removeEmbedded(webview, target);
+            else if (target.renderVersion === version) {
+              target.html = html;
+              target.pendingHtml = undefined;
+            }
+          }, () => this.removeEmbedded(webview, target));
       } catch { this.removeEmbedded(webview, target); }
     }
   }

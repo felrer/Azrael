@@ -1,0 +1,461 @@
+{
+  "atUtc": "2026-10-23T00:38:13.907Z",
+  "copied": [
+    {
+      "run": "real-history-r14",
+      "file": "B-cumulative-paged-continuous.jsonl",
+      "bytes": 2578,
+      "sha256": "65ad70a968f9749af3204e4f92da22146ff17da520b079e0b83e69aa0b0029ed"
+    },
+    {
+      "run": "real-history-r14",
+      "file": "producer.json",
+      "bytes": 1408,
+      "sha256": "68ce84f8759b8aaf3fd09a795e39abdcaf365561f32da621356980c93524bb9c"
+    },
+    {
+      "run": "real-history-r14",
+      "file": "report.json",
+      "bytes": 40647,
+      "sha256": "79d1e6cd9f1793c3fe27ac3240fe5fcf6d5a6eacf7cbf96772ae2646fbbf0683"
+    },
+    {
+      "run": "real-history-r14",
+      "file": "result.json",
+      "bytes": 318,
+      "sha256": "1206432291925982ee3cb62ed2abf65952a32f79bc8565754d3c5bfb381cfd21"
+    },
+    {
+      "run": "real-history-r14",
+      "file": "samples.jsonl",
+      "bytes": 699,
+      "sha256": "72b54517df2e6d94f9a11fae34ea26b2c781dc59a7aacc52022a9a18dd10f603"
+    },
+    {
+      "run": "real-history-r14",
+      "file": "snapshot-manifest.json",
+      "bytes": 25856,
+      "sha256": "e333b0c67126c6271b0a5f747436716032fc9386725f3faa7fbc690b5eec8786"
+    },
+    {
+      "run": "real-snapshot-unit-r12",
+      "file": "producer.json",
+      "bytes": 498,
+      "sha256": "6dd65a9dbd2a67cadb43f593033b9879b002c5431a2ecf846ac4214abde1bd13"
+    },
+    {
+      "run": "real-snapshot-unit-r12",
+      "file": "result.json",
+      "bytes": 502,
+      "sha256": "fb1ea8f649f4ccf7508e621a22d54ecbafafa64837c6e06a2492faf805fa5386"
+    },
+    {
+      "run": "real-snapshot-unit-r14",
+      "file": "producer.json",
+      "bytes": 498,
+      "sha256": "a501b3aa6f31e4aa4f89c1cc3babc18f347ac4a7bc7cbb9cf85e133d94509c69"
+    },
+    {
+      "run": "real-snapshot-unit-r14",
+      "file": "result.json",
+      "bytes": 502,
+      "sha256": "e2febb2ee692838d350742cc19a88cbb980a92a97873ff57d5c583dd5065f8b5"
+    },
+    {
+      "run": "real-history-r13",
+      "file": "producer.json",
+      "bytes": 2052,
+      "sha256": "21690fa13e83ad076b519518b60807758b54ba39ef2ea2d6881c32b0a139b940"
+    },
+    {
+      "run": "real-history-r13",
+      "file": "report.json",
+      "bytes": 36624,
+      "sha256": "2d38f0654bcaea12e1d2ae832cf91d9004357f8df5d2acd9c4ee40eb30873c6a"
+    },
+    {
+      "run": "real-history-r13",
+      "file": "result.json",
+      "bytes": 317,
+      "sha256": "b161a201a264167fb31a79afeb0d9d5e54931de14607a81f78b802f8e7e7bead"
+    },
+    {
+      "run": "real-history-r13",
+      "file": "snapshot-manifest.json",
+      "bytes": 25856,
+      "sha256": "e333b0c67126c6271b0a5f747436716032fc9386725f3faa7fbc690b5eec8786"
+    },
+    {
+      "run": "real-snapshot-unit-r13",
+      "file": "producer.json",
+      "bytes": 498,
+      "sha256": "bef6b1388a1633cb928a5f6b650d126b7a7af11c811d19d7324b4f609baf50f9"
+    },
+    {
+      "run": "real-snapshot-unit-r13",
+      "file": "result.json",
+      "bytes": 502,
+      "sha256": "9133a45158c56c2dc69d7b57f0abb03c40c724818788fa2d3a70fff2f560250d"
+    },
+    {
+      "run": "real-history-r11",
+      "file": "producer.json",
+      "bytes": 521,
+      "sha256": "741442d40912f76ffc2373eddfc288478f826fb1f4c76909e62e74c74bc6afb6"
+    },
+    {
+      "run": "real-history-r11",
+      "file": "report.json",
+      "bytes": 2315,
+      "sha256": "d7648893bf8f946adb2c482982eb01f49b51fc3fd9313487dc776518f7f09da8"
+    },
+    {
+      "run": "real-history-r11",
+      "file": "result.json",
+      "bytes": 317,
+      "sha256": "8ff7a1cb45098a74de23fa5b7f5e5b7e25570b1961594a9ba3022304434c71e0"
+    },
+    {
+      "run": "real-history-r16",
+      "file": "D-fresh-matrix-continuous.jsonl",
+      "bytes": 83759,
+      "sha256": "50e1c8b86dfda05ae83b0761216c878bbbb31cf651a75819be3000a56f55bd33"
+    },
+    {
+      "run": "real-history-r16",
+      "file": "producer.json",
+      "bytes": 3830,
+      "sha256": "7051bcb0b8e8855077f8c72d85787d46593e26d1f3a2abcd814a87be31164052"
+    },
+    {
+      "run": "real-history-r16",
+      "file": "report.json",
+      "bytes": 79437,
+      "sha256": "033641b8594e4764aec3596804b253ae9594099f8584b66b9e0f4e3e384ae708"
+    },
+    {
+      "run": "real-history-r16",
+      "file": "result.json",
+      "bytes": 319,
+      "sha256": "076ce3e16585d97fe7791db2f80c399977b7cd32ad072879082702bf2696948d"
+    },
+    {
+      "run": "real-history-r16",
+      "file": "samples.jsonl",
+      "bytes": 11568,
+      "sha256": "505dd825342ee77978511b57d748539fb2bc95b8d4b71dd3a52ca808b1fdaf4c"
+    },
+    {
+      "run": "real-history-r16",
+      "file": "snapshot-manifest.json",
+      "bytes": 25856,
+      "sha256": "b50532f5a283facd8e443f3f2f6b15da4215b52597b7af55085043c1e01071ed"
+    },
+    {
+      "run": "real-history-r12",
+      "file": "A-recommended-continuous.jsonl",
+      "bytes": 65132,
+      "sha256": "693f0723f774346a48c22543745bf33b630385d6278f71e703397d73ee586e9c"
+    },
+    {
+      "run": "real-history-r12",
+      "file": "producer.json",
+      "bytes": 3971,
+      "sha256": "61a8feffb80c840a2a3b21b04b54c94d94223ebfffb6c441780ac87500b892d0"
+    },
+    {
+      "run": "real-history-r12",
+      "file": "report.json",
+      "bytes": 64553,
+      "sha256": "67d7af6af32531216e30e8f4de625a7d7efdf60c69cf842c5b9a97dd4f2d99cd"
+    },
+    {
+      "run": "real-history-r12",
+      "file": "result.json",
+      "bytes": 317,
+      "sha256": "2d09bd86f0f73098b9ef9316933d495a0d6ecfbf2a67afde8753a9d6d53b4a17"
+    },
+    {
+      "run": "real-history-r12",
+      "file": "samples.jsonl",
+      "bytes": 5640,
+      "sha256": "dabbc70e68874392f6be376c79b02ed6dfd9c626f55ebd4625379ace8ef02e23"
+    },
+    {
+      "run": "real-history-r12",
+      "file": "snapshot-manifest.json",
+      "bytes": 25856,
+      "sha256": "e333b0c67126c6271b0a5f747436716032fc9386725f3faa7fbc690b5eec8786"
+    }
+  ],
+  "requests": [
+    {
+      "id": "run:DJ-01:real-history-r14",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-history-r14",
+          "kind": "run",
+          "owner": "real-session-memory-probe",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\0de8a4930f00a97624fd8a4e9feb9d9e76e88200421532f643cb10e7118497b8.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "740cf5a080d57c8d57484947324c6dccf2bb5a6594758e5b57e17f06284fd286",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r14",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\0de8a4930f00a97624fd8a4e9feb9d9e76e88200421532f643cb10e7118497b8.json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "run:DJ-01:real-snapshot-unit-r12",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-snapshot-unit-r12",
+          "kind": "run",
+          "owner": "real-history-snapshot-check",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\5135114227796172c61b1ef9a216ec9ecc652398e8f2961428fd15352fd1b3d4.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "f4208d2a6e2f7c5cdde315bf7f2a14e7fa0be056c629224bad8fc49d7c39c33e",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r12",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-history-snapshot-check",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\5135114227796172c61b1ef9a216ec9ecc652398e8f2961428fd15352fd1b3d4.json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "run:DJ-01:real-snapshot-unit-r14",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-snapshot-unit-r14",
+          "kind": "run",
+          "owner": "real-history-snapshot-check",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\a95e8b37ff09b3f1ade43203b400c76dc4f9f4ced3d6169ca589946bbd949950.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "0d0778ef3416c6f411aea1960d6dc307548291d5c8e16a3ac6dce1f23c2366bc",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r14",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-history-snapshot-check",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\a95e8b37ff09b3f1ade43203b400c76dc4f9f4ced3d6169ca589946bbd949950.json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "run:DJ-01:real-history-r13",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-history-r13",
+          "kind": "run",
+          "owner": "real-session-memory-probe",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\d12064ea22ff347e161d391caccfe91e59d2672e06550b313ce1fffa9615984e.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "e3df983aa9ad7daa5373c9ed0d756271d198d56bd4d41a9f6badd113965446fe",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r13",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\d12064ea22ff347e161d391caccfe91e59d2672e06550b313ce1fffa9615984e.json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "run:DJ-01:real-snapshot-unit-r13",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-snapshot-unit-r13",
+          "kind": "run",
+          "owner": "real-history-snapshot-check",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\da9777c8f5cb1d25d1a632d4b2d07d57e9f2fbcc0d7a4b79f0a116a83740d24f.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "d7c08b0e1d89a8e6464e33be208d61c533bae5215f3aafcb8c462133351a2c83",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-snapshot-unit-r13",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-history-snapshot-check",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\da9777c8f5cb1d25d1a632d4b2d07d57e9f2fbcc0d7a4b79f0a116a83740d24f.json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "run:DJ-01:real-history-r11",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-history-r11",
+          "kind": "run",
+          "owner": "real-session-memory-probe",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\ddba0d02bbf65b605f02d0a2b97895cda19e38dc3e6a7761228a6a18b9344fcc.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "06dd1b1930350c903750086edca8733e47eb9cbaed7965aca76af8a44b868029",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r11",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\ddba0d02bbf65b605f02d0a2b97895cda19e38dc3e6a7761228a6a18b9344fcc.json"
+            },
+            {
+              "id": "673a3f9c98c5cb612a5a51ee562d3e7190ba706aaebdc0967af5d198710b7e40",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p11",
+              "role": "profile",
+              "lifecycle_role": "artifact",
+              "kind": "profile",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\ddba0d02bbf65b605f02d0a2b97895cda19e38dc3e6a7761228a6a18b9344fcc.json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "run:DJ-01:real-history-r16",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-history-r16",
+          "kind": "run",
+          "owner": "real-session-memory-probe",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\edae12925baffb7f1367fb317f045bcdfa948b2f638170b102989a42feb64ce2.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "972e96e49584dd2b600f1720e2b5f0135a0afb7cf67fde68a9b1cd1b6fbaf9f0",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r16",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\edae12925baffb7f1367fb317f045bcdfa948b2f638170b102989a42feb64ce2.json"
+            },
+            {
+              "id": "4fd8a951f757967f3efbe055b4a6c2bd9a2bbbb2daefe76415acad95a0e6a857",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p16",
+              "role": "profile",
+              "lifecycle_role": "artifact",
+              "kind": "profile",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\edae12925baffb7f1367fb317f045bcdfa948b2f638170b102989a42feb64ce2.json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "run:DJ-01:real-history-r12",
+      "request": {
+        "group": {
+          "id": "run:DJ-01:real-history-r12",
+          "kind": "run",
+          "owner": "real-session-memory-probe",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\ee6373e2f79e0ee0c2816ede7d22e73a1a7c48c4a13b4f04862537958142280e.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "2055356195e820cbf4b520267d02222826bf8d43fb79ed949c727ab67da23b35",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r12",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\ee6373e2f79e0ee0c2816ede7d22e73a1a7c48c4a13b4f04862537958142280e.json"
+            },
+            {
+              "id": "8e1e7bb1294532a6596deb6bc605ad84263132a10d99a09bfe0ec7c6934d60d0",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12",
+              "role": "profile",
+              "lifecycle_role": "artifact",
+              "kind": "profile",
+              "owner": "real-session-memory-probe",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\ee6373e2f79e0ee0c2816ede7d22e73a1a7c48c4a13b4f04862537958142280e.json"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

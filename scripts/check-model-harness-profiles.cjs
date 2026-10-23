@@ -11,14 +11,15 @@ if (!sourceRoot || !path.isAbsolute(sourceRoot) || !["config", "tools", "context
 const cwd = path.join(sourceRoot, "codex-rs");
 if (!fs.statSync(path.join(cwd, "Cargo.toml")).isFile()) throw new Error("Selected engine source has no Cargo workspace");
 const checks = scope === "config"
-  ? [["codex-config", "harness"]]
+  ? [["codex-config", "harness"], ["codex-prompts", "model_instructions"]]
   : scope === "context" ? [
       ["codex-core", "context::world_state::model::tests"],
       ["codex-core", "session::provider_handoff::tests"],
       ["codex-core", "instruction_state_projection"],
     ] : [
       ["codex-core", "claude"],
-      ["codex-core", "anthropic_profile_replaces_native_tools_and_other_providers_exclude_compatible_tools"],
+      ["codex-core", "azrael_defaults_and_explicit_claude_profile_select_executable_tools"],
+      ["codex-core", "anthropic_azrael_tools_patch_read_and_execute"],
       ["codex-core", "tools::router::tests::chat_discovery"],
       ["codex-core", "mcp_and_tool_search_follow_direct_and_deferred_tool_exposure"],
     ];

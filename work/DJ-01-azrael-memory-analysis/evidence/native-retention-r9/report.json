@@ -1,0 +1,603 @@
+{
+  "schema": 1,
+  "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m",
+  "lifecycleIds": [
+    "run:DJ-01:native-retention-r9"
+  ],
+  "startedUtc": "2026-10-22T16:48:07.566Z",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "frozenSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "platform": "win32",
+  "arch": "x64",
+  "scope": "One MCP pair root across the default60s delayed-unload threshold",
+  "status": "complete",
+  "modes": [
+    {
+      "name": "mcp-pair",
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-retention-r9\\reports",
+      "status": "complete",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\f9",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-retention-r9\\workspace",
+      "startedUtc": "2026-10-22T16:48:07.894Z",
+      "checkpoints": [
+        {
+          "label": "roots-0",
+          "loadedCount": 0,
+          "elapsedMs": 7223,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:48:32.790Z",
+              "freeBytes": 6249885696,
+              "privateBytes": 59056128,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:48:34.995Z",
+              "freeBytes": 5811232768,
+              "privateBytes": 59060224,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:48:38.086Z",
+              "freeBytes": 5183148032,
+              "privateBytes": 59060224,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "roots-1",
+          "loadedCount": 1,
+          "elapsedMs": 8704,
+          "creationElapsedMs": 1422,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:48:42.549Z",
+              "freeBytes": 4882034688,
+              "privateBytes": 99569664,
+              "processCount": 9,
+              "mcpCount": 2
+            },
+            {
+              "atUtc": "2026-10-22T16:48:45.035Z",
+              "freeBytes": 5247451136,
+              "privateBytes": 99504128,
+              "processCount": 9,
+              "mcpCount": 2
+            },
+            {
+              "atUtc": "2026-10-22T16:48:48.209Z",
+              "freeBytes": 4995555328,
+              "privateBytes": 99614720,
+              "processCount": 9,
+              "mcpCount": 2
+            }
+          ]
+        },
+        {
+          "label": "all-unsubscribed-after-30s",
+          "loadedCount": 1,
+          "elapsedMs": 8390,
+          "elapsedSinceUnsubscribeMs": 30025,
+          "interpretation": "Before native default60s idle/no-subscriber unload delay",
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:49:21.612Z",
+              "freeBytes": 3851190272,
+              "privateBytes": 98537472,
+              "processCount": 9,
+              "mcpCount": 2
+            },
+            {
+              "atUtc": "2026-10-22T16:49:24.312Z",
+              "freeBytes": 3769307136,
+              "privateBytes": 98545664,
+              "processCount": 9,
+              "mcpCount": 2
+            },
+            {
+              "atUtc": "2026-10-22T16:49:26.668Z",
+              "freeBytes": 3697127424,
+              "privateBytes": 98508800,
+              "processCount": 9,
+              "mcpCount": 2
+            }
+          ]
+        },
+        {
+          "label": "all-unsubscribed-after-90s",
+          "loadedCount": 0,
+          "elapsedMs": 6677,
+          "elapsedSinceUnsubscribeMs": 90020,
+          "ownersAlive": true,
+          "nativeDefaultUnloadDelaySeconds": 60,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:50:20.306Z",
+              "freeBytes": 5720911872,
+              "privateBytes": 68698112,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:50:22.869Z",
+              "freeBytes": 5469863936,
+              "privateBytes": 68743168,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:50:24.950Z",
+              "freeBytes": 5454745600,
+              "privateBytes": 68743168,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "second-owner-closed",
+          "loadedCount": 0,
+          "elapsedMs": 5845,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T16:50:26.726Z",
+              "freeBytes": 5423181824,
+              "privateBytes": 61849600,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:50:28.823Z",
+              "freeBytes": 5495185408,
+              "privateBytes": 61849600,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T16:50:30.819Z",
+              "freeBytes": 5470470144,
+              "privateBytes": 61775872,
+              "processCount": 3,
+              "mcpCount": 0
+            }
+          ]
+        }
+      ],
+      "backend": {
+        "pid": 45816,
+        "processStartTime": "134371612997737263",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\f9\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\f9\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "isolationVerified": true,
+      "lastMcpStatus": [
+        {
+          "name": "repl_probe",
+          "runtimeStatus": "connected",
+          "toolCount": 4
+        },
+        {
+          "name": "window_probe",
+          "runtimeStatus": "connected",
+          "toolCount": 28
+        }
+      ],
+      "beforeUnsubscribeStatus": {
+        "threadId": "01a16483-bed8-7723-a7c7-28f200bb5533",
+        "status": {
+          "type": "idle"
+        }
+      },
+      "unsubscribeResponses": [
+        {
+          "threadId": "01a16483-bed8-7723-a7c7-28f200bb5533",
+          "status": "unsubscribed"
+        }
+      ],
+      "after30sStatus": {
+        "threadId": "01a16483-bed8-7723-a7c7-28f200bb5533",
+        "status": {
+          "type": "idle"
+        }
+      },
+      "after90sStatus": {
+        "threadId": "01a16483-bed8-7723-a7c7-28f200bb5533",
+        "error": "Error: thread/read failed: {\"code\":-32600,\"message\":\"thread not loaded: 01a16483-bed8-7723-a7c7-28f200bb5533\"}"
+      },
+      "delayedUnloadObserved": true,
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 5777842176,
+        "atUtc": "2026-10-22T16:50:35.412Z"
+      },
+      "stopped": true,
+      "children": [
+        {
+          "pid": 24812,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 16148,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 43484,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 20268,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "endedUtc": "2026-10-22T16:50:35.413Z",
+      "observedIdentities": [
+        {
+          "pid": 24812,
+          "creation": "134371612918255910"
+        },
+        {
+          "pid": 5804,
+          "creation": "134371612918416060"
+        },
+        {
+          "pid": 42220,
+          "creation": "134371613038711940"
+        },
+        {
+          "pid": 45816,
+          "creation": "134371612997737260"
+        },
+        {
+          "pid": 16148,
+          "creation": "134371613038616860"
+        },
+        {
+          "pid": 56136,
+          "creation": "134371613192375760"
+        },
+        {
+          "pid": 53908,
+          "creation": "134371613192447670"
+        },
+        {
+          "pid": 14132,
+          "creation": "134371613192637440"
+        },
+        {
+          "pid": 69500,
+          "creation": "134371613192601870"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "One-off synthetic measurement; no leak conclusion",
+    "Root event queue sizes unknown: no exposed metric",
+    "No real MCP tool calls, capture, OS input, external provider, or credentials",
+    "Slow-consumer scenario not selected",
+    "Unsubscribe removes subscription; idle runtime unload is delayed (native default60s); 30s observations precede that default",
+    "History replay is authored native JSONL, not inference-generated or transient streaming memory",
+    "CIM snapshots are observations, not continuous peak measurements; driver/sampler/mock host overhead excluded from test private limit"
+  ],
+  "childOutcomes": [
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "own project boundary",
+      "pid": 5744,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "version",
+      "pid": 16280,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "endpoint-discovery",
+      "pid": 50920,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 12056,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 73916,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 63616,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 68352,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 62100,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 16908,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 40308,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 33288,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 60548,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 64444,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 39236,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 65920,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 21004,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "connector-1",
+      "pid": 16148,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "mock-host-1",
+      "pid": 20268,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 70556,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 19432,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 55720,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "connector-0",
+      "pid": 24812,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "mock-host-0",
+      "pid": 43484,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 34864,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 60040,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-retention-r9",
+      "kind": "CIM sample",
+      "pid": 33876,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "engineVersion": "0.162.0",
+  "producerStopped": true,
+  "endedUtc": "2026-10-22T16:50:35.413Z"
+}

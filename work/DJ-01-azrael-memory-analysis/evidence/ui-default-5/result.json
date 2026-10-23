@@ -1,0 +1,103 @@
+{
+  "status": "failed",
+  "mode": "default",
+  "startedUtc": "2026-10-22T17:03:28.305Z",
+  "lifecycleId": "run:DJ-01:ui-default-5",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5",
+  "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\d5",
+  "seed": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88",
+  "threadIds": [
+    "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+    "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+    "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c"
+  ],
+  "samples": [],
+  "stages": [],
+  "modifications": [
+    "fixture state home",
+    "diagnostic globals in copied host",
+    "synthetic auth responses; no valid credential",
+    "fixture thread/resume provider binding",
+    "canonical rollout basenames in copied fixture; source seed unchanged",
+    "external Devin CLI probes omitted from fixture"
+  ],
+  "limitations": [
+    "Windows x64 only",
+    "synthetic history; no live provider or active jobs",
+    "other host workloads may contend",
+    "renderer working sets include shared pages; heaps must not be added across contexts"
+  ],
+  "sourceManifestHash": "7053e2d78d4d68ce2dcf20279f44cfe6928634bbf202d5d238a3599b60606a1d",
+  "sourceHostHash": "42b414e1e84355cc81e09c2e8892792a7232457936164b23da2843e7ec1679ed",
+  "instrumentedHostHash": "78360fe3cc47c1cc9ea4120f1575745c02e8a5e801b2043a67fc8244c6bee388",
+  "launchPid": 26976,
+  "ports": {
+    "inspector": 11492,
+    "renderer": 11493
+  },
+  "extensionHostPid": 73056,
+  "error": "AssertionError [ERR_ASSERTION]: stop:system free below2GiB\n    at sample (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs:110:226)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async main (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs:124:24)",
+  "normalCloseSent": true,
+  "processesStopped": true,
+  "observedProcesses": [
+    {
+      "pid": 26976,
+      "createdUtc": "2026-10-22T17:05:47.1414300Z"
+    },
+    {
+      "pid": 64188,
+      "createdUtc": "2026-10-22T17:05:47.8132410Z"
+    },
+    {
+      "pid": 42784,
+      "createdUtc": "2026-10-22T17:05:48.3031650Z"
+    },
+    {
+      "pid": 19672,
+      "createdUtc": "2026-10-22T17:05:48.3999510Z"
+    },
+    {
+      "pid": 24292,
+      "createdUtc": "2026-10-22T17:05:48.8163450Z"
+    },
+    {
+      "pid": 57608,
+      "createdUtc": "2026-10-22T17:05:53.8186870Z"
+    },
+    {
+      "pid": 39412,
+      "createdUtc": "2026-10-22T17:05:54.5444280Z"
+    },
+    {
+      "pid": 57332,
+      "createdUtc": "2026-10-22T17:05:54.5909390Z"
+    },
+    {
+      "pid": 73056,
+      "createdUtc": "2026-10-22T17:05:55.2891590Z"
+    },
+    {
+      "pid": 65844,
+      "createdUtc": "2026-10-22T17:05:58.4423770Z"
+    },
+    {
+      "pid": 73196,
+      "createdUtc": "2026-10-22T17:05:59.2817580Z"
+    },
+    {
+      "pid": 69100,
+      "createdUtc": "2026-10-22T17:05:59.3592550Z"
+    },
+    {
+      "pid": 68060,
+      "createdUtc": "2026-10-22T17:06:21.2980160Z"
+    },
+    {
+      "pid": 70804,
+      "createdUtc": "2026-10-22T17:06:21.4536940Z"
+    }
+  ],
+  "launchExitCode": 0,
+  "finishedUtc": "2026-10-22T17:06:33.475Z",
+  "exitCode": 1
+}

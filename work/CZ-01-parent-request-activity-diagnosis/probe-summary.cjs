@@ -1,0 +1,16 @@
+﻿const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=process.cwd(),ts=require(path.join(root,'extensions/azrael-ex/node_modules/typescript'));
+const base='C:/Users/felre/.vscode/extensions/azrael-ex-local.azrael-2026.0.10/webview/assets/';
+const asset='sites-end-resource-90d3046b3014.js',s=fs.readFileSync(base+asset,'utf8'),ast=ts.createSourceFile(asset,s,99,true);
+const fn=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='ZT').getText(ast);
+const context={Gi:x=>x};vm.createContext(context);vm.runInContext(fn+';this.summary=ZT',context);
+const pending={type:'subagent-activity',id:'parent-request-r1',agentThreadId:'child',isMessage:true,displayName:'Parent request probe',displayStatus:'updated',parentRequest:{requestId:'r1',status:'pending'}};
+const input={activityItems:[pending],backgroundAgentById:new Map([['child',{parentTurnKey:'parent-turn',status:'done'}]]),laterActivityConversationIds:new Set,turnKey:'parent-turn'};
+const out=context.summary(input);
+assert.equal(out[0].activityStatus,'done');assert.equal(out[0].parentRequest,undefined);
+console.log(JSON.stringify({case:'pending request with non-active child summary',inputRequestStatus:pending.parentRequest.status,output:out,losesRequest:true}));
+const two=context.summary({...input,activityItems:[pending,{...pending,id:'parent-request-r2',parentRequest:{requestId:'r2',status:'pending'}}]});
+assert.equal(two.length,1);console.log(JSON.stringify({case:'two requests from same child',inputRows:2,outputRows:two.length,output:two}));
+const complete=context.summary({...input,activityItems:[pending,{type:'subagent-activity',id:'subagent-completed-turn',agentThreadId:'child',displayName:'Parent request probe',displayStatus:'completed'}]});
+assert.equal(complete.length,1);assert.equal(complete[0].activityStatus,'done');console.log(JSON.stringify({case:'pending request followed by completion',output:complete}));
+console.log('PASS 3 installed summary function cases; no product state changed');

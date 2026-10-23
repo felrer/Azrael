@@ -1,0 +1,45 @@
+{
+  "project": ".u",
+  "group": "run:DJ-01:ui-default-6",
+  "resumedVerification": "Original async cell unavailable after runtime transition. Persisted native decisions confirm actual deletion; producer member path absence and supported finalization checked separately.",
+  "decisions": [
+    {
+      "attempt_id": "attempt-61016-1-1792690506893",
+      "decision": "delete",
+      "group_status": "deleting",
+      "id": "39d372885e3749ca1ba06f87907a7cf806187c651b0aab26b083112c4926cf18",
+      "lifecycle_group_id": "run:DJ-01:ui-default-6",
+      "reason": "Owned stopped failed UI fixture; independent producer/result reports preserved in work evidence; no remaining downstream consumers",
+      "remaining": false,
+      "status": "deleted",
+      "token": "45b993e090093e96dd3ef45fe4eecccdc4ed210ac2a073d85966b40d703be47e"
+    },
+    {
+      "attempt_id": "attempt-61016-4-1792690804666",
+      "decision": "delete",
+      "group_status": "deleted",
+      "id": "e4ff68580285514c970f48042fb0f725cb16f2ef09a970bc4460ee08776c38c8",
+      "lifecycle_group_id": "run:DJ-01:ui-default-6",
+      "reason": "Owned stopped failed UI fixture; independent producer/result reports preserved in work evidence; no remaining downstream consumers",
+      "remaining": false,
+      "status": "deleted",
+      "token": "d2df35e4ae4cbb0da8f523b17298d3afa8be37a460696ea8d618f303f0cf2947"
+    }
+  ],
+  "groups": [
+    {
+      "cached_live_members": 0,
+      "cleanup_status": "deleted",
+      "id": "run:DJ-01:ui-default-6",
+      "kind": "run",
+      "members_total": 2,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.u\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "3c51b578da17ecd05c22f6270657b9beda3009ccd2f539c868fc8b249a0935a9",
+      "owner": "ui-memory-probe",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.u\\artifacts\\maintenance\\lifecycles\\c2b97746447f2175335cce62827922c5805bb5223a3ba098565ca8c4bb8c21a2.json",
+      "version": null
+    }
+  ]
+}

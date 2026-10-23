@@ -66,11 +66,34 @@ async function main() {
     try { handle = await begin(options); } finally { fs.readdir = readdir; }
     assert.equal(failed, true); assert.match(handle.deferred.join(), /lifecycle release: EBUSY/);
     assert.equal(await exists(lifecycle), true);
+    const contender = await begin({ ...options, checkId: 'contender' });
+    assert.match(contender.reason, /busy: lifecycle/, 'failed release retires the local turn while disk ownership stays protected');
+    await contender.close();
     const old = path.join(options.cacheRoot, 'v0'); await fs.mkdir(old);
     await Promise.all([handle.close(), handle.close()]);
     assert.equal(await exists(lifecycle), false);
     assert.deepEqual(await fs.readdir(path.join(options.cacheRoot, '.leases')), []);
     assert.equal(await exists(old), false);
+  });
+  await test('lifecycle acquisition and setup failures retire local turns before cleanup reentry', async () => {
+    for (const stage of ['acquisition', 'setup']) {
+      const { options, record, slot } = await setup(`lifecycle-failure-${stage}`);
+      const target = stage === 'acquisition' ? path.join(options.cacheRoot, '.lifecycle') : slot;
+      const mkdir = fs.mkdir;
+      let failed = false, handle;
+      fs.mkdir = async function (filename, ...args) {
+        if (filename === target && !failed) { failed = true; throw Object.assign(Error(`fixture ${stage} blocked`), { code: 'EIO' }); }
+        return mkdir.call(this, filename, ...args);
+      };
+      try { handle = await begin(options); } finally { fs.mkdir = mkdir; }
+      assert.equal(failed, true); assert.match(handle.reason, /EIO/);
+      await handle.close();
+      const next = await begin(options);
+      try { assert.equal((await next.publish(record)).published, true, next.reason); }
+      finally { await next.close(); }
+      assert.equal(await exists(path.join(options.cacheRoot, '.lifecycle')), false);
+      assert.deepEqual(await fs.readdir(path.join(options.cacheRoot, '.leases')), []);
+    }
   });
   await test('exact live lease refuses recovery; confirmed child exit permits recovery and cached hit', async () => {
     const { options, record } = await setup('recovery-child');
@@ -274,11 +297,60 @@ async function main() {
     await Promise.all(handles.map(handle => handle.close()));
     const hit = await begin(options); assert.equal(hit.hit.reused, true); await hit.close();
   });
+  await test('local lifecycle ownership outlives external deadline without blocking another root', async () => {
+    const first = await setup('lifecycle-queue'), other = await setup('independent-lifecycle');
+    const inputs = ['first', 'second', 'third', 'fourth'].map(checkId => ({ ...first.options, checkId }));
+    const leases = path.join(first.options.cacheRoot, '.leases'), lifecycle = path.join(first.options.cacheRoot, '.lifecycle');
+    const readdir = fs.readdir, mkdir = fs.mkdir;
+    let entered, resume, held = false, attempts = 0;
+    const acquired = new Promise(resolve => { entered = resolve; });
+    const barrier = new Promise(resolve => { resume = resolve; });
+    fs.mkdir = async function (filename, ...args) {
+      if (filename === lifecycle) attempts++;
+      return mkdir.call(this, filename, ...args);
+    };
+    fs.readdir = async function (filename, ...args) {
+      // Pause obsolete scanning after lifecycle acquisition and access release.
+      if (filename === leases && !held) { held = true; entered(); await barrier; }
+      return readdir.call(this, filename, ...args);
+    };
+    const pending = [], handles = [];
+    let pruning = [];
+    try {
+      pending.push(begin(inputs[0])); await acquired;
+      pending.push(...inputs.slice(1).map(begin));
+      pruning = [pruneObsoleteVersions(first.options), pruneRemovedChecks({ ...first.options, checkIds: inputs.map(input => input.checkId) })];
+      const independent = await begin(other.options);
+      handles.push(independent);
+      assert.equal((await independent.publish(other.record)).published, true, independent.reason);
+      // The local owner remains held longer than the 2000ms external deadline.
+      await new Promise(resolve => setTimeout(resolve, 2200));
+      resume();
+      const local = await Promise.all(pending); handles.push(...local);
+      assert.equal(local.filter(handle => /busy/.test(handle.reason || '')).length, 0, JSON.stringify(local.map(handle => handle.reason)));
+      const pruned = await Promise.all(pruning);
+      assert.equal(attempts, 6, 'each begin and prune acquires once after its local predecessor releases');
+      assert.equal(pruned.flatMap(result => result.deferred).some(value => /lifecycle lease busy/.test(value)), false);
+      assert.equal((await Promise.all(local.map(handle => handle.publish(first.record)))).filter(result => result.published).length, 4);
+    } finally {
+      resume();
+      const settled = await Promise.allSettled(pending);
+      await Promise.allSettled(pruning);
+      fs.readdir = readdir; fs.mkdir = mkdir;
+      await Promise.all([...new Set([...handles, ...settled.filter(result => result.status === 'fulfilled').map(result => result.value)])].map(handle => handle.close()));
+    }
+    const hits = await Promise.all(inputs.map(begin));
+    try { assert.equal(hits.filter(handle => handle.hit && handle.hit.reused).length, 4, JSON.stringify(hits.map(handle => handle.reason))); }
+    finally { await Promise.all(hits.map(handle => handle.close())); }
+    assert.equal(await exists(lifecycle), false);
+    assert.equal(await exists(path.join(first.options.cacheRoot, '.lease-access')), false);
+    assert.deepEqual(await fs.readdir(leases), []);
+  });
   await test('four concurrent different checks all publish and reuse', async () => {
     const { options, record } = await setup('concurrent-different');
     const inputs = ['first', 'second', 'third', 'fourth'].map(checkId => ({ ...options, checkId }));
     const handles = await Promise.all(inputs.map(begin));
-    assert.equal(handles.filter(handle => /busy/.test(handle.reason || '')).length, 0);
+    assert.equal(handles.filter(handle => /busy/.test(handle.reason || '')).length, 0, JSON.stringify(handles.map(handle => handle.reason)));
     const results = await Promise.all(handles.map(handle => handle.publish(record)));
     assert.equal(results.filter(result => result.published).length, 4);
     const old = path.join(options.cacheRoot, 'v0'); await fs.mkdir(old);

@@ -1,0 +1,123 @@
+{
+  "lifecycleId": "run:DJ-01:native-b-r7",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-b-r7",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\native-memory-probe.mjs",
+    "--run"
+  ],
+  "exitCode": 0,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 71876,
+      "closed": true
+    },
+    {
+      "pid": 8300,
+      "closed": true
+    },
+    {
+      "pid": 25556,
+      "closed": true
+    },
+    {
+      "pid": 68956,
+      "closed": true
+    },
+    {
+      "pid": 52124,
+      "closed": true
+    },
+    {
+      "pid": 20404,
+      "closed": true
+    },
+    {
+      "pid": 65304,
+      "closed": true
+    },
+    {
+      "pid": 60856,
+      "closed": true
+    },
+    {
+      "pid": 56868,
+      "closed": true
+    },
+    {
+      "pid": 35992,
+      "closed": true
+    },
+    {
+      "pid": 66612,
+      "closed": true
+    },
+    {
+      "pid": 47960,
+      "closed": true
+    },
+    {
+      "pid": 55056,
+      "closed": true
+    },
+    {
+      "pid": 64104,
+      "closed": true
+    },
+    {
+      "pid": 29360,
+      "closed": true
+    },
+    {
+      "pid": 61680,
+      "closed": true
+    },
+    {
+      "pid": 68600,
+      "closed": true
+    },
+    {
+      "pid": 26740,
+      "closed": true
+    },
+    {
+      "pid": 62008,
+      "closed": true
+    },
+    {
+      "pid": 45200,
+      "closed": true
+    },
+    {
+      "pid": 43456,
+      "closed": true
+    },
+    {
+      "pid": 37120,
+      "closed": true
+    },
+    {
+      "pid": 69340,
+      "closed": true
+    },
+    {
+      "pid": 21596,
+      "closed": true
+    },
+    {
+      "pid": 36692,
+      "closed": true
+    },
+    {
+      "pid": 52636,
+      "closed": true
+    },
+    {
+      "pid": 61452,
+      "closed": true
+    }
+  ],
+  "state": "complete",
+  "membership_complete": true
+}

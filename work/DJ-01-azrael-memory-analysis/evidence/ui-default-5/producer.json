@@ -1,0 +1,22 @@
+{
+  "lifecycleId": "run:DJ-01:ui-default-5",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default-5",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs",
+    "--run",
+    "--attempt=5",
+    "--seed-home=C:/Users/felre/Desktop/pi-harness-init/.m/artifacts/c88",
+    "--threads=da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50,d23afaa5-f06e-4214-bcb8-81be232c63e1,e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c"
+  ],
+  "exitCode": 1,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 26976,
+      "closed": true
+    }
+  ],
+  "state": "failed",
+  "membership_complete": true
+}

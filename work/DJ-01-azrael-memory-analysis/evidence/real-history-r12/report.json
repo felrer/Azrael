@@ -1,0 +1,2143 @@
+{
+  "schema": 1,
+  "lifecycleId": "run:DJ-01:real-history-r12",
+  "startedUtc": "2026-10-23T00:20:33.236Z",
+  "status": "failed",
+  "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12",
+  "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r12\\workspace",
+  "platform": "win32",
+  "arch": "x64",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "driverSha256": "ff2377fb8cec2269cf025c4b9224d588e1422ad66246260ac61c28d2eefb2698",
+  "snapshotHelperSha256": "062d4bbbf1fe0c756bd1846cebfcd5fcd3a32ff2a65ba496898ac791d53d0b76",
+  "limits": {
+    "nativePrivateBytes": 4294967296,
+    "freeBytes": 3221225472,
+    "driverRssBytes": 2147483648
+  },
+  "modes": [
+    {
+      "name": "A-recommended",
+      "status": "complete",
+      "checkpoints": [
+        {
+          "label": "baseline",
+          "loadedCount": 0,
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:21:44.528Z",
+              "freeBytes": 10256973824,
+              "privateBytes": 61591552,
+              "workingSetBytes": 464793600,
+              "processCount": 5,
+              "driverRssBytes": 64958464,
+              "driverHeapUsedBytes": 8001736
+            },
+            {
+              "atUtc": "2026-10-23T00:21:46.352Z",
+              "freeBytes": 10283515904,
+              "privateBytes": 61591552,
+              "workingSetBytes": 464809984,
+              "processCount": 5,
+              "driverRssBytes": 65089536,
+              "driverHeapUsedBytes": 8145600
+            },
+            {
+              "atUtc": "2026-10-23T00:21:48.351Z",
+              "freeBytes": 10375405568,
+              "privateBytes": 61591552,
+              "workingSetBytes": 464809984,
+              "processCount": 5,
+              "driverRssBytes": 65220608,
+              "driverHeapUsedBytes": 8265400
+            }
+          ],
+          "medianPrivateBytes": 61591552,
+          "medianWorkingSetBytes": 464809984,
+          "medianDriverRssBytes": 65089536
+        },
+        {
+          "label": "excludeTurns-resume-1",
+          "loadedCount": 1,
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:22:25.145Z",
+              "freeBytes": 10573418496,
+              "privateBytes": 102440960,
+              "workingSetBytes": 509845504,
+              "processCount": 5,
+              "driverRssBytes": 64929792,
+              "driverHeapUsedBytes": 8077736
+            },
+            {
+              "atUtc": "2026-10-23T00:22:26.691Z",
+              "freeBytes": 10559619072,
+              "privateBytes": 102440960,
+              "workingSetBytes": 509849600,
+              "processCount": 5,
+              "driverRssBytes": 64933888,
+              "driverHeapUsedBytes": 8217856
+            },
+            {
+              "atUtc": "2026-10-23T00:22:28.334Z",
+              "freeBytes": 10517336064,
+              "privateBytes": 102440960,
+              "workingSetBytes": 509849600,
+              "processCount": 5,
+              "driverRssBytes": 64933888,
+              "driverHeapUsedBytes": 8335456
+            }
+          ],
+          "medianPrivateBytes": 102440960,
+          "medianWorkingSetBytes": 509849600,
+          "medianDriverRssBytes": 64933888
+        },
+        {
+          "label": "latest-turn-page-1",
+          "loadedCount": 1,
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:22:29.534Z",
+              "freeBytes": 10555396096,
+              "privateBytes": 102440960,
+              "workingSetBytes": 509919232,
+              "processCount": 5,
+              "driverRssBytes": 64675840,
+              "driverHeapUsedBytes": 8118520
+            },
+            {
+              "atUtc": "2026-10-23T00:22:31.294Z",
+              "freeBytes": 10503073792,
+              "privateBytes": 102440960,
+              "workingSetBytes": 509919232,
+              "processCount": 5,
+              "driverRssBytes": 64675840,
+              "driverHeapUsedBytes": 8257312
+            },
+            {
+              "atUtc": "2026-10-23T00:22:32.900Z",
+              "freeBytes": 10411294720,
+              "privateBytes": 102440960,
+              "workingSetBytes": 509919232,
+              "processCount": 5,
+              "driverRssBytes": 64806912,
+              "driverHeapUsedBytes": 8373648
+            }
+          ],
+          "medianPrivateBytes": 102440960,
+          "medianWorkingSetBytes": 509919232,
+          "medianDriverRssBytes": 64675840
+        },
+        {
+          "label": "paged-all-items",
+          "loadedCount": 1,
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:22:46.914Z",
+              "freeBytes": 10437054464,
+              "privateBytes": 120008704,
+              "workingSetBytes": 527175680,
+              "processCount": 5,
+              "driverRssBytes": 121716736,
+              "driverHeapUsedBytes": 8217840
+            },
+            {
+              "atUtc": "2026-10-23T00:22:48.454Z",
+              "freeBytes": 10473959424,
+              "privateBytes": 120008704,
+              "workingSetBytes": 527175680,
+              "processCount": 5,
+              "driverRssBytes": 121716736,
+              "driverHeapUsedBytes": 8343976
+            },
+            {
+              "atUtc": "2026-10-23T00:22:50.061Z",
+              "freeBytes": 10373427200,
+              "privateBytes": 120008704,
+              "workingSetBytes": 527175680,
+              "processCount": 5,
+              "driverRssBytes": 121716736,
+              "driverHeapUsedBytes": 8467552
+            }
+          ],
+          "medianPrivateBytes": 120008704,
+          "medianWorkingSetBytes": 527175680,
+          "medianDriverRssBytes": 121716736
+        },
+        {
+          "label": "full-read-1",
+          "loadedCount": 1,
+          "read": {
+            "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+            "label": "full-read-1",
+            "kind": "compatibility-stress",
+            "responseBytes": 91726461,
+            "turnCount": 467,
+            "itemCount": 38753,
+            "itemBytes": 91451217,
+            "byItemType": {
+              "userMessage": 58,
+              "agentMessage": 1928,
+              "commandExecution": 12415,
+              "reasoning": 16754,
+              "subAgentActivity": 6738,
+              "fileChange": 664,
+              "contextCompaction": 147,
+              "webSearch": 39,
+              "imageView": 8,
+              "collabAgentToolCall": 2
+            },
+            "comparison": {
+              "turnDelta": 0,
+              "itemDelta": 0
+            },
+            "elapsedMs": 13826
+          },
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:23:05.161Z",
+              "freeBytes": 9761468416,
+              "privateBytes": 342749184,
+              "workingSetBytes": 742780928,
+              "processCount": 5,
+              "driverRssBytes": 386637824,
+              "driverHeapUsedBytes": 8264944
+            },
+            {
+              "atUtc": "2026-10-23T00:23:06.763Z",
+              "freeBytes": 9811132416,
+              "privateBytes": 342749184,
+              "workingSetBytes": 742780928,
+              "processCount": 5,
+              "driverRssBytes": 386662400,
+              "driverHeapUsedBytes": 8385024
+            },
+            {
+              "atUtc": "2026-10-23T00:23:08.326Z",
+              "freeBytes": 9846079488,
+              "privateBytes": 342790144,
+              "workingSetBytes": 742825984,
+              "processCount": 5,
+              "driverRssBytes": 386736128,
+              "driverHeapUsedBytes": 8503696
+            }
+          ],
+          "medianPrivateBytes": 342749184,
+          "medianWorkingSetBytes": 742780928,
+          "medianDriverRssBytes": 386662400
+        },
+        {
+          "label": "full-read-2",
+          "loadedCount": 1,
+          "read": {
+            "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+            "label": "full-read-2",
+            "kind": "compatibility-stress",
+            "responseBytes": 91726461,
+            "turnCount": 467,
+            "itemCount": 38753,
+            "itemBytes": 91451217,
+            "byItemType": {
+              "userMessage": 58,
+              "agentMessage": 1928,
+              "commandExecution": 12415,
+              "reasoning": 16754,
+              "subAgentActivity": 6738,
+              "fileChange": 664,
+              "contextCompaction": 147,
+              "webSearch": 39,
+              "imageView": 8,
+              "collabAgentToolCall": 2
+            },
+            "comparison": {
+              "turnDelta": 0,
+              "itemDelta": 0
+            },
+            "elapsedMs": 15515
+          },
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:23:25.120Z",
+              "freeBytes": 9172459520,
+              "privateBytes": 429101056,
+              "workingSetBytes": 834101248,
+              "processCount": 5,
+              "driverRssBytes": 366829568,
+              "driverHeapUsedBytes": 8280888
+            },
+            {
+              "atUtc": "2026-10-23T00:23:26.755Z",
+              "freeBytes": 9533128704,
+              "privateBytes": 429101056,
+              "workingSetBytes": 834101248,
+              "processCount": 5,
+              "driverRssBytes": 366829568,
+              "driverHeapUsedBytes": 8400512
+            },
+            {
+              "atUtc": "2026-10-23T00:23:28.347Z",
+              "freeBytes": 9916649472,
+              "privateBytes": 429101056,
+              "workingSetBytes": 834101248,
+              "processCount": 5,
+              "driverRssBytes": 366829568,
+              "driverHeapUsedBytes": 8519240
+            }
+          ],
+          "medianPrivateBytes": 429101056,
+          "medianWorkingSetBytes": 834101248,
+          "medianDriverRssBytes": 366829568
+        },
+        {
+          "label": "full-read-3",
+          "loadedCount": 1,
+          "read": {
+            "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+            "label": "full-read-3",
+            "kind": "compatibility-stress",
+            "responseBytes": 91726461,
+            "turnCount": 467,
+            "itemCount": 38753,
+            "itemBytes": 91451217,
+            "byItemType": {
+              "userMessage": 58,
+              "agentMessage": 1928,
+              "commandExecution": 12415,
+              "reasoning": 16754,
+              "subAgentActivity": 6738,
+              "fileChange": 664,
+              "contextCompaction": 147,
+              "webSearch": 39,
+              "imageView": 8,
+              "collabAgentToolCall": 2
+            },
+            "comparison": {
+              "turnDelta": 0,
+              "itemDelta": 0
+            },
+            "elapsedMs": 13299
+          },
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:23:42.765Z",
+              "freeBytes": 9910050816,
+              "privateBytes": 421761024,
+              "workingSetBytes": 829620224,
+              "processCount": 5,
+              "driverRssBytes": 371875840,
+              "driverHeapUsedBytes": 8302976
+            },
+            {
+              "atUtc": "2026-10-23T00:23:44.410Z",
+              "freeBytes": 9864859648,
+              "privateBytes": 421761024,
+              "workingSetBytes": 829620224,
+              "processCount": 5,
+              "driverRssBytes": 371875840,
+              "driverHeapUsedBytes": 8423168
+            },
+            {
+              "atUtc": "2026-10-23T00:23:45.924Z",
+              "freeBytes": 9888055296,
+              "privateBytes": 420622336,
+              "workingSetBytes": 828489728,
+              "processCount": 5,
+              "driverRssBytes": 371875840,
+              "driverHeapUsedBytes": 8537336
+            }
+          ],
+          "medianPrivateBytes": 421761024,
+          "medianWorkingSetBytes": 829620224,
+          "medianDriverRssBytes": 371875840
+        },
+        {
+          "label": "unsubscribed-90s",
+          "loadedCount": 0,
+          "elapsedSinceUnsubscribeMs": 90012,
+          "ownersAlive": true,
+          "samples": [
+            {
+              "atUtc": "2026-10-23T00:25:17.026Z",
+              "freeBytes": 10335211520,
+              "privateBytes": 334159872,
+              "workingSetBytes": 739266560,
+              "processCount": 5,
+              "driverRssBytes": 134656000,
+              "driverHeapUsedBytes": 8361584
+            },
+            {
+              "atUtc": "2026-10-23T00:25:18.644Z",
+              "freeBytes": 10307678208,
+              "privateBytes": 334135296,
+              "workingSetBytes": 739250176,
+              "processCount": 5,
+              "driverRssBytes": 134676480,
+              "driverHeapUsedBytes": 8481144
+            },
+            {
+              "atUtc": "2026-10-23T00:25:20.270Z",
+              "freeBytes": 10302234624,
+              "privateBytes": 334135296,
+              "workingSetBytes": 739250176,
+              "processCount": 5,
+              "driverRssBytes": 134680576,
+              "driverHeapUsedBytes": 8595808
+            }
+          ],
+          "medianPrivateBytes": 334135296,
+          "medianWorkingSetBytes": 739250176,
+          "medianDriverRssBytes": 134676480
+        }
+      ],
+      "reads": [
+        {
+          "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "label": "full-read-1",
+          "kind": "compatibility-stress",
+          "responseBytes": 91726461,
+          "turnCount": 467,
+          "itemCount": 38753,
+          "itemBytes": 91451217,
+          "byItemType": {
+            "userMessage": 58,
+            "agentMessage": 1928,
+            "commandExecution": 12415,
+            "reasoning": 16754,
+            "subAgentActivity": 6738,
+            "fileChange": 664,
+            "contextCompaction": 147,
+            "webSearch": 39,
+            "imageView": 8,
+            "collabAgentToolCall": 2
+          },
+          "comparison": {
+            "turnDelta": 0,
+            "itemDelta": 0
+          },
+          "elapsedMs": 13826
+        },
+        {
+          "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "label": "full-read-2",
+          "kind": "compatibility-stress",
+          "responseBytes": 91726461,
+          "turnCount": 467,
+          "itemCount": 38753,
+          "itemBytes": 91451217,
+          "byItemType": {
+            "userMessage": 58,
+            "agentMessage": 1928,
+            "commandExecution": 12415,
+            "reasoning": 16754,
+            "subAgentActivity": 6738,
+            "fileChange": 664,
+            "contextCompaction": 147,
+            "webSearch": 39,
+            "imageView": 8,
+            "collabAgentToolCall": 2
+          },
+          "comparison": {
+            "turnDelta": 0,
+            "itemDelta": 0
+          },
+          "elapsedMs": 15515
+        },
+        {
+          "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "label": "full-read-3",
+          "kind": "compatibility-stress",
+          "responseBytes": 91726461,
+          "turnCount": 467,
+          "itemCount": 38753,
+          "itemBytes": 91451217,
+          "byItemType": {
+            "userMessage": 58,
+            "agentMessage": 1928,
+            "commandExecution": 12415,
+            "reasoning": 16754,
+            "subAgentActivity": 6738,
+            "fileChange": 664,
+            "contextCompaction": 147,
+            "webSearch": 39,
+            "imageView": 8,
+            "collabAgentToolCall": 2
+          },
+          "comparison": {
+            "turnDelta": 0,
+            "itemDelta": 0
+          },
+          "elapsedMs": 13299
+        }
+      ],
+      "pagedReads": [
+        {
+          "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "label": "thread-items-all-desc-100",
+          "pageCount": 388,
+          "itemCount": 38753,
+          "responseBytes": 96090176,
+          "itemDelta": 0,
+          "elapsedMs": 12897
+        }
+      ],
+      "resumed": [
+        "01a1334d-6a69-7821-a164-da04f3cfa71f"
+      ],
+      "stderrBytes": 593,
+      "rpc": {
+        "requests": {
+          "initialize": 2,
+          "config/read": 1,
+          "account/read": 1,
+          "thread/loaded/list": 8,
+          "thread/resume": 1,
+          "thread/read": 4,
+          "thread/turns/list": 1,
+          "thread/items/list": 388,
+          "thread/unsubscribe": 1
+        },
+        "successes": {
+          "initialize": 2,
+          "config/read": 1,
+          "account/read": 1,
+          "thread/loaded/list": 8,
+          "thread/resume": 1,
+          "thread/read": 4,
+          "thread/turns/list": 1,
+          "thread/items/list": 388,
+          "thread/unsubscribe": 1
+        },
+        "failures": {},
+        "elapsedMs": {
+          "initialize": 38419,
+          "config/read": 38,
+          "account/read": 19,
+          "thread/loaded/list": 14,
+          "thread/resume": 35729,
+          "thread/read": 41361,
+          "thread/turns/list": 16,
+          "thread/items/list": 12648,
+          "thread/unsubscribe": 11
+        },
+        "notifications": {
+          "warning": 1,
+          "thread/status/changed": 2,
+          "thread/tokenUsage/updated": 1,
+          "thread/goal/cleared": 1,
+          "deprecationNotice": 3,
+          "thread/closed": 1
+        },
+        "deniedServerRequests": {}
+      },
+      "backend": {
+        "pid": 24648,
+        "processStartTime": "134371884651395851",
+        "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5"
+      },
+      "continuousSamples": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r12\\reports\\A-recommended-continuous.jsonl",
+      "isolationVerified": true,
+      "beforeProjection": [
+        {
+          "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+            "next_rollout_byte_offset": 425375176,
+            "next_rollout_ordinal": 158543,
+            "projection_version": 5
+          },
+          "turnCount": 467,
+          "itemCount": 38753
+        },
+        {
+          "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a11071-cfa1-7280-84f9-e515541e5987",
+            "next_rollout_byte_offset": 240659157,
+            "next_rollout_ordinal": 8938,
+            "projection_version": 3
+          },
+          "turnCount": 25,
+          "itemCount": 2732
+        },
+        {
+          "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+            "next_rollout_byte_offset": 186886810,
+            "next_rollout_ordinal": 10651,
+            "projection_version": 5
+          },
+          "turnCount": 45,
+          "itemCount": 3549
+        },
+        {
+          "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+            "next_rollout_byte_offset": 88047519,
+            "next_rollout_ordinal": 16061,
+            "projection_version": 3
+          },
+          "turnCount": 77,
+          "itemCount": 4149
+        },
+        {
+          "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+            "next_rollout_byte_offset": 78024735,
+            "next_rollout_ordinal": 7654,
+            "projection_version": 5
+          },
+          "turnCount": 29,
+          "itemCount": 2518
+        },
+        {
+          "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+            "next_rollout_byte_offset": 46079396,
+            "next_rollout_ordinal": 18283,
+            "projection_version": 5
+          },
+          "turnCount": 20,
+          "itemCount": 4769
+        }
+      ],
+      "firstPage": {
+        "responseBytes": 669,
+        "turnCount": 1,
+        "hasNextCursor": true
+      },
+      "plateauDeltas": [
+        {
+          "label": "full-read-1",
+          "privateDeltaFromFirst": 0,
+          "driverRssDeltaFromFirst": 0
+        },
+        {
+          "label": "full-read-2",
+          "privateDeltaFromFirst": 86351872,
+          "driverRssDeltaFromFirst": -19832832
+        },
+        {
+          "label": "full-read-3",
+          "privateDeltaFromFirst": 79011840,
+          "driverRssDeltaFromFirst": -14786560
+        }
+      ],
+      "afterProjection": [
+        {
+          "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+            "next_rollout_byte_offset": 425377425,
+            "next_rollout_ordinal": 158544,
+            "projection_version": 5
+          },
+          "turnCount": 467,
+          "itemCount": 38753
+        },
+        {
+          "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a11071-cfa1-7280-84f9-e515541e5987",
+            "next_rollout_byte_offset": 240659157,
+            "next_rollout_ordinal": 8938,
+            "projection_version": 3
+          },
+          "turnCount": 25,
+          "itemCount": 2732
+        },
+        {
+          "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+            "next_rollout_byte_offset": 186886810,
+            "next_rollout_ordinal": 10651,
+            "projection_version": 5
+          },
+          "turnCount": 45,
+          "itemCount": 3549
+        },
+        {
+          "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+            "next_rollout_byte_offset": 88047519,
+            "next_rollout_ordinal": 16061,
+            "projection_version": 3
+          },
+          "turnCount": 77,
+          "itemCount": 4149
+        },
+        {
+          "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+            "next_rollout_byte_offset": 78024735,
+            "next_rollout_ordinal": 7654,
+            "projection_version": 5
+          },
+          "turnCount": 29,
+          "itemCount": 2518
+        },
+        {
+          "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+          "historyMode": "paginated",
+          "projection": {
+            "thread_id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+            "next_rollout_byte_offset": 46079396,
+            "next_rollout_ordinal": 18283,
+            "projection_version": 5
+          },
+          "turnCount": 20,
+          "itemCount": 4769
+        }
+      ],
+      "unsubscribed": [
+        {
+          "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "status": "unsubscribed"
+        }
+      ],
+      "loadedZeroAfter90s": true,
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 10799763456,
+        "atUtc": "2026-10-23T00:25:23.774Z"
+      },
+      "samplerExit": {
+        "code": 0,
+        "signal": null
+      },
+      "stopped": true,
+      "observedIdentities": [
+        {
+          "pid": 47868,
+          "creation": "134371884961804140"
+        },
+        {
+          "pid": 62272,
+          "creation": "134371884604087910"
+        },
+        {
+          "pid": 24648,
+          "creation": "134371884651395850"
+        },
+        {
+          "pid": 65748,
+          "creation": "134371884604025410"
+        },
+        {
+          "pid": 20140,
+          "creation": "134371884961628510"
+        }
+      ]
+    },
+    {
+      "name": "B-cumulative-paged",
+      "status": "failed",
+      "checkpoints": [],
+      "reads": [],
+      "pagedReads": [],
+      "resumed": [],
+      "stderrBytes": 702,
+      "rpc": {
+        "requests": {
+          "initialize": 1
+        },
+        "successes": {},
+        "failures": {
+          "initialize": 1
+        },
+        "elapsedMs": {},
+        "notifications": {},
+        "deniedServerRequests": {}
+      },
+      "backend": {
+        "pid": 57812,
+        "processStartTime": "134371887295150665",
+        "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5"
+      },
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 10984681472,
+        "atUtc": "2026-10-23T00:26:02.233Z"
+      },
+      "stopped": true,
+      "observedIdentities": [
+        {
+          "pid": 57812,
+          "creation": "134371887295150660"
+        }
+      ]
+    }
+  ],
+  "childOutcomes": [
+    {
+      "kind": "own_git_boundary",
+      "pid": 30444,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "version",
+      "pid": 24140,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "A-recommended-endpoint",
+      "pid": 55440,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 67520,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 14160,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "driver_identity",
+      "pid": 69316,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 15372,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 52624,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 10876,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 31408,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 66864,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 5732,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 25108,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 9028,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 22668,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 34732,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 63632,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 25348,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 7668,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 1092,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 24252,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 64812,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 24416,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 73620,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 52148,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 64476,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 10032,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 40964,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 45416,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 16044,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "A-recommended-connector-0",
+      "pid": 65748,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "A-recommended-connector-1",
+      "pid": 20140,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "A-recommended-host-0",
+      "pid": 28536,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "A-recommended-host-1",
+      "pid": 63796,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 67600,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 43308,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 30616,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "A-recommended-sampler",
+      "pid": 47304,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "B-cumulative-paged-endpoint",
+      "pid": 74460,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "B-cumulative-paged-connector-0",
+      "pid": 69024,
+      "exitCode": 1,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 29064,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "B-cumulative-paged-host-0",
+      "pid": 33232,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 19296,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 45456,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 74036,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 19096,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 41892,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 49776,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 16988,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 45260,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 29316,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 50148,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 8668,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 71384,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 16500,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 51320,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 13600,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 50568,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 35288,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 43660,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 70420,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 54628,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 48464,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 33972,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "kind": "CIM_sample",
+      "pid": 6920,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "scope": "Copied real paginated history; resume/read/unsubscribe only; no inference or tool replay",
+  "limitations": [
+    "Windows x64 only; no leak conclusion from one experiment",
+    "Polling cannot measure every transient peak",
+    "Continuous interval is CIM execution time plus 250ms; per-observation elapsedMs is retained",
+    "Native cap excludes driver and sampler; driver RSS has its own cap",
+    "Cases B/C reuse the profile after A; native resume may append owned rollouts",
+    "Local primary UI uses excludeTurns when paginated history and tail hydration are enabled; current runtime flag value is not established",
+    "Reading every item page is an aggressive API comparison; this does not establish that the UI eagerly reads the complete transcript",
+    "Full reads are explicit compatibility/stress cases, not an assertion of the default UI behavior",
+    "Count differences are reported exactly; no legacy conversion or fabrication",
+    "No RPC/error/stderr bodies are retained in reports; native private logs remain inside the owned profile"
+  ],
+  "snapshot": {
+    "threads": [
+      {
+        "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+        "rolloutPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12\\sessions\\2026\\10\\13\\rollout-2026-10-13T12-27-55-01a1334d-6a69-7821-a164-da04f3cfa71f.jsonl",
+        "rolloutBytes": 425375176,
+        "turnCount": 467,
+        "itemCount": 38753,
+        "itemBytes": 91451217,
+        "byItemType": [
+          {
+            "type": "agentMessage",
+            "count": 1928,
+            "bytes": 978742
+          },
+          {
+            "type": "collabAgentToolCall",
+            "count": 2,
+            "bytes": 514
+          },
+          {
+            "type": "commandExecution",
+            "count": 12415,
+            "bytes": 84085230
+          },
+          {
+            "type": "contextCompaction",
+            "count": 147,
+            "bytes": 10584
+          },
+          {
+            "type": "fileChange",
+            "count": 664,
+            "bytes": 2572927
+          },
+          {
+            "type": "imageView",
+            "count": 8,
+            "bytes": 2264
+          },
+          {
+            "type": "reasoning",
+            "count": 16754,
+            "bytes": 1792678
+          },
+          {
+            "type": "subAgentActivity",
+            "count": 6738,
+            "bytes": 1850388
+          },
+          {
+            "type": "userMessage",
+            "count": 58,
+            "bytes": 21210
+          },
+          {
+            "type": "webSearch",
+            "count": 39,
+            "bytes": 136680
+          }
+        ],
+        "projection": {
+          "thread_id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+          "next_rollout_byte_offset": 425375176,
+          "next_rollout_ordinal": 158543,
+          "projection_version": 5
+        },
+        "copy": {
+          "copiedBytes": 425375176,
+          "sha256": "8d6603051199f54d95c586791c4f71207d5ea2f5afd8a64debffaafd5d457c05"
+        },
+        "rollout": {
+          "records": 158543,
+          "maxLineBytes": 2772757,
+          "compactedRecords": 147,
+          "counts": {
+            "session_meta": 1,
+            "event_msg/task_started": 467,
+            "response_item/message": 2518,
+            "world_state": 381,
+            "turn_context": 601,
+            "event_msg/item_completed": 38854,
+            "event_msg/token_count": 35811,
+            "response_item/custom_tool_call": 9632,
+            "token_usage_record": 14580,
+            "response_item/custom_tool_call_output": 9632,
+            "response_item/reasoning": 16754,
+            "response_item/function_call": 4769,
+            "response_item/function_call_output": 4769,
+            "event_msg/root_resume_wait_updated": 1284,
+            "event_msg/turn_deferred": 429,
+            "event_msg/thread_settings_applied": 202,
+            "inter_agent_communication_metadata": 8838,
+            "response_item/agent_message": 8838,
+            "event_msg/task_complete": 27,
+            "compacted": 147,
+            "event_msg/turn_aborted": 9
+          },
+          "bytesByType": {
+            "session_meta": 19401,
+            "event_msg/task_started": 251652,
+            "response_item/message": 4624594,
+            "world_state": 8991962,
+            "turn_context": 1359870,
+            "event_msg/item_completed": 102451843,
+            "event_msg/token_count": 68956780,
+            "response_item/custom_tool_call": 15203202,
+            "token_usage_record": 13225549,
+            "response_item/custom_tool_call_output": 64303277,
+            "response_item/reasoning": 83024315,
+            "response_item/function_call": 7338428,
+            "response_item/function_call_output": 4626793,
+            "event_msg/root_resume_wait_updated": 478085,
+            "event_msg/turn_deferred": 229671,
+            "event_msg/thread_settings_applied": 428178,
+            "inter_agent_communication_metadata": 1187574,
+            "response_item/agent_message": 13470189,
+            "event_msg/task_complete": 21381,
+            "compacted": 35179667,
+            "event_msg/turn_aborted": 2765
+          },
+          "classifiedBytes": 425375176,
+          "latestUsableCompaction": {
+            "recordOrdinal": 157365,
+            "classifiedByteOffset": 422637012,
+            "replacementItems": 158,
+            "replacementJsonBytes": 438649
+          },
+          "rawBytesFromLatestUsableCompaction": 2738164,
+          "note": "Raw JSONL/type byte counts and compaction suffix are descriptors, not decoded heap sizes; CRLF can add unclassified carriage returns"
+        }
+      },
+      {
+        "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+        "rolloutPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12\\sessions\\2026\\10\\06\\rollout-2026-10-06T18-00-58-01a11071-cfa1-7280-84f9-e515541e5987.jsonl",
+        "rolloutBytes": 240659157,
+        "turnCount": 25,
+        "itemCount": 2732,
+        "itemBytes": 48605836,
+        "byItemType": [
+          {
+            "type": "agentMessage",
+            "count": 140,
+            "bytes": 92866
+          },
+          {
+            "type": "commandExecution",
+            "count": 878,
+            "bytes": 7046158
+          },
+          {
+            "type": "contextCompaction",
+            "count": 10,
+            "bytes": 720
+          },
+          {
+            "type": "fileChange",
+            "count": 208,
+            "bytes": 19221109
+          },
+          {
+            "type": "imageView",
+            "count": 276,
+            "bytes": 52324
+          },
+          {
+            "type": "mcpToolCall",
+            "count": 21,
+            "bytes": 20789049
+          },
+          {
+            "type": "reasoning",
+            "count": 1002,
+            "bytes": 107214
+          },
+          {
+            "type": "subAgentActivity",
+            "count": 158,
+            "bytes": 30243
+          },
+          {
+            "type": "userMessage",
+            "count": 25,
+            "bytes": 1192666
+          },
+          {
+            "type": "webSearch",
+            "count": 14,
+            "bytes": 73487
+          }
+        ],
+        "projection": {
+          "thread_id": "01a11071-cfa1-7280-84f9-e515541e5987",
+          "next_rollout_byte_offset": 240659157,
+          "next_rollout_ordinal": 8938,
+          "projection_version": 3
+        },
+        "copy": {
+          "copiedBytes": 240659157,
+          "sha256": "e01f7af7d6be3d409b8dd124f28c8a83611db2c34f9a1f6194329627e74696fd"
+        },
+        "rollout": {
+          "records": 8938,
+          "maxLineBytes": 18446340,
+          "compactedRecords": 10,
+          "counts": {
+            "session_meta": 1,
+            "event_msg/task_started": 25,
+            "response_item/message": 232,
+            "world_state": 37,
+            "turn_context": 31,
+            "event_msg/item_completed": 2732,
+            "event_msg/token_count": 1908,
+            "response_item/custom_tool_call": 741,
+            "token_usage_record": 876,
+            "response_item/custom_tool_call_output": 741,
+            "response_item/reasoning": 1002,
+            "response_item/function_call": 103,
+            "response_item/function_call_output": 103,
+            "inter_agent_communication_metadata": 168,
+            "response_item/agent_message": 168,
+            "event_msg/task_complete": 24,
+            "event_msg/thread_settings_applied": 32,
+            "compacted": 10,
+            "event_msg/root_resume_wait_updated": 3,
+            "event_msg/turn_deferred": 1
+          },
+          "bytesByType": {
+            "session_meta": 22743,
+            "event_msg/task_started": 7546,
+            "response_item/message": 1681812,
+            "world_state": 471699,
+            "turn_context": 67767,
+            "event_msg/item_completed": 59043325,
+            "event_msg/token_count": 2335839,
+            "response_item/custom_tool_call": 1457268,
+            "token_usage_record": 788045,
+            "response_item/custom_tool_call_output": 165697892,
+            "response_item/reasoning": 3192313,
+            "response_item/function_call": 159653,
+            "response_item/function_call_output": 49582,
+            "inter_agent_communication_metadata": 22332,
+            "response_item/agent_message": 313026,
+            "event_msg/task_complete": 32137,
+            "event_msg/thread_settings_applied": 67079,
+            "compacted": 5247501,
+            "event_msg/root_resume_wait_updated": 1116,
+            "event_msg/turn_deferred": 482
+          },
+          "classifiedBytes": 240659157,
+          "latestUsableCompaction": {
+            "recordOrdinal": 8276,
+            "classifiedByteOffset": 219074111,
+            "replacementItems": 26,
+            "replacementJsonBytes": 1249422
+          },
+          "rawBytesFromLatestUsableCompaction": 21585046,
+          "note": "Raw JSONL/type byte counts and compaction suffix are descriptors, not decoded heap sizes; CRLF can add unclassified carriage returns"
+        }
+      },
+      {
+        "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+        "rolloutPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12\\sessions\\2026\\10\\17\\rollout-2026-10-17T01-56-05-01a145a4-6052-7631-af69-4267e1fd0c15.jsonl",
+        "rolloutBytes": 186886810,
+        "turnCount": 45,
+        "itemCount": 3549,
+        "itemBytes": 44114827,
+        "byItemType": [
+          {
+            "type": "agentMessage",
+            "count": 225,
+            "bytes": 126528
+          },
+          {
+            "type": "commandExecution",
+            "count": 1256,
+            "bytes": 6951094
+          },
+          {
+            "type": "contextCompaction",
+            "count": 11,
+            "bytes": 792
+          },
+          {
+            "type": "fileChange",
+            "count": 150,
+            "bytes": 506578
+          },
+          {
+            "type": "imageView",
+            "count": 72,
+            "bytes": 12728
+          },
+          {
+            "type": "mcpToolCall",
+            "count": 664,
+            "bytes": 27759647
+          },
+          {
+            "type": "reasoning",
+            "count": 1046,
+            "bytes": 111922
+          },
+          {
+            "type": "sleep",
+            "count": 1,
+            "bytes": 80
+          },
+          {
+            "type": "subAgentActivity",
+            "count": 51,
+            "bytes": 11759
+          },
+          {
+            "type": "userMessage",
+            "count": 57,
+            "bytes": 8567476
+          },
+          {
+            "type": "webSearch",
+            "count": 16,
+            "bytes": 66223
+          }
+        ],
+        "projection": {
+          "thread_id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+          "next_rollout_byte_offset": 186886810,
+          "next_rollout_ordinal": 10651,
+          "projection_version": 5
+        },
+        "copy": {
+          "copiedBytes": 186886810,
+          "sha256": "4c2dbec3624aa1d03f1b157cd415414fbcd08d46cb90b2c72cacc51eb735aee8"
+        },
+        "rollout": {
+          "records": 10651,
+          "maxLineBytes": 8794526,
+          "compactedRecords": 11,
+          "counts": {
+            "session_meta": 1,
+            "event_msg/task_started": 45,
+            "event_msg/token_count": 2274,
+            "response_item/message": 326,
+            "world_state": 28,
+            "turn_context": 54,
+            "event_msg/item_completed": 3549,
+            "response_item/custom_tool_call": 948,
+            "token_usage_record": 1070,
+            "response_item/custom_tool_call_output": 948,
+            "response_item/reasoning": 1046,
+            "event_msg/task_complete": 44,
+            "event_msg/thread_settings_applied": 46,
+            "response_item/function_call": 58,
+            "response_item/function_call_output": 58,
+            "inter_agent_communication_metadata": 72,
+            "response_item/agent_message": 72,
+            "compacted": 11,
+            "event_msg/turn_aborted": 1
+          },
+          "bytesByType": {
+            "session_meta": 19548,
+            "event_msg/task_started": 22258,
+            "event_msg/token_count": 4280089,
+            "response_item/message": 9120931,
+            "world_state": 758002,
+            "turn_context": 124100,
+            "event_msg/item_completed": 45060107,
+            "response_item/custom_tool_call": 1705598,
+            "token_usage_record": 962548,
+            "response_item/custom_tool_call_output": 44313673,
+            "response_item/reasoning": 4996449,
+            "event_msg/task_complete": 42584,
+            "event_msg/thread_settings_applied": 97309,
+            "response_item/function_call": 79373,
+            "response_item/function_call_output": 28832,
+            "inter_agent_communication_metadata": 9577,
+            "response_item/agent_message": 99795,
+            "compacted": 75165733,
+            "event_msg/turn_aborted": 304
+          },
+          "classifiedBytes": 186886810,
+          "latestUsableCompaction": {
+            "recordOrdinal": 10389,
+            "classifiedByteOffset": 176851977,
+            "replacementItems": 64,
+            "replacementJsonBytes": 8734068
+          },
+          "rawBytesFromLatestUsableCompaction": 10034833,
+          "note": "Raw JSONL/type byte counts and compaction suffix are descriptors, not decoded heap sizes; CRLF can add unclassified carriage returns"
+        }
+      },
+      {
+        "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+        "rolloutPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12\\sessions\\2026\\10\\02\\rollout-2026-10-02T10-07-20-01a0fa26-c220-7962-a9e8-fea0231fc05f.jsonl",
+        "rolloutBytes": 88047519,
+        "turnCount": 77,
+        "itemCount": 4149,
+        "itemBytes": 8521085,
+        "byItemType": [
+          {
+            "type": "agentMessage",
+            "count": 331,
+            "bytes": 177074
+          },
+          {
+            "type": "commandExecution",
+            "count": 1564,
+            "bytes": 6796480
+          },
+          {
+            "type": "contextCompaction",
+            "count": 13,
+            "bytes": 907
+          },
+          {
+            "type": "fileChange",
+            "count": 163,
+            "bytes": 388675
+          },
+          {
+            "type": "imageView",
+            "count": 151,
+            "bytes": 33859
+          },
+          {
+            "type": "mcpToolCall",
+            "count": 32,
+            "bytes": 815314
+          },
+          {
+            "type": "reasoning",
+            "count": 1614,
+            "bytes": 172698
+          },
+          {
+            "type": "sleep",
+            "count": 2,
+            "bytes": 144
+          },
+          {
+            "type": "subAgentActivity",
+            "count": 236,
+            "bytes": 45420
+          },
+          {
+            "type": "userMessage",
+            "count": 38,
+            "bytes": 79210
+          },
+          {
+            "type": "webSearch",
+            "count": 5,
+            "bytes": 11304
+          }
+        ],
+        "projection": {
+          "thread_id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+          "next_rollout_byte_offset": 88047519,
+          "next_rollout_ordinal": 16061,
+          "projection_version": 3
+        },
+        "copy": {
+          "copiedBytes": 88047519,
+          "sha256": "45c1749ca5da269af82452cf138148149bc34113de209942399d118b7c373e85"
+        },
+        "rollout": {
+          "records": 16061,
+          "maxLineBytes": 2946015,
+          "compactedRecords": 13,
+          "counts": {
+            "session_meta": 1,
+            "event_msg/task_started": 77,
+            "response_item/message": 613,
+            "world_state": 62,
+            "turn_context": 86,
+            "event_msg/item_completed": 4149,
+            "response_item/custom_tool_call": 1630,
+            "token_usage_record": 1892,
+            "response_item/custom_tool_call_output": 1630,
+            "event_msg/token_count": 3144,
+            "response_item/reasoning": 1748,
+            "event_msg/task_complete": 28,
+            "event_msg/thread_settings_applied": 47,
+            "response_item/function_call": 226,
+            "response_item/function_call_output": 226,
+            "inter_agent_communication_metadata": 220,
+            "response_item/agent_message": 220,
+            "event_msg/turn_deferred": 47,
+            "event_msg/turn_aborted": 2,
+            "compacted": 13
+          },
+          "bytesByType": {
+            "session_meta": 22915,
+            "event_msg/task_started": 23261,
+            "response_item/message": 860994,
+            "world_state": 571695,
+            "turn_context": 190324,
+            "event_msg/item_completed": 18873600,
+            "response_item/custom_tool_call": 2025396,
+            "token_usage_record": 1703881,
+            "response_item/custom_tool_call_output": 52705417,
+            "event_msg/token_count": 3495531,
+            "response_item/reasoning": 4747653,
+            "event_msg/task_complete": 24821,
+            "event_msg/thread_settings_applied": 99676,
+            "response_item/function_call": 329697,
+            "response_item/function_call_output": 108480,
+            "inter_agent_communication_metadata": 29373,
+            "response_item/agent_message": 424472,
+            "event_msg/turn_deferred": 13391,
+            "event_msg/turn_aborted": 502,
+            "compacted": 1796440
+          },
+          "classifiedBytes": 88047519,
+          "latestUsableCompaction": {
+            "recordOrdinal": 14460,
+            "classifiedByteOffset": 83900970,
+            "replacementItems": 42,
+            "replacementJsonBytes": 159632
+          },
+          "rawBytesFromLatestUsableCompaction": 4146549,
+          "note": "Raw JSONL/type byte counts and compaction suffix are descriptors, not decoded heap sizes; CRLF can add unclassified carriage returns"
+        }
+      },
+      {
+        "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+        "rolloutPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12\\sessions\\2026\\10\\20\\rollout-2026-10-20T00-04-00-01a154b0-dfd0-7d82-bd63-387f3d6b3487.jsonl",
+        "rolloutBytes": 78024735,
+        "turnCount": 29,
+        "itemCount": 2518,
+        "itemBytes": 20834245,
+        "byItemType": [
+          {
+            "type": "agentMessage",
+            "count": 157,
+            "bytes": 89007
+          },
+          {
+            "type": "commandExecution",
+            "count": 991,
+            "bytes": 4959630
+          },
+          {
+            "type": "contextCompaction",
+            "count": 8,
+            "bytes": 576
+          },
+          {
+            "type": "fileChange",
+            "count": 168,
+            "bytes": 570220
+          },
+          {
+            "type": "imageView",
+            "count": 41,
+            "bytes": 7760
+          },
+          {
+            "type": "mcpToolCall",
+            "count": 262,
+            "bytes": 12550001
+          },
+          {
+            "type": "reasoning",
+            "count": 827,
+            "bytes": 88489
+          },
+          {
+            "type": "subAgentActivity",
+            "count": 25,
+            "bytes": 5637
+          },
+          {
+            "type": "userMessage",
+            "count": 32,
+            "bytes": 2517349
+          },
+          {
+            "type": "webSearch",
+            "count": 7,
+            "bytes": 45576
+          }
+        ],
+        "projection": {
+          "thread_id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+          "next_rollout_byte_offset": 78024735,
+          "next_rollout_ordinal": 7654,
+          "projection_version": 5
+        },
+        "copy": {
+          "copiedBytes": 78024735,
+          "sha256": "84aa48f9cef84ae4a684ed420dec3f4494032a614dbe987d8b976b7eb9bd6bd0"
+        },
+        "rollout": {
+          "records": 7654,
+          "maxLineBytes": 2622963,
+          "compactedRecords": 8,
+          "counts": {
+            "session_meta": 1,
+            "event_msg/task_started": 29,
+            "event_msg/token_count": 1638,
+            "response_item/message": 225,
+            "world_state": 16,
+            "turn_context": 35,
+            "event_msg/item_completed": 2518,
+            "response_item/custom_tool_call": 704,
+            "token_usage_record": 770,
+            "response_item/custom_tool_call_output": 704,
+            "response_item/reasoning": 827,
+            "event_msg/turn_aborted": 2,
+            "event_msg/thread_settings_applied": 28,
+            "event_msg/task_complete": 27,
+            "response_item/function_call": 30,
+            "response_item/function_call_output": 30,
+            "compacted": 8,
+            "inter_agent_communication_metadata": 31,
+            "response_item/agent_message": 31
+          },
+          "bytesByType": {
+            "session_meta": 19573,
+            "event_msg/task_started": 14277,
+            "event_msg/token_count": 3083796,
+            "response_item/message": 2931226,
+            "world_state": 629873,
+            "turn_context": 80350,
+            "event_msg/item_completed": 21533323,
+            "response_item/custom_tool_call": 1357338,
+            "token_usage_record": 691966,
+            "response_item/custom_tool_call_output": 28542516,
+            "response_item/reasoning": 4072299,
+            "event_msg/turn_aborted": 612,
+            "event_msg/thread_settings_applied": 59072,
+            "event_msg/task_complete": 26580,
+            "response_item/function_call": 43000,
+            "response_item/function_call_output": 14538,
+            "compacted": 14879847,
+            "inter_agent_communication_metadata": 4123,
+            "response_item/agent_message": 40426
+          },
+          "classifiedBytes": 78024735,
+          "latestUsableCompaction": {
+            "recordOrdinal": 6604,
+            "classifiedByteOffset": 71944198,
+            "replacementItems": 37,
+            "replacementJsonBytes": 2587707
+          },
+          "rawBytesFromLatestUsableCompaction": 6080537,
+          "note": "Raw JSONL/type byte counts and compaction suffix are descriptors, not decoded heap sizes; CRLF can add unclassified carriage returns"
+        }
+      },
+      {
+        "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+        "rolloutPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\p12\\sessions\\2026\\10\\12\\rollout-2026-10-12T16-16-45-01a12ef8-8c38-7020-b117-0b7e37c1f195.jsonl",
+        "rolloutBytes": 46079396,
+        "turnCount": 20,
+        "itemCount": 4769,
+        "itemBytes": 10492557,
+        "byItemType": [
+          {
+            "type": "agentMessage",
+            "count": 322,
+            "bytes": 158594
+          },
+          {
+            "type": "commandExecution",
+            "count": 2042,
+            "bytes": 9382822
+          },
+          {
+            "type": "contextCompaction",
+            "count": 15,
+            "bytes": 1080
+          },
+          {
+            "type": "fileChange",
+            "count": 65,
+            "bytes": 123574
+          },
+          {
+            "type": "imageView",
+            "count": 9,
+            "bytes": 1983
+          },
+          {
+            "type": "mcpToolCall",
+            "count": 19,
+            "bytes": 540524
+          },
+          {
+            "type": "reasoning",
+            "count": 2138,
+            "bytes": 228766
+          },
+          {
+            "type": "sleep",
+            "count": 4,
+            "bytes": 304
+          },
+          {
+            "type": "subAgentActivity",
+            "count": 132,
+            "bytes": 30045
+          },
+          {
+            "type": "userMessage",
+            "count": 21,
+            "bytes": 10300
+          },
+          {
+            "type": "webSearch",
+            "count": 2,
+            "bytes": 14565
+          }
+        ],
+        "projection": {
+          "thread_id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+          "next_rollout_byte_offset": 46079396,
+          "next_rollout_ordinal": 18283,
+          "projection_version": 5
+        },
+        "copy": {
+          "copiedBytes": 46079396,
+          "sha256": "9e506baa2399f530c8293bf2f33cc4471323b4819ceffa4e73de5a146351972d"
+        },
+        "rollout": {
+          "records": 18283,
+          "maxLineBytes": 430388,
+          "compactedRecords": 15,
+          "counts": {
+            "session_meta": 1,
+            "event_msg/task_started": 20,
+            "response_item/message": 387,
+            "world_state": 34,
+            "turn_context": 35,
+            "event_msg/item_completed": 4769,
+            "event_msg/token_count": 4309,
+            "response_item/custom_tool_call": 1929,
+            "token_usage_record": 2095,
+            "response_item/custom_tool_call_output": 1929,
+            "response_item/reasoning": 2138,
+            "response_item/function_call": 136,
+            "response_item/function_call_output": 136,
+            "compacted": 15,
+            "event_msg/thread_settings_applied": 36,
+            "event_msg/task_complete": 13,
+            "inter_agent_communication_metadata": 137,
+            "response_item/agent_message": 137,
+            "event_msg/root_resume_wait_updated": 20,
+            "event_msg/turn_deferred": 7
+          },
+          "bytesByType": {
+            "session_meta": 22671,
+            "event_msg/task_started": 10400,
+            "response_item/message": 655258,
+            "world_state": 973794,
+            "turn_context": 73148,
+            "event_msg/item_completed": 11783138,
+            "event_msg/token_count": 5293957,
+            "response_item/custom_tool_call": 2369810,
+            "token_usage_record": 1892465,
+            "response_item/custom_tool_call_output": 10490797,
+            "response_item/reasoning": 9252205,
+            "response_item/function_call": 156273,
+            "response_item/function_call_output": 73028,
+            "compacted": 2706307,
+            "event_msg/thread_settings_applied": 75815,
+            "event_msg/task_complete": 9455,
+            "inter_agent_communication_metadata": 18304,
+            "response_item/agent_message": 211398,
+            "event_msg/root_resume_wait_updated": 7427,
+            "event_msg/turn_deferred": 3746
+          },
+          "classifiedBytes": 46079396,
+          "latestUsableCompaction": {
+            "recordOrdinal": 18074,
+            "classifiedByteOffset": 45167744,
+            "replacementItems": 24,
+            "replacementJsonBytes": 171302
+          },
+          "rawBytesFromLatestUsableCompaction": 911652,
+          "note": "Raw JSONL/type byte counts and compaction suffix are descriptors, not decoded heap sizes; CRLF can add unclassified carriage returns"
+        }
+      }
+    ],
+    "sourcePolicy": "Read-only SQLite connections; separate per-database read transactions; v5 exact checkpoint prefix, older versions complete captured JSONL EOF for lazy rebuild; no auth/config/reservations copied",
+    "alterations": [
+      "Snapshot state rollout_path and cwd point to isolated profile/workspace",
+      "Snapshot state sandbox read-only and approval never; payload/history mode unchanged",
+      "Snapshot project/section foreign keys cleared; no source project or live scheduling state copied"
+    ],
+    "aggregate": {
+      "threads": 6,
+      "rolloutBytes": 1065072793,
+      "turns": 663,
+      "items": 56470,
+      "itemBytes": 224019767
+    }
+  },
+  "initialProjection": [
+    {
+      "id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+      "historyMode": "paginated",
+      "projection": {
+        "thread_id": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+        "next_rollout_byte_offset": 425375176,
+        "next_rollout_ordinal": 158543,
+        "projection_version": 5
+      },
+      "turnCount": 467,
+      "itemCount": 38753
+    },
+    {
+      "id": "01a11071-cfa1-7280-84f9-e515541e5987",
+      "historyMode": "paginated",
+      "projection": {
+        "thread_id": "01a11071-cfa1-7280-84f9-e515541e5987",
+        "next_rollout_byte_offset": 240659157,
+        "next_rollout_ordinal": 8938,
+        "projection_version": 3
+      },
+      "turnCount": 25,
+      "itemCount": 2732
+    },
+    {
+      "id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+      "historyMode": "paginated",
+      "projection": {
+        "thread_id": "01a145a4-6052-7631-af69-4267e1fd0c15",
+        "next_rollout_byte_offset": 186886810,
+        "next_rollout_ordinal": 10651,
+        "projection_version": 5
+      },
+      "turnCount": 45,
+      "itemCount": 3549
+    },
+    {
+      "id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+      "historyMode": "paginated",
+      "projection": {
+        "thread_id": "01a0fa26-c220-7962-a9e8-fea0231fc05f",
+        "next_rollout_byte_offset": 88047519,
+        "next_rollout_ordinal": 16061,
+        "projection_version": 3
+      },
+      "turnCount": 77,
+      "itemCount": 4149
+    },
+    {
+      "id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+      "historyMode": "paginated",
+      "projection": {
+        "thread_id": "01a154b0-dfd0-7d82-bd63-387f3d6b3487",
+        "next_rollout_byte_offset": 78024735,
+        "next_rollout_ordinal": 7654,
+        "projection_version": 5
+      },
+      "turnCount": 29,
+      "itemCount": 2518
+    },
+    {
+      "id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+      "historyMode": "paginated",
+      "projection": {
+        "thread_id": "01a12ef8-8c38-7020-b117-0b7e37c1f195",
+        "next_rollout_byte_offset": 46079396,
+        "next_rollout_ordinal": 18283,
+        "projection_version": 5
+      },
+      "turnCount": 20,
+      "itemCount": 4769
+    }
+  ],
+  "engineVersion": "0.162.0",
+  "failure": {
+    "stage": "B-cumulative-paged",
+    "name": "Error",
+    "code": "child_exit"
+  },
+  "producerStopped": true,
+  "endedUtc": "2026-10-23T00:26:02.234Z"
+}

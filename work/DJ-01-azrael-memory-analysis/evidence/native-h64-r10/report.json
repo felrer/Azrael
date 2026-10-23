@@ -1,0 +1,537 @@
+{
+  "schema": 1,
+  "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m",
+  "lifecycleIds": [
+    "run:DJ-01:native-h64-r10"
+  ],
+  "startedUtc": "2026-10-22T17:07:07.270Z",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "frozenSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "platform": "win32",
+  "arch": "x64",
+  "scope": "Offline authored history load/read/subscriber-removal; no inference or live turns",
+  "status": "complete",
+  "modes": [
+    {
+      "name": "history",
+      "historyTurns": 64,
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h64-r10\\reports",
+      "status": "complete",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\g64",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h64-r10\\workspace",
+      "startedUtc": "2026-10-22T17:07:07.500Z",
+      "checkpoints": [
+        {
+          "label": "roots-0",
+          "loadedCount": 0,
+          "elapsedMs": 6109,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T17:07:27.662Z",
+              "freeBytes": 7066791936,
+              "privateBytes": 57139200,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:07:29.815Z",
+              "freeBytes": 6815457280,
+              "privateBytes": 57217024,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:07:32.270Z",
+              "freeBytes": 6621114368,
+              "privateBytes": 57217024,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "authored-turns-64",
+          "loadedCount": 1,
+          "elapsedMs": 6445,
+          "id": "58669209-fd9b-4650-968f-baa457d19643",
+          "kind": "large-history",
+          "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\g64\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-56-52-58669209-fd9b-4650-968f-baa457d19643.jsonl",
+          "completedTurns": 64,
+          "userPayloadBytes": 8388608,
+          "authoredFileBytes": 16863891,
+          "readResponseBytes": 8556402,
+          "loadReadElapsedMs": 3789,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T17:07:37.933Z",
+              "freeBytes": 6820749312,
+              "privateBytes": 118775808,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:07:40.694Z",
+              "freeBytes": 6336245760,
+              "privateBytes": 119017472,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:07:42.573Z",
+              "freeBytes": 6247981056,
+              "privateBytes": 118923264,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "all-unsubscribed-after-30s",
+          "loadedCount": 1,
+          "elapsedMs": 9098,
+          "elapsedSinceUnsubscribeMs": 30010,
+          "interpretation": "Before native default60s idle/no-subscriber unload delay",
+          "samples": [
+            {
+              "atUtc": "2026-10-22T17:08:15.469Z",
+              "freeBytes": 4941582336,
+              "privateBytes": 117460992,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:08:19.059Z",
+              "freeBytes": 4527501312,
+              "privateBytes": 117485568,
+              "processCount": 5,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:08:21.691Z",
+              "freeBytes": 4705492992,
+              "privateBytes": 117497856,
+              "processCount": 5,
+              "mcpCount": 0
+            }
+          ]
+        },
+        {
+          "label": "second-owner-closed",
+          "loadedCount": 1,
+          "elapsedMs": 5886,
+          "samples": [
+            {
+              "atUtc": "2026-10-22T17:08:23.426Z",
+              "freeBytes": 4660850688,
+              "privateBytes": 109752320,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:08:25.403Z",
+              "freeBytes": 4619923456,
+              "privateBytes": 109752320,
+              "processCount": 3,
+              "mcpCount": 0
+            },
+            {
+              "atUtc": "2026-10-22T17:08:27.603Z",
+              "freeBytes": 4588371968,
+              "privateBytes": 109752320,
+              "processCount": 3,
+              "mcpCount": 0
+            }
+          ]
+        }
+      ],
+      "backend": {
+        "pid": 50076,
+        "processStartTime": "134371624358860233",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\g64\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\g64\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "isolationVerified": true,
+      "history": {
+        "id": "58669209-fd9b-4650-968f-baa457d19643",
+        "kind": "large-history",
+        "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\g64\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-56-52-58669209-fd9b-4650-968f-baa457d19643.jsonl",
+        "completedTurns": 64,
+        "userPayloadBytes": 8388608,
+        "authoredFileBytes": 16863891,
+        "readResponseBytes": 8556402,
+        "loadReadElapsedMs": 3789
+      },
+      "unsubscribeResponses": [
+        {
+          "threadId": "58669209-fd9b-4650-968f-baa457d19643",
+          "status": "unsubscribed"
+        }
+      ],
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 4588183552,
+        "atUtc": "2026-10-22T17:08:36.508Z"
+      },
+      "stopped": true,
+      "children": [
+        {
+          "pid": 44452,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 29736,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 32260,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 37448,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "endedUtc": "2026-10-22T17:08:36.509Z",
+      "observedIdentities": [
+        {
+          "pid": 19244,
+          "creation": "134371624395207780"
+        },
+        {
+          "pid": 29736,
+          "creation": "134371624395157770"
+        },
+        {
+          "pid": 50076,
+          "creation": "134371624358860230"
+        },
+        {
+          "pid": 8744,
+          "creation": "134371624303309460"
+        },
+        {
+          "pid": 44452,
+          "creation": "134371624303236980"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "One-off synthetic measurement; no leak conclusion",
+    "Root event queue sizes unknown: no exposed metric",
+    "No real MCP tool calls, capture, OS input, external provider, or credentials",
+    "Slow-consumer scenario not selected",
+    "Unsubscribe removes subscription; idle runtime unload is delayed (native default60s); 30s observations precede that default",
+    "History replay is authored native JSONL, not inference-generated or transient streaming memory",
+    "CIM snapshots are observations, not continuous peak measurements; driver/sampler/mock host overhead excluded from test private limit"
+  ],
+  "childOutcomes": [
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "own project boundary",
+      "pid": 41248,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "version",
+      "pid": 45848,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "endpoint-discovery",
+      "pid": 30804,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 19432,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 65468,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 23164,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 20088,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 23028,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 912,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 64804,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 66896,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 28620,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 74256,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "connector-1",
+      "pid": 29736,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "mock-host-1",
+      "pid": 37448,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 24416,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 70104,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 39584,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "connector-0",
+      "pid": 44452,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "mock-host-0",
+      "pid": 32260,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 39172,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 36820,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 15696,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 65348,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-h64-r10",
+      "kind": "CIM sample",
+      "pid": 53204,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "engineVersion": "0.162.0",
+  "producerStopped": true,
+  "endedUtc": "2026-10-22T17:08:36.509Z"
+}

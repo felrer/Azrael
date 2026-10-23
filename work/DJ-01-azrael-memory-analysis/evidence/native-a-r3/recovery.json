@@ -1,0 +1,168 @@
+{
+  "atUtc": "2026-10-22T16:30:43.083Z",
+  "outcome": "failure",
+  "exitCode": 1,
+  "producerStopped": true,
+  "pidRecord": {
+    "pid": 24076,
+    "processStartTime": "134371601547873350",
+    "executableIdentity": {
+      "digest": [
+        108,
+        107,
+        94,
+        22,
+        180,
+        3,
+        170,
+        242,
+        163,
+        29,
+        240,
+        226,
+        13,
+        181,
+        45,
+        236,
+        19,
+        21,
+        228,
+        50,
+        96,
+        206,
+        130,
+        186,
+        63,
+        188,
+        194,
+        49,
+        143,
+        147,
+        190,
+        34
+      ],
+      "path_digest": [
+        11,
+        13,
+        16,
+        16,
+        131,
+        198,
+        144,
+        4,
+        2,
+        131,
+        121,
+        64,
+        227,
+        165,
+        18,
+        222,
+        198,
+        8,
+        89,
+        42,
+        81,
+        14,
+        204,
+        169,
+        59,
+        149,
+        122,
+        239,
+        76,
+        75,
+        176,
+        65
+      ]
+    }
+  },
+  "receipt": {
+    "schema": 2,
+    "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+    "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+    "engineVersion": "0.162.0",
+    "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "nativeArgv": [
+      "app-server",
+      "--azrael-shared-windows",
+      "--managed-daemon",
+      "--azrael-engine-instance",
+      "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+      "--listen",
+      "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+      "-c",
+      "features.code_mode_host=true",
+      "--session-source",
+      "vscode",
+      "--analytics-default-enabled",
+      "--disable-plugin-startup-tasks-for-tests"
+    ]
+  },
+  "remainingBackendTree": [],
+  "trackedChildOutcomes": [
+    {
+      "lifecycleId": "run:DJ-01:native-a-r3",
+      "kind": "own project boundary",
+      "pid": 24468,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r3",
+      "kind": "version",
+      "pid": 22300,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r3",
+      "kind": "endpoint-discovery",
+      "pid": 22220,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r3",
+      "kind": "connector-0",
+      "pid": 68724,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r3",
+      "kind": "connector-1",
+      "pid": 55164,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r3",
+      "kind": "mock-host-0",
+      "pid": 62836,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r3",
+      "kind": "mock-host-1",
+      "pid": 59404,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "checks": [
+    "All launched mock-host/connector/version/git/discovery children have actual closed exit0 outcomes",
+    "No thread/start was executed: failure occurred in loadBackend before isolation/first checkpoint",
+    "MCP configuration absent; code-mode provider lazily spawns process for sessions (frozen code-mode/src/remote_session.rs:35 and thread_manager.rs:588)",
+    "Current complete CIM snapshot contains neither receipt backend PID nor any descendant chain rooted in it"
+  ],
+  "limitation": "No runtime memory samples were obtained; this remains a failed preflight"
+}

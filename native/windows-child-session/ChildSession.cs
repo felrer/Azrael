@@ -51,15 +51,21 @@ partial class ChildSession {
    if(args.Length==1&&args[0]=="--self-test") {
     Guard(Marshal.SizeOf(typeof(Native.Input))==(IntPtr.Size==8?40:28),"INPUT ABI size mismatch");
     Guard(SameSecret("abc","abc")&&!SameSecret("abc","abd")&&!SameSecret("abc","abcd"),"Secret comparison failure");
-    BootstrapJournal.SelfTest(); MachineSetup.SelfTest(); Recovery.SelfTest(); ClosureSelfTest(); Host.ReconnectSelfTest();
+    BootstrapJournal.SelfTest(); MachineSetup.SelfTest(); Recovery.SelfTest(); ClosureSelfTest(); Host.ReconnectSelfTest(); CurrentChildLogoff.SelfTest();
     var admissionGates=new Dictionary<string,object>(); foreach(string name in new[]{"connection","render","keyboard","mouse","parentIdentity","dataProfile"})admissionGates[name]=Gate(true,"fixture");
     Guard(AdmissionPassed(new { gates=admissionGates,fixtureClosed=Gate(true,"fixture") }),"Complete admission gates rejected");
     admissionGates["keyboard"]=Gate(false,"fixture"); Guard(!AdmissionPassed(new { gates=admissionGates,fixtureClosed=Gate(true,"fixture") }),"Failed keyboard gate accepted");
     admissionGates["keyboard"]=new { passed="true" }; Guard(!AdmissionPassed(new { gates=admissionGates,fixtureClosed=Gate(true,"fixture") }),"Unknown keyboard evidence accepted");
-    Console.WriteLine(Json.Serialize(new { ok=true, inputBytes=Marshal.SizeOf(typeof(Native.Input)), bootstrapJournalFixtureChecks=14,bootstrapLaunchFixtureChecks=10,machineSetupFixtureChecks=17,recoveryFixtureChecks=12,reconnectFixtureChecks=25,admissionGateFixtureChecks=3,closureIdentityFixtureChecks=11,sessionAnchorRead=ProbeCurrentSessionAnchorWmi(),connected=false, configurationWritten=false })); return 0;
+    Console.WriteLine(Json.Serialize(new { ok=true, inputBytes=Marshal.SizeOf(typeof(Native.Input)), bootstrapJournalFixtureChecks=14,bootstrapLaunchFixtureChecks=10,machineSetupFixtureChecks=17,recoveryFixtureChecks=12,reconnectFixtureChecks=25,admissionGateFixtureChecks=3,closureIdentityFixtureChecks=11,currentChildLogoffFixtureChecks=CurrentChildLogoff.FixtureChecks,sessionAnchorRead=ProbeCurrentSessionAnchorWmi(),connected=false, configurationWritten=false })); return 0;
    }
    if(args.Length>0&&args[0]=="--prepare-machine") return MachineSetup.Prepare(args);
    if(args.Length>0&&args[0]=="--recover-child") return Recovery.Elevated(args);
+   if(args.Length==1&&(args[0]=="--inspect-child-logoff"||args[0]=="--logoff-current-child")) {
+    var request=ReadBoundedIdentityRequest(); Guard(Text(request,"helperSha256")==Hash(Exe),"Trusted helper content hash mismatch");
+    bool logoff=args[0]=="--logoff-current-child";
+    Guard(logoff?new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator):!new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator),logoff?"Explicit child logoff requires administrator token":"Ordinary user token required");
+    Console.WriteLine(Json.Serialize(logoff?CurrentChildLogoff.Close(request):CurrentChildLogoff.Inspect())); return 0;
+   }
    if(args.Length==1&&(args[0]=="--inspect-closure"||args[0]=="--logoff-child")) {
     var request=ReadBoundedIdentityRequest();
     Guard(Text(request,"helperSha256")==Hash(Exe),"Trusted helper content hash mismatch");
@@ -189,6 +195,151 @@ partial class ChildSession {
   var foreign=new Dictionary<string,object>(value); foreign["parentSessionId"]=Session+1;
   bool mismatch=false; try { ValidateClosureIdentity(foreign); } catch { mismatch=true; } Guard(mismatch,"Foreign closure parent accepted");
   bool live=false; try { RequireProcessAbsent(Process.GetCurrentProcess().Id); } catch { live=true; } Guard(live,"Live process accepted as stopped");
+ }
+
+ // Explicit user-approved session termination has no dependency on an old worker/resource record.
+ static class CurrentChildLogoff {
+  static readonly string[] Keys={"sid","profile","parentSessionId","childSessionId","sessionAnchorPid","sessionAnchorCreated"};
+  internal static int FixtureChecks;
+  internal static Mutex Gate() { return new Mutex(false,"Global\\Azrael.ChildLogoff."+HashText(Sid+"|"+Session)); }
+  internal static bool Enter(Mutex mutex,int timeout) { try { return mutex.WaitOne(timeout); } catch(AbandonedMutexException) { return true; } }
+  internal static bool Allowed(bool present,string health,bool owner) { return present&&(health=="abnormal"||(health=="healthy"&&!owner)); }
+  static void Validate(Dictionary<string,object> value) {
+   Guard(value!=null&&value.Count==Keys.Length&&Keys.All(value.ContainsKey),"Complete current child identity required");
+   Guard(Text(value,"sid")==Sid&&Text(value,"profile")==Profile&&Number(value,"parentSessionId")==Session,"Current child parent identity mismatch");
+   Guard(Number(value,"childSessionId")>0&&Number(value,"childSessionId")!=Session,"Parent session cannot be logged off");
+   bool pid=value["sessionAnchorPid"]!=null,created=value["sessionAnchorCreated"]!=null;
+   long ticks; Guard(pid==created&&(!pid||(Number(value,"sessionAnchorPid")>0&&Int64.TryParse(Text(value,"sessionAnchorCreated"),out ticks)&&ticks>0)),"Invalid optional session anchor");
+  }
+  static Dictionary<string,object> Identity(int child,List<string> reasons) {
+   var result=new Dictionary<string,object> { {"sid",Sid},{"profile",Profile},{"parentSessionId",Session},{"childSessionId",child},{"sessionAnchorPid",null},{"sessionAnchorCreated",null} };
+   try {
+    foreach(var candidate in Process.GetProcessesByName("winlogon"))using(candidate) {
+     if(candidate.SessionId!=child)continue;
+     Guard(result["sessionAnchorPid"]==null,"Ambiguous child session anchor");
+     string created=AnchorCreated(candidate); Guard(created==AnchorCreated(candidate),"Child session anchor changed");
+     result["sessionAnchorPid"]=candidate.Id; result["sessionAnchorCreated"]=created;
+    }
+   } catch { result["sessionAnchorPid"]=null; result["sessionAnchorCreated"]=null; reasons.Add("Optional child session anchor unavailable"); }
+   return result;
+  }
+  static void SameUser(int child,List<string> failures) {
+   string user,domain;
+   try { user=Recovery.QueryText(child,5); domain=Recovery.QueryText(child,7); }
+   catch { failures.Add("Child user query failed"); return; }
+   if(String.IsNullOrWhiteSpace(user)) { failures.Add("Child signed-in user unavailable"); return; }
+   string userSid;
+   try { userSid=((SecurityIdentifier)new NTAccount(String.IsNullOrEmpty(domain)?user:domain+"\\"+user).Translate(typeof(SecurityIdentifier))).Value; }
+   catch { failures.Add("Child user SID resolution failed"); return; }
+   RecoveryGuard(userSid==Sid,"child_identity_mismatch","Child belongs to another user");
+  }
+  internal static Dictionary<string,object> Inspect() {
+   uint child; bool found=Native.WTSGetChildSessionId(out child); int error=Marshal.GetLastWin32Error();
+   Guard(found||error==1168,"Exact parent child query unavailable");
+   if(ChildAbsent(found,child,error))return Result(null,"healthy",false,new List<string>());
+   Guard(found&&child>0&&child<Int32.MaxValue&&child!=Session,"Exact current child identity unavailable");
+   var failures=new List<string>(); SameUser((int)child,failures);
+   // A failed inventory is abnormal. A positive foreign-user match always rejects above.
+   try {
+    IntPtr buffer; int count; Guard(Native.WTSEnumerateSessions(IntPtr.Zero,0,1,out buffer,out count),"Session inventory unavailable");
+    try {
+     Guard(count>=0&&count<=65536&&(count==0||buffer!=IntPtr.Zero),"Invalid session inventory");
+     bool seen=false;
+     for(int i=0;i<count;i++) {
+      var item=(Native.WtsSession)Marshal.PtrToStructure(IntPtr.Add(buffer,i*Marshal.SizeOf(typeof(Native.WtsSession))),typeof(Native.WtsSession));
+      if(item.id!=child)continue; seen=true;
+      if(item.state!=0&&item.state!=1)failures.Add("Child connection is not active or connected");
+     }
+     Guard(seen,"Exact child disappeared during inspection");
+    } finally { if(buffer!=IntPtr.Zero)Native.WTSFreeMemory(buffer); }
+   } catch(Exception e) { failures.Add("Child session inventory verification failed: "+e.Message); }
+   bool owner=false;
+   try {
+    var status=Host.RequestLogoffStatus((int)child);
+    Guard(status.ContainsKey("ownerPresent")&&status["ownerPresent"] is bool,"Untyped child owner status"); owner=(bool)status["ownerPresent"];
+    Guard(Text(status,"health")=="healthy"||Text(status,"health")=="abnormal","Unknown child health");
+    if(Text(status,"health")=="abnormal")failures.Add("Native host or worker status verification failed: "+Text(status,"reason"));
+   } catch(Exception e) { failures.Add("Authenticated native host status unavailable: "+e.Message); }
+   string health=failures.Count==0?"healthy":"abnormal";
+   var identity=Identity((int)child,failures); // Optional anchor failures do not determine session health.
+   return Result(identity,health,owner,failures);
+  }
+  static Dictionary<string,object> Result(Dictionary<string,object> identity,string health,bool owner,List<string> reasons) {
+   return new Dictionary<string,object> { {"ok",true},{"present",identity!=null},{"identity",identity},{"health",health},{"ownerPresent",owner},{"reasons",reasons},{"allowed",Allowed(identity!=null,health,owner)} };
+  }
+  static void Match(Dictionary<string,object> expected,Dictionary<string,object> actual) {
+   Validate(expected); Validate(actual);
+   Guard(Number(expected,"childSessionId")==Number(actual,"childSessionId"),"Current child session changed");
+   if(expected["sessionAnchorPid"]!=null)Guard(actual["sessionAnchorPid"]!=null&&Number(expected,"sessionAnchorPid")==Number(actual,"sessionAnchorPid")&&Text(expected,"sessionAnchorCreated")==Text(actual,"sessionAnchorCreated"),"Current child session anchor changed or unavailable");
+  }
+  internal static object Close(Dictionary<string,object> request) {
+   bool attempted=false;
+   try { return CloseCore(request,ref attempted); }
+   catch(Exception e) {
+    object identity; request.TryGetValue("identity",out identity);
+    return new { ok=false,code=e is RecoveryError?((RecoveryError)e).Code:"child_logoff_refused",message=e.Message,identity=identity,actionExecuted=attempted,mutationOutcome=attempted?"unknown":"not_executed",logoffConfirmed=false,processesStopped=false };
+   }
+  }
+  static object CloseCore(Dictionary<string,object> request,ref bool attempted) {
+   RequireApproval(request);
+   var expected=request.ContainsKey("identity")?request["identity"] as Dictionary<string,object>:null; Validate(expected);
+   using(var gate=Gate()) {
+    Guard(Enter(gate,10000),"Child session transition is busy");
+    try {
+     var status=Inspect(); Guard((bool)status["present"],"Current child no longer present"); Match(expected,(Dictionary<string,object>)status["identity"]);
+     RecoveryGuard((bool)status["allowed"],"child_session_occupied","Healthy child has a task input owner");
+     using(var connection=new Mutex(false,"Global\\Azrael.ChildOwner."+HashText(Sid+"|"+Session))) {
+      bool locked=Enter(connection,0);
+      try {
+       if(!locked&&Text(status,"health")=="healthy") {
+        Host.DetachForLogoff(Number(expected,"childSessionId")); locked=Enter(connection,3000); Guard(locked,"Idle native owner has not detached");
+       }
+       // The transition gate excludes new Start/acquireLease operations. Recheck exact identity,
+       // same-user evidence and optional anchor immediately before the destructive API.
+       var fresh=Inspect(); Guard((bool)fresh["present"],"Current child disappeared before logoff"); Match(expected,(Dictionary<string,object>)fresh["identity"]);
+       // A successful idle detach removes the status endpoint; preserve the verified healthy result.
+       if(!locked||Text(status,"health")!="healthy") {
+        RecoveryGuard((bool)fresh["allowed"],"child_session_occupied","Healthy child acquired a task input owner"); status=fresh;
+       }
+       uint current; Guard(Native.WTSGetChildSessionId(out current)&&current==(uint)Number(expected,"childSessionId"),"Current child changed before logoff");
+       attempted=true; Guard(Native.WTSLogoffSession(IntPtr.Zero,current,true),"Explicit current child logoff failed");
+       Guard(ChildAbsent(true,current,0),"Child session disappearance is unconfirmed");
+       RequireSessionProcessesAbsent((int)current);
+       if(expected["sessionAnchorPid"]!=null)RequireProcessAbsent(Number(expected,"sessionAnchorPid"));
+       return new { ok=true,state="closed",identity=expected,logoffConfirmed=true,processesStopped=true,health=Text(status,"health"),ownerPresent=(bool)status["ownerPresent"] };
+      } finally { if(locked)connection.ReleaseMutex(); }
+     }
+    } finally { gate.ReleaseMutex(); }
+   }
+  }
+  static void RequireSessionProcessesAbsent(int child) {
+   IntPtr buffer; int count; Guard(Native.WTSEnumerateProcesses(IntPtr.Zero,0,1,out buffer,out count),"Post-logoff process inventory unavailable");
+   try {
+    Guard(count>=0&&count<=1048576&&(count==0||buffer!=IntPtr.Zero),"Invalid post-logoff process inventory");
+    for(int i=0;i<count;i++) {
+     var item=(Native.WtsProcess)Marshal.PtrToStructure(IntPtr.Add(buffer,i*Marshal.SizeOf(typeof(Native.WtsProcess))),typeof(Native.WtsProcess));
+     Guard(item.session!=child,"Child session processes remain after logoff");
+    }
+   } finally { if(buffer!=IntPtr.Zero)Native.WTSFreeMemory(buffer); }
+  }
+  internal static void SelfTest() {
+   FixtureChecks=0;
+   foreach(bool present in new[]{false,true})foreach(string health in new[]{"healthy","abnormal"})foreach(bool owner in new[]{false,true}) {
+    Guard(Allowed(present,health,owner)==(present&&(health=="abnormal"||!owner)),"Explicit logoff eligibility mismatch"); FixtureChecks++;
+   }
+   var value=new Dictionary<string,object> { {"sid",Sid},{"profile",Profile},{"parentSessionId",Session},{"childSessionId",Session+1},{"sessionAnchorPid",null},{"sessionAnchorCreated",null} }; Validate(value); FixtureChecks++;
+   foreach(string key in Keys) { var invalid=new Dictionary<string,object>(value); invalid.Remove(key); ExpectRejected(()=>Validate(invalid)); }
+   foreach(string key in new[]{"sid","profile","parentSessionId","childSessionId"}) { var invalid=new Dictionary<string,object>(value); invalid[key]=key=="parentSessionId"?(object)(Session+1):key=="childSessionId"?(object)Session:(object)"foreign"; ExpectRejected(()=>Validate(invalid)); }
+   var anchor=new Dictionary<string,object>(value); anchor["sessionAnchorPid"]=123; ExpectRejected(()=>Validate(anchor)); anchor["sessionAnchorCreated"]="1234"; Validate(anchor); FixtureChecks++;
+   Match(value,anchor); FixtureChecks++; ExpectRejected(()=>Match(anchor,value));
+   var changed=new Dictionary<string,object>(anchor); changed["sessionAnchorCreated"]="1235"; ExpectRejected(()=>Match(anchor,changed)); changed["sessionAnchorCreated"]="1234"; changed["sessionAnchorPid"]=124; ExpectRejected(()=>Match(anchor,changed));
+   changed=new Dictionary<string,object>(value); changed["childSessionId"]=Session+2; ExpectRejected(()=>Match(value,changed));
+   var approval=new Dictionary<string,object>(); ExpectRejected(()=>RequireApproval(approval));
+   foreach(object denied in new object[]{false,"true",null}) { approval["approved"]=denied; ExpectRejected(()=>RequireApproval(approval)); }
+   approval["approved"]=true; RequireApproval(approval); FixtureChecks++;
+  }
+  static void RequireApproval(Dictionary<string,object> request) { Guard(request.ContainsKey("approved")&&request["approved"] is bool&&(bool)request["approved"],"Explicit user approval required"); }
+  static void ExpectRejected(Action check) { bool rejected=false; try { check(); } catch { rejected=true; } Guard(rejected,"Unsafe explicit logoff identity accepted"); FixtureChecks++; }
  }
 
  static class MachineSetup {
@@ -327,7 +478,7 @@ partial class ChildSession {
     }
    } catch { throw new RecoveryError("child_identity_mismatch","Original child session identity no longer matches"); }
   }
-  static string QueryText(int session,int kind) {
+  internal static string QueryText(int session,int kind) {
    IntPtr buffer; int bytes; Guard(Native.WTSQuerySessionInformation(IntPtr.Zero,session,kind,out buffer,out bytes),"Recovery WTS user query failed");
    try { Guard(bytes>=2&&bytes<=65536&&buffer!=IntPtr.Zero,"Invalid WTS user information"); return Marshal.PtrToStringUni(buffer); }
    finally { if(buffer!=IntPtr.Zero)Native.WTSFreeMemory(buffer); }
@@ -694,7 +845,7 @@ partial class ChildSession {
    var proof=new Dictionary<string,object> { {"ok",true},{"inputReleased",true},{"heldInput",false} }; Guard(ReleaseProof(proof),"Release proof denied");
    foreach(string key in new[]{"ok","inputReleased","heldInput"}) { var invalid=new Dictionary<string,object>(proof); invalid.Remove(key); Guard(!ReleaseProof(invalid),"Incomplete release proof accepted"); invalid[key]="True"; Guard(!ReleaseProof(invalid),"Untyped release proof accepted"); }
    using(var self=Process.GetCurrentProcess()) {
-    using(var trusted=TrustedPeer((uint)self.Id,self.StartTime.ToUniversalTime().Ticks.ToString()))Guard(trusted.Id==self.Id,"Trusted peer rejected");
+    using(var trusted=TrustedPeer((uint)self.Id,self.StartTime.ToUniversalTime().Ticks.ToString()))Guard(trusted.Id==self.Id&&!trusted.WaitForExit(0),"Trusted live peer rejected or reported terminated");
     bool rejected=false; try { using(var invalid=TrustedPeer((uint)self.Id,"1")) {} } catch { rejected=true; } Guard(rejected,"Reused peer identity accepted");
     rejected=false; try { ValidateTrustedProcess(self,self.StartTime.ToUniversalTime().Ticks.ToString(),Session+1); } catch { rejected=true; } Guard(rejected,"Wrong peer Windows session accepted");
     rejected=false; try { WaitExactTerminal(self,0); } catch(RecoveryError e) { rejected=e.Code=="child_recovery_blocked"; } Guard(rejected&&!self.HasExited,"Live process timeout was not preserved");
@@ -711,19 +862,33 @@ partial class ChildSession {
    }
    bool wrong=false; try { Recovery.ValidateExpected(identity,Session+2,false); } catch(RecoveryError e) { wrong=e.Code=="child_identity_mismatch"; } Guard(wrong,"Different expected child accepted");
   }
-  static Process TrustedPeer(uint pid,string created) {
+  sealed class HandoffPeer : IDisposable {
+   internal readonly int Id; IntPtr handle;
+   internal HandoffPeer(int pid,IntPtr value) { Id=pid; handle=value; }
+   internal bool WaitForExit(int timeout) { return Native.WaitForSingleObject(handle,(uint)timeout)==0; }
+   public void Dispose() { if(handle!=IntPtr.Zero) { Native.CloseHandle(handle); handle=IntPtr.Zero; } }
+  }
+  static HandoffPeer TrustedPeer(uint pid,string created) {
    var process=Process.GetProcessById((int)pid);
-   try {
-    ValidateTrustedProcess(process,created,Session); return process;
-   } catch { process.Dispose(); throw; }
+   using(process) {
+    IntPtr handle=Native.OpenProcess(0x101000,false,pid); Guard(handle!=IntPtr.Zero,"Handoff peer process unavailable");
+    try { ValidateTrustedHandle(process.Id,handle,created,Session); return new HandoffPeer(process.Id,handle); }
+    catch { Native.CloseHandle(handle); throw; }
+   }
   }
   static void ValidateTrustedProcess(Process process,string created,int session) {
-    // Acquire and retain the kernel process handle before reading mutable PID metadata.
-    IntPtr handle=process.Handle;
-    Guard(process.SessionId==session&&!process.HasExited&&process.StartTime.ToUniversalTime().Ticks.ToString()==created,"Handoff peer process identity changed");
-    Guard(Hash(process.MainModule.FileName)==Hash(Exe),"Handoff requires the same trusted helper build");
-    IntPtr token; Guard(Native.OpenProcessToken(handle,8,out token),"Handoff peer token unavailable");
-    try { using(var identity=new WindowsIdentity(token))Guard(identity.User.Value==Sid,"Handoff peer SID mismatch"); } finally { Native.CloseHandle(token); }
+    // Limited query rights allow the ordinary warm host to authenticate a same-user elevated
+    // logoff requester. Retain this exact kernel object while checking creation/image/token.
+    IntPtr handle=Native.OpenProcess(0x1000,false,(uint)process.Id); Guard(handle!=IntPtr.Zero,"Handoff peer process unavailable");
+    try { ValidateTrustedHandle(process.Id,handle,created,session); } finally { Native.CloseHandle(handle); }
+  }
+  static void ValidateTrustedHandle(int pid,IntPtr handle,string created,int session) {
+     long birth,exit,kernel,user; uint code,actualSession;
+     Guard(Native.GetProcessTimes(handle,out birth,out exit,out kernel,out user)&&DateTime.FromFileTimeUtc(birth).Ticks.ToString()==created&&Native.GetExitCodeProcess(handle,out code)&&code==259&&Native.ProcessIdToSessionId((uint)pid,out actualSession)&&actualSession==(uint)session,"Handoff peer process identity changed");
+     var image=new StringBuilder(32768); int length=image.Capacity;
+     Guard(Native.QueryFullProcessImageName(handle,0,image,ref length)&&Hash(image.ToString())==Hash(Exe),"Handoff requires the same trusted helper build");
+     IntPtr token; Guard(Native.OpenProcessToken(handle,8,out token),"Handoff peer token unavailable");
+     try { using(var identity=new WindowsIdentity(token))Guard(identity.User.Value==Sid,"Handoff peer SID mismatch"); } finally { Native.CloseHandle(token); }
   }
   static void WaitExactTerminal(Process process,int timeout) { RecoveryGuard(process.WaitForExit(timeout),"child_recovery_blocked","Previous child worker termination is unconfirmed; session preserved"); }
   static void WaitExpectedWorker(Dictionary<string,object> identity) {
@@ -746,7 +911,9 @@ partial class ChildSession {
       string peerSid=null; server.RunAsClient(delegate { peerSid=WindowsIdentity.GetCurrent().User.Value; }); Guard(peerSid==Sid,"Handoff client SID mismatch");
       using(var r=new StreamReader(server,Encoding.UTF8,false,4096,true))using(var w=new StreamWriter(server,new UTF8Encoding(false),4096,true)) {
        var request=ReadHandoff(r); using(var peer=TrustedPeer(pid,Text(request,"created"))) {
-        Guard(Text(request,"operation")=="detachIdle"&&Text(request,"sid")==Sid&&Text(request,"profile")==Profile&&Number(request,"parentSessionId")==Session,"Invalid handoff request");
+        string operation=Text(request,"operation");
+        Guard((operation=="detachIdle"||operation=="logoffStatus")&&Text(request,"sid")==Sid&&Text(request,"profile")==Profile&&Number(request,"parentSessionId")==Session&&Number(request,"childSessionId")==child,"Invalid handoff request");
+        if(operation=="logoffStatus") { Write(w,LogoffStatus()); continue; }
         bool accepted; lock(leaseGate) { accepted=HandoffEligible(started,nativeBusy,leaseHeld,handoffPending,workerTransportUncertain,Number(request,"childSessionId"),child); if(accepted) { handoffPending=true; handoff.Set(); } }
         if(!accepted) { Write(w,new { ok=false,code="child_session_occupied" }); continue; }
         if(!detached.WaitOne(15000))Write(w,new { ok=false,code="child_recovery_blocked" });
@@ -762,6 +929,39 @@ partial class ChildSession {
   static Dictionary<string,object> ReadHandoff(StreamReader reader,int timeout=5000) {
    var read=Task.Run(()=> { var value=new StringBuilder(); int c; while((c=reader.Read())!=-1&&c!='\n') { Guard(value.Length<4096,"Handoff request oversized"); value.Append((char)c); } Guard(c=='\n',"Handoff transport closed"); return new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(value.ToString()); });
    Guard(read.Wait(timeout),"Handoff response timed out"); return read.Result;
+  }
+  object LogoffStatus() {
+   lock(leaseGate) {
+    bool owner=leaseHeld||nativeBusy;
+    if(workerTransportUncertain||!started||handoffPending)return new { ok=true,health="abnormal",ownerPresent=owner,reason="Native worker transport, startup or detach state is unresolved" };
+    // Busy is a normal occupied response. Never inject worker requests into an active operation.
+    if(nativeBusy)return new { ok=true,health="healthy",ownerPresent=true };
+    try {
+     ValidateIdentity();
+     var connected=BeginInvoke((Func<bool>)(()=>Convert.ToInt32(((dynamic)rdp.Client).Connected)==1));
+     Guard(connected.AsyncWaitHandle.WaitOne(3000)&&Convert.ToBoolean(EndInvoke(connected)),"Child RDP connection status failed");
+     Write(writer,new { operation="logoffStatus" }); var status=Read(reader,3000);
+     Guard(status.ContainsKey("ok")&&status["ok"] is bool&&(bool)status["ok"]&&Number(status,"sessionId")==child,"Child worker status failed");
+     return new { ok=true,health="healthy",ownerPresent=owner };
+    } catch(Exception e) { workerTransportUncertain=true; return new { ok=true,health="abnormal",ownerPresent=owner,reason=e.Message }; }
+   }
+  }
+  internal static Dictionary<string,object> RequestLogoffStatus(int child) {
+   return LogoffHandoff(child,false);
+  }
+  internal static void DetachForLogoff(int child) { LogoffHandoff(child,true); }
+  static Dictionary<string,object> LogoffHandoff(int child,bool detach) {
+   using(var client=new NamedPipeClientStream(".",RendezvousName,PipeDirection.InOut,PipeOptions.Asynchronous,TokenImpersonationLevel.Impersonation)) {
+    client.Connect(3000); uint pid; Guard(Native.GetNamedPipeServerProcessId(client.SafePipeHandle.DangerousGetHandle(),out pid),"Logoff status server unavailable");
+    using(var candidate=Process.GetProcessById((int)pid))using(var peer=TrustedPeer(pid,candidate.StartTime.ToUniversalTime().Ticks.ToString()))
+    using(var r=new StreamReader(client,Encoding.UTF8,false,4096,true))using(var w=new StreamWriter(client,new UTF8Encoding(false),4096,true)) {
+     Write(w,new { operation=detach?"detachIdle":"logoffStatus",sid=Sid,profile=Profile,parentSessionId=Session,childSessionId=child,created=Process.GetCurrentProcess().StartTime.ToUniversalTime().Ticks.ToString() });
+     var result=ReadHandoff(r,detach?20000:10000);
+     Guard(result.ContainsKey("ok")&&result["ok"] is bool&&(bool)result["ok"],"Authenticated child host refused logoff status or idle detach");
+     if(detach)Guard(peer.WaitForExit(10000),"Idle native host exit unconfirmed");
+     return result;
+    }
+   }
   }
   void RequestIdleHandoff(Dictionary<string,object> request) {
    try {
@@ -805,7 +1005,9 @@ partial class ChildSession {
      if(WaitHandle.WaitAny(new[]{handoff,(WaitHandle)((IAsyncResult)pending).AsyncWaitHandle})==0) { DetachIdle(); return; }
      var request=pending.Result; string operation=Text(request,"operation");
      lock(leaseGate) { if(handoffPending) { DetachIdle(); return; } nativeBusy=true; }
+     Mutex transition=null; bool transitionLocked=false;
      try {
+      if(operation=="start"||operation=="recover"||operation=="acquireLease") { transition=CurrentChildLogoff.Gate(); transitionLocked=CurrentChildLogoff.Enter(transition,0); Guard(transitionLocked,"Explicit child logoff is in progress"); }
       if(operation=="start"||operation=="recover") { Guard(!started&&!ownershipLocked,"Already started or launch unresolved"); Start(request); bool ready=AdmissionPassed(admission); Write(output,new { ok=ready, state=ready?"admitted":"admission_failed", identity=Identity(),ownershipVerified=ownershipVerified,admission=admission,admissionReady=ready,available=ready,cleanupUnconfirmed=workerTransportUncertain,inputReleased=ready,connectionRecovered=recovered }); }
       else if(operation=="stop") { var result=Stop(); Write(output,result); if(!started) { BeginInvoke((Action)Close); return; } }
       else if(workerTransportUncertain) { Write(output,new { ok=false,state="unknown",ownershipVerified=false,unknownState=true,pendingWork=false,reason="Owned child worker transport is uncertain" }); }
@@ -822,7 +1024,7 @@ partial class ChildSession {
        ValidateIdentity(); Write(writer,request); Write(output,Read(reader));
       }
      } catch(Exception e) { if((operation=="start"||operation=="recover")&&started)Write(output,new { ok=false,code=e is RecoveryError?((RecoveryError)e).Code:"native_child_start_failed",message=e.Message,hresult=e.HResult,identity=Identity(),ownershipVerified=ownershipVerified,admission=admission,admissionReady=false,available=false,cleanupUnconfirmed=workerTransportUncertain }); else Write(output,Failure(e)); }
-     finally { lock(leaseGate)nativeBusy=false; }
+     finally { if(transitionLocked)transition.ReleaseMutex(); if(transition!=null)transition.Dispose(); lock(leaseGate)nativeBusy=false; }
     }
    } catch(Exception) {
     // A lost host does not authorize logging off or closing unknown/unsaved work.
@@ -1083,6 +1285,7 @@ partial class ChildSession {
   string operation=Text(request,"operation");
   if(operation=="launch"||operation=="capture"||operation=="input")Guard(platformAdmitted,"Child platform admission did not pass");
   if(operation=="releaseInput") { bool released=ReleaseHeld(); return new { ok=released,inputReleased=released,heldInput=HasHeldInput(),sessionId=Session }; }
+  if(operation=="logoffStatus")return new { ok=true,sessionId=Session };
   if(operation=="status") {
    bool live=HasLiveApps(); var windows=UnownedWindows(); windows.AddRange(UnownedProcesses()); if(admissionFixtureActive)windows.Add("Owned admission fixture closure remains unconfirmed");
    return new { ok=true,state="running",sessionId=Session,ownershipVerified=true,pendingWork=false,
@@ -1257,6 +1460,10 @@ partial class ChildSession {
   [DllImport("kernel32.dll",SetLastError=true)] internal static extern bool CloseHandle(IntPtr handle);
   [DllImport("kernel32.dll",SetLastError=true)] internal static extern IntPtr OpenProcess(uint access,bool inherit,uint pid);
   [DllImport("kernel32.dll",SetLastError=true)] internal static extern bool GetProcessTimes(IntPtr process,out long created,out long exited,out long kernel,out long user);
+  [DllImport("kernel32.dll",SetLastError=true)] internal static extern bool GetExitCodeProcess(IntPtr process,out uint code);
+  [DllImport("kernel32.dll",SetLastError=true)] internal static extern uint WaitForSingleObject(IntPtr handle,uint milliseconds);
+  [DllImport("kernel32.dll",SetLastError=true)] internal static extern bool ProcessIdToSessionId(uint process,out uint session);
+  [DllImport("kernel32.dll",CharSet=CharSet.Unicode,SetLastError=true)] internal static extern bool QueryFullProcessImageName(IntPtr process,uint flags,StringBuilder image,ref int length);
   [DllImport("wtsapi32.dll",SetLastError=true)] internal static extern bool WTSLogoffSession(IntPtr server,uint session,bool wait);
   [StructLayout(LayoutKind.Sequential)] internal struct WtsProcess { internal int session,pid; internal IntPtr name,sid; }
   [DllImport("wtsapi32.dll",CharSet=CharSet.Unicode,SetLastError=true)] internal static extern bool WTSEnumerateProcesses(IntPtr server,int reserved,int version,out IntPtr buffer,out int count);

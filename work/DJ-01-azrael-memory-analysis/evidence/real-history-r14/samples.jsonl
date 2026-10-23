@@ -1,0 +1,3 @@
+{"mode":"B-cumulative-paged","label":"baseline","atUtc":"2026-10-23T00:29:12.607Z","freeBytes":10988621824,"privateBytes":56737792,"workingSetBytes":460763136,"processCount":5,"driverRssBytes":68235264,"driverHeapUsedBytes":7602096}
+{"mode":"B-cumulative-paged","label":"baseline","atUtc":"2026-10-23T00:29:14.347Z","freeBytes":10933501952,"privateBytes":56737792,"workingSetBytes":460763136,"processCount":5,"driverRssBytes":68235264,"driverHeapUsedBytes":7748488}
+{"mode":"B-cumulative-paged","label":"baseline","atUtc":"2026-10-23T00:29:15.940Z","freeBytes":10854772736,"privateBytes":56741888,"workingSetBytes":460783616,"processCount":5,"driverRssBytes":68235264,"driverHeapUsedBytes":7867848}

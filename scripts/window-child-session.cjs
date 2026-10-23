@@ -111,9 +111,9 @@ async function prepareWindowsChildSession(helper) {
 
 function createNativeTransport(helper, { reconcileBootstrap = false, mode } = {}) {
   verifyNativeHelper(helper);
-  if (mode !== undefined && mode !== 'inspectClosure') throw new Error('Unsupported native child transport mode');
+  if (mode !== undefined && !['inspectClosure', 'inspectLogoff'].includes(mode)) throw new Error('Unsupported native child transport mode');
   if (mode && reconcileBootstrap) throw new Error('Conflicting native child transport modes');
-  const child = spawn(helper.path, mode === 'inspectClosure' ? ['--inspect-closure'] : reconcileBootstrap ? ['--reconcile-bootstrap'] : [], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+  const child = spawn(helper.path, mode === 'inspectClosure' ? ['--inspect-closure'] : mode === 'inspectLogoff' ? ['--inspect-child-logoff'] : reconcileBootstrap ? ['--reconcile-bootstrap'] : [], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
   const lines = readline.createInterface({ input: child.stdout });
   let pending, terminal, diagnostic = '';
   let exited = false, resolveExit;
@@ -569,6 +569,15 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
     }); },
     revalidateInput: (request = {}) => exclusive(() => revalidateInput(request)),
     ensureConnected: (request = {}) => exclusive(() => ensureConnected(request)),
+    forgetLoggedOff: proof => exclusive(async () => {
+      if (proof?.logoffConfirmed !== true || proof?.processesStopped !== true || !proof.identity) throw new Error('Confirmed explicit child logoff required');
+      if (!identity || !['sid','profile','parentSessionId','childSessionId'].every(key => identity[key] === proof.identity[key])) return {retired:false};
+      const retired=await retireTransport();
+      if(!retired)return {retired:false,cleanupUnconfirmed:true};
+      // Forget only live connection state. Disk cleanup still obtains its own exact closure evidence.
+      identity=null;inputOwner=null;admission=null;admissionAccepted=false;inputNeedsRelease=false;uncertain=false;lastClosure=null;
+      return {retired:true};
+    }),
     async acquire(request = {}) { return exclusive(async () => {
       const verified = await ensureConnected(request);
       if (verified.ok !== true) return verified;
@@ -679,6 +688,47 @@ async function resolveInstalledApplication(request, options = {}) {
 }
 
 module.exports.resolveInstalledApplication = resolveInstalledApplication;
+
+// Explicit logoff does not require adopting a child or reconstructing its old worker.
+function validateLogoffInspection(value) {
+  if (!value || value.ok !== true || typeof value.present !== 'boolean' || !['healthy', 'abnormal'].includes(value.health)
+    || typeof value.ownerPresent !== 'boolean' || typeof value.allowed !== 'boolean'
+    || !Array.isArray(value.reasons) || value.reasons.length > 32 || value.reasons.some(x => typeof x !== 'string' || x.length > 1024)) throw new Error('Invalid child logoff inspection');
+  if (!value.present) { if (value.identity !== null || value.allowed) throw new Error('Absent child cannot be logged off'); return value; }
+  const id = value.identity;
+  if (!id || typeof id.sid !== 'string' || !id.sid || typeof id.profile !== 'string' || !id.profile
+    || !Number.isInteger(id.parentSessionId) || id.parentSessionId < 0 || !Number.isInteger(id.childSessionId)
+    || id.childSessionId <= 0 || id.childSessionId === id.parentSessionId
+    || !(id.sessionAnchorPid === null && id.sessionAnchorCreated === null || Number.isInteger(id.sessionAnchorPid) && id.sessionAnchorPid > 0 && typeof id.sessionAnchorCreated === 'string' && /^[1-9][0-9]{0,18}$/.test(id.sessionAnchorCreated))
+    || value.allowed !== (value.health === 'abnormal' || !value.ownerPresent)) throw new Error('Invalid child logoff identity or policy');
+  return value;
+}
+async function inspectChildLogoff(nativeHelper, { transportFactory = createNativeTransport } = {}) {
+  const transport = transportFactory(nativeHelper, { mode: 'inspectLogoff' });
+  try { return validateLogoffInspection(await transport.request({ helperSha256: nativeHelper.sha256.toLowerCase() }, 30000)); }
+  finally { transport.disconnect(); if (transport.waitForExit && !await transport.waitForExit()) throw new Error('Child logoff inspection exit is unconfirmed'); }
+}
+async function logoffCurrentChild({ stateRoot, nativeHelper, nodePath, scriptPath, identity }, { run = runFile } = {}) {
+  verifyNativeHelper(nativeHelper);
+  if (![stateRoot, nodePath, scriptPath].every(x => typeof x === 'string' && path.isAbsolute(x))) throw new Error('Explicit child logoff runtime is incomplete');
+  const nodeHash = crypto.createHash('sha256').update(fs.readFileSync(nodePath)).digest('hex');
+  const args = ['-NoLogo', '-NoProfile', '-NonInteractive', '-File', scriptPath, '-StateRoot', stateRoot, '-CurrentChild',
+    '-IdentityBase64', Buffer.from(JSON.stringify(identity), 'utf8').toString('base64'), '-NativeHelperPath', nativeHelper.path,
+    '-NativeHelperSha256', nativeHelper.sha256, '-NodePath', nodePath, '-NodeSha256', nodeHash];
+  try {
+    const result = await run(path.join(process.env.SystemRoot || 'C:/Windows', 'System32/WindowsPowerShell/v1.0/powershell.exe'), args,
+      { windowsHide: true, timeout: 300000, maxBuffer: 128 * 1024, encoding: 'utf8' });
+    const value = JSON.parse(result.stdout.replace(/^\uFEFF/, '').trim());
+    if (typeof value?.logoffConfirmed !== 'boolean') throw new Error('Invalid explicit child logoff result');
+    if (value.logoffConfirmed && (value.identity?.childSessionId !== identity.childSessionId || value.identity?.parentSessionId !== identity.parentSessionId || value.identity?.sid !== identity.sid || value.identity?.profile !== identity.profile)) throw new Error('Explicit child logoff result identity mismatch');
+    return value;
+  } catch (error) {
+    // A timeout or lost receipt cannot authorize repeating a possibly completed logoff.
+    return { logoffConfirmed: false, status: 'failed', code: error.killed ? 'child_logoff_unknown' : 'child_logoff_failed',
+      mutationOutcome: 'unknown', message: error.message, filesCleanupState: 'deferred' };
+  }
+}
+Object.assign(module.exports, { validateLogoffInspection, inspectChildLogoff, logoffCurrentChild });
 if (require.main === module) {
   createWindowsChildSessionManager({ enabled: process.argv.includes('--enabled') }).describe()
     .then(value => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`))

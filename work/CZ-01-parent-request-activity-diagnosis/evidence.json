@@ -1,0 +1,91 @@
+{
+  "observedAt": "2026-10-22T09:55:59.073Z",
+  "installedAssets": [
+    {
+      "file": "C:/Users/felre/.vscode/extensions/azrael-ex-local.azrael-2026.0.10/webview/assets/sites-end-resource-90d3046b3014.js",
+      "sha256": "55ef231a8f4992ecf70acaf9e33a05e83eb54f39d5b27c8f16557800f232eb04"
+    },
+    {
+      "file": "C:/Users/felre/.vscode/extensions/azrael-ex-local.azrael-2026.0.10/webview/assets/app-initial-c014f9ee4429.js",
+      "sha256": "bf37c60e6ded812045f16d4daed43b22d4d2ecc9be56724f330bc8f03022be51"
+    },
+    {
+      "file": "C:/Users/felre/.vscode/extensions/azrael-ex-local.azrael-2026.0.10/webview/assets/local-conversation-thread-2429c4b61076.js",
+      "sha256": "9896941c35fc8c4d9735570f90e1236138e0a21bff3b2ba46fe310679f9baf6c"
+    },
+    {
+      "file": "C:/Users/felre/.vscode/extensions/azrael-ex-local.azrael-2026.0.10/webview/assets/local-conversation-turn-9fb266d5c020.js",
+      "sha256": "d8ba5d45e89858b0287d9b5e4e0f7bc94016135375c5fed7d0c50dffc17de300"
+    }
+  ],
+  "events": [
+    {
+      "thread": "01a162fa-2880-7040-8e86-7e8edba5ceef",
+      "time": "2026-10-22T09:46:04.968Z",
+      "event": "item_completed",
+      "turn": "01a16300-96bd-7981-b9b4-8c7e0ced4597",
+      "itemId": "call_4bcb191bd6ff447d8b5d48dc9f875458",
+      "kind": "interacted",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-38-44-01a162fa-2880-7040-8e86-7e8edba5ceef.jsonl"
+    },
+    {
+      "thread": "01a162fa-2880-7040-8e86-7e8edba5ceef",
+      "time": "2026-10-22T09:46:33.763Z",
+      "event": "item_completed",
+      "turn": "01a16300-96bd-7981-b9b4-8c7e0ced4597",
+      "itemId": "parent-request-01a16301-53a1-72d0-b981-7e44e31e1e20",
+      "kind": "interacted",
+      "request": "01a16301-53a1-72d0-b981-7e44e31e1e20",
+      "status": "pending",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-38-44-01a162fa-2880-7040-8e86-7e8edba5ceef.jsonl"
+    },
+    {
+      "thread": "01a162fb-e81a-7893-b89d-86e1fd9f7314",
+      "time": "2026-10-22T09:46:37.696Z",
+      "event": "turn_deferred",
+      "turn": "01a16300-e327-70f1-b6db-21ec16735a65",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-40-38-01a162fb-e81a-7893-b89d-86e1fd9f7314.jsonl"
+    },
+    {
+      "thread": "01a162fa-2880-7040-8e86-7e8edba5ceef",
+      "time": "2026-10-22T09:47:11.015Z",
+      "event": "turn_aborted",
+      "turn": "01a16300-96bd-7981-b9b4-8c7e0ced4597",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-38-44-01a162fa-2880-7040-8e86-7e8edba5ceef.jsonl"
+    },
+    {
+      "thread": "01a162fa-2880-7040-8e86-7e8edba5ceef",
+      "time": "2026-10-22T09:47:38.816Z",
+      "event": "item_completed",
+      "turn": "01a16300-96bd-7981-b9b4-8c7e0ced4597",
+      "itemId": "parent-request-01a16301-53a1-72d0-b981-7e44e31e1e20",
+      "kind": "interacted",
+      "request": "01a16301-53a1-72d0-b981-7e44e31e1e20",
+      "status": "cancelled",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-38-44-01a162fa-2880-7040-8e86-7e8edba5ceef.jsonl"
+    },
+    {
+      "thread": "01a162fa-2880-7040-8e86-7e8edba5ceef",
+      "time": "2026-10-22T09:47:44.516Z",
+      "event": "task_complete",
+      "turn": "01a16302-23d8-7862-a72b-52f4e3d16edf",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-38-44-01a162fa-2880-7040-8e86-7e8edba5ceef.jsonl"
+    },
+    {
+      "thread": "01a162fb-e81a-7893-b89d-86e1fd9f7314",
+      "time": "2026-10-22T09:47:45.695Z",
+      "event": "task_complete",
+      "turn": "01a16300-e327-70f1-b6db-21ec16735a65",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-40-38-01a162fb-e81a-7893-b89d-86e1fd9f7314.jsonl"
+    },
+    {
+      "thread": "01a162fa-2880-7040-8e86-7e8edba5ceef",
+      "time": "2026-10-22T09:47:45.707Z",
+      "event": "item_completed",
+      "turn": "01a16300-96bd-7981-b9b4-8c7e0ced4597",
+      "itemId": "subagent-completed-01a16300-e327-70f1-b6db-21ec16735a65",
+      "kind": "completed",
+      "source": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\10\\22\\rollout-2026-10-22T18-38-44-01a162fa-2880-7040-8e86-7e8edba5ceef.jsonl"
+    }
+  ]
+}

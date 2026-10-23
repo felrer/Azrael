@@ -359,6 +359,24 @@ fn aggregate_project_usage(
     })
 }
 
+// Replies may unblock work that a pending switch is waiting for. Reuse shared
+// queued admission, which still excludes the account commit and failed recovery.
+fn question_reply_account_admission(request: &ClientRequest) -> bool {
+    let ClientRequest::TurnStart { params, .. } = request else {
+        return false;
+    };
+    params.turn_trigger.as_deref() == Some("send_user_message_async_question")
+        && codex_core::CodexThread::validate_queued_question_reply_shape(
+            &params
+                .input
+                .iter()
+                .cloned()
+                .map(Into::into)
+                .collect::<Vec<_>>(),
+        )
+        .is_ok()
+}
+
 impl MessageProcessor {
     async fn project_usage(
         &self,
@@ -1323,6 +1341,7 @@ impl MessageProcessor {
             .execution_admission_for_request(&codex_request)
             .await;
         let _account_admission = if matches!(&codex_request, ClientRequest::ThreadQueueStart { .. })
+            || question_reply_account_admission(&codex_request)
         {
             Some(
                 admission
@@ -2217,6 +2236,52 @@ impl MessageProcessor {
 #[cfg(test)]
 #[path = "message_processor_tracing_tests.rs"]
 mod message_processor_tracing_tests;
+
+#[cfg(test)]
+mod question_reply_account_tests {
+    use super::*;
+
+    #[test]
+    fn async_question_account_exception_requires_reply_trigger_and_envelope() {
+        let envelope = format!(
+            "<send_user_message_question_reply>{}</send_user_message_question_reply>",
+            serde_json::json!([{"questionItemId":"question", "question":"Q", "answer":"A"}]),
+        );
+        for (trigger, text, allowed) in [
+            (
+                Some("send_user_message_async_question"),
+                envelope.as_str(),
+                true,
+            ),
+            (None, envelope.as_str(), false),
+            (Some("queue_user"), envelope.as_str(), false),
+            (
+                Some("send_user_message_async_question"),
+                "ordinary request",
+                false,
+            ),
+            (
+                Some("send_user_message_async_question"),
+                "<send_user_message_question_reply>[]</send_user_message_question_reply>",
+                false,
+            ),
+        ] {
+            let request = ClientRequest::TurnStart {
+                request_id: codex_app_server_protocol::RequestId::Integer(1),
+                params: codex_app_server_protocol::TurnStartParams {
+                    thread_id: "thread".into(),
+                    turn_trigger: trigger.map(str::to_string),
+                    input: serde_json::from_value(
+                        serde_json::json!([{"type":"text", "text":text}]),
+                    )
+                    .unwrap(),
+                    ..Default::default()
+                },
+            };
+            assert_eq!(question_reply_account_admission(&request), allowed);
+        }
+    }
+}
 
 #[cfg(test)]
 #[path = "message_processor_gateway_oauth_tests.rs"]

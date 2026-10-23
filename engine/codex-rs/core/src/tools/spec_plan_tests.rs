@@ -1312,6 +1312,7 @@ async fn claude_mcp_catalog_defers_without_responses_search_capability() {
     ] {
         let (_session, mut turn) = make_session_and_context().await;
         Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+        select_claude_profile_for_test(&mut turn).await;
         update_turn_settings_for_test(&mut turn, |settings| {
             let model = Arc::make_mut(&mut settings.model_info);
             model.slug = slug.to_string();
@@ -1370,6 +1371,7 @@ async fn claude_mcp_catalog_defers_without_responses_search_capability() {
 async fn claude_mcp_exposure_preserves_omissions_and_provider_isolation() {
     let (_session, mut turn) = make_session_and_context().await;
     Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+    select_claude_profile_for_test(&mut turn).await;
     update_turn_settings_for_test(&mut turn, |settings| {
         let model = Arc::make_mut(&mut settings.model_info);
         model.slug = "managed/anthropic/future-model".to_string();
@@ -4069,10 +4071,13 @@ mod strict_third_party;
 
 
 #[tokio::test]
-async fn anthropic_profile_replaces_native_tools_and_other_providers_exclude_compatible_tools() {
-    for (slug, compatible) in [("managed/anthropic/future-model", true), ("managed/openrouter/anthropic/claude", false), ("gpt-6", false)] {
+async fn azrael_defaults_and_explicit_claude_profile_select_executable_tools() {
+    for (slug, compatible) in [("managed/anthropic/future-model", false), ("managed/openrouter/anthropic/claude", false), ("gpt-6", false), ("managed/anthropic/future-model", true)] {
         let (_session, mut turn) = make_session_and_context().await;
         Arc::make_mut(&mut turn.config).model_provider_id = if slug.starts_with("managed/") { "azrael-managed" } else { "openai" }.to_owned();
+        if compatible {
+            select_claude_profile_for_test(&mut turn).await;
+        }
         let mut settings = turn.initial_settings.as_ref().clone();
         Arc::make_mut(&mut settings.model_info).slug = slug.to_owned();
         Arc::make_mut(&mut settings.model_info).shell_type = ConfigShellToolType::UnifiedExec;
@@ -4085,6 +4090,7 @@ async fn anthropic_profile_replaces_native_tools_and_other_providers_exclude_com
             assert_eq!(plan.tool_mode, ToolMode::Direct);
             assert!(plan.code_mode_tool_names.is_empty());
         } else {
+            plan.assert_registered_contains(&["apply_patch", "exec_command", "write_stdin"]);
             plan.assert_registered_lacks(&["Read", "Edit", "Write", "Bash", "Grep", "Glob", "Agent", "Skill", "ToolSearch", "AskUserQuestion", "TaskOutput", "TaskStop"]);
         }
     }
@@ -4094,6 +4100,7 @@ async fn anthropic_profile_replaces_native_tools_and_other_providers_exclude_com
 async fn async_question_claude_fallback_retains_withdrawal_only_for_async_backend() {
     for blocking in [false, true] {
         let (_session, mut turn) = make_session_and_context().await;
+        select_claude_profile_for_test(&mut turn).await;
         let config = Arc::make_mut(&mut turn.config);
         config.model_provider_id = "azrael-managed".into();
         config.experimental_request_user_input_enabled = blocking;
@@ -4110,4 +4117,11 @@ async fn async_question_claude_fallback_retains_withdrawal_only_for_async_backen
         let ToolSpec::Function(tool) = plan.visible_spec("AskUserQuestion") else { panic!("expected compatible function") };
         assert_eq!(tool.description.matches("If a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions.").count(), usize::from(!blocking));
     }
+}
+
+async fn select_claude_profile_for_test(turn: &mut TurnContext) {
+    let config = toml::from_str("[providers.anthropic]\nprofile = 'anthropic-default'").unwrap();
+    let filesystem = turn.initial_environments.primary_filesystem().expect("test filesystem");
+    Arc::make_mut(&mut turn.config).harness_profiles =
+        codex_config::harness_profiles::HarnessProfiles::load(config, filesystem.as_ref()).await.unwrap();
 }

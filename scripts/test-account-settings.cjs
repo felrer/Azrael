@@ -72,6 +72,9 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   const sent = [];
   const shadow = { innerHTML: "", querySelector: () => null, addEventListener: (type, fn) => { if (type === "click") click = fn; else if (type === "change") change = fn; else if (type === "keydown") keydown = fn; else if (type === "pointerdown") pointerdown = fn; else toggle = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : type === "change" ? change : type === "keydown" ? keydown : type === "pointerdown" ? pointerdown : toggle); if (type === "click") click = undefined; else if (type === "change") change = undefined; else if (type === "keydown") keydown = undefined; else if (type === "pointerdown") pointerdown = undefined; else toggle = undefined; } };
   const element = { attachShadow: () => shadow };
+  let replacements = 0;
+  let markup = "";
+  Object.defineProperty(shadow, "innerHTML", { get: () => markup, set: value => { markup = value; ++replacements; } });
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "openaiSwitch", profile: "profile-1" }; disabled = false; }
   class HTMLInputElement extends HTMLElement { type = "checkbox"; checked = true; dataset = { action: "setAutoSwitch", provider: "provider", account: "saved" }; }
@@ -90,6 +93,11 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   assert(!shadow.innerHTML.includes("stale"));
   receiver({ clientId: "mount-1", html: "<style>:host{}</style><main>accounts</main>" });
   assert(shadow.innerHTML.includes("accounts"));
+  const initialReplacements = replacements;
+  receiver({ clientId: "mount-1", html: "<style>:host{}</style><main>accounts</main>" });
+  assert.equal(replacements, initialReplacements, "unchanged markup retains existing DOM and focus");
+  receiver({ clientId: "mount-1", html: "<main>changed</main>" });
+  assert.equal(replacements, initialReplacements + 1, "changed markup is still delivered");
   const button = new HTMLElement();
   click({ target: button });
   assert.equal(sent[1].message.profileId, "profile-1");

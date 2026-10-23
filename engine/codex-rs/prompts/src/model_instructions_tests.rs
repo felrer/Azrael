@@ -150,7 +150,10 @@ fn api_projection_leaves_unmatched_templates_and_normal_composition_unchanged() 
     let custom = "Use functions.exec and Promise.allSettled.";
     assert_eq!(
         compose_harness_instructions("builtin/azrael-default", None, false, Some(custom)),
-        compose_agent_instructions(Some(custom))
+        format!(
+            "{HARNESS_RUNTIME_CORE}\n{}",
+            compose_agent_instructions(Some(custom))
+        )
     );
     assert!(compose_agent_instructions(None).contains(COMMON_PARALLEL_TOOL_GUIDANCE));
 }
@@ -182,6 +185,35 @@ fn compatible_prompts_replace_native_tool_guidance_and_preserve_runtime() {
     assert!(!custom.contains("# Personality"));
     assert_eq!(
         compose_harness_instructions("builtin/azrael-default", None, false, None),
-        COMMON_AGENT_INSTRUCTIONS
+        format!("{HARNESS_RUNTIME_CORE}\n{COMMON_AGENT_INSTRUCTIONS}")
     );
+}
+
+#[test]
+fn azrael_default_preserves_runtime_projection_custom_suffix_and_template_replacement() {
+    let custom = format!("Use functions.exec.\n{COMMON_PARALLEL_TOOL_GUIDANCE}");
+    let prompt = compose_harness_instructions("builtin/azrael-default", None, false, Some(&custom));
+    assert!(prompt.starts_with(&format!(
+        "{HARNESS_RUNTIME_CORE}\n{COMMON_AGENT_INSTRUCTIONS}"
+    )));
+    assert_eq!(
+        compose_harness_instructions("builtin/azrael-default", None, false, Some(&prompt)),
+        prompt
+    );
+    let old = compose_agent_instructions(Some(&custom));
+    assert_eq!(
+        compose_harness_instructions("builtin/azrael-default", None, false, Some(&old)),
+        prompt
+    );
+    let projected = project_api_base_instructions(&prompt);
+    assert!(projected.starts_with(HARNESS_RUNTIME_CORE));
+    assert!(projected.contains(API_PARALLEL_TOOL_GUIDANCE));
+    assert!(projected.ends_with(&format!("{custom}\n</custom_agent_instructions>")));
+    let replacement =
+        compose_harness_instructions("builtin/azrael-default", Some("TEAM_BEHAVIOR"), false, None);
+    assert_eq!(
+        replacement,
+        format!("{HARNESS_RUNTIME_CORE}\nTEAM_BEHAVIOR")
+    );
+    assert_eq!(project_api_base_instructions(&replacement), replacement);
 }

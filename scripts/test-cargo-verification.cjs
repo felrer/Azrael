@@ -106,7 +106,7 @@ test("task recovery retains captured pass-count validation after joining the pre
         throw Error(`Unexpected dependency: ${id}`);
       },
     });
-    if (passed) { assert.doesNotThrow(execute); assert.equal(calls, 4); }
+    if (passed) { assert.doesNotThrow(execute); assert.equal(calls, 8); }
     else { assert.throws(execute, /no passing tests/); assert.equal(calls, 1); }
   }
 });
@@ -156,8 +156,8 @@ const cases = [
   ["check-api-context", "prompts", [["codex-prompts", "api_projection"], ["codex-prompts", "configured_canonical_hint"]]],
   ["check-api-context", "skills", [["codex-skills-extension", "api_host_dedup"]]],
   ["check-api-context", "core", [["codex-core", "instruction_state_projection"], ["codex-core", "multi_agent_mode::tests"]]],
-  ["check-model-harness-profiles", "config", [["codex-config", "harness"]]],
-  ["check-model-harness-profiles", "tools", [["codex-core", "claude"], ["codex-core", "anthropic_profile_replaces_native_tools_and_other_providers_exclude_compatible_tools"], ["codex-core", "tools::router::tests::chat_discovery"], ["codex-core", "mcp_and_tool_search_follow_direct_and_deferred_tool_exposure"]]],
+  ["check-model-harness-profiles", "config", [["codex-config", "harness"], ["codex-prompts", "model_instructions"]]],
+  ["check-model-harness-profiles", "tools", [["codex-core", "claude"], ["codex-core", "azrael_defaults_and_explicit_claude_profile_select_executable_tools"], ["codex-core", "anthropic_azrael_tools_patch_read_and_execute"], ["codex-core", "tools::router::tests::chat_discovery"], ["codex-core", "mcp_and_tool_search_follow_direct_and_deferred_tool_exposure"]]],
   ["check-task-work-time-native", "protocol", [["codex-app-server-protocol", "thread_history"]]],
   ["check-task-work-time-native", "store", [["codex-thread-store", "recorded_turn_attribution"], ["codex-thread-store", "deferred_turn_duration_stays_frozen_after_a_new_turn"]]],
   ["check-task-work-time-native", "appserver", [["codex-app-server", "bespoke_event_handling::tests::test_handle_turn_"], ["codex-app-server", "test_emit_turn_deferred_preserves_frozen_timing"]]],
@@ -206,11 +206,11 @@ for (const [name, scope, expected] of cases) {
   });
 }
 
-function runSharedNative({ platform = "win32", artifacts, typeCheck = {}, listing = {}, compile = {}, runtime = {}, env = {}, imported = false, invoke } = {}) {
+function runSharedNative({ platform = "win32", scope = "appserver", artifacts, typeCheck = {}, listing = {}, compile = {}, runtime = {}, env = {}, imported = false, invoke } = {}) {
   const root = path.resolve("artifacts", "verification", "selected-frozen-engine");
   const calls = [], ordinary = [], output = { stdout: "", stderr: "" };
   const processStub = {
-    argv: imported ? [] : [process.execPath, "check-shared-engine-native.cjs", root, "appserver"], platform, env,
+    argv: imported ? [] : [process.execPath, "check-shared-engine-native.cjs", root, scope], platform, env,
     stdout: { write(value) { output.stdout += value; } }, stderr: { write(value) { output.stderr += value; } },
   };
   const moduleStub = { exports: {} };
@@ -256,6 +256,17 @@ function runSharedNative({ platform = "win32", artifacts, typeCheck = {}, listin
   } catch (caught) { error = caught; }
   return { root, calls, ordinary, output, error, exitCode: processStub.exitCode, exported: moduleStub.exports, statCalls };
 }
+
+test("bridge scope runs remote library and terminal binary tests separately without embedded features", () => {
+  const result = runSharedNative({ scope: "bridge" });
+  assert.equal(result.error, undefined);
+  assert.equal(result.calls.length, 0);
+  assert.deepEqual(result.ordinary.map(call => call.args), [
+    ["test", "-p", "codex-app-server-client", "--no-default-features", "--lib", "remote::tests::", "--locked", "--offline", "--", "--test-threads=1"],
+    ["test", "-p", "codex-app-server-client", "--no-default-features", "--bin", "azrael-bridge", "terminal_", "--locked", "--offline", "--", "--test-threads=1"],
+  ]);
+  assert.ok(result.ordinary.every(call => call.options.isolateHostEnvironment === true));
+});
 
 const nativeGroups = [
   ["codex-utils-pty", "windows_tests::"],

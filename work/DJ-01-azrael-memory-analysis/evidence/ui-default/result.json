@@ -1,0 +1,35 @@
+{
+  "status": "failed",
+  "mode": "default",
+  "startedUtc": "2026-10-22T16:51:24.623Z",
+  "lifecycleId": "run:DJ-01:ui-default",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\ui-default",
+  "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\d",
+  "seed": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88",
+  "threadIds": [
+    "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+    "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+    "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c"
+  ],
+  "samples": [],
+  "stages": [],
+  "modifications": [
+    "fixture state home",
+    "diagnostic globals in copied host",
+    "synthetic auth responses; no valid credential",
+    "fixture thread/resume provider binding"
+  ],
+  "limitations": [
+    "Windows x64 only",
+    "synthetic history; no live provider or active jobs",
+    "other host workloads may contend",
+    "renderer working sets include shared pages; heaps must not be added across contexts"
+  ],
+  "sourceManifestHash": "7053e2d78d4d68ce2dcf20279f44cfe6928634bbf202d5d238a3599b60606a1d",
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(inside(seed, row.rollout_path))\n\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs:66:82)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs:156:1)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47",
+  "processesStopped": true,
+  "observedProcesses": [],
+  "launchExitCode": null,
+  "finishedUtc": "2026-10-22T16:52:18.945Z",
+  "exitCode": 1
+}

@@ -137,7 +137,7 @@ test("a reconnected bridge from another engine instance fails closed without ret
     service.on("errorState", (error: string) => errors.push(error));
     try {
       await service.connect();
-      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /bridge disconnected/);
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /outcome is uncertain/);
       await waitUntil(() => errors.length === 1);
       assert.equal(attempts(), 2);
       assert.match(errors[0], /different engine instance/);
@@ -155,7 +155,7 @@ test("an owned engine restart re-verifies the new instance without replaying mut
     service.on("errorState", (error: string) => errors.push(error));
     try {
       await service.connect();
-      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /bridge disconnected/);
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /outcome is uncertain/);
       await waitUntil(() => errors.length === 1);
       const state = await service.reconnectAfterEngineRestart();
       assert.equal(state.instanceId, "other-instance");
@@ -172,7 +172,7 @@ test("an established disconnect reconnects without replaying a mutation", async 
     service.on("errorState", (error: string) => errors.push(error));
     try {
       await service.connect();
-      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /bridge disconnected/);
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /outcome is uncertain/);
       await waitUntil(() => requestLog().filter((request) => request.endsWith(":list")).length === 2 && service.changesEnabled);
       const requests = requestLog();
       assert.equal(requests.filter((request) => request.endsWith(":switch")).length, 1);
@@ -189,7 +189,7 @@ test("Devin RPC is blocked while a reconnect is awaiting identity verification",
     const service = new AccountService({ ...options("delayed-reconnect"), reconnectDelaysMs: [5, 5] });
     try {
       await service.connect();
-      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /bridge disconnected/);
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /outcome is uncertain/);
       await waitUntil(() => requestLog().filter((request) => request.endsWith(":list")).length === 2);
       await assert.rejects(service.devin("login"), /connection has not been verified/);
       assert.equal(requestLog().filter((request) => request.endsWith(":login")).length, 0);
@@ -231,7 +231,7 @@ async function withFixture(
       requestLog: () => fs.existsSync(logFile) ? fs.readFileSync(logFile, "utf8").trim().split(/\r?\n/).filter(Boolean) : []
     });
   } finally {
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { recursive: true });
   }
 }
 
@@ -242,3 +242,68 @@ async function waitUntil(predicate: () => boolean): Promise<void> {
   }
   assert.fail("condition was not reached");
 }
+
+test("engine readiness gates bridge spawn inside the startup deadline", async () => {
+  await withFixture(async ({ options, attempts }) => {
+    let ready!: () => void;
+    let signal: AbortSignal | undefined;
+    const gate = new Promise<void>(resolve => { ready = resolve; });
+    const service = new AccountService({ ...options("service"), startupTimeoutMs: 2_000, waitForEngineReady: async (remaining, cancellation) => { assert.ok(remaining <= 2_000); signal = cancellation; await gate; } });
+    try {
+      const connection = service.connect();
+      await new Promise(resolve => setTimeout(resolve, 30));
+      assert.equal(attempts(), 0);
+      assert.equal(service.changesEnabled, false);
+      assert.equal(signal?.aborted, false);
+      ready();
+      await connection;
+      assert.equal(attempts(), 1);
+    } finally { service.dispose(); }
+  });
+});
+
+test("readiness deadline and disposal cancel without spawning a bridge", async () => {
+  await withFixture(async ({ options, attempts }) => {
+    for (const dispose of [false, true]) {
+      let signal: AbortSignal | undefined;
+      const service = new AccountService({ ...options("service"), startupTimeoutMs: 40, waitForEngineReady: async (_remaining, cancellation) => { signal = cancellation; await new Promise(() => undefined); } });
+      const connection = service.connect();
+      if (dispose) { await new Promise(resolve => setTimeout(resolve, 5)); service.dispose(); }
+      await assert.rejects(connection, dispose ? /disposed/ : /timed out/);
+      assert.equal(signal?.aborted, true);
+      assert.equal(attempts(), 0);
+      service.dispose();
+    }
+  });
+});
+
+for (const mode of ["permission-denied", "protocol-error"]) {
+  test(`${mode} stops retries even when native marks it retryable`, async () => {
+    await withFixture(async ({ options, attempts }) => {
+      const service = new AccountService({ ...options(mode), reconnectDelaysMs: [1, 1] });
+      try { await assert.rejects(service.connect()); assert.equal(attempts(), 1); assert.equal(service.changesEnabled, false); }
+      finally { service.dispose(); }
+    });
+  });
+}
+
+test("the single deadline includes the initial account identity query", async () => {
+  await withFixture(async ({ options, attempts }) => {
+    const service = new AccountService({ ...options("delayed-list"), startupTimeoutMs: 220, reconnectDelaysMs: [1, 1] });
+    const started = performance.now();
+    try {
+      await assert.rejects(service.connect(), /timed out/);
+      assert.ok(performance.now() - started < 700);
+      assert.equal(attempts(), 1);
+      assert.equal(service.changesEnabled, false);
+    } finally { service.dispose(); }
+  });
+});
+
+test("production retries continue beyond three delays until startup succeeds", async () => {
+  await withFixture(async ({ options, attempts }) => {
+    const service = new AccountService({ ...options("four-failures"), startupTimeoutMs: 16_000 });
+    try { await service.connect(); assert.equal(attempts(), 5); assert.equal(service.changesEnabled, true); }
+    finally { service.dispose(); }
+  });
+});

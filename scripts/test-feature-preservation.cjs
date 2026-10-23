@@ -36,6 +36,31 @@ const path = require('node:path');
     return { assets: [{ fixtureEdits: count }], transformRules: config.transformRules, sourceUi: {
       version: '1.2.3', packageSha256: sha(path.join(config.uiRoot, 'package.json')), webviewSha256: sha(path.join(config.uiRoot, 'picker.js')) } };
   }
+  test('native consumers receive preparation storage owned by the run and its frozen source identity', async () => {
+    const { config } = setup(); config.area = 'engine';
+    const sourceIdentity = 'a'.repeat(64);
+    config.identityProvider = async () => ({ engineSource: { sha256: sourceIdentity } });
+    const execute = config.execute; let observed = false;
+    config.execute = async (executable, args, options) => {
+      observed = true;
+      assert.equal(options.env.AZRAEL_CARGO_PREPARATION_SOURCE_IDENTITY, sourceIdentity);
+      assert.equal(options.env.AZRAEL_CARGO_PREPARATION_DIR, path.join(path.dirname(options.logPath), 'cargo-preparation'));
+      return execute(executable, args, options);
+    };
+    const receipt = await gate.runPreservation(config);
+    assert.equal(receipt.status, 'passed', receipt.error); assert.equal(observed, true);
+  });
+  test('measured Cargo runtime identity reaches the child without changing the base environment identity', () => {
+    const { config } = setup();
+    const baseline = gate.checkEnvironment(config);
+    const prepared = gate.checkEnvironment(config, { directory: path.join(config.outputDirectory, 'cargo-preparation'),
+      sourceIdentity: 'frozen-source', runtimeIdentity: 'measured-cargo-runtime' });
+    assert.equal(prepared.AZRAEL_CARGO_PREPARATION_RUNTIME_IDENTITY, 'measured-cargo-runtime');
+    for (const [key, value] of Object.entries(baseline)) {
+      if (!key.startsWith('AZRAEL_CARGO_PREPARATION_')) assert.equal(prepared[key], value);
+    }
+    assert.deepEqual(gate.checkEnvironment(config), baseline);
+  });
   test('inventory rejects missing coverage, duplicate IDs, missing checks and missing references', () => {
     const { root, manifest, config } = setup();
     assert.throws(() => gate.validateManifest(manifest, root, { 'inject-new.cjs': 'new' }), /Unregistered/);

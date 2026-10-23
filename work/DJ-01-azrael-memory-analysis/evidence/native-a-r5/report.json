@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m",
+  "lifecycleIds": [
+    "run:DJ-01:native-a-r5"
+  ],
+  "startedUtc": "2026-10-22T16:32:08.795Z",
+  "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "frozenSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+  "identities": {
+    "azrael.exe": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+    "azrael-bridge.exe": "0e222d9fe03b346e73b1df717d5fa59faa991a30c4f5852d2411480654619175",
+    "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+  },
+  "platform": "win32",
+  "arch": "x64",
+  "status": "failed",
+  "modes": [
+    {
+      "name": "no-mcp",
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r5\\reports",
+      "status": "failed",
+      "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a5",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-a-r5\\workspace",
+      "startedUtc": "2026-10-22T16:32:08.894Z",
+      "checkpoints": [],
+      "backend": {
+        "pid": 16620,
+        "processStartTime": "134371603367466029",
+        "executableIdentity": {
+          "digest": [
+            108,
+            107,
+            94,
+            22,
+            180,
+            3,
+            170,
+            242,
+            163,
+            29,
+            240,
+            226,
+            13,
+            181,
+            45,
+            236,
+            19,
+            21,
+            228,
+            50,
+            96,
+            206,
+            130,
+            186,
+            63,
+            188,
+            194,
+            49,
+            143,
+            147,
+            190,
+            34
+          ],
+          "path_digest": [
+            11,
+            13,
+            16,
+            16,
+            131,
+            198,
+            144,
+            4,
+            2,
+            131,
+            121,
+            64,
+            227,
+            165,
+            18,
+            222,
+            198,
+            8,
+            89,
+            42,
+            81,
+            14,
+            204,
+            169,
+            59,
+            149,
+            122,
+            239,
+            76,
+            75,
+            176,
+            65
+          ]
+        },
+        "receipt": {
+          "schema": 2,
+          "instanceId": "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+          "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a5\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+          "engineVersion": "0.162.0",
+          "engineIdentity": "39ce6b6e7afefef44bc2eae790412078dfdfdda0486aad4d52efe41c87c5caf5",
+          "nativeArgv": [
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            "70cbbf27806eac329b55cd9fcecb2ccb1f42a0370ad9e9c980eae497fad84be1",
+            "--listen",
+            "unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\a5\\app-server-control\\70cbbf27806eac329b55cd9f.sock",
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled",
+            "--disable-plugin-startup-tasks-for-tests"
+          ]
+        }
+      },
+      "finalSample": {
+        "processes": [],
+        "freeBytes": 6828048384,
+        "atUtc": "2026-10-22T16:32:29.485Z"
+      },
+      "stopped": true,
+      "children": [
+        {
+          "pid": 20340,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 38392,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 56908,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        },
+        {
+          "pid": 55700,
+          "exitCode": 0,
+          "signal": null,
+          "closed": true
+        }
+      ],
+      "observedIdentities": [
+        {
+          "pid": 16620,
+          "creation": "134371603367466020"
+        },
+        {
+          "pid": 21620,
+          "creation": "134371603313855400"
+        },
+        {
+          "pid": 38392,
+          "creation": "134371603398133130"
+        },
+        {
+          "pid": 20340,
+          "creation": "134371603313785930"
+        },
+        {
+          "pid": 69560,
+          "creation": "134371603398430910"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "One-off synthetic measurement; no leak conclusion",
+    "Root event queue sizes unknown: no exposed metric",
+    "No real MCP tool calls, capture, OS input, external provider, or credentials",
+    "Slow-consumer scenario not selected",
+    "CIM snapshots are observations, not continuous peak measurements; driver/sampler/mock host overhead excluded from test private limit"
+  ],
+  "childOutcomes": [
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "own project boundary",
+      "pid": 47148,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "version",
+      "pid": 40868,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "endpoint-discovery",
+      "pid": 32280,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "CIM sample",
+      "pid": 3540,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "connector-0",
+      "pid": 20340,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "connector-1",
+      "pid": 38392,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "mock-host-0",
+      "pid": 56908,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "mock-host-1",
+      "pid": 55700,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "CIM sample",
+      "pid": 20276,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "CIM sample",
+      "pid": 13452,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    },
+    {
+      "lifecycleId": "run:DJ-01:native-a-r5",
+      "kind": "CIM sample",
+      "pid": 73792,
+      "exitCode": 0,
+      "signal": null,
+      "closed": true
+    }
+  ],
+  "engineVersion": "0.162.0",
+  "error": "Error: config/read failed: {\"code\":-32603,\"message\":\"failed to resolve feature override precedence: Azrael host does not allow `model_providers` overrides\"}\n    at #receive (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/lib/azrael-rpc-check.mjs:66:43)\n    at Interface.<anonymous> (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/lib/azrael-rpc-check.mjs:51:48)\n    at Interface.emit (node:events:514:20)\n    at [_onLine] [as _onLine] (node:internal/readline/interface:474:12)\n    at [_normalWrite] [as _normalWrite] (node:internal/readline/interface:669:18)\n    at Socket.ondata (node:internal/readline/interface:268:23)\n    at Socket.emit (node:events:514:20)\n    at addChunk (node:internal/streams/readable:568:12)\n    at readableAddChunkPushByteMode (node:internal/streams/readable:519:3)\n    at Readable.push (node:internal/streams/readable:399:5)",
+  "provider": {
+    "requests": [],
+    "errors": []
+  },
+  "producerStopped": true,
+  "endedUtc": "2026-10-22T16:32:29.485Z"
+}

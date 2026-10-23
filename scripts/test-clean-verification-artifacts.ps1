@@ -23,7 +23,7 @@ function New-Fixture([string]$Name) {
     [IO.File]::WriteAllBytes((Join-Path $path 'extensions/payload/large.bin'), [byte[]]::new(65536))
     $associatedLog = Join-Path $testRoot "artifacts/logs/fixture-$Name"
     Write-Json (Join-Path $associatedLog 'diagnostic.json') @{status='complete'}
-    $null = Register-ArtifactLifecycle -ProjectRoot $testRoot -Id "run:$Name" -Kind run -Owner fixture -State complete -MembershipComplete $true -Members @{fixture=$path;logs=$associatedLog}
+    $null = Register-ArtifactLifecycle -ProjectRoot $testRoot -Id "run:$Name" -Kind run -Owner fixture -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{fixture=$path;logs=$associatedLog}
     $path
 }
 function Run-Clean([string]$Path, [string[]]$Protected = @(), [bool]$ApplyNow = $true) {
@@ -47,9 +47,111 @@ try {
     Assert ((Test-Path -LiteralPath (Join-Path $archive 'check-result.json')) -and (Test-Path -LiteralPath (Join-Path $archive 'host-result.json')) -and (Test-Path -LiteralPath (Join-Path $archive 'report.json'))) 'Compact evidence missing.'
     Assert (@(Get-ChildItem -LiteralPath $archive -Recurse -File).Count -eq 3) 'Private or payload data archived.'
     Assert (-not (Test-Path -LiteralPath (Join-Path $testRoot 'artifacts/logs/fixture-completed spaces 한글'))) 'Associated fixture log was orphaned.'
+    $fixture = New-Fixture 'deleted-group-owner'
+    $report = Invoke-ArtifactLifecycleCleanup -ProjectRoot $testRoot -CandidatePath $fixture -Apply $true -CheckMember {
+        param($memberPath)
+        if (-not (Test-Path -LiteralPath $memberPath)) { throw "Filesystem guard received an absent member: $memberPath" }
+    }
+    Assert ($report.status -eq 'deleted' -and -not (Test-Path -LiteralPath (Join-Path $testRoot 'artifacts/logs/fixture-deleted-group-owner'))) 'Deleted group owner prevented associated log removal.'
+    $fixture = New-Fixture 'hidden-git'
+    $gitDirectory = Join-Path $fixture '.git'
+    $gitFile = Join-Path $gitDirectory 'objects/object'
+    Write-Json $gitFile @{generated=$true}
+    [IO.File]::SetAttributes($gitDirectory, ([IO.File]::GetAttributes($gitDirectory) -bor [IO.FileAttributes]::Hidden))
+    [IO.File]::SetAttributes($gitFile, ([IO.File]::GetAttributes($gitFile) -bor [IO.FileAttributes]::ReadOnly))
+    $report = Run-Clean $fixture
+    Assert ($report.candidates[0].status -eq 'deleted' -and -not (Test-Path -LiteralPath $fixture)) 'Hidden generated .git tree remained.'
+    $attributeChanges = @($report.candidates[0].lifecycle.members | ForEach-Object { $_.attributes } | Where-Object { $null -ne $_ })
+    Assert (@($attributeChanges | Where-Object { $_.path -ceq $gitDirectory -and ($_.before -band [IO.FileAttributes]::Hidden) -and -not ($_.after -band [IO.FileAttributes]::Hidden) -and $_.status -eq 'normalized' }).Count -eq 1) 'Hidden attribute audit missing.'
+    Assert (@($attributeChanges | Where-Object { $_.path -ceq $gitFile -and ($_.before -band [IO.FileAttributes]::ReadOnly) -and -not ($_.after -band [IO.FileAttributes]::ReadOnly) }).Count -eq 1) 'ReadOnly attribute audit missing.'
+    $fixture = New-Fixture 'hardlinked-internal'
+    $original = Join-Path $fixture ('extensions/' + ('deep' * 25) + '/original.txt')
+    $shortOriginal = Join-Path $fixture 'extensions/original.txt'
+    Write-Json $shortOriginal @{generated=$true}
+    New-Item -ItemType HardLink -Path (Join-Path $fixture 'extensions/alias.txt') -Target $shortOriginal | Out-Null
+    New-Item -ItemType Directory -Path (Split-Path $original -Parent) | Out-Null
+    if (-not (Test-ArtifactRemovalContained $shortOriginal $fixture) -or -not (Test-ArtifactRemovalContained $original $fixture)) { throw 'Long-path fixture move escapes its owner.' }
+    [IO.File]::Move($shortOriginal, $original)
+    [IO.File]::SetAttributes($original, ([IO.FileAttributes]::ReadOnly -bor [IO.FileAttributes]::Hidden))
+    $report = Run-Clean $fixture
+    Assert ($report.candidates[0].status -eq 'deleted' -and -not (Test-Path -LiteralPath $fixture)) "Internal hardlinks retained: $($report.candidates[0].reason)"
+    $fixture = New-Fixture 'hardlinked-group'
+    $original = Join-Path $fixture 'extensions/original.txt'
+    $associatedLog = Join-Path $testRoot 'artifacts/logs/fixture-hardlinked-group'
+    Write-Json $original @{generated=$true}
+    New-Item -ItemType HardLink -Path (Join-Path $associatedLog 'alias.txt') -Target $original | Out-Null
+    [IO.File]::SetAttributes($original, [IO.FileAttributes]::ReadOnly)
+    $report = Run-Clean $fixture
+    Assert ($report.candidates[0].status -eq 'deleted' -and -not (Test-Path -LiteralPath $fixture) -and -not (Test-Path -LiteralPath $associatedLog)) "Cross-member hardlinks retained: $($report.candidates[0].reason)"
+    $fixture = New-Fixture 'hardlinked-uncertain'
+    $original = Join-Path $fixture 'extensions/original.txt'
+    Write-Json $original @{generated=$true}
+    New-Item -ItemType HardLink -Path (Join-Path $fixture 'extensions/alias.txt') -Target $original | Out-Null
+    [IO.File]::SetAttributes($original, [IO.FileAttributes]::ReadOnly)
+    $enumerator = (Get-Command Get-ArtifactRemovalHardlinkNames).ScriptBlock
+    try {
+        Set-Item Function:Get-ArtifactRemovalHardlinkNames { throw 'injected enumeration failure' }
+        $audit = [Collections.Generic.List[object]]::new()
+        $failure = $null
+        try { Set-ArtifactRemovalAttributes -Path $fixture -Audit $audit -OwnershipVerified $true } catch { $failure = $_.Exception.Message }
+        Assert ($failure -match 'enumeration is uncertain' -and $audit.Count -eq 0 -and ([IO.File]::GetAttributes($original) -band [IO.FileAttributes]::ReadOnly)) 'Uncertain enumeration changed attributes.'
+    } finally { Set-Item Function:Get-ArtifactRemovalHardlinkNames $enumerator; [IO.File]::SetAttributes($original, [IO.FileAttributes]::Normal) }
+    $fixture = New-Fixture 'hardlinked-race'
+    $original = Join-Path $fixture 'extensions/original.txt'
+    Write-Json $original @{generated=$true}
+    New-Item -ItemType HardLink -Path (Join-Path $fixture 'extensions/alias.txt') -Target $original | Out-Null
+    $racedName = Join-Path $testRoot 'outside/raced-hardlink.txt'
+    New-Item -ItemType Directory -Path (Split-Path $racedName -Parent) -Force | Out-Null
+    [IO.File]::SetAttributes($original, [IO.FileAttributes]::ReadOnly)
+    $script:linkEnumerationCalls = 0
+    try {
+        Set-Item Function:Get-ArtifactRemovalHardlinkNames {
+            param([string]$Path)
+            $script:linkEnumerationCalls++
+            if ($script:linkEnumerationCalls -eq 3) { New-Item -ItemType HardLink -Path $racedName -Target $original | Out-Null }
+            [ArtifactRemovalNative]::Names($Path)
+        }
+        $audit = [Collections.Generic.List[object]]::new()
+        $failure = $null
+        try { Set-ArtifactRemovalAttributes -Path $fixture -Audit $audit -OwnershipVerified $true } catch { $failure = $_.Exception.Message }
+        Assert ($failure -match 'Hardlinked' -and $audit.Count -eq 0 -and ([IO.File]::GetAttributes($original) -band [IO.FileAttributes]::ReadOnly)) 'New external hardlink before normalization was not blocked.'
+    } finally { Set-Item Function:Get-ArtifactRemovalHardlinkNames $enumerator; [IO.File]::SetAttributes($original, [IO.FileAttributes]::Normal) }
+    $fixture = New-Fixture 'group-preflight'
+    $associatedLog = Join-Path $testRoot 'artifacts/logs/fixture-group-preflight'
+    $systemFile = Join-Path $associatedLog 'system.txt'
+    Write-Json $systemFile @{generated=$true}
+    [IO.File]::SetAttributes($fixture, ([IO.File]::GetAttributes($fixture) -bor [IO.FileAttributes]::Hidden))
+    [IO.File]::SetAttributes($systemFile, ([IO.File]::GetAttributes($systemFile) -bor [IO.FileAttributes]::System))
+    try {
+        $report = Run-Clean $fixture
+        Assert ($report.candidates[0].reason -match 'System' -and ([IO.File]::GetAttributes($fixture) -band [IO.FileAttributes]::Hidden) -and (Test-Path -LiteralPath $associatedLog)) 'A later unsafe group member allowed earlier mutation.'
+    } finally {
+        [IO.File]::SetAttributes($systemFile, [IO.FileAttributes]::Normal)
+        [IO.File]::SetAttributes($fixture, [IO.FileAttributes]::Directory)
+    }
+    $fixture = New-Fixture 'hardlinked-original'
+    $original = Join-Path $testRoot 'outside/shared-original.txt'
+    Write-Json $original @{original=$true}
+    $hardlink = Join-Path $fixture 'extensions/shared.txt'
+    New-Item -ItemType HardLink -Path $hardlink -Target $original | Out-Null
+    $originalAttributes = [IO.File]::GetAttributes($original)
+    $originalContents = Get-Content -LiteralPath $original -Raw
+    try {
+        [IO.File]::SetAttributes($original, ($originalAttributes -bor [IO.FileAttributes]::ReadOnly))
+        $report = Run-Clean $fixture
+        Assert ($report.candidates[0].reason -match 'Hardlinked' -and (Test-Path -LiteralPath $fixture)) 'Hardlinked original did not block normalization.'
+        Assert (([IO.File]::GetAttributes($original) -band [IO.FileAttributes]::ReadOnly) -ne 0) 'Shared original attributes changed.'
+    } finally { [IO.File]::SetAttributes($original, $originalAttributes) }
+    $report = Run-Clean $fixture
+    Assert ($report.candidates[0].status -eq 'deleted' -and -not (Test-Path -LiteralPath $fixture)) 'Ordinary hardlink deletion was blocked.'
+    Assert ((Test-Path -LiteralPath $original) -and [IO.File]::GetAttributes($original) -eq $originalAttributes -and (Get-Content -LiteralPath $original -Raw) -ceq $originalContents) 'Ordinary hardlink deletion changed the shared original.'
     $fixture = New-Fixture 'associated-protected'
+    $protectedAttributes = [IO.File]::GetAttributes($fixture)
+    [IO.File]::SetAttributes($fixture, ($protectedAttributes -bor [IO.FileAttributes]::Hidden))
     $report = Run-Clean $fixture @((Join-Path $testRoot 'artifacts/logs/fixture-associated-protected'))
     Assert ($report.candidates[0].reason -match 'protected-member' -and (Test-Path -LiteralPath $fixture)) 'Protected associated log did not preserve the whole group.'
+    Assert (([IO.File]::GetAttributes($fixture) -band [IO.FileAttributes]::Hidden) -ne 0) 'Protected member attributes changed.'
+    [IO.File]::SetAttributes($fixture, $protectedAttributes)
     $fixture = New-Fixture 'report-inside'
     $unsafeReport = Join-Path $fixture 'new-report/report.json'
     $report = & $cleaner -ProjectRoot $testRoot -FixtureRoot $fixture -Apply -ReportPath $unsafeReport
@@ -118,11 +220,34 @@ try {
     Assert ($diagnosed.candidates[0].reason -match 'immediate verification child' -and (Test-Path -LiteralPath $outsideManualStage)) 'Manual stage outside deployments boundary selected.'
     $fixture = New-Fixture 'nested-junction'
     New-Item -ItemType Junction -Path (Join-Path $fixture 'extensions/outside-link') -Target $outside | Out-Null
-    Assert ((Run-Clean $fixture).candidates[0].status -eq 'deleted') 'Nested junction prevented safe fixture removal.'
+    Assert ((Run-Clean $fixture).candidates[0].reason -match 'reparse') 'Nested junction was traversed or normalized.'
+    Remove-Item -LiteralPath (Join-Path $fixture 'extensions/outside-link')
     Assert ((Get-Content -LiteralPath $sentinel -Raw).Trim() -eq 'preserve me') 'Nested junction target changed.'
+    $fixture = New-Fixture 'verified-junction'
+    $junction = Join-Path $fixture 'extensions/verified-test-link'
+    New-Item -ItemType Junction -Path $junction -Target $outside | Out-Null
+    $targetAttributes = [IO.File]::GetAttributes($sentinel)
+    [IO.File]::SetAttributes($sentinel, ($targetAttributes -bor [IO.FileAttributes]::ReadOnly))
+    try {
+        $report = Invoke-ArtifactLifecycleCleanup -ProjectRoot $testRoot -CandidatePath $fixture -Apply $true -CheckMember {} -VerifiedJunctions @{$junction=$outside}
+        Assert ($report.status -eq 'deleted' -and -not (Test-Path -LiteralPath $fixture)) "Verified junction retained: $($report.reason)"
+        Assert ((Get-Content -LiteralPath $sentinel -Raw).Trim() -eq 'preserve me' -and ([IO.File]::GetAttributes($sentinel) -band [IO.FileAttributes]::ReadOnly)) 'Verified junction target was traversed or normalized.'
+        Assert (@($report.members | ForEach-Object attributes | Where-Object { $_.operation -eq 'remove-junction-link' -and $_.status -eq 'deleted' }).Count -eq 1) 'Link-only removal audit missing.'
+    } finally { [IO.File]::SetAttributes($sentinel, $targetAttributes) }
+    $fixture = New-Fixture 'retargeted-junction'
+    $junction = Join-Path $fixture 'extensions/verified-test-link'
+    $otherTarget = Join-Path $testRoot 'outside-other'
+    New-Item -ItemType Directory -Path $otherTarget | Out-Null
+    New-Item -ItemType Junction -Path $junction -Target $otherTarget | Out-Null
+    $report = Invoke-ArtifactLifecycleCleanup -ProjectRoot $testRoot -CandidatePath $fixture -Apply $true -CheckMember {} -VerifiedJunctions @{$junction=$outside}
+    Assert ($report.status -eq 'blocked' -and $report.reason -match 'target changed' -and (Test-Path -LiteralPath $fixture)) 'Retargeted junction did not preserve the group.'
+    Remove-Item -LiteralPath $junction
     $link = Join-Path $testRoot 'artifacts/verification/linked-candidate'
     New-Item -ItemType Junction -Path $link -Target $outside | Out-Null
     Assert ((Run-Clean $link).candidates[0].reason -match 'Linked path') 'Linked candidate selected.'
+    $failure = $null
+    try { Remove-ArtifactLifecycleMember -Path $link -Audit ([Collections.Generic.List[object]]::new()) -OwnershipVerified $true -VerifiedJunctions @{$link=$outside} } catch { $failure=$_.Exception.Message }
+    Assert ($failure -match 'Root or ancestor reparse' -and (Test-Path -LiteralPath $link)) 'Allowlist permitted a root junction.'
     Remove-Item -LiteralPath $link
     $fixture = New-Fixture 'installed'
     Write-Json (Join-Path $testRoot 'artifacts/deployments/current/deployment.json') @{ status='installed-reload-required';hostInstalled=$true;packageDirectory=(Join-Path $testRoot 'package');stateRoot=(Join-Path $fixture 'state') }
@@ -135,9 +260,16 @@ try {
     'invalid json' | Set-Content -LiteralPath (Join-Path $testRoot 'artifacts/deployments/current/deployment.json')
     Assert ((Run-Clean $fixture).status -eq 'blocked' -and (Test-Path -LiteralPath $fixture)) 'Inspection failure did not preserve fixture.'
     [pscustomobject]@{Passed=$passed;Failed=0}
+} catch {
+    Write-Error ($_.Exception.Message + "`n" + $_.ScriptStackTrace) -ErrorAction Continue
+    throw
 } finally {
     $resolvedTestRoot = [IO.Path]::GetFullPath($testRoot)
     $testContainer = [IO.Path]::GetFullPath((Join-Path $project 'artifacts/logs/storage-cleanup-20261006')).TrimEnd('\')
     if (-not $resolvedTestRoot.StartsWith($testContainer + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Test cleanup escapes its fixture container.' }
-    if (Test-Path -LiteralPath $resolvedTestRoot) { Remove-Item -LiteralPath $resolvedTestRoot -Recurse }
+    if (Test-Path -LiteralPath $resolvedTestRoot) {
+        # Failure fixtures can contain hardlink directory entries with stale attribute caches
+        # after test-owned attributes were restored. Recheck through the same safe owner.
+        Remove-ArtifactLifecycleMember -Path $resolvedTestRoot -Audit ([Collections.Generic.List[object]]::new()) -OwnershipVerified $true
+    }
 }

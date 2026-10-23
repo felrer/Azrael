@@ -1,0 +1,65 @@
+{
+  "lifecycleId": "run:DJ-01:native-h2-r8",
+  "lifecycleIds": [
+    "run:DJ-01:native-h1-r8",
+    "run:DJ-01:native-h2-r8",
+    "run:DJ-01:native-h4-r8",
+    "run:DJ-01:native-h8-r8"
+  ],
+  "status": "complete",
+  "caseStatus": "complete",
+  "producerStopped": true,
+  "startedUtc": "2026-10-22T16:40:13.567Z",
+  "endedUtc": "2026-10-22T16:47:01.511Z",
+  "seedHome": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88",
+  "threadIds": [
+    "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+    "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+    "4217ab65-d3d9-429b-a0a1-7775f837a0b4",
+    "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c"
+  ],
+  "seedThreads": [
+    {
+      "id": "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+      "kind": "small",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-09.000Z-da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50.jsonl",
+      "completedTurns": 1,
+      "userPayloadBytes": 256,
+      "authoredFileBytes": 2381,
+      "readResponseBytes": 2317,
+      "loadReadElapsedMs": 1686
+    },
+    {
+      "id": "d23afaa5-f06e-4214-bcb8-81be232c63e1",
+      "kind": "small",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-11.000Z-d23afaa5-f06e-4214-bcb8-81be232c63e1.jsonl",
+      "completedTurns": 1,
+      "userPayloadBytes": 256,
+      "authoredFileBytes": 2381,
+      "readResponseBytes": 2317,
+      "loadReadElapsedMs": 2870
+    },
+    {
+      "id": "4217ab65-d3d9-429b-a0a1-7775f837a0b4",
+      "kind": "small",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-45-14.000Z-4217ab65-d3d9-429b-a0a1-7775f837a0b4.jsonl",
+      "completedTurns": 1,
+      "userPayloadBytes": 256,
+      "authoredFileBytes": 2381,
+      "readResponseBytes": 2317,
+      "loadReadElapsedMs": 4339
+    },
+    {
+      "id": "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c",
+      "kind": "large-history",
+      "rollout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88\\sessions\\2026\\10\\22\\rollout-2026-10-22T16-43-29.000Z-e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c.jsonl",
+      "completedTurns": 8,
+      "userPayloadBytes": 1048576,
+      "authoredFileBytes": 2108391,
+      "readResponseBytes": 1185317,
+      "loadReadElapsedMs": 16482
+    }
+  ],
+  "seedReady": true,
+  "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\native-h2-r8\\reports\\report.json"
+}

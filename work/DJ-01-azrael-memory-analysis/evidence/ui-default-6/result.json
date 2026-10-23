@@ -1,0 +1,105 @@
+{
+  "status": "failed",
+  "mode": "default",
+  "startedUtc": "2026-10-22T17:20:27.445Z",
+  "lifecycleId": "run:DJ-01:ui-default-6",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.u\\artifacts\\tasks\\DJ-01\\runs\\ui-default-6",
+  "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.u\\artifacts\\d6",
+  "seed": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\c88",
+  "threadIds": [
+    "da2c6e8d-6047-4016-8ff9-6e5ef9e8dc50",
+    "e7dcd5b5-cebd-4dba-bc40-9b3932d69e1c",
+    "d23afaa5-f06e-4214-bcb8-81be232c63e1"
+  ],
+  "samples": [],
+  "stages": [],
+  "modifications": [
+    "fixture state home",
+    "diagnostic globals in copied host",
+    "synthetic auth responses; no valid credential",
+    "fixture thread/resume provider binding",
+    "canonical rollout basenames in copied fixture; source seed unchanged",
+    "external Devin CLI probes omitted from fixture",
+    "valid fixture git root; automatic parent-repository discovery disabled"
+  ],
+  "limitations": [
+    "Windows x64 only",
+    "synthetic history; no live provider or active jobs",
+    "other host workloads may contend",
+    "renderer working sets include shared pages; heaps must not be added across contexts"
+  ],
+  "sourceManifestHash": "7053e2d78d4d68ce2dcf20279f44cfe6928634bbf202d5d238a3599b60606a1d",
+  "gitInitExit": 0,
+  "sourceHostHash": "42b414e1e84355cc81e09c2e8892792a7232457936164b23da2843e7ec1679ed",
+  "instrumentedHostHash": "78360fe3cc47c1cc9ea4120f1575745c02e8a5e801b2043a67fc8244c6bee388",
+  "launchPid": 74124,
+  "ports": {
+    "inspector": 2041,
+    "renderer": 2042
+  },
+  "extensionHostPid": 45840,
+  "error": "AssertionError [ERR_ASSERTION]: stop:system free below2GiB\n    at sample (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs:114:226)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async main (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\ui-memory-probe.cjs:128:24)",
+  "normalCloseSent": true,
+  "processesStopped": true,
+  "observedProcesses": [
+    {
+      "pid": 74124,
+      "createdUtc": "2026-10-22T17:21:14.2819580Z"
+    },
+    {
+      "pid": 63700,
+      "createdUtc": "2026-10-22T17:21:14.4326240Z"
+    },
+    {
+      "pid": 36836,
+      "createdUtc": "2026-10-22T17:21:14.5475350Z"
+    },
+    {
+      "pid": 28988,
+      "createdUtc": "2026-10-22T17:21:14.5495470Z"
+    },
+    {
+      "pid": 17024,
+      "createdUtc": "2026-10-22T17:21:14.8665770Z"
+    },
+    {
+      "pid": 70436,
+      "createdUtc": "2026-10-22T17:21:16.5857720Z"
+    },
+    {
+      "pid": 56644,
+      "createdUtc": "2026-10-22T17:21:17.0500480Z"
+    },
+    {
+      "pid": 33132,
+      "createdUtc": "2026-10-22T17:21:17.1135380Z"
+    },
+    {
+      "pid": 45840,
+      "createdUtc": "2026-10-22T17:21:17.2169960Z"
+    },
+    {
+      "pid": 71400,
+      "createdUtc": "2026-10-22T17:21:19.0723130Z"
+    },
+    {
+      "pid": 67060,
+      "createdUtc": "2026-10-22T17:21:19.0964330Z"
+    },
+    {
+      "pid": 50684,
+      "createdUtc": "2026-10-22T17:21:21.2465960Z"
+    },
+    {
+      "pid": 16800,
+      "createdUtc": "2026-10-22T17:21:34.4123300Z"
+    },
+    {
+      "pid": 33372,
+      "createdUtc": "2026-10-22T17:21:34.4197410Z"
+    }
+  ],
+  "launchExitCode": 0,
+  "finishedUtc": "2026-10-22T17:21:41.325Z",
+  "exitCode": 1
+}

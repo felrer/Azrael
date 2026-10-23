@@ -42,15 +42,36 @@ Source implementation adds a separate durable `pendingApprovalCount`. Pending ap
 ### Unanswered asynchronous questions
 
 Status: `partial`; implementation and verification are tracked in the
-[work record](../../work/CL-01-question-withdrawal/01-plan.md).
+[question lifecycle work record](../../work/CL-01-question-withdrawal/01-plan.md)
+and [request supersession work record](../../work/DC-01-queue-question-wait-diagnosis/02-plan.md).
 
 Each question created by `request_user_input_async` has an engine-owned identity
 returned to the model. Questions remain pending until answered through the
-question reply path or removed by `withdraw_user_questions`. Withdrawal accepts
+question reply path, removed by `withdraw_user_questions`, or superseded by an
+accepted ordinary user request. Withdrawal accepts
 multiple IDs without requiring a reason; resolution and withdrawal have the same
 removal semantics. Repeated withdrawal is idempotent. Unknown IDs and IDs from
 another conversation are rejected. Ordinary chat text is not interpreted as an
 answer or detected as a question.
+
+An ordinary user request withdraws the unanswered questions that exist when the
+engine accepts that input, including when it steers active work or explicitly
+starts a queued message. Merely registering a queued message does not withdraw
+questions. Question replies preserve the other unanswered questions; scheduled
+heartbeats and automatic resume do not establish a new user-request boundary.
+Questions created after acceptance remain pending. Accepted answers remain in
+history and are not withdrawn. Cancellation uses the existing withdrawn state
+and inactive history disclosure, so queue checks and question handling share
+one lifecycle.
+
+The accepted-input journal stores the exact IDs superseded by that input before
+applying durable withdrawal updates. Recovery and unloaded-thread queue queries
+use those saved IDs rather than recomputing a cancellation set from later
+questions. The retry digest binds the submitted input and excludes this
+host-owned snapshot. A failed or retried input cannot broaden its withdrawal
+scope. Existing histories without a supersession snapshot retain their recorded
+question state until a new request is accepted or the questions are answered or
+explicitly withdrawn.
 
 The question tool description instructs the model to withdraw questions that
 become unnecessary during work. There is no extra inference or mandatory question
@@ -59,6 +80,16 @@ turn. When the turn becomes idle, pending questions hold automatic queue dispatc
 including queued compaction, without removing or reordering queued items. Removing
 the last pending question makes the queue eligible under its other admission
 conditions; it does not clear interruption, account-switch or recovery holds.
+
+Queued question replies use the explicit `questionReply` operation kind. The
+reply UI supplies this kind; text resembling a reply in ordinary queued input
+does not acquire reply authority. This kind survives editing, storage and
+reload. During a question hold the earliest queued reply may run ahead of
+ordinary input; the relative order of the remaining queue is preserved. Core
+validates its target IDs again at acceptance and records only those answers.
+Other unanswered questions stay pending. Approval, interruption, account and
+recovery holds still apply. Legacy ordinary queue records without reply
+provenance remain ordinary; the user can resubmit through the question UI.
 
 Question state is authoritative in the engine and survives reopening and restart.
 Question changes and queue admission are ordered so another window or a stale

@@ -403,8 +403,7 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
     try {$processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)}catch{return @{path=$Cache.Root;status='preserved';reason="Process inspection failed: $($_.Exception.Message)";absent=(-not(Test-Path -LiteralPath $Cache.Root));deletedItemCount=0;deletedFileCount=0;deletedBytes=[long]0;cleanupComplete=$false;revisitCondition='Restore complete process inspection, then preview and recheck cache protections.'}}
     $compilerActive=@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$'}).Count -gt 0
     foreach($moduleName in $Module){
-      $module=$moduleName
-      $container=Join-Path $Cache.Root $module;if(-not(Test-Path -LiteralPath $container)){continue}
+      $container=Join-Path $Cache.Root $moduleName;if(-not(Test-Path -LiteralPath $container)){continue}
       $entries=@(Get-ChildItem -LiteralPath $container -Directory|Where-Object {$_.Name -match '^[a-f0-9]{64}$'}|Sort-Object LastWriteTimeUtc -Descending)
       $retained=0
       foreach($directory in $entries){
@@ -414,12 +413,12 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
           Assert-BuildCacheTree $path $Cache.Root
           $measured=@(Get-BuildModuleFiles $path $Cache.Root|ForEach-Object {@{path=$_.FullName;bytes=$_.Length}})
           $owner=Get-Content (Join-Path $path 'owner.json') -Raw|ConvertFrom-Json
-          if($owner.schema -ne 1 -or $owner.module -cne $module -or $owner.key -cne $directory.Name){throw 'Unknown cache owner'}
+          if($owner.schema -ne 1 -or $owner.module -cne $moduleName -or $owner.key -cne $directory.Name){throw 'Unknown cache owner'}
           $used=@($protected|Where-Object {$_ -and ([IO.Path]::GetFullPath($_).Equals($path,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFullPath($_).StartsWith($path+'\',[StringComparison]::OrdinalIgnoreCase))}).Count -gt 0
           $used=$used -or $compilerActive -or @($processes|Where-Object {$_.CommandLine -and $_.CommandLine.IndexOf($path,[StringComparison]::OrdinalIgnoreCase) -ge 0}).Count -gt 0
           $complete=Test-Path -LiteralPath (Join-Path $path 'cache.json')
           if($used -or ($complete -and $retained -lt $Keep)){if($complete){$retained++};$status='preserved';$reason=if($used){'Selected, installed, running process or compiler reference'}else{'Explicit retention'}}else{
-            $result=Remove-BuildModuleEntry $Cache $module $directory.Name $path -ProtectedPaths $protected -Preview:$Preview
+            $result=Remove-BuildModuleEntry $Cache $moduleName $directory.Name $path -ProtectedPaths $protected -Preview:$Preview
             $status=if($result.status -eq 'deleted' -and -not(Test-Path -LiteralPath $path)){'removed'}elseif($result.status -eq 'selected'){'selected'}elseif($result.status -eq 'partial'){'partial'}else{'preserved'}
             $reason=$result.reason
           }

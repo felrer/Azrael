@@ -7,9 +7,11 @@ const mode = process.env.FIXTURE_MODE ?? "service";
 const attempt = existsSync(attemptFile) ? Number(readFileSync(attemptFile, "utf8")) + 1 : 1;
 writeFileSync(attemptFile, String(attempt));
 
-if (mode === "always-fail" || (mode === "first-failure" && attempt === 1)) process.exit(1);
+if (mode === "permission-denied" || mode === "protocol-error") {
+  process.stdout.write(JSON.stringify({ method: "azrael/bridgeError", params: { schema: 1, phase: "connect", code: mode === "permission-denied" ? "permission_denied" : "protocol_error", retryable: true } }) + "\n", () => process.exit(1));
+} else if ((mode === "four-failures" && attempt <= 4) || mode === "always-fail" || (mode === "first-failure" && attempt === 1)) process.exit(1);
 
-process.stdout.write(`${JSON.stringify({
+if (!["permission-denied", "protocol-error"].includes(mode)) process.stdout.write(`${JSON.stringify({
   method: "azrael/connected",
   params: {
     codexHome: mode === "identity-mismatch" ? `${codexHome}-other` : codexHome,
@@ -27,7 +29,8 @@ createInterface({ input: process.stdin }).on("line", (line) => {
   if (["mutation-disconnect", "instance-mismatch", "delayed-reconnect"].includes(mode) && action === "switch") process.exit(9);
   const responseHome = mode === "state-home-mismatch" ? `${codexHome}-other` : codexHome;
   const reply = () => process.stdout.write(`${JSON.stringify({ id: request.id, result: accountResponse(responseHome) })}\n`);
-  if (mode === "delayed-reconnect" && attempt > 1 && action === "list") setTimeout(reply, 250);
+  if (mode === "delayed-list" && action === "list") setTimeout(reply, 500);
+  else if (mode === "delayed-reconnect" && attempt > 1 && action === "list") setTimeout(reply, 250);
   else reply();
 });
 

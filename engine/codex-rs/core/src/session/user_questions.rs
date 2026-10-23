@@ -13,6 +13,8 @@ use std::collections::{BTreeMap, HashSet};
 pub(crate) struct UserQuestions {
     messages: BTreeMap<String, (String, AgentMessageItem)>,
     answered: HashSet<String>,
+    // Accepted inputs can outlive their withdrawal events after a failed write.
+    superseded: HashSet<String>,
 }
 
 pub(crate) fn question_id(message: &str, index: usize) -> String {
@@ -79,21 +81,47 @@ pub(crate) fn reply_ids_from_content(content: &[UserInput]) -> Vec<String> {
         .collect()
 }
 
+pub(crate) fn queued_reply_ids(content: &[UserInput]) -> Result<Vec<String>> {
+    let [UserInput::Text { text, .. }] = content else {
+        return Err(CodexErr::InvalidRequest(
+            "queued question reply must contain one text envelope".into(),
+        ));
+    };
+    let ids = reply_ids(text)?;
+    if ids.is_empty() {
+        return Err(CodexErr::InvalidRequest(
+            "queued question reply has no question IDs".into(),
+        ));
+    }
+    Ok(ids)
+}
+
 impl UserQuestions {
-    pub(crate) fn pending_count(&self) -> usize {
+    fn pending_ids(&self) -> Vec<String> {
         self.messages
             .values()
-            .map(|(_, item)| {
-                item.questions.as_ref().map_or(0, |qs| {
-                    qs.iter()
-                        .enumerate()
-                        .filter(|(i, q)| {
-                            !q.withdrawn && !self.answered.contains(&question_id(&item.id, *i))
-                        })
-                        .count()
-                })
+            .flat_map(|(_, item)| {
+                item.questions
+                    .iter()
+                    .flatten()
+                    .enumerate()
+                    .filter_map(move |(i, q)| {
+                        let id = question_id(&item.id, i);
+                        (!q.withdrawn
+                            && !self.answered.contains(&id)
+                            && !self.superseded.contains(&id))
+                        .then_some(id)
+                    })
             })
-            .sum()
+            .collect()
+    }
+
+    pub(crate) fn supersede(&mut self, ids: &[String]) {
+        self.superseded.extend(ids.iter().cloned());
+    }
+
+    pub(crate) fn pending_count(&self) -> usize {
+        self.pending_ids().len()
     }
 
     fn find(&self, id: &str) -> Option<(&AgentMessageItem, usize)> {
@@ -113,10 +141,11 @@ impl UserQuestions {
                 .find(id)
                 .ok_or_else(|| CodexErr::InvalidRequest(format!("unknown question ID: {id}")))?;
             if !self.answered.contains(id)
-                && item
-                    .questions
-                    .as_ref()
-                    .is_some_and(|qs| qs[index].withdrawn)
+                && (self.superseded.contains(id)
+                    || item
+                        .questions
+                        .as_ref()
+                        .is_some_and(|qs| qs[index].withdrawn))
             {
                 return Err(CodexErr::InvalidRequest(format!(
                     "question was withdrawn: {id}"
@@ -199,6 +228,14 @@ impl Session {
                         let content: Vec<UserInput> =
                             serde_json::from_value(payload["content"].clone())
                                 .map_err(|e| CodexErr::InvalidRequest(e.to_string()))?;
+                        let superseded: Vec<String> = serde_json::from_value(
+                            payload
+                                .get("superseded_async_question_ids")
+                                .cloned()
+                                .unwrap_or_else(|| serde_json::json!([])),
+                        )
+                        .map_err(|e| CodexErr::InvalidRequest(e.to_string()))?;
+                        questions.supersede(&superseded);
                         if payload["origin"] != "queue" {
                             questions.answer_content(&content);
                         }
@@ -224,11 +261,34 @@ impl Session {
         Ok(())
     }
 
+    /// A typed queued reply cannot smuggle an ordinary request through the hold.
+    pub(super) fn validate_queued_question_reply(&self, content: &[UserInput]) -> Result<()> {
+        let ids = queued_reply_ids(content)?;
+        self.user_questions.lock().unwrap().validate(&ids)
+    }
+
     pub(super) async fn accept_question_replies(&self, content: &[UserInput]) {
         let changed = self.user_questions.lock().unwrap().answer_content(content);
         if changed {
             self.notify_question_state_changed().await;
         }
+    }
+
+    /// Called under input admission, before journaling, to freeze exactly the old questions.
+    /// Queue registration never reaches this boundary; accepted queue dispatch does.
+    pub(super) fn questions_superseded_by_input(
+        &self,
+        content: &[UserInput],
+        origin: codex_history::UserInputOrigin,
+    ) -> Vec<String> {
+        if content.is_empty()
+            || origin == codex_history::UserInputOrigin::Heartbeat
+            || (origin != codex_history::UserInputOrigin::Queue
+                && !reply_ids_from_content(content).is_empty())
+        {
+            return Vec::new();
+        }
+        self.user_questions.lock().unwrap().pending_ids()
     }
 
     pub(crate) async fn notify_question_state_changed(&self) {
@@ -243,6 +303,14 @@ impl Session {
 
     pub(crate) async fn withdraw_user_questions(&self, ids: &[String]) -> Result<()> {
         let _guard = self.root_resume_submission_guard().await;
+        self.withdraw_user_questions_under_admission(ids).await
+    }
+
+    /// The caller already holds admission, or is restoring the not-yet-published session.
+    pub(super) async fn withdraw_user_questions_under_admission(
+        &self,
+        ids: &[String],
+    ) -> Result<()> {
         let updates = {
             let state = self.user_questions.lock().unwrap();
             for id in ids {
@@ -358,6 +426,334 @@ mod tests {
             ),
             text_elements: vec![],
         }]
+    }
+
+    fn new_request(text: &str) -> Vec<UserInput> {
+        vec![UserInput::Text {
+            text: text.into(),
+            text_elements: vec![],
+        }]
+    }
+
+    #[tokio::test]
+    async fn async_question_typed_queued_reply_passes_question_hold_without_supersession() {
+        let (session, _) = crate::session::tests::make_session_and_context().await;
+        let session = Arc::new(session);
+        session.observe_user_question_event(&questions(session.thread_id));
+        let accepted = super::super::turn_input::handle(
+            &session,
+            TurnInputRequest::user_input(reply(0)).on_start(
+                codex_protocol::turn_input::TurnStartOptions {
+                    turn_trigger: Some("queue_question_reply".into()),
+                    ..Default::default()
+                },
+            ),
+            TurnInputMode::StartIfIdle,
+            "typed-reply".into(),
+        )
+        .await
+        .unwrap();
+        assert!(matches!(accepted, TurnInputSubmission::Started { .. }));
+        assert_eq!(session.pending_question_count(), 1);
+        {
+            let state = session.user_questions.lock().unwrap();
+            assert!(state.answered.contains(&question_id("questions", 0)));
+            assert!(
+                !state
+                    .find(&question_id("questions", 1))
+                    .unwrap()
+                    .0
+                    .questions
+                    .as_ref()
+                    .unwrap()[1]
+                    .withdrawn
+            );
+        }
+        session
+            .abort_all_tasks(codex_protocol::protocol::TurnAbortReason::Interrupted)
+            .await;
+    }
+
+    #[tokio::test]
+    async fn async_question_typed_queued_reply_rejects_plain_unknown_and_withdrawn_input() {
+        let (session, _) = crate::session::tests::make_session_and_context().await;
+        let session = Arc::new(session);
+        session.observe_user_question_event(&questions(session.thread_id));
+        session
+            .withdraw_user_questions(&[question_id("questions", 0)])
+            .await
+            .unwrap();
+        for content in [new_request("ordinary request"), reply(99), reply(0)] {
+            let result = super::super::turn_input::handle(
+                &session,
+                TurnInputRequest::user_input(content).on_start(
+                    codex_protocol::turn_input::TurnStartOptions {
+                        turn_trigger: Some("queue_question_reply".into()),
+                        ..Default::default()
+                    },
+                ),
+                TurnInputMode::StartIfIdle,
+                "invalid-typed-reply".into(),
+            )
+            .await;
+            assert!(result.is_err());
+            assert!(session.active_turn.lock().await.is_none());
+            assert_eq!(session.pending_question_count(), 1);
+        }
+    }
+
+    #[tokio::test]
+    async fn async_question_new_request_withdraws_only_old_unanswered_questions() {
+        let (session, _) = crate::session::tests::make_session_and_context().await;
+        session.observe_user_question_event(&questions(session.thread_id));
+        // An answer-only input must preserve the other question.
+        session
+            .journal_user_input(
+                &codex_protocol::turn_input::TurnInput::UserInput {
+                    content: reply(0),
+                    client_id: None,
+                },
+                &BTreeMap::new(),
+                "answer",
+                codex_history::UserInputOrigin::User,
+            )
+            .await
+            .unwrap();
+        assert_eq!(session.pending_question_count(), 1);
+        session
+            .journal_user_input(
+                &codex_protocol::turn_input::TurnInput::UserInput {
+                    content: new_request("A new request"),
+                    client_id: None,
+                },
+                &BTreeMap::new(),
+                "new-request",
+                codex_history::UserInputOrigin::User,
+            )
+            .await
+            .unwrap();
+        assert_eq!(session.pending_question_count(), 0);
+        {
+            let state = session.user_questions.lock().unwrap();
+            assert!(state.answered.contains(&question_id("questions", 0)));
+            assert!(
+                !state
+                    .find(&question_id("questions", 0))
+                    .unwrap()
+                    .0
+                    .questions
+                    .as_ref()
+                    .unwrap()[0]
+                    .withdrawn
+            );
+            assert!(
+                state
+                    .find(&question_id("questions", 1))
+                    .unwrap()
+                    .0
+                    .questions
+                    .as_ref()
+                    .unwrap()[1]
+                    .withdrawn
+            );
+        }
+        // A subsequent question belongs to the new request and still blocks the queue.
+        let mut newer = questions(session.thread_id);
+        let EventMsg::ItemCompleted(event) = &mut newer else {
+            unreachable!()
+        };
+        let TurnItem::AgentMessage(item) = &mut event.item else {
+            unreachable!()
+        };
+        item.id = "newer-questions".into();
+        session.observe_user_question_event(&newer);
+        assert_eq!(session.pending_question_count(), 2);
+        let held = super::super::turn_input::handle(
+            &Arc::new(session),
+            TurnInputRequest::user_input(new_request("queued")),
+            TurnInputMode::StartIfIdle,
+            "queue".into(),
+        )
+        .await
+        .unwrap();
+        assert!(matches!(
+            held,
+            TurnInputSubmission::NotSubmitted {
+                reason: NotSubmittedReason::NotIdle
+            }
+        ));
+    }
+
+    #[tokio::test]
+    async fn async_question_heartbeat_preserves_questions() {
+        let (session, _) = crate::session::tests::make_session_and_context().await;
+        session.observe_user_question_event(&questions(session.thread_id));
+        session
+            .journal_user_input(
+                &codex_protocol::turn_input::TurnInput::UserInput {
+                    content: new_request("Scheduled input"),
+                    client_id: None,
+                },
+                &BTreeMap::new(),
+                "heartbeat",
+                codex_history::UserInputOrigin::Heartbeat,
+            )
+            .await
+            .unwrap();
+        assert_eq!(session.pending_question_count(), 2);
+    }
+
+    #[tokio::test]
+    async fn async_question_recovery_uses_frozen_ids_and_retry_preserves_new_questions() {
+        let home = tempfile::tempdir().unwrap();
+        let (session, context, _) = crate::session::tests::make_persistent_session_and_context_with_time_provider_and_history_mode_and_rx(
+            home.path(), InitialHistory::New, Arc::new(crate::current_time::SystemTimeProvider),
+            "http://127.0.0.1:1/v1".into(), codex_protocol::protocol::ThreadHistoryMode::Paginated,
+        ).await.unwrap();
+        let old = questions(session.thread_id);
+        session.observe_user_question_event(&old);
+        assert!(
+            session
+                .persist_rollout_items(&[RolloutItem::EventMsg(old.clone())])
+                .await
+        );
+        let mut input = codex_protocol::turn_input::TurnInput::UserInput {
+            content: new_request("New task"),
+            client_id: Some("supersession-client".into()),
+        };
+        session
+            .journal_user_input_with_root(
+                &input,
+                &BTreeMap::new(),
+                &context.sub_id,
+                &context.root_turn_id(),
+                codex_history::UserInputOrigin::User,
+            )
+            .await
+            .unwrap();
+        assert_eq!(session.pending_question_count(), 0);
+        let records = session
+            .state_db()
+            .unwrap()
+            .thread_queue()
+            .pending_user_inputs(session.thread_id)
+            .await
+            .unwrap();
+        let payload: serde_json::Value =
+            serde_json::from_str(records[0].payload_json.as_ref().unwrap()).unwrap();
+        let ids: Vec<String> =
+            serde_json::from_value(payload["superseded_async_question_ids"].clone()).unwrap();
+        assert_eq!(ids.len(), 2);
+        let mut newer = old.clone();
+        let EventMsg::ItemCompleted(event) = &mut newer else {
+            unreachable!()
+        };
+        let TurnItem::AgentMessage(item) = &mut event.item else {
+            unreachable!()
+        };
+        item.id = "newer-questions".into();
+        let history = vec![RolloutItem::EventMsg(old), RolloutItem::EventMsg(newer)];
+        // Simulate a crash after custody was saved but before withdrawal was flushed.
+        session
+            .restore_user_questions(&history, true)
+            .await
+            .unwrap();
+        assert_eq!(session.pending_question_count(), 2);
+        assert!(session.validate_question_replies(&reply(0)).is_err());
+        assert_eq!(
+            crate::CodexThread::pending_question_count_from_history(&history, &[], &ids),
+            2
+        );
+        // Retry must use the original receipt, repair old updates, and keep new questions.
+        assert!(
+            session
+                .accepted_input_retry_with_root(
+                    &mut input,
+                    &BTreeMap::new(),
+                    codex_history::UserInputOrigin::User
+                )
+                .await
+                .unwrap()
+                .is_some()
+        );
+        assert_eq!(session.pending_question_count(), 2);
+        assert_eq!(
+            session
+                .state_db()
+                .unwrap()
+                .thread_queue()
+                .pending_user_inputs(session.thread_id)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+        let persisted = session.user_questions.lock().unwrap();
+        assert!(
+            persisted
+                .find(&ids[0])
+                .unwrap()
+                .0
+                .questions
+                .as_ref()
+                .unwrap()
+                .iter()
+                .all(|q| q.withdrawn)
+        );
+        assert!(
+            persisted
+                .find(&question_id("newer-questions", 0))
+                .unwrap()
+                .0
+                .questions
+                .as_ref()
+                .unwrap()
+                .iter()
+                .all(|q| !q.withdrawn)
+        );
+    }
+
+    #[tokio::test]
+    async fn async_question_new_request_write_failure_keeps_custody_and_live_questions() {
+        let home = tempfile::tempdir().unwrap();
+        let (session, _, _) = crate::session::tests::make_persistent_session_and_context_with_time_provider_and_history_mode_and_rx(
+            home.path(), InitialHistory::New, Arc::new(crate::current_time::SystemTimeProvider),
+            "http://127.0.0.1:1/v1".into(), codex_protocol::protocol::ThreadHistoryMode::Paginated,
+        ).await.unwrap();
+        session.observe_user_question_event(&questions(session.thread_id));
+        session.live_thread().unwrap().shutdown().await.unwrap();
+        assert!(
+            session
+                .journal_user_input(
+                    &codex_protocol::turn_input::TurnInput::UserInput {
+                        content: new_request("New task"),
+                        client_id: Some("failed-new-task".into())
+                    },
+                    &BTreeMap::new(),
+                    "failed-task",
+                    codex_history::UserInputOrigin::User,
+                )
+                .await
+                .is_err()
+        );
+        assert_eq!(session.pending_question_count(), 2);
+        let records = session
+            .state_db()
+            .unwrap()
+            .thread_queue()
+            .pending_user_inputs(session.thread_id)
+            .await
+            .unwrap();
+        assert_eq!(records.len(), 1);
+        let payload: serde_json::Value =
+            serde_json::from_str(records[0].payload_json.as_ref().unwrap()).unwrap();
+        assert_eq!(
+            payload["superseded_async_question_ids"]
+                .as_array()
+                .unwrap()
+                .len(),
+            2
+        );
     }
 
     #[test]
@@ -491,7 +887,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn async_question_explicit_queue_start_preserves_pending_questions() {
+    async fn async_question_explicit_queue_start_supersedes_pending_questions() {
         let (session, _) = crate::session::tests::make_session_and_context().await;
         let session = Arc::new(session);
         session.observe_user_question_event(&questions(session.thread_id));
@@ -510,14 +906,15 @@ mod tests {
         .await
         .unwrap();
         assert!(matches!(accepted, TurnInputSubmission::Started { .. }));
-        assert_eq!(session.pending_question_count(), 2);
+        assert_eq!(session.pending_question_count(), 0);
+        assert!(session.user_questions.lock().unwrap().answered.is_empty());
         session
             .abort_all_tasks(codex_protocol::protocol::TurnAbortReason::Interrupted)
             .await;
     }
 
     #[tokio::test]
-    async fn async_question_queue_envelopes_skip_reply_validation_and_preserve_holds() {
+    async fn async_question_queue_envelopes_hold_until_explicit_acceptance() {
         for reply_index in [0, 99] {
             let (session, _) = crate::session::tests::make_session_and_context().await;
             let session = Arc::new(session);
@@ -571,7 +968,7 @@ mod tests {
             .await
             .unwrap();
             assert!(matches!(explicit, TurnInputSubmission::Started { .. }));
-            assert_eq!(session.pending_question_count(), 1);
+            assert_eq!(session.pending_question_count(), 0);
             session
                 .abort_all_tasks(codex_protocol::protocol::TurnAbortReason::Interrupted)
                 .await;

@@ -16,15 +16,18 @@ function AzraelAccountSettings() {
     if (!element) return;
     const root = element.shadowRoot ?? element.attachShadow({ mode: "open" });
     const clientId = crypto.randomUUID();
+    let renderedHtml;
     const send = (action, message) => azraelAccountBridge.dispatchMessage("azrael-accounts", { clientId, action, message });
     const unsubscribe = azraelAccountBridge.subscribe("azrael-accounts-html", message => {
       if (message.clientId === clientId && typeof message.html === "string") {
+        if (message.html === renderedHtml) return;
         const ancestors = [];
         for (let parent = element.parentElement; parent; parent = parent.parentElement) {
           ancestors.push({ parent, top: parent.scrollTop, left: parent.scrollLeft });
         }
         const calendarLeft = root.querySelector('.puc-calendar-scroll')?.scrollLeft;
         root.innerHTML = message.html;
+        renderedHtml = message.html;
         const calendar = root.querySelector('.puc-calendar-scroll');
         if (calendar && calendarLeft !== undefined) calendar.scrollLeft = calendarLeft;
         root.querySelector('button[data-ticket-confirming="true"]')?.focus({ preventScroll: true });

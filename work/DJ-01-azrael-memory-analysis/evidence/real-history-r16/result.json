@@ -1,0 +1,8 @@
+{
+  "lifecycleId": "run:DJ-01:real-history-r16",
+  "status": "complete",
+  "producerStopped": true,
+  "startedUtc": "2026-10-23T00:32:10.605Z",
+  "endedUtc": "2026-10-23T00:38:09.586Z",
+  "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\real-history-r16\\reports\\report.json"
+}

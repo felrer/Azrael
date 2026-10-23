@@ -82,7 +82,7 @@ async function main() {
   const hiddenUi = listed.find(t => t.name === 'ui_operation');
   assert.deepEqual(hiddenUi._meta, { ui: { visibility: ['app'] } });
   assert.deepEqual(hiddenUi.inputSchema.required, ['requestToken']); assert.equal(hiddenUi.inputSchema.additionalProperties, false);
-  assert.equal(listed.length, 28);
+  assert.equal(listed.length, 29);
   assert.equal(listed.find(t=>t.name==='prepare_permissions').inputSchema.properties.candidateIds.maxItems,8);
   for (const name of ['prepare_permissions','list_windows','select_window','list_task_macros','save_task_macro']) assert.ok(!listed.find(t => t.name === name).inputSchema.required.includes('targetId'));
   for (const name of ['inspect','press_key','run_task_macro']) assert.ok(listed.find(t => t.name === name).inputSchema.required.includes('targetId'));

@@ -33,6 +33,9 @@ use tracing::instrument;
 
 pub use crate::tools::context::ToolCallSource;
 
+/// Internal rejection marker, never a callable or advertised tool namespace.
+pub(crate) const UNAVAILABLE_TOOL_NAMESPACE: &str = "azrael_unavailable_tool";
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ToolCall {
     pub tool_name: ToolName,
@@ -521,6 +524,13 @@ impl ToolRouter {
             payload,
             ..
         } = call;
+
+        if tool_name.namespace.as_deref() == Some(UNAVAILABLE_TOOL_NAMESPACE) {
+            return Err(FunctionCallError::RespondToModel(format!(
+                "Tool {} is not available. Use only tools in the current tool catalog.",
+                tool_name.name
+            )));
+        }
 
         // Keep the legacy ToolInvocation.turn field tied to the same request state until handlers migrate.
         let turn = Arc::clone(&step_context.turn);
