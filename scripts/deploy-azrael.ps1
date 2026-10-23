@@ -57,10 +57,11 @@ if ($VerificationFixtureRoot) {
         throw 'VerificationFixtureRoot must be a fresh immediate artifacts/v or artifacts/v-<name> directory.'
     }
 }
+$fixtureStateRoot = Join-Path $fixture $(if ($VerificationFixtureRoot) { 's' } else { 'state' })
 $accountControlsState = Join-Path $project "artifacts/verification/account-controls-$ReleaseName"
 . (Join-Path $PSScriptRoot 'verification-state.ps1')
 Assert-AzraelVerificationStatePath -StateRoot $StateRoot
-Assert-AzraelVerificationStatePath -StateRoot (Join-Path $fixture 'state')
+Assert-AzraelVerificationStatePath -StateRoot $fixtureStateRoot
 $runPaths = @($logs, $release, (Join-Path $project "artifacts/logs/$ReleaseName"), (Split-Path $package -Parent), $fixture)
 if ($VerifyAccountControls) { $runPaths += $accountControlsState }
 foreach ($path in $runPaths) {
@@ -417,7 +418,7 @@ try {
     if ([IO.Path]::GetFullPath($prepared.ReleaseDirectory) -ine $release -or [IO.Path]::GetFullPath($prepared.HostVsix) -ine (Join-Path $package 'azrael-host.vsix')) { throw 'Preparation returned a different release or package path.' }
     $script:preparedHash = (Get-FileHash -LiteralPath $preparedPath).Hash
     Assert-Package
-    Invoke-Stage 'acceptance' 'check-independent-vscode.ps1' @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', (Join-Path $fixture 'state'), '-UseFreshState', '-ParentLifecycleId', $fixtureLifecycleId, '-TypeScriptPath', $TypeScriptPath, '-UiSourcePath', $UiSourcePath, '-OriginalExtensionPath', $OriginalExtensionPath, '-OriginalAudioPath', $OriginalAudioPath, '-CodePath', $CodePath)
+    Invoke-Stage 'acceptance' 'check-independent-vscode.ps1' @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', $fixtureStateRoot, '-UseFreshState', '-ParentLifecycleId', $fixtureLifecycleId, '-TypeScriptPath', $TypeScriptPath, '-UiSourcePath', $UiSourcePath, '-OriginalExtensionPath', $OriginalExtensionPath, '-OriginalAudioPath', $OriginalAudioPath, '-CodePath', $CodePath)
     $acceptancePath = Join-Path $fixture 'check-result.json'
     $acceptance = Get-Content -LiteralPath $acceptancePath -Raw | ConvertFrom-Json
     $stages = @('initialInventory', 'hostInstall', 'finalInventory', 'namespace', 'standaloneHost', 'host')
