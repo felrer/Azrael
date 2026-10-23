@@ -3428,6 +3428,8 @@
         "scripts/test-project.cjs",
         "scripts/test-project-fail-fast.cjs",
         "scripts/test-project-selection.cjs",
+        "scripts/source-test-fixtures.cjs",
+        "scripts/test-source-test-fixtures.cjs",
         "scripts/source-preflight-reuse.cjs",
         "scripts/artifact-run.cjs",
         "scripts/test-artifact-run.cjs",
@@ -3501,7 +3503,8 @@
             "scripts/test-project-maintenance.cjs",
             "scripts/test-artifact-lifecycle.cjs",
             "scripts/test-project-fail-fast.cjs",
-            "scripts/test-project-selection.cjs"
+            "scripts/test-project-selection.cjs",
+            "scripts/test-source-test-fixtures.cjs"
           ],
           "level": "source"
         },

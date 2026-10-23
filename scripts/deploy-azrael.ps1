@@ -297,6 +297,13 @@ try {
     foreach ($path in $policyPaths) { $sourceTestArgs += @('--changed', $path) }
     if ($ExhaustiveRegression) { $sourceTestArgs += '--exhaustive' }
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
+    # Resolve selected tests' external fixtures before any expensive producer.
+    $fixtureArgsPath = Join-Path $logs 'source-fixture-arguments.json'
+    $fixtureLogicalArgs = @($sourceTestArgs | Select-Object -Skip 1) + @('--check-fixtures')
+    ConvertTo-Json -InputObject $fixtureLogicalArgs -Depth 5 | Set-Content -LiteralPath $fixtureArgsPath -Encoding utf8NoBOM
+    $fixtureArgsHash = (Get-FileHash -LiteralPath $fixtureArgsPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $fixtureReadiness = Start-OwnedCommand 'source-fixtures' (Get-Command node -CommandType Application).Source @($sourceTestArgs[0], '--args-file', $fixtureArgsPath, '--args-sha256', $fixtureArgsHash)
+    Wait-OwnedCommands @($fixtureReadiness)
     $metrics.testScope = $(if ($FullRegression) { 'full' } else { 'changed' })
     $metrics.forceNativeVerification = [bool]$ForceNativeVerification
     $metrics.changedPaths = @($ChangedPath)
