@@ -29,7 +29,7 @@ try {
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
 $changedCases = @('policy selection', 'full install', 'module cache install', 'exhaustive regression verify only', 'related integration verify only', 'explicit policy verify only', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 $pwsh = (Get-Process -Id $PID).Path
-$changedCases += @('environment preflight failure', 'missing registered cache project', 'temporary references preserved', 'registered engine owner selection', 'account socket path')
+$changedCases += @('environment preflight failure', 'missing registered cache project', 'temporary references preserved', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -385,7 +385,29 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
                 . $select
                 $expected = if ($candidate) {$candidate} else {Join-Path $a 'verification/deploy-chosen'}
                 Assert-True ($fixture -ceq $expected) 'fixture selection changed the exact path'
+                $expectedState = Join-Path $expected $(if ($candidate) { 's' } else { 'state' })
+                Assert-True ($fixtureStateRoot -ceq $expectedState) 'fixture state selection changed its explicit/default route'
             }
+            . (Join-Path $PSScriptRoot 'verification-state.ps1')
+            if ($IsWindows) {
+                $volume = [IO.Path]::GetPathRoot($savedProject)
+                $project = Join-Path $volume ('p' * (61 - [Text.Encoding]::UTF8.GetByteCount($volume)))
+                $VerificationFixtureRoot = Join-Path $project 'artifacts/v'
+                . $select
+                $oldState = Join-Path $fixture 'state'
+                Assert-True ([Text.Encoding]::UTF8.GetByteCount($oldState) -eq 79) 'representative old state root must be 79 bytes'
+                $oldRejected = $false
+                try { Assert-AzraelVerificationStatePath -StateRoot $oldState }
+                catch { $oldRejected = $_.Exception.Message -match '109 UTF-8 bytes; maximum is 107' }
+                Assert-True $oldRejected 'real Windows state guard accepted the former long child'
+                Assert-AzraelVerificationStatePath -StateRoot $fixtureStateRoot
+                Assert-True ([Text.Encoding]::UTF8.GetByteCount((Join-Path $fixtureStateRoot 'ipc/aaaaaaaaaaaaaaaaaaaa.sock')) -eq 105) 'short child socket byte budget changed'
+                Assert-True (-not (Test-Path $fixture)) 'state guard computation created the representative fixture'
+                $project = $root
+            }
+            $guard = $deployText.IndexOf('Assert-AzraelVerificationStatePath -StateRoot $fixtureStateRoot')
+            Assert-True ($guard -ge 0 -and $guard -lt $deployText.IndexOf('$null = Register-ArtifactLifecycle') -and $guard -lt $deployText.IndexOf('New-Item -ItemType Directory')) 'fixture state guard must precede producer registration and directory creation'
+            Assert-True ($deployText.Contains("'-StateRoot', `$fixtureStateRoot")) 'acceptance must receive the same centrally selected state root'
             foreach ($candidate in @('relative/v', $a, (Join-Path $root 'engine'), (Join-Path $a 'maintenance'), (Join-Path $a 'build/v'), (Join-Path $a 'v/../maintenance'))) {
                 $VerificationFixtureRoot = $candidate; $rejected = $false
                 try { . $select } catch { $rejected = $true }
@@ -547,6 +569,8 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Write-Utf8 (Join-Path $root 'input.txt') 'original'
     & git -c core.longpaths=true -C $root init --quiet
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git init failed'
+    & git -C $root config core.longpaths true
+    Assert-True ($LASTEXITCODE -eq 0) 'fixture Git must retain long-path support for deployment child commands'
     & git -c core.longpaths=true -c core.autocrlf=false -C $root add -- .
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git add failed'
     & git -c core.longpaths=true -c user.name=Fixture -c user.email=fixture@example.invalid -C $root commit --quiet -m fixture
@@ -811,7 +835,9 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         Assert-True ($prepare.TypeScriptPath -ceq $expectedTool) 'wrong pinned TypeScript'
         Assert-True ($check.TypeScriptPath -ceq $prepare.TypeScriptPath -and $check.UseFreshState -eq $true) 'acceptance did not reuse explicit tools/fresh state'
         Assert-True ($check.HostVsixPath -ceq (Join-Path $prepare.OutputDirectory 'azrael-host.vsix')) 'acceptance used a different package'
-        Assert-True ($check.StateRoot -ceq (Join-Path $check.FixtureRoot 'state')) 'fixture state was not isolated'
+        $expectedFixtureState = Join-Path $check.FixtureRoot $(if ($Name -eq 'short fixture install') { 's' } else { 'state' })
+        Assert-True ($check.StateRoot -ceq $expectedFixtureState) 'fixture state was not isolated with the selected short/default child'
+        Assert-True ((Get-Content -LiteralPath (Join-Path $a 'verification-state-paths.txt')) -ccontains $check.StateRoot) 'acceptance state differs from the guarded preflight state'
         if($Name -eq 'short fixture install') { Assert-True ($check.FixtureRoot -ceq (Join-Path $a 'v')) 'explicit short fixture was not forwarded' }
         Assert-True ((@($prepare.SourceTestPolicy.changedPaths) -join '|') -ceq ($expectedPolicyPaths -join '|') -and $prepare.SourceTestPolicy.exhaustive -eq $Exhaustive) 'prepare source policy handoff lost'
         Assert-True ($prepare.ChangedOnlyTests -is [bool] -and $prepare.ChangedOnlyTests -eq (-not $FullRegression)) 'prepare changed-only policy lost'

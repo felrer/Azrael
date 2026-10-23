@@ -153,3 +153,4 @@ root가 데이터/호출 계약·선택 범위·입력 기준·통합·최종 �
 - 경계 파일럿 6개를 실제 실행하고 native grouped review/apply했다. success/failure/retry/실제 SIGTERM 4개는 실제 부재 확인 후 finalize했다. 과거 unknown 취소와 stop-proof 누락 2개는 원래 결과를 보존해 defer했다. 증거: impl-r1/reports/pilot-six-cleanup.json, pilot-six-finalize.json.
 - Windows AF_UNIX 여유를 위해 새 mutable workspace는 artifacts/workspaces/a의 fresh 세대를 사용한다. 이름은 소유 판정에 사용하지 않고 독립 manifest와 run 식별값으로 묶는다.
 - RetainedSourceRoot 패키징 회귀 6/6과 PowerShell AST 검사 실제 exit0. 다른 소스와 복사 중 변경을 거부한다. 배포의 source preflight/native 입력은 mutable 경로로 일치시키고 최종 build-info만 검증된 보존 경로를 기록한다. Windows 필수 lifecycle gate에 PackagingOnly 회귀를 연결했다.
+- 실제 Windows 사전 검사에서 신규 fixture/state 소켓이109바이트로107바이트 제한을 넘었다. 8.3 표기도 .NET에서 확장되어 해결되지 않았다. 명시적 VerificationFixtureRoot에서만 상태 하위 이름을 s로 줄이고 기본 state 경로를 유지했다. 실제 guard109거부/105허용·기본 설치·짧은 fixture 설치 3개 회귀 exit0. 제품 컴파일은 시작하지 않았다. 실패 세대의 payload는 검증 증거를 impl-r1/reports/failed-w13a로 보존한 뒤 재검토·삭제하며 새 입력 세대를 만든다.
