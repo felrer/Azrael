@@ -28,6 +28,14 @@ The local extension ID is not entitled to the original extension's proposed VS C
 
 Reuse the official General, Configuration, Personalization, Usage/Billing, MCP, Hook, Plugin and Account settings; the account module adds account management and entry points. A settings category counts as verified only after reading, saving, rereading and observing its effect; settings requiring reload or a new thread must say so. Ordinary Codex retains `chatgpt.*` preferences; Azrael owns `azrael.*`.
 
+### MCP startup and cached catalogs
+
+Status: `current` source behavior, verified by focused Windows x64 tests in the [memory work record](../../work/DJ-01-azrael-memory-analysis/01-plan.md). Linux x64 and macOS ARM64 native acceptance is pending; packaging and installed-host acceptance remain separate. Preservation ID: `engine.mcp-lazy-startup` in the [feature inventory](../../scripts/azrael-feature-contracts.json).
+
+Ordinary conversations and subagents use the existing `LazyWhenCached` startup policy. A compatible cached catalog can advertise permitted tools without starting that conversation's MCP server. The first operation requiring a live client starts its own server; live permissions and tool visibility are checked before execution. Execution state, credentials and approvals remain scoped to the existing thread/runtime boundaries. This common policy applies to Windows x64, Linux x64 and macOS ARM64; native verification on one platform does not accept the others.
+
+Cold or unusable catalogs, selected plugin servers, explicit reconnect and existing dynamic-authentication cache exclusions retain their startup behavior. Required servers may accept a valid dormant catalog through existing readiness rules; a deferred connection failure is delivered when a live client is requested. Cache expiration and identity changes retain existing invalidation rules. Catalog caching does not share process execution state and does not add an idle shutdown timer. Conversation unload, REPL state lifetime and relay process sharing are unchanged.
+
 Provider-specific compaction settings, Azrael settings labels and context pricing presentation follow the [provider context policy](context-policy.md).
 
 The azrael-only host supplies the existing first-run tutorial completion flags and the image-generation announcement dismissal flag on state reads. It does not suppress authentication, permission approvals, errors or settings. A source/patched-hash marker guards this patch; unsupported bundles fail preparation.

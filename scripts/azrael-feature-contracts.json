@@ -3715,6 +3715,37 @@
       ]
     },
     {
+      "id": "engine.mcp-lazy-startup",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/session/mcp_runtime.rs",
+        "engine/codex-rs/core/tests/suite/mcp_tool_cache.rs",
+        "engine/codex-rs/core/src/mcp.rs",
+        "engine/codex-rs/codex-mcp/src/connection_manager.rs",
+        "engine/codex-rs/codex-mcp/src/connection_manager/required.rs",
+        "engine/codex-rs/codex-mcp/src/tool_catalog_cache.rs",
+        "scripts/check-mcp-lazy-startup.cjs",
+        "scripts/test-mcp-lazy-startup.cjs"
+      ],
+      "contract": "docs/architecture/azrael-ex.md",
+      "checks": [
+        {
+          "id": "engine.mcp-lazy-startup.native",
+          "executable": "node",
+          "args": ["scripts/check-mcp-lazy-startup.cjs", "{engineSourceRoot}"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.mcp-lazy-startup.wrapper",
+          "executable": "node",
+          "args": ["--test", "scripts/test-mcp-lazy-startup.cjs"],
+          "level": "source"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.mcp-oauth-store-identity",
       "area": "engine",
       "owners": [
