@@ -226,3 +226,14 @@ PTY19 실제 succeeded0 / native57014 종료0. [{"name":"windows-pty-preflight",
 최근 수정 결과: 모델 config/context82건과 PTY9건은 통과했다. 최종 w12s의 전체 소스 검사와 제품 빌드는 사용자 중단 시 미완료이며 패키지/6호스트/계정 인수와 설치는 미실행이다. 작업 성공으로 보고하지 않는다.
 
 증거: artifacts/tasks/windows-committed-20261023-99afefb1/runs/deploy-r2/stop-20261023/{termination-final.json,time-statistics.json,native-timing.json,collect-time-statistics.cjs}. 기존 실행 JSON이 running으로 남은 것은 외부 중단으로 finalizer가 실행되지 못한 과거 snapshot이며, 중단 증거가 실제 종료를 기록한다. 이 통계는 JSON 메타데이터만 읽었고 payload 재귀 조사나 재검증을 실행하지 않았다.
+
+
+## 전체 소스 검사 시간 분석 — 2026-10-24
+
+사용자 요청에 따라 재실행/구현 없이 frozen c23b 실행 정의와 기존8회 소스 결과만 분석했다. `--changed-only`가 baseline 변경343개를 통해 source151개, 확장 test35개를 선택했다. source151중4개는 같은 실행의 source-preflight 성공 증거를 전후 검증해 재사용했고, Node142개(동시성4)+별도 도구5개가 실제 실행됐다. 마지막 완주 w12r은 outer stage19분26.176초, test-project 내부19분14.663초. 명령8개는 for-await 방식으로 직렬 실행하며 Node묶음 안에서만4개 파일 병렬이다.
+
+실측 명령별: [{"name":"source","latestMs":736242,"minMs":679061,"maxMs":876966,"percent":63.76250040054977},{"name":"test-build-metrics","latestMs":9453,"minMs":9453,"maxMs":10984,"percent":0.81868042883508},{"name":"test-build-module-cache","latestMs":134116,"minMs":131047,"maxMs":156691,"percent":11.615163904966211},{"name":"test-deploy-azrael","latestMs":197363,"minMs":197363,"maxMs":204291,"percent":17.092692846311003},{"name":"test-incremental-extension-build","latestMs":9622,"minMs":8954,"maxMs":10639,"percent":0.8333167339734624},{"name":"test-verification-state","latestMs":986,"minMs":840,"maxMs":1198,"percent":0.08539288086653855},{"name":"extension-build","latestMs":3368,"minMs":2221,"maxMs":5648,"percent":0.29168683849746635},{"name":"extension-changed","latestMs":52776,"minMs":47766,"maxMs":52776,"percent":4.570684260256023}]. 실행 전 선택/증거 binding 등11.391초, 명령 외 checkpoint/후검증 등10.737초는 더 세부 계측이 없다. Node1965사례 중1955통과/10조건부skip; 확장262사례 전부통과. 성공3회 내부 총18분19.956초~22분3.156초이고 환경/제품 빌드 병행 부하와 입력이 달라 통제된 benchmark는 아니다.
+
+최대 병목 Node736.242초(내부 총시간63.76%), deploy fixture197.363초(17.09%), module cache134.116초(11.62%)가 합계92.47%다. Node 내부에서는33개 pinned fixture uncached/cold/warm 결과 비교127.006초, deferred-turn 전체pipeline74.061초, Pets59.783초, recent-chat-filter58.838초, queue-refresh53.517초, Team47.550초 등 전체UI변환/TypeScript파싱이 반복된다. 이 개별 사례는 병렬 실행 시간이므로 서로 합산해서 명령 총시간이라고 하지 않는다.
+
+최적화 검토 우선순위: 기존 input-bound 성공증거 재사용 확대(필수 검증/환경/소유 계약 유지), 기존 ui-test-transform-fixture 재사용 점검(직접 pipeline호출 및 전체 process.env가 key에 들어가므로 재시도별 환경 차이에 민감; 실제 hit/miss 효과 미계측), 독립 도구그룹과 Node의 병행 가능성 조사(캐시/catalog/출력 소유/CPU·RAM·I/O 충돌 검증 필요). 동시성 증가나 테스트 삭제만으로 단축을 보장하지 않는다. Node 이후 직렬 명령만6분47.684초 존재하나 이를 그대로 절감 가능시간으로 주장하지 않는다. Rust/native 검증과 소스사전검사는 이 단계에 포함되지 않는다. 분석 JSON: artifacts/tasks/windows-committed-20261023-99afefb1/runs/deploy-r2/stop-20261023/source-test-breakdown.json. 빌드·설치는 계속 중단 상태다.

@@ -313,6 +313,25 @@ test("Windows native PTY and daemon groups compile selected frozen libtests then
   }
 });
 
+test("Windows PTY runtime discovers inbox PowerShell modules without changing Cargo or daemon environments", () => {
+  const env = { PSModulePath: "portable-pwsh-modules", psmodulepath: "duplicate-case", RUSTUP_TOOLCHAIN: "pinned" };
+  const result = runSharedNative({ env });
+  assert.equal(result.error, undefined);
+  for (const [index, [crate]] of nativeGroups.entries()) {
+    const [typeCheck, compile, list, direct] = result.calls.slice(index * 4, index * 4 + 4);
+    for (const call of [typeCheck, compile]) {
+      assert.equal(call.options.env.PSModulePath, "portable-pwsh-modules");
+      assert.equal(call.options.env.psmodulepath, "duplicate-case");
+    }
+    for (const call of [list, direct]) {
+      assert.equal(call.options.env.PSModulePath, crate === "codex-utils-pty" ? undefined : "portable-pwsh-modules");
+      assert.equal(call.options.env.psmodulepath, crate === "codex-utils-pty" ? undefined : "duplicate-case");
+      assert.equal(call.options.env.RUSTUP_TOOLCHAIN, "pinned");
+    }
+  }
+  assert.deepEqual(env, { PSModulePath: "portable-pwsh-modules", psmodulepath: "duplicate-case", RUSTUP_TOOLCHAIN: "pinned" });
+});
+
 test("native direct execution is Windows scoped", () => {
   const result = runSharedNative({ platform: "linux" });
   assert.equal(result.error, undefined);

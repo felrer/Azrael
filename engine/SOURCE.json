@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 95111854,
+  "byteCount": 95115798,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -1795,8 +1795,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "7f5ee948d541ecb2a67156edef9ed0bab8a0bc483a8abd342bdf7360b62a9c5e",
-      "size": 11225
+      "sha256": "fa09ffa4c1caa17eda4c9f511eaeb863c6e07efca5ea9b0cc0158f07c505cb52",
+      "size": 15169
     },
     "codex-rs/app-server-daemon/src/azrael_storage.rs": {
       "gitMode": "100644",
@@ -65207,7 +65207,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9313,
-  "inventorySha256": "06f071c557959d6d47f896210c63bd9b136f27bbb5915fd2d42105f7ed3c9abb",
+  "inventorySha256": "5ef55c92dd159da267db4d4797cd6765915b379771b63d52ab9d464664fadd11",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -65491,8 +65491,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "7f5ee948d541ecb2a67156edef9ed0bab8a0bc483a8abd342bdf7360b62a9c5e",
-          "size": 11225
+          "sha256": "fa09ffa4c1caa17eda4c9f511eaeb863c6e07efca5ea9b0cc0158f07c505cb52",
+          "size": 15169
         },
         "before": null
       },

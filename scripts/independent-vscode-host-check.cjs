@@ -78,10 +78,12 @@ async function verifyEmbeddedInstructions(diagnostics) {
       checked.libraryRevision = revision ? Number(revision[1]) : null;
       checked.baselineDistribution = html.includes(`<summary>${locale === "ko" ? "기본 지침 배포" : "Baseline distribution"}</summary>`);
       checked.localized = html.includes(`<main lang="${locale}"`) && html.includes(`aria-label="${locale === "ko" ? "지침 라이브러리" : "Instruction library"}"`);
-      checked.hasAlert = /\brole\s*=\s*["']alert["']/i.test(html);
+      // The installed view reserves this empty live-error target in healthy HTML.
+      const errorHtml = html.replace('<p class="error" data-client-error role="alert"></p>', "");
+      checked.hasAlert = /\brole\s*=\s*["']alert["']/i.test(errorHtml);
       checked.hasMissingModule = /Cannot find module/i.test(html);
       // Retain a bounded error excerpt instead of the rendered documents.
-      const alert = /<[^>]*\brole\s*=\s*["']alert["'][^>]*>([\s\S]*?)<\/[^>]+>/i.exec(html);
+      const alert = /<[^>]*\brole\s*=\s*["']alert["'][^>]*>([\s\S]*?)<\/[^>]+>/i.exec(errorHtml);
       if (alert) checked.alertText = alert[1].replace(/<[^>]*>/g, "").slice(0, 400);
       assert(revision && Number.isSafeInteger(checked.libraryRevision), `installed instruction mount (${locale}) omitted the personal library revision`);
       assert(checked.baselineDistribution, `installed instruction mount (${locale}) omitted baseline distribution`);

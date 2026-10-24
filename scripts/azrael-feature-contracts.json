@@ -1265,6 +1265,7 @@
             "scripts/tests/inject-task-profile.test.cjs",
             "scripts/tests/instruction-module-packaging.test.cjs",
             "scripts/test-instruction-library-host.cjs",
+            "scripts/test-independent-host-instructions.cjs",
             "scripts/tests/instruction-package.test.cjs"
           ],
           "level": "source"
