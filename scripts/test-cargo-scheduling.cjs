@@ -142,3 +142,22 @@ test('registered schedule retains every native check and batches declared compil
     assert.equal(positions.at(-1) - positions[0] + 1, positions.length);
   }
 });
+
+test('account persistence regression owns its mandatory check and runs first in the native schedule', () => {
+  const manifest = gate.loadManifest(path.resolve(__dirname, '..'));
+  const owner = 'engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs';
+  const impacted = manifest.features.filter(feature => feature.owners.includes(owner));
+  const usage = impacted.find(feature => feature.id === 'engine.usage-window');
+  assert(usage, 'Changed account persistence regression must select engine.usage-window through its declared owner');
+  assert.deepEqual(usage.checks, [{ id: 'engine.usage-window.native', executable: 'node',
+    args: ['scripts/check-usage-window.cjs', '{engineSourceRoot}'], level: 'native', cargoPreflight: 'selected-tests-v1' }]);
+  assert.equal(manifest.verificationSchedule.priorities['engine.usage-window.native'], 110);
+  const groups = manifest.features.flatMap(feature => feature.checks.filter(check => check.level === 'native')
+    .map(check => ({ check, entries: [{ feature, check }] })));
+  const before = structuredClone(groups);
+  const ordered = gate.scheduleNativeGroups(groups, manifest.verificationSchedule);
+  assert.equal(ordered[0].check.id, 'engine.usage-window.native');
+  assert.deepEqual(ordered.map(group => group.check.id).sort(), groups.map(group => group.check.id).sort());
+  assert.equal(new Set(ordered).size, groups.length);
+  assert.deepEqual(groups, before, 'Scheduling must preserve all argv, filters and metadata');
+});

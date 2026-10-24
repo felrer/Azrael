@@ -3197,6 +3197,7 @@
       "owners": [
         "engine/codex-rs/app-server/src/request_processors/account_processor.rs",
         "engine/codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
         "engine/codex-rs/app-server/src/request_processors/account_processor/usage_identity_tests.rs",
         "engine/codex-rs/app-server/src/request_processors/account_processor/usage_window.rs",
         "engine/codex-rs/app-server/src/request_processors/account_processor/usage_window_store.rs",
@@ -3823,6 +3824,7 @@
   ],
   "verificationSchedule": {
     "priorities": {
+      "engine.usage-window.native": 110,
       "engine.model-harness-profiles.context": 100,
       "engine.model-harness-profiles.config": 90,
       "tool.project-maintenance.windows-cleanup": 80

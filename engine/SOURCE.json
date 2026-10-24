@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 95087085,
+  "byteCount": 95087303,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -11497,8 +11497,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "c341ef462e56ac494bbe1c7a5fd30a93fe5210034708d621ce68586c7bbcf12e",
-      "size": 16372
+      "sha256": "f15fe3180db4e773918d95630b2a79363b3fab591e1c821fab40250a97b69a57",
+      "size": 16590
     },
     "codex-rs/app-server/src/request_processors/account_processor/bedrock_gov_cloud.rs": {
       "gitMode": "100644",
@@ -65186,7 +65186,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9310,
-  "inventorySha256": "b89d5bbd60420f42bc4a05169debd26b896fc9544eab35e6be682a0cd05762c4",
+  "inventorySha256": "2e839ed9ec5e6865c9db484ff920db594745c4f5e32411ab2950a4b33c31cbd9",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -67175,6 +67175,22 @@
           "permissions": 438,
           "sha256": "0cc5698064740e7d9c611a92e9af1a95dea2f59cad1b2d2fd0a1ed67a16c1296",
           "size": 11531
+        }
+      },
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "f15fe3180db4e773918d95630b2a79363b3fab591e1c821fab40250a97b69a57",
+          "size": 16590
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "c341ef462e56ac494bbe1c7a5fd30a93fe5210034708d621ce68586c7bbcf12e",
+          "size": 16372
         }
       },
       "codex-rs/app-server/src/request_processors/account_processor/usage_identity_tests.rs": {
@@ -136921,7 +136937,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "55b225c51fe4ae2b0556d67433aaa6d15fc41859",
+    "repositoryHead": "ec372c4aa2a7943c24a95562de1433c671f4ab6f",
     "schema": 4,
     "sourcePrefix": "engine"
   },

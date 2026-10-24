@@ -125,7 +125,7 @@ async fn no_candidate_retirement_stays_settled_across_ticks_and_allows_explicit_
 }
 
 #[test]
-fn selected_profile_state_round_trips_only_the_sanitized_id() {
+fn selected_profile_state_round_trips_only_the_sanitized_id_and_recovery_marker() {
     let temp = tempfile::tempdir().expect("temporary directory");
     let state_path = temp.path().join(SELECTED_STATE_FILE);
     let selected = "0123456789abcdef0123456789abcdef".to_string();
@@ -142,9 +142,13 @@ fn selected_profile_state_round_trips_only_the_sanitized_id() {
             .expect("state should be an object")
             .keys()
             .cloned()
-            .collect::<Vec<_>>(),
-        vec!["selectedProfileId".to_string()]
+            .collect::<std::collections::BTreeSet<_>>(),
+        std::collections::BTreeSet::from([
+            "requiresRecovery".to_string(),
+            "selectedProfileId".to_string(),
+        ])
     );
+    assert_eq!(json["requiresRecovery"], serde_json::Value::Bool(false));
 }
 
 #[test]
