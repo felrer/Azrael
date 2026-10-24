@@ -115,7 +115,7 @@ test("default adapter output exposes the managed run and closes known outcomes",
   fs.mkdirSync(path.join(root, "artifacts/verification"), { recursive: true });
   const fixture = fs.mkdtempSync(path.join(root, "artifacts/verification/maintenance-run-layout-"));
   try {
-    const plan = { commands: [{ name: "source", executable: process.execPath, args: [], cwd: fixture,
+    const plan = { files: [], commands: [{ name: "source", executable: process.execPath, args: [], cwd: fixture,
       files: [], phase: "test", checkIds: ["fixture"], dependsOn: [] }],
       coverageStatus: "selected-source-scope", separateChecks: [] };
     for (const exitCode of [0, 7]) {

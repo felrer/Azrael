@@ -5,6 +5,7 @@ mod groups;
 mod paths;
 mod planning;
 mod registry;
+mod retirement;
 mod storage;
 
 use serde::{Deserialize, Serialize};
@@ -26,6 +27,7 @@ pub(crate) struct Context<'a> {
     authorize: &'a dyn Fn(&Path, AccessMode) -> Result<(), String>,
     content: std::cell::RefCell<paths::ContentCache>,
     catalog_locks: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
+    retirement: std::cell::RefCell<Option<retirement::Retirement>>,
 }
 
 impl<'a> Context<'a> {
@@ -34,6 +36,7 @@ impl<'a> Context<'a> {
             authorize,
             content: Default::default(),
             catalog_locks: Default::default(),
+            retirement: Default::default(),
         }
     }
 }
@@ -190,6 +193,8 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     // Keep producer metadata stable through the final manifest commit, including
     // all durable deletion intents and results written by apply.
     let _catalog_locks = registry::lock_request(&root, &request, &store.state, authorize)?;
+    *authorize.retirement.borrow_mut() =
+        retirement::validate(&root, config.as_ref(), &store.state, &request, authorize)?;
     if operation == "apply" {
         return apply::apply(
             &root,
@@ -840,7 +845,9 @@ fn review_single(
             let base = root.join(p);
             paths::within(path, &base) && paths::within(&base, path)
         }) {
-            blockers.push("managed root itself is protected; select owned descendants");
+            if !retirement::selected(auth, item) {
+                blockers.push("managed root itself is protected; select owned descendants");
+            }
         } else {
             blockers.push("outside configured managed roots");
         }
@@ -942,7 +949,7 @@ fn review_single(
         }
     }
     let token = hash(
-        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity}),
+        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity,"retire_managed_roots":*auth.retirement.borrow(),"retirement_evidence_identity":retirement::evidence_identity(root, auth)?}),
     )?;
     Ok(
         json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"verification":verification.name(),"root_observation":observation,"observed_at_ms":now_ms()?,"measured_at_ms":if verification == Verification::Registered {item["measured_at_ms"].clone()} else {json!(now_ms()?)},"token":token,"blockers":blockers}),
