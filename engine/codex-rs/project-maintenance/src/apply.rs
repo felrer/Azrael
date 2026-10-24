@@ -144,6 +144,16 @@ pub(crate) fn apply(
         let path = Path::new(string(&item, "path")?);
         let group_id = groups::id(&item).map(str::to_owned);
         let mut outcome = choice.clone();
+        if crate::retirement::selected(auth, &item) {
+            outcome["retire_managed_roots"] = serde_json::to_value(&*auth.retirement.borrow())
+                .map_err(|error| error.to_string())?;
+            outcome["retirement_evidence_identity"] = json!(
+                auth.retirement
+                    .borrow()
+                    .as_ref()
+                    .map(|retirement| &retirement.evidence_identity)
+            );
+        }
         if let Some(group) = &group_id {
             outcome["lifecycle_group_id"] = json!(group);
         }

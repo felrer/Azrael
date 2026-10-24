@@ -10,6 +10,19 @@
 
 `managed_roots`는 정리를 허용할 수 있는 범위이며 등록만으로 삭제를 허용하지 않는다. 설치본·복구본·다른 작업의 입력은 보호 경로와 항목 참조에 반영한다. 프로젝트 밖의 백업은 소유가 확인된 별도 관리 디렉터리에 설정을 두고 다른 `project_id`로 등록한다. 각 등록 루트의 `managed_roots`는 그 루트 안의 상대 경로이며 루트 자체는 삭제하지 않는다. 한 설정에서 루트를 벗어나는 경로와 원격 환경은 지원하지 않는다.
 
+## 관리 경계 자체의 수명 종료
+
+상태: 소스와 Windows 실행기 검증 완료. 일반 삭제는 `managed_roots` 자체를 보호한다. 관리 경계의 생성물까지 폐기하도록 사용자가 승인한 경우에는 같은 라이브러리의 `maintenance_owner` 실행기로 명시적인 폐기 검토와 적용을 수행한다. 설치된 Azrael 도구의 버전과 별개로 검증한 실행파일을 사용하며, fixture 전용 example을 실물 정리에 사용하지 않는다.
+
+선택한 절대 프로젝트 경계 안에 요청 JSON과 별도 보존 증거를 둔다. 요청의 `operation`은 `review` 또는 `apply`이며 `retire_managed_roots`에는 `owner`, `reason`, `evidence_ref`, 정확한 등록 항목 `ids`를 넣는다. 증거는 삭제 대상 밖에 보존한다. 전체 그룹의 fresh 검토 토큰으로 모든 live 항목에 같은 delete/defer 결정을 지정한다. 폐기 요청을 바꾸거나 생략하면 이전 토큰을 사용할 수 없다.
+
+```powershell
+& '<검증한 실행파일의 절대 경로>/maintenance_owner.exe' --project-root 'C:/선택한프로젝트' --request 'C:/선택한프로젝트/retirement-review.json'
+& '<같은 실행파일의 절대 경로>/maintenance_owner.exe' --project-root 'C:/선택한프로젝트' --request 'C:/선택한프로젝트/retirement-apply.json'
+```
+
+`evidence_ref`는 선택 프로젝트의 `artifacts/maintenance/evidence/` 아래에 있는 1 MiB 이하 일반 파일이다. 현재 읽기 권한과 링크 검사를 통과해야 하며 내용 identity를 검토 토큰에 묶는다. 이 실행기는 선택 경계의 기존 OS 권한을 사용한다. 승격·force·ACL/소유권 변경을 하지 않는다. 거부된 보호를 다른 shell이나 API로 우회하지 않는다. `results`의 실제 status/remaining과 경로 부재를 확인하고 부분 실패를 보존한다. 설정된 경계와 native 이력은 보존되므로 payload 삭제가 별칭 해제나 관리 이력 삭제를 뜻하지 않는다. 별칭이 필요 없으면 실제 결과 확인 뒤 별도의 `unregister_project`로 메타데이터만 해제한다.
+
 ## 기존 테스트 선택기
 
 다음 명령은 목록과 계획만 출력한다.
