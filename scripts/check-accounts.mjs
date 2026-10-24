@@ -12,14 +12,21 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { basename, dirname, extname, isAbsolute, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 import { OpenAiAutoSwitchFixture, runOpenAiAutoSwitch } from './openai-auto-switch-fixture.mjs';
 import { runAccountControls } from './account-controls-fixture.mjs';
 import { accountFixtureEnvironment } from './account-fixture-environment.mjs';
+import { loadAccountModelsCatalog } from './account-models-catalog.mjs';
 
 const WAIT_MS = 30_000;
 const arguments_ = process.argv.slice(2);
+const { models: bundledModels } = await loadAccountModelsCatalog(arguments_);
+const fixtureModelInfo = structuredClone(
+  bundledModels.models.find(model => model.tool_mode === null),
+);
+if (!fixtureModelInfo || typeof fixtureModelInfo !== 'object') {
+  throw new Error('Bundled model catalog did not contain a fixture model');
+}
 const parentIndex = arguments_.indexOf('--parent-lifecycle-id');
 const parentLifecycleId = parentIndex < 0 ? null : arguments_.splice(parentIndex, 2)[1];
 if (parentIndex >= 0 && !parentLifecycleId) throw new Error('--parent-lifecycle-id requires an ID');
@@ -42,7 +49,7 @@ if (
   !isAbsolute(socketArgument)
 ) {
   throw new Error(
-    'Usage: node scripts/check-accounts.mjs <engine> <bridge> <new absolute state directory> <new absolute short socket path> [--auto-switch-only | --account-controls-only]',
+    'Usage: node scripts/check-accounts.mjs <engine> <bridge> <new absolute state directory> <new absolute short socket path> [--auto-switch-only | --account-controls-only] [--models-catalog <absolute path>]',
   );
 }
 
@@ -69,9 +76,6 @@ const selectedStatePath = join(stateDirectory, 'azrael', 'account-state.json');
 const profileRoot = join(stateDirectory, 'azrael', 'accounts');
 const fixtureModel = 'azrael-accounts-fixture';
 const probeReasoningEffort = 'high';
-const bundledModelsPath = fileURLToPath(
-  new URL('../upstream/codex/codex-rs/models-manager/models.json', import.meta.url),
-);
 const fixtureModelsPath = join(stateDirectory, 'models-fixture.json');
 
 if (socketDirectory === stateDirectory) {
@@ -729,13 +733,6 @@ try {
   await mkdir(stateDirectory);
   stateOwned = true;
   socketOwned = true;
-  const bundledModels = JSON.parse(await readFile(bundledModelsPath, 'utf8'));
-  const fixtureModelInfo = structuredClone(
-    bundledModels.models?.find(model => model.tool_mode === null),
-  );
-  if (!fixtureModelInfo || typeof fixtureModelInfo !== 'object') {
-    throw new Error('Bundled model catalog did not contain a fixture model');
-  }
   fixtureModelInfo.slug = fixtureModel;
   fixtureModelInfo.display_name = 'Azrael Accounts Fixture';
   fixtureModelInfo.prefer_websockets = false;

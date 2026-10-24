@@ -403,7 +403,7 @@ try {
         if (Test-Path -LiteralPath (Split-Path $socketPath -Parent)) { throw 'Account controls socket directory already exists.' }
         $reportPath = Join-Path $accountControlsState 'verification.json'
         $metrics.accountControls = [ordered]@{ status = 'running'; verification = $reportPath; stateRoot = $accountControlsState; socket = $socketPath; engine = $enginePath; bridge = $bridgePath; engineSha256 = (Get-FileHash -LiteralPath $enginePath).Hash; bridgeSha256 = (Get-FileHash -LiteralPath $bridgePath).Hash }
-        $accountCheck = Start-OwnedCommand 'account-controls' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'check-accounts.mjs'), $enginePath, $bridgePath, $accountControlsState, $socketPath, '--account-controls-only', '--parent-lifecycle-id', $accountLifecycleId)
+        $accountCheck = Start-OwnedCommand 'account-controls' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'check-accounts.mjs'), $enginePath, $bridgePath, $accountControlsState, $socketPath, '--account-controls-only', '--models-catalog', (Join-Path $release 'scripts/devin-catalog.json'), '--parent-lifecycle-id', $accountLifecycleId)
         Wait-OwnedCommands @($accountCheck)
         $accountReport = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
         if ($accountReport.status -cne 'passed' -or $accountReport.route -cne 'account-controls' -or

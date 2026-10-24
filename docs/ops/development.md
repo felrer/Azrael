@@ -564,6 +564,8 @@ node scripts/check-management.mjs '<engine>' '<bridge>' '<new state directory>' 
 node scripts/test-check-management.mjs '<new absolute output directory>'
 ```
 
+The account checker defaults to the imported `engine/codex-rs/models-manager/models.json` catalog. Use `--models-catalog <absolute path>` to select an exact catalog; deployment passes the built release's `scripts/devin-catalog.json`. Missing or invalid explicit catalogs fail before fixture creation, without an upstream fallback. Synthetic account children remove inherited window context and account selection paths from their copied environment, so they use their own stdio engine and disposable state.
+
 These use disposable mock profiles or synthetic local credentials and make no model requests or reset-credit use. The `--account-controls-only` route requires the real management bridge and verifies paid timer defaults, automatic-switch/timer enable-disable responses, invalid-profile refusal, and settings across engine restarts. Its `verification.json` is retained in the requested fixture state directory. The multi-window check starts two engine/bridge pairs on one disposable home and verifies that stopping one leaves the other connected; initialize the first empty SQLite store before starting the second, because simultaneous first-time bootstrap has a separate initialization race. A profile used by another window cannot be removed; finish that work and close its window instead of bypassing the lease. Provider account procedures: [provider accounts](provider-accounts.md).
 
 Automatic account switching uses a separate local inference fixture:

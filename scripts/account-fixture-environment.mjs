@@ -12,6 +12,8 @@ export function accountFixtureEnvironment(environment, { stateDirectory, socketP
   // Every synthetic route owns its selection files inside the disposable home.
   delete fixture.AZRAEL_EX_ACCOUNT_STATE_FILE;
   delete fixture.AZRAEL_EX_ACCOUNT_DEFAULT_FILE;
+  // A real window context selects the shared proxy instead of this owned engine.
+  delete fixture.AZRAEL_EX_WINDOW_CONTEXT;
   if (autoSwitchOnly) delete fixture.AZRAEL_EX_MANAGEMENT_SOCKET;
   return fixture;
 }

@@ -138,6 +138,8 @@ New-Item -ItemType Directory -Path (Join-Path $a "releases/$ReleaseName"),(Join-
 New-Item -ItemType Directory -Path (Join-Path $a "releases/$ReleaseName/engine") -Force | Out-Null
 'fixture engine' | Set-Content (Join-Path $a "releases/$ReleaseName/engine/azrael.exe")
 'fixture bridge' | Set-Content (Join-Path $a "releases/$ReleaseName/engine/azrael-bridge.exe")
+New-Item -ItemType Directory -Path (Join-Path $a "releases/$ReleaseName/scripts") | Out-Null
+'{"models":[{"slug":"release-catalog","tool_mode":null}]}' | Set-Content (Join-Path $a "releases/$ReleaseName/scripts/devin-catalog.json")
 $buildInfo=@{engineSourceRoot=$SourceRoot}
 if($scenario.moduleCache){
  $cachedTool=Join-Path $a 'cache/modules/companion/pinned/companion/node_modules/typescript/lib/typescript.js'
@@ -157,7 +159,7 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url))); const a
 const scenario = JSON.parse(fs.readFileSync(path.join(a, 'scenario.json')));
 const args = process.argv.slice(2);
 const parentOption = args.indexOf('--parent-lifecycle-id');
-if (parentOption !== 5 || args.length !== 7) throw new Error('account parent lifecycle option mismatch');
+if (parentOption !== 7 || args.length !== 9) throw new Error('account parent lifecycle option mismatch');
 const parentId = args.splice(parentOption, 2)[1];
 const [engine, bridge, state, socket, flag] = args;
 const parent = catalog(root).find(record => record.id === parentId);
@@ -165,7 +167,7 @@ const inside = (base, candidate) => { const relative = path.relative(base, candi
 if (parentId !== 'run:account-controls:chosen' || !parent || parent.state !== 'pending' || !parent.members.some(member => inside(member.path, state))) throw new Error('account parent must own planned fixture state');
 if (!fs.existsSync(path.join(a, 'build-end.json')) || !fs.existsSync(path.join(a, 'source-end.json')) ||
     !fs.existsSync(path.join(a, 'logs/deploy-chosen/inputs-post-build.json')) || !fs.existsSync(path.join(a, 'prepare-end.json')) || !fs.existsSync(path.join(a, 'native-end.json'))) throw new Error('account gate ordering mismatch');
-if (args.length !== 5 || flag !== '--account-controls-only' || fs.existsSync(state) || fs.existsSync(path.dirname(socket))) throw new Error('account gate arguments/freshness mismatch');
+if (args.length !== 7 || flag !== '--account-controls-only' || args[5] !== '--models-catalog' || args[6] !== path.join(a,'releases/chosen/scripts/devin-catalog.json') || !Array.isArray(JSON.parse(fs.readFileSync(args[6])).models) || fs.existsSync(state) || fs.existsSync(path.dirname(socket))) throw new Error('account gate arguments/catalog/freshness mismatch');
 const native=JSON.parse(fs.readFileSync(path.join(a,'native-end.json')));
 if(JSON.parse(fs.readFileSync(native.receiptPath)).status!=='passed' || !fs.existsSync(path.join(JSON.parse(fs.readFileSync(path.join(a,'prepare-end.json'))).outputDirectory,'independent-prepared.json'))) throw Error('account prerequisite receipt missing');
 fs.writeFileSync(path.join(a, 'account-invocation.json'), JSON.stringify(args));
@@ -732,7 +734,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         $engine=Join-Path $a 'releases/chosen/engine/azrael.exe'
         $bridge=Join-Path $a 'releases/chosen/engine/azrael-bridge.exe'
         $state=Join-Path $a 'verification/account-controls-chosen'
-        Assert-True ($accountArgs.Count -eq 5 -and $accountArgs[0] -ceq $engine -and $accountArgs[1] -ceq $bridge -and $accountArgs[2] -ceq $state -and $accountArgs[4] -ceq '--account-controls-only') 'account gate did not forward exact release paths/route'
+        Assert-True ($accountArgs.Count -eq 7 -and $accountArgs[0] -ceq $engine -and $accountArgs[1] -ceq $bridge -and $accountArgs[2] -ceq $state -and $accountArgs[4] -ceq '--account-controls-only' -and $accountArgs[5] -ceq '--models-catalog' -and $accountArgs[6] -ceq (Join-Path $a 'releases/chosen/scripts/devin-catalog.json')) 'account gate did not forward exact release paths/route/catalog'
         Assert-True ([IO.Path]::IsPathFullyQualified($accountArgs[3]) -and [Text.Encoding]::UTF8.GetByteCount($accountArgs[3]) -le 100) 'account socket path is not absolute/short'
         $expectedAccountReport = if ($success) { Join-Path $a 'logs/verification-evidence/account-controls-chosen/verification.json' } else { Join-Path $state 'verification.json' }
         Assert-True ($metrics.accountControls.verification -ceq $expectedAccountReport -and $metrics.accountControls.engine -ceq $engine -and $metrics.accountControls.bridge -ceq $bridge -and $metrics.accountControls.engineSha256 -ceq (Get-FileHash $engine).Hash -and $metrics.accountControls.bridgeSha256 -ceq (Get-FileHash $bridge).Hash) 'account report/binary identity metrics missing'
