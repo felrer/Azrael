@@ -114,6 +114,16 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 ## 작업·버전 묶음 연결과 이전
 
+### 확인된 legacy 로그의 보관 이관
+
+일반 `record`는 `generated:false`나 `protection_known:false`를 승격하지 않는다. 생성 근거를 확인한 legacy 로그는 `node scripts/artifact-lifecycle.cjs transfer-custody --project-root <absolute-root> --id <custody-id> --request-file <absolute-json>`로 명시적으로 이관한다. 요청은 보관 `owner`, `expected_revision`, `reason`, `evidence_ref`, `evidence_sha256`, 새 `target:{id,kind:"work",owner,version?}`와 정확한 절대 `paths`를 가진다. source에 선택되지 않은 member가 남는 부분 이관을 지원한다.
+
+증거 JSON은 `schema:1`, `source_id`, `source_revision`, `target_id`, `user_authorized:true`와 경로별 `entries`를 가진다. 각 entry의 `path`, 확인된 `generated:true`, `protection_known:true`, `consumers_released:true`, `producer_stopped_verified:true`, 구체적인 `generation_basis`, `producer_evidence:[{path,sha256}]`를 기록한다. 근거는 원래 생성 스크립트·실행 영수증 등 실제 파일에서 수집하고, 삭제 영역과 registry 밖의 보존 위치로 먼저 이관한다. 승인이나 이관 명령 자체를 원래 생성 근거로 사용하지 않는다. native 소유 기록과 설치·실행·현재 소비 참조는 caller가 먼저 확인하며, 다른 소유와 겹친 부모를 일괄 선택하지 않는다.
+
+writer는 잠금 아래 pending target → source claim 이관·영수증 → 완료 target 순서로 기록한다. 같은 요청의 재개는 가능하지만 다른 증거·소유자·revision·target 변경은 거절한다. target이 이미 삭제·finalize된 뒤 같은 요청을 재실행해도 파일이나 소유를 되살리지 않는다. 이후 새 target의 `register` 요청을 내장 `project_inventory`로 등록하고 fresh `project_cleanup_review` 및 명시적 `project_cleanup_apply`를 수행한다. 이관 성공만으로 삭제됐다고 보고하지 않는다. 파일이 모두 실제로 사라지고 참조가 해제되면 새 target을 finalize한다. 원래 custody의 나머지 member와 미확정 상태는 유지한다.
+
+실제 경로를 묶어 옮길 때는 같은 요청에 신규 절대 `destination_root`를 추가하고 `relocate-custody` CLI를 사용한다. destination은 기존 claim 및 선택 원본과 겹치지 않는 `artifacts/logs/` 아래의 미존재 전용 폴더이며 부모가 존재해야 한다. caller는 native의 현재/과거 claim 충돌도 먼저 확인한다. 현재 실행/소비 경계는 옮기지 않는다. 작은 inactive copy pilot에서 원본을 유지한 채 완전성·내용 SHA·읽기 권한과 실제 reader를 확인한 뒤 적용한다. writer는 pending mapping 및 source/destination의 dev/ino를 보존하고 동일 볼륨 ordinary rename만 사용한다. 재개는 원본/목적지 중 정확히 하나가 존재하고 기록된 identity와 일치해야 한다. mkdir 직후 identity 저장 전 중단이나 교체/충돌은 fail-closed이며 임의 인수·덮어쓰기·삭제로 해결하지 않는다. 성공 후 `register`는 새 폴더 하나를 native member로 투영한다. 새 경계의 fresh review/apply·실제 부재 확인·finalize 전까지 물리 이관과 삭제 결과를 분리해 보고한다.
+
 현재 단독 writer의 기본 결과는 stdout의 `runRoot`/`lifecycleId`와 해당 run의 `reports/producer.json`으로 찾는다. 기존 고정 `artifacts/logs/...` 경로는 과거 실행 근거일 수 있으며 새 실행의 출력 경로로 가정하지 않는다. renderer의 기존 요약·스크린샷 파일명은 run의 `logs/`, native/check의 검증 결과는 `reports/`에 둔다. `check-management` 결과는 `<runRoot>/reports/verification.json`이다. 명시한 pending 부모가 소유하는 deploy/accounts 검사는 기존 부모 내부 결과 경로를 유지한다. instruction CLI JSON의 manifest 부모를 `AZRAEL_INSTRUCTION_RELEASE_ASSETS`로 전달하면 해당 release의 integration reader를 선택할 수 있다. caller가 명시한 외부 출력·실제 auth/state는 기존 소유자를 유지한다.
 
 `maintenance-lifecycle-writers` 묶음은 공용 helper, native/check 및 29개 renderer의 생성 전 소유·고유 경로·충돌·성공/실패/미종료와 작은 instruction packaging fixture를 검사한다. `project_tests plan/run`에 이 ID를 명시하거나 `node scripts/check-artifact-lifecycle.cjs --stage writers`를 사용한다. runner가 검사 fixture와 로그를 먼저 등록하며 실제 browser/host 전체 수용과 live API 검사는 별도다. Windows의 대표 browser6·host12 및 모의 deploy3 수용 결과와 재시도 원인은 [인수 근거](../../work/BI-01-project-maintenance/04-adoption-acceptance.json)에 보존한다.

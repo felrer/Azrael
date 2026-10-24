@@ -74,6 +74,12 @@ Windows 배포의 신규 입력 준비는 `deployment-workspace.cjs`가 기존 c
 
 과거 경로의 관리 범위는 producer/native/cache owner와 소스·사용자·고정 입력 계약을 함께 대조한다. 출처 미확정 경로는 원래 생성자를 추정하지 않고 보관 책임, 근거, 다음 발견 조건을 기록한다. Node member의 `generated:false`는 이 불확실성을 보존하며 cleanup 계획을 차단한다. 중첩 member를 부모로 투영해도 자식의 불확실성을 유지하고, 일반 업데이트로 이를 true로 승격할 수 없다. 정리 명령의 관찰 대상은 그 명령이 생성한 출력이 아니다. 정리 명령은 자신의 보고서만 소유하고 다른 묶음의 자료 사용은 소비 참조로 표현한다. 서로 다른 native/producer ID가 동일 생성 소유자의 같은 자료를 가리키는 경우 mapping에 별칭을 명시한다. 현 프로젝트의 경계·별칭·보호 및 미확정 목록은 [현재 adoption map](../../work/BI-01-project-maintenance/05-adoption-map.json)에 있다.
 
+명시적 보관 이관은 일반 승격과 별개다. `transferCustody`는 생성 근거가 확인된 `artifacts/logs/` 아래의 정확한 legacy-custody 경계만 새 소유 그룹으로 넘긴다. 사용자 승인, 보관 owner와 revision, 경로별 생성/사용 확인 및 삭제 경계 밖의 증거 파일 SHA-256을 요구한다. 다른 소유·소비 참조, 경계 밖 경로·링크·부분 부모 선택과 미확정 증거는 이관을 차단한다. 보관 기록 전체나 원본·백업의 불확실성을 자동 해제하지 않는다. 원래 member와 상태/실행 결과는 source의 이관 영수증에 보존하며, 새 소유 그룹의 완료는 소유 확인의 완료이지 과거 테스트의 성공이 아니다.
+
+보관 이관 writer는 catalog 잠금 아래 새 target을 pending/incomplete로 기록하고, source에서 선택한 claim만 이관한 뒤 target을 확정한다. 중단 시 미완료 target과 겹친 claim이 보호를 유지한다. 동일 증거·요청의 재개만 허용하며, 이미 정리된 target을 재생성하지 않는다. 이관 자체는 파일을 이동하거나 삭제하지 않는다. 이후 native 등록·fresh review·명시적 apply와 실제 부재 확인을 거친다. 일반 `record`의 protected member 승격 금지는 유지한다. 이 기능의 owner는 기존 `tool.project-maintenance.lifecycle-source`이며 공통 Node 의미를 갖고 실제 검증 범위는 작업 기록에 둔다.
+
+물리 묶음 이관은 별도 `relocateCustody` writer가 담당한다. 같은 생성/소유/참조 증거와 신규 `destination_root`를 요구하며, 같은 볼륨의 정확한 로그 경계만 ordinary rename으로 새 전용 폴더에 모은다. 새 폴더 생성 전에 pending intent와 원래 경계별 파일시스템 식별자·mapping을 기록한다. 이동 전후 식별자를 확인하고 모든 이동이 확정될 때까지 원래 custody claim을 유지한다. 중간 실패는 source와 pending target의 보호를 유지하며, 양쪽 경로가 모두 있거나 없거나 identity가 바뀐 재개는 거절한다. 폴더 생성 후 identity 기록 이전의 중단은 자동 인수 근거가 없어 명시적 복구 증거를 요구한다. 이동은 삭제 성공이 아니며 새 단일 경계의 native 등록·검토·삭제를 별도로 수행한다. 적용 전 작은 inactive copy pilot과 reader/내용/권한 확인은 기존 lifecycle playbook을 따른다.
+
 완료된 BL-01/AO-01 자료의 시험 이전은 task/run별 logs·reports·outputs에 배치하고 원본 해시와 reader 참조를 검증한다. AO Chromium 검증 writer는 기본 고유 실행 ID와 선택한 안전한 `--run-id`를 사용하며 `--describe-paths`는 생성 전 경로만 조회한다. 쓰기 전 pending/incomplete를 등록하고 충돌을 거부한다. fixture·프로필은 같은 run의 temporary, 로그·보고서·이미지는 해당 하위 경로에 두며 브라우저 종료와 프로세스 참조를 확인한 뒤 실제 결과를 기록한다. 통과한 run도 fixture를 자동 삭제하지 않고 전체 run의 모델 삭제/보류를 기다린다.
 
 임시 deploy/account fixture는 retained version payload와 다른 run 소유다. 모든 producer의 종료와 필요한 검증 근거의 승격을 확인한 뒤 기존 성공 fixture 정리를 수행한다. 실패·미확인 fixture는 실패 상태로 보호한다. 설치 버전을 보존한다는 이유로 임시 프로필·패키지 복사본을 무기한 유지하지 않는다. legacy 정리도 삭제 직전 각 구성원의 최신 group 정의와 소비 참조를 다시 확인하고 변경되면 나머지 시도를 멈춘다.

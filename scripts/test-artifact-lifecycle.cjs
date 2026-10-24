@@ -29,6 +29,302 @@ function fixture(t) {
   return { root, at, record };
 }
 
+function custodyFixture(t) {
+  const f = fixture(t), { root, at, record } = f;
+  const selected = at("logs/old"), remaining = at("logs/remaining"), child = path.join(selected, "nested.log");
+  fs.mkdirSync(selected, { recursive: true }); fs.writeFileSync(child, "historical unknown outcome");
+  fs.writeFileSync(remaining, "unresolved custody");
+  const members = [selected, child, remaining].map(value => ({ path: value, role: "legacy-custody", generated: false, protection_known: false }));
+  const source = record("custodian", [], { members, state: "pending", membership_complete: false });
+  const proof = at("proof.json"); fs.writeFileSync(proof, JSON.stringify({ outcome: "unknown", exit_code: null }));
+  const digest = value => require("node:crypto").createHash("sha256").update(fs.readFileSync(value)).digest("hex");
+  const document = { schema: 1, source_id: source.id, source_revision: source.revision, target_id: "adjudicated", user_authorized: true, entries: [{ path: selected, generated: true, protection_known: true, producer_stopped_verified: true, consumers_released: true, generation_basis: "Verified original producer receipt; historical result remains unknown", producer_evidence: [{ path: proof, sha256: digest(proof) }] }] };
+  const evidence = at("handoff.json");
+  const request = { owner: source.owner, expected_revision: source.revision, target: { id: "adjudicated", kind: "work", owner: "cleanup-adjudicator" }, paths: [selected], reason: "Explicit authorized ownership adjudication", evidence_ref: evidence };
+  const seal = () => { fs.writeFileSync(evidence, JSON.stringify(document)); request.evidence_sha256 = digest(evidence); };
+  seal();
+  return { ...f, source, members, selected, remaining, child, proof, document, request, seal, transfer: () => lifecycle.transferCustody(root, source.id, request) };
+}
+
+test("custody subset handoff preserves uncertainty, descendants, receipts and ordinary promotion rejection", t => {
+  const f = custodyFixture(t);
+  assert.throws(() => f.record("custodian", [], { members: [{ ...f.members[0], generated: true }] }), /Cannot promote/);
+  const result = f.transfer();
+  assert.equal(result.status, "transferred");
+  assert.equal(result.record.state, "complete"); assert.equal(result.record.producer, undefined);
+  const source = lifecycle.catalog(f.root).find(item => item.id === "custodian");
+  assert.deepEqual(source.members, [f.members[2]]);
+  assert.equal(source.custody_handoffs[0].original_members.length, 2);
+  assert.equal(source.state, "pending");
+  f.record(source.id, [], { members: source.members, state: source.state, membership_complete: false });
+  assert.equal(lifecycle.catalog(f.root).find(item => item.id === source.id).custody_handoffs.length, 1);
+  assert.equal(f.transfer().record.revision, result.record.revision);
+  assert.throws(() => f.record(source.id, [], { members: [f.members[0]] }), /cannot be reclaimed/);
+});
+
+test("custody rejects invalid identities, evidence, selected boundaries and consumer claims", async t => {
+  const cases = {
+    owner: f => { f.request.owner = "wrong"; },
+    revision: f => { f.request.expected_revision++; f.document.source_revision++; f.seal(); },
+    missingProof: f => { fs.unlinkSync(f.proof); },
+    mismatchedProof: f => { fs.writeFileSync(f.proof, "changed"); },
+    externalProof: f => { f.document.entries[0].producer_evidence[0].path = path.join(path.dirname(f.root), "outside-proof"); f.seal(); },
+    deletedProof: f => { f.document.entries[0].producer_evidence[0].path = f.child; f.seal(); },
+    registryProof: f => { f.document.entries[0].producer_evidence[0].path = lifecycle.registryPath(f.root, f.source.id); f.seal(); },
+    outsideLogs: f => { f.request.paths = [f.proof]; },
+    partialAncestor: f => { f.request.paths = [f.child]; f.document.entries[0].path = f.child; f.seal(); },
+    extraEvidence: f => { f.document.entries.push(f.document.entries[0]); f.seal(); },
+    missingAuthorization: f => { f.document.user_authorized = false; f.seal(); },
+    unconfirmed: f => { f.document.entries[0].producer_stopped_verified = false; f.seal(); },
+    duplicateTarget: f => { f.record(f.request.target.id, [["other", "output"]]); },
+    overlappingOwner: f => { f.record("other-owner", [], { members: [{ path: f.child, role: "log" }] }); },
+    overlappingAncestor: f => { f.record("other-owner", [], { members: [{ path: f.at("logs"), role: "log" }] }); },
+    incomingConsumer: f => { f.record("consumer", [["other", "output"]], { references: [{ id: f.source.id, reason: "retained evidence" }] }); },
+    outgoingConsumer: f => { f.record(f.source.id, [], { members: f.members, state: "pending", membership_complete: false, references: [{ id: "external", reason: "retained dependency" }] }); }
+  };
+  for (const [name, change] of Object.entries(cases)) await t.test(name, t => {
+    const f = custodyFixture(t); change(f);
+    const before = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8");
+    assert.throws(f.transfer);
+    assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8"), before);
+  });
+});
+
+test("custody staged filesystem failures stay protected and same request resumes", async t => {
+  for (const stage of [1, 2, 3]) await t.test(`write ${stage}`, t => {
+    const f = custodyFixture(t), original = fs.renameSync; let count = 0;
+    fs.renameSync = (...args) => { if (++count === stage) throw new Error("injected custody write interruption"); return original(...args); };
+    try { assert.throws(f.transfer, /injected/); } finally { fs.renameSync = original; }
+    const pending = lifecycle.catalog(f.root).find(item => item.id === f.request.target.id);
+    if (pending) {
+      assert.equal(pending.state, "pending"); assert.equal(pending.membership_complete, false);
+      const plan = lifecycle.planCleanup(f.root, { paths: [f.selected] });
+      assert.ok(plan.groups.find(group => group.id === pending.id).blockers.length);
+      assert.throws(() => lifecycle.recordLifecycle(f.root, { ...pending, state: "complete", membership_complete: true }), /Pending custody/);
+      assert.throws(() => lifecycle.closeLifecycle(f.root, pending.id, {}), /Pending custody/);
+    }
+    assert.equal(f.transfer().status, "transferred");
+    assert.equal(f.transfer().status, "transferred");
+  });
+});
+
+test("custody completed retry rejects changed proof and references; absent retired target is never resurrected", t => {
+  const f = custodyFixture(t); f.transfer();
+  fs.unlinkSync(lifecycle.registryPath(f.root, f.request.target.id));
+  assert.throws(f.transfer, /Retired custody target/);
+  fs.unlinkSync(f.child); fs.rmdirSync(f.selected);
+  assert.equal(f.transfer().status, "already-retired");
+  assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+  fs.writeFileSync(f.proof, "changed"); assert.throws(f.transfer, /SHA256/);
+});
+
+test("custody CLI reads the pinned request file; new references prevent retry", t => {
+  const f = custodyFixture(t), requestFile = f.at("request.json");
+  fs.writeFileSync(requestFile, JSON.stringify(f.request));
+  assert.equal(lifecycle.main(["transfer-custody", "--project-root", f.root, "--id", f.source.id, "--request-file", requestFile]).status, "transferred");
+  f.record("new-reader", [["reader", "output"]], { references: [{ id: f.request.target.id, reason: "new evidence consumer" }] });
+  assert.throws(f.transfer, /consumer/);
+});
+
+test("custody rejects linked log roots", t => {
+  const f = custodyFixture(t), link = f.at("logs/link");
+  fs.symlinkSync(f.selected, link, process.platform === "win32" ? "junction" : "dir");
+  f.request.paths = [link];
+  assert.throws(f.transfer, /Linked/);
+});
+
+test("custody rejects nested links before either registry changes", t => {
+  const f = custodyFixture(t), outside = f.at("link-destination");
+  fs.mkdirSync(outside);
+  const nested = path.join(f.selected, "nested-directory"); fs.mkdirSync(nested);
+  try { fs.symlinkSync(outside, path.join(nested, "junction"), process.platform === "win32" ? "junction" : "dir"); }
+  catch (error) { if (["EPERM", "EACCES", "ENOTSUP"].includes(error.code)) { t.skip(`Links unavailable: ${error.code}`); return; } throw error; }
+  const before = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8");
+  assert.throws(f.transfer, /Linked custody descendant/);
+  assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8"), before);
+  assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+});
+
+test("custody rejects proof inside unselected source custody", t => {
+  const f = custodyFixture(t);
+  f.document.entries[0].producer_evidence[0] = { path: f.remaining, sha256: require("node:crypto").createHash("sha256").update(fs.readFileSync(f.remaining)).digest("hex") };
+  f.seal();
+  const before = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8");
+  assert.throws(f.transfer, /outside custody members/);
+  assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8"), before);
+  assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+});
+
+function relocationFixture(t) {
+  const f = custodyFixture(t), second = f.at("logs/second"), destination = f.at("logs/migrated-batch");
+  fs.mkdirSync(second); fs.writeFileSync(path.join(second, "result.log"), "historical failed output");
+  f.members.push({ path: second, role: "legacy-custody", generated: false, protection_known: false });
+  const source = f.record(f.source.id, [], { members: f.members, state: "pending", membership_complete: false });
+  f.request.expected_revision = source.revision; f.document.source_revision = source.revision;
+  f.request.paths.push(second); f.request.destination_root = destination;
+  f.document.entries.push({ ...f.document.entries[0], path: second }); f.seal();
+  const identity = filename => { const s = fs.lstatSync(filename, { bigint: true }); return [s.dev.toString(), s.ino.toString()]; };
+  return { ...f, second, destination, identity, relocate: () => lifecycle.relocateCustody(f.root, f.source.id, f.request) };
+}
+
+test("physical custody migration preserves content and root identities with one native ownership root", t => {
+  const f = relocationFixture(t), identities = f.request.paths.map(f.identity), requestFile = f.at("relocate-request.json");
+  fs.writeFileSync(requestFile, JSON.stringify(f.request));
+  const result = lifecycle.main(["relocate-custody", "--project-root", f.root, "--id", f.source.id, "--request-file", requestFile]);
+  assert.equal(result.status, "relocated"); assert.equal(result.record.producer, undefined);
+  for (const [index, original] of f.request.paths.entries()) {
+    assert.equal(fs.existsSync(original), false);
+    assert.deepEqual(f.identity(path.join(f.destination, path.basename(original))), identities[index]);
+  }
+  assert.equal(fs.readFileSync(path.join(f.destination, "old/nested.log"), "utf8"), "historical unknown outcome");
+  assert.equal(fs.readFileSync(path.join(f.destination, "second/result.log"), "utf8"), "historical failed output");
+  assert.deepEqual(lifecycle.registerRequest(f.root, f.request.target.id).group.members.map(item => item.path), [f.destination]);
+  const source = lifecycle.catalog(f.root).find(item => item.id === f.source.id);
+  assert.deepEqual(source.members, [f.members[2]]); assert.equal(source.state, "pending");
+  assert.equal(source.custody_handoffs[0].original_members.length, 3);
+  assert.equal(f.relocate().status, "relocated");
+});
+
+test("physical custody migration preserves original claims after rename interruption and resumes", t => {
+  const f = relocationFixture(t), rename = fs.renameSync;
+  fs.renameSync = (from, to) => { if (from === f.second) throw new Error("injected second-root rename failure"); return rename(from, to); };
+  try { assert.throws(f.relocate, /second-root rename failure/); } finally { fs.renameSync = rename; }
+  const source = lifecycle.catalog(f.root).find(item => item.id === f.source.id), target = lifecycle.catalog(f.root).find(item => item.id === f.request.target.id);
+  assert.deepEqual(source.members, f.members); assert.equal(target.state, "pending"); assert.equal(target.membership_complete, false);
+  assert.equal(fs.existsSync(f.selected), false); assert.equal(fs.existsSync(f.second), true);
+  assert.ok(lifecycle.planCleanup(f.root, { paths: [f.destination] }).groups.find(item => item.id === target.id).blockers.length);
+  assert.equal(f.relocate().status, "relocated");
+});
+
+test("physical custody migration resumes source/final target write interruptions", async t => {
+  for (const stage of ["source", "target"]) await t.test(stage, t => {
+    const f = relocationFixture(t), rename = fs.renameSync; let targetWrites = 0;
+    fs.renameSync = (from, to) => {
+      if ((stage === "source" && to === lifecycle.registryPath(f.root, f.source.id)) || (to === lifecycle.registryPath(f.root, f.request.target.id) && ++targetWrites === 3 && stage === "target")) throw new Error("injected migration receipt interruption");
+      return rename(from, to);
+    };
+    try { assert.throws(f.relocate, /receipt interruption/); } finally { fs.renameSync = rename; }
+    const source = lifecycle.catalog(f.root).find(item => item.id === f.source.id), target = lifecycle.catalog(f.root).find(item => item.id === f.request.target.id);
+    assert.equal(target.state, "pending");
+    assert.equal(source.members.length, stage === "source" ? f.members.length : 1);
+    assert.equal(f.relocate().status, "relocated");
+  });
+});
+
+test("physical custody mkdir receipt gap fails closed without adopting existing destination", t => {
+  const f = relocationFixture(t), rename = fs.renameSync; let writes = 0;
+  fs.renameSync = (from, to) => { if (to === lifecycle.registryPath(f.root, f.request.target.id) && ++writes === 2) throw new Error("injected destination receipt interruption"); return rename(from, to); };
+  try { assert.throws(f.relocate, /destination receipt interruption/); } finally { fs.renameSync = rename; }
+  assert.equal(fs.existsSync(f.destination), true);
+  assert.throws(f.relocate, /without saved identity/);
+  assert.deepEqual(lifecycle.catalog(f.root).find(item => item.id === f.source.id).members, f.members);
+  assert.equal(lifecycle.catalog(f.root).find(item => item.id === f.request.target.id).state, "pending");
+  assert.equal(fs.existsSync(f.selected), true); assert.equal(fs.existsSync(f.second), true);
+});
+
+test("physical custody rejects unsafe paths and identities before ownership writes", async t => {
+  const cases = {
+    stale: f => { f.request.expected_revision++; f.document.source_revision++; f.seal(); },
+    owner: f => { f.request.owner = "wrong"; },
+    outgoing: f => { f.record(f.source.id, [], { members: f.members, state: "pending", membership_complete: false, references: [{ id: "external", reason: "consumer" }] }); },
+    incoming: f => { f.record("consumer", [["other", "output"]], { references: [{ id: f.source.id, reason: "consumer" }] }); },
+    otherOriginal: f => { f.record("other-owner", [], { members: [{ path: f.selected, role: "log" }] }); },
+    otherDestination: f => { f.record("other-owner", [], { members: [{ path: path.join(f.destination, "child"), role: "log" }] }); },
+    sourceDestination: f => { f.record(f.source.id, [], { members: [...f.members, { path: f.destination, role: "legacy-custody", generated: false, protection_known: false }], state: "pending", membership_complete: false }); },
+    outside: f => { f.request.destination_root = f.at("outputs/new"); },
+    overlapping: f => { f.request.destination_root = path.join(f.selected, "child"); },
+    destinationExists: f => { fs.mkdirSync(f.destination); },
+    duplicateTarget: f => { f.record(f.request.target.id, [["other", "output"]]); },
+    proofInDestination: f => { fs.mkdirSync(f.destination); const proof = path.join(f.destination, "proof"); fs.copyFileSync(f.proof, proof); f.document.entries[0].producer_evidence[0].path = proof; f.seal(); },
+    duplicateBasename: f => { const selected = f.at("logs/other-parent/old"); fs.mkdirSync(selected, { recursive: true }); const member = { path: selected, role: "legacy-custody", generated: false, protection_known: false }; const source = f.record(f.source.id, [], { members: [member], state: "pending", membership_complete: false }); f.request.paths.push(selected); f.document.entries.push({ ...f.document.entries[0], path: selected }); f.request.expected_revision = source.revision; f.document.source_revision = source.revision; f.seal(); },
+    nestedLink: f => { fs.symlinkSync(f.second, path.join(f.selected, "link"), process.platform === "win32" ? "junction" : "dir"); }
+  };
+  for (const [name, change] of Object.entries(cases)) await t.test(name, t => {
+    const f = relocationFixture(t); change(f);
+    const before = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8");
+    assert.throws(f.relocate);
+    assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8"), before);
+    assert.equal(fs.existsSync(f.selected), true); assert.equal(fs.existsSync(f.second), true);
+    if (name !== "duplicateTarget") assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+  });
+});
+
+test("physical custody rejects a different filesystem volume before creating target", t => {
+  const f = relocationFixture(t), lstat = fs.lstatSync;
+  fs.lstatSync = (filename, options) => {
+    const result = lstat(filename, options);
+    return filename === f.selected && options?.bigint ? new Proxy(result, { get: (stat, key) => key === "dev" ? stat.dev + 1n : stat[key] }) : result;
+  };
+  try { assert.throws(f.relocate, /same volume/); } finally { fs.lstatSync = lstat; }
+  assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+  assert.equal(fs.existsSync(f.destination), false);
+});
+
+test("physical custody retries reject replacement identity, both-present and both-absent roots", async t => {
+  for (const state of ["replacement", "both-present", "both-absent"]) await t.test(state, t => {
+    const f = relocationFixture(t), rename = fs.renameSync;
+    fs.renameSync = (from, to) => { if (from === f.second) throw new Error("stop before second rename"); return rename(from, to); };
+    try { assert.throws(f.relocate, /stop before/); } finally { fs.renameSync = rename; }
+    if (state !== "both-present") { fs.renameSync(f.second, f.at("logs/retained-replaced")); if (state === "replacement") fs.mkdirSync(f.second); }
+    else fs.mkdirSync(path.join(f.destination, "second"));
+    assert.throws(f.relocate, state === "replacement" ? /identity changed/ : /exactly one/);
+    assert.equal(lifecycle.catalog(f.root).find(item => item.id === f.source.id).members.length, f.members.length);
+    assert.equal(lifecycle.catalog(f.root).find(item => item.id === f.request.target.id).state, "pending");
+  });
+});
+
+test("physical custody retired retries never recreate the destination", t => {
+  const f = relocationFixture(t); f.relocate();
+  fs.unlinkSync(lifecycle.registryPath(f.root, f.request.target.id));
+  assert.throws(f.relocate, /Retired custody migration/);
+  // Fixture-only ordinary removal models the separately owned native deletion.
+  fs.unlinkSync(path.join(f.destination, "old/nested.log")); fs.rmdirSync(path.join(f.destination, "old"));
+  fs.unlinkSync(path.join(f.destination, "second/result.log")); fs.rmdirSync(path.join(f.destination, "second")); fs.rmdirSync(f.destination);
+  assert.equal(f.relocate().status, "already-retired");
+  assert.equal(fs.existsSync(f.destination), false);
+  assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+});
+
+test("physical custody retry rejects new consumers and changed destination identity", async t => {
+  for (const change of ["consumer", "source-revision", "destination-identity", "request-owner"]) await t.test(change, t => {
+    const f = relocationFixture(t), rename = fs.renameSync;
+    fs.renameSync = (from, to) => { if (from === f.second) throw new Error("stop migration"); return rename(from, to); };
+    try { assert.throws(f.relocate, /stop migration/); } finally { fs.renameSync = rename; }
+    if (change === "consumer") f.record("new-consumer", [["consumer", "output"]], { references: [{ id: f.request.target.id, reason: "new consumer" }] });
+    if (change === "source-revision") f.record(f.source.id, [], { members: f.members, state: "pending", membership_complete: false });
+    if (change === "destination-identity") { fs.renameSync(f.destination, f.at("logs/retained-destination")); fs.mkdirSync(f.destination); }
+    if (change === "request-owner") f.request.target.owner = "changed-adjudicator";
+    assert.throws(f.relocate, /consumer|Stale|identity changed|Conflicting/);
+    assert.equal(fs.existsSync(f.second), true);
+    assert.equal(lifecycle.catalog(f.root).find(item => item.id === f.request.target.id).state, "pending");
+  });
+});
+
+test("completed physical custody retry verifies destination and every moved root before returning", async t => {
+  for (const state of ["destination-replaced", "child-replaced", "destination-missing", "unexpected-child", "nested-link"]) await t.test(state, t => {
+    const f = relocationFixture(t); f.relocate();
+    const sourceBefore = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8");
+    const targetBefore = fs.readFileSync(lifecycle.registryPath(f.root, f.request.target.id), "utf8");
+    if (["destination-replaced", "destination-missing"].includes(state)) {
+      fs.renameSync(f.destination, f.at("logs/retained-completed-destination"));
+      if (state === "destination-replaced") fs.mkdirSync(f.destination);
+    }
+    if (state === "child-replaced") {
+      fs.renameSync(path.join(f.destination, "old"), f.at("logs/retained-completed-child"));
+      fs.mkdirSync(path.join(f.destination, "old"));
+    }
+    if (state === "unexpected-child") fs.writeFileSync(path.join(f.destination, "foreign.log"), "unowned");
+    if (state === "nested-link") {
+      const outside = f.at("logs/link-destination"); fs.mkdirSync(outside);
+      fs.symlinkSync(outside, path.join(f.destination, "old/link"), process.platform === "win32" ? "junction" : "dir");
+    }
+    assert.throws(f.relocate, /identity changed|ENOENT|Unexpected content|Linked custody descendant/);
+    assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8"), sourceBefore);
+    assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.request.target.id), "utf8"), targetBefore);
+    if (state === "destination-missing") assert.equal(fs.existsSync(f.destination), false);
+  });
+});
+
 test("legacy custody preserves uncertainty through parent projection and later producer updates", t => {
   const { root, at, record } = fixture(t);
   record("custody", [["legacy", "legacy-custody"]], { state: "retained", membership_complete: false,
