@@ -3471,6 +3471,8 @@
         "scripts/verify-webview-idle-host.cjs",
         "scripts/check-account-retirement.mjs",
         "scripts/check-accounts.mjs",
+        "scripts/account-models-catalog.mjs",
+        "scripts/test-account-models-catalog.cjs",
         "scripts/check-auto-account-switch.mjs",
         "scripts/check-auto-review-engine.mjs",
         "scripts/check-collaboration-contract.ps1",
@@ -3505,7 +3507,8 @@
             "scripts/test-artifact-lifecycle.cjs",
             "scripts/test-project-fail-fast.cjs",
             "scripts/test-project-selection.cjs",
-            "scripts/test-source-test-fixtures.cjs"
+            "scripts/test-source-test-fixtures.cjs",
+            "scripts/test-account-models-catalog.cjs"
           ],
           "level": "source"
         },
