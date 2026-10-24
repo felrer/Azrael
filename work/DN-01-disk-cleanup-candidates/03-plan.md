@@ -1,4 +1,4 @@
-상태: 승인된 10개 폴더 삭제 완료. 관리자 native 실행기 실제 exit 0, 그룹과 10개 전 항목 deleted/remaining=false, 정확한 10개 경로 부재와 제외 5개 존재를 확인했다. 삭제 전 논리 크기는 7,753,724,175 bytes = 7.2212GiB다. 관리 별칭도 지원 API로 해제했다. 코드 변경의 분리 커밋과 이번 검증용 임시 산출물 정리를 마무리한다.
+상태: 완료. 승인된 10개 폴더는 관리자 native 실행기 실제 exit 0, 전 항목 deleted/remaining=false, 정확한 10개 경로 부재와 제외 5개 존재를 확인했다. 삭제 전 논리 크기는 7,753,724,175 bytes = 7.2212GiB다. 관리 별칭도 지원 API로 해제했다. 기능 변경은 `b4e5f750`에 분리 커밋했고 전용 worktree의 디렉터리와 Git 등록 부재를 확인했다. 검증용 임시 산출물 7개 묶음·22개 경로도 삭제·부재·소유 기록 finalize를 완료했다. 링크 보호가 있는 실패 baseline 4개는 명시적 보류로 남긴다.
 
 ## 승인 후 구현과 검증
 
@@ -25,6 +25,8 @@
 - primary source recorder와 engine-provenance snapshot은 실제 exit 0. 정확한 소스 delta는 우리 Rust 5개뿐이며 기존 daemon SHA `fa09ffa4c1caa17eda4c9f511eaeb863c6e07efca5ea9b0cc0158f07c505cb52`는 전후 동일하다. primary SOURCE는 `9abb36...`→`1a097f65...`로 갱신했으나 원래 다른 작업의 daemon/receipt 수정이 함께 존재하여 전체 파일을 task commit에 섞지 않는다. 같은 HEAD의 전용 task worktree에서 우리 5개만 반영한 supported receipt를 만들어 index에 올리고 primary의 결합된 working SOURCE는 보존한다. full product 빌드·설치는 수행하지 않는다.
 
 ## 승인된 실행
+
+통합·임시 자료 정리: task-only SOURCE는 supported recorder/snapshot 실제 exit 0, 원래 HEAD 대비 정확한 Rust 5개 inventory delta이며 frozen90 검증 입력과 byte identity가 같다. 커밋된 6개(5개+SOURCE)를 전용 worktree와 대조한 뒤 일반 Git restore/remove로 worktree를 제거했다. primary의 다른 daemon 변경과 결합된 working SOURCE는 보존했다. 모든 자체 producer 11개는 알려진 실제 종료 결과를 유지한다. 작은 원인 로그·검증·삭제 증거를 `temp-delete-evidence-20261024/`로 보존한 뒤 owner API로 정확한 참조와 flags를 정리했다. 실제 LICENSE symlink가 있는 실패 baseline 4개는 native 링크 보호 때문에 보류한다. 나머지 7개는 native 등록·fresh 검토·적용에서 22개 전 항목 deleted/remaining=false, aborted=false를 확인했다. 논리 크기 합계 601,311,977 bytes(573.46MiB)를 정리했으며 owner finalize도 7개 전부 remaining=[]/finalized, 실제 exit 0이다. [적용 결과](temp-delete-evidence-20261024/artifact-cleanup-applied.json), [부재·기록 정리](temp-delete-evidence-20261024/artifact-cleanup-finalized.json), [보류 4개와 재검토 조건](temp-delete-evidence-20261024/artifact-cleanup-deferred.json). 최초 등록은 전체 내용 측정이 필요해 수 분이 걸렸고, 이후 등록된 측정값을 재사용했다. 삭제는 파일 권한·링크 확인과 일반 삭제를 기다렸으며 중복 실행하지 않았다. 보류의 재검토 조건은 지원된 소유자 링크 정리 절차와 완전한 membership 재조정이다.
 
 - 정확한 대상: host-fixture 1005/1010/1020/1030/1040 5개, account-check 0a349e33/1e5075cd/a9a14fd1/9b38cb81 4개, host-bin-20260913-0953 1개. c7496cdc/refusal/live-diagnosis/2024/current-run.json 제외.
 - 소유: `/root`가 승인된 정리와 생성 근거 확인을 담당. 원래 테스트 generator는 Azrael host/account verification. 기존 증거·바이너리 복사 receipt·후속 통과 결과를 재사용하며 역사적 종료 결과는 변경하지 않음.
@@ -88,7 +90,7 @@ Windows 로컬 `C:/Temp`의 오래된 Azrael 테스트 자료만 조사했다. �
 
 # 현재 남은 조건
 
-승인한 세 분류 10개 폴더의 삭제와 별칭 해제는 완료됐다. 제외 5개는 보존했다. 기능 변경의 task commit과 검증용 산출물의 그룹별 삭제·보류 결정을 마무리한다. 실제 symlink가 든 실패 baseline은 관리기의 링크 보호를 유지하며 보류하고, 지원된 소유자 정리 절차가 마련되면 재검토한다. 다른 작업의 코드·소스 receipt·산출물은 보존한다.
+승인한 세 분류 10개 폴더의 삭제와 별칭 해제는 완료됐다. 제외 5개는 보존했다. 기능 변경의 task commit과 검증용 산출물의 그룹별 삭제·보류 결정을 완료했다. 실제 symlink가 든 실패 baseline 4개는 관리기의 링크 보호를 유지하며 보류하고, 지원된 소유자 정리 절차가 마련되면 재검토한다. 다른 작업의 코드·소스 receipt·산출물은 보존했다.
 
 # 증거
 
