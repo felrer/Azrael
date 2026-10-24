@@ -38,7 +38,7 @@ function setup() {
     identityProvider: async () => ({ project: await getDirectoryState(root, ['portable/unrelated.txt', ...features.flatMap(f => [...f.owners, f.contract]), 'scripts/shared.cjs']), ui: await getDirectoryState(path.join(root, 'ui')) }),
     execute: async (_executable, args, options) => {
       calls.push(args[0]); if (hook) await hook(args, options);
-      const result = spawnSync(process.execPath, args, { cwd: options.cwd, env: options.env, encoding: 'utf8' });
+      const result = spawnSync(process.execPath, args, { cwd: options.cwd, env: options.env, encoding: 'utf8', windowsHide: true });
       fs.writeFileSync(options.logPath, result.stdout || ''); fs.writeFileSync(options.errorPath, result.stderr || '');
       return { exitCode: result.status, signal: result.signal, error: result.error?.message };
     } };
@@ -47,6 +47,56 @@ function setup() {
 function keys(f, id) { const slot = path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`)); return fs.existsSync(slot) ? fs.readdirSync(slot).filter(name => /^[a-f0-9]{64}$/.test(name)) : []; }
 function entry(f, id, receipt) { return path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`), receipt.checks.find(c => c.checkId === `${id}.check`).cacheKey); }
 function counts(receipt, executed, reused) { assert.equal(receipt.cache.executed, executed); assert.equal(receipt.cache.reused, reused); assert.equal(receipt.checks.filter(c => c.reused).length, reused); }
+
+test('Windows receipt publication retries transient EPERM and EBUSY without rewriting checkpoint', { skip: process.platform !== 'win32' }, async t => {
+  const f = setup(), rename = fs.promises.rename, write = fs.promises.writeFile;
+  const attempts = [], writes = [];
+  t.mock.method(fs.promises, 'writeFile', async function (file, ...args) {
+    if (String(file).startsWith(f.root) && String(file).endsWith('receipt.json.tmp')) writes.push(String(file));
+    return write.call(this, file, ...args);
+  });
+  t.mock.method(fs.promises, 'rename', async function (source, destination) {
+    if (String(destination).startsWith(f.root) && String(destination).endsWith('receipt.json')) {
+      attempts.push({ source, destination, contents: fs.readFileSync(source, 'utf8'), writes: writes.length });
+      if (attempts.length <= 2) throw Object.assign(new Error('transient scanner handle'), { code: attempts.length === 1 ? 'EPERM' : 'EBUSY' });
+    }
+    return rename.call(this, source, destination);
+  });
+  try {
+    const receipt = await f.run();
+    assert.equal(receipt.status, 'passed');
+    assert.ok(attempts.length > 3, 'later serialized checkpoints still publish');
+    for (const retry of attempts.slice(0, 3)) assert.deepEqual(retry, attempts[0], 'only rename retries; checkpoint bytes and source stay fixed');
+    assert.equal(attempts[0].writes, 1);
+    assert.equal(JSON.parse(fs.readFileSync(receipt.receiptPath, 'utf8')).status, 'passed');
+  } finally { t.mock.restoreAll(); }
+});
+
+test('Windows receipt publication bounds transient retries and preserves final error', { skip: process.platform !== 'win32' }, async t => {
+  const f = setup(), rename = fs.promises.rename, write = fs.promises.writeFile;
+  let attempts = 0, writes = 0, finalError;
+  t.mock.method(fs.promises, 'writeFile', async function (file, ...args) {
+    if (String(file).startsWith(f.root) && String(file).endsWith('receipt.json.tmp')) writes++;
+    return write.call(this, file, ...args);
+  });
+  t.mock.method(fs.promises, 'rename', async function (source, destination) {
+    if (!String(destination).startsWith(f.root) || !String(destination).endsWith('receipt.json')) return rename.call(this, source, destination);
+    finalError = Object.assign(new Error('persistent scanner handle ' + ++attempts), { code: attempts % 2 ? 'EPERM' : 'EBUSY' }); throw finalError;
+  });
+  try { await assert.rejects(gate.runPreservation(f.config), error => error === finalError); assert.equal(attempts, 6); assert.equal(writes, 1); }
+  finally { t.mock.restoreAll(); }
+});
+
+test('receipt publication immediately preserves errors outside Windows transient policy', async t => {
+  const f = setup(), rename = fs.promises.rename;
+  let attempts = 0; const failure = Object.assign(new Error('denied by policy'), { code: 'EACCES' });
+  t.mock.method(fs.promises, 'rename', async function (source, destination) {
+    if (!String(destination).startsWith(f.root) || !String(destination).endsWith('receipt.json')) return rename.call(this, source, destination);
+    attempts++; throw failure;
+  });
+  try { await assert.rejects(gate.runPreservation(f.config), error => error === failure); assert.equal(attempts, 1); }
+  finally { t.mock.restoreAll(); }
+});
 
 test('completed checks validate and publish before later checks while returning execution leases', async () => {
   const f = setup();
@@ -301,7 +351,7 @@ after(() => {
       ? path.join(process.env.LOCALAPPDATA, 'Microsoft/WindowsApps/pwsh.exe') : null;
     const cleanupArgs = ['-NoProfile', '-Command',
       '$target = [IO.Path]::GetFullPath($env:AZRAEL_OWNED_FIXTURE); $boundary = [IO.Path]::GetFullPath($env:AZRAEL_OWNED_FIXTURE_PARENT); if ([IO.Path]::GetDirectoryName($target) -ne $boundary) { throw "Fixture outside owned boundary" }; Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop'],
-      cleanupOptions = { encoding: 'utf8', env: { ...process.env, AZRAEL_OWNED_FIXTURE: root, AZRAEL_OWNED_FIXTURE_PARENT: fixtures } };
+      cleanupOptions = { encoding: 'utf8', windowsHide: true, env: { ...process.env, AZRAEL_OWNED_FIXTURE: root, AZRAEL_OWNED_FIXTURE_PARENT: fixtures } };
     let result = spawnSync('pwsh', cleanupArgs, cleanupOptions);
     // Windows app execution aliases can launch even when existsSync is false.
     if (result.error?.code === 'ENOENT' && installedPowerShell) result = spawnSync(installedPowerShell, cleanupArgs, cleanupOptions);

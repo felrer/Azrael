@@ -335,7 +335,14 @@ async function runPreservation(config) {
     checkpoint = checkpoint.then(async () => {
       const temporary = `${receiptPath}.tmp`;
       await fs.promises.writeFile(temporary, contents);
-      await fs.promises.rename(temporary, receiptPath);
+      const delays = [25, 50, 100, 200, 400];
+      for (let attempt = 0; ; attempt++) {
+        try { await fs.promises.rename(temporary, receiptPath); break; }
+        catch (error) {
+          if (process.platform !== 'win32' || !['EPERM', 'EBUSY'].includes(error.code) || attempt === delays.length) throw error;
+          await new Promise(resolve => setTimeout(resolve, delays[attempt]));
+        }
+      }
     });
     return checkpoint;
   };

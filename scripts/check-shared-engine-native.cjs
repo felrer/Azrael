@@ -53,7 +53,18 @@ function runWindowsNativeTests(sourceRoot, crate, filter) {
   if (executables.size !== 1) {
     throw new Error(`Expected exactly one ${crate} libtest executable from the selected frozen package; found ${executables.size}`);
   }
-  const listed = spawnSync([...executables][0], [filter, "--list", "--format=terse"], captureOptions);
+  // Inbox Windows PowerShell must discover its own modules. A PowerShell 7
+  // parent's PSModulePath can load incompatible or untrusted PSReadLine files
+  // before the unchanged interactive PTY probes receive their first command.
+  let runtimeOptions = captureOptions;
+  if (crate === "codex-utils-pty") {
+    const moduleKeys = Object.keys(captureOptions.env).filter(key => key.toLowerCase() === "psmodulepath");
+    if (moduleKeys.length) {
+      runtimeOptions = { ...captureOptions, env: { ...captureOptions.env } };
+      for (const key of moduleKeys) delete runtimeOptions.env[key];
+    }
+  }
+  const listed = spawnSync([...executables][0], [filter, "--list", "--format=terse"], runtimeOptions);
   emit(listed);
   const selectedTests = (String(listed.stdout || "").match(/^.+: test\r?$/gm) || []).length;
   process.stderr.write(`[cargo-preflight] ${JSON.stringify({ phase: "selection", executable: [...executables][0], filter, selectedTests, exitCode: listed.status ?? null, signal: listed.signal ?? null })}\n`);
@@ -61,7 +72,7 @@ function runWindowsNativeTests(sourceRoot, crate, filter) {
   if (selectedTests === 0) {
     return { ...listed, status: 1, error: new Error(`Cargo preflight selected zero tests for ${crate}`) };
   }
-  const tested = spawnSync([...executables][0], [filter, "--test-threads=1", ...(crate === "codex-utils-pty" ? ["--nocapture"] : [])], captureOptions);
+  const tested = spawnSync([...executables][0], [filter, "--test-threads=1", ...(crate === "codex-utils-pty" ? ["--nocapture"] : [])], runtimeOptions);
   emit(tested);
   return tested;
 }

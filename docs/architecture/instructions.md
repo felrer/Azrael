@@ -118,6 +118,8 @@ The existing settings navigation has an Instruction documents / 지침 문서 en
 
 The host owns networking, filesystem operations and version state. Webview requests use `azrael-instructions` with a mount `clientId`, request ID, locale and validated action. The host keeps locale per mount and renders shared state for each language independently. Responses use `azrael-instructions-state` and retain those IDs. A mount releases its subscription on navigation/close or language change; late responses cannot update a new mount. Opening a page reads the persistent host state and can recover visibility of operations completed while the page was closed. An Azrael-owned standalone settings surface uses the same renderer and service as the integrated settings entry. Imported UI assets do not acquire new redistribution rights from this visual design.
 
+Installed-host verification permits the renderer's exact empty `data-client-error` alert target. Populated errors, other alert elements and missing-module errors still fail verification; response identity, locale, baseline distribution and library revision remain mandatory.
+
 Personal resource library initialization failures display a library-specific error while preserving the independently read baseline distribution state, including applied/pinned versions, cached documents and available baseline actions. A library failure does not establish that baseline instructions are unapplied. Packaged instruction modules and their transitive runtime dependencies must load entirely from the shipped account payload; preparation rejects missing dependencies and resolutions outside that payload before accepting the package. Preservation feature: `ui.instruction-settings`.
 
 ## Selectable instruction packages and task profiles

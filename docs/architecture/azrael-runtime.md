@@ -8,6 +8,8 @@ Azrael은 VS Code 확장 하나로 채팅, 계정, 모델, 사용량, 진단 화
 
 ### 공용 실행기와 창 수명
 
+준비 상태 응답은 세션 인계의 저장 호환성 정보를 포함할 수 있다. private 상태 확인 클라이언트는 WebSocket 단일 frame과 누적 message를 각각 128KiB로 제한하고, 2초 제한과 실행기 PID·인스턴스·버전·내용 신원 검증을 유지한다. 큰 정상 응답의 수신과 상한 초과 거부를 함께 검증한다. 이 수신 한도 수정의 실제 바이너리·설치 검증은 [현재 작업](../../work/DM-01-committed-windows-install/02-plan.md)을 따른다.
+
 소켓 내부 경로 단축(소스 구현, 새 바이너리 검증 전): 새 제어 디렉터리는 상태 홈 아래 `ipc`이며 버전별 소켓 파일명은 `<20자리 소문자 RFC 4648 Base32>.sock`이다. 파일명은 기존 인스턴스 SHA-256의 앞 96비트를 패딩 없이 인코딩하며, 전체 64자리 인스턴스 ID와 권한·실행기 검증은 유지한다. 기존 descriptor의 명시적 주소를 파일명에서 재구성하지 않는다. 프로젝트 폴더명 변경과 기존 실행 소켓 이동은 포함하지 않는다. Windows 호스트 사전 검사는 최종 경로의 UTF-8 바이트 길이를 검사한다. 검증 상태는 [현재 작업](../../work/CR-01-build-legacy-cleanup/02-plan.md)에 기록한다.
 
 빌드 경계: `app-server-client`는 기본 `embedded` 기능에서 기존 내장 서버 API를 제공하고, `azrael-bridge`는 기본 기능을 꺼 원격 연결 API로 빌드한다. `app-server-daemon`의 등록 검증·private 연결·peer 인증은 기본 `lifecycle` 기능의 실행기 시작·수명 관리 코드와 분리되어 있다. 원격 전용 구성에도 같은 등록·인증 계약을 적용한다. 기본 기능을 사용하는 기존 호출자는 내장 API와 수명 관리 API를 유지한다. 구성과 검증 범위는 [개발 절차](../ops/development.md#source-test-scope)와 [컴파일 범위 작업](../../work/CL-01-question-withdrawal/03-plan.md)에 기록한다.

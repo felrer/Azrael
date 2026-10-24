@@ -17,6 +17,7 @@ use crate::{
 
 const STATUS_ID: &str = "azrael-engine-status";
 const STATUS_TIMEOUT: Duration = Duration::from_secs(2);
+const STATUS_RESPONSE_MAX_BYTES: usize = 128 << 10;
 pub(crate) const NATURAL_SHUTDOWN_WAIT: Duration = Duration::from_secs(35);
 
 #[derive(Debug, PartialEq, Eq)]
@@ -139,8 +140,8 @@ where
     S: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin,
 {
     let config = WebSocketConfig::default()
-        .max_frame_size(Some(16 << 10))
-        .max_message_size(Some(16 << 10));
+        .max_frame_size(Some(STATUS_RESPONSE_MAX_BYTES))
+        .max_message_size(Some(STATUS_RESPONSE_MAX_BYTES));
     let (mut socket, _) =
         tokio_tungstenite::client_async_with_config("ws://localhost/rpc", stream, Some(config))
             .await?;
@@ -166,6 +167,14 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tokio_tungstenite::tungstenite::{
+        Error as WebSocketError,
+        error::CapacityError,
+        protocol::frame::{
+            Frame,
+            coding::{Data, OpCode},
+        },
+    };
 
     fn endpoint() -> AzraelDaemonEndpoint {
         AzraelDaemonEndpoint {
@@ -179,6 +188,92 @@ mod tests {
 
     fn status(endpoint: &AzraelDaemonEndpoint) -> Value {
         json!({"id":STATUS_ID,"result":{"schema":1,"state":"ready","enginePid":42,"instanceId":endpoint.instance_id,"engineVersion":endpoint.engine_version,"engineIdentity":endpoint.engine_identity}})
+    }
+
+    async fn probe_status_reply(reply: Value, fragmented: bool) -> Result<()> {
+        let (client, server) = tokio::io::duplex(4096);
+        let endpoint = endpoint();
+        let server_task = tokio::spawn(async move {
+            let mut socket = tokio_tungstenite::accept_async(server).await.unwrap();
+            let request = socket.next().await.unwrap().unwrap();
+            let request: Value = serde_json::from_str(request.to_text().unwrap()).unwrap();
+            assert_eq!(
+                request,
+                json!({"id":STATUS_ID,"method":"azrael/engine/status"})
+            );
+            let text = reply.to_string();
+            if fragmented {
+                let chunks: Vec<_> = text.as_bytes().chunks(8 << 10).collect();
+                for (index, chunk) in chunks.iter().enumerate() {
+                    let opcode = if index == 0 {
+                        Data::Text
+                    } else {
+                        Data::Continue
+                    };
+                    let frame = Frame::message(
+                        chunk.to_vec(),
+                        OpCode::Data(opcode),
+                        index + 1 == chunks.len(),
+                    );
+                    if socket.send(Message::Frame(frame)).await.is_err() {
+                        // An oversized reply can be refused before the sender finishes.
+                        return;
+                    }
+                }
+            } else {
+                let _ = socket.send(Message::Text(text.into())).await;
+            }
+        });
+        let result = probe_ready_stream(client, &endpoint, 42).await;
+        server_task.await.unwrap();
+        result
+    }
+
+    #[tokio::test]
+    async fn status_websocket_accepts_full_storage_compatibility_above_legacy_limit() {
+        let mut reply = status(&endpoint());
+        // Match the observed full handoff JSON size, including string escaping,
+        // without coupling this client test to state migrator contents.
+        let compatibility = format!("{}{}", "\"".repeat(738), "x".repeat(20_893 - 738));
+        reply["result"]["sessionHandoff"] = json!({
+            "protocol": 1,
+            "storageCompatibility": compatibility,
+        });
+        assert_eq!(
+            reply["result"]["sessionHandoff"]["storageCompatibility"]
+                .as_str()
+                .unwrap()
+                .len(),
+            20_893
+        );
+        assert_eq!(reply["result"]["sessionHandoff"].to_string().len(), 21_671);
+        assert!(reply.to_string().len() > 16 << 10);
+        assert!(reply.to_string().len() < STATUS_RESPONSE_MAX_BYTES);
+        for fragmented in [false, true] {
+            probe_status_reply(reply.clone(), fragmented).await.unwrap();
+        }
+    }
+
+    #[tokio::test]
+    async fn status_websocket_rejects_frame_and_fragmented_message_above_bound() {
+        let mut reply = status(&endpoint());
+        reply["result"]["sessionHandoff"] = json!({
+            "protocol": 1,
+            "storageCompatibility": "x".repeat(STATUS_RESPONSE_MAX_BYTES),
+        });
+        assert!(reply.to_string().len() > STATUS_RESPONSE_MAX_BYTES);
+        for fragmented in [false, true] {
+            let error = probe_status_reply(reply.clone(), fragmented)
+                .await
+                .unwrap_err();
+            assert!(matches!(
+                error.downcast_ref::<WebSocketError>(),
+                Some(WebSocketError::Capacity(CapacityError::MessageTooLong {
+                    size,
+                    max_size,
+                })) if *size > STATUS_RESPONSE_MAX_BYTES && *max_size == STATUS_RESPONSE_MAX_BYTES
+            ));
+        }
     }
 
     #[test]
