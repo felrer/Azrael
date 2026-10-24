@@ -86,6 +86,7 @@ function mutateLifecycle(root, id, request, operation, mutate) {
     const descriptor = fs.openSync(lock, "wx");
     try {
       const record = validate(root, JSON.parse(fs.readFileSync(filename, "utf8")));
+      if (record.custody_transfer && record.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
       if (record.id !== id || request.owner !== record.owner) throw new Error("Exact lifecycle owner required");
       const evidence = checkedEvidence(root, request);
       const identity = sha(JSON.stringify(Object.keys(request).sort().map(key => [key, request[key]])));
@@ -139,6 +140,8 @@ function recordLifecycleUnlocked(root, request) {
   const descriptor = fs.openSync(lock, "wx");
   try {
     const previous = fs.existsSync(filename) ? validate(root, JSON.parse(fs.readFileSync(filename, "utf8"))) : null;
+    if (previous?.custody_transfer && previous.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
+    if (previous?.custody_handoffs?.some(receipt => incoming.members.some(member => receipt.paths.some(transferred => overlap(transferred, member.path))))) throw new Error("Transferred custody cannot be reclaimed by ordinary record writes");
     if (previous && (previous.id !== incoming.id || previous.kind !== incoming.kind || previous.owner !== incoming.owner || (previous.version ?? null) !== (incoming.version ?? null))) throw new Error("Conflicting lifecycle identity");
     const newGeneration = previous && incoming.generation !== undefined && incoming.generation !== previous.generation;
     if (newGeneration && (request.expected_revision !== previous.revision || previous.producer?.status !== "stopped" || previous.producer.outcome === "unknown" || incoming.state !== "pending" || incoming.membership_complete)) throw new Error("New lifecycle generation requires exact revision and known stopped producer");
@@ -176,12 +179,214 @@ function recordLifecycleUnlocked(root, request) {
       ...(!newGeneration && previous?.producer ? { producer: previous.producer } : {}),
       ...(!newGeneration && previous?.close_receipt ? { close_receipt: previous.close_receipt } : {}),
       ...(!newGeneration && previous?.release_receipt ? { release_receipt: previous.release_receipt } : {}),
+      ...(previous?.custody_handoffs ? { custody_handoffs: previous.custody_handoffs } : {}),
+      ...(previous?.custody_transfer ? { custody_transfer: previous.custody_transfer } : {}),
       revision: (previous?.revision || 0) + 1, created_at: previous?.created_at || new Date().toISOString(), updated_at: new Date().toISOString() };
     const temporary = checked(root, filename + "." + crypto.randomUUID() + ".tmp");
     fs.writeFileSync(temporary, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
     fs.renameSync(temporary, filename);
     return result;
   } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+}
+// A custody handoff adjudicates ownership; it makes no claim about historical execution success.
+function custodyInputs(root, sourceId, request, extraProofRoots = []) {
+    root = path.resolve(root);
+    const records = catalog(root), source = records.find(record => record.id === sourceId);
+    if (!source || request.owner !== source.owner) throw new Error("Exact custody source owner required");
+    const target = request.target;
+    if (!target || typeof target.id !== "string" || !target.id || target.id === sourceId || target.kind !== "work" || typeof target.owner !== "string" || !target.owner.trim() || (target.version !== undefined && (typeof target.version !== "string" || !target.version))) throw new Error("Invalid custody target identity");
+    if (!Array.isArray(request.paths) || !request.paths.length) throw new Error("Explicit custody paths required");
+    const paths = request.paths.map(value => checked(root, value, true));
+    const logs = path.join(root, "artifacts/logs");
+    if (paths.some(value => value === logs || !inside(logs, value)) || paths.some((value, index) => paths.some((other, j) => j !== index && overlap(value, other)))) throw new Error("Custody paths must be disjoint roots strictly below artifacts/logs");
+    const proofPath = value => {
+      const result = checked(root, value);
+      if (inside(registry(root), result) || [...paths, ...extraProofRoots].some(selected => inside(selected, result)) || source.members.some(member => inside(member.path, result)) || !fs.lstatSync(result).isFile()) throw new Error("Custody proof must be a surviving project file outside custody members and registry");
+      return result;
+    };
+    const evidence = checkedEvidence(root, request);
+    proofPath(evidence.evidence_ref);
+    const document = JSON.parse(fs.readFileSync(evidence.evidence_ref, "utf8"));
+    if (document.schema !== 1 || document.source_id !== sourceId || document.source_revision !== request.expected_revision || document.target_id !== target.id || document.user_authorized !== true || !Array.isArray(document.entries) || document.entries.length !== paths.length) throw new Error("Invalid custody evidence identity or authorization");
+    const seen = new Set();
+    for (const entry of document.entries) {
+      const entryPath = checked(root, entry.path, true);
+      if (!paths.includes(entryPath) || seen.has(entryPath) || entry.generated !== true || entry.protection_known !== true || entry.consumers_released !== true || entry.producer_stopped_verified !== true || typeof entry.generation_basis !== "string" || !entry.generation_basis.trim() || !Array.isArray(entry.producer_evidence) || !entry.producer_evidence.length) throw new Error("Invalid custody evidence entry");
+      seen.add(entryPath);
+      for (const proof of entry.producer_evidence) {
+        const filename = proofPath(proof.path);
+        if (!/^[a-f0-9]{64}$/.test(proof.sha256 || "") || sha(fs.readFileSync(filename)) !== proof.sha256) throw new Error("Custody producer proof SHA256 mismatch");
+      }
+    }
+    const stable = value => Array.isArray(value) ? value.map(stable) : value && typeof value === "object" ? Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])])) : value;
+    const identity = sha(JSON.stringify(stable(request)));
+    const receipt = source.custody_handoffs?.find(item => item.request_sha256 === identity);
+    const existing = records.find(record => record.id === target.id);
+    if (source.references.length || records.some(record => record.references.some(ref => ref.id === sourceId || ref.id === target.id))) throw new Error("Active custody consumer references");
+    if (records.some(record => record.id !== sourceId && record.id !== target.id && record.members.some(member => paths.some(selected => overlap(selected, member.path))))) throw new Error("Custody overlaps another lifecycle owner");
+    return { root, records, source, target, paths, evidence, document, identity, receipt, existing };
+}
+function rejectCustodyLinks(filename) {
+  const metadata = fs.lstatSync(filename);
+  if (metadata.isSymbolicLink()) throw new Error("Linked custody descendant");
+  if (metadata.isDirectory()) for (const entry of fs.readdirSync(filename)) rejectCustodyLinks(path.join(filename, entry));
+}
+function custodyClaims(source, paths) {
+  for (const selected of paths) {
+    if (!source.members.some(member => member.path === selected) || source.members.some(member => member.path !== selected && inside(member.path, selected))) throw new Error("Custody selection must use exact roots without partial ancestor claims");
+  }
+  const transferred = source.members.filter(member => paths.some(selected => inside(selected, member.path)));
+  if (transferred.some(member => member.role !== "legacy-custody" || member.generated !== false || member.protection_known !== false)) throw new Error("Only unresolved legacy custody may transfer");
+  if (transferred.length === source.members.length) throw new Error("Custody source must retain remaining members");
+  return transferred;
+}
+function custodyReceipt(input) {
+  const { source, target, paths, identity, evidence, document } = input;
+  return { request_sha256: identity, source_id: source.id, source_revision: source.revision, target: { ...target }, paths, original_members: custodyClaims(source, paths), original_producer: source.producer ?? null, original_state: source.state, ...evidence, producer_evidence: document.entries.map(entry => ({ path: entry.path, producer_evidence: entry.producer_evidence })) };
+}
+function transferCustody(root, sourceId, request) {
+  return withCatalogLock(root, () => {
+    const input = custodyInputs(root, sourceId, request);
+    const { source, target, paths, identity, receipt, existing } = input;
+    if (receipt && !existing) {
+      if (paths.some(value => fs.existsSync(value))) throw new Error("Retired custody target still has extant paths");
+      return { status: "already-retired", source_id: sourceId, target_id: target.id, receipt };
+    }
+    if (existing && (existing.custody_transfer?.request_sha256 !== identity || existing.owner !== target.owner || existing.kind !== target.kind || (existing.version ?? null) !== (target.version ?? null) || existing.references.length || existing.producer || !["pending", "complete"].includes(existing.state) || existing.members.length !== paths.length || existing.members.some(member => !paths.includes(member.path) || member.role !== "log" || member.generated !== true || member.protection_known !== true))) throw new Error("Conflicting custody target or retry");
+    if (!receipt) {
+      if (request.expected_revision !== source.revision) throw new Error("Stale custody source revision");
+      // Inspect metadata only; do not follow links or read/hash historical payload.
+      for (const selected of paths) rejectCustodyLinks(selected);
+      const handoff = custodyReceipt(input);
+      const now = new Date().toISOString();
+      const pending = validate(root, { schema: 1, id: target.id, kind: target.kind, owner: target.owner, version: target.version ?? null, state: "pending", membership_complete: false, members: paths.map(value => ({ path: value, role: "log", generated: true, protection_known: true })), references: [], custody_transfer: handoff, revision: 1, created_at: now, updated_at: now });
+      if (!existing) writeRecord(root, registryPath(root, target.id), pending);
+      source.members = source.members.filter(member => !paths.some(selected => inside(selected, member.path)));
+      source.custody_handoffs = [...(source.custody_handoffs || []), handoff];
+      source.revision++;
+      source.updated_at = now;
+      writeRecord(root, registryPath(root, sourceId), validate(root, source));
+    } else if (source.members.some(member => paths.some(selected => overlap(selected, member.path)))) throw new Error("Transferred source claims reappeared");
+    const result = existing || validate(root, JSON.parse(fs.readFileSync(registryPath(root, target.id), "utf8")));
+    if (result.state !== "complete") {
+      result.state = "complete";
+      result.membership_complete = true;
+      result.revision++;
+      result.updated_at = new Date().toISOString();
+      writeRecord(root, registryPath(root, target.id), validate(root, result));
+    }
+    return { status: "transferred", source_id: sourceId, target_id: target.id, record: result };
+  });
+}
+function custodyFileIdentity(filename) {
+  const stat = fs.lstatSync(filename, { bigint: true });
+  if (stat.isSymbolicLink() || (!stat.isDirectory() && !stat.isFile())) throw new Error("Unsupported custody filesystem entry");
+  return { dev: stat.dev.toString(), ino: stat.ino.toString() };
+}
+function custodyPresent(filename) {
+  try { fs.lstatSync(filename); return true; } catch (error) { if (error.code === "ENOENT") return false; throw error; }
+}
+function verifyCustodyIdentity(filename, expected) {
+  const actual = custodyFileIdentity(filename);
+  if (actual.dev !== expected.dev || actual.ino !== expected.ino) throw new Error("Custody filesystem identity changed: " + filename);
+}
+function relocateCustody(root, sourceId, request) {
+  return withCatalogLock(root, () => {
+    root = path.resolve(root);
+    const destination = checked(root, request.destination_root, true), logs = path.join(root, "artifacts/logs");
+    if (destination === logs || !inside(logs, destination)) throw new Error("Custody destination must be strictly below artifacts/logs");
+    const input = custodyInputs(root, sourceId, request, [destination]);
+    const { records, source, target, paths, identity, receipt, existing } = input;
+    if (paths.some(selected => overlap(selected, destination)) || records.some(record => record.id !== target.id && record.members.some(member => overlap(member.path, destination)))) throw new Error("Custody destination overlaps existing claims");
+    const basenames = paths.map(selected => path.basename(selected));
+    const names = process.platform === "win32" ? basenames.map(name => name.toLowerCase()) : basenames;
+    if (new Set(names).size !== names.length) throw new Error("Custody destination basename collision");
+    if (receipt && !existing) {
+      if (paths.some(custodyPresent) || custodyPresent(destination)) throw new Error("Retired custody migration still has extant paths");
+      return { status: "already-retired", source_id: sourceId, target_id: target.id, receipt };
+    }
+    if (existing && (existing.custody_transfer?.request_sha256 !== identity || !existing.custody_transfer.migration || existing.owner !== target.owner || existing.kind !== target.kind || (existing.version ?? null) !== (target.version ?? null) || existing.references.length || existing.producer || !["pending", "complete"].includes(existing.state) || existing.membership_complete !== (existing.state === "complete") || existing.members.length !== 1 || existing.members[0].path !== destination || existing.members[0].role !== "log" || existing.members[0].generated !== true || existing.members[0].protection_known !== true)) throw new Error("Conflicting custody migration target or retry");
+    if (receipt) {
+      if (source.members.some(member => paths.some(selected => overlap(selected, member.path))) || paths.some(custodyPresent)) throw new Error("Migrated source paths or claims reappeared");
+      if (existing.state === "complete") {
+        const migration = existing.custody_transfer.migration;
+        if (migration.destination_root !== destination || !migration.destination_identity || migration.moves.length !== paths.length || new Set(migration.moves.map(move => move.original)).size !== paths.length || migration.moves.some(move => !paths.includes(move.original) || move.destination !== path.join(destination, path.basename(move.original)))) throw new Error("Conflicting completed custody migration intent");
+        verifyCustodyIdentity(path.dirname(destination), migration.parent_identity);
+        verifyCustodyIdentity(destination, migration.destination_identity);
+        const expectedNames = migration.moves.map(move => path.basename(move.destination)).sort();
+        const actualNames = fs.readdirSync(destination).sort();
+        if (JSON.stringify(actualNames) !== JSON.stringify(expectedNames)) throw new Error("Unexpected content in completed custody destination");
+        rejectCustodyLinks(destination);
+        for (const move of migration.moves) {
+          checked(root, move.destination, true);
+          verifyCustodyIdentity(move.destination, move.identity);
+        }
+        return { status: "relocated", source_id: sourceId, target_id: target.id, record: existing };
+      }
+    } else {
+      if (request.expected_revision !== source.revision) throw new Error("Stale custody source revision");
+      custodyClaims(source, paths);
+      if (existing?.state === "complete") throw new Error("Completed migration lacks source receipt");
+    }
+    let pending = existing;
+    if (!pending) {
+      if (custodyPresent(destination)) throw new Error("Custody destination already exists");
+      const parent = path.dirname(destination);
+      if (!fs.lstatSync(parent).isDirectory()) throw new Error("Custody destination parent must exist");
+      const parentIdentity = custodyFileIdentity(parent);
+      const moves = paths.map(selected => {
+        rejectCustodyLinks(selected);
+        const before = custodyFileIdentity(selected);
+        if (before.dev !== parentIdentity.dev) throw new Error("Custody migration requires the same volume");
+        return { original: selected, destination: path.join(destination, path.basename(selected)), identity: before };
+      });
+      const handoff = { ...custodyReceipt(input), migration: { destination_root: destination, parent_identity: parentIdentity, moves } };
+      const now = new Date().toISOString();
+      pending = validate(root, { schema: 1, id: target.id, kind: "work", owner: target.owner, version: target.version ?? null, state: "pending", membership_complete: false, members: [{ path: destination, role: "log", generated: true, protection_known: true }], references: [], custody_transfer: handoff, revision: 1, created_at: now, updated_at: now });
+      writeRecord(root, registryPath(root, target.id), pending);
+    }
+    const migration = pending.custody_transfer.migration;
+    if (migration.destination_root !== destination || migration.moves.length !== paths.length || migration.moves.some(move => !paths.includes(move.original) || move.destination !== path.join(destination, path.basename(move.original)))) throw new Error("Conflicting custody migration intent");
+    verifyCustodyIdentity(path.dirname(destination), migration.parent_identity);
+    if (!migration.destination_identity) {
+      if (custodyPresent(destination)) throw new Error("Custody destination exists without saved identity; explicit recovery evidence required");
+      // mkdir cannot be atomic with its receipt. A crash in this gap deliberately fails closed.
+      fs.mkdirSync(destination);
+      migration.destination_identity = custodyFileIdentity(destination);
+      pending.revision++; pending.updated_at = new Date().toISOString();
+      writeRecord(root, registryPath(root, target.id), validate(root, pending));
+    }
+    verifyCustodyIdentity(destination, migration.destination_identity);
+    const allowed = new Set(migration.moves.map(move => path.basename(move.destination)));
+    if (fs.readdirSync(destination).some(name => !allowed.has(name))) throw new Error("Unexpected content in custody destination");
+    // Reconcile the entire plan before moving another root on a retry.
+    for (const move of migration.moves) {
+      const original = custodyPresent(move.original), moved = custodyPresent(move.destination);
+      if (original === moved) throw new Error("Custody migration requires exactly one original or destination: " + move.original);
+      const current = original ? move.original : move.destination;
+      checked(root, current, true); rejectCustodyLinks(current); verifyCustodyIdentity(current, move.identity);
+      if (move.identity.dev !== migration.destination_identity.dev) throw new Error("Custody migration requires the same volume");
+    }
+    for (const move of migration.moves) if (custodyPresent(move.original)) {
+      verifyCustodyIdentity(move.original, move.identity);
+      fs.renameSync(move.original, move.destination);
+      verifyCustodyIdentity(move.destination, move.identity);
+    }
+    for (const move of migration.moves) {
+      if (custodyPresent(move.original)) throw new Error("Custody original remains after migration");
+      verifyCustodyIdentity(move.destination, move.identity);
+    }
+    if (!receipt) {
+      source.members = source.members.filter(member => !paths.some(selected => inside(selected, member.path)));
+      source.custody_handoffs = [...(source.custody_handoffs || []), pending.custody_transfer];
+      source.revision++; source.updated_at = new Date().toISOString();
+      writeRecord(root, registryPath(root, sourceId), validate(root, source));
+    }
+    pending.state = "complete"; pending.membership_complete = true;
+    pending.revision++; pending.updated_at = new Date().toISOString();
+    writeRecord(root, registryPath(root, target.id), validate(root, pending));
+    return { status: "relocated", source_id: sourceId, target_id: target.id, record: pending };
+  });
 }
 function planCleanup(root, { paths = [], protectedPaths = [], reportPath } = {}) {
   const records = catalog(root);
@@ -290,10 +495,10 @@ function main(argv = process.argv.slice(2)) {
   const retirementKeys = ["producer-stopped-verified", "evidence-ref", "evidence-sha256", "reason"];
   const retirementRequested = retirementKeys.some(key => Object.hasOwn(options, key));
   if (retirementRequested && !["finalize", "reconcile"].includes(action)) throw new Error("Retirement options require finalize or reconcile");
-  if (["close", "release"].includes(action)) {
+  if (["close", "release", "transfer-custody", "relocate-custody"].includes(action)) {
     const requestFile = checked(root, options["request-file"]);
     const request = JSON.parse(fs.readFileSync(requestFile, "utf8"));
-    return action === "close" ? closeLifecycle(root, options.id, request) : releaseReferences(root, options.id, request);
+    return action === "relocate-custody" ? relocateCustody(root, options.id, request) : action === "transfer-custody" ? transferCustody(root, options.id, request) : action === "close" ? closeLifecycle(root, options.id, request) : releaseReferences(root, options.id, request);
   }
   if (action === "record") {
     if (options["reference-kind"] !== undefined) {
@@ -325,5 +530,5 @@ function main(argv = process.argv.slice(2)) {
   }
   throw new Error("Expected record, plan, register, catalog or finalize");
 }
-module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
+module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, transferCustody, relocateCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }

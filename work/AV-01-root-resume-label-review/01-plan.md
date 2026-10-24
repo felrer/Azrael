@@ -16,10 +16,10 @@ Windows x64, Linux x64, macOS ARM64에 공통인 webview 표시다. 실제 검�
 
 ## 최종 검증과 정리
 
-- Windows `node --test scripts/test-deferred-turn.cjs`: 43/43 통과, 실제 종료 코드 0, 119.65초. 로그: artifacts/logs/root-resume-condition-labels/behavior.log.
-- Windows Chrome `node scripts/verify-deferred-turn-render.mjs` 재실행: 밝은/어두운 테마 106개 검사 통과, 실제 종료 코드 0. 로그: artifacts/logs/root-resume-condition-labels/render-2.log, ui-2/summary.json. 세 조건 문구, 시간 전용, 좁은 화면, 사진·마우스/키보드 수동 재개 및 이력/시간 회귀를 포함한다. 밝은/어두운 waiting-controls와 좁은 화면 이미지를 직접 확인했다.
+- Windows `node --test scripts/test-deferred-turn.cjs`: 43/43 통과, 실제 종료 코드 0, 119.65초. 사용자 승인 로그 정리 후의 독립 검증 요약과 원래 렌더 summary SHA-256: [보존 근거](../DN-01-disk-cleanup-candidates/preserved-verification.json).
+- Windows Chrome `node scripts/verify-deferred-turn-render.mjs` 재실행: 밝은/어두운 테마 106개 검사 통과, 실제 종료 코드 0. 위 보존 근거에 source SHA-256·검사 목록·결과를 이관했다. 세 조건 문구, 시간 전용, 좁은 화면, 사진·마우스/키보드 수동 재개 및 이력/시간 회귀를 포함한다. 당시 밝은/어두운 waiting-controls와 좁은 화면 이미지를 직접 확인했다. 원시 로그와 이미지는 사용자 승인 정리 대상이다.
 - 첫 렌더링의 fixture 오류 수정 때문에 렌더링만 재실행했으며 동작 검사 입력 의미는 동일하다. 최종 변경 중 기존 혼합 줄바꿈 파일의 추가 줄 CRLF를 LF로 정리했으며 실행된 JS 의미·기대값은 변하지 않았다.
 - git diff --check 및 기능 목록 JSON 파싱 통과. ui.deferred-turn의 기존 검사 연결에 helper 소유와 캐시 입력을 추가했다.
 - 두 실행의 Chrome 종료·fixture/profile 일반 삭제 성공(각 cleanupExitCode 0). artifacts/verification/root-resume-condition-labels 및 root-resume-condition-labels-2 부재를 별도로 확인했다.
-- 로그/화면 증거 245161바이트는 AV-01-condition-labels-20261017 관리 그룹으로 등록하고 보존 결정했다. 후속 UI 검증이 이 수용 범위를 대체하면 재검토한다. 새 임시 프로필 잔여 없음. 기존 공용 변환 캐시는 원래 소유 정책을 유지한다.
+- 로그/화면 증거 245161바이트는 AV-01-condition-labels-20261017 관리 그룹으로 관리한다. 사용자가 로그 정리를 승인하여 필요한 독립 요약을 위 보존 근거로 이관했고, 원시 그룹의 삭제·실제 잔여 결과는 [정리 작업](../DN-01-disk-cleanup-candidates/05-formal-cleanup-result.md)에서 확인한다. 새 임시 프로필 잔여 없음. 기존 공용 변환 캐시는 원래 소유 정책을 유지한다.
 - 전체 앱 빌드·설치, 실제 설치본, Linux/macOS 검증은 수행하지 않았다. 자동 재개 조건·엔진·프로토콜은 변경하지 않았다.

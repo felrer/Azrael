@@ -44,11 +44,11 @@ Pbn/Fbn의 변경 감지, deferred 턴의 시간 동결과 입력 동작을 보�
 - `node --test scripts/test-deferred-turn.cjs`: 44개 통과, exit 0, 177초. 전체 UI transform 경로가 포함되어 실행 시간을 지배했다.
 - `node --test scripts/test-ui-test-transform-fixture.cjs scripts/test-namespace-cache-owner.cjs`: 10개 통과, exit 0.
 - `node scripts/verify-session-flags-render.mjs`: 렌더 assertion 81개 통과, Chrome exit 0. 자동 정리의 보고서 경로가 lifecycle member 내부라 명령 전체는 exit 1이었다. 보고서 경계 충돌을 확인한 뒤 소유 프로세스 참조 0개와 실제 종료를 확인하고 일반 PowerShell 삭제로 fixture 부재를 검증했다. 이 후속 정리는 exit 0이며 원래 명령의 exit 1은 덮어쓰지 않았다.
-- [명령·범위·exit·소스 SHA-256](../../artifacts/tasks/BZ-01-resume-list-indicators/runs/implementation-01/verification.json), [source 로그](../../artifacts/tasks/BZ-01-resume-list-indicators/runs/implementation-01/source.log), [렌더 결과와 스크린샷 목록](../../artifacts/logs/BZ-01-implementation-01/summary.json).
+- [명령·범위·exit·소스 SHA-256 및 렌더 결과의 독립 보존 근거](../DN-01-disk-cleanup-candidates/preserved-verification.json). 원래 검증 JSON과 렌더 summary의 SHA-256을 기록하고 필요한 결과를 이관했다. 원시 source 로그와 스크린샷은 사용자 승인 정리 대상이다.
 
 기존 사용 중인 창의 예약과 대화, 설치 파일을 변경하지 않았다. 제품 빌드·설치와 Windows live event/reload, Linux/macOS 수용은 이번 검증에 포함하지 않았다.
 
 ## 실행·정리 기록
 첫 진단은 VM 의존 함수 eQ 누락으로 exit 1, 두 번째는 메뉴의 edge-fade까지 스피너로 센 측정 오류로 exit 1이었다. 세 번째는 spin 애니메이션만 검사해 exit 0으로 종료했다. 진단 재시도 원인은 제품 오류와 구분한다.
 
-진단 Chrome 두 실행과 구현 검증 Chrome은 모두 exit 0이다. 실제 프로세스 목록에서 임시 profile 참조가 없음을 확인하고 일반 PowerShell 삭제로 각 경로의 부재를 확인했다. native maintenance review/apply에서 실패한 진단 01/02 그룹을 삭제하고 경로 부재와 producer metadata 정리까지 확인했다. 일회성 진단 스크립트는 영구 회귀 검사로 대체해 삭제했다. 진단 03 그룹(약 128 KB)과 구현 검증 그룹(약 259 KB)은 native review/apply에서 defer했다. 다음 패키지의 설치 창 알림/reload 수용 증거가 확보되면 필요한 증거를 해당 버전으로 이관한 뒤 이 작업 그룹을 삭제 검토한다. 사용자 파일이나 제품 설치본은 정리 대상에 포함하지 않았다.
+진단 Chrome 두 실행과 구현 검증 Chrome은 모두 exit 0이다. 실제 프로세스 목록에서 임시 profile 참조가 없음을 확인하고 일반 PowerShell 삭제로 각 경로의 부재를 확인했다. native maintenance review/apply에서 실패한 진단 01/02 그룹을 삭제하고 경로 부재와 producer metadata 정리까지 확인했다. 일회성 진단 스크립트는 영구 회귀 검사로 대체해 삭제했다. 진단 03 그룹(약 128 KB)은 기존 보류 상태다. 구현 검증 그룹(약 259 KB)은 사용자의 로그 정리 승인으로 위 독립 근거에 필요한 결과를 이관했고, 삭제·실제 잔여 결과는 [정리 작업](../DN-01-disk-cleanup-candidates/05-formal-cleanup-result.md)에서 확인한다. 사용자 파일이나 제품 설치본은 정리 대상에 포함하지 않았다.

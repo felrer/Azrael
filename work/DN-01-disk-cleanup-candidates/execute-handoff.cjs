@@ -1,0 +1,15 @@
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const root=process.cwd(),life=require(path.join(root,'scripts/artifact-lifecycle.cjs'));
+const reports=path.resolve('artifacts/tasks/DN-01-disk-cleanup-candidates/runs/formal-custody-handoff-20261024-r3/reports');
+const plan=JSON.parse(fs.readFileSync(path.join(reports,'bulk-plan.json')));
+const cohort=plan.find(g=>g.id===process.argv[2]);if(!cohort)throw Error('Exact planned group required');
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+const source=life.catalog(root).find(g=>g.id==='work:BI-01-legacy-custody:20261019');
+const target={id:cohort.id,kind:'work',owner:'adjudicated-legacy-log-producers'};
+const entries=cohort.entries.map(e=>{const proof=JSON.parse(fs.readFileSync(e.proof));if(hash(fs.readFileSync(proof.anchorOriginalPath))!==proof.anchorOriginalSha256)throw Error('Generation anchor changed: '+e.path);return {path:e.path,generated:true,protection_known:true,consumers_released:true,producer_stopped_verified:true,generation_basis:proof.basis+' Only trace/output roots without code files or flagged state/DB boundaries were selected; current-reference-check.json and consumer-input-custody.json preserve current checks and retained consumer inputs.',producer_evidence:[e.proof,path.join(reports,'current-reference-check.json'),path.join(reports,'consumer-input-custody.json'),path.join(reports,'sensitive-boundary-check.json')].map(filename=>({path:filename,sha256:hash(fs.readFileSync(filename))}))}});
+const stem=cohort.category+'-'+cohort.id.split('-').at(-1),evidencePath=path.join(reports,stem+'-evidence.json');
+const evidence={schema:1,source_id:source.id,source_revision:source.revision,target_id:target.id,user_authorized:true,entries};fs.writeFileSync(evidencePath,JSON.stringify(evidence,null,2));
+const request={owner:source.owner,expected_revision:source.revision,reason:'User authorized formal transfer and deletion of old and version-unresolved generated logs. Historical output evidence is retained without promoting prior test outcomes.',evidence_ref:evidencePath,evidence_sha256:hash(fs.readFileSync(evidencePath)),target,paths:entries.map(e=>e.path)};
+fs.writeFileSync(path.join(reports,stem+'-request.json'),JSON.stringify(request,null,2));
+const transfer=life.transferCustody(root,source.id,request);fs.writeFileSync(path.join(reports,stem+'-transfer.json'),JSON.stringify(transfer,null,2));
+const registration=life.registerRequest(root,target.id);delete registration.operation;console.log(JSON.stringify({registration,stem,bytes:cohort.entries.reduce((n,e)=>n+e.bytes,0)}));
