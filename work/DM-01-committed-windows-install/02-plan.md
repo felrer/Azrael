@@ -229,3 +229,6 @@ root가 데이터/호출 계약·선택 범위·입력 기준·통합·최종 �
 - primary의 영구수정은 catalog선택 Node4회귀+stub배포4회귀, windowcontext격리2회귀와구문/inventoryactual0을통과했다. r3helper는r2와차이를fresh경로/ID/출력치환만허용하고socket107byte/양catalog미존재및비겹침검사를통과했다. continuation3 시작 2026-10-24T03:57:39.206Z, completionf2418262-7f78-4090-b81f-f5d220228043; 고정제품/성공receipt/원환경은유지하고account자식만WINDOW_CONTEXT격리한다.
 
 - 기존정리receipt를재검토한범위에서추가즉시삭제가능group은확인되지않았다. BWcustody/재구성baseline, 두unknownpilot, provider원본보호미확정, DN부분삭제증거group은각각별도해제조건전까지유지한다. 이는325group전수판정이아니며 실제설치이후version소비참조를다시검토한다.
+
+- bridge 역시공유등록분기를선택함을소스로확인했고primary는engine과동일fixtureEnvironment객체를재사용하도록수정했다. 실제startPair본문VM회귀를포함해4/4 actual0; r4 taskadapter는계정Node자식진입에서context를제거해동결스크립트bridge도격리한다(6회귀actual0). r4helper/guard는새windows-r16, v18/s(socket107byte), a-r18 및r18 IDs만허용하고구문/치환/비겹침검사actual0이다.
+- 새run등록은catalog.lock EEXIST로사전차단되어디렉터리/producer미생성이다. primarymanifest의진행중work:legacy-log-retirement:unknown:20261024-1 apply가61336엔진에서계속삭제결과를기록중임을확인했다. 잠금또는타작업프로세스를변경하지않고카탈로그잠금해제이벤트를대기한다.

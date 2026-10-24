@@ -564,7 +564,7 @@ async function startPair(label) {
 
     bridge = spawn(bridgePath, [socketPath], {
       cwd: stateDirectory,
-      env: process.env,
+      env: fixtureEnvironment,
       windowsHide: true,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
