@@ -6043,7 +6043,7 @@
     "Other work compiled during the first cohort and large startup outliers occurred. Additional cohort had no cargo/rustc observed at run boundaries, but other host load was not exhaustively measured and release still had an outlier."
   ],
   "cleanup": {
-    "state": "deferred",
+    "state": "completed",
     "attempts": [
       {
         "operation": "initial lifecycle close",
@@ -6083,11 +6083,24 @@
         "action": "Wait for actual maintenance.lock deletion event; no lock changes or alternate deletion"
       }
     ],
-    "evidenceRef": "09-release-cleanup-decision.json",
+    "evidenceRef": "10-release-cleanup-evidence.json",
     "logicalBytes": 14345477879,
-    "remaining": true,
-    "reason": "artifacts/c3 outside configured managed roots protects entire group; policy not changed",
-    "revisitCondition": "Explicit authorization for exact managed root, then fresh grouped review/apply and actual absence/finalize"
+    "remaining": false,
+    "reason": "User authorized exact artifacts/c3 managed root; supported owner retirement and native control cleanup both deleted, actual absence verified, both producer groups finalized",
+    "revisitCondition": null,
+    "historicalDeferral": {
+      "state": "deferred",
+      "evidenceRef": "09-release-cleanup-decision.json",
+      "remaining": true,
+      "reason": "artifacts/c3 outside configured managed roots protects entire group; policy not changed",
+      "revisitCondition": "Explicit authorization for exact managed root, then fresh grouped review/apply and actual absence/finalize"
+    },
+    "controlLogicalBytes": 1298031,
+    "physicalBytesReclaimed": null,
+    "finalization": {
+      "CY-01-release-comparison-r3": "finalized",
+      "CY-01-release-cleanup-r4": "finalized"
+    }
   },
   "earlierBuildAttempts": [
     {

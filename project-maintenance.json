@@ -8,6 +8,7 @@
     "artifacts/verification",
     "artifacts/logs",
     "artifacts/build",
+    "artifacts/c3",
     "artifacts/deployments",
     "artifacts/cache",
     "artifacts/releases",

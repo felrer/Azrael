@@ -1,4 +1,4 @@
-상태: 빌드·12회 비교·무결성/종료 검증 완료. native 관리 경로 정책에 따라 임시 묶음 정리 defer 기록 완료. 실제 삭제·finalize는 정책 변경 승인 후 남아 있음. 설치본 변경 없음.
+상태: 빌드·12회 비교·무결성/종료 검증 및 승인된 정리 완료. 정확히 `artifacts/c3`만 관리 경로에 추가했고 두 실험 root와 정리용 control run의 실제 부재·producer finalize를 확인했다. 설치본 변경 없음.
 
 # 최적화 빌드 세션 복원 비교
 
@@ -65,6 +65,20 @@ attempt3는 11:08:41 UTC 실제 성공으로 종료했다. engine/bridge Cargo e
 결론: 기존 release profile은 이번 복원 CPU 비용을 크게 줄인다. 배포 빌드의 release 기본화를 검토할 근거는 확보됐으나 설치·서명·업데이트·UI·로그인 환경 수용을 완료한 것은 아니다. 추가 성능 개선의 남은 주요 대상은 약3초의 전체 JSONL 읽기/역직렬화다. 다음 설계 후보는 복원 snapshot과 tail replay이며, 별도 승인·보존 계약·오류 복구 검증을 거쳐야 한다. 이번에는 구현하지 않았다.
 
 ## 종료 근거와 정리
+
+최종 결과: 사용자 승인 후 기존 owner retirement 절차로 실험 두 root의 논리 크기 **14,345,477,879 bytes(14.35GB)**를 삭제했다. owner apply는 12:27:34–12:40:32 UTC 실제 exit0(778.118초), 두 member 모두 `deleted / remaining=false / aborted=false`였다. 별도 실제 경로 부재 확인과 `CY-01-release-comparison-r3` finalize도 exit0으로 통과했다. 정리용 실행기·요청·raw logs 1,298,031 bytes도 fresh native register/review/apply로 삭제(`deleted / remaining=false`)하고 실제 경로 부재 및 `CY-01-release-cleanup-r4` finalize를 exit0으로 확인했다. 물리 회수 바이트는 측정하지 않았다. 현재 완료 근거는 `10-release-cleanup-evidence.json`, 불변 종료 증거는 `11-release-cleanup-stop.json`이다. 아래 차단·대기 기록은 해결 전 이력이며 현재 미완료 항목이 아니다.
+
+최종 검증 exit0: configuration은 기존 HEAD 대비 `artifacts/c3` 한 항목 외 의미 변경이 없고 JSON이 유효하다. 설치 binary SHA, 불변08/11 및 protected retirement evidence SHA가 일치하며 실험/정리 세 root 모두 부재다. 비교 보고서07의 cleanup 외 성능·실패·한계 필드는 이전 commit과 동일하다. 기존 staged4개 source-test blob과 scoped `git diff --check`도 통과했다. raw-byte 증거11은08과 같이 `.gitattributes`의 `-text`로 보존한다. 제품 코드 변경이 없어 성능 실험·빌드는 재실행하지 않았다.
+
+사용자가 후속으로 “네 추가해 정리해도 됩니다”라고 승인했다. 승인 범위는 `project-maintenance.json`의 managed_roots에 정확히 `artifacts/c3` 한 경로를 추가하고 기존 두 member를 fresh review/apply로 정리하는 것이다. 공통 configuration의 경로 경계만 좁게 확장하며 실제 검증·삭제 환경은 Windows x64다. 기존 producer 종료·출처·비교 근거는 유지하고, 이후 새 consumer나 membership 변경은 native 검토로 확인한다. source·binary·profile을 다시 생성하지 않고 payload 내용 재해시 없이 registered 검증을 사용한다. 실제 삭제와 잔여0 및 producer finalize까지 통과해야 정리 완료로 기록한다.
+
+경로 추가 후 일반 native review는 루트 자체 보호(`managed root itself is protected; select owned descendants`)를 확인했다. 앞서 추가만으로 충분하다고 안내한 판단을 수정한다. 그룹의 live member를 임의로 나누거나 정책을 더 넓히지 않는다. [프로젝트 관리 운영](../../docs/ops/project-maintenance.md#관리-경계-자체의-수명-종료)의 기존 `maintenance_owner`/`retire_managed_roots` 절차를 적용한다. 이는 승인된 관리 경계 폐기만 명시하는 지원 경로이며 나머지 권한·소유·참조·토큰 검사를 유지한다.
+
+실행기는 기존 DM-01 검증 run의 `outputs/maintenance_owner-fast.exe`를 고정 복사해 재사용한다. pin SHA `b68096420d3acb1a3890761da612c63f4fd632fe5145978162407d1e2cb31db3`, 같은 고정 cache의 native103 검증 exit0(87.049초) 및 owner build exit0(21.030초)와 일치하는 receipt를 확인했다. 공용 target의 현재 다른 binary를 사용하거나 재빌드하지 않는다. 새 control run `artifacts/tasks/CY-01-session-loading-review/runs/20261025-cleanup-r4`는 `CY-01-release-cleanup-r4` owner group에 생성 전에 등록했다. 바이너리 사본·요청·결과·로그는 이 run 안에 두고 완료 후 별도로 정리한다. 폐기 토큰용 작은 control 증거는 문서가 요구하는 `artifacts/maintenance/evidence/CY-01-release-retirement.json`에 이 작업 owner와 보존 근거를 명시해 보존한다. 삭제 대상 밖의 protected control evidence이며 추가 실험 자료를 보관하는 용도로 쓰지 않는다.
+
+owner review는 12:26:36–12:26:53 UTC 실제 exit0(17.646초)으로 끝났다. 전체2개 member의 blocker가 비었고 identity·registered 검증·membership 일치가 유지됐다. 같은 retirement descriptor와 새로운 per-item token으로 모두 delete 결정했다. apply는 completion `841cd870-57d4-45b4-bbaa-b02540a9dbf2`로 실제 성공을 관찰했으며 정확한 두 경계 외에는 선택하지 않았다. 실제 apply exit와 각 status/remaining 확인 뒤 producer finalize 및 작은 control run 정리도 완료했다.
+
+apply 시작은12:27:34 UTC다. 12:36 checkpoint에서 owner PID70040와 그 삭제 PowerShell child26240(12:29:20 시작)이 살아 있고 CPU 누적은 각각101.5초/405.7초였다. 당시 stdout/stderr는0 bytes이고 완료 신호는running이어서 중복 삭제/scan 없이 기다렸다. 이후 12:40:32 UTC 실제 exit0과 삭제 결과를 확인했다.
 
 비교·실패·재시도·입력 delta·한계를 `07-release-comparison-evidence.json`에 보존했고, 불변 종료/바이너리 근거는 `08-release-producer-stop.json`이다. 일회성 테스트·프로필·빌드 cache·source·raw logs는 이 근거 보존 뒤 두 소유 root 전체를 같은 delete fate로 정리한다. lifecycle close가 occupied catalog.lock의 EEXIST로 거절돼 잠금을 건드리지 않고 deletion event를 기다리는 단일 watcher(session79122, completion `4b6ace62-43ce-4895-a979-1b0e5d5b10dc`)를 실행했다. close/register-request 준비가 실제 종료하면 native register→review→apply→remaining 확인→producer finalize를 순서대로 진행한다.
 

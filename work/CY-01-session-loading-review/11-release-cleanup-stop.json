@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "owner": "CY-01-session-loading-review",
+  "at": "2026-10-25T12:40:46.850Z",
+  "status": "passed",
+  "outcome": "success",
+  "exitCode": 0,
+  "ownerReuse": {
+    "sha256": "b68096420d3acb1a3890761da612c63f4fd632fe5145978162407d1e2cb31db3",
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-cache-retirement\\runs\\implementation-20261025T023233261Z\\outputs\\maintenance_owner-fast.exe",
+    "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-cleanup-r4\\bin\\maintenance_owner.exe",
+    "build": {
+      "startedUtc": "2026-10-25T07:11:09.280Z",
+      "completedUtc": "2026-10-25T07:11:30.310Z",
+      "durationMs": 21030,
+      "exitCode": 0,
+      "signal": null,
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target",
+      "args": [
+        "build",
+        "--offline",
+        "--release",
+        "-p",
+        "azrael-project-maintenance",
+        "--bin",
+        "maintenance_owner",
+        "--target",
+        "x86_64-pc-windows-msvc"
+      ]
+    },
+    "nativeValidation": {
+      "startedUtc": "2026-10-25T07:09:00.772Z",
+      "completedUtc": "2026-10-25T07:10:27.821Z",
+      "durationMs": 87049,
+      "exitCode": 0,
+      "signal": null,
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target",
+      "args": [
+        "test",
+        "--offline",
+        "-p",
+        "azrael-project-maintenance",
+        "--lib",
+        "--tests",
+        "--target",
+        "x86_64-pc-windows-msvc"
+      ]
+    }
+  },
+  "reviewExecution": {
+    "startedAt": "2026-10-25T12:26:36.079Z",
+    "pid": 2264,
+    "phase": "review",
+    "binarySha256": "b68096420d3acb1a3890761da612c63f4fd632fe5145978162407d1e2cb31db3",
+    "requestSha256": "3b31ccef89fc98aa534c5238be2b198aae8a97b5af68a3ff91e049fb921363e1",
+    "args": [
+      "--project-root",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "--request",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-cleanup-r4\\inputs\\review.json"
+    ],
+    "childPid": 21912,
+    "finishedAt": "2026-10-25T12:26:53.728Z",
+    "elapsedMs": 17646,
+    "exitCode": 0,
+    "signal": null,
+    "binaryUnchanged": true,
+    "requestUnchanged": true
+  },
+  "applyExecution": {
+    "startedAt": "2026-10-25T12:27:34.110Z",
+    "pid": 65284,
+    "phase": "apply",
+    "binarySha256": "b68096420d3acb1a3890761da612c63f4fd632fe5145978162407d1e2cb31db3",
+    "requestSha256": "13565ae2f0770587579c1e99347d539f5b1bb7e473dfb226050e1522bbbbf73b",
+    "args": [
+      "--project-root",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "--request",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-cleanup-r4\\inputs\\apply.json"
+    ],
+    "childPid": 70040,
+    "finishedAt": "2026-10-25T12:40:32.231Z",
+    "elapsedMs": 778118,
+    "exitCode": 0,
+    "signal": null,
+    "binaryUnchanged": true,
+    "requestUnchanged": true
+  },
+  "actualDeletion": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "CY-01-release-comparison-r3",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-70040-2528-1792931343883",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [
+            {
+              "after": 2080,
+              "before": 2081,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\.git\\objects\\pack\\pack-747c4db87121f7bc9bccdafe2a8e3aeb09ed9989.pack"
+            },
+            {
+              "after": 2064,
+              "before": 2066,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\.git"
+            },
+            {
+              "after": 2080,
+              "before": 2081,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\.git\\objects\\pack\\pack-747c4db87121f7bc9bccdafe2a8e3aeb09ed9989.rev"
+            },
+            {
+              "after": 2080,
+              "before": 2081,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\.git\\objects\\pack\\pack-747c4db87121f7bc9bccdafe2a8e3aeb09ed9989.idx"
+            }
+          ],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+        "lifecycle_group_id": "CY-01-release-comparison-r3",
+        "reason": "User-approved cleanup of completed experimental run and exact artifacts/c3 boundary; independent performance and stop evidence retained; current grouped owner review has no blockers or identity changes",
+        "remaining": false,
+        "retire_managed_roots": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\CY-01-release-retirement.json",
+          "ids": [
+            "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387"
+          ],
+          "owner": "CY-01-session-loading-review",
+          "reason": "User approved exact artifacts/c3 managed-boundary retirement after completed isolated release comparison; retain independent evidence and preserve all other guards"
+        },
+        "retirement_evidence_identity": "9581de4e753feced6b99bffd947f6d053eb87487abe9f04e5a1488be32dbbd17",
+        "status": "deleted",
+        "token": "a4e5721f7a7846392a606420cb289536b974e02f71455dbcf87798fc8b302c93"
+      },
+      {
+        "attempt_id": "attempt-70040-2531-1792931989885",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\release1\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\urelease1\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\readiness-dev\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\udev1\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\udev2\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\release3\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\dev3\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\dev2\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\udev3\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\urelease3\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\release2\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\dev1\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\urelease2\\project\\.git"
+            },
+            {
+              "after": 16,
+              "before": 18,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3\\temporary\\profiles\\readiness-release\\project\\.git"
+            }
+          ],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "ba756597d4f4130b3175ce46874184149feb1500c8a72bd3dbba2e79c0160aee",
+        "lifecycle_group_id": "CY-01-release-comparison-r3",
+        "reason": "User-approved cleanup of completed experimental run and exact artifacts/c3 boundary; independent performance and stop evidence retained; current grouped owner review has no blockers or identity changes",
+        "remaining": false,
+        "status": "deleted",
+        "token": "bd182c3b6c07109e3b5a6a63b1770ef325460550ce035ded71c6ae76001aaa40"
+      }
+    ]
+  },
+  "absence": [
+    {
+      "id": "ba756597d4f4130b3175ce46874184149feb1500c8a72bd3dbba2e79c0160aee",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3",
+      "presence": "absent",
+      "remaining": false
+    },
+    {
+      "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3",
+      "presence": "absent",
+      "remaining": false
+    }
+  ],
+  "mainProducerFinalized": {
+    "id": "CY-01-release-comparison-r3",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c18a9e292e8e791dfaedda85fdec71312b78ec0bfd8b1d7e9b44695c63b41e8c.json"
+  },
+  "installedEngineSha256": "8015338b3f3f3f958e8b154d6175d2bce6497d51313e7be6e8e83998fdd7beca",
+  "ownedCleanupIdentityMatches": 0,
+  "retirementControlEvidence": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\CY-01-release-retirement.json",
+    "sha256": "269964fd8b7c187d2870f10712cde45097e18d0e470b91787a31ef8baa61bda9"
+  },
+  "basis": "Actual owner runner terminal exits and per-item deleted/remaining=false, exact lstat absence, no owned execution matches, main producer finalize; caller must observe proof writer actual exit0 before closing control run"
+}
