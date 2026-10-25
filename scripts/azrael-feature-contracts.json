@@ -1621,6 +1621,9 @@
       "id": "ui.window-control",
       "area": "ui",
       "owners": [
+        "scripts/integrated-azrael-entry.cjs",
+        "scripts/test-integrated-entry.cjs",
+        "scripts/test-window-control-mcp.cjs",
         "native/window-control/src/approval_notification.rs",
         "scripts/test-window-async-approval-host.cjs",
         "scripts/window-approval-engine-fixture.cjs",
@@ -1662,6 +1665,12 @@
       ],
       "contract": "docs/architecture/window-use.md",
       "checks": [
+        {
+          "id": "ui.window-control.platform-availability",
+          "executable": "node",
+          "args": ["--test", "scripts/test-integrated-entry.cjs", "scripts/test-window-control-mcp.cjs"],
+          "level": "source"
+        },
         {
           "id": "ui.window-control.stop-recovery",
           "executable": "node",

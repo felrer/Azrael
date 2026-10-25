@@ -1,5 +1,7 @@
 # Linux 로컬 통합 호스트
 
+현재 소스에서는 [Window Use 제공 정책](../architecture/window-use.md#platform-availability)에 따라 Linux의 Window Use 활성화와 도구 제공을 임시 중단한다. 아래 선택 창 사용법과 검증 결과는 보존된 백엔드 및 이전 배포본의 범위이며, 현재 후보의 사용 가능 여부를 의미하지 않는다. 일반 채팅·공급자·파일·셸 도구는 이 제한의 대상이 아니다.
+
 이 로컬 포트는 공식 Azrael `2026.0.5` Linux 배포본의 Codex `26.1007.21434` UI와
 `0.162.0` 엔진에 기존 로컬 기록·공백 표시·창 제어·감시 기능을 통합한다.
 원본 `openai.chatgpt`와 별도 확장 ID `azrael-ex-local.azrael`을

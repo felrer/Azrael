@@ -2,7 +2,15 @@
 const assert = require('node:assert/strict');
 const { Readable, Writable } = require('node:stream');
 const { EventEmitter } = require('node:events');
-const { parseThreadMetadata, relayMetadata, pipeRequest, createRelay, createProtocol, runProtocol, callResult } = require('./window-control-mcp.cjs');
+const fs = require('node:fs');
+const vm = require('node:vm');
+function loadMcp(platform) {
+  const module = { exports: {} };
+  vm.compileFunction(fs.readFileSync(require.resolve('./window-control-mcp.cjs'), 'utf8'), ['require', 'module', 'exports', 'process'])(require, module, module.exports, { platform, env: process.env });
+  return module.exports;
+}
+// Exercise the retained Windows protocol on every test host.
+const { parseThreadMetadata, relayMetadata, pipeRequest, createRelay, createProtocol, runProtocol, callResult } = loadMcp('win32');
 function fragmentedConnection(chunks) {
   return () => {
     const socket = new EventEmitter(); let destroyed = false;
@@ -14,6 +22,21 @@ function fragmentedConnection(chunks) {
   };
 }
 async function main() {
+  for (const platform of ['linux', 'darwin']) {
+    const mcp = loadMcp(platform);
+    assert.deepEqual(mcp.toolDefinitions(), []);
+    let relayed = false;
+    const protocol = mcp.createProtocol({ relay: async () => { relayed = true; } });
+    assert.deepEqual((await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/list' })).result.tools, []);
+    for (const name of ['capture', 'context', 'launch_isolated', 'ui_operation']) {
+      const denied = await protocol({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name, arguments: {} } });
+      assert.equal(denied.result.isError, true);
+      const error = JSON.parse(denied.result.content[0].text);
+      assert.equal(error.code, 'unsupported_action');
+      assert.equal(error.actionExecuted, false);
+    }
+    assert.equal(relayed, false);
+  }
   const threadId = '12345678-1234-1234-1234-123456789abc';
   const proof = { 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } } };
   assert.equal(parseThreadMetadata({ 'x-codex-turn-metadata': { thread_id: threadId }, threadId }), threadId);
