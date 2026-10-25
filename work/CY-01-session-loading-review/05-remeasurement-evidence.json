@@ -1,0 +1,1038 @@
+{
+  "schema": 1,
+  "owner": "CY-01-session-loading-review",
+  "measuredAt": "2026-10-25T07:19:52.513621+00:00",
+  "scope": "Windows x64 native installed app-server RPC, not UI rendering or signed-in MCP readiness",
+  "installedVersion": "2026.0.12",
+  "engineSha256": "8015338b3f3f3f958e8b154d6175d2bce6497d51313e7be6e8e83998fdd7beca",
+  "engineBuildProfile": {
+    "profile": "dev",
+    "optimization": "unoptimized + debuginfo",
+    "evidence": "w13r-99afefb1 engine.log records cargo --no-default-features --target x86_64-pc-windows-msvc and Finished dev profile"
+  },
+  "fixture": {
+    "threadId": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+    "startedAt": 1792912229.1289828,
+    "databases": {
+      "state_5.sqlite": {
+        "rows": {
+          "_sqlx_migrations": 66,
+          "threads": 1,
+          "thread_dynamic_tools": 0,
+          "backfill_state": 1,
+          "thread_spawn_edges": 0,
+          "remote_control_enrollments": 0,
+          "external_agent_config_imports": 0,
+          "thread_sections": 0,
+          "rollout_migration_state": 1,
+          "rollout_migration_skipped_rollouts": 0,
+          "projects": 0,
+          "project_roots": 0,
+          "project_idempotency_keys": 0,
+          "thread_attachments": 0,
+          "project_usage_daily": 0,
+          "parent_requests": 0,
+          "parent_response_waits": 0,
+          "root_resume_reservations": 0
+        },
+        "quickCheck": "ok",
+        "bytes": 303104
+      },
+      "thread_history_1.sqlite": {
+        "rows": {
+          "_sqlx_migrations": 11,
+          "thread_turns": 502,
+          "thread_items": 40040,
+          "thread_history_projection_state": 1,
+          "thread_realtime_items": 0
+        },
+        "quickCheck": "ok",
+        "bytes": 129490944
+      },
+      "queue_1.sqlite": {
+        "rows": {
+          "_sqlx_migrations": 4,
+          "queued_items": 0,
+          "queued_thread_revisions": 0,
+          "accepted_user_inputs": 0
+        },
+        "quickCheck": "ok",
+        "bytes": 53248
+      },
+      "goals_1.sqlite": {
+        "rows": {
+          "_sqlx_migrations": 2,
+          "thread_goals": 0,
+          "thread_goal_continuation_deferrals": 0
+        },
+        "quickCheck": "ok",
+        "bytes": 28672
+      }
+    },
+    "automaticWorkTablesExcluded": true,
+    "rollout": {
+      "bytes": 441373260,
+      "sha256": "160570334ef7b724ae4408413b7d8c7c20a4d6d5d896fe494abf4a915c5f7409",
+      "lines": 164704,
+      "types": {
+        "session_meta": 1,
+        "event_msg": 80017,
+        "response_item": 59171,
+        "world_state": 393,
+        "turn_context": 640,
+        "token_usage_record": 15206,
+        "inter_agent_communication_metadata": 9124,
+        "compacted": 152
+      },
+      "sourceMtimeNs": 1792867952968958700,
+      "unchangedDuringCopy": true,
+      "lastApprovalLedgerPresent": false
+    },
+    "consistency": "Per-database read transactions; stable source rollout and target metadata; no cross-database atomic snapshot claimed",
+    "finishedAt": 1792912250.3454523,
+    "seedRevision": 2,
+    "maintenanceMarkersCopied": {
+      "backfill_state": 1,
+      "rollout_migration_state": 1
+    },
+    "seedCorrectionAt": 1792912593.613209,
+    "earlierProfilesBeforeSeedCorrection": [
+      "baseline1",
+      "baseline2",
+      "baseline3",
+      "baseline4"
+    ]
+  },
+  "measurements": [
+    {
+      "name": "baseline5",
+      "mode": "baseline",
+      "startedAt": "2026-10-25T07:16:34.772Z",
+      "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1\\engine\\azrael.exe",
+      "conditions": {
+        "signedOut": true,
+        "requiresRecovery": false,
+        "explicitMcpServers": 0,
+        "appsFeature": false,
+        "excludeTurns": true,
+        "osFileCache": "not flushed; seed copying warms input",
+        "turnCommandsSent": 0
+      },
+      "steps": [
+        {
+          "phase": "initialize",
+          "method": "initialize",
+          "elapsedMs": 360.83439999999996,
+          "responseBytes": 375
+        },
+        {
+          "phase": "metadata",
+          "method": "thread/read",
+          "elapsedMs": 202.57510000000002,
+          "responseBytes": 1304
+        },
+        {
+          "phase": "cold-resume",
+          "method": "thread/resume",
+          "elapsedMs": 22745.1718,
+          "responseBytes": 4280
+        },
+        {
+          "phase": "warm-resume",
+          "method": "thread/resume",
+          "elapsedMs": 18.931300000000192,
+          "responseBytes": 4280
+        },
+        {
+          "phase": "recent-turns",
+          "method": "thread/turns/list",
+          "elapsedMs": 14.855999999999767,
+          "responseBytes": 13398
+        },
+        {
+          "phase": "recent-items",
+          "method": "thread/items/list",
+          "elapsedMs": 7.5261999999966065,
+          "responseBytes": 19672
+        },
+        {
+          "phase": "models",
+          "method": "model/list",
+          "elapsedMs": 5.455900000000838,
+          "responseBytes": 10163
+        }
+      ],
+      "requests": [
+        {
+          "method": "CONNECT",
+          "path": "chatgpt.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "github.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "api.github.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "chatgpt.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "api.openai.com:443"
+        }
+      ],
+      "notifications": {
+        "remoteControl/status/changed": 1,
+        "thread/status/changed": 1,
+        "thread/tokenUsage/updated": 1,
+        "thread/goal/cleared": 2
+      },
+      "serverRequests": [],
+      "resources": [
+        {
+          "phase": "before-cold",
+          "cpuSeconds": 0.390625,
+          "workingSetBytes": 169181184,
+          "peakWorkingSetBytes": 173527040,
+          "privateBytes": 36278272
+        },
+        {
+          "phase": "after-cold",
+          "cpuSeconds": 21.859375,
+          "workingSetBytes": 217169920,
+          "peakWorkingSetBytes": 731955200,
+          "privateBytes": 82370560
+        },
+        {
+          "phase": "after-readback",
+          "cpuSeconds": 21.96875,
+          "workingSetBytes": 217759744,
+          "peakWorkingSetBytes": 731955200,
+          "privateBytes": 82767872
+        }
+      ],
+      "pid": 55284,
+      "startupMs": 377.7785,
+      "historyMode": "paginated",
+      "resumeSummary": {
+        "threadId": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+        "turnCount": 0,
+        "model": "gpt-6.1-sol"
+      },
+      "recentTurnCount": 20,
+      "recentItemCount": 6,
+      "status": "passed",
+      "engineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "totalMs": 24959.1967,
+      "unexpectedTurnStarted": false,
+      "finishedAt": "2026-10-25T07:16:59.737Z",
+      "internal": {
+        "spans": [
+          {
+            "name": "session_init.state_db",
+            "elapsedMs": 0.46896934509277344,
+            "busy": "8.70µs",
+            "idle": "460µs"
+          },
+          {
+            "name": "session_init.auth_mcp",
+            "elapsedMs": 2.0360946655273438,
+            "busy": "1.59ms",
+            "idle": "450µs"
+          },
+          {
+            "name": "session_init.thread_persistence",
+            "elapsedMs": 9.352922439575195,
+            "busy": "3.09ms",
+            "idle": "6.27ms"
+          },
+          {
+            "name": "session_init.thread_name_lookup",
+            "elapsedMs": 10.351896286010742,
+            "busy": "1.23ms",
+            "idle": "9.13ms"
+          },
+          {
+            "name": "session_init.plugin_skill_warmup",
+            "elapsedMs": 350.92616081237793,
+            "busy": "59.8ms",
+            "idle": "291ms"
+          },
+          {
+            "name": "session_init.mcp_manager_init",
+            "elapsedMs": 0.7989406585693359,
+            "busy": "632µs",
+            "idle": "170µs"
+          },
+          {
+            "name": "session_init",
+            "elapsedMs": 22457.406044006348,
+            "busy": "21.9s",
+            "idle": "589ms"
+          }
+        ],
+        "fullRolloutLoadCount": 1,
+        "fullRolloutReadDecodeMs": 21459.95593070984,
+        "beforeFullLoadInSessionMs": 408.10108184814453,
+        "afterFullLoadInSessionMs": 589.3490314483643,
+        "rawDecodeGranularity": "Combined read + JSON Value parse + typed canonical decode + Vec materialization; no finer instrumentation",
+        "parseErrors": 0,
+        "rolloutItems": 164704
+      }
+    },
+    {
+      "name": "baseline6",
+      "mode": "baseline",
+      "startedAt": "2026-10-25T07:17:27.549Z",
+      "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1\\engine\\azrael.exe",
+      "conditions": {
+        "signedOut": true,
+        "requiresRecovery": false,
+        "explicitMcpServers": 0,
+        "appsFeature": false,
+        "excludeTurns": true,
+        "osFileCache": "not flushed; seed copying warms input",
+        "turnCommandsSent": 0
+      },
+      "steps": [
+        {
+          "phase": "initialize",
+          "method": "initialize",
+          "elapsedMs": 330.9512,
+          "responseBytes": 375
+        },
+        {
+          "phase": "metadata",
+          "method": "thread/read",
+          "elapsedMs": 173.91189999999995,
+          "responseBytes": 1304
+        },
+        {
+          "phase": "cold-resume",
+          "method": "thread/resume",
+          "elapsedMs": 21217.2141,
+          "responseBytes": 4280
+        },
+        {
+          "phase": "warm-resume",
+          "method": "thread/resume",
+          "elapsedMs": 23.461699999999837,
+          "responseBytes": 4280
+        },
+        {
+          "phase": "recent-turns",
+          "method": "thread/turns/list",
+          "elapsedMs": 16.31239999999889,
+          "responseBytes": 13398
+        },
+        {
+          "phase": "recent-items",
+          "method": "thread/items/list",
+          "elapsedMs": 6.388199999997596,
+          "responseBytes": 19672
+        },
+        {
+          "phase": "models",
+          "method": "model/list",
+          "elapsedMs": 5.103800000000774,
+          "responseBytes": 10163
+        }
+      ],
+      "requests": [
+        {
+          "method": "CONNECT",
+          "path": "chatgpt.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "github.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "api.github.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "chatgpt.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "api.openai.com:443"
+        }
+      ],
+      "notifications": {
+        "remoteControl/status/changed": 1,
+        "thread/status/changed": 1,
+        "thread/tokenUsage/updated": 1,
+        "thread/goal/cleared": 2
+      },
+      "serverRequests": [],
+      "resources": [
+        {
+          "phase": "before-cold",
+          "cpuSeconds": 0.359375,
+          "workingSetBytes": 165892096,
+          "peakWorkingSetBytes": 170291200,
+          "privateBytes": 32452608
+        },
+        {
+          "phase": "after-cold",
+          "cpuSeconds": 20.5625,
+          "workingSetBytes": 210403328,
+          "peakWorkingSetBytes": 737148928,
+          "privateBytes": 75202560
+        },
+        {
+          "phase": "after-readback",
+          "cpuSeconds": 20.65625,
+          "workingSetBytes": 222703616,
+          "peakWorkingSetBytes": 737148928,
+          "privateBytes": 87494656
+        }
+      ],
+      "pid": 25040,
+      "startupMs": 341.7944,
+      "historyMode": "paginated",
+      "resumeSummary": {
+        "threadId": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+        "turnCount": 0,
+        "model": "gpt-6.1-sol"
+      },
+      "recentTurnCount": 20,
+      "recentItemCount": 6,
+      "status": "passed",
+      "engineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "totalMs": 23860.8911,
+      "unexpectedTurnStarted": false,
+      "finishedAt": "2026-10-25T07:17:51.414Z",
+      "internal": {
+        "spans": [
+          {
+            "name": "session_init.state_db",
+            "elapsedMs": 0.33402442932128906,
+            "busy": "5.80µs",
+            "idle": "328µs"
+          },
+          {
+            "name": "session_init.auth_mcp",
+            "elapsedMs": 1.313924789428711,
+            "busy": "1.00ms",
+            "idle": "311µs"
+          },
+          {
+            "name": "session_init.thread_persistence",
+            "elapsedMs": 7.472991943359375,
+            "busy": "2.47ms",
+            "idle": "5.00ms"
+          },
+          {
+            "name": "session_init.thread_name_lookup",
+            "elapsedMs": 10.808944702148438,
+            "busy": "1.42ms",
+            "idle": "9.38ms"
+          },
+          {
+            "name": "session_init.plugin_skill_warmup",
+            "elapsedMs": 390.5630111694336,
+            "busy": "57.3ms",
+            "idle": "333ms"
+          },
+          {
+            "name": "session_init.mcp_manager_init",
+            "elapsedMs": 0.6999969482421875,
+            "busy": "550µs",
+            "idle": "152µs"
+          },
+          {
+            "name": "session_init",
+            "elapsedMs": 20950.330018997192,
+            "busy": "20.4s",
+            "idle": "551ms"
+          }
+        ],
+        "fullRolloutLoadCount": 1,
+        "fullRolloutReadDecodeMs": 19895.659923553467,
+        "beforeFullLoadInSessionMs": 442.4760341644287,
+        "afterFullLoadInSessionMs": 612.1940612792969,
+        "rawDecodeGranularity": "Combined read + JSON Value parse + typed canonical decode + Vec materialization; no finer instrumentation",
+        "parseErrors": 0,
+        "rolloutItems": 164704
+      }
+    },
+    {
+      "name": "baseline7",
+      "mode": "baseline",
+      "startedAt": "2026-10-25T07:18:24.624Z",
+      "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1\\engine\\azrael.exe",
+      "conditions": {
+        "signedOut": true,
+        "requiresRecovery": false,
+        "explicitMcpServers": 0,
+        "appsFeature": false,
+        "excludeTurns": true,
+        "osFileCache": "not flushed; seed copying warms input",
+        "turnCommandsSent": 0
+      },
+      "steps": [
+        {
+          "phase": "initialize",
+          "method": "initialize",
+          "elapsedMs": 346.1549,
+          "responseBytes": 375
+        },
+        {
+          "phase": "metadata",
+          "method": "thread/read",
+          "elapsedMs": 172.89470000000006,
+          "responseBytes": 1304
+        },
+        {
+          "phase": "cold-resume",
+          "method": "thread/resume",
+          "elapsedMs": 24451.5703,
+          "responseBytes": 4280
+        },
+        {
+          "phase": "warm-resume",
+          "method": "thread/resume",
+          "elapsedMs": 17.52639999999883,
+          "responseBytes": 4280
+        },
+        {
+          "phase": "recent-turns",
+          "method": "thread/turns/list",
+          "elapsedMs": 12.007700000001932,
+          "responseBytes": 13398
+        },
+        {
+          "phase": "recent-items",
+          "method": "thread/items/list",
+          "elapsedMs": 6.235599999999977,
+          "responseBytes": 19672
+        },
+        {
+          "phase": "models",
+          "method": "model/list",
+          "elapsedMs": 4.2070999999996275,
+          "responseBytes": 10163
+        }
+      ],
+      "requests": [
+        {
+          "method": "CONNECT",
+          "path": "chatgpt.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "github.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "api.github.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "chatgpt.com:443"
+        },
+        {
+          "method": "CONNECT",
+          "path": "api.openai.com:443"
+        }
+      ],
+      "notifications": {
+        "remoteControl/status/changed": 1,
+        "thread/status/changed": 1,
+        "thread/tokenUsage/updated": 1,
+        "thread/goal/cleared": 2
+      },
+      "serverRequests": [],
+      "resources": [
+        {
+          "phase": "before-cold",
+          "cpuSeconds": 0.640625,
+          "workingSetBytes": 168861696,
+          "peakWorkingSetBytes": 173170688,
+          "privateBytes": 35368960
+        },
+        {
+          "phase": "after-cold",
+          "cpuSeconds": 23.671875,
+          "workingSetBytes": 215314432,
+          "peakWorkingSetBytes": 738402304,
+          "privateBytes": 80080896
+        },
+        {
+          "phase": "after-readback",
+          "cpuSeconds": 23.75,
+          "workingSetBytes": 215883776,
+          "peakWorkingSetBytes": 738402304,
+          "privateBytes": 80621568
+        }
+      ],
+      "pid": 29216,
+      "startupMs": 357.8775999999999,
+      "historyMode": "paginated",
+      "resumeSummary": {
+        "threadId": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+        "turnCount": 0,
+        "model": "gpt-6.1-sol"
+      },
+      "recentTurnCount": 20,
+      "recentItemCount": 6,
+      "status": "passed",
+      "engineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "totalMs": 26802.1649,
+      "unexpectedTurnStarted": false,
+      "finishedAt": "2026-10-25T07:18:51.430Z",
+      "internal": {
+        "spans": [
+          {
+            "name": "session_init.state_db",
+            "elapsedMs": 0.5199909210205078,
+            "busy": "8.00µs",
+            "idle": "512µs"
+          },
+          {
+            "name": "session_init.auth_mcp",
+            "elapsedMs": 2.1791458129882812,
+            "busy": "1.69ms",
+            "idle": "489µs"
+          },
+          {
+            "name": "session_init.thread_persistence",
+            "elapsedMs": 15.524864196777344,
+            "busy": "4.36ms",
+            "idle": "11.2ms"
+          },
+          {
+            "name": "session_init.thread_name_lookup",
+            "elapsedMs": 14.244794845581055,
+            "busy": "1.61ms",
+            "idle": "12.6ms"
+          },
+          {
+            "name": "session_init.plugin_skill_warmup",
+            "elapsedMs": 444.63396072387695,
+            "busy": "72.5ms",
+            "idle": "372ms"
+          },
+          {
+            "name": "session_init.mcp_manager_init",
+            "elapsedMs": 1.0590553283691406,
+            "busy": "875µs",
+            "idle": "185µs"
+          },
+          {
+            "name": "session_init",
+            "elapsedMs": 24175.86398124695,
+            "busy": "23.6s",
+            "idle": "618ms"
+          }
+        ],
+        "fullRolloutLoadCount": 1,
+        "fullRolloutReadDecodeMs": 23120.611906051636,
+        "beforeFullLoadInSessionMs": 529.3281078338623,
+        "afterFullLoadInSessionMs": 525.9239673614502,
+        "rawDecodeGranularity": "Combined read + JSON Value parse + typed canonical decode + Vec materialization; no finer instrumentation",
+        "parseErrors": 0,
+        "rolloutItems": 164704
+      }
+    }
+  ],
+  "summary": {
+    "initialize": {
+      "medianMs": 346.1549,
+      "minMs": 330.9512,
+      "maxMs": 360.83439999999996
+    },
+    "metadata": {
+      "medianMs": 173.91189999999995,
+      "minMs": 172.89470000000006,
+      "maxMs": 202.57510000000002
+    },
+    "cold-resume": {
+      "medianMs": 22745.1718,
+      "minMs": 21217.2141,
+      "maxMs": 24451.5703
+    },
+    "warm-resume": {
+      "medianMs": 18.931300000000192,
+      "minMs": 17.52639999999883,
+      "maxMs": 23.461699999999837
+    },
+    "recent-turns": {
+      "medianMs": 14.855999999999767,
+      "minMs": 12.007700000001932,
+      "maxMs": 16.31239999999889
+    },
+    "recent-items": {
+      "medianMs": 6.388199999997596,
+      "minMs": 6.235599999999977,
+      "maxMs": 7.5261999999966065
+    },
+    "models": {
+      "medianMs": 5.103800000000774,
+      "minMs": 4.2070999999996275,
+      "maxMs": 5.455900000000838
+    },
+    "fullRolloutReadDecodeMs": {
+      "medianMs": 21459.95593070984,
+      "minMs": 19895.659923553467,
+      "maxMs": 23120.611906051636
+    },
+    "beforeFullLoadInSessionMs": {
+      "medianMs": 442.4760341644287,
+      "minMs": 408.10108184814453,
+      "maxMs": 529.3281078338623
+    },
+    "afterFullLoadInSessionMs": {
+      "medianMs": 589.3490314483643,
+      "minMs": 525.9239673614502,
+      "maxMs": 612.1940612792969
+    },
+    "fullLoadSharePercent": [
+      94.34950027816382,
+      93.77131149161315,
+      94.55675697871901
+    ]
+  },
+  "excludedAttempts": {
+    "baseline1": "Reserved built-in provider override rejected; exit1, engine exit0",
+    "baseline2": "requiresRecovery guard rejects resume; exit1, engine exit0",
+    "baseline3": "Pass, but missing global maintenance markers in target-only clone caused startup migration. Excluded from primary baseline",
+    "baseline4": "Pass, same fixture issue as baseline3, excluded"
+  },
+  "limitations": [
+    "No cold OS disk-cache run; copying warms input",
+    "Signed out, no explicit MCP servers, apps feature disabled, no user plugin/settings copy",
+    "Blocked CONNECT attempts to startup plugin/model metadata endpoints are counted; no inference command or external connection permitted by fixture proxy",
+    "Per-database transaction and stable rollout/target metadata, not cross-database atomic snapshot",
+    "No pending accepted inputs, goals, queued work, parent waits or root resume reservations in disposable DB",
+    "JSON syntax parse and typed decode not separated; reducers/drop/initial-history share post-load interval",
+    "No webview first-paint or input-ready measurement; no Linux/macOS acceptance",
+    "Target grew from previous359977474 to441373260 bytes; no same-input before/after percentage claimed"
+  ],
+  "additionalExperiment": {
+    "name": "prehistory1",
+    "mode": "prehistory",
+    "startedAt": "2026-10-25T07:20:29.228Z",
+    "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1\\engine\\azrael.exe",
+    "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-resume-profile-r2\\temporary\\profiles\\prehistory1",
+    "conditions": {
+      "signedOut": true,
+      "requiresRecovery": false,
+      "explicitMcpServers": 0,
+      "appsFeature": false,
+      "excludeTurns": true,
+      "osFileCache": "not flushed; seed copying warms input",
+      "turnCommandsSent": 0
+    },
+    "steps": [
+      {
+        "phase": "initialize",
+        "method": "initialize",
+        "elapsedMs": 339.7818,
+        "responseBytes": 377
+      },
+      {
+        "phase": "metadata",
+        "method": "thread/read",
+        "elapsedMs": 154.6876000000001,
+        "responseBytes": 1308
+      },
+      {
+        "phase": "pre-resume-turns",
+        "method": "thread/turns/list",
+        "elapsedMs": 318.82989999999995,
+        "responseBytes": 13398
+      },
+      {
+        "phase": "pre-resume-items",
+        "method": "thread/items/list",
+        "elapsedMs": 5.956899999999905,
+        "responseBytes": 19672
+      },
+      {
+        "phase": "cold-resume",
+        "method": "thread/resume",
+        "elapsedMs": 17525.1534,
+        "responseBytes": 4292
+      },
+      {
+        "phase": "warm-resume",
+        "method": "thread/resume",
+        "elapsedMs": 15.411499999998341,
+        "responseBytes": 4292
+      },
+      {
+        "phase": "recent-turns",
+        "method": "thread/turns/list",
+        "elapsedMs": 9.666900000000169,
+        "responseBytes": 13398
+      },
+      {
+        "phase": "recent-items",
+        "method": "thread/items/list",
+        "elapsedMs": 4.201000000000931,
+        "responseBytes": 19672
+      },
+      {
+        "phase": "models",
+        "method": "model/list",
+        "elapsedMs": 3.388699999999517,
+        "responseBytes": 10163
+      }
+    ],
+    "requests": [
+      {
+        "method": "CONNECT",
+        "path": "chatgpt.com:443"
+      },
+      {
+        "method": "CONNECT",
+        "path": "github.com:443"
+      },
+      {
+        "method": "CONNECT",
+        "path": "api.github.com:443"
+      },
+      {
+        "method": "CONNECT",
+        "path": "chatgpt.com:443"
+      },
+      {
+        "method": "CONNECT",
+        "path": "api.openai.com:443"
+      }
+    ],
+    "notifications": {
+      "remoteControl/status/changed": 1,
+      "thread/status/changed": 1,
+      "thread/tokenUsage/updated": 1,
+      "thread/goal/cleared": 2
+    },
+    "serverRequests": [],
+    "resources": [
+      {
+        "phase": "before-cold",
+        "cpuSeconds": 0.6875,
+        "workingSetBytes": 177324032,
+        "peakWorkingSetBytes": 177324032,
+        "privateBytes": 44392448
+      },
+      {
+        "phase": "after-cold",
+        "cpuSeconds": 17.921875,
+        "workingSetBytes": 217096192,
+        "peakWorkingSetBytes": 743690240,
+        "privateBytes": 81866752
+      },
+      {
+        "phase": "after-readback",
+        "cpuSeconds": 17.953125,
+        "workingSetBytes": 222355456,
+        "peakWorkingSetBytes": 743690240,
+        "privateBytes": 87859200
+      }
+    ],
+    "pid": 50300,
+    "startupMs": 352.3654,
+    "historyMode": "paginated",
+    "preResumeTurnCount": 20,
+    "preResumeItemCount": 6,
+    "resumeSummary": {
+      "threadId": "01a1334d-6a69-7821-a164-da04f3cfa71f",
+      "turnCount": 0,
+      "model": "gpt-6.1-sol"
+    },
+    "recentTurnCount": 20,
+    "recentItemCount": 6,
+    "status": "passed",
+    "engineExit": {
+      "code": 0,
+      "signal": null
+    },
+    "totalMs": 19726.477600000002,
+    "unexpectedTurnStarted": false,
+    "finishedAt": "2026-10-25T07:20:48.957Z",
+    "interpretation": "One fresh profile: recent history APIs work before thread/resume; no webview paint measured; do not attribute cold-resume timing differences to prefetch."
+  },
+  "scriptIdentities": {
+    "temporary\\measure.mjs": "0447ecfdbcedb20853d4df72c2999cf338a875ec5ab7c68f9d04173bff8cd1a7",
+    "temporary\\prepare.py": "6d09a21567920f0378b91540715384c56a7a5392a77c66ecff3980633175f1a5"
+  },
+  "commands": [
+    "python temporary/prepare.py (read-only source snapshot; maintenance markers subsequently copied read-only)",
+    "node temporary/measure.mjs readiness readiness",
+    "node temporary/measure.mjs baseline5",
+    "node temporary/measure.mjs baseline6",
+    "node temporary/measure.mjs baseline7",
+    "node temporary/measure.mjs prehistory1 prehistory"
+  ],
+  "startupMigrationCorrection": {
+    "effect": "Missing copied migration watermarks caused initialize18.4-21.7s; after preserving original complete markers initialize0.331-0.361s",
+    "classification": "Fixture correction, not product performance improvement"
+  },
+  "producerStop": {
+    "checkedAt": "2026-10-25T07:21:35.848Z",
+    "recordedEnginePids": [
+      65196,
+      28728,
+      67248,
+      8644,
+      55284,
+      25040,
+      29216,
+      50300,
+      71268
+    ],
+    "observedEngineExits": [
+      {
+        "name": "baseline1",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline2",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline3",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline4",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline5",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline6",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline7",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "prehistory1",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "readiness",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    ],
+    "currentMatches": [],
+    "passed": true
+  },
+  "runnerExitCodes": {
+    "prepare": 0,
+    "readiness": 0,
+    "baseline1": 1,
+    "baseline2": 1,
+    "baseline3": 0,
+    "baseline4": 0,
+    "baseline5": 0,
+    "baseline6": 0,
+    "baseline7": 0,
+    "prehistory1": 0,
+    "catalogWaitAttempt": 1,
+    "catalogReleaseWatcher": 0
+  },
+  "cleanup": {
+    "state": "deleted",
+    "root": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CY-01-session-loading-review/runs/20261025-resume-profile-r2",
+    "logicalBytes": 5149802696,
+    "physicalBytesReclaimed": null,
+    "producerClose": {
+      "state": "complete",
+      "revision": 2,
+      "outcome": "success",
+      "exitCode": 0,
+      "evidence": "06-producer-stop.json"
+    },
+    "nativeReview": {
+      "verification": "registered",
+      "blockers": [],
+      "memberCount": 1
+    },
+    "nativeApply": {
+      "aborted": false,
+      "groupStatus": "deleted",
+      "memberStatus": "deleted",
+      "remaining": false,
+      "error": null,
+      "attemptId": "attempt-73132-2317-1792916312813"
+    },
+    "finalization": {
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    "verifiedAt": "2026-10-25T08:19:17Z",
+    "managementWaits": [
+      {
+        "operation": "initial lifecycle registration",
+        "firstWaitExit": 1,
+        "releaseWatcherExit": 0,
+        "retryExit": 0
+      },
+      {
+        "operation": "close lifecycle",
+        "firstAttemptExit": 1,
+        "firstWaitExit": 1,
+        "releaseWatcherExit": 0,
+        "retryExit": 0
+      }
+    ],
+    "retainedFiles": [
+      "04-plan.md",
+      "05-remeasurement-evidence.json",
+      "06-producer-stop.json"
+    ],
+    "retainedDisposableTests": 0
+  },
+  "finalEngineHashVerifiedUnchanged": true
+}

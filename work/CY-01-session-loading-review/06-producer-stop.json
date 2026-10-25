@@ -1,0 +1,140 @@
+{
+  "owner": "CY-01-session-loading-review",
+  "purpose": "Immutable producer termination evidence for CY-01-resume-profile-r2",
+  "producerStop": {
+    "checkedAt": "2026-10-25T07:21:35.848Z",
+    "recordedEnginePids": [
+      65196,
+      28728,
+      67248,
+      8644,
+      55284,
+      25040,
+      29216,
+      50300,
+      71268
+    ],
+    "observedEngineExits": [
+      {
+        "name": "baseline1",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline2",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline3",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline4",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline5",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline6",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "baseline7",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "prehistory1",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      },
+      {
+        "name": "readiness",
+        "engineExit": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    ],
+    "currentMatches": [],
+    "passed": true
+  },
+  "runnerExitCodes": {
+    "prepare": 0,
+    "readiness": 0,
+    "baseline1": 1,
+    "baseline2": 1,
+    "baseline3": 0,
+    "baseline4": 0,
+    "baseline5": 0,
+    "baseline6": 0,
+    "baseline7": 0,
+    "prehistory1": 0,
+    "catalogWaitAttempt": 1,
+    "catalogReleaseWatcher": 0
+  },
+  "measurementResults": [
+    {
+      "name": "baseline5",
+      "status": "passed",
+      "engineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "unexpectedTurnStarted": false,
+      "serverRequests": []
+    },
+    {
+      "name": "baseline6",
+      "status": "passed",
+      "engineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "unexpectedTurnStarted": false,
+      "serverRequests": []
+    },
+    {
+      "name": "baseline7",
+      "status": "passed",
+      "engineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "unexpectedTurnStarted": false,
+      "serverRequests": []
+    }
+  ],
+  "additionalExperiment": {
+    "name": "prehistory1",
+    "status": "passed",
+    "engineExit": {
+      "code": 0,
+      "signal": null
+    }
+  },
+  "noFurtherPayloadWriters": true
+}
