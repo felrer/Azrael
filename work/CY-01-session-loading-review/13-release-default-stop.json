@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "owner": "CY-01-session-loading-review",
+  "group": "CY-01-release-default-r5",
+  "producerStoppedVerified": true,
+  "outcome": "success",
+  "exitCode": 0,
+  "observedExecutions": {
+    "initialNativeBounded": 124,
+    "initialFullCli": 1,
+    "windowsRecipeFinal": 0,
+    "sourceRecordFinal": 0,
+    "sourceSnapshotFinal": 0
+  },
+  "ownedProcessMatches": 0,
+  "sourceReceipt": {
+    "beforeSha256": "e64e38c5d2d237e4fd3be7a910f9b83286d652b6e2eab972b9f0a1060bbd815d",
+    "afterSha256": "a5d523552a347afecfb079bcfc8ed59cea9f433ccb04402930c1fd4d0a7914fb",
+    "changedPaths": [
+      "codex-rs/app-server/src/bin/azrael.rs"
+    ],
+    "unrelatedWorkingDeltasExcluded": [
+      "codex-rs/project-maintenance/src/apply.rs",
+      "codex-rs/project-maintenance/src/groups.rs",
+      "codex-rs/project-maintenance/src/lib.rs",
+      "codex-rs/project-maintenance/src/retirement.rs"
+    ],
+    "publicationGuard": "Current receipt bytes still match captured pre-task receipt; only azrael.rs descriptor and derived aggregate/provenance metadata changed",
+    "isolatedReceiptValidation": "record-engine-local-changes full validation succeeded; primary checkout retains four unrelated unrecorded changes, outside acceptance"
+  },
+  "sourceSnapshot": {
+    "schema": 2,
+    "sourceKind": "imported-snapshot",
+    "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "importedInventorySha256": "73b54194931ac8dbb3f310b884dbebef5bd98141788f72f90249ef2a160abb4d",
+    "importedReceiptSha256": "a5d523552a347afecfb079bcfc8ed59cea9f433ccb04402930c1fd4d0a7914fb",
+    "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+    "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sourceSha256": "a1bff832f9826c0ea8cf9ccda16cc33ec90d32f6afa47803fd66e4c5f6b4a028",
+    "fileCount": 9320,
+    "target": "x86_64-pc-windows-msvc",
+    "buildEnvironment": {
+      "RUSTFLAGS": "",
+      "CARGO_ENCODED_RUSTFLAGS": "",
+      "RUSTC_WRAPPER": "",
+      "RUSTUP_TOOLCHAIN": "",
+      "V8_FROM_SOURCE": "",
+      "V8_FORCE_DEBUG": "",
+      "RUSTY_V8_ARCHIVE": "",
+      "RUSTY_V8_MIRROR": "",
+      "RUSTY_V8_SRC_BINDING_PATH": "",
+      "GN": "",
+      "GN_ARGS": "",
+      "EXTRA_GN_ARGS": "",
+      "NINJA": "",
+      "CLANG_BASE_PATH": "",
+      "PYTHON": "",
+      "LIBCLANG_PATH": ""
+    }
+  },
+  "testSummary": {
+    "provenance": {
+      "total": 50,
+      "passed": 46,
+      "skipped": 4,
+      "exitCode": 0
+    },
+    "platform": {
+      "total": 13,
+      "passed": 12,
+      "skipped": 1,
+      "exitCode": 0
+    },
+    "rootGuards": {
+      "passed": 7,
+      "exitCode": 0
+    },
+    "windowsRecipe": {
+      "passed": 17,
+      "exitCode": 0
+    }
+  },
+  "finalCheckInputs": {
+    "scripts/engine-provenance.py": "f12b7b4f3c42c4583a1dbfcc51ffaa52946cd790549cc3fde442b6a5f061b167",
+    "scripts/tests/test_engine_provenance.py": "930c14b763fe8b32902599695bd6249740e147ebb4a0cbec57a3a395d163ee78",
+    "scripts/check-engine-provenance-guards.cjs": "9f87f36f9b681145c1f5494548e33c3d46e73a263abe35f6c8a6d6e03ef697b1",
+    "scripts/import-engine-source.py": "0e4e19466ae1385110162e4b208731c95b72caafd864c58d595d6ca44b2f9f00",
+    "scripts/engine-native-materialization.py": "1874f06a6c78107f4595d381a66285f892125dd9d1fb2c40b81f7ca004f9ff32",
+    "scripts/azrael-platforms.json": "914947781d7f0689f263a174cea80f21999e15673955c779a4d8a0eeeda9ffac",
+    "scripts/build-azrael.ps1": "d62996d0eb4056b9980b4e12d1edc6b85991b9248783b57e06b8fd911e157a4a",
+    "scripts/build-platform.cjs": "7f9fb088c3c011f38f4f465288e2736d8beebf25d583d341632c2ab7a8c0f3fa",
+    "scripts/test-build-platform.cjs": "01b88164fd6fa18f4580149b77ab0a0164174aaec932e84e17005a97a857c4de",
+    "scripts/test-build-metrics.ps1": "557a5144b22ae4cae75b6817bd9c1e893d2739ff69b90931ac02ea88475bc865",
+    "scripts/build-metrics.ps1": "d715eed4ef70e7f94a534081aaabb2c527dad4f8625329b28f8ef4c09fee7b11",
+    "scripts/build-module-cache.ps1": "1a7c775f35382cb0c1f566ea41724b60f19fb47dad72f8cdd9f215cf7884bf3a",
+    "scripts/build-module-companion-recipe.ps1": "2cc59a33e010528bfa7ea64866c7525ddeeb2c34a11bcee13dd3dd3e587dc20a",
+    "scripts/build-module-providers-recipe.ps1": "78e238c5cba929ce811c801ae7be55140437373a9e5c7b18a5fc4adfc1cbd0aa",
+    "scripts/artifact-lifecycle.cjs": "f02962c691f7912c45e36787dc66bd67dbaea54b21a097ec54282815838a9ce8",
+    "scripts/artifact-lifecycle.ps1": "eda298ddfd021807248ffdbd87008cfcb09fc3cb4f29adc2e03bb453b5e87479"
+  },
+  "installedEngineSha256": "8015338b3f3f3f958e8b154d6175d2bce6497d51313e7be6e8e83998fdd7beca",
+  "unrelatedStagedBlobs": [
+    "100644 d17f9bb7cb4ad8d2b9bbbe117694d3c2ae800be5 0\tengine/codex-rs/app-server/tests/suite/v2/thread_resume_network_tests.rs",
+    "100644 e588715e34b19fc047f7245ef518eeb2938f662f 0\tengine/codex-rs/network-proxy/src/host_policy_tests.rs",
+    "100644 26ff6f969865359b022ee934df94733144958aeb 0\tengine/codex-rs/network-proxy/src/http_proxy/host_header_tests.rs",
+    "100644 6c005cc4ecd37d325b396b7830c8fbd79bed4569 0\tengine/codex-rs/sandboxing/src/seatbelt_network_tests.rs"
+  ],
+  "retainedEvidence": "12-release-default-evidence.json",
+  "members": [
+    "artifacts/tasks/CY-01-session-loading-review/runs/20261025-release-default-r5",
+    "artifacts/build/c5"
+  ],
+  "disposableContents": "Original/selected source copies, archive, Git fixture objects/index, temporary drivers/fixtures, raw logs; independent verification and failure summaries retained in work"
+}

@@ -61,7 +61,7 @@ $engineTarget = if ($EngineTargetDirectory) { [IO.Path]::GetFullPath($EngineTarg
 $lifecycleMembers = Get-VersionLifecycleMembers $projectRoot $ReleaseName
 $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $lifecycleMembers
 try {
-if (-not $EngineDirectory) { $EngineDirectory = Join-Path $engineTarget 'x86_64-pc-windows-msvc/debug' }
+if (-not $EngineDirectory) { $EngineDirectory = Join-Path $engineTarget 'x86_64-pc-windows-msvc/release' }
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
 . (Join-Path $PSScriptRoot 'build-metrics.ps1')
 $buildMetrics = New-BuildMetrics (Join-Path $logDirectory 'build-metrics.json')
@@ -91,7 +91,7 @@ if (-not $SkipEngineBuild -and 'engine' -notin $RebuildModule) {
         $previousRelease = (Get-Content $latestPath -Raw | ConvertFrom-Json).releaseDirectory
         $candidateEngine = Join-Path $previousRelease 'engine'
         if (Test-Path -LiteralPath (Join-Path $candidateEngine 'azrael-engine-build.json')) {
-            & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir $candidateEngine *> (Join-Path $logDirectory 'engine-auto-reuse.log')
+            & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --profile release --root $sourceRoot --engine-dir $candidateEngine *> (Join-Path $logDirectory 'engine-auto-reuse.log')
             if ($LASTEXITCODE -eq 0 -and $CodeModeHostPath -and (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf) -and (Get-FileHash $CodeModeHostPath).Hash -ieq (Get-FileHash (Join-Path $candidateEngine 'azrael-code-mode-host.exe')).Hash) {
                 $EngineDirectory=$candidateEngine;$SkipEngineBuild=$true
             }
@@ -113,7 +113,7 @@ if (-not $SkipEngineBuild) {
         # Cargo must successfully build both binaries before provenance is recorded.
         $env:CARGO_TARGET_DIR = $engineTarget
         if ($sharedCargoCache) { $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $sharedCargoCache.projectRoot }
-        Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
+        Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
         if ((Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
         $codeModeHostDestination = Join-Path $EngineDirectory 'azrael-code-mode-host.exe'
@@ -121,7 +121,7 @@ if (-not $SkipEngineBuild) {
             Copy-Item -LiteralPath $externalCodeModeHost -Destination $codeModeHostDestination -Force
         }
         Complete-BuildStage $buildMetrics $check
-        Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'record', '--root', (Split-Path $rustRoot -Parent), '--file', (Join-Path $logDirectory 'engine-source-before.json'), '--engine-dir', $EngineDirectory, '--code-mode-host-source', $externalCodeModeHost) 'engine-provenance.log'
+        Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'record', '--profile', 'release', '--root', (Split-Path $rustRoot -Parent), '--file', (Join-Path $logDirectory 'engine-source-before.json'), '--engine-dir', $EngineDirectory, '--code-mode-host-source', $externalCodeModeHost) 'engine-provenance.log'
     } finally {
         $env:CARGO_TARGET_DIR = $previousTarget
         $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $previousCacheOwner
@@ -130,9 +130,9 @@ if (-not $SkipEngineBuild) {
     Complete-BuildStage $buildMetrics $phase
 }
 $phase = Start-BuildStage $buildMetrics 'engine-provenance-and-binary-check'
-Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', $EngineDirectory) 'engine-source-check.log'
+Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--profile', 'release', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', $EngineDirectory) 'engine-source-check.log'
 if ($RetainedSourceRoot) {
-    Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', $RetainedSourceRoot, '--engine-dir', $EngineDirectory) 'engine-retained-source-check.log'
+    Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--profile', 'release', '--root', $RetainedSourceRoot, '--engine-dir', $EngineDirectory) 'engine-retained-source-check.log'
 }
 $engine = Join-Path $EngineDirectory 'azrael.exe'
 $bridge = Join-Path $EngineDirectory 'azrael-bridge.exe'
@@ -244,9 +244,9 @@ if ($IncludeProviderAccounts) {
 }
 $phase = Start-BuildStage $buildMetrics 'packaged-engine-provenance-check'
 if ($RetainedSourceRoot) {
-    Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', $RetainedSourceRoot, '--engine-dir', (Join-Path $release 'engine')) 'packaged-retained-source-check.log'
+    Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--profile', 'release', '--root', $RetainedSourceRoot, '--engine-dir', (Join-Path $release 'engine')) 'packaged-retained-source-check.log'
 }
-Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', (Join-Path $release 'engine')) 'packaged-source-check.log'
+Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--profile', 'release', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', (Join-Path $release 'engine')) 'packaged-source-check.log'
 Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'verify-release', '--release', $release, '--source-root', $windowSource) 'packaged-window-control-source-check.log'
 Complete-BuildStage $buildMetrics $phase
 $phase = Start-BuildStage $buildMetrics 'release-selection'

@@ -1,0 +1,796 @@
+{
+  "schema": 1,
+  "owner": "CY-01-session-loading-review",
+  "state": "implemented-verified-with-deferred-git-control",
+  "scope": "Next formal release build defaults; no product build/install/publish or new performance claim",
+  "platformScope": {
+    "changed": "Windows x64 MSVC recipe; common profile provenance/entry setting; portable producer release receipt",
+    "verified": "Windows PowerShell7.6.7, Python3.13, Node; simulated Linux/macOS target contracts",
+    "unverified": "New complete native release builds, installed host, Linux/macOS native acceptance"
+  },
+  "priorPerformanceEvidence": "07-release-comparison-evidence.json",
+  "buildProfile": {
+    "cargo": "existing release profile; thin LTO/codegen-units4",
+    "windowsOutput": "x86_64-pc-windows-msvc/release",
+    "receiptField": "buildProfile",
+    "reuseRequirement": "release; dev/legacy rejected for new formal producer; ordinary existing-installation verification unchanged"
+  },
+  "nativeBoundedAttempt": {
+    "runId": "run-73132-2543-1792934966009691000",
+    "status": "failed",
+    "steps": [
+      {
+        "exitCode": 124,
+        "producerCompleted": true,
+        "integrity": "valid",
+        "logRef": "tool-call:exec-ddc0c33d-208b-4f45-817d-85103fd5c713:step-d0004b555c64d2bfc07f26da7da27e6eb436e7d5794951c9aeaa92f3bf2b7e5b"
+      }
+    ],
+    "resolution": "Preserve failed bounded run; exact owned producer completed and matching r5/check.py processes absent; rerun unchanged selected inputs through long CLI execution session 81793."
+  },
+  "windowsRecipeFinal": {
+    "name": "windows-recipe",
+    "argv": [
+      "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.7.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "-NoProfile",
+      "-File",
+      "scripts/test-build-metrics.ps1",
+      "-OutputDirectory",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\metrics"
+    ],
+    "exitCode": 0,
+    "durationMs": null,
+    "rerunReason": "Bind PSScriptRoot explicitly when evaluating production AST in dynamic scriptblocks",
+    "inputSha256": "557a5144b22ae4cae75b6817bd9c1e893d2739ff69b90931ac02ea88475bc865",
+    "inputsUnchanged": true,
+    "scope": "all 17 retained build metrics cases, including evaluated release argv/output/reuse/package gates",
+    "output": "logs/windows-recipe-final.stdout.log",
+    "executionSession": 42786,
+    "fix": "Bind script root and log directory in the AST recipe test fixture; production code unchanged by fixture fixes",
+    "timing": "Final focused rerun wall time not separately measured; observed execution session42786 exited0"
+  },
+  "testSummary": {
+    "provenance": {
+      "total": 50,
+      "passed": 46,
+      "skipped": 4,
+      "exitCode": 0
+    },
+    "platform": {
+      "total": 13,
+      "passed": 12,
+      "skipped": 1,
+      "exitCode": 0
+    },
+    "rootGuards": {
+      "passed": 7,
+      "exitCode": 0
+    },
+    "windowsRecipe": {
+      "passed": 17,
+      "exitCode": 0
+    }
+  },
+  "fixtureCorrections": [
+    "Dynamic PowerShell AST fixture binds production script root and log directory; product commands unchanged by these fixture fixes",
+    "Windows original-source extraction uses existing extended-path IO; original archived bytes reconstructed only where exact original receipt hash matches historical Git blobs",
+    "Final Windows recipe test supplies logDirectory; all 17 cases then pass"
+  ],
+  "sourcePreparation": {
+    "durationMs": 225250,
+    "baselineReceiptSha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+    "selectedReceiptSha256": "e64e38c5d2d237e4fd3be7a910f9b83286d652b6e2eab972b9f0a1060bbd815d",
+    "isolatedSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\p\\engine",
+    "baseline": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\o\\engine",
+    "unrelatedWorkingDeltasExcluded": [
+      "codex-rs/project-maintenance/src/apply.rs",
+      "codex-rs/project-maintenance/src/groups.rs",
+      "codex-rs/project-maintenance/src/lib.rs",
+      "codex-rs/project-maintenance/src/retirement.rs"
+    ]
+  },
+  "sourceBaselineReconstruction": {
+    "source": "exact matching Git historical blobs",
+    "correctedToOriginalReceipt": [
+      {
+        "path": "codex-rs/core/src/session/root_resume.rs",
+        "gitCommit": "a7c0f7301dabdce7c65330ba2ba5cf95fcc04af6",
+        "representation": "git"
+      },
+      {
+        "path": "codex-rs/core/src/session/turn.rs",
+        "gitCommit": "a165b38dbbdee702bdc716a830aee0bb4c400628",
+        "representation": "git"
+      },
+      {
+        "path": "codex-rs/prompts/src/root_coordination_instructions.rs",
+        "gitCommit": "a1bdefc3cff85306e004b93e483bf5014a3185e8",
+        "representation": "git"
+      },
+      {
+        "path": "codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql",
+        "gitCommit": "a165b38dbbdee702bdc716a830aee0bb4c400628",
+        "representation": "git"
+      }
+    ],
+    "durationMs": 65056
+  },
+  "sourceBaselineAdditionalCorrections": {
+    "codex-rs/core/src/client.rs": "a165b38d",
+    "codex-rs/core/src/session/mod.rs": "c3afaf71f10c8be387b5580936096a9d735acbb1",
+    "excludedUninventoriedArchiveEntry": "codex-rs/core/src/session/root_resume_timing.rs"
+  },
+  "preexistingDirtyFiles": {
+    "engine/SOURCE.json": {
+      "sha256": "e64e38c5d2d237e4fd3be7a910f9b83286d652b6e2eab972b9f0a1060bbd815d",
+      "status": "M engine/SOURCE.json"
+    },
+    "scripts/azrael-feature-contracts.json": {
+      "sha256": "f68adedf182d3a7c5adf20e9b15175d37820d4faa63fd279d64907387c439328",
+      "status": "M scripts/azrael-feature-contracts.json"
+    },
+    "docs/architecture/upstream-preservation.md": {
+      "sha256": "073baddd1f8304e9b10837caad7d195352e1caadb4f538ef482b82adccf0cee5",
+      "status": "M docs/architecture/upstream-preservation.md"
+    }
+  },
+  "unrelatedStagedBlobsBefore": [
+    "100644 d17f9bb7cb4ad8d2b9bbbe117694d3c2ae800be5 0\tengine/codex-rs/app-server/tests/suite/v2/thread_resume_network_tests.rs",
+    "100644 e588715e34b19fc047f7245ef518eeb2938f662f 0\tengine/codex-rs/network-proxy/src/host_policy_tests.rs",
+    "100644 26ff6f969865359b022ee934df94733144958aeb 0\tengine/codex-rs/network-proxy/src/http_proxy/host_header_tests.rs",
+    "100644 6c005cc4ecd37d325b396b7830c8fbd79bed4569 0\tengine/codex-rs/sandboxing/src/seatbelt_network_tests.rs"
+  ],
+  "oneOffBundleRetired": true,
+  "cleanup": {
+    "state": "completed",
+    "group": "CY-01-release-default-r5",
+    "members": [
+      "artifacts/tasks/CY-01-session-loading-review/runs/20261025-release-default-r5",
+      "artifacts/build/c5"
+    ],
+    "registration": {
+      "group": {
+        "cleanup_status": null,
+        "id": "CY-01-release-default-r5",
+        "kind": "run",
+        "members": [
+          "6b48971bf72d272aad6fc596eb9eeaaf579e64426fdde6ba070df78803328b4b",
+          "ed5d1f5fb6c11294a3f1f311d4e0e94d690079c31fdab25246bf2bc011197528"
+        ],
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "5be61c5152439c928ad4e539a2d4650968a34796612dd996da05a947d77560d4",
+        "owner": "CY-01-session-loading-review",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\cea0ff79c9cf10735f5f8d1da99cc750c6e6f742e312247017588fe11c23f049.json",
+        "registered_at_ms": 1792936376061,
+        "version": null
+      },
+      "items": [
+        {
+          "cache_schema": null,
+          "created_at_ms": null,
+          "generated": true,
+          "id": "6b48971bf72d272aad6fc596eb9eeaaf579e64426fdde6ba070df78803328b4b",
+          "identity": "d27d1ca690a57e124c1164219e341ec5a8bed366373f07e2d668080b334f7900",
+          "kind": "verification",
+          "lifecycle_group_id": "CY-01-release-default-r5",
+          "lifecycle_role": "evidence",
+          "logical_bytes": 55527728,
+          "measured_at_ms": 1792936165079,
+          "owner": "CY-01-session-loading-review",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5",
+          "presence": "present",
+          "protection_known": true,
+          "provenance": null,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\cea0ff79c9cf10735f5f8d1da99cc750c6e6f742e312247017588fe11c23f049.json",
+          "references": [],
+          "registered_at_ms": 1792936165079,
+          "remaining": true,
+          "role": "verification",
+          "source_path": null,
+          "tool": null,
+          "version": null
+        },
+        {
+          "cache_schema": null,
+          "created_at_ms": null,
+          "generated": true,
+          "id": "ed5d1f5fb6c11294a3f1f311d4e0e94d690079c31fdab25246bf2bc011197528",
+          "identity": "13cf1491079e7203d0ba2b59fbdf535cb1a6394a0acf4c072ee5da2715f11844",
+          "kind": "source-receipt-verification",
+          "lifecycle_group_id": "CY-01-release-default-r5",
+          "lifecycle_role": "evidence",
+          "logical_bytes": 219822829,
+          "measured_at_ms": 1792936352831,
+          "owner": "CY-01-session-loading-review",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5",
+          "presence": "present",
+          "protection_known": true,
+          "provenance": null,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\cea0ff79c9cf10735f5f8d1da99cc750c6e6f742e312247017588fe11c23f049.json",
+          "references": [],
+          "registered_at_ms": 1792936352831,
+          "remaining": true,
+          "role": "source-receipt-verification",
+          "source_path": null,
+          "tool": null,
+          "version": null
+        }
+      ]
+    },
+    "review": {
+      "groups": [
+        {
+          "cached_live_members": 2,
+          "cleanup_status": null,
+          "id": "CY-01-release-default-r5",
+          "kind": "run",
+          "members_total": 2,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "5be61c5152439c928ad4e539a2d4650968a34796612dd996da05a947d77560d4",
+          "owner": "CY-01-session-loading-review",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\cea0ff79c9cf10735f5f8d1da99cc750c6e6f742e312247017588fe11c23f049.json",
+          "version": null
+        }
+      ],
+      "items": [
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "6b48971bf72d272aad6fc596eb9eeaaf579e64426fdde6ba070df78803328b4b",
+            "ed5d1f5fb6c11294a3f1f311d4e0e94d690079c31fdab25246bf2bc011197528"
+          ],
+          "group_token": "8dcc0b77df1f0dcd029e0bebeb03e186b917e918f3ba31625b13f62226b9c14d",
+          "id": "6b48971bf72d272aad6fc596eb9eeaaf579e64426fdde6ba070df78803328b4b",
+          "identity": "d27d1ca690a57e124c1164219e341ec5a8bed366373f07e2d668080b334f7900",
+          "lifecycle_group_id": "CY-01-release-default-r5",
+          "logical_bytes": 55527728,
+          "measured_at_ms": 1792936165079,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "5be61c5152439c928ad4e539a2d4650968a34796612dd996da05a947d77560d4",
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\CY-01-session-loading-review\\13-release-default-stop.json",
+                "evidence_sha256": "7d80d996b4f8ce6b69529b8650909d8cf5c94730e6dcf7926d1792affc9d3ad4",
+                "reason": "Selected verification and source provenance complete; actual exits observed and independent work evidence retained",
+                "request_sha256": "97998a8d1b05c6deeff615c073088f72ff8af5e57976eb255926aeea7cc3eeeb"
+              },
+              "created_at": "2026-10-25T13:15:27.918Z",
+              "id": "CY-01-release-default-r5",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5",
+                  "protection_known": true,
+                  "role": "verification"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5",
+                  "protection_known": true,
+                  "role": "source-receipt-verification"
+                }
+              ],
+              "membership_complete": true,
+              "owner": "CY-01-session-loading-review",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\CY-01-session-loading-review\\13-release-default-stop.json",
+                "evidence_sha256": "7d80d996b4f8ce6b69529b8650909d8cf5c94730e6dcf7926d1792affc9d3ad4",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Selected verification and source provenance complete; actual exits observed and independent work evidence retained",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-25T13:48:31.085Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1792936384435,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                11,
+                98,
+                26,
+                0,
+                0,
+                0,
+                69,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "cb0a8444fe54f1230266bc34caf424717befba8dab20c55b0fa72b0c9203c492",
+          "verification": "registered"
+        },
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "6b48971bf72d272aad6fc596eb9eeaaf579e64426fdde6ba070df78803328b4b",
+            "ed5d1f5fb6c11294a3f1f311d4e0e94d690079c31fdab25246bf2bc011197528"
+          ],
+          "group_token": "8dcc0b77df1f0dcd029e0bebeb03e186b917e918f3ba31625b13f62226b9c14d",
+          "id": "ed5d1f5fb6c11294a3f1f311d4e0e94d690079c31fdab25246bf2bc011197528",
+          "identity": "13cf1491079e7203d0ba2b59fbdf535cb1a6394a0acf4c072ee5da2715f11844",
+          "lifecycle_group_id": "CY-01-release-default-r5",
+          "logical_bytes": 219822829,
+          "measured_at_ms": 1792936352831,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "5be61c5152439c928ad4e539a2d4650968a34796612dd996da05a947d77560d4",
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\CY-01-session-loading-review\\13-release-default-stop.json",
+                "evidence_sha256": "7d80d996b4f8ce6b69529b8650909d8cf5c94730e6dcf7926d1792affc9d3ad4",
+                "reason": "Selected verification and source provenance complete; actual exits observed and independent work evidence retained",
+                "request_sha256": "97998a8d1b05c6deeff615c073088f72ff8af5e57976eb255926aeea7cc3eeeb"
+              },
+              "created_at": "2026-10-25T13:15:27.918Z",
+              "id": "CY-01-release-default-r5",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5",
+                  "protection_known": true,
+                  "role": "verification"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5",
+                  "protection_known": true,
+                  "role": "source-receipt-verification"
+                }
+              ],
+              "membership_complete": true,
+              "owner": "CY-01-session-loading-review",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\CY-01-session-loading-review\\13-release-default-stop.json",
+                "evidence_sha256": "7d80d996b4f8ce6b69529b8650909d8cf5c94730e6dcf7926d1792affc9d3ad4",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Selected verification and source provenance complete; actual exits observed and independent work evidence retained",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-25T13:48:31.085Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1792936384465,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                222,
+                183,
+                52,
+                0,
+                0,
+                0,
+                19,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "f44aaa9166bde361e3477a210e108bd50cecf2637a6789abbe6fb5cdbf0ab1a3",
+          "verification": "registered"
+        }
+      ]
+    },
+    "apply": {
+      "aborted": false,
+      "groups": [
+        {
+          "id": "CY-01-release-default-r5",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-73132-2553-1792936531224",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\root-guards\\tmpuoc8stq_\\source\\.git\\objects\\ed\\df8b7472dd1063f2dacdf42ac11263dca8383c"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\root-guards\\tmpuoc8stq_\\source\\.git\\objects\\8d\\a84891bfc9327c9d079dc09cd5f84be307d8f3"
+              },
+              {
+                "after": 16,
+                "before": 18,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\provenance\\engine-provenance-_5s2mnws\\source\\.git"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\root-guards\\tmpuoc8stq_\\source\\.git\\objects\\f0\\cbd709bcdcd51455cc9eb493968aee167fbaa9"
+              },
+              {
+                "after": 16,
+                "before": 18,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\root-guards\\tmpuoc8stq_\\source\\.git"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\provenance\\engine-provenance-_5s2mnws\\source\\.git\\objects\\e2\\fe9a368353f2af86f6ee1a86f763adb5d64965"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\provenance\\engine-provenance-_5s2mnws\\source\\.git\\objects\\29\\faba2f1ecf4a8c7a55c59c084055d0e4a72575"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\provenance\\engine-provenance-_5s2mnws\\source\\.git\\objects\\f8\\9d64dab6bbf0db7bfd8b939dfe59b2e7977894"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\provenance\\engine-provenance-_5s2mnws\\source\\.git\\objects\\46\\9565c6445dbb6c869b230cc7f33384f55b43a7"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\root-guards\\tmpuoc8stq_\\source\\.git\\objects\\01\\a87212dcb9add1b7547cca515148a5c47b46e6"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\root-guards\\tmpuoc8stq_\\source\\.git\\objects\\71\\779d2cab258b810b2f567c9a619f6e0105f44e"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\provenance\\engine-provenance-_5s2mnws\\source\\.git\\objects\\3a\\3330fb93adecdb5bb28470afb98c4d3c2b228c"
+              }
+            ],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleting",
+          "id": "6b48971bf72d272aad6fc596eb9eeaaf579e64426fdde6ba070df78803328b4b",
+          "lifecycle_group_id": "CY-01-release-default-r5",
+          "reason": "Verification and isolated source provenance complete; independent results and immutable stop proof retained; temporary source copies, archive, Git fixtures, drivers and raw logs have no remaining consumer.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "cb0a8444fe54f1230266bc34caf424717befba8dab20c55b0fa72b0c9203c492"
+        },
+        {
+          "attempt_id": "attempt-73132-2556-1792936659473",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\p\\.git\\objects\\pack\\pack-63da5cb142964cc8d7dab87decc9cd9b7199ed99.rev"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\p\\.git\\objects\\pack\\pack-63da5cb142964cc8d7dab87decc9cd9b7199ed99.idx"
+              },
+              {
+                "after": 16,
+                "before": 18,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\p\\.git"
+              },
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\p\\.git\\objects\\pack\\pack-63da5cb142964cc8d7dab87decc9cd9b7199ed99.pack"
+              }
+            ],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "ed5d1f5fb6c11294a3f1f311d4e0e94d690079c31fdab25246bf2bc011197528",
+          "lifecycle_group_id": "CY-01-release-default-r5",
+          "reason": "Verification and isolated source provenance complete; independent results and immutable stop proof retained; temporary source copies, archive, Git fixtures, drivers and raw logs have no remaining consumer.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "f44aaa9166bde361e3477a210e108bd50cecf2637a6789abbe6fb5cdbf0ab1a3"
+        }
+      ]
+    },
+    "actualAbsence": [
+      "artifacts/tasks/CY-01-session-loading-review/runs/20261025-release-default-r5",
+      "artifacts/build/c5"
+    ],
+    "finalize": {
+      "id": "CY-01-release-default-r5",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\cea0ff79c9cf10735f5f8d1da99cc750c6e6f742e312247017588fe11c23f049.json"
+    },
+    "verificationExitCode": 0,
+    "logicalBytes": 275350557
+  },
+  "sourceRecord": {
+    "argv": [
+      "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+      "-B",
+      "scripts/record-engine-local-changes.py",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\p\\engine",
+      "--baseline",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\c5\\o\\engine",
+      "--baseline-receipt-sha256",
+      "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+      "--current-receipt-sha256",
+      "e64e38c5d2d237e4fd3be7a910f9b83286d652b6e2eab972b9f0a1060bbd815d",
+      "--expected-path",
+      "codex-rs/app-server/src/bin/azrael.rs"
+    ],
+    "exitCode": 0,
+    "durationMs": 288396,
+    "repositoryHead": "86216fd83515b65d12ae5982a38a9a6e4b33acdc"
+  },
+  "sourceReceipt": {
+    "beforeSha256": "e64e38c5d2d237e4fd3be7a910f9b83286d652b6e2eab972b9f0a1060bbd815d",
+    "afterSha256": "a5d523552a347afecfb079bcfc8ed59cea9f433ccb04402930c1fd4d0a7914fb",
+    "changedPaths": [
+      "codex-rs/app-server/src/bin/azrael.rs"
+    ],
+    "unrelatedWorkingDeltasExcluded": [
+      "codex-rs/project-maintenance/src/apply.rs",
+      "codex-rs/project-maintenance/src/groups.rs",
+      "codex-rs/project-maintenance/src/lib.rs",
+      "codex-rs/project-maintenance/src/retirement.rs"
+    ],
+    "publicationGuard": "Current receipt bytes still match captured pre-task receipt; only azrael.rs descriptor and derived aggregate/provenance metadata changed",
+    "isolatedReceiptValidation": "record-engine-local-changes full validation succeeded; primary checkout retains four unrelated unrecorded changes, outside acceptance"
+  },
+  "initialFullChecks": {
+    "startedEpoch": 1792935037.0218787,
+    "durationMs": 182957,
+    "results": [
+      {
+        "name": "provenance",
+        "argv": [
+          "C:\\Users\\felre\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+          "-B",
+          "scripts/tests/test_engine_provenance.py"
+        ],
+        "exitCode": 0,
+        "durationMs": 182943
+      },
+      {
+        "name": "windows-recipe",
+        "argv": [
+          "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.7.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+          "-NoProfile",
+          "-File",
+          "scripts/test-build-metrics.ps1",
+          "-OutputDirectory",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-default-r5\\temporary\\metrics"
+        ],
+        "exitCode": 1,
+        "durationMs": 27004
+      },
+      {
+        "name": "platform",
+        "argv": [
+          "node",
+          "--test",
+          "scripts/test-build-platform.cjs"
+        ],
+        "exitCode": 0,
+        "durationMs": 6759
+      },
+      {
+        "name": "root-guards",
+        "argv": [
+          "node",
+          "scripts/check-engine-provenance-guards.cjs"
+        ],
+        "exitCode": 0,
+        "durationMs": 36677
+      }
+    ],
+    "inputsBefore": {
+      "scripts/engine-provenance.py": "f12b7b4f3c42c4583a1dbfcc51ffaa52946cd790549cc3fde442b6a5f061b167",
+      "scripts/tests/test_engine_provenance.py": "930c14b763fe8b32902599695bd6249740e147ebb4a0cbec57a3a395d163ee78",
+      "scripts/check-engine-provenance-guards.cjs": "9f87f36f9b681145c1f5494548e33c3d46e73a263abe35f6c8a6d6e03ef697b1",
+      "scripts/import-engine-source.py": "0e4e19466ae1385110162e4b208731c95b72caafd864c58d595d6ca44b2f9f00",
+      "scripts/engine-native-materialization.py": "1874f06a6c78107f4595d381a66285f892125dd9d1fb2c40b81f7ca004f9ff32",
+      "scripts/azrael-platforms.json": "914947781d7f0689f263a174cea80f21999e15673955c779a4d8a0eeeda9ffac",
+      "scripts/build-azrael.ps1": "d62996d0eb4056b9980b4e12d1edc6b85991b9248783b57e06b8fd911e157a4a",
+      "scripts/build-platform.cjs": "7f9fb088c3c011f38f4f465288e2736d8beebf25d583d341632c2ab7a8c0f3fa",
+      "scripts/test-build-platform.cjs": "01b88164fd6fa18f4580149b77ab0a0164174aaec932e84e17005a97a857c4de",
+      "scripts/test-build-metrics.ps1": "88b83be4c358a7da3a138f72683710c05110ba72ab2e254fcffa947a80172c33",
+      "scripts/build-metrics.ps1": "d715eed4ef70e7f94a534081aaabb2c527dad4f8625329b28f8ef4c09fee7b11",
+      "scripts/build-module-cache.ps1": "1a7c775f35382cb0c1f566ea41724b60f19fb47dad72f8cdd9f215cf7884bf3a",
+      "scripts/build-module-companion-recipe.ps1": "2cc59a33e010528bfa7ea64866c7525ddeeb2c34a11bcee13dd3dd3e587dc20a",
+      "scripts/build-module-providers-recipe.ps1": "78e238c5cba929ce811c801ae7be55140437373a9e5c7b18a5fc4adfc1cbd0aa",
+      "scripts/artifact-lifecycle.cjs": "f02962c691f7912c45e36787dc66bd67dbaea54b21a097ec54282815838a9ce8",
+      "scripts/artifact-lifecycle.ps1": "eda298ddfd021807248ffdbd87008cfcb09fc3cb4f29adc2e03bb453b5e87479"
+    },
+    "inputsAfter": {
+      "scripts/engine-provenance.py": "f12b7b4f3c42c4583a1dbfcc51ffaa52946cd790549cc3fde442b6a5f061b167",
+      "scripts/tests/test_engine_provenance.py": "930c14b763fe8b32902599695bd6249740e147ebb4a0cbec57a3a395d163ee78",
+      "scripts/check-engine-provenance-guards.cjs": "9f87f36f9b681145c1f5494548e33c3d46e73a263abe35f6c8a6d6e03ef697b1",
+      "scripts/import-engine-source.py": "0e4e19466ae1385110162e4b208731c95b72caafd864c58d595d6ca44b2f9f00",
+      "scripts/engine-native-materialization.py": "1874f06a6c78107f4595d381a66285f892125dd9d1fb2c40b81f7ca004f9ff32",
+      "scripts/azrael-platforms.json": "914947781d7f0689f263a174cea80f21999e15673955c779a4d8a0eeeda9ffac",
+      "scripts/build-azrael.ps1": "d62996d0eb4056b9980b4e12d1edc6b85991b9248783b57e06b8fd911e157a4a",
+      "scripts/build-platform.cjs": "7f9fb088c3c011f38f4f465288e2736d8beebf25d583d341632c2ab7a8c0f3fa",
+      "scripts/test-build-platform.cjs": "01b88164fd6fa18f4580149b77ab0a0164174aaec932e84e17005a97a857c4de",
+      "scripts/test-build-metrics.ps1": "88b83be4c358a7da3a138f72683710c05110ba72ab2e254fcffa947a80172c33",
+      "scripts/build-metrics.ps1": "d715eed4ef70e7f94a534081aaabb2c527dad4f8625329b28f8ef4c09fee7b11",
+      "scripts/build-module-cache.ps1": "1a7c775f35382cb0c1f566ea41724b60f19fb47dad72f8cdd9f215cf7884bf3a",
+      "scripts/build-module-companion-recipe.ps1": "2cc59a33e010528bfa7ea64866c7525ddeeb2c34a11bcee13dd3dd3e587dc20a",
+      "scripts/build-module-providers-recipe.ps1": "78e238c5cba929ce811c801ae7be55140437373a9e5c7b18a5fc4adfc1cbd0aa",
+      "scripts/artifact-lifecycle.cjs": "f02962c691f7912c45e36787dc66bd67dbaea54b21a097ec54282815838a9ce8",
+      "scripts/artifact-lifecycle.ps1": "eda298ddfd021807248ffdbd87008cfcb09fc3cb4f29adc2e03bb453b5e87479"
+    },
+    "inputsUnchanged": true
+  },
+  "sourceSnapshot": {
+    "schema": 2,
+    "sourceKind": "imported-snapshot",
+    "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "importedInventorySha256": "73b54194931ac8dbb3f310b884dbebef5bd98141788f72f90249ef2a160abb4d",
+    "importedReceiptSha256": "a5d523552a347afecfb079bcfc8ed59cea9f433ccb04402930c1fd4d0a7914fb",
+    "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+    "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sourceSha256": "a1bff832f9826c0ea8cf9ccda16cc33ec90d32f6afa47803fd66e4c5f6b4a028",
+    "fileCount": 9320,
+    "target": "x86_64-pc-windows-msvc",
+    "buildEnvironment": {
+      "RUSTFLAGS": "",
+      "CARGO_ENCODED_RUSTFLAGS": "",
+      "RUSTC_WRAPPER": "",
+      "RUSTUP_TOOLCHAIN": "",
+      "V8_FROM_SOURCE": "",
+      "V8_FORCE_DEBUG": "",
+      "RUSTY_V8_ARCHIVE": "",
+      "RUSTY_V8_MIRROR": "",
+      "RUSTY_V8_SRC_BINDING_PATH": "",
+      "GN": "",
+      "GN_ARGS": "",
+      "EXTRA_GN_ARGS": "",
+      "NINJA": "",
+      "CLANG_BASE_PATH": "",
+      "PYTHON": "",
+      "LIBCLANG_PATH": ""
+    }
+  },
+  "sourceSnapshotExitCode": 0,
+  "finalCheckInputs": {
+    "scripts/engine-provenance.py": "f12b7b4f3c42c4583a1dbfcc51ffaa52946cd790549cc3fde442b6a5f061b167",
+    "scripts/tests/test_engine_provenance.py": "930c14b763fe8b32902599695bd6249740e147ebb4a0cbec57a3a395d163ee78",
+    "scripts/check-engine-provenance-guards.cjs": "9f87f36f9b681145c1f5494548e33c3d46e73a263abe35f6c8a6d6e03ef697b1",
+    "scripts/import-engine-source.py": "0e4e19466ae1385110162e4b208731c95b72caafd864c58d595d6ca44b2f9f00",
+    "scripts/engine-native-materialization.py": "1874f06a6c78107f4595d381a66285f892125dd9d1fb2c40b81f7ca004f9ff32",
+    "scripts/azrael-platforms.json": "914947781d7f0689f263a174cea80f21999e15673955c779a4d8a0eeeda9ffac",
+    "scripts/build-azrael.ps1": "d62996d0eb4056b9980b4e12d1edc6b85991b9248783b57e06b8fd911e157a4a",
+    "scripts/build-platform.cjs": "7f9fb088c3c011f38f4f465288e2736d8beebf25d583d341632c2ab7a8c0f3fa",
+    "scripts/test-build-platform.cjs": "01b88164fd6fa18f4580149b77ab0a0164174aaec932e84e17005a97a857c4de",
+    "scripts/test-build-metrics.ps1": "557a5144b22ae4cae75b6817bd9c1e893d2739ff69b90931ac02ea88475bc865",
+    "scripts/build-metrics.ps1": "d715eed4ef70e7f94a534081aaabb2c527dad4f8625329b28f8ef4c09fee7b11",
+    "scripts/build-module-cache.ps1": "1a7c775f35382cb0c1f566ea41724b60f19fb47dad72f8cdd9f215cf7884bf3a",
+    "scripts/build-module-companion-recipe.ps1": "2cc59a33e010528bfa7ea64866c7525ddeeb2c34a11bcee13dd3dd3e587dc20a",
+    "scripts/build-module-providers-recipe.ps1": "78e238c5cba929ce811c801ae7be55140437373a9e5c7b18a5fc4adfc1cbd0aa",
+    "scripts/artifact-lifecycle.cjs": "f02962c691f7912c45e36787dc66bd67dbaea54b21a097ec54282815838a9ce8",
+    "scripts/artifact-lifecycle.ps1": "eda298ddfd021807248ffdbd87008cfcb09fc3cb4f29adc2e03bb453b5e87479"
+  },
+  "installedEngineSha256": "8015338b3f3f3f958e8b154d6175d2bce6497d51313e7be6e8e83998fdd7beca",
+  "commitSharedDelta": {
+    "sourceDescriptorBefore": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "131b10184922142a81f5214700ffc98ed85eed29d9edceb0b95d130addcf31f3",
+      "size": 176
+    },
+    "sourceDescriptorAfter": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "c6c5ee741823e110d5256e0177187d5b0952f5c69a38574c6328f2341b0c974a",
+      "size": 205
+    },
+    "expectedHead": "86216fd83515b65d12ae5982a38a9a6e4b33acdc",
+    "featureOwnersAdded": [
+      "scripts/build-azrael.ps1",
+      "scripts/build-platform.cjs",
+      "scripts/test-build-metrics.ps1",
+      "engine/codex-rs/app-server/src/bin/azrael.rs"
+    ],
+    "architectureParagraph": "Formal engine producers compile the engine/bridge with the existing Cargo `release` profile. Their provenance records `buildProfile: \"release\"`; Windows automatic and explicit bundle reuse, and its final packaging gates, require that value in addition to source, environment, target, binary and code-mode-host validation. A dev or profile-less bundle requires rebuilding for this route. General integrity verification of existing installations may omit the profile requirement and does not certify release optimization. The thin engine entry shares the app-server's recursion limit of 256 for optimized compilation. This contract belongs to `engine.source-provenance`."
+  },
+  "finalVerification": {
+    "immutableProofSha256": "7d80d996b4f8ce6b69529b8650909d8cf5c94730e6dcf7926d1792affc9d3ad4",
+    "otherCheckInputsUnchanged": true,
+    "concurrentDriftOutsideSelectedCommit": [
+      {
+        "path": "scripts/artifact-lifecycle.cjs",
+        "testedAndSelectedHeadSha256": "f02962c691f7912c45e36787dc66bd67dbaea54b21a097ec54282815838a9ce8",
+        "laterWorkingSha256": "cf9c4a557b25e6ee8b22c6255e07974735da3ad06faee9554e772a98d3c6fc25",
+        "includedInTaskCommit": false,
+        "decision": "Reuse fixed selected input result; preserve concurrent working edit outside this commit"
+      }
+    ],
+    "unrelatedStagedBlobsPreserved": 4,
+    "gitDiffCheckExitCode": 0
+  },
+  "gitControlCleanup": {
+    "state": "deferred",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.git\\index.cy-release-default-r5",
+    "reason": "exec_command rejected the exact ordinary task-index deletion command: blocked by policy; no shell/API bypass attempted",
+    "remaining": true,
+    "revisitCondition": "Execution policy permits ordinary deletion of this exact task-owned index, and no Git producer consumes it",
+    "observedSha256": "e9aa459aecd9052666b2dce40b289e8dbf6e12b2de0f559b420f015dcb46683b",
+    "logicalBytes": 2463547,
+    "observationPhase": "After initial code commit, before final documentation amend; remeasure current identity before deletion"
+  }
+}
