@@ -42,8 +42,17 @@ pub(crate) fn apply(
             .items
             .get(id)
             .ok_or_else(|| format!("unknown item: {id}"))?;
-        for field in ["id", "path", "kind", "owner", "identity"] {
+        for field in ["id", "path", "kind", "owner"] {
             string(item, field)?;
+        }
+        if item["identity"].as_str().is_none_or(str::is_empty)
+            && !(item["identity"].is_null()
+                && item["presence"] == "absent"
+                && item["remaining"] == false
+                && item["logical_bytes"] == 0
+                && groups::id(item).is_some())
+        {
+            return Err(format!("invalid registered identity: {id}"));
         }
         if item["id"] != id
             || !item["generated"].is_boolean()
@@ -116,6 +125,41 @@ pub(crate) fn apply(
         }
     }
     let mut ordered = Vec::new();
+    let mut approved_entries = BTreeMap::new();
+    // This precedes every destructive group member, so a later shared file
+    // cannot be discovered only after an earlier member was normalized.
+    for (group_id, batch) in &batches {
+        if stopped_groups.contains_key(group_id)
+            || !batch
+                .members
+                .keys()
+                .any(|id| by_id[id.as_str()]["decision"] == "delete")
+        {
+            continue;
+        }
+        for item in batch.members.values() {
+            let id = string(item, "id")?;
+            let prepared = (|| -> Result<Vec<PathBuf>, String> {
+                let path = Path::new(string(item, "path")?);
+                let entries = if paths::checked_metadata(root, path, auth)?.is_none() {
+                    Vec::new()
+                } else {
+                    paths::entries(root, path, auth)?
+                };
+                paths::normalization_preflight(&entries)?;
+                Ok(entries)
+            })();
+            match prepared {
+                Ok(entries) => {
+                    approved_entries.insert(id.to_owned(), entries);
+                }
+                Err(error) => {
+                    stopped_groups.insert(group_id.clone(), error);
+                    break;
+                }
+            }
+        }
+    }
     let mut ordered_groups = BTreeSet::new();
     for choice in choices {
         let item = &store.state.items[string(choice, "id")?];
@@ -176,7 +220,7 @@ pub(crate) fn apply(
                 choice,
                 auth,
                 group_id.as_ref().and_then(|group| batches.get(group)),
-                None,
+                approved_entries.get(id).map(Vec::as_slice),
             ) {
                 Ok(entries) if entries.is_empty() => {
                     outcome["status"] = json!("deleted");
@@ -246,7 +290,7 @@ pub(crate) fn apply(
                         outcome["status"] = json!("blocked");
                         outcome["error"] = json!("authorized descendant set changed");
                     } else {
-                        match paths::delete(path, &fresh) {
+                        match paths::delete_verified(root, path, &fresh, auth) {
                             Ok(report) => {
                                 outcome["status"] = report["status"].clone();
                                 outcome["remaining"] = report["remaining"].clone();

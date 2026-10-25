@@ -53,12 +53,11 @@ fn run() -> Result<Value, String> {
     let request: Value =
         serde_json::from_slice(&std::fs::read(&request_path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
-    if !matches!(request["operation"].as_str(), Some("review" | "apply"))
-        || request.get("retire_managed_roots").is_none()
-    {
-        return Err(
-            "owner runner supports only explicit managed-root retirement review/apply".into(),
-        );
+    if !matches!(
+        request["operation"].as_str(),
+        Some("inventory" | "register" | "review" | "apply")
+    ) {
+        return Err("owner runner supports only inventory/register/review/apply".into());
     }
     dispatch(&root, request, &|path, access| {
         if path.starts_with(&root) || (access == AccessMode::Read && root.starts_with(path)) {

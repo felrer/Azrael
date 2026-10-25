@@ -7,6 +7,7 @@ param(
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$RetainedSourceRoot,
     [string]$EngineTargetDirectory,
+    [string]$CargoCacheProjectRoot,
     [string]$ModuleCacheProjectRoot,
     [string]$WindowControlTargetDirectory,
     [string]$EngineDirectory,
@@ -46,6 +47,15 @@ if ($RetainedSourceRoot) {
 }
 if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
 if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
+$sharedCargoCache = $null
+if (-not $SkipEngineBuild -and (-not $EngineTargetDirectory -or $CargoCacheProjectRoot)) {
+    $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } else { $projectRoot }
+    $cacheSelection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $sourceRoot --target x86_64-pc-windows-msvc
+    if ($LASTEXITCODE -ne 0) { throw 'Shared Cargo cache selection failed.' }
+    $sharedCargoCache = $cacheSelection | ConvertFrom-Json
+    if ($EngineTargetDirectory -and [IO.Path]::GetFullPath($EngineTargetDirectory) -ine $sharedCargoCache.targetDirectory) { throw 'Explicit engine target conflicts with selected shared Cargo cache.' }
+    $EngineTargetDirectory = $sharedCargoCache.targetDirectory
+}
 $engineTarget = if ($EngineTargetDirectory) { [IO.Path]::GetFullPath($EngineTargetDirectory) } else { Join-Path $rustRoot 'target' }
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 $lifecycleMembers = Get-VersionLifecycleMembers $projectRoot $ReleaseName
@@ -97,10 +107,12 @@ if (-not $SkipEngineBuild) {
     Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'snapshot', '--root', (Split-Path $rustRoot -Parent), '--file', (Join-Path $logDirectory 'engine-source-before.json')) 'source-snapshot.log'
     Push-Location $rustRoot
     $previousTarget = $env:CARGO_TARGET_DIR
+    $previousCacheOwner = $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT
     try {
         # The explicit cache may be reused across selected source snapshots.
         # Cargo must successfully build both binaries before provenance is recorded.
         $env:CARGO_TARGET_DIR = $engineTarget
+        if ($sharedCargoCache) { $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $sharedCargoCache.projectRoot }
         Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
         if ((Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
@@ -112,6 +124,7 @@ if (-not $SkipEngineBuild) {
         Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'record', '--root', (Split-Path $rustRoot -Parent), '--file', (Join-Path $logDirectory 'engine-source-before.json'), '--engine-dir', $EngineDirectory, '--code-mode-host-source', $externalCodeModeHost) 'engine-provenance.log'
     } finally {
         $env:CARGO_TARGET_DIR = $previousTarget
+        $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $previousCacheOwner
         Pop-Location
     }
     Complete-BuildStage $buildMetrics $phase

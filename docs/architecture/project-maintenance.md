@@ -34,7 +34,14 @@ Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs
 
 ## 생성물과 백업
 
+완결되고 종료가 검증된 `producer_registry_v1` 묶음의 최초 등록은 생산자가 계획한 부재 구성원도 보존한다. 전체 소유·구성·보호 검증을 통과한 부재 항목만 identity 없는 0바이트 상태로 등록하며, 확인 불가나 임의 단독 항목은 허용하지 않는다. 부재 경로가 다시 나타나면 검토·적용을 차단한다. 이미 없던 용량은 실제 삭제량에 포함하지 않는다.
+
+Windows 생성물 항목의 `verified_junctions`는 정확한 상대 하위 경로·`junction` 종류·절대 물리 대상을 최대 1024개 명시한다. 등록은 비추적 handle identity와 mount-point 원시 내용을 고정하며 측정은 링크 대상 내부를 읽지 않는다. 루트·상위 경로·중첩 예외·일반 symlink·알 수 없는 reparse 종류는 계속 거부한다. 등록 모드 검토는 선언된 링크를 재검증하고, 적용 전 전체 경로 열거가 새 미승인 링크를 차단한다. 지원된 링크는 속성을 바꾸지 않고 링크 자체만 제거하며 실패하면 나머지 묶음 증거를 보존한다.
+
+ReadOnly·Hidden 속성의 일반화가 필요한 Windows 파일은 삭제 루트 안에서 확인한 hardlink 이름 수가 실제 연결 수와 일치해야 한다. 외부 연결과 서로 다른 구성원에 걸친 연결은 보수적으로 차단한다. 모든 구성원의 사전 검사를 통과한 뒤에만 삭제를 시작하며, 일반 삭제와 직전 identity·연결 수 재확인을 유지한다. System 속성과 ACL은 변경하지 않는다.
+
 일반 삭제 범위는 선택한 프로젝트의 `project-maintenance.json`에 있는 `managed_roots`의 엄격한 하위 경로다. 이 범위에 들어가지 않는 대상은 `outside configured managed roots`, 관리 루트 자체인 대상은 `managed root itself is protected; select owned descendants`로 구별한다. 등록된 묶음도 같은 경계와 별도의 보호 참조·권한 검사를 따른다.
+
 
 ### 관리 경계 폐기
 
@@ -42,7 +49,7 @@ Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs
 
 대상은 완결된 lifecycle group에 속하고 항목과 그룹의 소유자가 요청과 같아야 한다. 경로는 정확히 설정된 managed root이며 프로젝트의 엄격한 하위여야 한다. 다른 등록 항목·원본 경로·중첩 관리 경계와 겹치면 거부한다. 참조·보존·실행·pending·구성·권한·링크·예약 경로·보호 경로 검사는 그대로 적용한다. 증거는 프로젝트의 보호된 `artifacts/maintenance/evidence/` 아래 1 MiB 이하의 읽기 가능한 일반 파일이어야 한다. 폐기 요청 전체와 현재 증거 내용 identity를 검토 토큰에 묶어 일반 삭제 토큰이나 변경된 폐기 요청을 재사용하지 못하게 한다. 같은 그룹의 모든 live 구성원에 대한 명시적 결정과 실제 결과를 요구한다.
 
-적용은 기존 durable intent와 일반 삭제 경로를 재사용하고 폐기 요청을 결과에 남긴다. 부분 실패를 등록 해제나 부재로 바꾸지 않는다. 설정된 관리 경계와 native 이력은 보존하여 결과를 재검토할 수 있게 한다. 실제 payload 부재와 별칭·기록의 해제는 별개의 결과다. `maintenance_owner`는 선택한 절대 프로젝트 경계 안에서 이 폐기 검토·적용만 수행하는 소유자 실행기다. 실행 환경의 권한을 따르며 자동 승격이나 제품 설치를 하지 않는다. 공통 정책의 대상은 지원 플랫폼 전체이고, 실제 검증 환경은 검증 결과에 따로 기록한다.
+적용은 기존 durable intent와 일반 삭제 경로를 재사용하고 폐기 요청을 결과에 남긴다. 부분 실패를 등록 해제나 부재로 바꾸지 않는다. 설정된 관리 경계와 native 이력은 보존하여 결과를 재검토할 수 있게 한다. 실제 payload 부재와 별칭·기록의 해제는 별개의 결과다. `maintenance_owner`는 선택한 절대 프로젝트 경계 안에서 `inventory`·`register`·`review`·`apply`를 수행하는 소유자 실행기다. 실행 환경의 권한을 따르며 자동 승격이나 제품 설치를 하지 않는다. 공통 정책의 대상은 지원 플랫폼 전체이고, 실제 검증 환경은 검증 결과에 따로 기록한다.
 
 관리 항목은 테스트/fixture, 실행파일, 빌드 결과, 캐시, 소스 스냅샷, 패키지, 백업으로 구분한다. 생성 시각·소유자·생성 작업·원본·경로·내용 identity·크기·버전/출처·관련 실행·최근 사용·보존 사유와 재검토 조건을 기록한다. 버전 정보에는 확인 가능한 소스 커밋, 도구 버전, 대상과 설정, 캐시 형식 등을 담으며 알 수 없는 정보는 추정하지 않는다.
 
@@ -62,7 +69,7 @@ Status: `current` for the script-level cache/log integration verified on Windows
 
 설치·준비 도구를 직접 참조하는 companion 캐시는 해당 버전의 소비 참조로 보호한다. 공유 cache owner는 등록된 모든 project의 producer registry를 검사하며, 어느 하나의 활성·잔존 소비 참조나 조회 불확실성도 삭제를 차단한다. 복사되어 독립적으로 읽을 수 있는 provider payload는 캐시의 영구 소비자로 취급하지 않는다. 소비 record는 전체 구성원의 실제 부재를 검증한 finalize 이후 해제한다.
 
-과거 출력과 lifecycle catalog가 함께 사라진 등록은 기본 `inspect`/`retire` 경로에서 계속 차단한다. 명시적 `inspect-legacy`/`retire-legacy` 경로는 등록된 project의 모든 `artifacts`와 별도 생성 출력의 부재, 실행·설치·복구 소비 해제 및 사용자 정리 권한을 검증한 뒤 등록만 해제한다. project·registry identity, 외부 증거와 권한 기록의 SHA256을 lease 아래 다시 확인한다. 원래 소비 목록은 `unavailable`, 실행 결과는 미확인 상태로 남긴다. 빈 catalog를 만들어 대체하거나 이 동작에서 source·payload·cache를 삭제하지 않는다. 이후 cache 삭제에는 기존 실제 소비자 검사와 별도 삭제 결정이 필요하다. 구현 owner와 필수 검사는 feature inventory의 `tool.project-maintenance`에 연결한다. 이 경로와 기존 모듈 캐시 회귀 검사는 CR-01에서 Windows x64 PowerShell 7.6.7로 통과했다. 다른 OS와 제품 빌드 검증은 별도 범위다.
+과거 출력과 lifecycle catalog가 함께 사라진 등록은 기본 `inspect`/`retire` 경로에서 계속 차단한다. 등록된 프로젝트 경로 자체가 없는 경우에도 목록을 읽을 수 있지만, 실제 캐시 회수는 모든 소비 프로젝트의 존재 확인을 유지한다. 부재 등록의 명시적 `retire-legacy`는 schema 3의 원래 전체 소비 목록·해제 증거·정리 권한과 현재 registry 해시를 요구한다. 부재만으로 안전을 추론하지 않는다. 명시적 `inspect-legacy`/`retire-legacy` 경로는 등록된 project의 모든 `artifacts`와 별도 생성 출력의 부재, 실행·설치·복구 소비 해제 및 사용자 정리 권한을 검증한 뒤 등록만 해제한다. project·registry identity, 외부 증거와 권한 기록의 SHA256을 lease 아래 다시 확인한다. 원래 소비 목록은 `unavailable`, 실행 결과는 미확인 상태로 남긴다. 빈 catalog를 만들어 대체하거나 이 동작에서 source·payload·cache를 삭제하지 않는다. 이후 cache 삭제에는 기존 실제 소비자 검사와 별도 삭제 결정이 필요하다. 구현 owner와 필수 검사는 feature inventory의 `tool.project-maintenance`에 연결한다. 이 경로와 기존 모듈 캐시 회귀 검사는 CR-01에서 Windows x64 PowerShell 7.6.7로 통과했다. 다른 OS와 제품 빌드 검증은 별도 범위다.
 
 검토된 이전 버전 정리에서 module cache 정리를 함께 선택하면, 기존 설치·직전 복구·실행·shortcut 보호 아래 버전 payload와 그 원시 로그를 먼저 정리하고, 이어 cache owner의 lease 아래 더 이상 소비자가 없는 모듈 key와 그 로그를 정리한다. 성공·시간 경과만으로 버전 삭제를 선택하지 않는다. legacy 미등록 cache는 소유·소비 근거를 확인하기 전 보존한다. 모듈 정리는 산출물을 먼저 삭제하고 로그, cache/owner receipt, 빈 root 순서로 진행한다. 산출물 삭제가 실패하면 로그와 소유 기록을 남기고, 로그 삭제가 실패하면 소유 기록을 남겨 재시도할 수 있게 한다. 부분 실패는 실제 잔여와 미시도 로그를 기록하며 전체 완료로 보고하지 않는다.
 

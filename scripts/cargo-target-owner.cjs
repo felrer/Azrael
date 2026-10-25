@@ -203,6 +203,17 @@ function runManagedCargoSync(spec, hooks = {}) {
   }
   // Pin output aliases before acquiring ownership or allowing a producer.
   spec = { ...spec, env: { ...spec.env, ...(pending ? { INSTA_PENDING_DIR: pending } : {}) } };
+  let shared;
+  if (spec.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT) {
+    const cache = require("./cargo-shared-cache.cjs");
+    const explicit = spec.args.indexOf("--target");
+    const selection = cache.selectCache({ projectRoot: spec.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT,
+      sourceRoot: spec.selectedSourceRoot || path.dirname(spec.cwd),
+      target: explicit >= 0 ? spec.args[explicit + 1] : spec.env.AZRAEL_CARGO_TARGET,
+      env: spec.env });
+    if (pathIdentity(physicalPath(spec.env.CARGO_TARGET_DIR)) !== pathIdentity(physicalPath(selection.targetDirectory))) throw Error("Shared Cargo target does not match its selected compatibility identity");
+    shared = cache.beginExecution(selection, randomUUID());
+  }
   const lease = acquireTargetOwner(spec);
   lease.invocationStartedNs = invocationStartedNs;
   let result;
@@ -224,6 +235,7 @@ function runManagedCargoSync(spec, hooks = {}) {
     catch (observationError) { result.observationError = observationError instanceof Error ? observationError : String(observationError); }
   }
   const owner = finishTargetOwner(lease, result);
+  if (shared) require("./cargo-shared-cache.cjs").finishExecution(shared, result, owner);
   // Keep Cargo JSON stdout byte-for-byte usable by native artifact discovery.
   process.stderr.write(`[cargo-owner] ${JSON.stringify(owner)}\n`);
   return result;

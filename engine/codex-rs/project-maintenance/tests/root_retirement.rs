@@ -327,7 +327,7 @@ fn linked_root_is_never_retired() {
 }
 
 #[test]
-fn owner_cli_refuses_non_retirement_relative_and_external_requests() {
+fn owner_cli_allows_inventory_but_refuses_execution_relative_and_external_requests() {
     let root = fixture();
     let request = root.path().join("request.json");
     write_json(&request, &json!({"operation":"inventory"}));
@@ -340,6 +340,8 @@ fn owner_cli_refuses_non_retirement_relative_and_external_requests() {
             .output()
             .unwrap()
     };
+    assert!(invoke(root.path(), &request).status.success());
+    write_json(&request, &json!({"operation":"begin_run"}));
     assert!(!invoke(root.path(), &request).status.success());
     assert!(!invoke(Path::new("relative"), &request).status.success());
     let external = tempfile::NamedTempFile::new().unwrap();

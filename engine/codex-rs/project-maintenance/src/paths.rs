@@ -308,6 +308,255 @@ pub(crate) fn resolve(root: &Path, path: &Path) -> Result<PathBuf, String> {
 pub(crate) fn check(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), String> {
     checked_metadata(root, path, auth).map(|_| ())
 }
+
+/// Exact nested fixture junctions are explicit item metadata. The registration
+/// boundary captures identity; later operations only load and verify that pin.
+pub(crate) fn configure_junctions(
+    root: &Path,
+    item: &Value,
+    capture: bool,
+    auth: Auth<'_>,
+) -> Result<Value, String> {
+    let Some(specs) = item.get("verified_junctions") else {
+        return Ok(json!([]));
+    };
+    let specs = specs
+        .as_array()
+        .ok_or("verified_junctions must be an array")?;
+    if specs.len() > 1024 || item["generated"] != true || item["protection_known"] != true {
+        return Err(
+            "verified junctions require confirmed generated ownership and protection".into(),
+        );
+    }
+    crate::string(item, "owner")?;
+    let base = resolve(root, Path::new(crate::string(item, "path")?))?;
+    let mut configured = Vec::new();
+    let mut seen = std::collections::BTreeSet::new();
+    for spec in specs {
+        let relative_path = Path::new(crate::string(spec, "path")?);
+        relative(relative_path)?;
+        let path = resolve(&base, relative_path)?;
+        if path == base || spec["kind"] != "junction" || !seen.insert(path.clone()) {
+            return Err("junction approval requires a unique nested junction entry".into());
+        }
+        let target = Path::new(crate::string(spec, "target")?);
+        if !target.is_absolute() || reserved(root, &path) {
+            return Err(
+                "junction approval requires an absolute physical target and unprotected entry"
+                    .into(),
+            );
+        }
+        let mut pinned = spec.clone();
+        if capture {
+            // Do not authorize the link while checking its parent: an approved
+            // junction can never become an ancestor traversal exception.
+            plain_junction_parent(root, &path, auth)?;
+            let identity = junction_identity(&path, target, auth)?;
+            if spec
+                .get("identity")
+                .is_some_and(|expected| expected != &identity)
+            {
+                return Err("junction registration identity changed".into());
+            }
+            pinned["identity"] = identity;
+        } else if !pinned["identity"].is_object() {
+            return Err("registered junction identity missing".into());
+        }
+        if let Some(old) = auth.junctions.borrow().get(&path) {
+            if !capture && old != &pinned {
+                return Err("conflicting junction approval".into());
+            }
+        }
+        auth.junctions.borrow_mut().insert(path, pinned.clone());
+        configured.push(pinned);
+    }
+    Ok(json!(configured))
+}
+
+#[cfg(test)]
+#[test]
+fn registered_junction_metadata_accepts_1024_entries_and_rejects_excess() {
+    let root = tempfile::tempdir().unwrap();
+    let allow = |_: &Path, _: AccessMode| Ok(());
+    let context = crate::Context::new(&allow);
+    // Loading registered pins is metadata-only. Filesystem verification remains
+    // mandatory when registration captures pins or a later operation uses them.
+    let specs = (0..1024).map(|index| json!({
+        "path":format!("link-{index}"),"kind":"junction","target":root.path().join("target"),
+        "identity":{"pin":"registered-fixture","created":0}
+    })).collect::<Vec<_>>();
+    let mut item = json!({"path":"generated/owned","owner":"test","generated":true,"protection_known":true,"verified_junctions":specs});
+    assert_eq!(
+        configure_junctions(root.path(), &item, false, &context)
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        1024
+    );
+    item["verified_junctions"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({
+            "path":"excess","kind":"junction","target":root.path().join("target"),
+            "identity":{"pin":"registered-fixture","created":0}
+        }));
+    assert!(configure_junctions(root.path(), &item, false, &context).is_err());
+    assert_eq!(context.junctions.borrow().len(), 1024);
+}
+
+#[cfg(not(windows))]
+fn junction_identity(_: &Path, _: &Path, _: Auth<'_>) -> Result<Value, String> {
+    Err("verified directory junctions are Windows-only".into())
+}
+
+#[cfg(windows)]
+fn junction_identity(path: &Path, target: &Path, auth: Auth<'_>) -> Result<Value, String> {
+    use std::os::windows::fs::{MetadataExt, OpenOptionsExt};
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_REPARSE_POINT, FILE_ID_INFO,
+        FILE_READ_ATTRIBUTES, FileIdInfo, GetFileInformationByHandleEx,
+    };
+    use windows_sys::Win32::System::IO::DeviceIoControl;
+    use windows_sys::Win32::System::Ioctl::FSCTL_GET_REPARSE_POINT;
+    // The target is inspected for authorization and plain-directory ancestry,
+    // never enumerated or opened through the junction.
+    let plain_target = fs::symlink_metadata(target).map_err(|e| e.to_string())?;
+    if plain_target.file_type().is_symlink() || reparse(&plain_target) {
+        return Err("junction target must not be another link".into());
+    }
+    let target_metadata =
+        checked_metadata(target, target, auth)?.ok_or("junction target missing")?;
+    if !target_metadata.is_dir() {
+        return Err("junction target must be a physical directory".into());
+    }
+    auth(path, AccessMode::Read)?;
+    let metadata = fs::symlink_metadata(path).map_err(|e| e.to_string())?;
+    if metadata.file_attributes() & 0x10 == 0
+        || metadata.file_attributes() & 0x400 == 0
+        || metadata.file_attributes() & 4 != 0
+    {
+        return Err("approved entry is not a non-System directory junction".into());
+    }
+    let file = fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .custom_flags(FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT)
+        .open(path)
+        .map_err(|e| e.to_string())?;
+    let mut id = FILE_ID_INFO::default();
+    let mut raw = [0u8; 16384];
+    let mut returned = 0u32;
+    unsafe {
+        if GetFileInformationByHandleEx(
+            file.as_raw_handle(),
+            FileIdInfo,
+            (&mut id as *mut FILE_ID_INFO).cast(),
+            std::mem::size_of_val(&id) as u32,
+        ) == 0
+            || DeviceIoControl(
+                file.as_raw_handle(),
+                FSCTL_GET_REPARSE_POINT,
+                std::ptr::null(),
+                0,
+                raw.as_mut_ptr().cast(),
+                raw.len() as u32,
+                &mut returned,
+                std::ptr::null_mut(),
+            ) == 0
+        {
+            return Err(std::io::Error::last_os_error().to_string());
+        }
+    }
+    let length = returned as usize;
+    if length < 16
+        || length > raw.len()
+        || u32::from_le_bytes(raw[..4].try_into().map_err(|_| "invalid junction tag")?)
+            != 0xa0000003
+        || id.VolumeSerialNumber == 0
+        || id.FileId.Identifier == [0; 16]
+    {
+        return Err("approved entry is not a verified mount-point junction".into());
+    }
+    let offset = u16::from_le_bytes([raw[8], raw[9]]) as usize;
+    let name_length = u16::from_le_bytes([raw[10], raw[11]]) as usize;
+    let end = 16usize
+        .checked_add(offset)
+        .and_then(|v| v.checked_add(name_length))
+        .ok_or("invalid junction target length")?;
+    if name_length % 2 != 0 || end > length {
+        return Err("invalid junction target buffer".into());
+    }
+    let words = raw[16 + offset..end]
+        .chunks_exact(2)
+        .map(|v| u16::from_le_bytes([v[0], v[1]]))
+        .collect::<Vec<_>>();
+    let actual = String::from_utf16(&words).map_err(|e| e.to_string())?;
+    let actual = actual
+        .strip_prefix(r"\??\UNC\")
+        .map(|tail| format!(r"\\{tail}"))
+        .or_else(|| actual.strip_prefix(r"\??\").map(str::to_owned))
+        .ok_or("junction target is not an absolute DOS path")?;
+    let actual = Path::new(&actual);
+    if !within(actual, target) || !within(target, actual) {
+        return Err("junction target changed".into());
+    }
+    // Include entry identity and exact tag/payload, independently of target data.
+    use sha2::Digest;
+    let digest = format!("{:x}", sha2::Sha256::digest(&raw[..length]));
+    let pin = format!(
+        "{}:{}:{}",
+        id.VolumeSerialNumber,
+        id.FileId
+            .Identifier
+            .iter()
+            .map(u8::to_string)
+            .collect::<Vec<_>>()
+            .join(","),
+        digest
+    );
+    Ok(json!({"pin":pin,"created":metadata.creation_time()}))
+}
+
+fn validate_junction(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), String> {
+    let spec = auth
+        .junctions
+        .borrow()
+        .get(path)
+        .cloned()
+        .ok_or("unapproved junction")?;
+    plain_junction_parent(root, path, auth)?;
+    if junction_identity(path, Path::new(crate::string(&spec, "target")?), auth)?
+        != spec["identity"]
+    {
+        return Err("approved junction identity changed".into());
+    }
+    Ok(())
+}
+
+fn plain_junction_parent(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), String> {
+    let parent = path.parent().ok_or("junction parent missing")?;
+    let metadata = checked_metadata(root, parent, auth)?.ok_or("junction parent missing")?;
+    if metadata.file_type().is_symlink() || reparse(&metadata) || !metadata.is_dir() {
+        return Err("junction ancestor traversal rejected".into());
+    }
+    Ok(())
+}
+
+fn validate_nested_junctions(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), String> {
+    let approved = auth
+        .junctions
+        .borrow()
+        .keys()
+        .filter(|entry| within(entry, path))
+        .cloned()
+        .collect::<Vec<_>>();
+    for entry in approved {
+        validate_junction(root, &entry, auth)?;
+    }
+    Ok(())
+}
+
 pub(crate) fn checked_metadata(
     root: &Path,
     path: &Path,
@@ -325,7 +574,10 @@ pub(crate) fn checked_metadata(
         match fs::symlink_metadata(p) {
             Ok(m) => {
                 if m.file_type().is_symlink() || reparse(&m) {
-                    return Err(format!("link/reparse path rejected: {}", p.display()));
+                    if p != path || !auth.junctions.borrow().contains_key(p) {
+                        return Err(format!("link/reparse path rejected: {}", p.display()));
+                    }
+                    validate_junction(root, p, auth)?;
                 }
                 if p == path {
                     leaf = Some(m);
@@ -347,6 +599,10 @@ pub(crate) fn registered_observation(
     let Some(metadata) = checked_metadata(root, path, auth)? else {
         return Ok(json!({"presence":"absent"}));
     };
+    if reparse(&metadata) || metadata.file_type().is_symlink() {
+        return Err("junction member root rejected".into());
+    }
+    validate_nested_junctions(root, path, auth)?;
     let kind = if metadata.is_dir() {
         "directory"
     } else if metadata.is_file() {
@@ -572,16 +828,22 @@ fn reparse(_: &fs::Metadata) -> bool {
     false
 }
 pub(crate) fn entries(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<PathBuf>, String> {
+    if checked_metadata(root, path, auth)?
+        .is_some_and(|metadata| reparse(&metadata) || metadata.file_type().is_symlink())
+    {
+        return Err("junction measurement root rejected".into());
+    }
+    validate_nested_junctions(root, path, auth)?;
     let mut out = Vec::new();
     let mut pending = vec![path.to_owned()];
     while let Some(current) = pending.pop() {
         // No callback or filesystem operation intervenes between the checked
         // leaf observation and its use here.
         let metadata = checked_metadata(root, &current, auth)?.ok_or("tree entry disappeared")?;
-        if !metadata.is_file() && !metadata.is_dir() {
+        if !metadata.is_file() && !metadata.is_dir() && !reparse(&metadata) {
             return Err("special file rejected".into());
         }
-        if metadata.is_dir() {
+        if metadata.is_dir() && !reparse(&metadata) {
             auth(&current, AccessMode::Read)?;
             let mut children = fs::read_dir(&current)
                 .map_err(|e| e.to_string())?
@@ -601,7 +863,10 @@ pub(crate) fn measure(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Value,
     for p in entries(root, path, auth)? {
         auth(&p, AccessMode::Read)?;
         let before = fs::symlink_metadata(&p).map_err(|e| e.to_string())?;
-        let content = if before.is_file() {
+        let content = if reparse(&before) {
+            validate_junction(root, &p, auth)?;
+            hash(&auth.junctions.borrow()[&p])?
+        } else if before.is_file() {
             let (digest, length) = content_digest(&p, before.len(), auth)?;
             bytes = bytes.checked_add(length).ok_or("size overflow")?;
             digest
@@ -843,8 +1108,81 @@ pub(crate) fn delete(path: &Path, _entries: &[PathBuf]) -> Result<Value, String>
     )
 }
 
+pub(crate) fn delete_verified(
+    root: &Path,
+    path: &Path,
+    entries: &[PathBuf],
+    auth: Auth<'_>,
+) -> Result<Value, String> {
+    validate_nested_junctions(root, path, auth)?;
+    #[cfg(windows)]
+    {
+        let junctions = auth.junctions.borrow().iter().filter(|(entry, _)| within(entry, path))
+            .map(|(entry, spec)| json!({"path":entry,"target":spec["target"],"identity":spec["identity"]})).collect::<Vec<_>>();
+        delete_windows(path, entries, &junctions)
+    }
+    #[cfg(not(windows))]
+    {
+        delete(path, entries)
+    }
+}
+
+/// Before any group member is changed, reject attribute normalization whose
+/// other hardlink names are not proven to belong to the deletion cohort.
+pub(crate) fn normalization_preflight(approved: &[PathBuf]) -> Result<(), String> {
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        let mut files = Vec::new();
+        // entries already read-authorized and checked these exact paths. Reuse
+        // that single enumeration without another descendant traversal or
+        // authorization callback; the final deletion boundary rechecks pins.
+        for entry in approved {
+            let metadata = fs::symlink_metadata(entry).map_err(|e| e.to_string())?;
+            if metadata.is_file() {
+                files.push((entry, metadata.file_attributes() & 3 != 0));
+            }
+        }
+        if files.iter().any(|(_, normalize)| *normalize) {
+            let mut counts = std::collections::BTreeMap::<String, u32>::new();
+            let mut changing = Vec::new();
+            for (entry, normalize) in files {
+                let (_, id, standard) = registered_handle_information(&entry)?;
+                let identity =
+                    hash(&json!({"volume":id.VolumeSerialNumber,"file_id":id.FileId.Identifier}))?;
+                *counts.entry(identity.clone()).or_default() += 1;
+                if normalize {
+                    changing.push((entry, identity, standard.NumberOfLinks));
+                }
+            }
+            for (entry, identity, links) in changing {
+                if links == 0 || counts.get(&identity) != Some(&links) {
+                    return Err("ReadOnly/Hidden normalization blocked: multiple hardlinks extend outside one selected deletion root; cross-member link ownership is not verified".into());
+                }
+                let (_, current_id, current) = registered_handle_information(&entry)?;
+                if current.NumberOfLinks != links
+                    || hash(
+                        &json!({"volume":current_id.VolumeSerialNumber,"file_id":current_id.FileId.Identifier}),
+                    )? != identity
+                {
+                    return Err("normalization file identity or link count changed".into());
+                }
+            }
+        }
+    }
+    #[cfg(not(windows))]
+    let _ = approved;
+    Ok(())
+}
+
 #[cfg(windows)]
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn delete(path: &Path, entries: &[PathBuf]) -> Result<Value, String> {
+    delete_windows(path, entries, &[])
+}
+
+#[cfg(windows)]
+fn delete_windows(path: &Path, entries: &[PathBuf], junctions: &[Value]) -> Result<Value, String> {
     use std::io::Write;
     // JSON goes through stdin; no path is interpolated into shell source.
     // Attribute observations and partial errors are returned even when removal fails.
@@ -854,6 +1192,63 @@ $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 $request=[Console]::In.ReadToEnd() | ConvertFrom-Json
 $changes=[Collections.Generic.List[object]]::new(); $failure=$null; $target=$null
+$junctions=@{}
+if($true) {
+    # Reuse the non-following Windows identity boundary used by the producer
+    # cleanup helper; pin the full FILE_ID_INFO and mount-point payload here.
+    Add-Type -TypeDefinition @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using Microsoft.Win32.SafeHandles;
+public static class MaintenanceJunctionNative {
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern SafeFileHandle CreateFileW(string p, uint a, uint s, IntPtr sa, uint c, uint f, IntPtr t);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetFileInformationByHandleEx(SafeFileHandle h, int c, IntPtr b, uint n);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool DeviceIoControl(SafeFileHandle h, uint c, IntPtr i, uint ni, byte[] o, uint no, out uint n, IntPtr ov);
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern bool RemoveDirectoryW(string p);
+    public static string NormalizationPin(string path) {
+        using(var h=CreateFileW(path,128,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
+            if(h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
+            var info=Marshal.AllocHGlobal(24);
+            try {
+                if(!GetFileInformationByHandleEx(h,1,info,24)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                uint links=unchecked((uint)Marshal.ReadInt32(info,16));
+                if(links==0) throw new InvalidOperationException("Normalization link count unavailable");
+                if(!GetFileInformationByHandleEx(h,18,info,24)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                var id=new byte[16]; Marshal.Copy(IntPtr.Add(info,8),id,0,16);
+                ulong volume=unchecked((ulong)Marshal.ReadInt64(info));
+                if(volume==0 || Array.TrueForAll(id,b=>b==0)) throw new InvalidOperationException("Normalization file identity unavailable");
+                return volume.ToString()+":"+String.Join(",",id)+":"+links.ToString();
+            } finally {Marshal.FreeHGlobal(info);}
+        }
+    }
+    public static void Unlink(string path, string expectedPin) {
+        if(Pin(path)!=expectedPin) throw new InvalidOperationException("Approved junction identity changed before unlink");
+        // RemoveDirectoryW removes the directory junction entry itself. It
+        // never enumerates or recursively removes the linked directory.
+        if(!RemoveDirectoryW(path)) throw new Win32Exception(Marshal.GetLastWin32Error());
+    }
+    public static string Pin(string path) {
+        using(var h=CreateFileW(path,128,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
+            if(h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
+            var info=Marshal.AllocHGlobal(24);
+            try {
+                if(!GetFileInformationByHandleEx(h,18,info,24)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                var id=new byte[16]; Marshal.Copy(IntPtr.Add(info,8),id,0,16);
+                var raw=new byte[16384]; uint n;
+                if(!DeviceIoControl(h,0x900a8,IntPtr.Zero,0,raw,16384,out n,IntPtr.Zero)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                if(n<16 || BitConverter.ToUInt32(raw,0)!=0xa0000003) throw new InvalidOperationException("Mount-point junction required");
+                using(var sha=SHA256.Create()) {
+                    var digest=BitConverter.ToString(sha.ComputeHash(raw,0,(int)n)).Replace("-", "").ToLowerInvariant();
+                    return unchecked((ulong)Marshal.ReadInt64(info)).ToString()+":"+String.Join(",",id)+":"+digest;
+                }
+            } finally {Marshal.FreeHGlobal(info);}
+        }
+    }
+}
+'@
+}
 function Extended-Literal([string]$literal) {
     # Normalize provider-returned and approved paths into the same literal key.
     # Do not resolve through the filesystem or use MAX_PATH-limited .NET helpers.
@@ -886,11 +1281,21 @@ function Assert-Ancestors($literal) {
     $cursor=$literal; $root=Literal-Root $literal
     while($cursor) {
         $attributes=[int][IO.File]::GetAttributes($cursor)
-        if(($attributes -band 1024) -ne 0){throw 'Ancestor reparse path protected'}
+        if(($attributes -band 1024) -ne 0){
+            if($cursor -ne $literal -or !$junctions.ContainsKey($literal)){throw 'Ancestor reparse path protected'}
+            Assert-Junction $literal
+        }
         if($cursor.TrimEnd('\') -eq $root.TrimEnd('\')){break}
         $parent=$cursor.Substring(0,$cursor.TrimEnd('\').LastIndexOf('\'))
         if($parent.Length -lt $root.Length){$cursor=$root}else{$cursor=$parent}
     }
+}
+function Assert-Junction($literal) {
+    $spec=$junctions[$literal]
+    $entry=Get-Item -LiteralPath $literal -Force -ErrorAction Stop
+    if($entry.LinkType -ne 'Junction' -or ([int]$entry.Attributes -band 4) -ne 0 -or
+       (Extended-Literal ([string]$entry.Target)) -ne (Extended-Literal ([string]$spec.target)) -or
+       [MaintenanceJunctionNative]::Pin($literal) -cne [string]$spec.identity.pin) {throw 'Approved junction changed'}
 }
 $approved=@{}
 function Assert-Tree {
@@ -903,7 +1308,7 @@ function Assert-Tree {
         Assert-Ancestors $literal
         $observed=Get-Item -LiteralPath $literal -Force
         if(([int]$observed.Attributes -band 4) -ne 0){throw 'System attributes protected'}
-        if($observed.PSIsContainer){foreach($child in Get-ChildItem -LiteralPath $literal -Force){$pending.Push((Extended-Literal $child.FullName))}}
+        if($observed.PSIsContainer -and !$junctions.ContainsKey($literal)){foreach($child in Get-ChildItem -LiteralPath $literal -Force){$pending.Push((Extended-Literal $child.FullName))}}
     }
     if($seen.Count -ne $approved.Count){throw 'Approved descendant disappeared'}
 }
@@ -915,19 +1320,65 @@ try {
         if($approved.ContainsKey($literal)){throw 'Duplicate approved path'}
         $approved[$literal]=$original
     }
+    foreach($spec in $request.junctions) {
+        $literal=Extended-Literal $spec.path
+        if($literal -eq $target -or !$approved.ContainsKey($literal) -or $junctions.ContainsKey($literal)){throw 'Invalid junction deletion approval'}
+        $junctions[$literal]=$spec
+    }
     Assert-Tree
+    # Preflight every attribute-changing file before modifying any entry.
+    # Count every approved regular-file name in this one deletion root.
+    $normalizationPins=@{}
+    foreach($literal in $approved.Keys) {
+        Assert-Ancestors $literal
+        if($junctions.ContainsKey($literal)){continue}
+        $item=Get-Item -LiteralPath $literal -Force
+        if(!$item.PSIsContainer -and (([int]$item.Attributes -band 3) -ne 0)) {
+            $normalizationPins[$literal]=[MaintenanceJunctionNative]::NormalizationPin($literal)
+        }
+    }
+    if($normalizationPins.Count -gt 0) {
+        $linkCounts=@{}
+        foreach($literal in $approved.Keys) {
+            Assert-Ancestors $literal
+            if($junctions.ContainsKey($literal)){continue}
+            $item=Get-Item -LiteralPath $literal -Force
+            if(!$item.PSIsContainer) {
+                $pin=[MaintenanceJunctionNative]::NormalizationPin($literal)
+                if(!$linkCounts.ContainsKey($pin)){$linkCounts[$pin]=0}
+                $linkCounts[$pin]++
+            }
+        }
+        foreach($pin in $normalizationPins.Values) {
+            $links=[uint32]($pin.Split(':')[-1])
+            if(!$linkCounts.ContainsKey($pin) -or $linkCounts[$pin] -ne $links) {throw 'ReadOnly/Hidden normalization blocked: multiple hardlinks extend outside one selected deletion root; cross-member link ownership is not verified'}
+        }
+    }
     # Assert-Tree checked the exact full authorized set before normalization.
     foreach($literal in $approved.Keys) {
         Assert-Ancestors $literal
+        if($junctions.ContainsKey($literal)){continue}
         $item=Get-Item -LiteralPath $literal -Force
         $before=[int]$item.Attributes
         if(($before -band 4) -ne 0 -or ($before -band 1024) -ne 0) {throw 'System/reparse attributes protected'}
         $after=$before -band (-bnot 3)
         if($before -ne $after){
+            if(!$item.PSIsContainer) {
+                if(!$normalizationPins.ContainsKey($literal) -or [MaintenanceJunctionNative]::NormalizationPin($literal) -cne $normalizationPins[$literal]) {throw 'Normalization file identity or link count changed'}
+            }
             $item.Attributes=[System.IO.FileAttributes]$after
             $changes.Add(@{path=$approved[$literal];before=$before;after=[int]$item.Attributes})
         }
     }
+    Assert-Tree
+    foreach($literal in $junctions.Keys) {
+        Assert-Ancestors $literal
+        Assert-Junction $literal
+        [MaintenanceJunctionNative]::Unlink($literal, [string]$junctions[$literal].identity.pin)
+    }
+    # Ordinary recursive removal starts only after all approved links are gone.
+    $junctions.Clear()
+    foreach($original in $request.junctions){$approved.Remove((Extended-Literal $original.path))}
     Assert-Tree
     Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop
 } catch { $failure=$_.Exception.Message }
@@ -954,8 +1405,8 @@ if($target) {
         .stderr(std::process::Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
-    let input =
-        serde_json::to_vec(&json!({"path":path,"entries":entries})).map_err(|e| e.to_string())?;
+    let input = serde_json::to_vec(&json!({"path":path,"entries":entries,"junctions":junctions}))
+        .map_err(|e| e.to_string())?;
     child
         .stdin
         .take()

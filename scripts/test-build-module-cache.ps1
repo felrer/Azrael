@@ -1,5 +1,5 @@
 #requires -Version 7.0
-param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RegistryOnly,[switch]$LegacyRegistryOnly,[string]$FixtureRoot)
+param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RegistryOnly,[switch]$LegacyRegistryOnly,[switch]$MissingRegistryOnly,[string]$FixtureRoot)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
 $fixture=if($FixtureRoot){Assert-BuildCachePath $FixtureRoot ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/tasks')))}else{[IO.Path]::GetFullPath((Join-Path $PSScriptRoot ('../artifacts/verification/module-cache-'+[guid]::NewGuid().ToString('N'))))}
@@ -15,6 +15,60 @@ $script:inspectionFails=$false
 function Get-CimInstance {param($ClassName,$ErrorAction) if($script:inspectionFails){throw 'fixture process inspection unavailable'};if($script:inspectionMutation){if($script:inspectionMutationDelay -gt 0){$script:inspectionMutationDelay--}else{& $script:inspectionMutation;$script:inspectionMutation=$null}};if($script:registryRace){Add-Content -LiteralPath $script:registryRace ' ';$script:registryRace=$null};$script:running}
 $cache=$null
 try{
+ if($MissingRegistryOnly){
+   $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/missing';$other=Join-Path $owner 'snapshots/existing'
+   New-Item -ItemType Directory $project,$other|Out-Null
+   $cache=Open-BuildModuleCache $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $project $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $other $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $owner
+   # Capture a real fixture consumer and canonically finalize it before its source root disappears.
+   $member=Join-Path $project 'artifacts/consumer'
+   $null=Register-ArtifactLifecycle $project 'run:missing-consumer' run fixture complete $true @{payload=$member}
+   $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$project,'--id','run:missing-consumer')
+   $original=Get-BuildCacheProjectInspection $cache $project
+   Assert ($original.status -eq 'ready-for-proof') 'Canonical consumer retirement precedes fixture absence'
+   Assert-BuildCachePath $project $owner|Out-Null;Remove-Item -LiteralPath $project -Recurse -ErrorAction Stop
+   $registry=Join-Path $cache.Root '.projects.json';$registryBytes=[IO.File]::ReadAllBytes($registry)
+   $inspection=Get-BuildCacheLegacyProjectInspection $cache $project
+   Assert ($inspection.projectState -eq 'absent' -and $inspection.status -eq 'ready-for-proof') 'Missing exact registration remains inspectable'
+   Assert (@(Get-BuildCacheProjects $cache).Count -eq 3) 'Enumeration preserves missing registration'
+   Assert ((Get-BuildCacheProjectInspection $cache $other).reason -eq 'Missing lifecycle catalog') 'Missing neighbor does not block individual inspection'
+   foreach($check in @({Assert-BuildModuleConsumers $cache 'run:any'},{Get-ProtectedBuildCachePaths $cache},{Get-BuildCacheProjects $cache -RequireExisting})){
+     try{& $check|Out-Null;throw 'Expected missing consumer guard'}catch{Assert ($_.Exception.Message -match 'Missing registered cache project') 'Missing evidence prevents cache eviction'}
+   }
+   $authority=Join-Path $owner 'authority.txt';Set-Content $authority 'Retire only this absent fixture registration after known consumer release'
+   $consumerEvidence=Join-Path $owner 'consumers.json'
+   $consumers=@{schema=1;project=$project;registry_sha256=$inspection.registrySha256;membership_complete=$true;provenance='Fixture registration and original run:missing-consumer canonically finalized before source removal';consumers=@(@{id='run:missing-consumer';released_verified=$true;release_basis='Canonical finalize completed with absent payload and no remaining references'})}
+   $saveConsumers={$consumers|ConvertTo-Json -Depth 5|Set-Content $consumerEvidence}
+   & $saveConsumers
+   $proof=@{schema=3;action='retire-legacy';project=$project;project_state='absent';project_absent_verified=$true;registry_sha256=$inspection.registrySha256;historical_consumer_index='verified-released';producer_stopped_verified=$true;consumers_released_verified=$true;installations_released_verified=$true;rollback_released_verified=$true;payload_absent_verified=$true;reason='Exact missing fixture registration, known consumers released; history remains unknown';authority_ref=$authority;authority_sha256=(Get-BuildModuleFileHash $authority);consumer_evidence_ref=$consumerEvidence;consumer_evidence_sha256=(Get-BuildModuleFileHash $consumerEvidence)}
+   $evidence=Join-Path $owner 'missing-proof.json';$save={$proof|ConvertTo-Json -Depth 5|Set-Content $evidence};& $save
+   $reject={param($Pattern) try{Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply|Out-Null;throw 'Expected rejection missing'}catch{Assert ($_.Exception.Message -match $Pattern) "Expected missing guard: $Pattern"};Assert ((Get-BuildModuleFileHash $registry) -eq $inspection.registrySha256) 'Rejected missing retirement preserves registry'}
+   $proof.schema=2;$proof.historical_consumer_index='unavailable';& $save;& $reject 'identity mismatch';$proof.schema=3;$proof.historical_consumer_index='verified-released'
+   $proof.project_absent_verified=$false;& $save;& $reject 'absence proof';$proof.project_absent_verified=$true
+   $proof.registry_sha256='0'*64;& $save;& $reject 'identity mismatch';$proof.registry_sha256=$inspection.registrySha256
+   $consumers.membership_complete=$false;& $saveConsumers;$proof.consumer_evidence_sha256=Get-BuildModuleFileHash $consumerEvidence;& $save;& $reject 'Complete original';$consumers.membership_complete=$true
+   $consumers.consumers[0].released_verified=$false;& $saveConsumers;$proof.consumer_evidence_sha256=Get-BuildModuleFileHash $consumerEvidence;& $save;& $reject 'Known consumer';$consumers.consumers[0].released_verified=$true
+   & $saveConsumers;$proof.consumer_evidence_sha256=Get-BuildModuleFileHash $consumerEvidence;& $save
+   $script:inspectionFails=$true;try{& $reject 'inspection unavailable'}finally{$script:inspectionFails=$false}
+   $script:running=@([pscustomobject]@{Name='cargo.exe';CommandLine='cargo check'});try{& $reject 'compiler reference'}finally{$script:running=@()}
+   $script:inspectionMutation={New-Item -ItemType Directory $project|Out-Null};try{& $reject 'inputs changed'}finally{Remove-Item -LiteralPath $project -ErrorAction Stop}
+   $script:inspectionMutation={Add-Content $consumerEvidence ' '};try{& $reject 'consumer evidence inputs changed'}finally{& $saveConsumers}
+   $script:registryRace=$registry
+   try{Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply|Out-Null;throw 'Expected registry race rejection'}catch{Assert ($_.Exception.Message -match 'inputs changed') 'Missing registration registry race rejected'}finally{[IO.File]::WriteAllBytes($registry,$registryBytes)}
+   $cache.Lease.Dispose();$pwsh=(Get-Process -Id $PID).Path;$cli=Join-Path $PSScriptRoot 'manage-module-cache-projects.ps1'
+   $rows=& $pwsh -NoProfile -File $cli -CacheProjectRoot $owner -Action inspect
+   Assert ($LASTEXITCODE -eq 0 -and @($rows|ConvertFrom-Json).Count -eq 3) 'CLI enumerates all rows including missing root'
+   $preview=& $pwsh -NoProfile -File $cli -CacheProjectRoot $owner -Action retire-legacy -Project $project -EvidencePath $evidence -EvidenceSha256 (Get-BuildModuleFileHash $evidence)
+   Assert ($LASTEXITCODE -eq 0 -and ($preview|ConvertFrom-Json).status -eq 'selected') 'Missing CLI preview uses actual process inspection'
+   $cache=Open-BuildModuleCache $owner
+   $retired=Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply
+   Assert ($retired.status -eq 'retired' -and $retired.historicalOutcome -eq 'unknown' -and -not(Test-Path $project)) 'Exact absent registration retired without recreating root or history'
+   Assert (@(Get-BuildCacheProjects $cache).Count -eq 2 -and $other -in @(Get-BuildCacheProjects $cache) -and (Test-Path $consumerEvidence)) 'Unrelated registrations and retained consumer evidence survive'
+   Write-Output 'Missing module registry: enumeration, isolated inspection, eviction protection, complete released-consumer proof, authority, process, absence/evidence/registry races, CLI and exact retirement passed; exit=0'
+   return
+ }
  if($LegacyRegistryOnly){
    $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/legacy'
    New-Item -ItemType Directory $project -Force|Out-Null
@@ -40,8 +94,7 @@ try{
    $null=Assert-BuildCachePath $project $owner
    Move-Item -LiteralPath $project -Destination $heldProject -ErrorAction Stop
    try{
-     $missing=Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply
-     Assert ($missing.status -eq 'blocked' -and $missing.reason -eq 'Existing legacy project directory required') 'Registered absent source directory cannot retire'
+     try{Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply|Out-Null;throw 'Expected missing evidence rejection'}catch{Assert ($_.Exception.Message -match 'identity mismatch') 'Absent source requires complete retained consumer proof instead of unavailable history'}
      & $unchanged
    }finally{Move-Item -LiteralPath $heldProject -Destination $project -ErrorAction Stop}
    $reject={param($Pattern) try{Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply|Out-Null;throw 'Expected rejection missing'}catch{Assert ($_.Exception.Message -match $Pattern) "Expected guard: $Pattern"}; & $unchanged}
@@ -476,7 +529,8 @@ try{
    @{schema=1;projects=@($outside)}|ConvertTo-Json|Set-Content $registry
    try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing registry escape failure'}catch{Assert ($_.Exception.Message -match 'escapes root') 'Registered project escape rejected'}
    @{schema=1;projects=@((Join-Path $sharedOwner 'missing-project'))}|ConvertTo-Json|Set-Content $registry
-   try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing registered project failure'}catch{Assert ($_.Exception.Message -match 'Missing registered cache project') 'Missing registered project must preserve uncertain installed references'}
+   $missingCache=Open-BuildModuleCache $projectB $sharedOwner
+   try{try{Get-BuildCacheProjects $missingCache -RequireExisting|Out-Null;throw 'Missing registered project failure'}catch{Assert ($_.Exception.Message -match 'Missing registered cache project') 'Missing registered project must preserve uncertain installed references'}}finally{$missingCache.Lease.Dispose()}
    New-Item -ItemType Junction -Path $registryLink -Target $projectA|Out-Null
    @{schema=1;projects=@($registryLink)}|ConvertTo-Json|Set-Content $registry
    try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing registry link failure'}catch{Assert ($_.Exception.Message -match 'Linked cache path') 'Registered project junction rejected'}
