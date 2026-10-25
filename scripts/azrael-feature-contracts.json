@@ -3468,6 +3468,10 @@
         "engine/codex-rs/project-maintenance/src/paths.rs",
         "engine/codex-rs/project-maintenance/src/planning.rs",
         "engine/codex-rs/project-maintenance/src/storage.rs",
+        "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+        "engine/codex-rs/project-maintenance/tests/lock_recovery.rs",
+        "scripts/maintenance-lock-owner.cjs",
+        "scripts/test-maintenance-lock-owner.cjs",
         "engine/codex-rs/project-maintenance/tests/contracts.rs",
         "engine/codex-rs/core/src/tools/handlers/project_maintenance.rs",
         "engine/codex-rs/core/src/tools/spec_plan.rs",
@@ -3594,6 +3598,7 @@
           "args": [
             "--test",
             "scripts/test-project-maintenance.cjs",
+            "scripts/test-maintenance-lock-owner.cjs",
             "scripts/test-artifact-lifecycle.cjs",
             "scripts/test-project-fail-fast.cjs",
             "scripts/test-project-selection.cjs",

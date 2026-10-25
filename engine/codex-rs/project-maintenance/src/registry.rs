@@ -6,16 +6,11 @@ use std::path::{Path, PathBuf};
 
 pub(crate) struct CatalogLock<'a> {
     path: PathBuf,
-    _file: std::fs::File,
+    _sentinel: crate::lock_recovery::Sentinel<'a>,
     auth: Auth<'a>,
 }
 impl Drop for CatalogLock<'_> {
     fn drop(&mut self) {
-        // Removal is ordinary deletion; an unexpected failure remains visible
-        // as contention on the next operation rather than bypassing the lock.
-        if (self.auth)(&self.path, AccessMode::Write).is_ok() {
-            let _ = std::fs::remove_file(&self.path);
-        }
         self.auth.catalog_locks.borrow_mut().remove(&self.path);
     }
 }
@@ -63,15 +58,11 @@ pub(crate) fn lock_request<'a>(
         let path = source.join("catalog.lock");
         paths::check(root, &path, auth)?;
         auth(&path, AccessMode::Write)?;
-        let file = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&path)
-            .map_err(|e| format!("producer catalog lock unavailable: {e}"))?;
+        let sentinel = crate::lock_recovery::Sentinel::acquire(root, &path, "catalog", auth)?;
         auth.catalog_locks.borrow_mut().insert(path.clone());
         locks.push(CatalogLock {
             path,
-            _file: file,
+            _sentinel: sentinel,
             auth,
         });
     }

@@ -113,6 +113,14 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 <a id="registered-group-cleanup"></a>
 ## 등록된 묶음 정리
 
+### 관리 sentinel 복구
+
+새 소스의 검증된 `maintenance_owner`는 `operation:"recover_lock"`을 별도 지원한다. 설치된 `project_*` 도구의 `recover`는 실행 수명 복구이며 sentinel 해제와 다르다. 현재 점유 작업의 잠금을 삭제하거나 보호 정책을 우회하는 용도로 사용하지 않는다.
+
+요청은 `lock_kind` (`maintenance`/`catalog`/`run_claim`), 정확한 `expected_lock_sha256`, `expected_token` (구형 marker는 null), `producer_stopped_verified:true`, `reason`, `evidence_ref`, `evidence_sha256`, `receipt_ref`를 가진다. evidence와 미존재 receipt 경로는 선택 프로젝트의 `artifacts/maintenance/evidence/` 안에 둔다. 실행 전에 정확한 producer와 전체 자식 종료를 별도로 확인하고, 원래 unknown/실패 결과를 보존한다. 살아 있는 PID·미확인 조회·pending manifest·변경된 identity는 거부한다. 빈 lock 파일이나 PID 부재만으로 확인을 선언하지 않는다.
+
+기존 owner CLI와 같은 `--project-root ABSOLUTE_ROOT --request ABSOLUTE_IN_ROOT_JSON` 형식을 사용한다. 검증한 source/binary identity를 작업 기록에 고정하고 receipt의 실제 결과와 대상 부재를 확인한다. 부분 실패는 영수증과 현재 경로를 유지한 채 재검토한다. 복구 guard는 OS 잠금용 영속 파일이므로 존재 자체를 stale sentinel로 제거하지 않는다.
+
 등록된 묶음은 `project_inventory`의 현재 기록에서 시작해 `project_cleanup_review`로 검토하고 `project_cleanup_apply`로 명시적인 삭제·보류 결정을 적용한다. 모델은 허용 범위와 결정을 담당하고, 도구가 구현한 identity·구성·소유·참조·권한·보호 검사는 도구에 맡긴다. 동일 검사를 별도 셸 목록, 재귀 해시 또는 두 번째 관리 명세로 반복하지 않는다.
 
 구성이나 참조가 바뀌면 지원되는 등록 동작으로 해당 묶음 정보를 갱신하고 새 검토 토큰을 받는다. 변경 전 삭제 승인은 재사용하지 않는다. 바뀌지 않은 묶음은 다시 등록하지 않는다. 직접 조사는 미등록 경로, 실제 상태와 기록의 충돌, 도구가 보고한 불확실성, registry에 반영되지 않은 설치·실행 참조 등 확인 범위 밖의 구체적 공백으로 한정한다. 도구가 지원하지 않는 동작은 기존 소유자의 절차를 사용하며, 기록이 있다는 이유로 구현되지 않은 확인 능력을 가정하지 않는다.

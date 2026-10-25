@@ -1,0 +1,153 @@
+{
+  "platform": "Windows x64",
+  "native": {
+    "exitCode": 0,
+    "signal": null,
+    "preflight": {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-25T14:00:09.183Z",
+          "durationMs": 31090,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-25T14:00:40.274Z",
+          "durationMs": 21131,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 120
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-25T14:01:01.405Z",
+          "durationMs": 103613,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "ended": "2026-10-25T14:02:45.019Z"
+  },
+  "sourceUnchanged": {
+    "checkedAt": "2026-10-25T14:05:04.909Z",
+    "unchanged": true
+  },
+  "js": {
+    "owner": {
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DT-01-old-log-cleanup\\runs\\lock-remediation-20261025-r1\\logs\\js-owner-node-test.log"
+    },
+    "lifecycle": {
+      "exitCode": 0,
+      "passed": 87,
+      "skipped": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DT-01-old-log-cleanup\\runs\\lock-remediation-20261025-r1\\logs\\js-lifecycle-r4.log"
+    },
+    "artifactRun": {
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DT-01-old-log-cleanup\\runs\\lock-remediation-20261025-r1\\logs\\js-run-r2.log"
+    },
+    "deploymentWorkspace": {
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DT-01-old-log-cleanup\\runs\\lock-remediation-20261025-r1\\logs\\js-workspace-r2.log"
+    }
+  },
+  "manifest": {
+    "exitCode": 0
+  },
+  "retainedTestsReason": "Shared sentinel contention, replacement, crash and explicit-recovery contracts require ongoing regression coverage.",
+  "unverified": [
+    "Linux runtime",
+    "macOS runtime",
+    "installed tool availability",
+    "historical lease producer termination"
+  ],
+  "sourceInputsSha256": "67bbebd165869b40a82e81235a2d54315bc7bbdfcc79ddeebad1901e5177dcc5",
+  "nativeResults": [
+    "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.39s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.81s",
+    "test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 25.79s",
+    "test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.94s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.73s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.90s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.98s",
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.00s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.31s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.49s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+  ],
+  "logEvidence": [
+    {
+      "name": "js-lifecycle-r2.log",
+      "sha256": "74a38773c7938d8cca69e5e7edc1c161b17288c5225eac996b6f553e77eeae65",
+      "summary": []
+    },
+    {
+      "name": "js-lifecycle-r4.log",
+      "sha256": "a9c21400f36ab1fe0eb218c2256af045d69af710c35a6c2a7e6e8990419b18a1",
+      "summary": []
+    },
+    {
+      "name": "js-owner-node-test.log",
+      "sha256": "433be189b19b439ec1f1b839340f079b09a1256bc874bfaeea6d1779f41d6423",
+      "summary": []
+    },
+    {
+      "name": "js-owner-r2.log",
+      "sha256": "8dfbe52bfd4a741182fc9cfc0976c136651f75833673034f4af71277819d6ca8",
+      "summary": []
+    },
+    {
+      "name": "js-owner-r4.log",
+      "sha256": "56e31251405b932808ee8cb963e07cafacfc67a5ea307462a5798fb497976ac2",
+      "summary": []
+    },
+    {
+      "name": "js-run-r2.log",
+      "sha256": "f29da95b7af47f15eacd611a8eaec4da045cbe53fd60a711acda11a46ca0085e",
+      "summary": []
+    },
+    {
+      "name": "js-workspace-r2.log",
+      "sha256": "5e7897160576e0edbe4b0c37b2afa4ae32f51b1f1279f276c208d78d1d52aca4",
+      "summary": []
+    }
+  ]
+}

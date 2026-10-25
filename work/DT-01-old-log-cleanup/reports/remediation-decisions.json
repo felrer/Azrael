@@ -1,0 +1,33 @@
+{
+  "recordedAt": "2026-10-25T14:01:50.471Z",
+  "deletions": 0,
+  "leases": {
+    "v2": {
+      "pid": 40656,
+      "parentPid": 32084,
+      "check": "engine.shared-engine.manual-resume",
+      "decision": "defer",
+      "reason": "Run receipt is still running, no final manual-resume outcome or historical complete process-tree terminal evidence.",
+      "revisit": "Independent evidence binds the original producer identity and entire tree to a terminal outcome; use owner-supported lease recovery."
+    },
+    "legacy": {
+      "count": 11,
+      "pid": 52716,
+      "decision": "defer",
+      "reason": "Token-only owner records do not identify run, parent or process start; current PID absence cannot prove historical process-tree termination.",
+      "revisit": "Recover matching historical owner/run identity plus independently verified complete tree termination."
+    }
+  },
+  "protection": {
+    "refreshedGroup": "run:module-cache-management-r1",
+    "protectionKnown": true,
+    "reviewBlocker": "producer catalog writer is active",
+    "applyResult": "failed: exclusive maintenance lock unavailable; no decision persisted",
+    "revisit": "Existing writers finish; fresh registered review passes unchanged membership and consumers."
+  },
+  "otherGroups": {
+    "cn4": "defer: browser outcome is not explicit complete server/producer tree closure",
+    "cxShutdown": "defer: producer membership differs from native projection; owner reconciliation required",
+    "legacyCustody": "defer: 2406 incomplete/protected members have no blanket deletion authority or verified ownership closure"
+  }
+}
