@@ -1,6 +1,7 @@
 "use strict";
 // Short-lived writer ownership. Cleanup remains an explicit maintenance decision.
 const fs = require("node:fs");
+const { acquire } = require("./maintenance-lock-owner.cjs");
 const path = require("node:path");
 const { randomUUID, createHash } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
@@ -45,7 +46,7 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
   }
   fs.mkdirSync(claimDirectory, { recursive: true });
   const claimPath = path.join(claimDirectory, ".run-claim.lock");
-  const claim = fs.openSync(claimPath, "wx");
+  const claim = acquire(claimPath, { operation: "artifact-run.claim" });
   try {
   for (const member of members) {
     if (fs.existsSync(member.path)) throw Error(`Artifact destination already exists: ${member.path}`);
@@ -62,7 +63,7 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
   fs.mkdirSync(runRoot);
   for (const role of roles) fs.mkdirSync(run[role], { recursive: true });
   return run;
-  } finally { fs.closeSync(claim); fs.unlinkSync(claimPath); }
+  } finally { claim.release(); }
 }
 function trackArtifactChild(run, child) {
   run.children.add(child);

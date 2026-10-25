@@ -22,6 +22,14 @@ Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs
 
 ## 실행과 복구
 
+### 관리 잠금의 소유와 명시적 복구
+
+소스 구현 계약 (Windows x64 회귀 확인, Linux/macOS 실행 미확인): 관리·producer catalog·run claim의 create-new sentinel은 자동 만료하지 않는다. 신규 marker는 PID·작업·획득 시각·고유 token과 관측 가능한 process 시작 identity를 기록한다. 정상 해제는 자신이 획득한 파일 identity와 원래 내용을 다시 확인하며 교체된 파일을 지우지 않는다. OS 잠금용 `.coordination.lock` 및 module cache의 영속 lock 파일과 구별한다.
+
+소유자 실행기의 `recover_lock`은 `maintenance`, `catalog`, `run_claim`의 정확한 제어 경로만 다룬다. 요청은 원래 marker의 raw SHA-256·token(구형 token 없음은 null), 독립 producer/process-tree 종료 확인, 이유, 보호된 관리 evidence 경계의 증거와 SHA-256·별도 영수증 경로를 명시한다. 살아 있는 owner PID 또는 관측 권한의 불확실성은 복구를 거부한다. PID 부재나 경과 시간은 종료 증거를 대체하지 않는다. 원래 실행 결과와 nullable exit는 변경하지 않는다.
+
+복구 시도끼리는 별도 stable OS guard로 직렬화한다. `manifest.pending`, 링크·reparse·경계 이탈, 권한 거부, marker/증거 변경은 차단한다. 독립적으로 읽을 수 있는 복구 영수증을 먼저 보존하고 정확한 원래 파일만 일반 삭제한다. 구형 empty/PID-only sentinel도 동일한 독립 근거가 필요하다. 새 복구 API의 소스·실제 실행 검증은 [작업 기록](../../work/DT-01-old-log-cleanup/03-plan.md)이 소유하며 설치된 내장 도구의 지원을 의미하지 않는다.
+
 내장 도구는 조회·등록, 테스트 계획/실행, 빌드 계획/실행, 정리 검토, 정리 적용을 구분한다. 명령은 기존 엔진 실행 경계를 통해 같은 sandbox·approval·취소 정책을 적용한다. 도구가 금지된 대화나 원격 환경을 로컬 실행으로 우회하지 않는다. 파일을 직접 읽거나 변경하는 동작에도 실제 경로별 권한 검사를 적용한다.
 
 등록된 프로젝트 ID는 엔진의 프로젝트 별칭 목록에서 정확한 루트로 해석한다. 별칭 등록·해제는 설정 메타데이터만 다루고 소스를 생성하거나 삭제하지 않는다. 같은 ID를 다른 루트에 조용히 덮어쓰지 않는다. 프로젝트 밖의 소유 백업 디렉터리도 설정과 별도 ID를 가진 관리 루트로 등록할 수 있다. 관리 경로는 각 등록 루트 안에 한정하고 등록 루트 자체는 보존한다.

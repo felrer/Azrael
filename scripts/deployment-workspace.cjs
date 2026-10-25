@@ -1,5 +1,6 @@
 "use strict";
 const fs = require("node:fs");
+const { acquire } = require("./maintenance-lock-owner.cjs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { spawnSync } = require("node:child_process");
@@ -115,7 +116,7 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
   let inputRecord, workingRecord;
   const claimDirectory = checked(artifactProjectRoot, path.join(artifactProjectRoot, "artifacts/maintenance/lifecycles"));
   fs.mkdirSync(claimDirectory, { recursive: true });
-  const claimPath = path.join(claimDirectory, ".run-claim.lock"), claim = fs.openSync(claimPath, "wx");
+  const claimPath = path.join(claimDirectory, ".run-claim.lock"), claim = acquire(claimPath, { operation: "deployment-workspace.claim" });
   try {
     const currentRecords = lifecycle.catalog(artifactProjectRoot);
     for (const root of [inputRoot, workingRoot]) {
@@ -130,7 +131,7 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
     runRecord = lifecycle.recordLifecycle(artifactProjectRoot, { ...runRecord, expected_revision: runRecord.revision, references: [...runRecord.references,
       { id: inputLifecycleId, kind: "execution", reason: "Deployment controller consumes immutable inputs" },
       { id: workingLifecycleId, kind: "execution", reason: "Deployment controller consumes working source" }] });
-  } finally { fs.closeSync(claim); fs.unlinkSync(claimPath); }
+  } finally { claim.release(); }
   const immutableProjectRoot = path.join(inputRoot, "project");
   const gitStarted = performance.now();
   prepareGit(projectRoot, immutableProjectRoot, source);

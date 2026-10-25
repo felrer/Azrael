@@ -1,17 +1,16 @@
 use crate::{AccessMode, Auth, State, paths};
-use std::fs::{self, File, OpenOptions};
+use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-pub(crate) struct Store {
+pub(crate) struct Store<'a> {
     pub state: State,
     root: PathBuf,
     directory: PathBuf,
-    lock: PathBuf,
-    handle: Option<File>,
+    handle: Option<crate::lock_recovery::Sentinel<'a>>,
 }
-impl Store {
-    pub fn open(root: &Path, auth: Auth<'_>, mutate: bool) -> Result<Self, String> {
+impl<'a> Store<'a> {
+    pub fn open(root: &Path, auth: Auth<'a>, mutate: bool) -> Result<Self, String> {
         let directory = root.join("artifacts/maintenance");
         if !mutate {
             let manifest = directory.join("manifest.json");
@@ -24,7 +23,6 @@ impl Store {
             return Ok(Self {
                 state,
                 root: root.to_owned(),
-                lock: directory.join("maintenance.lock"),
                 directory,
                 handle: None,
             });
@@ -38,21 +36,13 @@ impl Store {
             }
         }
         let lock = directory.join("maintenance.lock");
-        paths::check(root, &lock, auth)?;
-        auth(&directory, AccessMode::Write)?;
-        auth(&lock, AccessMode::Write)?;
-        let mut handle=OpenOptions::new().write(true).create_new(true).open(&lock).map_err(|e|format!("exclusive maintenance lock unavailable (abandoned locks require explicit recovery): {e}"))?;
-        handle
-            .write_all(format!("pid={}\n", std::process::id()).as_bytes())
-            .map_err(|e| e.to_string())?;
-        handle.sync_all().map_err(|e| e.to_string())?;
+        let handle = crate::lock_recovery::Sentinel::acquire(root, &lock, "maintenance", auth)?;
         let manifest = directory.join("manifest.json");
         // Once acquired, errors release only our own lock through Drop.
         let mut store = Self {
             state: State::default(),
             root: root.to_owned(),
             directory,
-            lock,
             handle: Some(handle),
         };
         paths::check(root, &manifest, auth)?;
@@ -96,12 +86,5 @@ impl Store {
             auth(path, AccessMode::Write)?;
         }
         Ok(())
-    }
-}
-impl Drop for Store {
-    fn drop(&mut self) {
-        if self.handle.take().is_some() {
-            let _ = fs::remove_file(&self.lock);
-        }
     }
 }

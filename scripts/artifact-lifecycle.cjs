@@ -1,6 +1,7 @@
 "use strict";
 // Producer metadata only. Native maintenance owns review, registration and deletion.
 const fs = require("node:fs");
+const { acquire } = require("./maintenance-lock-owner.cjs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
@@ -61,8 +62,8 @@ function withCatalogLock(root, action) {
   const directory = registry(root);
   fs.mkdirSync(directory, { recursive: true });
   const lock = checked(root, path.join(directory, "catalog.lock"));
-  const descriptor = fs.openSync(lock, "wx");
-  try { return action(); } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+  const descriptor = acquire(lock, { operation: "lifecycle.catalog" });
+  try { return action(); } finally { descriptor.release(); }
 }
 const referenceKinds = new Set(["execution", "installation", "recovery", "evidence", "dependency"]);
 function referenceIdentity(reference) { return reference.reference_id || sha(JSON.stringify([reference.id, reference.reason, reference.kind ?? null])); }
@@ -83,7 +84,7 @@ function checkedEvidence(root, request) {
 function mutateLifecycle(root, id, request, operation, mutate) {
   return withCatalogLock(root, () => {
     const filename = registryPath(root, id), lock = checked(root, filename + ".lock");
-    const descriptor = fs.openSync(lock, "wx");
+    const descriptor = acquire(lock, { operation: "lifecycle.write" });
     try {
       const record = validate(root, JSON.parse(fs.readFileSync(filename, "utf8")));
       if (record.custody_transfer && record.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
@@ -103,7 +104,7 @@ function mutateLifecycle(root, id, request, operation, mutate) {
       validate(root, record);
       writeRecord(root, filename, record);
       return record;
-    } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+    } finally { descriptor.release(); }
   });
 }
 function closeLifecycle(root, id, request) {
@@ -137,7 +138,7 @@ function recordLifecycleUnlocked(root, request) {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   const lock = filename + ".lock";
   checked(root, lock);
-  const descriptor = fs.openSync(lock, "wx");
+  const descriptor = acquire(lock, { operation: "lifecycle.write" });
   try {
     const previous = fs.existsSync(filename) ? validate(root, JSON.parse(fs.readFileSync(filename, "utf8"))) : null;
     if (previous?.custody_transfer && previous.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
@@ -186,7 +187,7 @@ function recordLifecycleUnlocked(root, request) {
     fs.writeFileSync(temporary, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
     fs.renameSync(temporary, filename);
     return result;
-  } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+  } finally { descriptor.release(); }
 }
 // A custody handoff adjudicates ownership; it makes no claim about historical execution success.
 function custodyInputs(root, sourceId, request, extraProofRoots = []) {
@@ -447,7 +448,7 @@ function finalize(root, id, retirement) { return withCatalogLock(root, () => fin
 function finalizeUnlocked(root, id, retirement) {
   const filename = registryPath(root, id);
   const lock = filename + ".lock";
-  const descriptor = fs.openSync(checked(root, lock), "wx");
+  const descriptor = acquire(checked(root, lock), { operation: "lifecycle.finalize" });
   try {
     const records = catalog(root), record = records.find(value => value.id === id);
     if (!record) throw new Error("Unknown lifecycle id");
@@ -476,7 +477,7 @@ function finalizeUnlocked(root, id, retirement) {
     fs.unlinkSync(filename);
     return { id, status: "finalized", remaining: [], references: [], blockers: [], registryPath: filename,
       ...(retirementEvidence ? { retirement: retirementEvidence } : {}) };
-  } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+  } finally { descriptor.release(); }
 }
 function main(argv = process.argv.slice(2)) {
   const action = argv.shift(), options = {}, members = [], references = [], paths = [], protectedPaths = [];

@@ -2,11 +2,14 @@
 //! Commands in plans are data: the host owns process execution and authorization.
 mod apply;
 mod groups;
+mod lock_recovery;
 mod paths;
 mod planning;
 mod registry;
 mod retirement;
 mod storage;
+
+pub use lock_recovery::recover_lock;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -150,6 +153,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     let root = dunce::canonicalize(root).map_err(|e| e.to_string())?;
     paths::check(&root, &root, authorize)?;
     let operation = string(&request, "operation")?;
+    if operation == "recover_lock" {
+        return lock_recovery::recover_lock(&root, request, authorize.authorize);
+    }
     let receipt_operation = matches!(
         operation,
         "validate_step" | "finish_step" | "run_status" | "recover_run"

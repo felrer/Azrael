@@ -55,9 +55,11 @@ fn run() -> Result<Value, String> {
             .map_err(|e| e.to_string())?;
     if !matches!(
         request["operation"].as_str(),
-        Some("inventory" | "register" | "review" | "apply")
+        Some("inventory" | "register" | "review" | "apply" | "recover_lock")
     ) {
-        return Err("owner runner supports only inventory/register/review/apply".into());
+        return Err(
+            "owner runner supports only inventory/register/review/apply/recover_lock".into(),
+        );
     }
     dispatch(&root, request, &|path, access| {
         if path.starts_with(&root) || (access == AccessMode::Read && root.starts_with(path)) {
