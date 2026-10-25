@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "owner": "CY-01-session-loading-review",
+  "groupId": "CY-01-release-comparison-r3",
+  "state": "deferred",
+  "logicalBytes": 14345477879,
+  "producer": {
+    "state": "complete",
+    "revision": 2,
+    "knownStopped": true,
+    "references": [],
+    "stopEvidence": "08-release-producer-stop.json"
+  },
+  "registeredItems": [
+    {
+      "id": "ba756597d4f4130b3175ce46874184149feb1500c8a72bd3dbba2e79c0160aee",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3",
+      "identity": "2dfcc8c74975edfe7a63581e44d441699f8339b2c83d51acc893c2660e2625aa",
+      "logicalBytes": 4923078463,
+      "registeredAtMs": 1792928028576
+    },
+    {
+      "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3",
+      "identity": "cabad2055c0256aaedfe255dc82a91da7cbc59645c179ad92ffe35c87c209cc4",
+      "logicalBytes": 9422399416,
+      "registeredAtMs": 1792927996244
+    }
+  ],
+  "review": [
+    {
+      "id": "ba756597d4f4130b3175ce46874184149feb1500c8a72bd3dbba2e79c0160aee",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CY-01-session-loading-review\\runs\\20261025-release-comparison-r3",
+      "blockers": [
+        "a lifecycle group member is protected"
+      ],
+      "verification": "registered",
+      "membershipMatches": true,
+      "observationError": null
+    },
+    {
+      "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3",
+      "blockers": [
+        "outside configured managed roots",
+        "a lifecycle group member is protected"
+      ],
+      "verification": "registered",
+      "membershipMatches": true,
+      "observationError": null
+    }
+  ],
+  "applied": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "CY-01-release-comparison-r3",
+        "status": "deferred"
+      }
+    ],
+    "results": [
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+        "lifecycle_group_id": "CY-01-release-comparison-r3",
+        "reason": "Performance verification is complete and independent evidence retained, but artifacts/c3 is outside configured managed roots and protects the whole lifecycle group; no policy expansion or unsupported relocation was authorized for this experiment.",
+        "remaining": true,
+        "revisit_condition": "User explicitly authorizes adding only the exact owned artifacts/c3 boundary to managed roots, or an applicable supported custody procedure is approved; then re-review both group members with current ownership, references and tokens before deletion.",
+        "status": "deferred"
+      },
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "ba756597d4f4130b3175ce46874184149feb1500c8a72bd3dbba2e79c0160aee",
+        "lifecycle_group_id": "CY-01-release-comparison-r3",
+        "reason": "Performance verification is complete and independent evidence retained, but artifacts/c3 is outside configured managed roots and protects the whole lifecycle group; no policy expansion or unsupported relocation was authorized for this experiment.",
+        "remaining": true,
+        "revisit_condition": "User explicitly authorizes adding only the exact owned artifacts/c3 boundary to managed roots, or an applicable supported custody procedure is approved; then re-review both group members with current ownership, references and tokens before deletion.",
+        "status": "deferred"
+      }
+    ]
+  },
+  "explanation": "Native managed-root policy excludes artifacts/c3. Whole group retained; no physical deletion, no policy expansion, no unsupported custody relocation. Existing relocation writer applies to legacy artifacts/logs only. Finalize not attempted while payload remains.",
+  "authorizationNeeded": "Add only exact owned artifacts/c3 managed root in project-maintenance.json, then fresh grouped review/apply and actual absence/finalize verification.",
+  "preservedEvidence": [
+    "05-plan.md",
+    "07-release-comparison-evidence.json",
+    "08-release-producer-stop.json"
+  ]
+}

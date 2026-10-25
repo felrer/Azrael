@@ -1,0 +1,491 @@
+{
+  "schema": 1,
+  "owner": "CY-01-session-loading-review",
+  "at": "2026-10-25T11:18:41.345Z",
+  "overallOutcome": "success",
+  "overallExitCode": 0,
+  "actualBuildAttemptExits": [
+    {
+      "status": "failed",
+      "exitCode": 1,
+      "finishedAt": "2026-10-25T09:56:17.127Z",
+      "stages": [
+        {
+          "name": "windows-pty-release",
+          "actualExitCode": 0,
+          "finishedAt": "2026-10-25T08:46:57.926Z"
+        },
+        {
+          "name": "engine-release",
+          "actualExitCode": 101,
+          "finishedAt": "2026-10-25T09:56:17.126Z"
+        }
+      ]
+    },
+    {
+      "status": "failed",
+      "exitCode": 1,
+      "finishedAt": "2026-10-25T10:17:36.203Z",
+      "stages": [
+        {
+          "name": "engine-release-r2",
+          "actualExitCode": 101,
+          "finishedAt": "2026-10-25T10:17:36.202Z"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-25T11:08:41.883Z",
+      "stages": [
+        {
+          "name": "engine-release-r3",
+          "actualExitCode": 0,
+          "finishedAt": "2026-10-25T11:06:51.114Z"
+        },
+        {
+          "name": "provenance-record-r3",
+          "actualExitCode": 0,
+          "finishedAt": "2026-10-25T11:08:27.565Z"
+        },
+        {
+          "name": "provenance-verify-r3",
+          "actualExitCode": 0,
+          "finishedAt": "2026-10-25T11:08:41.882Z"
+        }
+      ]
+    }
+  ],
+  "failedRepeatSetup": {
+    "startedAt": "2026-10-25T11:14:16.550Z",
+    "order": [
+      [
+        "qdev1",
+        "dev"
+      ],
+      [
+        "qrelease1",
+        "release"
+      ],
+      [
+        "qrelease2",
+        "release"
+      ],
+      [
+        "qdev2",
+        "dev"
+      ],
+      [
+        "qdev3",
+        "dev"
+      ],
+      [
+        "qrelease3",
+        "release"
+      ]
+    ],
+    "runs": [
+      {
+        "name": "qdev1",
+        "kind": "dev",
+        "mode": "baseline",
+        "startedAt": "2026-10-25T11:14:17.411Z",
+        "finishedAt": "2026-10-25T11:14:18.942Z",
+        "elapsedMs": 1531,
+        "exitCode": 1,
+        "signal": null
+      }
+    ],
+    "status": "failed",
+    "hostSnapshots": [
+      {
+        "run": "qdev1",
+        "when": "before",
+        "at": "2026-10-25T11:14:17.2262615Z",
+        "compilers": []
+      },
+      {
+        "run": "qdev1",
+        "when": "after",
+        "at": "2026-10-25T11:14:18.7688157Z",
+        "compilers": []
+      }
+    ],
+    "error": "qdev1 failed",
+    "exitCode": 1,
+    "finishedAt": "2026-10-25T11:14:18.945Z"
+  },
+  "cohortExits": [
+    {
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-25T11:12:14.549Z",
+      "runs": [
+        {
+          "name": "readiness-release",
+          "kind": "release",
+          "mode": "readiness",
+          "startedAt": "2026-10-25T11:09:11.798Z",
+          "finishedAt": "2026-10-25T11:09:49.301Z",
+          "elapsedMs": 37503,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "dev1",
+          "kind": "dev",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:09:49.703Z",
+          "finishedAt": "2026-10-25T11:10:49.240Z",
+          "elapsedMs": 59537,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "release1",
+          "kind": "release",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:10:49.920Z",
+          "finishedAt": "2026-10-25T11:11:16.700Z",
+          "elapsedMs": 26781,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "release2",
+          "kind": "release",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:11:17.094Z",
+          "finishedAt": "2026-10-25T11:11:24.070Z",
+          "elapsedMs": 6976,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "dev2",
+          "kind": "dev",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:11:24.460Z",
+          "finishedAt": "2026-10-25T11:11:44.550Z",
+          "elapsedMs": 20090,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "dev3",
+          "kind": "dev",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:11:44.945Z",
+          "finishedAt": "2026-10-25T11:12:05.722Z",
+          "elapsedMs": 20777,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "release3",
+          "kind": "release",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:12:06.125Z",
+          "finishedAt": "2026-10-25T11:12:14.547Z",
+          "elapsedMs": 8422,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-25T11:17:29.133Z",
+      "runs": [
+        {
+          "name": "udev1",
+          "kind": "dev",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:15:29.832Z",
+          "finishedAt": "2026-10-25T11:15:57.712Z",
+          "elapsedMs": 27880,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "urelease1",
+          "kind": "release",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:15:58.088Z",
+          "finishedAt": "2026-10-25T11:16:14.811Z",
+          "elapsedMs": 16723,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "urelease2",
+          "kind": "release",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:16:15.183Z",
+          "finishedAt": "2026-10-25T11:16:31.840Z",
+          "elapsedMs": 16657,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "udev2",
+          "kind": "dev",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:16:32.205Z",
+          "finishedAt": "2026-10-25T11:16:54.572Z",
+          "elapsedMs": 22367,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "udev3",
+          "kind": "dev",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:16:54.943Z",
+          "finishedAt": "2026-10-25T11:17:18.332Z",
+          "elapsedMs": 23389,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "name": "urelease3",
+          "kind": "release",
+          "mode": "baseline",
+          "startedAt": "2026-10-25T11:17:18.707Z",
+          "finishedAt": "2026-10-25T11:17:29.131Z",
+          "elapsedMs": 10424,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    }
+  ],
+  "executions": [
+    {
+      "name": "readiness-dev",
+      "pid": 57088,
+      "startedAt": "2026-10-25T08:45:51.382Z",
+      "finishedAt": "2026-10-25T08:45:51.916Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "readiness-release",
+      "pid": 20720,
+      "startedAt": "2026-10-25T11:09:12.041Z",
+      "finishedAt": "2026-10-25T11:09:48.887Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "dev1",
+      "pid": 47344,
+      "startedAt": "2026-10-25T11:09:54.776Z",
+      "finishedAt": "2026-10-25T11:10:48.803Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "release1",
+      "pid": 47668,
+      "startedAt": "2026-10-25T11:10:53.903Z",
+      "finishedAt": "2026-10-25T11:11:16.291Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "release2",
+      "pid": 61756,
+      "startedAt": "2026-10-25T11:11:17.846Z",
+      "finishedAt": "2026-10-25T11:11:23.655Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "dev2",
+      "pid": 37912,
+      "startedAt": "2026-10-25T11:11:25.049Z",
+      "finishedAt": "2026-10-25T11:11:44.136Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "dev3",
+      "pid": 43952,
+      "startedAt": "2026-10-25T11:11:45.691Z",
+      "finishedAt": "2026-10-25T11:12:05.277Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "release3",
+      "pid": 48212,
+      "startedAt": "2026-10-25T11:12:08.080Z",
+      "finishedAt": "2026-10-25T11:12:14.136Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "udev1",
+      "pid": 32976,
+      "startedAt": "2026-10-25T11:15:37.526Z",
+      "finishedAt": "2026-10-25T11:15:57.316Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "urelease1",
+      "pid": 58808,
+      "startedAt": "2026-10-25T11:16:03.379Z",
+      "finishedAt": "2026-10-25T11:16:14.415Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "urelease2",
+      "pid": 23952,
+      "startedAt": "2026-10-25T11:16:18.655Z",
+      "finishedAt": "2026-10-25T11:16:31.419Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "udev2",
+      "pid": 68900,
+      "startedAt": "2026-10-25T11:16:35.550Z",
+      "finishedAt": "2026-10-25T11:16:54.175Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "udev3",
+      "pid": 29452,
+      "startedAt": "2026-10-25T11:16:58.382Z",
+      "finishedAt": "2026-10-25T11:17:17.949Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    },
+    {
+      "name": "urelease3",
+      "pid": 35360,
+      "startedAt": "2026-10-25T11:17:22.020Z",
+      "finishedAt": "2026-10-25T11:17:28.743Z",
+      "actualEngineExit": {
+        "code": 0,
+        "signal": null
+      },
+      "turnStarted": 0,
+      "serverRequests": 0
+    }
+  ],
+  "verification": {
+    "basis": "Observed actual terminal command/engine exits, original interrupted-compiler stop evidence, no current owned boundary or recorded still-live engine identity, released cargo lease; not PID absence alone",
+    "originalStopEvidence": {
+      "observedAt": "2026-10-25T09:56:16.4663799Z",
+      "reason": "Memory headroom increased; preserve completed cache and restart same release inputs at jobs3",
+      "driver": {
+        "pid": 63160,
+        "created": "2026-10-25T08:43:58.4342160Z"
+      },
+      "compiler": {
+        "pid": 22316,
+        "parent": 12048,
+        "created": "2026-10-25T09:56:11.3221890Z"
+      },
+      "tree": [
+        {
+          "ProcessId": 63160,
+          "ParentProcessId": 52628,
+          "CreationDate": "/Date(1792917838434)/",
+          "Name": "node.exe"
+        },
+        {
+          "ProcessId": 43384,
+          "ParentProcessId": 63160,
+          "CreationDate": "/Date(1792918017935)/",
+          "Name": "node.exe"
+        },
+        {
+          "ProcessId": 26848,
+          "ParentProcessId": 43384,
+          "CreationDate": "/Date(1792918018023)/",
+          "Name": "rustup.exe"
+        },
+        {
+          "ProcessId": 12048,
+          "ParentProcessId": 26848,
+          "CreationDate": "/Date(1792918018086)/",
+          "Name": "cargo.exe"
+        },
+        {
+          "ProcessId": 22316,
+          "ParentProcessId": 12048,
+          "CreationDate": "/Date(1792922171322)/",
+          "Name": "rustc.exe"
+        }
+      ]
+    },
+    "ownedIdentityMatches": [],
+    "ownedCargoLeasePresent": false,
+    "installedEngineSha256": "8015338b3f3f3f958e8b154d6175d2bce6497d51313e7be6e8e83998fdd7beca",
+    "experimentalBinaryHashes": {
+      "azrael.exe": "2c76d6d7badabe9decd69aac6a57dd3cad6ce84d35b7d37fc196a844fcc59597",
+      "azrael-bridge.exe": "38dc1b404a50c73e870704fabda305aee0ef9fae2eca4d6ca0173368dc1b6a5f",
+      "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+    }
+  }
+}
