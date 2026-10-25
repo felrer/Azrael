@@ -1,6 +1,62 @@
-상태: 구현 및 소스 검증 완료, 산출물 정리 보류 — 개인 파생본은 최초 설치 시 기본 꺼짐, 개인 작업본 삭제가 기본이며 설치본 제거는 별도 선택입니다.
+상태: 추가 스킬 이전·공용 활성 경로 정리 및 이번 검증 fixture 정리 완료 — 개인 원본은 Git·배포 제외, 기존 스킬 포함 상태 유지. 이전 회차 산출물 보류는 아래 별도 기록과 구분합니다.
 
 # 지침 문서 가져오기 오류 분석
+
+## 남은 스킬 이전 승인 및 실행
+
+- 사용자 확정: brainstorming·obsidian-skill-manager 삭제, internal-visualization 이전, liam-mac-mini-ssh 개인용 이전, ktcloud 코드·지침 및 개인 설정·기록을 Azrael로 이전하고 Git에서 제외할 자료를 구분한다. 권고한 Azrael 배포 계약 보완도 승인됐다. 삭제는 기존 논의대로 활성 설치 링크 제거이며 Vault 원본은 보존한다. 실 계정 접속·GitHub 게시·전체 앱 빌드/설치는 포함하지 않는다.
+- 추가 확정: 사용자 승인에 따라 공용 `C:/Users/felre/.agents/skills`의 같은 대상도 함께 정리한다. 앞서 옮긴 core 스킬의 공용 Vault 링크도 Azrael 원본으로 바꾸고 삭제 두 대상은 공용/전용 경로 모두에서 해제한다. 공용 경로의 다른 Codex 환경에 영향을 줄 수 있음을 안내했다. 원본 5개 비교의 파일 동일성은 맞았으나 이전 설치 검증은 공용 Vault 링크 잔존을 누락했으며 이번에 보완한다.
+- 공개 소스: `instructions/skills/internal-visualization`, `instructions/skills/ktcloud-ai-nexus`. 기존 기본 5개와 구분해 선택 설치(default=false)로 추가한다. 개인 SSH 스킬은 `instructions/.private/skills/liam-mac-mini-ssh`, ktcloud 개인 기록은 `instructions/.private/ktcloud-ai-nexus/state`에 둔다. `.private` 전체를 Git과 지침 배포 ZIP·문서 색인·manifest에서 제외한다. 실제 인증 자료는 기존 기기별 저장소에 유지하고 읽거나 복사하지 않는다.
+- root는 공개/개인 디렉터리 경계, 시각화·개인 SSH 복사, 설치 링크/네이티브 최종 검증, 설계·provenance·매핑·통합·커밋을 소유한다. ktcloud 담당은 해당 공개/개인 두 폴더만, 배포 담당은 importer/release builder/관련 package 테스트만 소유한다. 공유 레지스트리 잠금 경합을 피하도록 검증 실행은 root가 조정한다. 플랫폼 의미는 공통이며 현재 실제 이전·회귀는 Windows, SSH·클라우드 실동작과 Linux/macOS 수용은 별도다.
+- ktcloud 문서·코드 원본과 개인 상태 원본을 분리한다. 저장소 실행의 기본 기록은 `.private` 아래이며 배포 설치는 격리된 CODEX_HOME의 `azrael/skills/ktcloud-ai-nexus/state`를 사용한다. 명시적 상태 루트 선택은 절대경로만 허용하고 임의 대체하지 않는다. 기존 계정 선택·권한·SSH 키/프록시/동시성·비밀정보 금지 조건은 유지한다.
+- 검증: 공개 스킬 provenance 및 상대 참조 완전성, 개인 복사본/기록의 원본 해시 일치, Git 무시 여부, 실제 패키지의 private 제외와 제외 경로 매핑 거부, ktcloud 코드/상태 루트 분리와 기존 관련 테스트, native 신규 경로 로딩·포함 상태 보존·삭제 두 스킬 미발견을 확인한다. 확인한 원본 링크 대상으로 복구 가능하며 실제 Vault 문서는 삭제하지 않는다.
+- 이번 검증 생성물의 소유자는 DK-01이며 사전 선택 경계는 `artifacts/tasks/DK-01-instruction-catalog-diagnosis/runs/private-skills-20261025-b1b49cd2/`이다. logs와 reports는 실제 종료코드/요약, temporary는 패키지·코드 검증 fixture만 소유한다. 비어 있는 temporary의 최초 native 등록은 tree entry disappeared로 실패해 payload를 생성하지 않았다. 빈 경계 생성 후 재등록하고 실제 실행 뒤 현재 측정과 참조를 갱신해 정리한다. 사용자 개인 자료와는 별개다.
+- 최초 패키지 회귀 33 통과/0 실패/2 환경 조건 생략, 실제 public-tree 테스트 패키지 88개 파일 생성 성공이다. 실제 생성물 native apply 검증은 깊은 임시 경로의 SQLite 초기화 실패로 중단했다. 별도 strict-config 검증은 통과했다. Windows 경로 길이 영향을 분리하기 위해 같은 소유의 짧은 fixture 경계 `artifacts/tasks/DK-t20261025-a/`를 추가로 사전 선택하며, 기존 긴 경계와 같은 정리 그룹으로 관리한다. 초기 Python313에는 psutil이 없어 기존 설치된 관리형 Python312/psutil6.1.1을 재사용한다. psutil 종료 반환값과 pwsh 전제의 기존 테스트를 실제 종료 검증 및 설치된 Windows PowerShell 선택으로 보완하고 제품 동작은 유지한다.
+
+### 이번 이전의 최종 결과
+
+- 시각화 11개 공개 파일, ktcloud 공개 27개(기존 25개+상태 루트 resolver 및 회귀 테스트)로 총 공개 skill 파일 62개, 구성요소 12개이다. 추가 두 공개 스킬의 기본 설치는 꺼짐이고 기존 5개 core 기본값은 유지한다. 시각화 예제의 개인 절대경로는 일반 예제 경로로 바꿨다. 공개 복사본은 LF로 정규화하고 PowerShell은 UTF8 BOM을 유지하며 원래/현재 해시와 변환 이유를 출처 기록에 보존했다.
+- 개인 SSH 문서 3개와 ktcloud 기존 기록 62개는 원본 해시 일치로 복사했다. ktcloud 개인 경로 기본값은 추가한 private profile.json에 분리했다. `.private`의 Git 추적 파일은 0개이며 개인 SSH와 프로필의 ignore를 확인했다. 인증·쿠키·SSH 키 저장소는 읽거나 옮기지 않았다.
+- 활성화: 사용자 승인된 공용/전용 링크 10개를 Azrael 원본으로 변경하고 brainstorming/obsidian-skill-manager 활성 링크 4개를 제거했다. 실제 Vault 원본은 보존했다. 새 네이티브 프로세스에서 core 5개+이전 3개가 각각 한 번씩 새 경로로 로드됐으며 모두 기존 enabled=true이다. 설정 파일 변경 없이 로딩 오류는 2건에서 0건이 됐다. 현재 앱의 장기 실행 연결은 창 재로드/새 대화 후 적용 상태를 확인한다. 링크 기반 설치에 대한 카탈로그 안내 자체는 별개 정책으로 남는다.
+- 검증 실행은 Windows에서 전체 package 35/35, ktcloud runner 28/28, query guard 12/12, state root 5/5 통과(exit 0)다. 12개 PowerShell 구문과 7개 Python AST도 통과했다. 코드·개인 상태 resolver를 직접 실행하고 전용/공용 활성 경로가 동일한 private 상태를 선택함을 확인했다. Windows의 C:. 같은 드라이브 상대 경로를 절대경로로 오인하지 않도록 보완하고 실제 거부를 검증했다.
+- 실제 source-tree 검증 패키지는 88개 파일/82개 문서/12개 구성요소이며 private 자료가 ZIP·문서 색인·manifest에 포함되지 않았다. 실제 네이티브 격리 apply에서 67개 대상과 재적용 차이 없음까지 검증했다. 마지막 상태 경로 guard 수정 후 최종 byte identity로 다시 생성·검증한 native 2/2도 exit 0이다. 최종 sourceContentSha256은 `571bbdbdb4e6d9b18e580963704109ed5944c6e8dcf6c3a824e0cc1eaf8ff578`이다. 이는 sourceDirty=true인 로컬 검증 패키지이며 게시·앱 빌드·확장 재설치가 아니다.
+- 실패와 재실행: Python313의 psutil 누락은 기존 관리형 Python312를 재사용해 해소했다. runner의 이미 종료된 psutil 프로세스 반환값 판정, query 테스트의 pwsh 고정과 fixture BOM 제거/PowerShell 파싱 오류 은폐를 테스트에서 교정했다. 종료 확인·실제 wrapper 실행·오류코드 검증을 약화하지 않았으며 제품 runner는 변경하지 않았다. query 테스트의 WSL 하위 프로세스 정리 검증은 일반 Linux 데스크톱 수용을 의미하지 않는다. 실제 클라우드/SSH 연결은 수행하지 않았다.
+- 정리: 잠금으로 최초 재등록이 실패했으나 이후 지원 API로 현재 두 fixture 경계를 전체 재등록하고 실행 참조를 해제했다. native review blockers=[] 확인 후 delete 결정을 적용해 `temporary/`와 짧은 `artifacts/tasks/DK-t20261025-a/` 모두 remaining=false, group deleted를 확인했다. 잠금 파일은 변경하지 않았다. 필요 증거 약 45KB의 logs/reports는 `work:DK-01:private-skills-evidence-20261025`로 별도 등록하고 defer를 적용했다. 재검토 조건은 후속 수용 검증이 이 증거를 대체하고 이 문서의 참조를 해제할 때이다. 이전 회차 보존 18개 run 그룹은 이번 삭제 대상이 아니다.
+- 증거 위치: `artifacts/tasks/DK-01-instruction-catalog-diagnosis/runs/private-skills-20261025-b1b49cd2/`의 logs/package-accepted.log, package-verified.log, ktcloud-runner-final.log, ktcloud-query-accepted.log, query-debug.log 및 reports/activation.json, package-accepted-summary.json, package-verified-summary.json. 테스트 패키지·fixture 원본 경로는 위 지원 정리로 제거됐다. 신규 state-root 테스트는 코드/개인 상태 분리의 지속 회귀 계약을 보호하므로 유지한다.
+- 최종 Git 검사에서 새로 가져온 파일 4개의 여분 EOF 빈 줄을 제거했다(기능 변화 없음). 이 바이트 정리 후 별도 새 fixture 세대 `artifacts/tasks/DK-t20261025-b/`에서 실제 패키지/native 2/2(exit 0)를 검증했다. `package-format-final.log`와 `package-format-final-summary.json` 및 `public-release-format-final.json`에 최종 신원을 남기고, 새 세대도 native full registration·review·delete로 remaining=false를 확인했다. 기존 삭제 경계를 재사용하지 않았다. 기능 인벤토리 스키마/소유 파일 참조 검증과 격리된 Git index의 diff-check도 통과했다.
+
+## 남은 개인 스킬의 Azrael 관리 이전 조사
+
+- 범위: `brainstorming`, `internal-visualization`, `ktcloud-ai-nexus`, `liam-mac-mini-ssh`, `obsidian-skill-manager`의 현재 원본·지원 파일과 Azrael 배포 계약을 읽기 전용 조사한다. 파일 복사·원본 수정·게시·클라우드/SSH 접속은 수행하지 않는다. Drive 경로 검증 후 대상 폴더만 확인했다. 세션 기록은 파일 구성과 개수만 확인했으며 내용이나 인증 저장소는 읽지 않았다.
+- `brainstorming`: 현재 48바이트, `name`과 빈 `description`만 있는 frontmatter이며 본문이 없다. 과거 엔진 조회의 description 누락과 별개로 현재도 유효한 스킬 요건을 충족하지 않는다. description만 채워도 실제 작업 지침은 생기지 않는다. 복구할 원본을 찾거나 역할·내용을 정의해야 하며 design-collaboration과 구분이 필요하다.
+- `internal-visualization`: 문서·스크립트·템플릿 등 11개 파일, 상대 Markdown 참조 누락 없음, 확인한 범위에서 Vault 고정 경로 없음. Python, Chromium 및 pdftoppm 외부 실행 환경이 필요하다. DOCENTO 예제에는 사용자 관련 문자열이 있으므로 공개 배포 전에 예제 데이터를 검토한다. 런타임/렌더 동작은 실행 검증하지 않았다. 이전 우선순위가 가장 높다.
+- `ktcloud-ai-nexus`: 문서·코드 25개와 `state/` 기록 62개가 함께 있다. SKILL과 참조는 Vault를 원본으로 강제하고 resolver는 특정 Drive 계정/경로를 고정한다. portable exporter도 그 원본을 다시 참조하므로 Vault 의존 제거 수단으로는 충분하지 않다. 전체 폴더 복사는 개인 세션 이력까지 Git/릴리스에 포함할 수 있다. 일반 지침·코드, 기기별 계정 설정, 개인 세션 기록, 인증 저장소를 분리하고 기존 DPAPI/쿠키 저장 위치와 보안 경계를 유지해야 한다. 기록 검증기는 기본 위치를 스킬 폴더의 state/sessions로 계산하므로 함께 바꿔야 한다. Windows 중심 인증/도구와 제한된 Linux CLI 선택을 공통 플랫폼 지원으로 오인하지 않는다.
+- `liam-mac-mini-ssh`: 문서 3개, Vault 고정 경로는 확인되지 않았다. 특정 Windows SSH 별칭·사용자·Mac 홈 경로·Tailscale 경로를 전제로 한다. 현재 사용자 전용 소스로 가져오기는 가능하지만 공용 배포에는 호스트 프로필을 외부 개인 설정으로 분리하는 설계가 필요하다. 기존 SSH 키와 known-host 설정은 이전 대상이 아니다. 접속을 실행하지 않았다.
+- `obsidian-skill-manager`: 문서·메타데이터 2개. Vault 원본 유지, 누락 스킬의 Vault 검색 강제, .agents/skills 활성화 규칙이 Azrael 원본과 .azrael-ex 설치 방향에 충돌한다. 단순 복사하면 이후 작업을 다시 Vault로 보낸다. Azrael을 기본 조회·관리 대상으로 삼고 기존 skill-creator/skill-installer와 책임을 나누되 Obsidian 검색과 snippet 기능은 명시 요청형 선택 기능으로 보존할 것을 권고한다. 이름 변경 시 기존 참조와 활성화 중복도 처리해야 한다.
+- 공통 통합 문제: import-instructions.py의 ACTIVE_SKILLS는 기존 5개 이름으로 고정되어 있고 구성요소 생성은 전부 default=True이다. 새 폴더만 추가하면 Unexpected skill contract 또는 영수증/매핑 검증 실패가 발생한다. SKILLS-SOURCE.json, 구성요소 매핑, 문서와 검증을 함께 갱신하고 선택 스킬을 기본 설치하지 않는 정책이 필요하다. 지침 배포는 전체 트리를 포장하므로 default=False나 개인 라이브러리 sharing=local만으로 Git/릴리스 내 개인 파일 제외가 보장되지는 않는다. 배포 입력의 명시적 허용 범위와 별도 개인 저장소 경계를 정해야 한다.
+- 5개 원본 폴더에 독립 LICENSE/NOTICE 파일은 발견되지 않았다. 이것이 재배포 권한 부재를 입증하지는 않으며 공개 배포 전 작성 출처·제3자 자료 권한을 확인해야 한다. 전체 비밀정보 감사나 실제 실행 검증을 수행한 결과는 아니다.
+- 권고 순서: 시각화 스킬을 먼저 이전하고, SSH 스킬은 개인 프로필 분리 후 이전한다. ktcloud는 코드와 개인 상태 분리·Vault 역참조 제거 후 이전한다. 관리 스킬은 Azrael 기본 동선과 Obsidian 선택 기능을 재설계한다. brainstorming은 내용을 복구/정의하기 전까지 비활성 자료로 보존하며 기능 스킬로 배포하지 않는다. 공개 배포 여부와 개인 상태 저장 위치는 구현 전에 사용자와 확정한다.
+
+## 동일 내용 스킬 5개 링크 대상 변경
+
+- 사용자 승인: 비교 결과가 동일한 `design-collaboration`, `design-documentation`, `development-workflow`, `implementation`, `project-bootstrap`의 기존 링크를 즉시 Azrael 문서로 변경한다. Windows 사용자 설치 변경에 한정하며 제품 코드·배포·나머지 5개 스킬·Vault 원본은 변경하지 않는다.
+- 대상은 `C:/Users/felre/.azrael-ex/skills/<name>`에서 `C:/Users/felre/Desktop/pi-harness-init/instructions/skills/<name>`으로 연결한다. 원래 대상은 `G:/내 드라이브/ObsidianVault/PARA/00 Agents/shared-skills/<name>`이며 `project-bootstrap`만 `other-skills/<name>`이다.
+- 사전 비교 결과는 본문·지원 파일 총 24개가 바이트 단위로 동일하다. 변경 직전 다시 확인하고 실제 링크임과 대상 경계를 검사한다. 링크 자체만 해제·재생성하고 실패 시 확인된 원래 대상으로 복원한다. 생성물 백업이나 임시 테스트 파일은 만들지 않는다.
+- 검증은 실제 엔진의 변경 전후 대상별 스킬 로딩과 enabled 상태, 5개 링크의 실제 대상·파일 동일성이다. 경로 이동으로 포함 상태가 바뀌면 네이티브 경로별 설정으로 원래 상태를 유지한다. 기존 brainstorming 형식 오류와 전체 링크 안내는 이 변경의 해결 범위가 아니다. 실행 결과는 아래에 기록한다.
+- 실행 결과: Windows에서 5개 Junction을 지정한 Azrael 프로젝트 대상으로 변경했다. 변경 직전 24개 파일 동일성과 기존 enabled=true를 확인했다. 첫 시도는 같은 엔진 연결에서 재조회 시 매칭 항목 2개가 반환되어 exit 1로 중단하고 5개 모두 기존 대상으로 복원했다. 중복의 내부 원인은 확정하지 않았다. 재시도는 변경 후 새 엔진 프로세스로 검증했고 exit 0이다. 각 Azrael `SKILL.md`가 scope=user, enabled=true로 정확히 1건씩 로드됐다. 실제 링크 대상도 모두 일치하며 설정 파일 변경은 없었다. 두 진단 프로세스 모두 종료를 관측했다. Vault 원본과 나머지 링크는 변경하지 않았다. 기존 brainstorming 오류 2건은 남아 있다. 제품 코드는 변경하지 않았으며 현재 앱의 장기 실행 연결에 대해서는 창 재로드 후 확인이 필요하다.
+
+## 개선판 재발 오류 진단
+
+- 요청 범위: 새 화면의 연결 설치 안내와 실제 오류를 구분하고 원인·해결안을 제시한다. 이번 진단은 제품 코드, 설치 상태, Vault 원본을 수정하지 않는다.
+- Windows 설치본 `azrael-ex-local.azrael-2026.0.12`의 runtime manifest가 지정한 엔진으로 `skills/list(cwds=[현재 프로젝트], forceReload=true)`를 조회했다. 정상 스킬 56개와 동일한 `brainstorming/SKILL.md`에 대한 `missing field description` 오류 2건이 반환됐다. 오류 경로는 기존 Vault 원본이다. 동일 오류가 두 건인 이유까지는 확인하지 않았다. 진단 프로세스는 응답 후 종료했다.
+- `InstructionSkillSettings.readList()`는 `errors`가 하나라도 있으면 정상 `skills`까지 폐기하고 일반 오류를 던진다. 화면의 사용 설정 오류는 이 분기와 일치한다. 정확한 파일과 사유가 화면에 전달되지 않아 사용자가 복구할 수 없다. 전환 준비도 같은 `list()`를 호출하므로 이 오류가 전환을 막을 수 있다.
+- 연결 설치 10개 안내는 카탈로그가 기존 링크 폴더를 자동 탐색하지 않고 관리 복사본으로 전환하도록 알리는 별도 상태이다. 10개가 전부 손상됐다는 의미가 아니다. 엔진은 링크를 따라 스킬을 읽으며 카탈로그와 발견 정책이 다르다.
+- 설치본 카탈로그의 읽기 전용 실행은 exit 0으로 105개(스킬 102, 역할 2, 지침 1)와 연결 설치 전환 안내 1건(count 10)을 반환했다. 공식 원본 캐시 부재와 전체 카탈로그 실패는 구분한다. 설치본 `instruction-catalog.cjs`, `instruction-migration.cjs`는 현재 소스와 바이트가 동일하다.
+- 화면의 공식 원본은 검증된 릴리스이다. 현재 사용자 상태에 `azrael/instructions/state.json`과 `versions/`가 모두 없다. 따라서 이 선택에서 공식 원본을 제공할 캐시가 없다. 아래의 일반 프로젝트 선택은 공식 소스 선택과 별개다. 스크린샷은 목록 아래까지 보이지 않으므로 전체 목록이 비었다고 단정하지 않는다.
+- 권고: 네이티브 응답을 정상 스킬과 경로별 오류로 분리하고 오류를 중복 제거해 표시한다. 정상 스킬은 표시·조회하되 변경 대상에 오류나 불확실성이 있으면 그 작업만 차단하고, 쓰기 후 해당 경로의 유효 상태를 재확인한다. 전체 상태 검증을 단순 제거하는 수정은 피한다.
+- 권고: 공식 원본 미설정/캐시 없음 상태를 명시하고 개발 프로젝트 선택 또는 검증 릴리스 가져오기 동작을 바로 제공한다. 자동 네트워크 연결이나 프로젝트 원본 자동 전환은 하지 않는다. 연결 설치 안내는 링크 의미·미전환 목록·다음 동작을 제공하고 공식 항목과 매칭되지 않는 이전 설치도 누락 없이 보여준다.
+- 원본 데이터 수정 대안: Vault의 오류 파일에 유효한 description을 추가하면 해당 파싱 오류는 해소될 수 있지만 이번 요청으로 원본을 수정하지 않는다. Vault 의존 제거 목적에는 Azrael 프로젝트 원본을 명시 선택하고 검토형 전환에서 기존 내용 차이를 보존하는 방식을 우선 권한다. 오류 스킬의 상태가 불명확하면 상태 보존 방식을 검토 없이 임의 결정하지 않는다.
+- 후속 수정 검증: 정상+불량 혼합 응답, 동일 오류 중복, 오류 대상 변경 차단과 정상 대상 변경, 캐시 없는 최초 실행, 프로젝트 원본 명시 선택, 전환 전후 기존 포함 상태와 개인 수정 보존을 Windows에서 확인한다. 공통 코드 수정이며 Linux/macOS 실행은 별도 검증 범위다. 기존 소스 테스트 통과는 실제 사용자 설치 상태의 수용 검증을 대체하지 않는다.
 
 ## 승인된 개편과 실행 기록
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "kt cloud AI Nexus Operations"
+  short_description: "Operate AI Nexus sessions and persistent data"
+  default_prompt: "Use $ktcloud-ai-nexus to safely inspect or operate my kt cloud AI Nexus session."

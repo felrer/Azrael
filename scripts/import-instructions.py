@@ -15,7 +15,8 @@ from urllib.parse import unquote
 SOURCE_URL = "https://github.com/felrer/codex-efficient-subagents"
 IGNORED_DIRS = {".git", "__pycache__", "node_modules"}
 COMPILED = {".pyc", ".pyo"}
-ACTIVE_SKILLS = ["design-collaboration", "design-documentation", "development-workflow", "implementation", "project-bootstrap"]
+OPTIONAL_SKILLS = {"internal-visualization", "ktcloud-ai-nexus"}
+ACTIVE_SKILLS = ["design-collaboration", "design-documentation", "development-workflow", "implementation", "internal-visualization", "ktcloud-ai-nexus", "project-bootstrap"]
 LICENSE = """MIT License
 
 Copyright (c) 2026 felrer
@@ -106,6 +107,14 @@ def inventory(root):
     included, ignored, excluded = [], [], []
     for folder, dirs, files in os.walk(root):
         for name in sorted(dirs[:]):
+            entry = Path(folder) / name
+            if Path(folder) == root and name.lower() == ".private":
+                dirs.remove(name)  # Never inspect or hash private state, including links.
+                continue
+            if entry.is_symlink() or (hasattr(entry, "is_junction") and entry.is_junction()):
+                raise ValueError(f"Unsupported source symlink: {entry.relative_to(root)}")
+            if entry.relative_to(root).as_posix().lower() == "skills/ktcloud-ai-nexus/state":
+                raise ValueError("Personal skill state must be stored under .private")
             if name in IGNORED_DIRS:
                 ignored.append({"path": (Path(folder) / name).relative_to(root).as_posix() + "/",
                                 "reason": "Git metadata" if name == ".git" else "dependency or compiled cache"})
@@ -113,8 +122,12 @@ def inventory(root):
         for name in sorted(files):
             path = Path(folder) / name
             rel = path.relative_to(root).as_posix()
+            if Path(folder) == root and name.lower() == ".private":
+                continue
             if path.is_symlink():
                 raise ValueError(f"Unsupported source symlink: {rel}")
+            if name == ".env" or name.startswith(".env.") or name.lower() in {"auth.json", "credentials.json"}:
+                raise ValueError(f"Private configuration cannot be an instruction asset: {rel}")
             if path.suffix in COMPILED:
                 ignored.append({"path": rel, "reason": "compiled Python cache"})
             elif rel.startswith("azrael/"):
@@ -138,7 +151,7 @@ def components(paths, legacy=False):
     if names != (["designing", "planning", "project-bootstrap"] if legacy else ACTIVE_SKILLS):
         raise ValueError(f"Unexpected skill contract: {names}")
     for name in names:
-        result.append(component("skill-" + name, name, "skill", "home", True,
+        result.append(component("skill-" + name, name, "skill", "home", legacy or name not in OPTIONAL_SKILLS,
                                 [(p, p) for p in paths if p.startswith(f"skills/{name}/")]))
     for name in (["work", "app-logging"] if legacy else ["app-logging"]):
         result.append(component("playbook-" + name, name, "playbook", "workspace", False,
@@ -150,33 +163,60 @@ def components(paths, legacy=False):
     return result
 
 
+def public_path(value):
+    if not isinstance(value, str) or "\\" in value or any(p in {"", ".", ".."} for p in value.split("/")):
+        raise ValueError("Unsafe distribution path")
+    if value.split("/")[0].lower() == ".private":
+        raise ValueError("Private paths cannot be instruction component mappings or inventory entries")
+    return value
+
+
+def validate_public_mappings(environment):
+    for component in environment["components"]:
+        for mapping in component["files"]:
+            public_path(mapping["source"])
+            public_path(mapping["target"])
+
+
+def public_link(root, path, target):
+    candidate = Path(os.path.normpath(path.parent / unquote(target)))
+    relative = os.path.relpath(candidate, root).replace(os.sep, "/")
+    if relative.split("/")[0].lower() == ".private":
+        raise ValueError(f"Public document links to private storage: {path.relative_to(root)}")
+    return candidate
+
+
 def validate(destination, source):
     record = json.loads((destination / "SOURCE.json").read_text(encoding="utf-8"))
     digest = hashlib.sha256(json.dumps(record["files"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     assert digest == record["contentSha256"], "source inventory digest mismatch"
     for entry in record["files"]:
-        data = (destination / entry["path"]).read_bytes()
+        data = (destination / public_path(entry["path"])).read_bytes()
         assert info(data) == {k: entry[k] for k in ["size", "sha256"]}, entry["path"]
-    actual = sorted(p.relative_to(destination).as_posix() for p in destination.rglob("*") if p.is_file() and p.name != "SOURCE.json")
+    actual = [p for p in inventory(destination)[0] if p != "SOURCE.json"]
     assert actual == sorted(e["path"] for e in record["files"]), "unrecorded or missing distribution files"
     paths, ignored, excluded = inventory(source)
     assert paths == sorted(e["source"] for e in record["files"] if "source" in e), "incomplete source coverage"
     assert ignored == record["ignored"] and excluded == record["excluded"], "source exclusions changed"
     for entry in record["files"]:
         if "source" in entry:
-            assert info((source / entry["source"]).read_bytes()) == entry["original"], entry["source"]
+            assert info((source / public_path(entry["source"])).read_bytes()) == entry["original"], entry["source"]
     environment = json.loads((destination / "azrael-environment.json").read_text(encoding="utf-8"))
+    validate_public_mappings(environment)
     assert environment == dict(schemaVersion=1, instructionVersion="1.0.0", minimumAppVersion="0.4.0", components=components(paths, legacy=True))
     for component in environment["components"]:
         for mapping in component["files"]:
             assert (destination / mapping["source"]).is_file(), mapping
     links = 0
-    for path in destination.rglob("*.md"):
+    for relative in actual:
+        path = destination / relative
+        if path.suffix != ".md":
+            continue
         for target in re.findall(r"\[[^\]]*\]\(([^)]+)\)", path.read_text(encoding="utf-8")):
             target = target.strip().strip("<>").split("#", 1)[0]
             if not target or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target):
                 continue
-            assert (path.parent / unquote(target)).exists(), f"Missing reference: {path.relative_to(destination)} -> {target}"
+            assert public_link(destination, path, target).exists(), f"Missing reference: {path.relative_to(destination)} -> {target}"
             links += 1
     print(f"PASS complete inventory: {len(paths)} copied source files, {len(actual) + 1} distribution files, {len(environment['components'])} components, {links} local document links")
     print(f"PASS source HEAD {record['sourceHead']}; content SHA-256 {record['contentSha256']}; {len(excluded)} explicit exclusions; {len(ignored)} ignored entries")
@@ -188,6 +228,7 @@ def validate_maintained(destination):
     if digest != historical["contentSha256"]:
         raise ValueError("Historical source inventory digest mismatch")
     for entry in historical["files"]:
+        public_path(entry["path"])
         if entry["path"].startswith("SOURCE-") or entry["path"] == "LICENSE":
             if info((destination / entry["path"]).read_bytes()) != {k: entry[k] for k in ["size", "sha256"]}:
                 raise ValueError(f"Historical source document changed: {entry['path']}")
@@ -200,9 +241,10 @@ def validate_maintained(destination):
     if len(recorded_paths) != len(set(recorded_paths)) or sorted(recorded_paths) != skill_paths:
         raise ValueError("Incomplete installed-skill inventory")
     for entry in receipt["files"]:
-        if info((destination / entry["path"]).read_bytes()) != {k: entry[k] for k in ["size", "sha256"]}:
+        if info((destination / public_path(entry["path"])).read_bytes()) != {k: entry[k] for k in ["size", "sha256"]}:
             raise ValueError(f"Installed-skill bytes changed: {entry['path']}")
     environment = json.loads((destination / "azrael-environment.json").read_text(encoding="utf-8"))
+    validate_public_mappings(environment)
     expected = {c["id"]: c for c in components(paths)}
     actual = {c["id"]: c for c in environment["components"]}
     if len(actual) != len(environment["components"]) or actual != expected:
@@ -212,14 +254,17 @@ def validate_maintained(destination):
             if mapping["source"] not in paths:
                 raise ValueError(f"Missing component source: {mapping['source']}")
     links = 0
-    for path in destination.rglob("*.md"):
+    for relative in paths:
+        path = destination / relative
+        if path.suffix != ".md":
+            continue
         if path.name.startswith("SOURCE-"):
             continue  # Preserved historical documents describe the original imported layout.
         for target in re.findall(r"\[[^\]]*\]\(([^)]+)\)", path.read_text(encoding="utf-8")):
             target = target.strip().strip("<>").split("#", 1)[0]
             if not target or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target):
                 continue
-            if not (path.parent / unquote(target)).exists():
+            if not public_link(destination, path, target).exists():
                 raise ValueError(f"Missing reference: {path.relative_to(destination)} -> {target}")
             links += 1
     print(f"PASS maintained library: {len(skill_paths)} skill files, {len(actual)} components, {links} local document links; historical provenance digest retained")
@@ -249,9 +294,9 @@ def main():
             raise ValueError("Refusing to overwrite unowned destination")
         old = json.loads(record_path.read_text(encoding="utf-8"))
         for entry in old["files"]:
-            if info((destination / entry["path"]).read_bytes()) != {k: entry[k] for k in ["size", "sha256"]}:
+            if info((destination / public_path(entry["path"])).read_bytes()) != {k: entry[k] for k in ["size", "sha256"]}:
                 raise ValueError(f"Locally edited destination: {entry['path']}")
-        if set(p.relative_to(destination).as_posix() for p in destination.rglob("*") if p.is_file()) != {"SOURCE.json", *(e["path"] for e in old["files"])}:
+        if set(inventory(destination)[0]) != {"SOURCE.json", *(e["path"] for e in old["files"])}:
             raise ValueError("Unmanaged destination files present")
     paths, ignored, excluded = inventory(source)
     outputs, entries = {}, []

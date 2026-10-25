@@ -43,35 +43,6 @@
       ]
     },
     {
-      "id": "skill-development-workflow",
-      "title": "development-workflow",
-      "kind": "skill",
-      "scope": "home",
-      "default": true,
-      "files": [
-        {
-          "source": "skills/development-workflow/SKILL.md",
-          "target": "skills/development-workflow/SKILL.md"
-        },
-        {
-          "source": "skills/development-workflow/references/task-artifacts.md",
-          "target": "skills/development-workflow/references/task-artifacts.md"
-        },
-        {
-          "source": "skills/development-workflow/scripts/new_task_plan.py",
-          "target": "skills/development-workflow/scripts/new_task_plan.py"
-        },
-        {
-          "source": "skills/development-workflow/scripts/tests/test_work_artifacts.py",
-          "target": "skills/development-workflow/scripts/tests/test_work_artifacts.py"
-        },
-        {
-          "source": "skills/development-workflow/scripts/work_artifacts.py",
-          "target": "skills/development-workflow/scripts/work_artifacts.py"
-        }
-      ]
-    },
-    {
       "id": "skill-design-collaboration",
       "title": "design-collaboration",
       "kind": "skill",
@@ -98,6 +69,35 @@
         {
           "source": "skills/design-documentation/SKILL.md",
           "target": "skills/design-documentation/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": "skill-development-workflow",
+      "title": "development-workflow",
+      "kind": "skill",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "skills/development-workflow/SKILL.md",
+          "target": "skills/development-workflow/SKILL.md"
+        },
+        {
+          "source": "skills/development-workflow/references/task-artifacts.md",
+          "target": "skills/development-workflow/references/task-artifacts.md"
+        },
+        {
+          "source": "skills/development-workflow/scripts/new_task_plan.py",
+          "target": "skills/development-workflow/scripts/new_task_plan.py"
+        },
+        {
+          "source": "skills/development-workflow/scripts/tests/test_work_artifacts.py",
+          "target": "skills/development-workflow/scripts/tests/test_work_artifacts.py"
+        },
+        {
+          "source": "skills/development-workflow/scripts/work_artifacts.py",
+          "target": "skills/development-workflow/scripts/work_artifacts.py"
         }
       ]
     },
@@ -131,6 +131,176 @@
         {
           "source": "skills/implementation/references/worktrees.md",
           "target": "skills/implementation/references/worktrees.md"
+        }
+      ]
+    },
+    {
+      "id": "skill-internal-visualization",
+      "title": "internal-visualization",
+      "kind": "skill",
+      "scope": "home",
+      "default": false,
+      "files": [
+        {
+          "source": "skills/internal-visualization/SKILL.md",
+          "target": "skills/internal-visualization/SKILL.md"
+        },
+        {
+          "source": "skills/internal-visualization/agents/openai.yaml",
+          "target": "skills/internal-visualization/agents/openai.yaml"
+        },
+        {
+          "source": "skills/internal-visualization/assets/docento-benchmark/example-report.json",
+          "target": "skills/internal-visualization/assets/docento-benchmark/example-report.json"
+        },
+        {
+          "source": "skills/internal-visualization/assets/docento-benchmark/template.html",
+          "target": "skills/internal-visualization/assets/docento-benchmark/template.html"
+        },
+        {
+          "source": "skills/internal-visualization/references/charts.md",
+          "target": "skills/internal-visualization/references/charts.md"
+        },
+        {
+          "source": "skills/internal-visualization/references/docento-benchmark.md",
+          "target": "skills/internal-visualization/references/docento-benchmark.md"
+        },
+        {
+          "source": "skills/internal-visualization/references/specialized-visuals.md",
+          "target": "skills/internal-visualization/references/specialized-visuals.md"
+        },
+        {
+          "source": "skills/internal-visualization/references/standalone-html.md",
+          "target": "skills/internal-visualization/references/standalone-html.md"
+        },
+        {
+          "source": "skills/internal-visualization/references/visual-design.md",
+          "target": "skills/internal-visualization/references/visual-design.md"
+        },
+        {
+          "source": "skills/internal-visualization/scripts/render_docento_benchmark.py",
+          "target": "skills/internal-visualization/scripts/render_docento_benchmark.py"
+        },
+        {
+          "source": "skills/internal-visualization/scripts/render_html_preview.py",
+          "target": "skills/internal-visualization/scripts/render_html_preview.py"
+        }
+      ]
+    },
+    {
+      "id": "skill-ktcloud-ai-nexus",
+      "title": "ktcloud-ai-nexus",
+      "kind": "skill",
+      "scope": "home",
+      "default": false,
+      "files": [
+        {
+          "source": "skills/ktcloud-ai-nexus/SKILL.md",
+          "target": "skills/ktcloud-ai-nexus/SKILL.md"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/agents/openai.yaml",
+          "target": "skills/ktcloud-ai-nexus/agents/openai.yaml"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/references/README.md",
+          "target": "skills/ktcloud-ai-nexus/references/README.md"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/references/data_folder_speed_reference.md",
+          "target": "skills/ktcloud-ai-nexus/references/data_folder_speed_reference.md"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/references/data_folder_usage_guide.md",
+          "target": "skills/ktcloud-ai-nexus/references/data_folder_usage_guide.md"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/references/ktcloud_CLI_자동로그인_지침.md",
+          "target": "skills/ktcloud-ai-nexus/references/ktcloud_CLI_자동로그인_지침.md"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/references/세션_생성_지침.md",
+          "target": "skills/ktcloud-ai-nexus/references/세션_생성_지침.md"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/export_portable_skill.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/export_portable_skill.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/install_backendai_v2_runtime.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/install_backendai_v2_runtime.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/install_backendai_windows_runtime.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/install_backendai_windows_runtime.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_login.py",
+          "target": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_login.py"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_query_guard.py",
+          "target": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_query_guard.py"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_runner.py",
+          "target": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_runner.py"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/ktcloud_login.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/ktcloud_login.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/ktcloud_query.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/ktcloud_query.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/resolve_backendai_windows_python.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/resolve_backendai_windows_python.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/resolve_canonical_root.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/resolve_canonical_root.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/resolve_state_root.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/resolve_state_root.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_query_guard.py",
+          "target": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_query_guard.py"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runner.py",
+          "target": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runner.py"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runtime.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runtime.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_login_runtime.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_login_runtime.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_query.ps1",
+          "target": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_query.ps1"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/test_state_roots.py",
+          "target": "skills/ktcloud-ai-nexus/scripts/test_state_roots.py"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/validate_session_records.py",
+          "target": "skills/ktcloud-ai-nexus/scripts/validate_session_records.py"
+        },
+        {
+          "source": "skills/ktcloud-ai-nexus/scripts/windows-login-requirements-25.5.2.txt",
+          "target": "skills/ktcloud-ai-nexus/scripts/windows-login-requirements-25.5.2.txt"
         }
       ]
     },

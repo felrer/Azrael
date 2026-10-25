@@ -81,6 +81,10 @@ test("instruction release ownership preserves CLI paths, failures and caller-own
   const source=path.join(projectRoot,"source");await fs.mkdir(source);
   await fs.writeFile(path.join(source,"azrael-environment.json"),JSON.stringify({schemaVersion:1,instructionVersion:"1.0.0",minimumAppVersion:"0.4.0",components:[{id:"example",files:[{source:"example.md",target:"example.md"}]}]}));
   await fs.writeFile(path.join(source,"example.md"),"small release fixture\n");
+  const privateRoot=path.join(source,".private");await fs.mkdir(privateRoot);
+  await fs.writeFile(path.join(privateRoot,"credentials.json"),"PRIVATE-SECRET");
+  await fs.writeFile(path.join(privateRoot,".env"),"PRIVATE-ENV");
+  await fs.writeFile(path.join(privateRoot,"private.md"),"PRIVATE-DOCUMENT [invalid](missing.md)");
   const options={source,allowDirty:true,sourceCommit:"a".repeat(40)},record=lifecycle.recordLifecycle,pending=[];
   lifecycle.recordLifecycle=(root,request)=>{
     if(root===projectRoot && request.state==="pending") {
@@ -93,6 +97,34 @@ test("instruction release ownership preserves CLI paths, failures and caller-own
     const automatic=await buildCliRelease(options,{projectRoot});
     assert.match(automatic.archive,/artifacts[\\/]tasks[\\/]instruction-release[\\/]runs[\\/][^\\/]+[\\/]outputs[\\/]release[\\/]/);
     assert.equal(JSON.parse(await fs.readFile(automatic.manifest,"utf8")).files.length,2);
+    const releaseManifest=JSON.parse(await fs.readFile(automatic.manifest,"utf8"));
+    const releaseDocuments=JSON.parse(await fs.readFile(automatic.documents,"utf8"));
+    assert(releaseManifest.files.every(file=>!file.path.startsWith(".private/")));
+    assert(releaseManifest.documents.every(file=>!file.path.startsWith(".private/")));
+    assert(!JSON.stringify(releaseDocuments).includes("PRIVATE-"));
+    const yauzl=require(require.resolve("yauzl",{paths:[path.join(__dirname,"../../extensions/azrael-ex")]}));
+    const archivePaths=await new Promise((resolve,reject)=>yauzl.open(automatic.archive,{lazyEntries:true},(error,archive)=>{
+      if(error)return reject(error);const names=[];archive.on("entry",entry=>{names.push(entry.fileName);archive.readEntry();});archive.on("end",()=>resolve(names));archive.on("error",reject);archive.readEntry();
+    }));
+    assert.deepEqual(archivePaths.sort(),["azrael-environment.json","example.md"]);
+    const originalRead=sync.readFileSync;sync.readFileSync=(file,...args)=>{
+      if(typeof file==="string" && path.relative(privateRoot,file).split(path.sep)[0]!==".." && !path.isAbsolute(path.relative(privateRoot,file)))throw new Error("Private contents were read");
+      return originalRead(file,...args);
+    };
+    try{assert.equal(require("../build-instruction-release.cjs").enumerate(source).length,2);}finally{sync.readFileSync=originalRead;}
+    const cp=require("node:child_process"),python=process.env.AZRAEL_PYTHON || "python";
+    const check=cp.spawnSync(python,["-B","-c",`import importlib.util,json,sys\nspec=importlib.util.spec_from_file_location('instruction_import',sys.argv[1]);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nfrom pathlib import Path\npaths,ignored,excluded=m.inventory(Path(sys.argv[2]));assert paths==['azrael-environment.json','example.md'];assert not ignored and not excluded\ncs=m.components(['skills/'+name+'/SKILL.md' for name in m.ACTIVE_SKILLS]);skills=[c for c in cs if c['kind']=='skill'];assert len(skills)==7;assert {c['title'] for c in skills if not c['default']}=={'internal-visualization','ktcloud-ai-nexus'}\nassert len([c for c in m.components(['skills/'+name+'/SKILL.md' for name in ['designing','planning','project-bootstrap']],legacy=True) if c['kind']=='skill' and c['default']])==3\ntry:m.validate_public_mappings({'components':[{'files':[{'source':'.private/private.md','target':'skills/private.md'}]}]})\nexcept ValueError:pass\nelse:raise AssertionError('private mapping accepted')`,path.resolve(__dirname,"../import-instructions.py"),source],{encoding:"utf8"});
+    assert.equal(check.status,0,check.stderr || check.stdout);
+    const metadataFile=path.join(source,"azrael-environment.json"),metadata=await fs.readFile(metadataFile,"utf8");
+    for(const mapping of [{source:".private/private.md",target:"example.md"},{source:"example.md",target:".private/private.md"}]){
+      const changed=JSON.parse(metadata);changed.components[0].files=[mapping];await fs.writeFile(metadataFile,JSON.stringify(changed));
+      await assert.rejects(buildRelease({...options,output:path.join(projectRoot,"private-mapping-output")}),/Private paths/);
+    }
+    await fs.writeFile(metadataFile,metadata);
+    for(const filename of ["auth.json","credentials.json",".env"]){
+      const rejected=path.join(source,filename);await fs.writeFile(rejected,"must not publish");
+      await assert.rejects(buildRelease({...options,output:path.join(projectRoot,"credential-output")}),/Credential files|Environment files/);await fs.unlink(rejected);
+    }
     const explicit=path.join(projectRoot,"artifacts/selected-release"),result=await buildCliRelease({...options,output:explicit},{projectRoot});
     assert.equal(path.dirname(result.archive),explicit);
     let records=lifecycle.catalog(projectRoot);assert.equal(records.length,2);assert(records.every(group=>group.state==="complete" && group.membership_complete));assert.equal(pending.length,2);

@@ -13,7 +13,8 @@ Existing unmanaged or edited files require conflict resolution before applicatio
 | --- | --- | --- | --- |
 | Global instructions | `instructions/AGENTS.snippet.md` | `CODEX_HOME/AGENTS.md` | Yes |
 | Agent roles | `agents/*.toml` | `CODEX_HOME/agents/*.toml` | Yes |
-| Five skills | Entire named `skills/` directories | `CODEX_HOME/skills/` | Yes |
+| Five core skills | Entire named core `skills/` directories | `CODEX_HOME/skills/` | Yes |
+| Visualization and ktcloud skills | Their named `skills/` directories | `CODEX_HOME/skills/` | No |
 | Agent configuration | `config.example.toml` | Allowed keys in `CODEX_HOME/config.toml` `[agents]` | Yes |
 | App logging | Bootstrap playbook asset | Workspace `docs/playbooks/app-logging.md` | No |
 
@@ -30,6 +31,8 @@ distribution metadata are packaged for provenance, never installed as components
 | [design-documentation](skills/design-documentation/SKILL.md) | Agreed design in its owning documents |
 | [implementation](skills/implementation/SKILL.md) | Execute the agreed plan and authority through implementation, verification and cleanup |
 | [project-bootstrap](skills/project-bootstrap/SKILL.md) | Project documentation entry points, skill routing and app logging guidance |
+| [internal-visualization](skills/internal-visualization/SKILL.md) | Standalone analytical charts, interactive reports and local exports (optional) |
+| [ktcloud-ai-nexus](skills/ktcloud-ai-nexus/SKILL.md) | Account-scoped cloud session operations and separate private records (optional) |
 
 Use these responsibilities as needed within the same work. Keep existing project
 Work guidance as local constraints; common execution rules belong to `implementation`.
@@ -54,8 +57,8 @@ these working-tree bytes. [SOURCE-README.md](SOURCE-README.md) retains upstream
 guidance; [SOURCE-CHANGELOG.md](SOURCE-CHANGELOG.md) retains upstream history.
 The current instruction release history is [CHANGELOG.md](CHANGELOG.md).
 
-The five skill directories are maintained copies of the active installed Azrael
-skills. [SKILLS-SOURCE.json](SKILLS-SOURCE.json) records their source-relative paths,
+The seven public skill directories are maintained Azrael sources.
+[SKILLS-SOURCE.json](SKILLS-SOURCE.json) records their source-relative paths,
 original and copied hashes, sibling-link adaptation and LF normalization for distribution.
 `SOURCE.json` and `SOURCE-*` documents retain the original historical import record;
 their paths and guidance describe that import rather than the current skill layout.
@@ -67,6 +70,28 @@ points to upstream; its app installer command examples are historical guidance.
 No personal Vault files or personal absolute paths are required. Generic sample
 paths in the source documentation remain examples. Original notices are preserved;
 the user's instruction library is distributed under [MIT](LICENSE).
+
+## Local-only skills and operational records
+
+`instructions/.private/` is a checkout-local personal area. Git tracking, the
+instruction release archive, its document index and its manifest exclude this
+entire directory. Personal data must not be placed in public `skills/` trees:
+an optional component or an unchecked install option does not make its files
+private. Existing tracked files must never be moved into this area as a substitute
+for removing their publication history.
+
+The current personal SSH skill lives at `.private/skills/liam-mac-mini-ssh` and is
+activated only in this user's local installation. It is not a public component.
+ktcloud source and scripts live in `skills/ktcloud-ai-nexus`; local session records
+live separately in `.private/ktcloud-ai-nexus/state`. Distributed installations use
+the isolated Azrael state directory described by that skill. Credential and login
+stores remain machine-local and are not copied into either source tree.
+
+The retired `brainstorming` placeholder and `obsidian-skill-manager` are not
+distributed skills. Removing their activation links does not delete archived
+Vault originals. Skill authoring and GitHub acquisition use the available
+`skill-creator` and `skill-installer` workflows; Azrael's instruction settings own
+resource browsing and installation.
 
 Validate the maintained library without accessing a personal installation:
 
