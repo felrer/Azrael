@@ -89,6 +89,36 @@ test("production transformation composes history/flags/query modules and binds a
     assert.ok(Object.hasOwn(namespace.getAssetTransformRules(asset),'inject-recent-chat-filter.cjs'));
   }
 });
+
+test("native history trigger shares its feed and forwards host changes without another subscription",async()=>{
+  const transformed=injectRecentChatFilter(original,ASSET).text;
+  const ast=ts.createSourceFile(ASSET,transformed,99,true,1);
+  const owner=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==="On");
+  const cache=Array(65).fill(Symbol.for("react.memo_cache_sentinel"));
+  const rows=[{id:"local-thread"}],cloud={data:[]},intl={formatMessage:()=>"History"};
+  let calls=0,feed={data:rows,loadAll:async()=>rows,resolveSearchRows:rows=>rows};
+  const jsx=(type,props)=>({type,props});
+  const context={jn:{c:()=>cache},i:()=>intl,se:()=>({authMethod:"chatgpt"}),p:()=>({pathname:"/"}),l:()=>false,Nn:{},
+    z:()=>{calls++;return feed},mt:()=>false,Mn:{useState:()=>[false,()=>{}],useEffect:()=>{}},Ve:f=>f,te:()=>cloud,
+    An:()=>true,un:()=>true,kn:()=>true,nt:()=>false,Q:{jsx,jsxs:jsx,Fragment:"fragment"},o:"message",u:()=>"",
+    tt:"chevron",ne:"progress",ae:"icon",St:{},M:"tooltip",ee:"button",vn:"history-menu",le:"popup"};
+  const trigger=vm.runInNewContext(`(${owner.getText(ast)})`,context),props={};
+  const first=trigger(props).props.children;
+  assert.equal(first.props.localConversations,rows);assert.equal(first.props.historyQuery,feed);assert.equal(calls,1);
+  // A new host/scope callback must invalidate the compiler cache even when the
+  // cached row array has not changed yet.
+  feed={...feed,loadAll:async()=>[{id:"other-host"}]};
+  const second=trigger(props).props.children;
+  assert.notEqual(second,first);assert.equal(second.props.historyQuery,feed);assert.equal(calls,2);
+  assert.deepEqual(await second.props.historyQuery.loadAll(),[{id:"other-host"}]);
+  // Execute the injected search hook with the shared feed. Any accidental z()
+  // subscription fails immediately, including while the search text is empty.
+  const effects=[];
+  const searchContext={z:()=>{throw Error("duplicate history subscription")},wn:{useRef:value=>({current:value}),useState:()=>[null,()=>{}],useEffect:f=>effects.push(f)}};
+  const search=vm.runInNewContext(`(${require('./inject-recent-chat-filter.cjs').SEARCH_HELPER})`,searchContext);
+  assert.equal(search("",feed).active,false);effects.pop()();
+  assert.equal(search("match",feed).active,true);
+});
 test("latest native recent menu callback preserves merged order and persisted environment",()=>{
   const result=injectRecentChatFilter(original,ASSET);assert.equal(result.count,1);assert.equal(injectRecentChatFilter(result.text,ASSET).count,0);
   assert.equal(ts.createSourceFile(ASSET,result.text,99,true,1).parseDiagnostics.length,0);

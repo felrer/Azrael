@@ -24,8 +24,8 @@ const HELPER = "function azraelRecentChatTasks(tasks,conversations){It();let fil
 
 // Keep query completion separate from the text so typing does not restart the scan.
 // Cancellation only detaches this menu; the native store still owns shared refreshes.
-const SEARCH_HELPER = `function azraelHistorySearch(query){
- const {loadAll,resolveSearchRows}=z(),active=query.trim().length>0;
+const SEARCH_HELPER = `function azraelHistorySearch(query,feed){
+ const {loadAll,resolveSearchRows}=feed,active=query.trim().length>0;
  const session=(0,wn.useRef)({active:false});if(session.current.active!==active)session.current={active};const token=session.current;
  const [attempt,retry]=(0,wn.useState)(0),[state,setState]=(0,wn.useState)(null);
  (0,wn.useEffect)(()=>{if(!active)return;let disposed=false;setState({loadAll,attempt,token,status:"loading"});
@@ -34,6 +34,15 @@ const SEARCH_HELPER = `function azraelHistorySearch(query){
  const current=active&&state?.loadAll===loadAll&&state?.attempt===attempt&&state?.token===token;
  return {active,status:current?state.status:"loading",rows:current&&state.rows?resolveSearchRows(state.rows):null,retry:()=>retry(n=>n+1)}
 }`;
+// The trigger already subscribes to recent history. Share that feed with its
+// menu instead of mounting a second native registry/query subscription.
+const FEED_REPLACEMENTS = [
+  ["function On(e){let t=(0,jn.c)(64)", "function On(e){let t=(0,jn.c)(65)"],
+  ["m=l(Nn),{data:h}=z(),g=mt()", "m=l(Nn),azraelHistoryFeed=z(),{data:h}=azraelHistoryFeed,g=mt()"],
+  ["t[57]!==s||t[58]!==ue?", "t[57]!==s||t[58]!==ue||t[64]!==azraelHistoryFeed.loadAll?"],
+  ["cloudtasksQuery:S,localConversations:ue,onClose:b", "cloudtasksQuery:S,localConversations:ue,historyQuery:azraelHistoryFeed,onClose:b"],
+  ["t[58]=ue,t[59]=q):q=t[59]", "t[58]=ue,t[59]=q,t[64]=azraelHistoryFeed.loadAll):q=t[59]"],
+];
 const QUERY_BEFORE = "function Uva(){let e=(0,Yva.c)(12),t=Vva(),n=Kva(`recent-conversations`,Wva),r;";
 const QUERY_AFTER = "function Uva(){let azraelScope=Ou($),{enabledRemoteHostIdSet:azraelHosts}=gGe(),e=(0,Yva.c)(12),t=Vva(),azraelLoadAll=(0,Xva.useCallback)(()=>Promise.all(jva(azraelScope,t).map(manager=>Px(azraelScope,manager.getHostId()).refreshRecentConversations({mode:`azrael-search`,sortKey:R3e(Qg)}))).then(()=>Fva({appServerRegistry:t,enabledRemoteHostIds:azraelHosts,sortKey:Qg})),[azraelScope,t,azraelHosts]),n=Kva(`recent-conversations`,Wva),r;";
 // The native memo cache does not include the new callback; attach it outside it.
@@ -114,10 +123,11 @@ function injectRecentChatFilter(text, asset) {
   }
   if (asset !== ASSET) return { text, count: 0 };
   const count = value => text.split(value).length - 1;
-  if (count(MARKER) === 1 && count(PATCHED) === 1 && count(HELPER) === 1 && count(SEARCH_HELPER) === 1 && count(MENU_SECTION_AFTER) === 1 && count(ORIGINAL) === 0) return { text, count: 0 };
+  if (count(MARKER) === 1 && count(PATCHED) === 1 && count(HELPER) === 1 && count(SEARCH_HELPER) === 1 && count(MENU_SECTION_AFTER) === 1 && count(ORIGINAL) === 0 && FEED_REPLACEMENTS.every(([before,after])=>count(before)===0&&count(after)===1)) return { text, count: 0 };
   if (count(MARKER) || count(ORIGINAL) !== 1 || count(PATCHED) || count(HELPER)) throw new Error("Recent chat filter anchor changed or damaged");
   text = replaceOnce(text, ORIGINAL, PATCHED);
-  text = replaceOnce(text, "let T=w,E;t[4]===C", "let [azraelQuery,azraelSetQuery]=(0,wn.useState)(``),azraelSearch=azraelHistorySearch(azraelQuery);if(azraelSearch.active&&azraelSearch.status===`ready`)r=azraelSearch.rows;let T=w,E;t[4]===C");
+  for (const [before,after] of FEED_REPLACEMENTS) text = replaceOnce(text,before,after);
+  text = replaceOnce(text, "let T=w,E;t[4]===C", "let [azraelQuery,azraelSetQuery]=(0,wn.useState)(``),azraelSearch=azraelHistorySearch(azraelQuery,e.historyQuery);if(azraelSearch.active&&azraelSearch.status===`ready`)r=azraelSearch.rows;let T=w,E;t[4]===C");
   text = replaceOnce(text, "[k,A]=(0,wn.useState)(``)", "[k,A]=[azraelQuery,azraelSetQuery]");
   // Recompute the section when async search status changes, independently of
   // the compiler's original cache (which only knows the old row dependencies).

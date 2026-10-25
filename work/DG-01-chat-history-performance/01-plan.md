@@ -1,6 +1,25 @@
-상태: 구현, Windows 소스·화면 검증과 임시 산출물 정리 완료. 이번 작업만 로컬 커밋하며 빌드·설치는 별도 범위다.
+상태: 추가 최적화 구현, Windows 소스 21개·화면 155개 검증과 임시 산출물 정리 완료. 이번 변경만 로컬 커밋하며 빌드·설치는 별도 범위다.
 
 # 채팅 기록 목록 성능 개선
+
+## 추가 최적화 — 2026-10-25
+
+- 사용자가 최신 설치본에서 속도 개선을 확인했으며 더 빠른 첫 표시를 요청했다. 설치본의 정확한 버전과 click→paint 수치는 독립적으로 확인하지 않았다.
+- 기존 50개 페이지·일반 200개 범위·스크롤 없는 후속 조회·전체 메타데이터 검색·native 필터/키보드 동작은 보존한다. 공통 UI 변경으로 Windows x64, Linux x64, macOS ARM64에 적용하며 실제 실행 검증은 Windows에서 한다. 빌드·설치·배포는 이번 범위에 포함하지 않는다.
+- 재사용 조사: native On 트리거가 이미 z() recent-history feed를 구독하지만 주입한 검색 훅도 별도로 z()를 호출한다. 트리거 feed를 vn 메뉴에 전달하여 중복 registry/query 구독을 제거한다. native 컴파일러 메모에 loadAll 의존성을 추가해 행 배열이 같아도 host/scope 변경을 전달한다. 새 라이브러리는 필요하지 않다.
+- root 소유: injector, 해당 동작 회귀 테스트, owning UI 문서, 본 기록. history_render 소유: 기존 renderer의 임시 성능 비교 모드와 최종 native light/dark 검증. 렌더러에 전달하는 historyQuery 계약은 동일하다. 실행 중인 입력은 고정한다.
+- 행 렌더링 비용 후보는 50행(진단용), 200행, 200행+CSS content-visibility 비교로 평가한다. 목록 범위를 50으로 축소하지 않는다. CSS 후보는 성능·키보드·스크롤 근거를 얻기 전 제품에 적용하지 않는다.
+- 첫 벤치마크는 공유 catalog.lock 점유로 등록 전에 exit 1; 브라우저와 산출물은 생성되지 않았다. 잠금은 제거/우회하지 않았다. 중복 구독 변경과 테스트 준비는 독립적으로 진행하며 실행 검증은 정상 해제 후 재개한다.
+- 사용자는 다른 작업이 실행 중이라고 확인했다. 첫 대기 감시의 결과 전달은 실행 환경의 btoa 미지원으로 실패했으며, 이후 직접 확인에서도 잠금이 존재했다. 이 감시 실패를 잠금 해제나 테스트 성공으로 취급하지 않는다. Node 감시 프로세스가 직접 종료 신호를 쓰는 방식으로 대기를 재개한다.
+- 완료 조건: source 동작 회귀, pinned native React/CSS light/dark 상호작용, 성능 측정의 한계와 결과 기록, 산출물 정리 및 이번 변경만 로컬 커밋. 실제 설치본 가속 배수는 측정 없이 주장하지 않는다.
+- 소스 회귀 21개 통과(exit 0), UTC 07:09:16.224~07:11:06.078, 109.854초. 결과: artifacts/tasks/DG-01-chat-history-performance/runs/2026-10-25T07-09-16-192Z-9d488d2c-0f60-4d91-87e8-7a44d3cba805/reports/results.json. 변경된 runner의 fixture 사전검사 계약(files)이 누락된 첫 호출은 산출물 생성 전 TypeError로 종료됐고, 동일 bundle의 files를 제공해 재실행했다.
+- 행 렌더링 비교는 theme별 8회 준비 후 30표본을 교차 수집했다. double-rAF paint 기회 proxy 중앙값/p95(ms): light 50행 89.8/105.8, 200행 334.5/389.5, 200행+CV 313.4/341.2; dark 50행 91.7/107.4, 200행 334.2/404.8, 200행+CV 319.7/399.7. DOM은 50행 1,070개, 200행 4,220개이며 CV도 4,220개다. native 팝업 배치·설치 bridge/IPC·조회 구독 비용은 측정 범위 밖이다. 첫 rAF 시각 뒤 강제 geometry 계산이 있어 이 시각을 실제 첫 paint로 해석하지 않는다.
+- timing run의 마지막 행 focus 진단은 CV에서 실패(exit 1). timing 재수집 없이 진단만 재실행해 양테마 baseline 50/200은 focus 후 visible=true, CV 200은 focus됐으나 visible=false이며 explicit scrollIntoView 후에만 보이는 것을 확인했다(exit 0). 따라서 CV CSS는 제품에 적용하지 않는다. 사용자 설치본의 개선 배수나 공유 feed 변경의 독립 가속 수치는 이 비교로 확정하지 않는다.
+- normal 화면 검증의 최초 실패는 concurrent waiting UI가 static blue로 바뀌었지만 fixture가 회전을 기대했기 때문이다. owning injector와 verify-team-ui-render의 최신 계약에 맞춰 해당 기대만 수정한다. 두 공유 잠금(native maintenance.lock과 producer catalog.lock)은 등록/정리 시 다시 점유돼 실패한 시도가 있으며 기존 잠금은 그대로 보존했다.
+- 임시 benchmark/replay 제거 후 최종 normal155는 exit 0, 약 34.2초. 제품 입력 SHA256 192f306dee1e137ee3fc7c0c0e4801ba0103b2c38f3925aff5b558bcf8308946으로 timing/진단과 동일하다. 담당자가 light/dark 검색 loading/ready/error 및 waiting screenshot 8개를 직접 확인했고 브라우저 exit0, processIds[]와 producerStopped를 확인했다. 공유 feed·host callback 전달 회귀 테스트는 지속 계약 보호용으로 유지한다.
+- 독립 검증 자료는 artifacts/tasks/DG-01-chat-history-performance/runs/20261025T071825635Z-88a6cccc-52c2-4d76-9630-01aaa6e8f0ab 에 source 결과/로그, 5개 renderer run의 summary/producer, 최종·진단 screenshot을 보존했다. source 결과의 현재 경로는 reports/source-results.json이다. 원본 browser profile은 이 자료에 포함하지 않았다. native 등록이 다른 작업의 잠금으로 여러 번 거절돼 대기했고 정상 해제 후 같은 경로로 재개했다.
+- 정리 결과: native register→registered review→명시적 apply를 거쳐 원본 source 1개·renderer 5개 묶음 285,187,118 logical bytes를 삭제했다. 6개 모두 status=deleted, remaining=false, error=null이며 소유 lifecycle도 finalized, remaining/references/blockers=[]로 마감했다. 물리 회수 바이트는 도구가 산출하지 않아 주장하지 않는다. 독립 근거 743,554 bytes는 설치 수용이 이 소스 버전을 포함하거나 해당 동작을 폐기할 때 재검토하도록 명시적 defer했다. 이전 작업/다른 작업의 자료는 삭제하지 않았다.
+- 최종 제품 입력 해시는 위 검증 해시와 일치함을 재확인했다(exit 0). 임시 성능 측정 코드는 제거했으며 제품에는 공유 구독만 적용했다. 실제 설치본의 추가 가속 수치와 Linux/macOS 실행은 미검증이다.
 
 ## 합의된 목표와 권한
 - 첫 50개부터 즉시 반영하고, 스크롤 없이 다음 페이지를 미리 조회한다. 일반 목록의 기존 200개 범위는 유지하며 50개씩 끝까지 자동 prefetch한다.
