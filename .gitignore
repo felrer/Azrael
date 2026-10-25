@@ -10,6 +10,8 @@ node_modules/
 /artifacts/
 # Personal instruction drafts and publication journals are never committed wholesale.
 /instruction-library/
+# Machine-specific skills and operational records are local to this checkout.
+/instructions/.private/
 # Build caches are local state, including alternate Cargo target directories.
 target/
 target-*/

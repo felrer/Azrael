@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add optional internal visualization and ktcloud instruction components. Keep
+  personal SSH instructions and cloud session records in the ignored, non-release
+  `.private/` area; separate loaded skill code from private operational state.
+- Retire the empty brainstorming placeholder and Vault-first skill manager from
+  this user's activation paths without deleting their original source documents.
+
 - Remove the installed `devin_swe2_medium` role and its active delegation guidance; the default distributed roles remain Luna and Sol.
 
 - Context-first work entry chooses iterative design discussion or a plan with questions. Both routes preserve one work record and existing execution authority; specialist skills do not expand scope.

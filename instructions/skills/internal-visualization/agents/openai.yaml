@@ -1,0 +1,4 @@
+interface:
+  display_name: "Internal Visualization"
+  short_description: "Create verified standalone charts and interactive visuals"
+  default_prompt: "Use $internal-visualization to create a clear, verified visualization from these data."

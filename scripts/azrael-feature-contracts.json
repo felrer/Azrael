@@ -1241,7 +1241,49 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs",
         "scripts/instruction-package.cjs",
-        "scripts/tests/instruction-package.test.cjs"
+        "scripts/tests/instruction-package.test.cjs",
+        "scripts/build-instruction-release.cjs",
+        "scripts/import-instructions.py",
+        "instructions/azrael-environment.json",
+        "instructions/SKILLS-SOURCE.json",
+        "instructions/skills/internal-visualization/SKILL.md",
+        "instructions/skills/internal-visualization/agents/openai.yaml",
+        "instructions/skills/internal-visualization/assets/docento-benchmark/example-report.json",
+        "instructions/skills/internal-visualization/assets/docento-benchmark/template.html",
+        "instructions/skills/internal-visualization/references/charts.md",
+        "instructions/skills/internal-visualization/references/docento-benchmark.md",
+        "instructions/skills/internal-visualization/references/specialized-visuals.md",
+        "instructions/skills/internal-visualization/references/standalone-html.md",
+        "instructions/skills/internal-visualization/references/visual-design.md",
+        "instructions/skills/internal-visualization/scripts/render_docento_benchmark.py",
+        "instructions/skills/internal-visualization/scripts/render_html_preview.py",
+        "instructions/skills/ktcloud-ai-nexus/SKILL.md",
+        "instructions/skills/ktcloud-ai-nexus/agents/openai.yaml",
+        "instructions/skills/ktcloud-ai-nexus/references/README.md",
+        "instructions/skills/ktcloud-ai-nexus/references/data_folder_speed_reference.md",
+        "instructions/skills/ktcloud-ai-nexus/references/data_folder_usage_guide.md",
+        "instructions/skills/ktcloud-ai-nexus/references/ktcloud_CLI_자동로그인_지침.md",
+        "instructions/skills/ktcloud-ai-nexus/references/세션_생성_지침.md",
+        "instructions/skills/ktcloud-ai-nexus/scripts/export_portable_skill.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/install_backendai_v2_runtime.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/install_backendai_windows_runtime.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/ktcloud_cli.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/ktcloud_cli_login.py",
+        "instructions/skills/ktcloud-ai-nexus/scripts/ktcloud_cli_query_guard.py",
+        "instructions/skills/ktcloud-ai-nexus/scripts/ktcloud_cli_runner.py",
+        "instructions/skills/ktcloud-ai-nexus/scripts/ktcloud_login.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/ktcloud_query.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/resolve_backendai_windows_python.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/resolve_canonical_root.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/resolve_state_root.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_query_guard.py",
+        "instructions/skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runner.py",
+        "instructions/skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runtime.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/test_ktcloud_login_runtime.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/test_ktcloud_query.ps1",
+        "instructions/skills/ktcloud-ai-nexus/scripts/test_state_roots.py",
+        "instructions/skills/ktcloud-ai-nexus/scripts/validate_session_records.py",
+        "instructions/skills/ktcloud-ai-nexus/scripts/windows-login-requirements-25.5.2.txt"
       ],
       "contract": "docs/architecture/instructions.md",
       "checks": [
@@ -1251,6 +1293,25 @@
           "args": [
             "--test",
             "scripts/test-instruction-settings.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.instruction-settings.public-skill-inventory",
+          "executable": "python",
+          "args": [
+            "-B",
+            "scripts/import-instructions.py",
+            "--check"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.instruction-settings.ktcloud-state-roots",
+          "executable": "python",
+          "args": [
+            "-B",
+            "instructions/skills/ktcloud-ai-nexus/scripts/test_state_roots.py"
           ],
           "level": "source"
         },
@@ -1668,7 +1729,11 @@
         {
           "id": "ui.window-control.platform-availability",
           "executable": "node",
-          "args": ["--test", "scripts/test-integrated-entry.cjs", "scripts/test-window-control-mcp.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-integrated-entry.cjs",
+            "scripts/test-window-control-mcp.cjs"
+          ],
           "level": "source"
         },
         {

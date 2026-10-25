@@ -15,14 +15,19 @@ function dependency(name) {
 function enumerate(root, folder = root) {
   const files = [];
   for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+    // Private authoring/state storage is not a release input, even when linked.
+    // Skip before inspecting its type or contents; Git ignore is not a boundary.
+    if (folder === root && entry.name.toLowerCase() === ".private") continue;
     if (entry.isSymbolicLink()) throw new Error("Instruction source must not contain symlinks.");
     const filename = path.join(folder, entry.name);
+    const relative = path.relative(root, filename).split(path.sep).join("/");
+    if (/^skills\/ktcloud-ai-nexus\/state(?:\/|$)/i.test(relative)) throw new Error("Personal skill state must be stored under .private.");
     if (entry.isDirectory()) {
       if ([".git", "__pycache__", "node_modules"].includes(entry.name)) throw new Error(`Unexpected instruction cache: ${entry.name}`);
       files.push(...enumerate(root, filename));
     } else if (entry.isFile()) {
-      const relative = path.relative(root, filename).split(path.sep).join("/");
       if (entry.name === ".env" || entry.name.startsWith(".env.")) throw new Error("Environment files cannot be instruction release assets.");
+      if (/^(auth|credentials)\.json$/i.test(entry.name)) throw new Error("Credential files cannot be instruction release assets.");
       const bytes = fs.readFileSync(filename);
       files.push({ path: relative, sha256: sha256(bytes), size: bytes.length });
     } else throw new Error("Unsupported instruction source entry.");
@@ -56,7 +61,13 @@ async function buildRelease({ source, output, repository = "felrer/Azrael", allo
   const sourceContentSha256 = sha256(JSON.stringify(files));
   if (!Array.isArray(metadata.components) || !metadata.components.length) throw new Error("Missing instruction components.");
   for (const component of metadata.components) {
-    for (const file of component.files ?? []) if (!paths.has(file.source)) throw new Error(`Missing component source: ${file.source}`);
+    for (const file of component.files ?? []) {
+      for (const value of [file.source, file.target]) {
+        if (typeof value !== "string" || value.includes("\\") || value.split("/").some(part => !part || part === "." || part === "..")) throw new Error("Unsafe component mapping.");
+        if (value.split("/")[0].toLowerCase() === ".private") throw new Error("Private paths cannot be instruction component mappings.");
+      }
+      if (!paths.has(file.source)) throw new Error(`Missing component source: ${file.source}`);
+    }
   }
   const documents = files.filter(file => /\.(?:md|toml|json|py|ps1)$/i.test(file.path)).map(file => {
     const component = metadata.components.find(item => item.files?.some(mapping => mapping.source === file.path));

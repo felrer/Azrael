@@ -290,6 +290,489 @@
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
         "Keep real installation ownership separate from test profiles and route unused release/recovery-copy retirement to project build lifecycle rules."
       ]
+    },
+    {
+      "path": "skills/internal-visualization/SKILL.md",
+      "source": "internal-visualization/SKILL.md",
+      "original": {
+        "size": 7577,
+        "sha256": "0633f4df6d7c40b97a8c16029564a70aff43c31cd5215aa07979657585975674"
+      },
+      "size": 7577,
+      "sha256": "0633f4df6d7c40b97a8c16029564a70aff43c31cd5215aa07979657585975674",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/agents/openai.yaml",
+      "source": "internal-visualization/agents/openai.yaml",
+      "original": {
+        "size": 244,
+        "sha256": "83cac410fdd31a8bf8d09d0abe0868438565df3c939efd58b95183343494ee77"
+      },
+      "size": 240,
+      "sha256": "e3489c567718840495102b34151652b2a803e41491a1f47f2087fdf0a2e11b3f",
+      "adaptations": [
+        "Normalize CRLF to LF for byte-stable instruction distribution."
+      ]
+    },
+    {
+      "path": "skills/internal-visualization/references/charts.md",
+      "source": "internal-visualization/references/charts.md",
+      "original": {
+        "size": 3799,
+        "sha256": "262902f888c7c787b98109bce94f162a71123abf2e6007f260f226b909a4af1c"
+      },
+      "size": 3799,
+      "sha256": "262902f888c7c787b98109bce94f162a71123abf2e6007f260f226b909a4af1c",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/references/standalone-html.md",
+      "source": "internal-visualization/references/standalone-html.md",
+      "original": {
+        "size": 4690,
+        "sha256": "045da94d0cd5aaca83a5e4866822a11d4e2979765d4fdc8faa69492042b14f71"
+      },
+      "size": 4690,
+      "sha256": "045da94d0cd5aaca83a5e4866822a11d4e2979765d4fdc8faa69492042b14f71",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/references/specialized-visuals.md",
+      "source": "internal-visualization/references/specialized-visuals.md",
+      "original": {
+        "size": 3020,
+        "sha256": "a4d45daf4107793d2513480d4d5d8f9c339f940fd62fc8d32236cf34d921c903"
+      },
+      "size": 3020,
+      "sha256": "a4d45daf4107793d2513480d4d5d8f9c339f940fd62fc8d32236cf34d921c903",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/references/visual-design.md",
+      "source": "internal-visualization/references/visual-design.md",
+      "original": {
+        "size": 7086,
+        "sha256": "ee38ffe37d1abf3845f0fe4f5ac3be71c39f557594e382372168873c26ffaa85"
+      },
+      "size": 7086,
+      "sha256": "ee38ffe37d1abf3845f0fe4f5ac3be71c39f557594e382372168873c26ffaa85",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/references/docento-benchmark.md",
+      "source": "internal-visualization/references/docento-benchmark.md",
+      "original": {
+        "size": 4771,
+        "sha256": "2c62f5981f4cb15a8e093319c975c80c98fb5c17c92c6572559070a1b450d132"
+      },
+      "size": 4771,
+      "sha256": "2c62f5981f4cb15a8e093319c975c80c98fb5c17c92c6572559070a1b450d132",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/assets/docento-benchmark/example-report.json",
+      "source": "internal-visualization/assets/docento-benchmark/example-report.json",
+      "original": {
+        "size": 4780,
+        "sha256": "9cd5c7abb40cd4e28e8bca05252736f50a41df8c35d533383e3102c45dcbdbbc"
+      },
+      "size": 4738,
+      "sha256": "ad7cf69be24814a83e9a3960727eca50e576503064557d49e70095607a29adbe",
+      "adaptations": [
+        "Replace user-specific benchmark provenance path with a portable example path; retain example values."
+      ]
+    },
+    {
+      "path": "skills/internal-visualization/assets/docento-benchmark/template.html",
+      "source": "internal-visualization/assets/docento-benchmark/template.html",
+      "original": {
+        "size": 34278,
+        "sha256": "088449ea4977f87375a3352abeb8cff29817fc45d86e29142e39da6c1ba2b974"
+      },
+      "size": 34278,
+      "sha256": "088449ea4977f87375a3352abeb8cff29817fc45d86e29142e39da6c1ba2b974",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/scripts/render_docento_benchmark.py",
+      "source": "internal-visualization/scripts/render_docento_benchmark.py",
+      "original": {
+        "size": 2816,
+        "sha256": "830529c95ab2ef2f21859b3f9e8f7851653b793f187f0e23eefe38ef6e685f51"
+      },
+      "size": 2816,
+      "sha256": "830529c95ab2ef2f21859b3f9e8f7851653b793f187f0e23eefe38ef6e685f51",
+      "adaptations": []
+    },
+    {
+      "path": "skills/internal-visualization/scripts/render_html_preview.py",
+      "source": "internal-visualization/scripts/render_html_preview.py",
+      "original": {
+        "size": 6088,
+        "sha256": "85530430c57c0057b12e035aa20a2b9984181a5007c1ee77d2299e7a3d1a6d0c"
+      },
+      "size": 6088,
+      "sha256": "85530430c57c0057b12e035aa20a2b9984181a5007c1ee77d2299e7a3d1a6d0c",
+      "adaptations": []
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/agents/openai.yaml",
+      "source": "ktcloud-ai-nexus/agents/openai.yaml",
+      "original": {
+        "size": 230,
+        "sha256": "82e435575d10c16c32efc96f4242d354b858b83c4cdaf11bafd5ae47fd7f3fed"
+      },
+      "size": 228,
+      "sha256": "9990e69ecdb1c2d89282fc4538fea42ef7f215dcc73c1325d37e4844a9022aa7",
+      "adaptations": [
+        "Normalize CRLF to LF for byte-stable instruction distribution.",
+        "Remove extra blank end-of-file lines in the maintained copy."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/references/data_folder_speed_reference.md",
+      "source": "ktcloud-ai-nexus/references/data_folder_speed_reference.md",
+      "original": {
+        "size": 1488,
+        "sha256": "bdfba4060c304d14a610716669842e513af5bb111777c653f7ba69e247cf4bec"
+      },
+      "size": 1514,
+      "sha256": "66c542e9b8099ba7df0950c88ff58746e0d0330a535d76354355fc789cef20f2",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/references/data_folder_usage_guide.md",
+      "source": "ktcloud-ai-nexus/references/data_folder_usage_guide.md",
+      "original": {
+        "size": 4168,
+        "sha256": "cbfb2ddf18c3dd6114d093edd2e2b6e8076f463a0404a6644f7924d8c880129b"
+      },
+      "size": 4618,
+      "sha256": "12f30e053546c4032bc566f60cb662e93aef4bb3420843277e554cda59e949b0",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/references/ktcloud_CLI_자동로그인_지침.md",
+      "source": "ktcloud-ai-nexus/references/ktcloud_CLI_자동로그인_지침.md",
+      "original": {
+        "size": 15997,
+        "sha256": "643c84fb5f2373ae2c4ea7227c1ad2fc225c09d17e7507160f5ea0ce51effa18"
+      },
+      "size": 16054,
+      "sha256": "cafa9d3e8d55137655809ba08eb0a60709e77d067b758531238a65787a2088f7",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/references/README.md",
+      "source": "ktcloud-ai-nexus/references/README.md",
+      "original": {
+        "size": 3380,
+        "sha256": "b6fbb0d0223ca21d721957ae7c23ca7aaa3d1ff0b38c48cec04bcf7021504e24"
+      },
+      "size": 3488,
+      "sha256": "ef48ce183706b6701a34304fa918925327d993868dcdb96e5e11a992c7f3bf7c",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/references/세션_생성_지침.md",
+      "source": "ktcloud-ai-nexus/references/세션_생성_지침.md",
+      "original": {
+        "size": 15691,
+        "sha256": "fb20fe198f8ef6359813057385a56ee319a6c53657107a3566cb21fd8bfc95d6"
+      },
+      "size": 15873,
+      "sha256": "abc26a86a756e440487a433b66f796075c329353eb9b40069165cb7522d8f87f",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/export_portable_skill.ps1",
+      "source": "ktcloud-ai-nexus/scripts/export_portable_skill.ps1",
+      "original": {
+        "size": 2732,
+        "sha256": "03f38fa34142414bd541b12869a28d30ccd1f6bddefc5ccb517b3b3fa5d662c8"
+      },
+      "size": 2765,
+      "sha256": "84a525809cb9fb0dd9395747332efff13a9416a0fc837329c6ec5584d44f4d9c",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/install_backendai_v2_runtime.ps1",
+      "source": "ktcloud-ai-nexus/scripts/install_backendai_v2_runtime.ps1",
+      "original": {
+        "size": 6249,
+        "sha256": "fdc5b7d5ca1a126654f6b63615b7ff92c4d994da82c7a11c1d101624b4efb6c3"
+      },
+      "size": 6252,
+      "sha256": "8f0d653d6669c379435a09452be141cb11faf0cab9834e36128cf45c154c88e0",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/install_backendai_windows_runtime.ps1",
+      "source": "ktcloud-ai-nexus/scripts/install_backendai_windows_runtime.ps1",
+      "original": {
+        "size": 3812,
+        "sha256": "35b2be1f13d275efb8acae8b75fc346f43269fe8dc571c0f6324aa375f6d65cb"
+      },
+      "size": 3815,
+      "sha256": "d6b9cbe42a90ce07f8cb639f4974d9e27f16d174cee47264f6490d11edb260b5",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli.ps1",
+      "source": "ktcloud-ai-nexus/scripts/ktcloud_cli.ps1",
+      "original": {
+        "size": 9119,
+        "sha256": "571679f908614c7baaa66ff4d1cfe6de3d4ee2aa433ec4b0874debfefda96148"
+      },
+      "size": 9110,
+      "sha256": "96a2689458aabc3a7e4aa9c40d9212062e8a999dd754704bea24d2168521650f",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required.",
+        "Normalize CRLF to LF for byte-stable instruction distribution.",
+        "Remove extra blank end-of-file lines in the maintained copy."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_login.py",
+      "source": "ktcloud-ai-nexus/scripts/ktcloud_cli_login.py",
+      "original": {
+        "size": 6091,
+        "sha256": "357a897198f03ca8e58555ecde6daef8cfaddc9aaca2f7547e7b2198658d9641"
+      },
+      "size": 6091,
+      "sha256": "357a897198f03ca8e58555ecde6daef8cfaddc9aaca2f7547e7b2198658d9641",
+      "adaptations": []
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_query_guard.py",
+      "source": "ktcloud-ai-nexus/scripts/ktcloud_cli_query_guard.py",
+      "original": {
+        "size": 11118,
+        "sha256": "f78f0b86865b7d08365db0596885f4fa03088168210bc47b2f2e5c65d42b5c23"
+      },
+      "size": 11107,
+      "sha256": "e8341343a75561c170c109fde9c8295a3385d10abd76b69549104df7afecb374",
+      "adaptations": [
+        "Normalize CRLF to LF for byte-stable instruction distribution.",
+        "Remove extra blank end-of-file lines in the maintained copy."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/ktcloud_cli_runner.py",
+      "source": "ktcloud-ai-nexus/scripts/ktcloud_cli_runner.py",
+      "original": {
+        "size": 23974,
+        "sha256": "aa37eff12cf4631d5dd9c3b51664e27f9ff5c5665ad90e85fc28b208318cc388"
+      },
+      "size": 23376,
+      "sha256": "5a9a7b5eadcc7dcf2e261f9c47bbf459e9ef2b64d2ff9a627166b0149d3e8ea8",
+      "adaptations": [
+        "Normalize CRLF to LF for byte-stable instruction distribution."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/ktcloud_login.ps1",
+      "source": "ktcloud-ai-nexus/scripts/ktcloud_login.ps1",
+      "original": {
+        "size": 11207,
+        "sha256": "72c6db8527c7116f2c25b325df9f2cfbcc1a3b42723ee67ca6d418d188132557"
+      },
+      "size": 11210,
+      "sha256": "5195b78cb2557e710cf28ab92371fbd9bb93c24f6e9481b181164aed135d4957",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/ktcloud_query.ps1",
+      "source": "ktcloud-ai-nexus/scripts/ktcloud_query.ps1",
+      "original": {
+        "size": 2341,
+        "sha256": "94a29c8bbdd3abf855a6fdbc81e0e3e5b813f42ccf32bce82b49cc7dfe6fa58b"
+      },
+      "size": 2344,
+      "sha256": "b621f2005e71f0230a0893c275d9f6f0dbab19dae731c5c81269c5eb9310c3a1",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/resolve_backendai_windows_python.ps1",
+      "source": "ktcloud-ai-nexus/scripts/resolve_backendai_windows_python.ps1",
+      "original": {
+        "size": 1338,
+        "sha256": "0db6f266feb0ffc309b54f1757a1e58e52bfb1965e186dc38370297348f6c58b"
+      },
+      "size": 1341,
+      "sha256": "513bef65d08ccc38f4e9e6bb8f2d53a7a3b7c9760531f0f8fd1d7c55a8275cb8",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/resolve_canonical_root.ps1",
+      "source": "ktcloud-ai-nexus/scripts/resolve_canonical_root.ps1",
+      "original": {
+        "size": 1020,
+        "sha256": "8a173abfe93a1a9a3272a9381b8a7bcc1a9d84cbd5098705e97acc982940e22a"
+      },
+      "size": 924,
+      "sha256": "3131f6fda8f26160975bfb7b39dfd7050a1d8807a9dffd635987571c6eb3c788",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required.",
+        "Normalize CRLF to LF for byte-stable instruction distribution."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/resolve_state_root.ps1",
+      "source": "azrael-maintained/ktcloud-ai-nexus/scripts/resolve_state_root.ps1",
+      "original": {
+        "size": 1234,
+        "sha256": "de800b557e2619b0768fb104c157cbfd971bbfe5491c74a0b3146a0f24abd650"
+      },
+      "size": 1504,
+      "sha256": "1491e18ca688d43a76aee2c08f5d7ef721d58b659f8c2e8f15eacf82f6505650",
+      "adaptations": [
+        "Added maintained code/state-root separation regression or resolver.",
+        "Normalize CRLF to LF for byte-stable instruction distribution.",
+        "Reject drive-relative or root-relative Windows state locations, including available C:. paths."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_query_guard.py",
+      "source": "ktcloud-ai-nexus/scripts/test_ktcloud_cli_query_guard.py",
+      "original": {
+        "size": 12213,
+        "sha256": "45fad39d50c220c754a8da97b336580f51f301c0ef78d547eb60da67ab7fb884"
+      },
+      "size": 12861,
+      "sha256": "25f53ad7a9cea0e6655ed7ff48b8deb9ba7ae1a2f4140320822a2c2cff90163e",
+      "adaptations": [
+        "Normalize CRLF to LF for byte-stable instruction distribution.",
+        "Run offline wrapper regression with available PowerShell host on Windows.",
+        "Preserve fixture BOM under Windows PowerShell 5.1 and fail on shell parse errors or empty output.",
+        "Remove extra blank end-of-file lines in the maintained copy."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runner.py",
+      "source": "ktcloud-ai-nexus/scripts/test_ktcloud_cli_runner.py",
+      "original": {
+        "size": 23927,
+        "sha256": "3e21a28fb15874159c87f738136a4e0d8f9e0ae689baa425f546138c1ec0e57d"
+      },
+      "size": 23716,
+      "sha256": "2fcd7bcd74e465f0b294dbf025b24ec493b85a116895037891d902f8734f425c",
+      "adaptations": [
+        "Normalize CRLF to LF for byte-stable instruction distribution.",
+        "Validate bounded process exit independently of psutil already-exited return value."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_cli_runtime.ps1",
+      "source": "ktcloud-ai-nexus/scripts/test_ktcloud_cli_runtime.ps1",
+      "original": {
+        "size": 3849,
+        "sha256": "eafdc53c2f922ad27ad4f09661a606be1f439feab4a9c3874dc98a0043fe7925"
+      },
+      "size": 3852,
+      "sha256": "ed85a03494e1aafc04f9a10c47db60554b7fccb6d70fe59ddfce884fb446744d",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_login_runtime.ps1",
+      "source": "ktcloud-ai-nexus/scripts/test_ktcloud_login_runtime.ps1",
+      "original": {
+        "size": 1419,
+        "sha256": "af323231727f18f374f942e45b4feeb3f05ef55f994fcf95ff9da4c5d0f0ccaf"
+      },
+      "size": 1422,
+      "sha256": "e501f4520850a3334c4b21ce8ef6e98921ce5f4a68827d7d6601000b8203d02f",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/test_ktcloud_query.ps1",
+      "source": "ktcloud-ai-nexus/scripts/test_ktcloud_query.ps1",
+      "original": {
+        "size": 2963,
+        "sha256": "55ade5122a42ce03ffa71114a098632a1a2617c2df3f624d3666fceb34f9a053"
+      },
+      "size": 2966,
+      "sha256": "045465ea8ffc2b75e19dbc92701c428e39c19321a1b4a8ab5632122ef58ddc74",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/test_state_roots.py",
+      "source": "azrael-maintained/ktcloud-ai-nexus/scripts/test_state_roots.py",
+      "original": {
+        "size": 2273,
+        "sha256": "e097793b572adec50fc2cd95ead5139927da72e93ace673a23373af40c08d742"
+      },
+      "size": 2273,
+      "sha256": "e097793b572adec50fc2cd95ead5139927da72e93ace673a23373af40c08d742",
+      "adaptations": [
+        "Added maintained code/state-root separation regression or resolver."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/validate_session_records.py",
+      "source": "ktcloud-ai-nexus/scripts/validate_session_records.py",
+      "original": {
+        "size": 2118,
+        "sha256": "720afbfce6cae39971d1c04d16d9ec6cc6819779c2a758415d98949b4d6db9c8"
+      },
+      "size": 3149,
+      "sha256": "2bf4f6afe401febeb68e88c8cdea13722edea4c73630d4bf0005a6b604da2b23",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/scripts/windows-login-requirements-25.5.2.txt",
+      "source": "ktcloud-ai-nexus/scripts/windows-login-requirements-25.5.2.txt",
+      "original": {
+        "size": 1792,
+        "sha256": "f468a26f1451109e03d2fc5057f6ee012db06635f266d9540338c79908275895"
+      },
+      "size": 1792,
+      "sha256": "f468a26f1451109e03d2fc5057f6ee012db06635f266d9540338c79908275895",
+      "adaptations": []
+    },
+    {
+      "path": "skills/ktcloud-ai-nexus/SKILL.md",
+      "source": "ktcloud-ai-nexus/SKILL.md",
+      "original": {
+        "size": 9887,
+        "sha256": "f208ce6c0d0bf52a1f9378b9ceff8904beac210fc61af8b59d63f1b06ed514f9"
+      },
+      "size": 10703,
+      "sha256": "7844befe50f6bf7724b16b3b8318362b0db284d876da5a3381ea61872ba933a8",
+      "adaptations": [
+        "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
     }
   ],
   "exclusions": [

@@ -1,0 +1,106 @@
+{
+  "title": "Qwen 3.8-27B 벤치마크",
+  "subtitle": "DOCENTO Layer 1 · P9 shared-service full run",
+  "model": "Qwen 3.8-27B",
+  "run": {
+    "status": "COMPLETE",
+    "release_gate": "PASS",
+    "audit_passed": true,
+    "profile": "P9",
+    "workload": "shared-service",
+    "workers": 126,
+    "wall_time": "21h 07m 39s",
+    "completed_at": "2026-08-27 11:45 KST"
+  },
+  "summary_cards": [
+    {"label": "완료 요청", "value": "152,856", "detail": "Generate + Rerank · 실패 0"},
+    {"label": "전체 실행시간", "value": "21h 07m", "detail": "shared API 부하 포함"},
+    {"label": "Release gate", "value": "PASS", "detail": "S0-S3 unresolved 0", "status": "success"},
+    {"label": "검증", "value": "81 / 81", "detail": "독립 clean validation", "status": "success"}
+  ],
+  "models": [
+    {"id": "qwen-3-8-27b", "label": "Qwen 3.8-27B", "focus": true}
+  ],
+  "metrics": [
+    {
+      "id": "ndcg-at-10",
+      "label": "nDCG@10",
+      "description": "상위 10개 감별진단의 순위 품질",
+      "values": {"qwen-3-8-27b": 0.587443},
+      "ci95": {"qwen-3-8-27b": [0.585204, 0.589497]},
+      "higher_is_better": true,
+      "primary": true
+    },
+    {
+      "id": "high-relevance-recall-at-10",
+      "label": "High-relevance Recall@10",
+      "description": "중요 진단의 상위 10개 회수",
+      "values": {"qwen-3-8-27b": 0.855832},
+      "higher_is_better": true
+    },
+    {
+      "id": "outcome-recall-at-5",
+      "label": "Outcome Recall@5",
+      "description": "확정 outcome의 상위 5개 회수",
+      "values": {"qwen-3-8-27b": 0.749823},
+      "higher_is_better": true
+    },
+    {
+      "id": "weighted-coverage-at-10",
+      "label": "Weighted Coverage@10",
+      "description": "상위 10개 relevance 가중 coverage",
+      "values": {"qwen-3-8-27b": 0.569278},
+      "higher_is_better": true
+    },
+    {
+      "id": "supporting-evidence-f1",
+      "label": "Supporting Evidence F1",
+      "description": "지지 근거 연결 정확도와 재현율의 조화 평균",
+      "values": {"qwen-3-8-27b": 0.267168},
+      "higher_is_better": true
+    }
+  ],
+  "secondary_metrics": [
+    {"label": "Invalid evidence rate", "value": "0.4942%", "direction": "낮을수록 좋음"},
+    {"label": "ECE-10", "value": "0.091018", "direction": "낮을수록 좋음", "sample": "80,000 case-view"},
+    {"label": "Multiclass Brier", "value": "0.712389", "direction": "낮을수록 좋음", "sample": "80,000 case-view"}
+  ],
+  "integrity": [
+    {"label": "Request completion", "value": 1.0, "display": "100%"},
+    {"label": "Rerank pool integrity", "value": 1.0, "display": "100%"},
+    {"label": "Valid evidence", "value": 0.995058, "display": "99.51%"},
+    {"label": "Unique valid concepts", "value": 0.9988, "display": "99.88%"}
+  ],
+  "diagnostics": [
+    {"label": "INVALID_EVIDENCE", "count": 4967, "description": "유효하지 않은 evidence 참조"},
+    {"label": "UNMAPPED", "count": 1380, "description": "ontology에 매핑되지 않은 출력"},
+    {"label": "DUPLICATE", "count": 35, "description": "중복 concept 출력"},
+    {"label": "SCHEMA_ERROR", "count": 1, "description": "출력 schema 불일치"}
+  ],
+  "release_defects": [
+    {"severity": "S0_BLOCKER", "count": 0, "meaning": "공개데이터 경계 또는 무결성 위반"},
+    {"severity": "S1_MAJOR", "count": 0, "meaning": "주요 결론에 영향을 줄 수 있는 결함"},
+    {"severity": "S2_MODERATE", "count": 0, "meaning": "국소적인 scored-case 영향"},
+    {"severity": "S3_MINOR", "count": 0, "meaning": "비기능 표시·문서 결함"}
+  ],
+  "validation": [
+    {"label": "Clean environment tests", "value": "81 / 81", "status": "passed"},
+    {"label": "Benchmark checksums", "value": "13 verified", "status": "passed"},
+    {"label": "Clean-validation checksums", "value": "4 verified", "status": "passed"},
+    {"label": "Completion audit", "value": "passed=true", "status": "passed"}
+  ],
+  "guards": [
+    "Paired update metric: N/A — source가 독립된 S/S+E gold를 제공하지 않음",
+    "API traffic aggregate: unavailable — Gateway counter 부재로 0으로 추정하지 않음"
+  ],
+  "notes": [
+    "공개 DDXPlus 데이터만 사용한 연구용 감별진단 순위 벤치마크입니다.",
+    "사람 annotator, 임상의 specialty 구성, senior adjudicator를 사용하지 않았습니다.",
+    "shared-service 실행시간에는 제한적인 공개 API 요청의 간섭이 포함될 수 있습니다."
+  ],
+  "provenance": {
+    "dataset": "frozen public DDXPlus adapter-v2 · 38,214 cases",
+    "result_path": "/example/workspace/results/benchmark-run",
+    "audit_hash": "936cf4d866f948d0f6f3b7aa794857317dc6e4c0a84936548d9cca20e31badc5"
+  }
+}
