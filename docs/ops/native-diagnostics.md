@@ -32,6 +32,8 @@ VS Code's **Log (Extension Host)** can show extension activation faults. The hos
 
 For Window Use stage 3 startup failures, retain the authenticated `request_stage` response's `diagnostic` fields together with the occurrence time and runtime identity. The source host preserves native code, HRESULT, cleanup uncertainty and bounded safe text through the isolation error boundary; phase and type are included when supplied. Sensitive-looking messages are redacted. This response uses the existing tool-history channel rather than a separate file logger. The generic localized message alone does not identify the native cause. A source fix requires deployment before an installed window returns these fields, and `cleanupUnconfirmed` still blocks automatic retries.
 
+Explicit child logoff failures use `window_use.logoff_failed` in **Azrael Recovery**, including when routine recovery diagnostics are disabled. Correlate by timestamp and the generated `requestId`; `phase` distinguishes `runtime`, `inspection`, `approval` and `logoff`. The record includes a stable `nativeCode`, at most three allowlisted cause types, and `mutationOutcome` (`not_executed` or `unknown`), without raw errors, paths or approval content. Runtime preparation failures return `actionExecuted:false`; missing logoff terminal evidence stays unknown and must not be replayed automatically. The channel uses VS Code's existing log storage and rotation; these records add no separate log files or retention settings.
+
 ## 상세 진단 켜기/끄기
 
 기본값은 기존 상세 로그를 모두 켜는 것이다. 전체 설정 `AZRAEL_DIAGNOSTICS`와 분야별 덮어쓰기의 의미·보존 범위는 [상세 진단 계약](../architecture/diagnostic-logging.md)에 둔다. 설정은 이를 지원하는 엔진/helper/host 소스가 포함된 배포본에서 적용되며 기존에 설치된 바이너리는 바뀌지 않는다.

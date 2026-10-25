@@ -89,6 +89,8 @@
         "scripts/test-window-child-explicit-logoff.cjs",
         "scripts/test-window-child-logoff.cjs",
         "scripts/test-window-use-host.cjs",
+        "scripts/azrael-recovery.cjs",
+        "scripts/test-recovery-bridge.cjs",
         "scripts/window-child-session.cjs",
         "scripts/window-use-isolation.cjs",
         "scripts/window-control-host.cjs",
