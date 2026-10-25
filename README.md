@@ -13,6 +13,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 
 - [Highlights](#highlights)
 - [How agents collaborate](#how-agents-collaborate)
+- [Scheduled root resume](#scheduled-root-resume)
 - [Built for the person at the keyboard](#built-for-the-person-at-the-keyboard)
 - [Window Use](#window-use-work-alongside-the-agent)
 - [Session flags](#session-flags)
@@ -26,7 +27,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 
 | Feature | What it gives you |
 | --- | --- |
-| **Root and subagent collaboration** | One root agent owns decisions and acceptance; workers get narrow, file-owned assignments and run in parallel. |
+| **Root and subagent collaboration** guidance built in | Token-light subagents work narrow, file-owned assignments while the root schedules them in parallel and owns integration and acceptance. |
 | **Scheduled root resume** | The root parks until selected subagents *and* external jobs such as builds or renders finish, instead of polling them with model requests. |
 | **Accounts and usage** | Connect several accounts per provider, see remaining quota and reset times, and switch in one click. |
 | **Models across providers** | OpenAI, Devin, Anthropic, Google, xAI, OpenRouter and your own API endpoints in one searchable picker; switch mid-conversation. |
@@ -35,13 +36,18 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 | **Session flags** | Pin a red flag on a conversation so it stands out in the Chats list. |
 | **Recovery and queues** | Queued inputs survive reloads; accepted turns are reconciled instead of replayed. |
 
-UI screenshots in this README are captured from Azrael's production components with the project's development renderers. Every account, conversation, quota and model catalog in them is **synthetic** — no personal account or session was opened. The collaboration, token and Window Use pictures are explanatory illustrations. See [image sources and reproduction](docs/images/README.md).
+UI screenshots in this README are captured from Azrael's production components with the project's development renderers. Every account, conversation, quota and model catalog in them is **synthetic** — no personal account or session was opened. The collaboration and Window Use pictures are explanatory illustrations. See [image sources and reproduction](docs/images/README.md).
 
 ## How agents collaborate
 
-### Two roles, one owner of the outcome
+Azrael ships native coordination guidance for the **root agent**, maintained with the engine instead of copied into each project's `AGENTS.md`, so every project starts from the same collaboration rules.
 
-Azrael gives the **root agent** a native coordination prompt (maintained with the engine, not copied into project `AGENTS.md` files) and keeps **subagents** narrow on purpose.
+The two sides are tuned for different costs, and they reinforce each other:
+
+- **Subagents keep tokens low.** A fresh child starts from a compact handoff of decisions and exact paths without the parent's history, works only the files it was assigned, and returns evidence instead of a transcript.
+- **The root keeps the clock short.** It starts the work on the critical path first, runs independent assignments in parallel, continues its own work that does not depend on pending results, and stops only at real dependency boundaries.
+
+Small worker contexts plus tight root scheduling mean the same result arrives sooner and costs fewer tokens.
 
 | | Root agent | Subagent (worker) |
 | --- | --- | --- |
@@ -50,12 +56,23 @@ Azrael gives the **root agent** a native coordination prompt (maintained with th
 | **May delegate** | Yes | No — children cannot re-delegate |
 | **Reports** | To the user, only after every success criterion and cleanup is met | Actual scope, exit codes, log paths and anything left unverified |
 
-The shipped instruction library defines two worker roles, each with its own model so cheap work stays cheap:
+### Three ways a subagent talks to the root
 
-- **`luna_explorer`** — read-only evidence retrieval inside named files or directories. It cannot edit, build or decide architecture.
-- **`sol_executor`** — implementation and validation once behaviour and scope are settled, restricted to its assigned files.
+When the root delegates, it also decides how results should come back: batched for later, or answered right away. A subagent then uses the channel that matches the urgency of what it has to say.
 
-Handoffs pass decisions and exact paths instead of whole conversations, and a fresh child starts without the parent's history. Supported models from other providers — including user-registered API models and Devin models — can also run as subagents, each with its own thread and account binding.
+| Channel | When the subagent uses it | Effect on the root | Why it is efficient |
+| --- | --- | --- | --- |
+| **Message** (`send_message`) | Progress, verification results, an output ready for downstream use | Stored as mail. A running root reads it at its next step; a parked root is **not** woken. | Related findings accumulate and are delivered together, so routine updates never cost the root an extra turn. |
+| **Decision request** (`request_parent`) | A decision or coordination from its immediate parent is needed now | Wakes a parked root, or joins the running root's next safe boundary. The root answers with `resolved`, `cancelled` or `deferred`. | The child keeps doing independent work and pauses only the blocked action until the answer arrives through `await_parent_response`. |
+| **Final report** | The assignment has ended in success, failure or a partial result | A terminal state. A root waiting on this child with `all_terminal` resumes. | One complete report with scope, exit codes, logs and unverified items replaces repeated status checks. |
+
+A request is saved before delivery and reused on identical retries, so it is never lost or duplicated, and the root must handle every pending request before it waits again — a child that needs an answer can never be left waiting on a parent that is waiting on it. Sessions without the structured request tools fall back to messages and a partial final report naming the decision needed.
+
+Supported models from other providers — including user-registered API models and Devin models — can also run as subagents, each with its own thread and account binding.
+
+Details: [root coordination](docs/architecture/root-coordination.md), [parent decision requests](docs/architecture/root-resume.md#parent-decision-requests), [instruction library](instructions/README.md).
+
+## Scheduled root resume
 
 ### Waiting without spending: `defer_root`
 
@@ -87,21 +104,7 @@ Example: the root starts an eight-minute video render, hands a subagent the rele
 
 Pending reservations appear on the **Root resume reservations** page (`루트 재개 예약`) with the reason, local resume time and the children being waited on, along with resume-now and cancel actions. The chat shows the waited-on subagents' avatars next to a native resume action, and the turn timer freezes at the defer boundary. Cancelling a reservation never cancels the subagents or the external job.
 
-> **Scope.** `defer_root` is exposed only on providers with a verified native tool transport — currently the **native OpenAI root path**. External work signals are verified in Windows native source; installed-package and other-platform acceptance are separate steps. Ordinary subagent collaboration on other providers does not include this tool. The engine must be running with the root loaded for an automatic resume.
-
-### Why the whole process is faster and lighter
-
-![Nine model requests while polling versus two with a deferred resume](docs/images/token-efficiency.svg)
-
-- **Parallel by default.** Independent assignments overlap instead of queuing, and the root starts the work on the critical path first.
-- **No duplicate effort.** Disjoint write sets avoid conflicting edits; the root never starts a second copy of a build that is already running.
-- **Smaller requests.** Workers receive references and decisions, not the parent's conversation, and read-only exploration runs on a lighter model.
-- **No idle polling.** A parked root performs no inference. The saving comes from removing repeated wake-ups and status checks, **not** from the elapsed time itself.
-- **Fewer round trips in desktop work.** Window Use task macros execute up to 32 mechanical steps in one tool call instead of one model turn per click.
-
-The figure illustrates request counts, not a measured benchmark. A resumed turn is a fresh request built from retained conversation state, so a provider prompt-cache miss can raise its input cost; prefer waking on completion with a sensible fallback deadline over short timers meant to keep a cache warm.
-
-Details: [root coordination](docs/architecture/root-coordination.md), [root resume scheduling](docs/architecture/root-resume.md), [instruction library](instructions/README.md).
+Details: [root resume scheduling](docs/architecture/root-resume.md).
 
 ## Built for the person at the keyboard
 
