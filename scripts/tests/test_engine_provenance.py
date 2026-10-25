@@ -70,7 +70,7 @@ class EngineProvenanceTests(unittest.TestCase):
         )
 
     def provenance(
-        self, action: str, *, env: dict[str, str] | None = None
+        self, action: str, *, env: dict[str, str] | None = None, profile: str | None = None
     ) -> subprocess.CompletedProcess[str]:
         arguments = [
             sys.executable,
@@ -88,6 +88,8 @@ class EngineProvenanceTests(unittest.TestCase):
             arguments.extend(
                 ("--code-mode-host-source", str(self.engine / "azrael-code-mode-host.exe"))
             )
+        if profile is not None:
+            arguments.extend(("--profile", profile))
         return subprocess.run(
             arguments,
             check=False,
@@ -106,6 +108,36 @@ class EngineProvenanceTests(unittest.TestCase):
         result = self.provenance("verify")
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn(expected, result.stderr)
+
+    def test_release_reuse_rejects_dev_and_legacy_receipts(self) -> None:
+        self.snapshot_and_record()
+        for profile in (None, "dev"):
+            with self.subTest(profile=profile):
+                if profile:
+                    result = self.provenance("record", profile=profile)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                rejected = self.provenance("verify", profile="release")
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertIn("Engine build profile is not release", rejected.stderr)
+                # Existing diagnostic/installation verification stays compatible.
+                self.assertEqual(self.provenance("verify").returncode, 0)
+
+    def test_release_profile_keeps_source_binary_and_host_guards(self) -> None:
+        self.assertEqual(self.provenance("snapshot").returncode, 0)
+        recorded = self.provenance("record", profile="release")
+        self.assertEqual(recorded.returncode, 0, recorded.stderr)
+        self.assertEqual(json.loads(recorded.stdout)["buildProfile"], "release")
+        accepted = self.provenance("verify", profile="release")
+        self.assertEqual(accepted.returncode, 0, accepted.stderr)
+        for filename in ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe"):
+            original = (self.engine / filename).read_bytes()
+            (self.engine / filename).write_bytes(original + b"changed")
+            self.assertNotEqual(self.provenance("verify", profile="release").returncode, 0)
+            (self.engine / filename).write_bytes(original)
+        (self.source / "tracked.txt").write_text("changed\n", encoding="utf-8")
+        rejected = self.provenance("verify", profile="release")
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("Engine source changed", rejected.stderr)
 
     def test_unchanged_source_and_binaries_are_accepted(self) -> None:
         self.snapshot_and_record()
@@ -209,6 +241,8 @@ class EngineProvenanceTests(unittest.TestCase):
 class NativeTargetProvenanceTests(EngineProvenanceTests):
     def native_provenance(self, action, target, built=False):
         args = [sys.executable, "-B", str(PROVENANCE), action, "--root", str(self.source), "--target", target]
+        if action in ("record", "verify"):
+            args += ["--profile", "release"]
         if action in ("snapshot", "record"):
             args += ["--file", str(self.snapshot_file)]
         if action in ("record", "verify"):
@@ -226,6 +260,7 @@ class NativeTargetProvenanceTests(EngineProvenanceTests):
                     result = self.native_provenance(action, target, built=True)
                     self.assertEqual(result.returncode, 0, result.stderr)
                 receipt = json.loads(result.stdout)
+                self.assertEqual(receipt["buildProfile"], "release")
                 self.assertEqual(receipt["source"]["target"], target)
                 self.assertEqual(set(receipt["binaries"]), {"azrael", "azrael-bridge", "azrael-code-mode-host"})
                 host = receipt["externalRuntimes"]["codeModeHost"]

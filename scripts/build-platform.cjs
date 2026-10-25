@@ -164,7 +164,7 @@ async function build(options) {
     copyTree(source, path.join(s.output, "engine", name));
   }
   const engineSigning = identity.os === "darwin" ? require("./macos-signing.cjs").ensureMacSignatures(path.join(s.output, "engine")) : null;
-  const recordArgs = ["-B", frozenProvenance, "record", "--root", frozenEngine, "--target", identity.target, "--file", sourceSnapshot, "--engine-dir", path.join(s.output, "engine")];
+  const recordArgs = ["-B", frozenProvenance, "record", "--profile", "release", "--root", frozenEngine, "--target", identity.target, "--file", sourceSnapshot, "--engine-dir", path.join(s.output, "engine")];
   if (s["code-mode-host"]) recordArgs.push("--code-mode-host-source", path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix), "--code-mode-host-original", s["code-mode-host"], "--code-mode-host-original-sha256", hash(path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix)));
   else recordArgs.push("--code-mode-host-built");
   run(python, recordArgs, work, "record-engine");

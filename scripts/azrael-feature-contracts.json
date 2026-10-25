@@ -403,7 +403,11 @@
         "scripts/engine-provenance.py",
         "scripts/check-engine-provenance-guards.cjs",
         "scripts/tests/test_import_engine_source.py",
-        "scripts/tests/test_engine_provenance.py"
+        "scripts/tests/test_engine_provenance.py",
+        "scripts/build-azrael.ps1",
+        "scripts/build-platform.cjs",
+        "scripts/test-build-metrics.ps1",
+        "engine/codex-rs/app-server/src/bin/azrael.rs"
       ],
       "contract": "docs/architecture/upstream-preservation.md",
       "reportFields": [],

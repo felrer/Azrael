@@ -9,7 +9,10 @@ const checks = [
     "ImportTests.test_destination_rejects_root_replaced_with_identical_files",
     "ImportTests.test_validation_context_retains_file_escape_and_lexical_guards"],
   ["test_engine_provenance.py",
-    "ImportedEngineProvenanceTests.test_snapshot_rejects_identical_root_replacement_after_validation"],
+    "ImportedEngineProvenanceTests.test_snapshot_rejects_identical_root_replacement_after_validation",
+    "EngineProvenanceTests.test_release_reuse_rejects_dev_and_legacy_receipts",
+    "EngineProvenanceTests.test_release_profile_keeps_source_binary_and_host_guards",
+    "NativeTargetProvenanceTests.test_unix_source_build_binds_target_three_hashes_and_source"],
 ];
 
 for (const [file, ...cases] of checks) {

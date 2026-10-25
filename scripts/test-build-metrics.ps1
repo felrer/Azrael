@@ -247,6 +247,60 @@ Test-Case 'release-selection-provenance-guard' {
     Assert-True ($buildTry[0].CatchClauses[0].Extent.Text -match '\bthrow\b') 'Failure must finalize metrics and rethrow.'
     Assert-True ($tryText.IndexOf('Complete-BuildMetrics $buildMetrics -Status success') -gt $move) 'Total success must follow pointer publication.'
 }
+Test-Case 'release-engine-recipe' {
+    $tokens = $null; $errors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'build-azrael.ps1'), [ref]$tokens, [ref]$errors)
+    Assert-True (-not $errors) 'Build script must parse.'
+    $engineTarget = Join-Path $runDirectory 'selected-target'
+    $rustRoot = Join-Path $runDirectory 'source/codex-rs'
+    $RetainedSourceRoot = Join-Path $runDirectory 'retained-source'
+    $release = Join-Path $runDirectory 'selected-release'
+    $logDirectory = Join-Path $runDirectory 'recipe-logs'
+    function Invoke-RecipeExpression([string]$Text) {
+        # Dynamic blocks have no script file; bind the production script root.
+        $quotedRoot = "'" + $PSScriptRoot.Replace("'", "''") + "'"
+        try { & ([scriptblock]::Create($Text.Replace('$PSScriptRoot', $quotedRoot))) }
+        catch { throw "Recipe evaluation failed: $Text`n$($_.ScriptStackTrace)`n$_" }
+    }
+    $assignment = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.AssignmentStatementAst] -and
+        $node.Left.Extent.Text -eq '$EngineDirectory' -and $node.Right.Extent.Text -like '*Join-Path $engineTarget*'
+    }, $true)
+    Invoke-RecipeExpression ($assignment.Extent.Text + '; $EngineDirectory') | ForEach-Object {
+        Assert-True ($_ -eq (Join-Path $engineTarget 'x86_64-pc-windows-msvc/release')) 'Default engine path must consume release outputs.'
+    }
+    function Invoke-BuildCommand($Command, $Arguments, $Log) {
+        [pscustomobject]@{ command = $Command; arguments = $Arguments; log = $Log }
+    }
+    $cargo = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.CommandAst] -and
+        $node.GetCommandName() -eq 'Invoke-BuildCommand' -and $node.Extent.Text -like "*'engine.log'"
+    }, $true)
+    $call = Invoke-RecipeExpression $cargo.Extent.Text
+    Assert-True ($call.command -eq 'node' -and $call.arguments[0] -eq (Join-Path $PSScriptRoot 'cargo-target-owner.cjs')) 'Build must retain the target owner.'
+    Assert-True (($call.arguments -join '|') -eq ((@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge')) -join '|')) 'Release recipe must preserve target, packages and features.'
+    foreach ($gate in $ast.FindAll({param($node)
+        $node -is [Management.Automation.Language.CommandAst] -and
+        $node.GetCommandName() -eq 'Invoke-BuildCommand' -and $node.Extent.Text -like "*'engine-provenance.py'*" -and
+        $node.Extent.Text -match "'(record|verify)'"
+    }, $true)) {
+        $call = Invoke-RecipeExpression $gate.Extent.Text
+        $profileIndex = [Array]::IndexOf($call.arguments, '--profile')
+        Assert-True ($profileIndex -ge 0 -and $call.arguments[$profileIndex + 1] -eq 'release') 'Record and every package/reuse gate must bind release.'
+    }
+    function python { [pscustomobject]@{ arguments = @($args) } }
+    $sourceRoot = Join-Path $runDirectory 'selected-source'
+    $candidateEngine = Join-Path $runDirectory 'previous-release/engine'
+    $autoGate = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.CommandAst] -and
+        $node.GetCommandName() -eq 'python' -and $node.Extent.Text -like '*engine-auto-reuse.log*'
+    }, $true)
+    # Drop the log redirect so the fixture can inspect the actual evaluated argv.
+    $autoCommand = $autoGate.Extent.Text -replace '\s+\*>.*$', ''
+    $call = Invoke-RecipeExpression $autoCommand
+    $profileIndex = [Array]::IndexOf($call.arguments, '--profile')
+    Assert-True ($profileIndex -ge 0 -and $call.arguments[$profileIndex + 1] -eq 'release') 'Automatic reuse must require release provenance.'
+}
 Test-Case 'actual-build-isolated-provenance-failure' {
     $fixture = Join-Path $runDirectory 'project'
     $fixtureScripts = Join-Path $fixture 'scripts'

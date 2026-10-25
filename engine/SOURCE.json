@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 95115798,
+  "byteCount": 95115827,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -11049,8 +11049,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "131b10184922142a81f5214700ffc98ed85eed29d9edceb0b95d130addcf31f3",
-      "size": 176
+      "sha256": "c6c5ee741823e110d5256e0177187d5b0952f5c69a38574c6328f2341b0c974a",
+      "size": 205
     },
     "codex-rs/app-server/src/bin/exec_server.rs": {
       "gitMode": "100644",
@@ -65207,7 +65207,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9313,
-  "inventorySha256": "5ef55c92dd159da267db4d4797cd6765915b379771b63d52ab9d464664fadd11",
+  "inventorySha256": "806805cb4f9de92440030e362816d9e4ba0e72419ff8d900b6f1a209dc836bb6",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -66969,8 +66969,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "131b10184922142a81f5214700ffc98ed85eed29d9edceb0b95d130addcf31f3",
-          "size": 176
+          "sha256": "c6c5ee741823e110d5256e0177187d5b0952f5c69a38574c6328f2341b0c974a",
+          "size": 205
         },
         "before": null
       },
@@ -136988,7 +136988,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "3dbcd525fa33e40949041fcbc916f5634c8a9d61",
+    "repositoryHead": "86216fd83515b65d12ae5982a38a9a6e4b33acdc",
     "schema": 4,
     "sourcePrefix": "engine"
   },

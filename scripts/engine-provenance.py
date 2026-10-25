@@ -98,12 +98,14 @@ def snapshot(root, target=TARGET):
     }
 
 
-def verify(root, directory, target=TARGET):
+def verify(root, directory, target=TARGET, profile=None):
     names = binary_names(target)
     receipt = directory / RECEIPT
     if not receipt.is_file():
         raise ValueError("Engine has no source provenance. Rebuild with build-azrael.ps1.")
     record = json.loads(receipt.read_text(encoding="utf-8-sig"))
+    if profile is not None and record.get("buildProfile") != profile:
+        raise ValueError(f"Engine build profile is not {profile}. Rebuild with the selected profile.")
     if record.get("source") != snapshot(root, target):
         raise ValueError("Engine source changed since this pair was built. Run a full engine build.")
     if set(record.get("binaries", {})) != set(names):
@@ -129,6 +131,7 @@ def main():
     parser.add_argument("--engine-dir", type=Path)
     parser.add_argument("--code-mode-host-source", type=Path)
     parser.add_argument("--target", default=TARGET)
+    parser.add_argument("--profile", choices=("dev", "release"))
     parser.add_argument("--code-mode-host-built", action="store_true")
     parser.add_argument("--code-mode-host-original", type=Path)
     parser.add_argument("--code-mode-host-original-sha256")
@@ -161,12 +164,14 @@ def main():
             "binaries": {name: sha(args.engine_dir / name) for name in names},
             "externalRuntimes": {"codeModeHost": host},
         }
+        if args.profile is not None:
+            value["buildProfile"] = args.profile
         destination = args.engine_dir / RECEIPT
         temporary = destination.with_suffix(".tmp")
         temporary.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
         temporary.replace(destination)
     else:
-        value = verify(args.root, args.engine_dir, args.target)
+        value = verify(args.root, args.engine_dir, args.target, args.profile)
     print(json.dumps(value))
 
 
