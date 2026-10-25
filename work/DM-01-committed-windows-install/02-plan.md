@@ -1,4 +1,4 @@
-상태: 검사·산출물 경계 개선, Windows 빌드·필수 검증·일반 사용자 NoLaunch 설치와 이번 삭제 후보 정리 완료. 실제 창의 새 버전 활성화는 사용자 reload 후 별도 확인한다. 미확정 종료·현재 사용·명시 보존 자료는 아래 근거와 재검토 조건에 따라 유지한다.
+상태: 검사·산출물 경계 개선, Windows 빌드·필수 검증·일반 사용자 NoLaunch 설치와 사용자의 정상 동작 확인 완료. 후속 구 빌드 정리는 일부 완료(29.33GiB 추가 삭제)이며 전체 삭제는 미완료다. 남은 자료는 도구의 링크·누락 구성·소비 등록 차단과 명시 보존 근거에 따라 유지한다.
 
 # 새 산출물 경계·검사 체계 개편과 구 산출물 정리
 
@@ -409,3 +409,18 @@ Root cause established by p23 native-library read-only status probe actual0 (pro
 - 최종 보존 판단: H는 현재 설치 runtime·package·출처·수락 증거 소유자이므로 유지한다. R23 및 a-s/v-s/v-t와 과거 incomplete/unknown 작업공간은 전체 producer tree 종료와 참조 해제 증거를 소유자가 확정할 때 재검토한다. 실패 영수증을 성공으로 바꾸지 않는다. av17/av18 및 연결 두 빌드는 사용자 명시 보존이고, 기존 실행·복구 버전은 사용/복구 참조 해제 후 재검토한다. 향후 마지막 소비자 종료 시 모든 기존 producer의 자동 수집까지 일반화됐다고 주장하지 않는다.
 
 - 커밋 범위 검토: 이번 Rust 상태 응답128KiB와 회귀, Windows 영수증 rename 한정 재시도·PTY 실행 환경·검증 정의, 설치 지침의 정상 빈 alert 판별·15개 회귀, 관련 owning 문서와 이 작업 기록만 선택한다. shared feature manifest의 무관한 process owner2줄은 제외한다. engine/SOURCE.json은 HEAD에서 이번 Rust entry/localIntegration.after와 owner canonical 집계만 갱신한 별도 index 입력으로 정합하며, 다른 작업의 working SOURCE/Cargo/maintenance 변경은 보존한다. 작업 범위 git diff --check actual0. 실제 검증 환경은 Windows x64이며 Linux/macOS 실행 검증과 사용자 reload 후 live activation은 별도다.
+
+## 설치 정상 확인 후 구 빌드 추가 정리
+
+사용자가 설치 버전의 정상 동작을 확인하고 불필요해진 구 빌드 산출물 전부 제거를 요청했다. Windows x64 로컬 정리에 기존 구현·build/lifecycle 지침과 승인 범위를 이어 적용한다. 새 run은 `run:DM-01-boundary-reform:postinstall-retirement-r1`이며 생성 전 primary lifecycle에 등록했다. 일반 프로필의0.12 및 외부 av17/av18의0.10 등록·실제 runtime JSON을 읽어 설치 경로를 확인했다. 현재 프로젝트를 참조하는 실행 중 Azrael 엔진·bridge·도구는 H/w13r 경로이며, 선택한 n10a/c23b/v11c/v11f 참조는 없었다. PID 부재만으로 미확정 producer를 종료 처리하지 않는다. 근거는 새 run의 `reports/installation-reference-check.json`, `processes-initial.json`, `catalog-primary-initial.json`이다.
+
+실행 순서: 기존 native 기록을 registered 모드로 재검토 → 대체가 확인된 설치/복구 관계와 별도 소비자 확인 → 정확한 묶음별 삭제/보류 → 실제 결과·설정 복원·소유 기록 정합. 현재 H 런타임·원본/사용자 데이터·명시 보존 외부 두 빌드·다른 미완료 개발 작업은 제외한다. payload 전수 재해시를 반복하지 않으며 최초 등록이 필요한 생성물만 측정한다.
+
+- **삭제 완료:** `CR-01-retired-n10a-cargo`의 정확한 `engine/codex-rs/target` 한 항목. logical_bytes31,489,562,956B(29.33GiB), native actual status deleted/remaining=false/aborted=false/errors없음/attributes변경없음. 관리 루트 자체 보호를 해소하기 위해 n10a 로컬 설정의 관리 루트만 잠시 부모 codex-rs로 바꿔 새 토큰을 받았고 처리 후 원래 바이트/SHA(c48976a6e094c7835a5b12f160c4172f192d01e36eed3789b87036cbf51c21a1)로 복원했다. 근거: `reports/n10a-native-apply.json`, `n10a-scope-restored.json`; 물리 회수량은 측정하지 않았다.
+- **등록 차단:** 종료·구성 완결과 inbound0을 확인한 v11f/r11, v11c/r3, c23b/deploy-r2는 각각 내부 테스트 junction(`BQ-01/.../linked`, `migration-.../installed/skills/example`) 때문에 native 최초 등록이 거부됐다. 파일 삭제는0이며 실패 자료는 `reports/old-copy-registration-results.json`과 작업 도구 결과에 보존한다. 링크 차단을 다른 API의 직접 삭제로 우회하지 않는다. 원래 구성과 검증된 링크 자체를 지원하는 등록/정리 경로가 준비되면 재검토한다.
+- **상위 루트 보존:** n10a의 primary version:w10a 계획은 blocker0이지만 공유 module `.projects.json`에 해당 프로젝트가 등록돼 있다. 같은 owner는 이미 사라진 w31b 등의 등록 때문에 전체 검사도 차단한다. 지원되는 등록 퇴역과 독립적 결과 인계 전에는 n10a/v11c 같은 등록 프로젝트의 상위 폴더를 통째로 삭제해 누락 등록을 추가하지 않는다. 원시 registry JSON은 편집하지 않는다.
+- **별도 버전 검토:** n10a의 complete/no-inbound 버전 w10b/c/d/e4개는 원래7/7/7/8개 구성 중 과거에 사라진 VSIX·로그 경로가 있어 native 최초 등록이 `tree entry disappeared`로 거부됐다. 존재/부재는 해당 정확한 구성원만 lstat로 확인했다. 기존 `clean-legacy-releases.ps1` owner에서도 같은 전체 lifecycle 묶음의 부재 구성원 처리 가능 여부를 검토했다. 첫 preview actual1은 무관한 Windows Media Player 바로가기의 누락 ProgramFiles(x86) 환경 변수에서 삭제 전 차단됐다. 자식 process 환경의 OS known folder·고정 Node PATH·최소 PATHEXT(.EXE)와 실제 command resolution을 보완했다. Node의 SHA와 v26.7.0/실제 exit0을 숨김 프로세스로 검증하고 원래 단축키·설치·latest·링크·구성 검사를 유지했다. r1~r5 준비 실패와 actual close를 모두 보존했다. 제품 코드·단축키·사용자 환경 설정은 변경하지 않았다.
+
+- **최종 owner 판정:** preview-r6 actual0/null/status preview/errors0. 단, 삭제 가능0/보존4다. w10b/c/d는 사라진 `artifacts/vsix/<id>` 구성원을 owner 경로 검사도 거부했고 w10e는 `latest`/배포 참조로 보호됐다. 따라서 Apply를 실행하지 않았다. native와 기존 owner 양쪽의 실제 차단을 확인했으며 부재 경로를 만들어 통과시키거나 원래 기록/보호를 지우지 않았다. 추가 삭제는0이다. `reports/n10a-legacy-preview-r6-close.json`과 owner의 원래 report에 판정·해시를 보존했다.
+- **최종 수락·보류:** native가 n10a Cargo 그룹 deleted/live0/remaining=false를 재확인했다. 일반·외부 두 프로필의 등록/runtime6개 SHA는 정리 전과 동일하다(`installation-preserved-after-cleanup.json`). 외부 av17의 u17a 및 종속 evidence는 fresh 토큰으로 defer했다. b12 native 기록도 defer했고 실제 remaining=false이므로 이번 삭제량에 넣지 않았다. 새 run은 모든6개 숨김 PowerShell child의 actual close, 동기 native 호출 terminal, 최종 보고 전용 Node controller의 actual1/null을 근거로 failed/membership_complete=true/stopped로 마감했다. 이 actual1은 남은 삭제 차단을 정확히 나타내며 과거 unknown producer는 변경하지 않았다. 최종 요약은 `reports/final-summary.json`, 종료 증거는 `run-stop-evidence.json`이다.
+- **남은 조건:** 검증된 테스트 junction을 따라가지 않는 등록/정리, 최초 등록 때 이미 없는 구성원 정합, 기존 배포 선택과 shared module 등록의 지원 퇴역 경로를 보완한 후 fresh review가 필요하다. 현재 사용/명시 보존/미완료 다른 작업의 자료는 해당 소비자가 실제 해제될 때만 재검토한다. 이번 후속에서 제품/엔진 코드를 변경하거나 새 빌드를 만들지 않았다. 운영 상태와 이 기록만 작업 범위로 커밋하며, 다른 작업의 stage된 Rust4파일은 보존한다.
