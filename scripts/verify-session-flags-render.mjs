@@ -91,7 +91,7 @@ ${menuRender}
 ${previewRender}
 const fixture_header_i=()=>({formatMessage:({defaultMessage},values)=>values?'Count: '+values.count:defaultMessage}),fixture_header_se=()=>({authMethod:'chatgpt'}),fixture_header_p=()=>({pathname:'/local/session'}),fixture_header_l=()=>false,fixture_header_z=()=>({data:[{id:'same-id',turns:window.fixturePending?[{status:'deferred',rootResumeWait:{state:'waiting'}}]:[],resumeState:'ready'}]}),fixture_header_mt=()=>false,fixture_header_Ve=f=>f,fixture_header_te=()=>({data:[]}),fixture_header_un=()=>true,fixture_header_nt=()=>false,fixture_header_le=props=>props.triggerButton,fixture_header_vn=()=>null;
 ${trigger}
-function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return Z.jsxs('div',{children:[Z.jsx('div',{'data-fixture-trigger':true,children:Z.jsx(FixtureTrigger,{})}),window.fixtureOpen?Z.jsx('div',{'data-fixture-row':true,children:(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})})}):null,window.fixtureMenu?Z.jsx('div',{'data-fixture-menu':true,children:Z.jsx(Fixture_vn,{localConversations:fixtureHistoryRows,cloudtasksQuery:{data:[],isLoading:false,isError:false},onClose:()=>window.fixtureEvents.push({type:'close'})})}):null,window.fixturePreview?Z.jsx('div',{'data-fixture-preview':true,children:Z.jsx(Fixture_Et,{mergedTasks:fixtureMerged,tasksQuery:{isLoading:false,isError:false}})}):null]})}
+function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return Z.jsxs('div',{children:[Z.jsx('div',{'data-fixture-trigger':true,children:Z.jsx(FixtureTrigger,{})}),window.fixtureOpen?Z.jsx('div',{'data-fixture-row':true,children:(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})})}):null,window.fixtureMenu?Z.jsx('div',{'data-fixture-menu':true,children:Z.jsx(Fixture_vn,{localConversations:fixtureHistoryRows,historyQuery:fixtureHistoryQuery(),cloudtasksQuery:{data:[],isLoading:false,isError:false},onClose:()=>window.fixtureEvents.push({type:'close'})})}):null,window.fixturePreview?Z.jsx('div',{'data-fixture-preview':true,children:Z.jsx(Fixture_Et,{mergedTasks:fixtureMerged,tasksQuery:{isLoading:false,isError:false}})}):null]})}
 let fixtureInitialized=false;
 function Fixture(){Pn();Dn();Nt();fixtureInitRow();fixtureInitScope();if(!fixtureInitialized){fixtureInitialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem("fixture-preferences")||"{}"),(key,value)=>{const prefs=JSON.parse(localStorage.getItem("fixture-preferences")||"{}");if(value===undefined)delete prefs[key];else prefs[key]=value;localStorage.setItem("fixture-preferences",JSON.stringify(prefs));window.fixtureEvents.push({type:"persist",key,value})})}return Z.jsx(FixtureScope,{scope:Re,children:Z.jsx(FixtureIntlContext,{value:{locale:"en",formatMessage:({defaultMessage})=>defaultMessage},children:Z.jsx(FixtureRows,{})})})}
 export {Fixture};
@@ -132,12 +132,12 @@ try{
   await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme)+';fixturePending=true;fixtureRerender()');
   const spinning=scope=>evaluate(`Array.from(document.querySelectorAll('${scope} *')).some(e=>getComputedStyle(e).animationName!=='none')`);
   await wait("document.querySelector('[data-fixture-trigger] [aria-live]').textContent==='Count: 1'");
-  check(theme+' pending reservation spins native recent-chat row',await spinning('[data-fixture-row]'));
+  check(theme+' pending reservation shows static blue native recent-chat indicator',await evaluate('(()=>{const marker=document.querySelector("[data-fixture-row] [data-azrael-resume-spinner]");return !!marker&&getComputedStyle(marker).animationName==="none"&&getComputedStyle(marker).color==='+JSON.stringify(theme==='light'?'rgb(37, 99, 235)':'rgb(96, 165, 250)')+'})()'));
   check(theme+' pending reservation spins native header trigger',await spinning('[data-fixture-trigger]'));
   await shot(theme+'-deferred-indicators');
   await evaluate('fixturePending=false;fixtureRerender()');
   await wait("document.querySelector('[data-fixture-trigger] [aria-live]').textContent==='Count: 0'");
-  check(theme+' ended wait removes native row and header spinners',!(await spinning('[data-fixture-row]'))&&!(await spinning('[data-fixture-trigger]')));
+  check(theme+' ended wait removes native row waiting indicator and header spinner',await evaluate('!document.querySelector("[data-fixture-row] [data-azrael-resume-spinner]")')&&!(await spinning('[data-fixture-trigger]')));
  }
  for(const theme of ['light','dark']){
   for(const phase of ['waiting','claimed','resumed','cancelled','blocked','completed']){
@@ -146,8 +146,8 @@ try{
    await new Promise(r=>setTimeout(r,100));
    const expected=['waiting','claimed'].includes(phase);
    for(const kind of ['menu','preview']){
-    const spin=await evaluate('Array.from(document.querySelectorAll("[data-fixture-'+kind+'] *")).some(e=>getComputedStyle(e).animationName.split(",").map(s=>s.trim()).includes("spin"))');
-    check(theme+' '+phase+' '+kind+' uses native list state; spinner='+expected,spin===expected);
+    const waiting=await evaluate('(()=>{const marker=document.querySelector("[data-fixture-'+kind+'] [data-azrael-resume-spinner]");return {present:!!marker,staticBlue:!!marker&&getComputedStyle(marker).animationName==="none"&&getComputedStyle(marker).color==='+JSON.stringify(theme==='light'?'rgb(37, 99, 235)':'rgb(96, 165, 250)')+'}})()');
+    check(theme+' '+phase+' '+kind+' uses native list state; static waiting='+expected,waiting.present===expected&&(!expected||waiting.staticBlue));
    }
    if(phase==='waiting')await shot(theme+'-two-list-waiting');
   }
