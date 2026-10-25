@@ -1306,9 +1306,11 @@ function Assert-Tree {
         if(!$approved.ContainsKey($literal)){throw 'Unreviewed descendant appeared'}
         if(!$seen.Add($literal)){throw 'Duplicate observed descendant'}
         Assert-Ancestors $literal
-        $observed=Get-Item -LiteralPath $literal -Force
-        if(([int]$observed.Attributes -band 4) -ne 0){throw 'System attributes protected'}
-        if($observed.PSIsContainer -and !$junctions.ContainsKey($literal)){foreach($child in Get-ChildItem -LiteralPath $literal -Force){$pending.Push((Extended-Literal $child.FullName))}}
+        $attributes=[int][IO.File]::GetAttributes($literal)
+        if(($attributes -band 4) -ne 0){throw 'System attributes protected'}
+        # Top-level literal enumeration includes hidden/system entries. The
+        # checked leaf must be a plain directory before enumeration starts.
+        if(($attributes -band 16) -ne 0 -and !$junctions.ContainsKey($literal)){foreach($child in [IO.Directory]::EnumerateFileSystemEntries($literal)){$pending.Push((Extended-Literal $child))}}
     }
     if($seen.Count -ne $approved.Count){throw 'Approved descendant disappeared'}
 }
@@ -1332,8 +1334,8 @@ try {
     foreach($literal in $approved.Keys) {
         Assert-Ancestors $literal
         if($junctions.ContainsKey($literal)){continue}
-        $item=Get-Item -LiteralPath $literal -Force
-        if(!$item.PSIsContainer -and (([int]$item.Attributes -band 3) -ne 0)) {
+        $attributes=[int][IO.File]::GetAttributes($literal)
+        if(($attributes -band 16) -eq 0 -and (($attributes -band 3) -ne 0)) {
             $normalizationPins[$literal]=[MaintenanceJunctionNative]::NormalizationPin($literal)
         }
     }
@@ -1342,8 +1344,8 @@ try {
         foreach($literal in $approved.Keys) {
             Assert-Ancestors $literal
             if($junctions.ContainsKey($literal)){continue}
-            $item=Get-Item -LiteralPath $literal -Force
-            if(!$item.PSIsContainer) {
+            $attributes=[int][IO.File]::GetAttributes($literal)
+            if(($attributes -band 16) -eq 0) {
                 $pin=[MaintenanceJunctionNative]::NormalizationPin($literal)
                 if(!$linkCounts.ContainsKey($pin)){$linkCounts[$pin]=0}
                 $linkCounts[$pin]++
@@ -1358,16 +1360,15 @@ try {
     foreach($literal in $approved.Keys) {
         Assert-Ancestors $literal
         if($junctions.ContainsKey($literal)){continue}
-        $item=Get-Item -LiteralPath $literal -Force
-        $before=[int]$item.Attributes
+        $before=[int][IO.File]::GetAttributes($literal)
         if(($before -band 4) -ne 0 -or ($before -band 1024) -ne 0) {throw 'System/reparse attributes protected'}
         $after=$before -band (-bnot 3)
         if($before -ne $after){
-            if(!$item.PSIsContainer) {
+            if(($before -band 16) -eq 0) {
                 if(!$normalizationPins.ContainsKey($literal) -or [MaintenanceJunctionNative]::NormalizationPin($literal) -cne $normalizationPins[$literal]) {throw 'Normalization file identity or link count changed'}
             }
-            $item.Attributes=[System.IO.FileAttributes]$after
-            $changes.Add(@{path=$approved[$literal];before=$before;after=[int]$item.Attributes})
+            [IO.File]::SetAttributes($literal,[IO.FileAttributes]$after)
+            $changes.Add(@{path=$approved[$literal];before=$before;after=[int][IO.File]::GetAttributes($literal)})
         }
     }
     Assert-Tree
@@ -1384,10 +1385,11 @@ try {
 } catch { $failure=$_.Exception.Message }
 $remaining=$null
 if($target) {
-    # Windows PowerShell can return no object and no error for an absent
-    # extended literal. Successful invocation alone is not proof of presence.
-    try {$observed=Get-Item -LiteralPath $target -Force -ErrorAction Stop; $remaining=($null -ne $observed)}
-    catch [System.Management.Automation.ItemNotFoundException] {$remaining=$false}
+    # Only explicit absence exceptions establish removal; access or other
+    # metadata failures preserve an unknown remaining state.
+    try {$null=[IO.File]::GetAttributes($target); $remaining=$true}
+    catch [IO.FileNotFoundException] {$remaining=$false}
+    catch [IO.DirectoryNotFoundException] {$remaining=$false}
     catch {if(!$failure){$failure=$_.Exception.Message}}
 }
 @{status=$(if($remaining -eq $false -and !$failure){'deleted'}else{'failed'});attributes=@($changes.ToArray());error=$failure;remaining=$remaining;physical_bytes_reclaimed=$null} | ConvertTo-Json -Depth 8 -Compress
