@@ -220,7 +220,8 @@ async function verifyLogs(receipt) {
   }
 }
 function checkEnvironment(config, preparation) {
-  return { ...process.env, ...(config.cargoTargetDirectory ? { CARGO_TARGET_DIR: config.cargoTargetDirectory } : {}), AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
+  return { ...process.env, ...(config.cargoTargetDirectory ? { CARGO_TARGET_DIR: config.cargoTargetDirectory } : {}),
+    ...(config.cargoCacheProjectRoot ? { AZRAEL_CARGO_CACHE_PROJECT_ROOT: config.cargoCacheProjectRoot } : {}), AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
     AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js'),
     ...(preparation?.sourceIdentity ? {
       AZRAEL_CARGO_PREPARATION_DIR: preparation.directory,
@@ -430,6 +431,13 @@ async function runPreservation(config) {
     }
     receipt.cache = { schema: verificationCache.CACHE_SCHEMA, executed: 0, reused: 0, eligible: eligibleGroups.length, deferred: [] };
     receipt.nativeCache = { schema: nativeCache.CACHE_SCHEMA, executed: 0, reused: 0, eligible: nativeGroups.length, deferred: [] };
+    // Legacy cache totals count invocation groups across all evidence kinds.
+    // Per-kind execution totals include fresh checks without cache eligibility;
+    // misses count attempted lookups only, and exclude deliberate forced runs.
+    receipt.cache.scope = 'all invocation groups (eligible counts source-cache groups only)';
+    receipt.executionSummary = { unit: 'invocation-group', kinds: Object.fromEntries(['source', 'native', 'cargo'].map(kind =>
+      [kind, { executed: 0, reused: 0, miss: 0, forced: 0, preflightReused: 0 }])) };
+    receipt.reusePolicy = { source: config.reuseSourceChecks !== false, native: config.reuseNativeChecks !== false };
     if (nativeGroups.length) {
       const started = performance.now();
       try { nativeRuntime = await nativeCache.runtime(config, checkEnvironment(config)); }
@@ -471,8 +479,12 @@ async function runPreservation(config) {
             if (!previous || !same(previous.args, args) || previous.executable !== check.executable) throw Error('Source check command differs');
             const logPath = path.join(runDirectory, `${entry.check.id}.log`), errorPath = path.join(runDirectory, `${entry.check.id}.stderr.log`);
             await fs.promises.copyFile(previous.logPath, logPath); await fs.promises.copyFile(previous.errorPath, errorPath);
-            records[entry.index] = { ...previous, logPath, errorPath, reused: true, executionStatus: 'reused', executionReason: 'passing source preflight with unchanged inputs', durationMs: 0, startedUtc, completedUtc: new Date().toISOString() };
+            records[entry.index] = { ...previous, logPath, errorPath, reused: true, evidenceKind: 'source',
+              originalEvidence: { receiptPath: sourceReceipt.receiptPath || config.sourceReceiptPath, logPath: previous.logPath, errorPath: previous.errorPath },
+              executionStatus: 'reused', executionReason: 'passing source preflight with unchanged inputs', durationMs: 0, startedUtc, completedUtc: new Date().toISOString() };
           }
+          receipt.executionSummary.kinds.source.reused++;
+          receipt.executionSummary.kinds.source.preflightReused++;
           receipt.checks = records.filter(Boolean); receipt.cache.reused++; await persist(); return;
         }
         const lookupStarted = performance.now();
@@ -497,6 +509,9 @@ async function runPreservation(config) {
         receipt.timings.cacheLookupMs += performance.now() - lookupStarted;
         try {
         const reused = Boolean(handle?.hit);
+        const evidenceKind = cargoGroups.includes(group) ? 'cargo' : group.native ? 'native' : 'source';
+        const forced = group.native && config.reuseNativeChecks === false &&
+          (cargoGroups.includes(group) || nativeGroups.includes(group));
         const started = performance.now();
         const result = { ...(handle?.hit || await execution(check.executable, args, { cwd: config.projectRoot,
           env: checkEnvironment(config, group.native ? {
@@ -505,7 +520,12 @@ async function runPreservation(config) {
           } : undefined), logPath, errorPath })), logPath, errorPath };
         if (handle) cacheHandles.find(entry => entry.handle === handle).record = result;
         receipt.cache[reused ? 'reused' : 'executed']++;
-        if (group.native) (kind === 'cargo' ? receipt.cargoCache : receipt.nativeCache)[reused ? 'reused' : 'executed']++;
+        if (cargoGroups.includes(group)) receipt.cargoCache[reused ? 'reused' : 'executed']++;
+        else if (nativeGroups.includes(group)) receipt.nativeCache[reused ? 'reused' : 'executed']++;
+        const summary = receipt.executionSummary.kinds[evidenceKind];
+        summary[reused ? 'reused' : 'executed']++;
+        if (forced) summary.forced++;
+        else if (handle && !reused) summary.miss++;
         if (!reused) receipt.timings.checkExecutionMs += performance.now() - started;
         result.logSha256 = await fileHash(logPath); result.errorSha256 = await fileHash(errorPath);
         const { stdout, stderr, ...record } = result;
@@ -513,7 +533,8 @@ async function runPreservation(config) {
           const ownLog = path.join(runDirectory, `${entry.check.id}.log`), ownError = path.join(runDirectory, `${entry.check.id}.stderr.log`);
           if (ownLog !== logPath) { await fs.promises.copyFile(logPath, ownLog); await fs.promises.copyFile(errorPath, ownError); }
           records[entry.index] = { featureId: entry.feature.id, checkId: entry.check.id, area: entry.feature.area,
-            level: entry.check.level, executable: entry.check.executable, args, ...record, reused,
+            level: entry.check.level, executable: entry.check.executable, args, ...record, reused, evidenceKind,
+            ...(reused ? { originalEvidence: { cacheKind: kind, cacheKey: key, logSha256: record.logSha256, errorSha256: record.errorSha256 } } : {}),
             executionStatus: reused ? 'reused' : 'executed',
             executionReason: reused ? 'unchanged declared inputs and passing evidence' : handle?.reason ||
               (group.native && config.reuseNativeChecks === false ? 'native reuse disabled' : 'no reusable passing evidence'),

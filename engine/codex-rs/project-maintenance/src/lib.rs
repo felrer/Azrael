@@ -28,6 +28,7 @@ pub(crate) struct Context<'a> {
     content: std::cell::RefCell<paths::ContentCache>,
     catalog_locks: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
     retirement: std::cell::RefCell<Option<retirement::Retirement>>,
+    junctions: std::cell::RefCell<BTreeMap<PathBuf, Value>>,
 }
 
 impl<'a> Context<'a> {
@@ -37,6 +38,7 @@ impl<'a> Context<'a> {
             content: Default::default(),
             catalog_locks: Default::default(),
             retirement: Default::default(),
+            junctions: Default::default(),
         }
     }
 }
@@ -184,6 +186,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
         ),
     )?;
+    for item in store.state.items.values() {
+        paths::configure_junctions(&root, item, false, authorize)?;
+    }
     if matches!(
         operation,
         "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
@@ -821,6 +826,9 @@ fn review_single(
     if measured["presence"] == "unknown" {
         blockers.push("target observation unavailable");
     }
+    if item["presence"] == "absent" && measured["presence"] == "present" {
+        blockers.push("previously absent target reappeared; registration required");
+    }
     if item["cleanup_status"] == "pending" {
         blockers.push("cleanup attempt pending recovery");
     }
@@ -957,13 +965,14 @@ fn review_single(
 }
 
 fn prepare_item(root: &Path, item: Value, authorize: Auth<'_>) -> Result<Value, String> {
-    prepare_registered_item(root, item, None, authorize)
+    prepare_registered_item(root, item, None, false, authorize)
 }
 
 fn prepare_registered_item(
     root: &Path,
     mut item: Value,
     previous: Option<&Value>,
+    allow_new_absence: bool,
     authorize: Auth<'_>,
 ) -> Result<Value, String> {
     string(&item, "id")?;
@@ -978,18 +987,21 @@ fn prepare_registered_item(
         return Err("references must be an explicit array of nonempty reference strings".into());
     }
     let path = paths::resolve(root, Path::new(string(&item, "path")?))?;
+    if item.get("verified_junctions").is_some() {
+        item["verified_junctions"] = paths::configure_junctions(root, &item, true, authorize)?;
+    }
     let absent = if let Some(old) = previous {
         let old_path = Path::new(string(old, "path")?);
         paths::within(old_path, &path)
             && paths::within(&path, old_path)
             && paths::checked_metadata(root, &path, authorize)?.is_none()
     } else {
-        false
+        allow_new_absence && paths::checked_metadata(root, &path, authorize)?.is_none()
     };
     let measured = if absent {
         previous
-            .expect("absence requires a registered member")
-            .clone()
+            .cloned()
+            .unwrap_or_else(|| json!({"identity":null,"logical_bytes":0,"measured_at_ms":null}))
     } else {
         paths::measure(root, &path, authorize)?
     };

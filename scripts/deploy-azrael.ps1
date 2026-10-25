@@ -5,6 +5,7 @@ param(
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$RetainedSourceRoot,
     [string]$EngineTargetDirectory,
+    [string]$CargoCacheProjectRoot,
     [string]$ModuleCacheProjectRoot,
     [string]$CargoVerificationCacheProjectRoot,
     [string]$NamespaceCacheProjectRoot,
@@ -96,12 +97,28 @@ New-Item -ItemType Directory -Path $logs | Out-Null
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $children = [Collections.Generic.List[object]]::new()
 $script:environmentPatch = @{}
-$metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0 }
+$metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0
+    verificationPolicy = [ordered]@{ scope = $(if ($FullRegression) { 'full' } else { 'changed' }); sourceReuse = $true; nativeReuse = -not [bool]$ForceNativeVerification; forceNativeVerification = [bool]$ForceNativeVerification; cargoVerificationCacheProjectRoot = $(if ($CargoVerificationCacheProjectRoot) { $CargoVerificationCacheProjectRoot } else { $project }) }
+    verificationResults = [ordered]@{}
+}
 $pwsh = (Get-Process -Id $PID).Path
 
 function Write-DeploymentMetrics {
     # Checkpoints are diagnostic; a write failure must not mask the command failure.
     try {
+        # Receipts remain the per-check authority; retain separate stages so a
+        # preflight handoff is not presented as a second fresh execution.
+        foreach ($entry in @(@{ name = 'sourcePreflight'; directory = 'engine-source-preflight' }, @{ name = 'enginePreservation'; directory = 'engine-preservation' })) {
+            $directory = Join-Path $logs $entry.directory
+            if (Test-Path -LiteralPath $directory -PathType Container) {
+                foreach ($file in @(Get-ChildItem -LiteralPath $directory -Filter receipt.json -File -Recurse)) {
+                    $result = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
+                    if ($result.PSObject.Properties['executionSummary']) {
+                        $metrics.verificationResults[$entry.name] = [ordered]@{ receiptPath = $file.FullName; status = $result.status; summary = $result.executionSummary }
+                    }
+                }
+            }
+        }
         $metrics.wallTimeMs = $timer.Elapsed.TotalMilliseconds
         $temporary = Join-Path $logs 'deployment-metrics.json.tmp'
         $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $temporary -Encoding utf8NoBOM
@@ -207,6 +224,8 @@ function Assert-Package {
     $preservationConfig | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM
     & node (Join-Path $PSScriptRoot 'feature-preservation.cjs') verify --config $preservationConfigPath *> (Join-Path $logs 'package-preservation.log')
     if ($LASTEXITCODE -ne 0) { throw 'Package feature preservation verification failed. See package-preservation.log.' }
+    $packageReceipt = Get-Content -LiteralPath $prepared.PreservationReceipt -Raw | ConvertFrom-Json
+    $metrics.verificationResults['packagePreservation'] = [ordered]@{ receiptPath = $prepared.PreservationReceipt; status = $packageReceipt.status; summary = $packageReceipt.executionSummary }
     $archive = [IO.Compression.ZipFile]::OpenRead($prepared.HostVsix)
     try {
         $entry = $archive.GetEntry('extension/package.json')
@@ -281,7 +300,18 @@ try {
     $focusedEngineFeatureIds = @(if (-not $FullRegression) { Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) })
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot, '-LifecycleParentActive')
     if ($RetainedSourceRoot) { $buildArgs += @('-RetainedSourceRoot', $RetainedSourceRoot) }
-    if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
+    if ((-not $SkipEngineBuild -and -not $EngineTargetDirectory) -or $CargoCacheProjectRoot) {
+        $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } else { $project }
+        $selection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $SourceRoot --target x86_64-pc-windows-msvc
+        if ($LASTEXITCODE -ne 0) { throw 'Shared Cargo cache selection failed.' }
+        $sharedCargoCache = $selection | ConvertFrom-Json
+        if ($EngineTargetDirectory -and [IO.Path]::GetFullPath($EngineTargetDirectory) -ine $sharedCargoCache.targetDirectory) { throw 'Explicit engine target conflicts with shared Cargo cache.' }
+        $EngineTargetDirectory = $sharedCargoCache.targetDirectory
+        $CargoCacheProjectRoot = $sharedCargoCache.projectRoot
+        $metrics.cargoCache = $sharedCargoCache
+    }
+    if ($EngineTargetDirectory -and -not $SkipEngineBuild) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
+    if ($CargoCacheProjectRoot -and -not $SkipEngineBuild) { $buildArgs += @('-CargoCacheProjectRoot', $CargoCacheProjectRoot) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
     if ($WindowControlTargetDirectory) { $buildArgs += @('-WindowControlTargetDirectory', $WindowControlTargetDirectory) }
     if ($ComputerUseRuntimeDirectory) { $buildArgs += @('-ComputerUseRuntimeDirectory', $ComputerUseRuntimeDirectory) }
@@ -321,6 +351,7 @@ try {
     if ($EstimatedCompilerGrowthBytes -lt 0) { throw 'EstimatedCompilerGrowthBytes must not be negative.' }
     if ($EstimatedCompilerGrowthBytes) { $sourceConfig.estimatedGrowthBytes = $EstimatedCompilerGrowthBytes }
     if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
+    if ($CargoCacheProjectRoot) { $sourceConfig.cargoCacheProjectRoot = $CargoCacheProjectRoot }
     if ($CargoVerificationCacheProjectRoot) { $sourceConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if (-not $FullRegression) { $sourceConfig.featureIds = $focusedEngineFeatureIds }
     $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
@@ -369,6 +400,7 @@ try {
         sourceReceiptPath = [string]$sourcePreflightResult.receiptPath
     }
     if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }
+    if ($CargoCacheProjectRoot) { $enginePreservationConfig.cargoCacheProjectRoot = $CargoCacheProjectRoot }
     if ($CargoVerificationCacheProjectRoot) { $enginePreservationConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if (-not $FullRegression) {
         $enginePreservationConfig.featureIds = $focusedEngineFeatureIds

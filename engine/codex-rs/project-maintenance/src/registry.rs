@@ -304,6 +304,47 @@ fn lifecycle_role(role: &str) -> &'static str {
         "artifact"
     }
 }
+
+/// Planned outputs may never have existed. Only a complete, settled producer
+/// with explicit ownership evidence can introduce their absent native records.
+pub(crate) fn validate_absent_adoption(
+    group: &Value,
+    items: &BTreeMap<String, Value>,
+    absent: &BTreeSet<String>,
+    observed: &Value,
+) -> Result<(), String> {
+    if group["membership_source_format"] != "producer_registry_v1"
+        || group["membership_complete"] != true
+        || observed["settled"] != true
+        || observed["membership_matches"] != true
+        || !observed["blockers"].as_array().is_some_and(Vec::is_empty)
+    {
+        return Err("absent adoption requires a complete verified producer contract".into());
+    }
+    let members = observed["owner"]["members"]
+        .as_array()
+        .ok_or("absent adoption requires producer members")?;
+    for id in absent {
+        let item = &items[id];
+        let path = Path::new(string(item, "path")?);
+        if item["generated"] != true
+            || item["protection_known"] != true
+            || members
+                .iter()
+                .filter(|member| {
+                    paths::within(Path::new(member["path"].as_str().unwrap_or("")), path)
+                })
+                .any(|member| member["generated"] != true || member["protection_known"] != true)
+        {
+            return Err(
+                "absent adoption requires explicit producer generation and protection evidence"
+                    .into(),
+            );
+        }
+    }
+    Ok(())
+}
+
 pub(crate) fn observe(
     root: &Path,
     source: &Path,

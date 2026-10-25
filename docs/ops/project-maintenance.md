@@ -70,6 +70,10 @@ node scripts/project-maintenance.cjs plan --area queue
 
 ## 생성물과 백업
 
+검증한 `maintenance_owner` 실행기는 같은 라이브러리의 `inventory`, `register`, `review`, `apply`도 지원한다. 요청은 선택 프로젝트 안의 절대 일반 JSON 파일이어야 하며, 테스트·빌드 실행은 이 소유자 실행기의 지원 범위가 아니다. 새 소스 기능을 실제 정리에 쓰기 전 해당 실행파일의 고정 입력과 native 회귀 결과를 확인한다.
+
+항목의 `verified_junctions` 예시는 `[{"path":"temporary/fixture/link","kind":"junction","target":"C:/선택한프로젝트/실제대상"}]`다. 정확한 소유 생성물만 지정하며 등록이 고정한 identity는 임의로 만들거나 수정하지 않는다. 새 링크·바뀐 대상·부재 경로 재등장은 새 검토가 필요하다. 기존 소유자 등록 요청의 전체 구성원을 유지한다.
+
 생성 도구나 모델은 생성 근거를 확인한 항목을 `project_inventory`의 `register`로 등록한다. 항목에는 ID·경로·종류·소유자·생성 여부·사용/보호 확인 여부·참조를 명시한다. 확인 가능한 생성 시각·소스·버전·도구/캐시 형식·보존 사유도 함께 기록한다. 알 수 없는 값은 확인되지 않은 상태로 둔다.
 
 기존 네이티브 설치의 백업 후보는 명시한 `deployment.json`에서 다음 명령으로 읽는다.

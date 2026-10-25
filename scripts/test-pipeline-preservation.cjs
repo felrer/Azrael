@@ -37,11 +37,87 @@ test('source receipt hands passing checks to the complete run without a duplicat
   assert.equal(r.status, 'passed', r.error); assert.equal(r.checks.length, 2);
   assert.deepEqual(calls, ['scripts/source.cjs', 'scripts/native.cjs']);
   assert.equal(r.checks[0].executionStatus, 'reused');
+  assert.deepEqual(r.executionSummary.kinds.source, { executed: 0, reused: 1, miss: 0, forced: 0, preflightReused: 1 });
+  assert.deepEqual(r.executionSummary.kinds.native, { executed: 1, reused: 0, miss: 0, forced: 0, preflightReused: 0 });
+  assert.equal(r.nativeCache.executed, 0, 'uncacheable native checks do not count as native-cache executions');
+  assert.equal(r.cache.executed, 1); assert.equal(r.cache.reused, 1);
+  assert.equal(r.checks[0].originalEvidence.receiptPath, first.receiptPath);
+  assert.equal(r.checks[0].originalEvidence.logPath, first.checks[0].logPath);
+  assert.equal(r.checks[0].evidenceKind, 'source');
   assert.equal((await gate.verifyReceipt({ ...config, receiptPath: r.receiptPath })).status, 'passed');
 });
 test('source-only receipt cannot pass complete engine acceptance', async () => {
   const { config } = fixture(); const r = await gate.runPreservation({ ...config, checkPhase: 'source' });
   await assert.rejects(gate.verifyReceipt({ ...config, receiptPath: r.receiptPath }), /phase differs/);
+});
+test('native cache accounting distinguishes misses, reuse and forced runs from source checks', async t => {
+  const native = require('./native-verification-cache.cjs'); const runtime = native.runtime;
+  native.runtime = async () => ({ toolchain: 'fixture' });
+  try {
+    const { config, calls } = fixture();
+    for (const name of ['feature-preservation.cjs', 'native-verification-cache.cjs', 'verification-result-cache.cjs', 'directory-state.cjs'])
+      fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
+    const check = config.manifest.features[0].checks[1];
+    check.args.push('{fixture}'); check.nativeCacheInputs = { schema: 1, files: ['scripts/native.cjs'] };
+    let started = performance.now();
+    const cold = await gate.runPreservation(config);
+    const coldMs = performance.now() - started;
+    assert.equal(cold.status, 'passed', cold.error);
+    assert.deepEqual(cold.executionSummary.kinds.native, { executed: 1, reused: 0, miss: 1, forced: 0, preflightReused: 0 });
+    started = performance.now();
+    const warm = await gate.runPreservation(config);
+    const warmMs = performance.now() - started;
+    assert.equal(warm.status, 'passed', warm.error);
+    assert.deepEqual(warm.executionSummary.kinds.native, { executed: 0, reused: 1, miss: 0, forced: 0, preflightReused: 0 });
+    assert.equal(warm.nativeCache.reused, 1); assert.equal(warm.cache.executed, 1);
+    const forced = await gate.runPreservation({ ...config, reuseNativeChecks: false });
+    assert.equal(forced.status, 'passed', forced.error);
+    assert.deepEqual(forced.executionSummary.kinds.native, { executed: 1, reused: 0, miss: 0, forced: 1, preflightReused: 0 });
+    assert.equal(calls.filter(name => name === 'scripts/native.cjs').length, 2);
+    assert.equal(calls.filter(name => name === 'scripts/source.cjs').length, 3);
+    t.diagnostic(JSON.stringify({ fixturePerformance: { cold: { durationMs: coldMs, summary: cold.executionSummary }, warm: { durationMs: warmMs, summary: warm.executionSummary } } }));
+  } finally { native.runtime = runtime; }
+});
+test('deployment metrics preserve independent full scope and reuse intent and receipt summaries', { skip: process.platform !== 'win32' }, async () => {
+  const { config } = fixture(); const receipt = await gate.runPreservation(config);
+  assert.equal(receipt.status, 'passed', receipt.error);
+  const logRoot = path.join(config.projectRoot, 'deployment-logs');
+  const stage = path.join(logRoot, 'engine-preservation', 'preservation-fixture'); fs.mkdirSync(stage, { recursive: true });
+  fs.copyFileSync(receipt.receiptPath, path.join(stage, 'receipt.json'));
+  const command = `
+    $ErrorActionPreference = 'Stop'
+    $parseTokens = $null; $parseErrors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile($env:AZRAEL_METRICS_SCRIPT, [ref]$parseTokens, [ref]$parseErrors)
+    if ($parseErrors.Count) { throw 'Deployment parse failure' }
+    $assignment = $ast.Find({param($node) $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -ceq '$metrics'}, $true)
+    $writer = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Write-DeploymentMetrics'}, $true)
+    $logs = $env:AZRAEL_METRICS_LOG_ROOT; $project = $env:AZRAEL_METRICS_PROJECT
+    $ReleaseName = 'fixture'; $VerifyOnly = $true; $release = $project; $package = $project; $fixture = $project; $EngineTargetDirectory = $null
+    $timer = [Diagnostics.Stopwatch]::StartNew()
+    foreach ($FullRegression in @($false, $true)) {
+      foreach ($ForceNativeVerification in @($false, $true)) {
+        $CargoVerificationCacheProjectRoot = Join-Path $project 'external-cache-owner'
+        Invoke-Expression $assignment.Extent.Text
+        Invoke-Expression $writer.Extent.Text
+        Write-DeploymentMetrics
+        Get-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Raw | ConvertFrom-Json | ConvertTo-Json -Depth 20 -Compress
+      }
+    }`;
+  const result = require('node:child_process').spawnSync(process.env.AZRAEL_TEST_PWSH || 'pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', command], {
+    windowsHide: true, encoding: 'utf8', env: { ...process.env, AZRAEL_METRICS_SCRIPT: path.join(__dirname, 'deploy-azrael.ps1'),
+      AZRAEL_METRICS_LOG_ROOT: logRoot, AZRAEL_METRICS_PROJECT: config.projectRoot },
+  });
+  assert.ifError(result.error);
+  assert.equal(result.status, 0, result.stderr);
+  const results = result.stdout.trim().split(/\r?\n/).map(line => JSON.parse(line));
+  assert.equal(results.length, 4);
+  for (const [index, result] of results.entries()) {
+    assert.equal(result.verificationPolicy.scope, index < 2 ? 'changed' : 'full');
+    assert.equal(result.verificationPolicy.nativeReuse, index % 2 === 0);
+    assert.equal(result.verificationPolicy.cargoVerificationCacheProjectRoot, path.join(config.projectRoot, 'external-cache-owner'));
+    assert.deepEqual(result.verificationResults.enginePreservation.summary, receipt.executionSummary);
+    assert.equal(result.verificationResults.enginePreservation.status, 'passed');
+  }
 });
 test('changed source identity and changed evidence prevent preflight handoff', async () => {
   for (const changed of ['source', 'log']) {
@@ -71,7 +147,7 @@ test('Cargo pass evidence survives an independent failure and honors explicit fo
   try {
     const { config, calls, state } = fixture();
     config.engineSourceRoot = path.join(config.projectRoot, 'engine'); fs.mkdirSync(config.engineSourceRoot);
-    for (const name of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-preflight-recipes.cjs', 'cargo-verification.cjs', 'artifact-lifecycle.cjs', 'cargo-target-owner.cjs', 'cargo-test-preparation.cjs', 'cargo-config-self-contained.py', 'verification-result-cache.cjs', 'directory-state.cjs', 'check-api-context.cjs']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
+    for (const name of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-preflight-recipes.cjs', 'cargo-verification.cjs', 'artifact-lifecycle.cjs', 'cargo-target-owner.cjs', 'cargo-shared-cache.cjs', 'cargo-test-preparation.cjs', 'cargo-config-self-contained.py', 'verification-result-cache.cjs', 'directory-state.cjs', 'check-api-context.cjs']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
     const checks = config.manifest.features[0].checks;
     checks.splice(1, 0, { id: 'engine.fixture.cargo', executable: 'node', args: ['scripts/check-api-context.cjs', '{engineSourceRoot}', 'skills'], level: 'native', cargoPreflight: 'selected-tests-v1' });
     state.fail = 'scripts/native.cjs'; const failed = await gate.runPreservation(config); assert.equal(failed.status, 'failed');
@@ -79,9 +155,17 @@ test('Cargo pass evidence survives an independent failure and honors explicit fo
     assert.equal(calls.filter(name => name === 'scripts/check-api-context.cjs').length, 1, failed.error);
     state.fail = undefined; const warm = await gate.runPreservation(config);
     assert.equal(warm.status, 'passed', warm.error); assert.equal(warm.cargoCache.reused, 1);
+    assert.deepEqual(warm.executionSummary.kinds.cargo, { executed: 0, reused: 1, miss: 0, forced: 0, preflightReused: 0 });
+    assert.equal(failed.executionSummary.kinds.cargo.miss, 1);
+    assert.equal(warm.nativeCache.executed, 0);
+    const proof = warm.checks.find(check => check.evidenceKind === 'cargo');
+    assert.equal(proof.originalEvidence.cacheKey, proof.cacheKey);
+    assert.equal(proof.originalEvidence.logSha256, proof.logSha256);
     assert.equal(calls.filter(name => name === 'scripts/check-api-context.cjs').length, 1);
     const forced = await gate.runPreservation({ ...config, reuseNativeChecks: false });
     assert.equal(forced.status, 'passed', forced.error); assert.equal(forced.cargoCache.reused, 0);
+    assert.deepEqual(forced.executionSummary.kinds.cargo, { executed: 1, reused: 0, miss: 0, forced: 1, preflightReused: 0 });
+    assert.equal(forced.reusePolicy.native, false);
     assert.equal(calls.filter(name => name === 'scripts/check-api-context.cjs').length, 2);
   } finally { cargo.runtime = runtime; }
 });

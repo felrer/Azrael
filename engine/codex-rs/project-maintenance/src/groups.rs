@@ -84,6 +84,11 @@ pub(crate) fn register(
         return Err("existing group ownership and kind cannot change".into());
     }
     let mut prepared = BTreeMap::new();
+    let mut newly_absent = BTreeSet::new();
+    let producer_source = group
+        .get("membership_source_format")
+        .or_else(|| previous.and_then(|old| old.get("membership_source_format")))
+        .is_some_and(|format| format == "producer_registry_v1");
     for member in members {
         let mut member = member.clone();
         let member_id = string(&member, "id")?.to_owned();
@@ -132,7 +137,12 @@ pub(crate) fn register(
                         .is_some_and(|members| members.iter().any(|id| id == &member_id))
                 })
         });
-        member = prepare_registered_item(root, member, previous_member, auth)?;
+        // Tentative absence is committed only after the complete producer
+        // contract and every projected member have been verified below.
+        member = prepare_registered_item(root, member, previous_member, producer_source, auth)?;
+        if previous_member.is_none() && member["presence"] == "absent" {
+            newly_absent.insert(member_id.clone());
+        }
         if let Some(old) = state.items.get(&member_id) {
             if cached_live(old) {
                 let old_path = Path::new(string(old, "path")?);
@@ -218,8 +228,14 @@ pub(crate) fn register(
         }
         group["membership_source"] = json!(source);
         let observed = source_measurement(root, &group, &prepared, auth)?;
+        if !newly_absent.is_empty() {
+            crate::registry::validate_absent_adoption(&group, &prepared, &newly_absent, &observed)?;
+        }
         group["membership_source_identity"] = observed["identity"].clone();
     } else {
+        if !newly_absent.is_empty() {
+            return Err("absent adoption requires a verified producer source".into());
+        }
         if group.get("membership_source_format").is_some() {
             return Err("membership source format requires a source".into());
         }
@@ -261,6 +277,7 @@ pub(crate) fn refresh(
         }
         let path = paths::resolve(root, Path::new(string(item, "path")?))?;
         paths::check(root, &path, auth)?;
+        paths::registered_observation(root, &path, auth)?;
         if paths::within(&path, &source) || paths::within(&source, &path) {
             return Err("membership source overlaps deletion member".into());
         }

@@ -11,6 +11,7 @@ sha2.workspace = true
 dunce.workspace = true
 
 [target.'cfg(windows)'.dependencies]
+codex-utils-process.workspace = true
 windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_Storage_FileSystem", "Win32_System_IO", "Win32_System_Ioctl"] }
 
 [dev-dependencies]
