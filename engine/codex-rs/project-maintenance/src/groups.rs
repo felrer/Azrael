@@ -469,6 +469,42 @@ fn combine(
     Ok(combined)
 }
 impl Batch {
+    pub(crate) fn unchanged_controls(
+        &self,
+        root: &Path,
+        state: &State,
+        auth: Auth<'_>,
+    ) -> Result<(), String> {
+        let group = state
+            .groups
+            .get(string(&self.definition, "id")?)
+            .ok_or("group disappeared")?;
+        if definition(group) != self.definition
+            || live_ids(root, state, group, auth)?
+                .into_iter()
+                .collect::<BTreeSet<_>>()
+                != self.members.keys().cloned().collect()
+            || observe_source(root, group, &self.source_members, auth) != self.source
+        {
+            return Err("enclosing lifecycle controls changed".into());
+        }
+        for (id, item) in &self.members {
+            let path = Path::new(string(item, "path")?);
+            let unchanged = match self.verification {
+                Verification::Registered => {
+                    paths::registered_observation(root, path, auth)?
+                        == self.reviews[id]["root_observation"]
+                }
+                Verification::Full => {
+                    paths::measure(root, path, auth)?["identity"] == self.reviews[id]["identity"]
+                }
+            };
+            if !unchanged {
+                return Err("enclosing lifecycle root changed".into());
+            }
+        }
+        Ok(())
+    }
     pub fn initial(&self) -> Result<BTreeMap<String, Value>, String> {
         combine(&self.definition, &self.reviews, &self.source)
     }

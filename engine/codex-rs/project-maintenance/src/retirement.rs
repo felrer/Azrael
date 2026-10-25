@@ -25,7 +25,11 @@ pub(crate) fn selected(auth: Auth<'_>, item: &Value) -> bool {
     })
 }
 
-fn read_evidence(root: &Path, reference: &str, auth: Auth<'_>) -> Result<String, String> {
+pub(crate) fn read_evidence(
+    root: &Path,
+    reference: &str,
+    auth: Auth<'_>,
+) -> Result<String, String> {
     let evidence = paths::resolve(root, Path::new(reference))?;
     if !paths::within(&evidence, &root.join("artifacts/maintenance/evidence")) {
         return Err(

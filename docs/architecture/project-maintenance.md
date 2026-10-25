@@ -51,6 +51,12 @@ ReadOnly·Hidden 속성의 일반화가 필요한 Windows 파일은 삭제 루�
 일반 삭제 범위는 선택한 프로젝트의 `project-maintenance.json`에 있는 `managed_roots`의 엄격한 하위 경로다. 이 범위에 들어가지 않는 대상은 `outside configured managed roots`, 관리 루트 자체인 대상은 `managed root itself is protected; select owned descendants`로 구별한다. 등록된 묶음도 같은 경계와 별도의 보호 참조·권한 검사를 따른다.
 
 
+### 중첩 소유 항목의 단계적 폐기
+
+`retire_nested_member`는 같은 소유자가 완결된 서로 다른 두 묶음에서 엄격히 중첩된 항목을 정리하는 제한된 절차다. 각 묶음에는 실제 live 항목이 하나만 있어야 한다. 요청은 `parent`, `child`, `owner`, `reason`, 삭제 경계 밖 `evidence_ref`를 명시하고 양쪽 묶음을 함께 검토한다. 일반 중첩 보호는 유지하고, 이 정확한 쌍의 별도 whole-group 결정 요구만 대체한다. 다른 중첩 항목과 원본·membership evidence·실행·참조·권한·링크 보호는 유지한다.
+
+적용은 fresh token을 가진 상위 `defer`와 하위 `delete` 두 결정만 허용한다. 상위의 보호나 stale token도 하위 삭제를 차단한다. 하위를 먼저 처리하고 기존 durable intent·삭제·부분 실패 기록을 재사용한다. 삭제 직전 상위의 구성과 membership evidence도 다시 확인한다. 하위 삭제는 상위 내용 변경이므로 상위는 현재 내용으로 전체 재등록하고 새 검토를 받아야 한다. 상위까지 같은 호출에서 삭제하거나 원래 producer의 unknown 결과를 성공으로 바꾸지 않는다. 요청과 증거 identity를 토큰 및 결과에 보존한다. 검증 범위와 실제 적용 결과는 [작업 기록](../../work/DS-01-version-011-cleanup/01-plan.md)이 소유한다.
+
 ### 관리 경계 폐기
 
 상태: 소스 구현 및 Windows 검증 완료. crate의 90개 검사에 폐기 회귀 8개가 포함되어 통과했고, 별도 소유자 실행기 컴파일을 확인했다. 다른 OS 실행과 설치된 제품의 반영은 별도다. 일반 검토·삭제의 관리 루트 보호는 유지한다. 생성물의 수명이 끝나 관리 경계 자체를 폐기할 때만 `review`와 `apply`에 같은 `retire_managed_roots` 요청을 명시한다. 요청은 정확한 항목 ID 목록, 등록된 소유자, 폐기 이유, 삭제 경계 밖의 보존 근거를 가진다. 등록 프로젝트 루트 자체는 폐기할 수 없다.

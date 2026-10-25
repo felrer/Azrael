@@ -3460,6 +3460,8 @@
         "engine/codex-rs/project-maintenance/src/apply.rs",
         "engine/codex-rs/project-maintenance/src/lib.rs",
         "engine/codex-rs/project-maintenance/src/retirement.rs",
+        "engine/codex-rs/project-maintenance/src/nested_retirement.rs",
+        "engine/codex-rs/project-maintenance/tests/nested_retirement.rs",
         "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
         "engine/codex-rs/project-maintenance/tests/root_retirement.rs",
         "engine/codex-rs/project-maintenance/tests/absent_adoption.rs",

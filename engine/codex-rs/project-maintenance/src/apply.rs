@@ -109,7 +109,7 @@ pub(crate) fn apply(
                 if member_choice["decision"] != choice["decision"] {
                     return Err("all lifecycle members must share delete or defer fate".into());
                 }
-                if choice["decision"] == "delete"
+                if (choice["decision"] == "delete" || auth.nested_retirement.borrow().is_some())
                     && (initial[member_id]["token"] != member_choice["token"]
                         || !initial[member_id]["blockers"]
                             .as_array()
@@ -122,6 +122,16 @@ pub(crate) fn apply(
                 }
             }
             batches.insert(group_id.to_owned(), batch);
+        }
+    }
+    // The enclosing group is deferred, but must pass the same complete fresh
+    // review as the child before the child may change its payload.
+    if auth.nested_retirement.borrow().is_some() && !stopped_groups.is_empty() {
+        for group in batches.keys() {
+            stopped_groups.insert(
+                group.clone(),
+                "nested retirement review is stale or protected".into(),
+            );
         }
     }
     let mut ordered = Vec::new();
@@ -181,6 +191,14 @@ pub(crate) fn apply(
             ordered.push(choice);
         }
     }
+    if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
+        ordered.sort_by_key(|choice| choice["id"] == nested.parent);
+    }
+    let nested_parent_group = auth
+        .nested_retirement
+        .borrow()
+        .as_ref()
+        .and_then(|nested| groups::id(&store.state.items[&nested.parent]).map(str::to_owned));
     let mut results = Vec::new();
     for choice in ordered {
         let id = string(choice, "id")?;
@@ -188,6 +206,13 @@ pub(crate) fn apply(
         let path = Path::new(string(&item, "path")?);
         let group_id = groups::id(&item).map(str::to_owned);
         let mut outcome = choice.clone();
+        if auth.nested_retirement.borrow().is_some() {
+            outcome["retire_nested_member"] =
+                serde_json::to_value(&*auth.nested_retirement.borrow())
+                    .map_err(|e| e.to_string())?;
+            outcome["nested_evidence_identity"] =
+                json!(crate::nested_retirement::evidence_identity(root, auth)?);
+        }
         if crate::retirement::selected(auth, &item) {
             outcome["retire_managed_roots"] = serde_json::to_value(&*auth.retirement.borrow())
                 .map_err(|error| error.to_string())?;
@@ -221,6 +246,9 @@ pub(crate) fn apply(
                 auth,
                 group_id.as_ref().and_then(|group| batches.get(group)),
                 approved_entries.get(id).map(Vec::as_slice),
+                nested_parent_group
+                    .as_ref()
+                    .and_then(|group| batches.get(group)),
             ) {
                 Ok(entries) if entries.is_empty() => {
                     outcome["status"] = json!("deleted");
@@ -280,6 +308,9 @@ pub(crate) fn apply(
                 } else {
                     None
                 },
+                nested_parent_group
+                    .as_ref()
+                    .and_then(|group| batches.get(group)),
             ) {
                 Err(error) => {
                     outcome["status"] = json!("blocked");
@@ -321,6 +352,14 @@ pub(crate) fn apply(
             // Persist the actual deletion result before any subsequent read or
             // authorization can fail. A denied result write returns the observed
             // outcome while its durable intent remains pending for recovery.
+            if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
+                store
+                    .state
+                    .items
+                    .get_mut(&nested.parent)
+                    .ok_or("nested parent disappeared")?["nested_retirement_requires_registration"] =
+                    json!(true);
+            }
             record(&mut store.state, index, &outcome);
             if let Err(error) = store.save(auth) {
                 outcome["persistence_error"] = json!(error);
@@ -451,8 +490,12 @@ fn safe_entries(
     auth: Auth<'_>,
     batch: Option<&groups::Batch>,
     approved: Option<&[PathBuf]>,
+    enclosing: Option<&groups::Batch>,
 ) -> Result<Vec<PathBuf>, String> {
     let observe = || -> Result<Value, String> {
+        if let Some(enclosing) = enclosing {
+            enclosing.unchanged_controls(root, state, auth)?;
+        }
         if let Some(batch) = batch {
             batch
                 .current(root, config, config_identity, state, auth)?

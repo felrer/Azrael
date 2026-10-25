@@ -3,6 +3,7 @@
 mod apply;
 mod groups;
 mod lock_recovery;
+mod nested_retirement;
 mod paths;
 mod planning;
 mod registry;
@@ -31,6 +32,7 @@ pub(crate) struct Context<'a> {
     content: std::cell::RefCell<paths::ContentCache>,
     catalog_locks: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
     retirement: std::cell::RefCell<Option<retirement::Retirement>>,
+    nested_retirement: std::cell::RefCell<Option<nested_retirement::Retirement>>,
     junctions: std::cell::RefCell<BTreeMap<PathBuf, Value>>,
 }
 
@@ -41,6 +43,7 @@ impl<'a> Context<'a> {
             content: Default::default(),
             catalog_locks: Default::default(),
             retirement: Default::default(),
+            nested_retirement: Default::default(),
             junctions: Default::default(),
         }
     }
@@ -206,6 +209,8 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     let _catalog_locks = registry::lock_request(&root, &request, &store.state, authorize)?;
     *authorize.retirement.borrow_mut() =
         retirement::validate(&root, config.as_ref(), &store.state, &request, authorize)?;
+    *authorize.nested_retirement.borrow_mut() =
+        nested_retirement::validate(&root, &store.state, &request, authorize)?;
     if operation == "apply" {
         return apply::apply(
             &root,
@@ -750,7 +755,10 @@ fn review_ungrouped(
                     Ok(_) => {}
                 }
             }
-            if groups::id(other).is_some() && groups::id(other) != groups::id(item) {
+            if groups::id(other).is_some()
+                && groups::id(other) != groups::id(item)
+                && !nested_retirement::pair(auth, item, other)
+            {
                 selected["blockers"]
                     .as_array_mut()
                     .ok_or("invalid review")?
@@ -837,6 +845,9 @@ fn review_single(
     }
     if item["cleanup_status"] == "pending" {
         blockers.push("cleanup attempt pending recovery");
+    }
+    if item["nested_retirement_requires_registration"] == true {
+        blockers.push("nested retirement changed enclosing content; full registration required");
     }
     if item["generated"] != true || item["protection_known"] != true {
         blockers.push("generation or usage protection unconfirmed");
@@ -963,7 +974,7 @@ fn review_single(
         }
     }
     let token = hash(
-        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity,"retire_managed_roots":*auth.retirement.borrow(),"retirement_evidence_identity":retirement::evidence_identity(root, auth)?}),
+        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity,"retire_managed_roots":*auth.retirement.borrow(),"retirement_evidence_identity":retirement::evidence_identity(root, auth)?,"retire_nested_member":*auth.nested_retirement.borrow(),"nested_evidence_identity":nested_retirement::evidence_identity(root, auth)?}),
     )?;
     Ok(
         json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"verification":verification.name(),"root_observation":observation,"observed_at_ms":now_ms()?,"measured_at_ms":if verification == Verification::Registered {item["measured_at_ms"].clone()} else {json!(now_ms()?)},"token":token,"blockers":blockers}),
@@ -1037,6 +1048,13 @@ fn prepare_registered_item(
     item["path"] = json!(path);
     item["identity"] = measured["identity"].clone();
     item["logical_bytes"] = measured["logical_bytes"].clone();
+    if !absent {
+        item.as_object_mut()
+            .ok_or("invalid registered item")?
+            .remove("nested_retirement_requires_registration");
+    } else if measured["nested_retirement_requires_registration"] == true {
+        item["nested_retirement_requires_registration"] = json!(true);
+    }
 
     if absent && measured["cleanup_status"] == "pending" {
         item["cleanup_status"] = json!("pending");

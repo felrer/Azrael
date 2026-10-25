@@ -23,6 +23,12 @@
 
 `evidence_ref`는 선택 프로젝트의 `artifacts/maintenance/evidence/` 아래에 있는 1 MiB 이하 일반 파일이다. 현재 읽기 권한과 링크 검사를 통과해야 하며 내용 identity를 검토 토큰에 묶는다. 이 실행기는 선택 경계의 기존 OS 권한을 사용한다. 승격·force·ACL/소유권 변경을 하지 않는다. 거부된 보호를 다른 shell이나 API로 우회하지 않는다. `results`의 실제 status/remaining과 경로 부재를 확인하고 부분 실패를 보존한다. 설정된 경계와 native 이력은 보존되므로 payload 삭제가 별칭 해제나 관리 이력 삭제를 뜻하지 않는다. 별칭이 필요 없으면 실제 결과 확인 뒤 별도의 `unregister_project`로 메타데이터만 해제한다.
 
+## 중첩 소유 항목의 단계적 폐기
+
+검증한 `maintenance_owner`에서만 `retire_nested_member`를 사용한다. 예시는 `{"parent":"PARENT_ID","child":"CHILD_ID","owner":"OWNER","reason":"폐기 근거","evidence_ref":"artifacts/maintenance/evidence/retirement.json"}`다. 같은 소유자의 서로 다른 완결 묶음이며 각각 live 항목이 하나이고 child가 parent의 엄격한 하위여야 한다. 근거 파일은 parent 밖에 보존한다.
+
+review에 양쪽 ID 또는 양쪽 group ID를 명시한다. apply에는 같은 요청과 fresh token을 사용해 parent `defer` 및 child `delete` 두 결정을 제출한다. parent의 `revisit_condition`에는 하위 삭제 후 상위 현재 구성의 전체 재등록·재검토를 명시한다. 상위의 보호·stale 검토도 하위 삭제를 차단한다. 하위의 실제 삭제 결과와 부재를 확인한 뒤 상위를 전체 재등록하고 일반 review/apply로 진행한다. 실패하면 원래 소유와 pending 결과를 보존하며 원시 manifest 수정이나 직접 삭제로 우회하지 않는다.
+
 ## 기존 테스트 선택기
 
 다음 명령은 목록과 계획만 출력한다.
