@@ -31,7 +31,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 | **Accounts and usage** | Connect several accounts per provider, see remaining quota and reset times, and switch in one click. |
 | **Models across providers** | OpenAI, Devin, Anthropic, Google, xAI, OpenRouter and your own API endpoints in one searchable picker; switch mid-conversation. |
 | **Context compaction** | Per-model automatic thresholds plus a manual compaction you can queue without interrupting the running turn. |
-| **Window Use** *(Windows, experimental)* | The agent captures and operates one approved window while your mouse, keyboard and clipboard stay with you. |
+| **Window Use** *(experimental)* | The agent observes and operates one selected window while your mouse, keyboard and clipboard stay with you. |
 | **Session flags** | Pin a red flag on a conversation so it stands out in the Chats list. |
 | **Recovery and queues** | Queued inputs survive reloads; accepted turns are reconciled instead of replayed. |
 
@@ -145,29 +145,30 @@ Details: [accounts](docs/architecture/accounts.md), [managed providers](docs/arc
 
 ## Window Use: work alongside the agent
 
-Classic **Computer Use** drives the whole desktop: it moves your cursor, types into whatever has focus and needs the screen to itself, so you stop working while the agent works. **Window Use** is a separate Windows feature built so that both of you can work at the same time.
+Classic whole-desktop control moves your cursor, types into whatever has focus and needs the screen to itself, so you stop working while the agent works. **Window Use** is Azrael's desktop feature built around the opposite idea: the agent works on **one window it selected**, sees that window's own content even when it is covered, and acts through the app's accessibility interface so your cursor, keyboard and clipboard stay yours.
 
 ![The agent controls an occluded spreadsheet window while the person keeps typing in an editor](docs/images/window-use.svg)
 
-| | Computer Use | Window Use |
+Window Use grants authority in four stages. Each stage has its own switch, and an agent asks for a higher stage instead of assuming it:
+
+| Stage | What the agent may do | Impact on you |
 | --- | --- | --- |
-| **Target** | The whole desktop | One window the agent selected |
-| **Seeing** | Screenshots of the visible screen | Windows Graphics Capture of the target's own content, even when other windows cover it and without raising it |
-| **Acting** | Shared mouse and keyboard | UI Automation actions on the target; no cursor movement, no shared keyboard stream, no clipboard use |
-| **Your input** | Interrupted | Designed to stay with you |
-| **Approval** | Its own app list | A separate app list — Computer Use approval grants no Window Use authority |
+| **1 · Observation** | List windows, select one, capture it and read its UI tree — without raising it, focusing it or restoring it | None. Needs no per-app approval. |
+| **2 · Current-window control** | Act on the selected window in your session through UI Automation | You keep working elsewhere; some actions can bring the app or its dialogs forward. |
+| **3 · Isolated execution** | Run an approved app in a separate Windows session with its own input | Designed for full input isolation. Off by default and not yet admitted on any tested machine. |
+| **4 · Whole-desktop control** | Use the classic desktop backend (Computer Use) | Shares your desktop, as before. |
 
-How a session runs:
+How a working session looks:
 
-1. The agent lists open windows. Each candidate shows whether another Azrael session already holds it (`available`, `occupied` or `unknown`).
-2. It selects one window. The first time an app is used you approve it — for this conversation, always, or deny — in an in-chat card, also announced with a Windows notification. Allow-all is off and the approved-app list starts empty.
-3. A soft glow spreads inward from the selected window's corners, and when that window is in the foreground a translucent hint reminds you that **Esc** stops control.
-4. The agent inspects UI elements and acts on them — invoke, set value, toggle, select, expand, scroll — or runs a saved **task macro** (up to 32 steps, 20 seconds) in a single call. A minimized target pauses and can be restored without stealing focus.
+1. **Find and select.** The agent lists open windows. Each candidate shows whether another Azrael session already holds it (`available`, `occupied` or `unknown`), so two conversations do not fight over one window.
+2. **Approve the app.** From stage 2 on, the first use of an app asks you to approve it for this conversation, approve it always, or decline, in an in-chat card that is also announced with a Windows notification. Allow-all is off and the approved-app list starts empty; Window Use approvals are separate from Computer Use approvals.
+3. **See what it controls.** A soft glow spreads inward from the selected window's corners. While that window is in the foreground, a translucent, click-through hint shows the stop shortcut **Ctrl+Alt+Shift+F12**, which halts control and queued steps until you resume. A plain Esc still reaches the app.
+4. **Act in few round trips.** The agent inspects compact element summaries and invokes, sets values, toggles, selects, expands or scrolls — or runs a **task macro** of up to 32 steps (20 seconds) in a single call instead of one model turn per click. A minimized target pauses safely and can be restored without stealing your focus.
 
 > [!WARNING]
-> **Window Use is experimental and partially verified.** Capture, inspection and status have passed on real Firefox and File Explorer windows, including an Explorer window 27.94% covered by a foreground window, and some Explorer actions have been verified. *Not* yet accepted: isolation of your physical input during simultaneous use, installed GUI/tool availability, approval notifications, the overlay, and macros on real windows. Some actions can activate the target, and background key delivery is experimental. It depends on the application exposing usable UI Automation controls, and a failure never widens authority to the whole desktop.
+> **Window Use is experimental and partially verified.** On Windows, capture, inspection and status pass on real Firefox and File Explorer windows — including an Explorer window 27.94% covered by a foreground window — and some Explorer actions are verified, with foreground activation observed during them. *Not* yet accepted: isolation of your physical input during simultaneous use, stage 3 on any tested machine (including Windows 11 Home), real-window macros, visible approval notifications, and overlay behaviour across monitors. Background key delivery is experimental, results depend on the app exposing usable UI Automation controls, and a failure never widens authority to a higher stage.
 
-Details: [Window Use](docs/architecture/window-use.md), [Computer Use](docs/architecture/computer-use.md).
+Details: [Window Use](docs/architecture/window-use.md), [desktop backend (Computer Use)](docs/architecture/computer-use.md).
 
 ## Session flags
 
@@ -177,38 +178,43 @@ Long-running projects produce many conversations. Hover a row in **Chats** and c
 
 ## Platform support
 
-Azrael targets local VS Code on **Windows x64**, **glibc Linux x64** and **Apple Silicon macOS**. Their states differ:
+Azrael targets local VS Code on **Windows x64**, **glibc Linux x64** and **Apple Silicon macOS**. All three have public packages on the [2026.0.5 release](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.5), with different verified scopes:
 
 | Platform | Package | Verified scope |
 | --- | --- | --- |
-| **Windows x64** | [2026.0.5](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.5) (latest) | Baseline platform for every feature in this README. |
-| **Linux x64 (glibc)** | [2026.0.1](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.1) | Package and installed host accepted on Ubuntu 24.04 / glibc 2.39 with native Linux VS Code through WSLg. |
-| **macOS (Apple Silicon)** | Not published | Partial internal acceptance only; public distribution is deferred. |
+| **Windows x64** | 2026.0.5 (latest) | Baseline platform for every feature in this README, including the desktop-control backend. |
+| **Linux x64 (glibc)** | 2026.0.5, plus the Linux-only [2026.0.6 hotfix](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.6) | 2026.0.5 passed package and installed-host acceptance on Ubuntu 24.04 / glibc 2.39 with native Linux VS Code through WSLg. 2026.0.6 fixes custom-API tool context and was accepted only for that context and tool-call flow. |
+| **macOS (Apple Silicon)** | 2026.0.5 | Package, installed host and rendered UI accepted on macOS 26.6.2 with VS Code 1.138.0. Ad-hoc signed, **not** Developer ID-signed or Apple-notarized. |
 
 ### Not available on Linux and macOS
 
-Unix packages ship without the Windows desktop-control payload and never start its backend; the related routes report *unavailable*. Specifically:
+Unix packages ship without the Windows desktop-control payload and never start that backend; the related routes report *unavailable*. On both platforms this means:
 
-- **Window Use** — window discovery, background capture, UI Automation control, task macros, session occupancy, the corner-glow overlay and the Esc hint
-- **Computer Use**
+- **Whole-desktop control** (Window Use stage 4, the Computer Use backend) and **isolated execution** (stage 3)
+- **Windows Window Use** as described above — Windows Graphics Capture, UI Automation actions, task macros, the corner-glow overlay and the stop-shortcut hint
 - **Windows approval notifications** for desktop-control consent
-- **Windows native integrations** under [`native/`](native/)
+- The Windows native modules under [`native/`](native/)
 
-Native desktop control for Unix (macOS capture/accessibility, Linux X11/Wayland) is a later candidate, not current scope.
+Platform-specific notes:
 
-### Verified only on Windows so far
+- **macOS** has no desktop-control backend at all; native capture and accessibility are a later scope. Voice usage is also unverified.
+- **Linux** public packages leave Window Use outside their verified scope. A separate local Linux port adds bounded selected-window control on **Xorg** (XComposite capture, AT-SPI actions, a GTK stop control instead of the shortcut and glow); it is verified only on isolated GTK windows, not on arbitrary desktops or applications. **Wayland** is not supported.
 
-These are part of the shared product but have no Linux or macOS acceptance yet:
+### Not yet verified outside Windows
+
+These belong to the shared product, but Linux and macOS acceptance has not covered them:
 
 - External work completion signals for scheduled root resume
-- Live provider sign-in and inference, and switching between real accounts (Linux acceptance used synthetic accounts)
-- Standalone Linux desktops and distributions older than Ubuntu 24.04
+- Live provider sign-in and inference, and switching between real accounts (Unix acceptance used synthetic accounts)
+- Standalone Linux desktops, distributions other than Ubuntu 24.04, and macOS versions other than 26.6.2
 
-The Linux package was built from release 2026.0.1, earlier than the current Windows release, so features added since may be missing from it. Linux needs **glibc 2.39+, OpenSSL 3**, a desktop **Secret Service** for stored accounts and CJK fonts for Korean labels. Intel Macs, Linux ARM64, Alpine/musl, WSL as a product target, Remote SSH and containers are follow-up targets.
+Linux needs **glibc 2.39+, OpenSSL 3**, a desktop **Secret Service** (for example GNOME Keyring) to store managed accounts, and CJK fonts for Korean labels. Intel Macs, Linux ARM64, Alpine/musl, WSL as a product target, Remote SSH and containers are follow-up targets.
 
-Details: [multi-platform contract](docs/architecture/multi-platform.md), [platform operations](docs/ops/multi-platform.md).
+Details: [multi-platform contract](docs/architecture/multi-platform.md), [platform operations](docs/ops/multi-platform.md), [Linux local host](docs/ops/linux.md), [release records](docs/ops/app-release.md).
 
 ## Installation
+
+Every package bundles its own Node runtime and keeps Azrael state in `~/.azrael-ex`, separate from ordinary Codex state. Existing Codex extensions, sign-ins and conversations are preserved. Each release also ships an `INSTALL.md` asset that is authoritative for its version.
 
 ### Windows
 
@@ -225,17 +231,17 @@ Details: [multi-platform contract](docs/architecture/multi-platform.md), [platfo
 
 4. In VS Code run **Developer: Reload Window**. The installer never closes or reloads windows itself.
 
-The package carries its own runtime dependencies and Node. Runtimes go to `%LOCALAPPDATA%/azrael-ex/releases/<version>` and state to `%USERPROFILE%/.azrael-ex`; existing sign-ins and conversations are preserved. Useful options: `-ReleasesRoot`, `-StateRoot`, `-CodePath`, `-DevinExecutable` and `-PrepareOnly` (prepare without invoking VS Code). A different `-StateRoot` does not migrate existing accounts. See [app release installation](docs/ops/app-release.md#package-and-installation-contract).
+Runtimes go to `%LOCALAPPDATA%/azrael-ex/releases/<version>` and state to `%USERPROFILE%/.azrael-ex`. Useful options: `-ReleasesRoot`, `-StateRoot`, `-CodePath`, `-DevinExecutable` and `-PrepareOnly` (prepare without invoking VS Code). A different `-StateRoot` does not migrate existing accounts. See [app release installation](docs/ops/app-release.md#package-and-installation-contract).
 
 ### Linux
 
-Download all four Linux assets from the [2026.0.1 release](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.1) into one directory — `.tar.gz`, `.manifest.json`, `.SHA256SUMS.txt` and `Azrael-2026.0.1-linux-x64.INSTALL.md` — then:
+Download the four `Azrael-2026.0.5-linux-x64.*` assets (`.tar.gz`, `.manifest.json`, `.SHA256SUMS.txt`, `.INSTALL.md`) into one directory, close existing Azrael sessions, then:
 
 ```sh
-sha256sum -c Azrael-2026.0.1-linux-x64.SHA256SUMS.txt
-mkdir Azrael-2026.0.1-linux-x64
-tar -xzf Azrael-2026.0.1-linux-x64.tar.gz -C Azrael-2026.0.1-linux-x64
-cd Azrael-2026.0.1-linux-x64
+sha256sum -c Azrael-2026.0.5-linux-x64.SHA256SUMS.txt
+mkdir Azrael-2026.0.5-linux-x64
+tar -xzf Azrael-2026.0.5-linux-x64.tar.gz -C Azrael-2026.0.5-linux-x64
+cd Azrael-2026.0.5-linux-x64
 ./runtime/runtime/node/node install-platform-release.cjs \
   --package "$PWD" \
   --install-root "$HOME/.local/share/azrael/releases" \
@@ -243,11 +249,22 @@ cd Azrael-2026.0.1-linux-x64
   --code "$(command -v code)"
 ```
 
-Close existing Azrael sessions first and restart VS Code afterwards. The downloaded `INSTALL.md` covers Secret Service setup, prepare-only installation and recovery.
+Restart VS Code afterwards and keep the extracted directory. If you use custom API models, the [2026.0.6 hotfix](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.6) installs the same way but with its own `INSTALL.md`; remember its narrower verification.
 
-### macOS
+### macOS (Apple Silicon)
 
-No public package yet. Developers preparing an internal candidate should follow [platform operations](docs/ops/multi-platform.md).
+Download the four `Azrael-2026.0.5-darwin-arm64.*` assets, then:
+
+```sh
+shasum -a 256 -c Azrael-2026.0.5-darwin-arm64.SHA256SUMS.txt
+mkdir Azrael-2026.0.5-darwin-arm64
+tar -xzf Azrael-2026.0.5-darwin-arm64.tar.gz -C Azrael-2026.0.5-darwin-arm64
+cd Azrael-2026.0.5-darwin-arm64
+runtime/runtime/node/node install-platform-release.cjs --package "$PWD" --prepare-only
+runtime/runtime/node/node install-platform-release.cjs --package "$PWD"
+```
+
+The package is ad-hoc signed without Apple notarization. If Gatekeeper blocks a trusted item, try to launch it once, then use **System Settings → Privacy & Security → Open Anyway** ([Apple guidance](https://support.apple.com/en-lamr/102445)). Keep Gatekeeper and SIP enabled.
 
 ## Usage
 
@@ -269,7 +286,7 @@ Provider requirements are in [provider account operations](docs/ops/provider-acc
 | Change account | Click another account in **Accounts and usage**, or enable **Allow automatic switching** on it. |
 | Change model or provider | Pick another model in the composer; it applies from the next turn. |
 | Free up context | Click **Compact context** in the gauge card or type `/compact`. |
-| Let the agent use an app beside you | Enable Window Use in settings, ask the agent to work in that app, approve it when asked, and press **Esc** to stop. *(Windows only.)* |
+| Let the agent use an app beside you | Enable Window Use in settings, ask the agent to work in that app, approve it when asked, and press **Ctrl+Alt+Shift+F12** to stop. *(Windows; see Linux notes.)* |
 | Find a conversation later | Flag its row in **Chats**. |
 
 ## Development
