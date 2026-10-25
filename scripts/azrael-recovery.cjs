@@ -486,6 +486,13 @@ function disconnect(host) {
   controllers.get(host)?.disconnect();
 }
 
-module.exports = { initialize, dispatch, observe, disconnect };
+function recordWindowLogoffFailure({requestId,phase,nativeCode,error,mutationOutcome}) {
+  if(!/^[a-f0-9-]{36}$/i.test(requestId) || !['runtime','inspection','approval','logoff'].includes(phase))return;
+  const knownCodes=['child_logoff_runtime_invalid','child_logoff_inspection_failed','child_logoff_approval_failed','child_logoff_failed'];
+  const errorTypes=['Error','TypeError','ReferenceError','SyntaxError','RangeError'];
+  const causes=[];for(let value=error;value&&causes.length<3;value=value.cause)causes.push(errorTypes.includes(value.name)?value.name:'unknown');
+  ui?.log({event:'window_use.logoff_failed',component:'window-use',requestId,phase,nativeCode:knownCodes.includes(nativeCode)?nativeCode:'child_logoff_failed',errorTypes:causes,mutationOutcome:mutationOutcome==='not_executed'?'not_executed':'unknown'});
+}
+module.exports = { initialize, dispatch, observe, disconnect, recordWindowLogoffFailure };
 registry.set(runtimeKey, module.exports);
 }

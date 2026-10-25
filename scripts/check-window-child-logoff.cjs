@@ -6,7 +6,7 @@ async function main(){
   const root=path.resolve(__dirname,'..');
   const run=beginArtifactRun(root,{workId:'DB-01-window-child-logoff',owner:'scripts/check-window-child-logoff.cjs'});
   console.log(JSON.stringify({runRoot:run.runRoot,lifecycleId:run.lifecycleId}));
-  const tests=['test-window-child-explicit-logoff.cjs','test-window-child-logoff.cjs','test-window-child-session.cjs','test-window-child-reconnect.cjs','test-window-use-host.cjs','test-window-control-policy.cjs','test-window-control-mcp.cjs','test-window-use-async-approvals.cjs','test-window-use-isolation.cjs','test-window-use-resources.cjs','test-window-control-runtime.cjs','test-window-use-stage-authority.cjs','test-window-use-staging.cjs'];
+  const tests=['test-window-child-explicit-logoff.cjs','test-window-child-logoff.cjs','test-window-child-session.cjs','test-window-child-reconnect.cjs','test-window-use-host.cjs','test-window-control-policy.cjs','test-window-control-mcp.cjs','test-window-use-async-approvals.cjs','test-window-use-isolation.cjs','test-window-use-resources.cjs','test-window-control-runtime.cjs','test-window-use-stage-authority.cjs','test-window-use-staging.cjs','test-recovery-bridge.cjs'];
   const env={...process.env,TMP:run.temporary,TEMP:run.temporary,TMPDIR:run.temporary,
     WINDOW_USE_LOGOFF_TEST_OWNER_ROOT:run.temporary,WINDOW_USE_LOGOFF_TEST_ROOT:path.join(run.temporary,'logoff'),WINDOW_USE_HOST_TEST_ROOT:path.join(run.temporary,'host'),
     WINDOW_USE_ISOLATION_TEST_ROOT:path.join(run.temporary,'isolation'),WINDOW_USE_RESOURCE_TEST_ROOT:path.join(run.temporary,'resources'),WINDOW_CHILD_RECONNECT_TEST_ROOT:path.join(run.temporary,'reconnect')};

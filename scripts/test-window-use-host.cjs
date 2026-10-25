@@ -35,7 +35,7 @@ async function replayResult(f, method, expected, returned = expected) {
 }
 const logoffIdentity={sid:'S-1-5-21-fixture',profile:'C:/fixture',parentSessionId:2,childSessionId:10,sessionAnchorPid:99,sessionAnchorCreated:'12345'};
 async function logoffFixture(t,inspection,logoff,extra={}) {
-  const f=await fixture(t,false,undefined,undefined,{...extra,runtime:{nodeExecutable:process.execPath,windowControl:{childSession:{executable:'C:/fixture/helper.exe',sha256:'a'.repeat(64),logoffScript:'C:/fixture/request-window-child-logoff.ps1'}}},childLogoff:{inspectChildLogoff:async()=>inspection,logoffCurrentChild:logoff}});
+  const f=await fixture(t,false,undefined,undefined,{...extra,runtime:{computerUse:{directory:path.dirname(process.execPath)},windowControl:{childSession:{executable:'C:/fixture/helper.exe',sha256:'a'.repeat(64),logoffScript:path.join(__dirname,'request-window-child-logoff.ps1')}},...extra.runtime},childLogoff:{inspectChildLogoff:extra.inspectChildLogoff??(async()=>inspection),logoffCurrentChild:logoff}});
   const settings=require('./use-control-settings.cjs').createSettingsOwner(f.home);settings.updateSettings({stage3Enabled:true},settings.getSettings().revision);
   f.started();await f.host.threads.get(ids[0]).ready;
   return {...f,invoke:()=>f.host.handlePipe({...f.message(),tool:'logoff_isolated',arguments:{reason:'사용자가 기존 자식 세션 종료를 요청했습니다.'}})};
@@ -44,6 +44,33 @@ test('healthy occupied child logoff is blocked without asking or calling native 
   const f=await logoffFixture(t,{ok:true,present:true,identity:logoffIdentity,health:'healthy',ownerPresent:true,allowed:false,reasons:[]},()=>assert.fail('occupied child must not be logged off'));
   f.host.registerApprovalUI(f.native,()=>assert.fail('occupied child must not prompt'));
   const result=await f.invoke();assert.equal(result.code,'child_session_occupied');assert.equal(result.actionExecuted,false);
+});
+test('installed runtime without nodeExecutable uses the same bundled Node for MCP and approved logoff',async t=>{
+  let options;
+  const f=await logoffFixture(t,{ok:true,present:true,identity:logoffIdentity,health:'abnormal',ownerPresent:false,allowed:true,reasons:['connection verification failed']},async value=>{options=value;return {logoffConfirmed:false,actionExecuted:false,mutationOutcome:'not_executed'};},{runtime:{windowControl:{mcpScript:path.join(__dirname,'window-control-mcp.cjs'),childSession:{executable:'C:/fixture/helper.exe',sha256:'a'.repeat(64),logoffScript:path.join(__dirname,'request-window-child-logoff.ps1')}}}});
+  const prepared=f.host.prepareRequest('thread/start',{});
+  await f.invoke();assert.equal(options.nodePath,process.execPath);assert.equal(prepared.config['mcp_servers.azrael_window.command'],options.nodePath);
+});
+test('explicit runtime Node overrides the bundled directory for approved logoff',async t=>{
+  let options;
+  const f=await logoffFixture(t,{ok:true,present:true,identity:logoffIdentity,health:'abnormal',ownerPresent:false,allowed:true,reasons:[]},async value=>{options=value;return {logoffConfirmed:false,actionExecuted:false};},{runtime:{nodeExecutable:process.execPath,computerUse:{directory:'relative-invalid'}}});
+  await f.invoke();assert.equal(options.nodePath,process.execPath);
+});
+for(const runtime of [{computerUse:undefined},{computerUse:{directory:'relative-invalid'}},{nodeExecutable:'relative-node.exe'},{nodeExecutable:path.join(__dirname,'absent-node.exe')},{nodeExecutable:__dirname},{windowControl:{childSession:{logoffScript:path.join(__dirname,'absent-logoff.ps1')}}}])test('invalid logoff runtime is rejected before inspection and approval '+JSON.stringify(runtime),async t=>{
+  const f=await logoffFixture(t,undefined,()=>assert.fail('invalid runtime reached logoff'),{runtime,inspectChildLogoff:()=>assert.fail('invalid runtime reached inspection')});
+  f.host.registerApprovalUI(f.native,()=>assert.fail('invalid runtime prompted'));
+  await assert.rejects(f.invoke(),e=>e.code==='connection_error'&&e.stage==='runtime'&&e.nativeCode==='child_logoff_runtime_invalid'&&e.actionExecuted===false&&e.mutationOutcome==='not_executed');
+});
+test('inspection failure reports its phase and proves logoff was not dispatched',async t=>{
+  const f=await logoffFixture(t,undefined,()=>assert.fail('inspection failure reached logoff'),{inspectChildLogoff:async()=>{throw new ReferenceError('private diagnostic canary');}});
+  f.host.registerApprovalUI(f.native,()=>assert.fail('failed inspection prompted'));
+  await assert.rejects(f.invoke(),e=>e.code==='connection_error'&&e.stage==='inspection'&&e.nativeCode==='child_logoff_inspection_failed'&&e.actionExecuted===false&&e.mutationOutcome==='not_executed'&&!e.message.includes('canary'));
+});
+for(const code of [undefined,'EIO','timeout'])test('failure after logoff dispatch remains unknown and never replays '+code,async t=>{
+  let calls=0;
+  const f=await logoffFixture(t,{ok:true,present:true,identity:logoffIdentity,health:'abnormal',ownerPresent:false,allowed:true,reasons:[]},async()=>{calls++;throw code==='timeout'?require('./window-control-errors.cjs').windowError('timeout','진단용 시간 초과'):Object.assign(Error('private diagnostic canary'),code?{code}:{});});
+  await assert.rejects(f.invoke(),e=>e.code===(code==='timeout'?'timeout':'connection_error')&&e.stage==='logoff'&&e.nativeCode==='child_logoff_failed'&&e.mutationOutcome==='unknown'&&e.actionExecuted===undefined&&!e.message.includes('canary'));
+  assert.equal(calls,1);
 });
 for(const health of ['healthy','abnormal'])test(health+' child logoff requires exact one-shot in-app approval',async t=>{
   let count=0;const inspected={ok:true,present:true,identity:logoffIdentity,health,ownerPresent:health==='abnormal',allowed:true,reasons:health==='abnormal'?['connection verification failed']:[]};

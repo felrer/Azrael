@@ -346,6 +346,23 @@ function recoveryVscodeStub(logRecords, { failingOutput = false } = {}) {
   return { context, disposed, vscode };
 }
 
+test("logoff failures retain bounded phase and cause types without private error contents", () => {
+  const recovery=require('./azrael-recovery.cjs'),records=[];
+  const {context,vscode}=recoveryVscodeStub(records),disposable=recovery.initialize(context,vscode);
+  const requestId='12345678-1234-1234-1234-123456789abc';
+  try {
+    recovery.recordWindowLogoffFailure({requestId,phase:'runtime',nativeCode:'child_logoff_runtime_invalid',error:new ReferenceError('PRIVATE_ERROR_CANARY',{cause:new TypeError('PRIVATE_CAUSE_CANARY')}),mutationOutcome:'not_executed'});
+    const record=records.find(r=>r.event==='window_use.logoff_failed');
+    assert.equal(record.requestId,requestId);assert.equal(record.phase,'runtime');assert.equal(record.nativeCode,'child_logoff_runtime_invalid');assert.deepEqual(record.errorTypes,['ReferenceError','TypeError']);assert.equal(record.mutationOutcome,'not_executed');
+    assert.equal(JSON.stringify(record).includes('CANARY'),false);
+    recovery.recordWindowLogoffFailure({requestId,phase:'logoff',nativeCode:'PRIVATE_CODE_CANARY',error:{name:'PRIVATE_TYPE_CANARY'},mutationOutcome:'unknown'});
+    const unknown=records.filter(r=>r.event==='window_use.logoff_failed')[1];assert.equal(unknown.nativeCode,'child_logoff_failed');assert.deepEqual(unknown.errorTypes,['unknown']);assert.equal(unknown.mutationOutcome,'unknown');
+    recovery.recordWindowLogoffFailure({requestId:'PRIVATE_ID_CANARY',phase:'runtime'});assert.equal(records.filter(r=>r.event==='window_use.logoff_failed').length,2);
+  } finally {disposable.dispose();}
+  const failing=recoveryVscodeStub([],{failingOutput:true}),failed=recovery.initialize(failing.context,failing.vscode);
+  try {assert.doesNotThrow(()=>recovery.recordWindowLogoffFailure({requestId,phase:'inspection',error:Error('private'),mutationOutcome:'not_executed'}));}finally{failed.dispose();}
+});
+
 test("user item receipt diagnostics hash identities and exclude message contents", () => {
   const recovery = require("./azrael-recovery.cjs");
   const { createHash } = require("node:crypto");
