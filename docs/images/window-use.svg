@@ -61,6 +61,6 @@
     <path d="M66 95V104L82 118"/>
     <path d="M705 550V486H648V438H632"/>
   </g>
-  <rect x="46" y="548" width="202" height="38" rx="20" fill="#202123" fill-opacity="0.82" pointer-events="none"/>
-  <text x="147" y="572" text-anchor="middle" font-size="12" fill="#ffffff" pointer-events="none">Press Esc to stop control</text>
+  <rect x="46" y="548" width="250" height="38" rx="20" fill="#202123" fill-opacity="0.82" pointer-events="none"/>
+  <text x="171" y="572" text-anchor="middle" font-size="12" fill="#ffffff" pointer-events="none">Ctrl+Alt+Shift+F12 to stop control</text>
 </svg>
