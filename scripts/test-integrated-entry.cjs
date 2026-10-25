@@ -19,7 +19,7 @@ test("integrated entry preserves activation, account storage migration and failu
 
   function wrapperFixture({ accountActivationError, sessionId = "11111111-1111-4111-8111-111111111111",
     fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName,
-    hostPlatform = process.platform, localHistory, historyError, sharedEngine = false, endpointError,
+    hostPlatform = "win32", localHistory, historyError, sharedEngine = false, endpointError,
     runtimeReady, runtimeError } = {}) {
     const fixtureRoot = path.join(wrapperTestRoot, `fixture-${++wrapperFixtureIndex}`);
     const events = [];
@@ -206,18 +206,20 @@ test("integrated entry preserves activation, account storage migration and failu
     await unix.api.deactivate();
     const verifiedLinux = wrapperFixture({ windowControl: { acceptanceVerified: true }, desktopControl: false, hostPlatform: "linux" });
     await verifiedLinux.api.activate(verifiedLinux.context);
-    assert.equal(verifiedLinux.events.some(event => event[0] === "window.initialize"), true,
-      "verified Linux selected-window runtime must activate independently of Windows desktop capability");
+    assert.equal(verifiedLinux.events.some(event => event[0] === "window.initialize"), false,
+      "Linux Window Use must remain disabled even with a previously verified runtime");
+    assert.equal(verifiedLinux.runtime.windowControl, undefined);
     verifiedLinux.recovery.listener();
     assert.equal(verifiedLinux.events.filter(event => event[0] === "account.reconnect").length, 1);
     await verifiedLinux.api.deactivate();
     assert.equal(verifiedLinux.recovery.disposed, true);
     assert.equal(verifiedLinux.recovery.listener, undefined);
     for (const hostPlatform of ["linux", "darwin"]) {
-      const unavailable = wrapperFixture({ windowControl: { acceptanceVerified: hostPlatform === "darwin" }, desktopControl: false, hostPlatform });
+      const unavailable = wrapperFixture({ windowControl: { acceptanceVerified: true }, desktopControl: true, hostPlatform });
       await unavailable.api.activate(unavailable.context);
       assert.equal(unavailable.events.some(event => event[0] === "window.initialize"), false,
-        "unverified Linux and unsupported desktop runtimes must retain unavailable behavior");
+        "non-Windows hosts must not offer Window Use even with stale desktop capabilities");
+      assert.equal(unavailable.runtime.windowControl, undefined);
       await unavailable.api.deactivate();
     }
     const desktop = wrapperFixture({ windowControl: {} });

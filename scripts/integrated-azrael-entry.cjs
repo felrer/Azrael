@@ -120,6 +120,8 @@ async function migrateAccountDefault(defaultFile, previousSessionRoot) {
 
 exports.activate = async function activate(context) {
   const runtime = await runtimeModule.initialize();
+  // Temporarily offer Window Use only on Windows, including injected host hooks.
+  if (process.platform !== "win32") delete runtime.windowControl;
   const stateFiles = accountStateFiles(context);
   if (runtime.sharedEngine) {
     const shared = require("./out/shared-engine-host.cjs");
@@ -152,7 +154,7 @@ exports.activate = async function activate(context) {
       }
     }
     const platform = validateRuntimePlatform(runtime.platform);
-    if ((platform.desktopControl || process.platform === "linux" && runtime.windowControl?.acceptanceVerified) && runtime.windowControl) {
+    if (process.platform === "win32" && platform.desktopControl && runtime.windowControl) {
       windowControlActivation = require("./out/window-control-host.cjs").initialize(context, vscode, runtime);
     }
     const nativeApi = await nativeExtension.activate(context);

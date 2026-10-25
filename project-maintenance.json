@@ -26,6 +26,14 @@
   ],
   "bundles": [
     {
+      "id": "window-use-platform-availability",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-integrated-entry.cjs", "scripts/test-window-control-mcp.cjs", "scripts/test-window-control-injection.cjs", "scripts/test-computer-use-injection.cjs", "scripts/test-window-control-errors.cjs"],
+      "inputs": ["scripts/integrated-azrael-entry.cjs", "scripts/test-integrated-entry.cjs", "scripts/window-control-mcp.cjs", "scripts/test-window-control-mcp.cjs", "scripts/window-control-errors.cjs", "scripts/test-window-control-errors.cjs", "scripts/window-control-policy.cjs", "scripts/window-task-macros.cjs", "scripts/shared-engine-host.cjs", "scripts/inject-window-control.cjs", "scripts/inject-computer-use.cjs", "scripts/test-window-control-injection.cjs", "scripts/test-computer-use-injection.cjs", "scripts/namespace-azrael-host.cjs", "scripts/namespace-cache-owner.cjs", "extensions/azrael-ex/node_modules/typescript", "artifacts/upstream-ui/26.1007.21434"]
+    },
+    {
       "id": "question-withdrawal-ui-source",
       "kind": "test",
       "purpose": "retained",

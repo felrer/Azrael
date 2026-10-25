@@ -48,6 +48,8 @@ function relayMetadata(meta) {
   return selected;
 }
 function toolDefinitions() {
+  // Retain Unix backends without advertising them until platform acceptance resumes.
+  if (process.platform !== 'win32') return [];
   const selector = {type:'object',properties:{name:{type:'string'},automationId:{type:'string'},controlType:{type:'string'}},anyOf:[{required:['name']},{required:['automationId']}],additionalProperties:false};
   const fullSelector = {...selector,properties:{...selector.properties,ancestor:selector}};
   const parameter = {type:'object',properties:{parameter:{type:'string'}},required:['parameter'],additionalProperties:false};
@@ -194,6 +196,7 @@ function createProtocol({ relay = createRelay() } = {}) {
       try {
         const params = message.params; if (!params || (!TOOLS.includes(params.name) && params.name !== 'ui_operation')) throw expectedError('Unsupported selected-window tool');
         const args = params.arguments || {}; const definition = toolDefinitions().find(t => t.name === params.name);
+        if (!definition) throw windowError('unsupported_action', 'Window Use is temporarily available only on Windows.', { actionExecuted: false });
         if (!args || typeof args !== 'object' || Array.isArray(args) || Object.keys(args).some(k => !Object.hasOwn(definition.inputSchema.properties, k)) || definition.inputSchema.required.some(k => !Object.hasOwn(args, k))) throw expectedError('Invalid tool arguments');
         if (params.name === 'ui_operation' && (typeof args.requestToken !== 'string' || !/^[a-fA-F0-9]{64}$/.test(args.requestToken))) throw expectedError('Invalid prepared UI request token');
         const threadId = parseThreadMetadata(params._meta);
