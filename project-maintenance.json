@@ -431,6 +431,7 @@
       ],
       "inputs": [
         "scripts/inject-question-queue.cjs",
+        "scripts/root-resume-wait.cjs",
         "scripts/test-question-queue.cjs",
         "scripts/inject-account-switch-queue.cjs",
         "scripts/inject-queue-consumption.cjs",
