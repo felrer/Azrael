@@ -2,6 +2,20 @@
 
 상태: `partial`. Windows Rust51(debug/release)·native core8/prompt1, 프로젝트 어댑터·지침·Windows 정리 및 모의 배포 검사를 확인했다. 실제 수용 범위와 한계는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)에 기록한다. 실행 중인 설치본의 도구 가용성은 소스 변경과 구분한다.
 
+## 이 체크아웃의 정리 실행기
+
+상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-6f6f874e-win-x64-dx05/payload/maintenance_owner.exe`를 사용한다. 설치·검증 결과는 [작업 기록](../../work/DX-01-cleanup-performance/05-plan.md), 입력·실행파일 identity는 같은 version의 `verification/build.json`에서 확인한다. 이 실행기는 최적화된 실제 `maintenance_owner`이며 benchmark example이 아니다. 실행파일과 최소 검증 영수증은 계속 사용하는 설치물로 관리하고, 교체 또는 사용 종료 시 참조를 해제한 뒤 정리한다.
+
+```powershell
+$projectRoot = 'C:/Users/felre/Desktop/pi-harness-init'
+$ownerExecutable = "$projectRoot/artifacts/versions/maintenance-owner-6f6f874e-win-x64-dx05/payload/maintenance_owner.exe"
+& $ownerExecutable --project-root $projectRoot --request "$projectRoot/정리작업의-요청.json"
+```
+
+요청 JSON은 선택 프로젝트 안의 일반 파일로 만들고 해당 작업 묶음에서 관리한다. `operation`은 `inventory`, `register`, `review`, `apply`, `recover_lock`만 지원한다. 먼저 기존 등록 그룹을 조회하고, 현재 소유·참조·보호와 membership을 확인한 뒤 fresh review token으로 명시한 결정을 적용한다. unchanged 그룹은 재등록하지 않으며 `registered` 검증을 기본으로 한다. 실제 항목별 결과와 부재를 확인한다. 점유 잠금 해제나 실패한 보호 검사를 우회하는 용도로 사용하지 않는다.
+
+앱 내장 `project_*`는 엔진에 정적으로 연결되어 있어 이 설치로 교체되지 않는다. 테스트·빌드 실행과 프로젝트 별칭은 기존 내장 도구를 사용한다. 별도 실행기는 OS 권한과 선택 프로젝트 경계를 적용하며, 내장 도구의 turn별 sandbox/grant 검사를 자체적으로 재현하지 않는다. 명령 실행 환경의 실제 권한·승인과 삭제 안전장치를 그대로 지킨다. 다른 OS/CPU용 설치물은 제공하지 않는다.
+
 ## 프로젝트 등록
 
 저장소의 `project-maintenance.json`에 `schema_version: 1`, `project_id`, `managed_roots`, `protected_paths`, `bundles`를 둔다. 각 묶음은 `id`, `kind` (`test`, `prepare`, `build`), `purpose` (`one_off`, `retained`), `argv`를 가진다. `cwd`는 프로젝트 기준 상대 경로, `env`는 환경 변수, `depends_on`은 선행 묶음 ID, `inputs`는 명시한 입력 경로다. 현재 설정의 예는 [Azrael 설정](../../project-maintenance.json)을 따른다.
