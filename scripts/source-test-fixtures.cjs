@@ -83,12 +83,8 @@ function inspectSourceFixtures({ root, files, env = process.env }) {
   const service = host || has('extensions/azrael-ex/test/instructionService.test.ts');
   if (management) fixtureRoot('instruction.test-root', env.AZRAEL_INSTRUCTION_TEST_ROOT);
   if (service) {
-    const assets = env.AZRAEL_INSTRUCTION_RELEASE_ASSETS ?? path.join(root, 'artifacts/instructions/review-1.0.0');
-    const manifest = json('instruction.release-manifest', resolve(path.join(assets, 'azrael-instructions-1.0.0-manifest.json')));
-    for (const [id, asset] of [['archive', manifest?.archive?.name], ['documents', manifest?.documentsAsset?.name]]) {
-      if (typeof asset !== 'string' || !asset || path.isAbsolute(asset) || asset.split(/[\\/]/).includes('..')) add(`instruction.release-${id}`, null, () => {});
-      else file(`instruction.release-${id}`, resolve(path.join(assets, asset)));
-    }
+    // Host tests build the current maintained library in their owned fixture root.
+    json('instruction.release-metadata', path.join(root, 'instructions/azrael-environment.json'));
     let engine = env.AZRAEL_INSTRUCTION_TEST_ENGINE;
     if (engine === undefined || engine === null) {
       const latest = json('instruction.latest-engine-metadata', path.join(root, 'artifacts/latest.json'));

@@ -53,7 +53,7 @@ async function fixture(v="1.0.0",options={}) {
 }
 async function context(t,fixtures,options={}) {
   const dir=await fs.mkdtemp(path.join(os.tmpdir(),"azrael-instruction-test-"));
-  t.after(async()=>{assert.ok(path.basename(dir).startsWith("azrael-instruction-test-"));await fs.rm(dir,{recursive:true,force:true});});
+  t.after(async()=>{assert.ok(path.basename(dir).startsWith("azrael-instruction-test-"));await fs.rm(dir,{recursive:true});});
   const calls=[];
   const request=async(url,opts)=>{
     calls.push(url); if (options.request) return options.request(url,opts);
@@ -325,28 +325,28 @@ test("interruption journal blocks mutations; recovery restores backups",async t=
 });
 
 test("actual generated release assets agree with backend and native staged validation",async t=>{
-  const metadata=JSON.parse(await text(path.join(__dirname,"../../instructions/azrael-environment.json")));
-  const assetRoot=process.env.AZRAEL_INSTRUCTION_RELEASE_ASSETS || path.join(__dirname,`../../artifacts/instructions/review-${metadata.instructionVersion}`);
-  const manifestFile=path.join(assetRoot,`azrael-instructions-${metadata.instructionVersion}-manifest.json`);
-  if (!await exists(manifestFile)) {t.skip("Generate release assets or set AZRAEL_INSTRUCTION_RELEASE_ASSETS for integration coverage");return;}
-  const manifest=JSON.parse(await text(manifestFile));const v=manifest.instructionVersion;
+  const projectRoot=path.resolve(__dirname,"../..");
+  const metadata=JSON.parse(await text(path.join(projectRoot,"instructions/azrael-environment.json")));
+  const current=await require('../current-instruction-test-release.cjs').createCurrentInstructionRelease({projectRoot,parent:os.tmpdir()});
+  t.after(async()=>{await fs.rm(current.directory,{recursive:true});assert.equal(await exists(current.directory),false);});
+  const manifest=current.manifest,v=current.version;
   const urls={manifest:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/azrael-instructions-${v}-manifest.json`,archive:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/${manifest.archive.name}`,docs:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/${manifest.documentsAsset.name}`};
   const release={tag_name:`instructions-v${v}`,draft:false,prerelease:false,assets:[{name:`azrael-instructions-${v}-manifest.json`,browser_download_url:urls.manifest},{name:manifest.archive.name,browser_download_url:urls.archive},{name:manifest.documentsAsset.name,browser_download_url:urls.docs}]};
-  const f={v,manifest,urls,release,archive:await fs.readFile(path.join(assetRoot,manifest.archive.name)),docs:await fs.readFile(path.join(assetRoot,manifest.documentsAsset.name))};
+  const f={v,manifest,urls,release,archive:current.assets.get(manifest.archive.name),docs:current.assets.get(manifest.documentsAsset.name)};
   let engine=process.env.AZRAEL_INSTRUCTION_TEST_ENGINE;
   const latestFile=path.join(__dirname,"../../artifacts/latest.json");
   if (!engine && await exists(latestFile)) {const latest=JSON.parse(await text(latestFile));const candidate=path.join(latest.releaseDirectory,"engine",process.platform==="win32" ? "azrael.exe" : "codex");if(await exists(candidate))engine=candidate;}
   if (engine) t.diagnostic(`Native validator: existing artifact ${engine}; strict app-server config and closed stdin; isolated CODEX_HOME`);
   else t.diagnostic("No existing native artifact available; generated-asset integration uses injected validator");
-  const {store,home,workspace}=await context(t,[f],{store:{repository:manifest.repository,...engine && {engine}}});
+  const {store,home,workspace}=await context(t,[f],{store:{repository:manifest.repository,appVersion:current.appVersion,...engine && {engine}}});
   const docs=await store.getDocuments(v);assert.equal(docs.length,manifest.documents.length);await store.download(v);
-  const offline=new InstructionStore({stateRoot:home,appVersion:"0.4.0",repository:manifest.repository,request:async()=>{assert.fail("Generated cached-only preview attempted network");}});assert.deepEqual(await offline.getDocuments(v,{cachedOnly:true}),docs);
+  const offline=new InstructionStore({stateRoot:home,appVersion:current.appVersion,repository:manifest.repository,request:async()=>{assert.fail("Generated cached-only preview attempted network");}});assert.deepEqual(await offline.getDocuments(v,{cachedOnly:true}),docs);
   assert.deepEqual(manifest.components,metadata.components);
   const ids=manifest.components.map(c=>c.id);const plan=await store.planApply(v,ids);assert.deepEqual(plan.conflicts,[]);assert.equal(plan.components.length,ids.length);
   const state=await store.apply(v,ids);assert.equal(state.appliedVersion,v);assert.deepEqual(state.selectedComponentIds,ids);assert.equal(state.installedRepository,manifest.repository);assert.equal(Object.keys(state.managed).length,manifest.components.reduce((count,c)=>count+c.files.length,0));
   for(const c of manifest.components)for(const file of c.files){const target=path.join(c.scope==="home" ? home : workspace,file.target);assert.equal(await exists(target),true);}
   const receipt=JSON.parse(await text(store.file("state.json")));assert.equal(receipt.appliedVersion,v);assert.deepEqual(receipt.selectedComponentIds,ids);assert.deepEqual((await store.planApply(v,ids)).diffs,[]);
-  t.diagnostic(`Verified generated assets ${assetRoot}; ${manifest.files.length} archive files; ${ids.length} components; ${Object.keys(receipt.managed).length} managed targets`);
+  t.diagnostic(`Verified current assets ${current.directory}; ${manifest.files.length} archive files; ${ids.length} components; ${Object.keys(receipt.managed).length} managed targets`);
 });
 
 test("selected native validator checks strict staged config without inherited window connections",async t=>{

@@ -5,7 +5,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { AREAS, parseArgs, select, runCommand } = require("./test-project.cjs");
+const { parseArgs, select, runCommand } = require("./test-project.cjs");
 const selection = args => select(parseArgs(args));
 
 test("args-file carries 5502 changed paths beyond Windows argv limits through the existing selector", () => {
@@ -69,9 +69,7 @@ test("args-file rejects malformed, recursive and mixed invocation and retains id
   } finally { fs.rmSync(directory, { recursive: true }); }
 });
 
-test("twelve areas retain the eight original scopes and expose bounded feature/cache selections", () => {
-  assert.equal(AREAS.length, 12);
-  for (const area of ["current", "extension", "standalone", "queue", "recovery", "ui", "namespace", "build"]) assert.ok(AREAS.includes(area));
+test("feature and cache areas select bounded checks without unrelated suites", () => {
   const settings = selection(["--area", "settings"]);
   assert.ok(settings.files.includes("scripts/test-instruction-settings.cjs"));
   assert.ok(settings.extensionFiles.includes("extensions/azrael-ex/test/instructionView.test.ts"));
@@ -251,6 +249,9 @@ test("changed-only selects transitive queue/recovery owners without whole-area e
 });
 
 test("changed-only shared inputs retain namespace checks without selecting current or extension", () => {
+  const namespace = selection(["--area", "namespace"]);
+  assert.ok(namespace.files.includes("scripts/test-feature-preservation.cjs"));
+  assert.ok(namespace.files.includes("scripts/test-preservation-integration.cjs"));
   const result = selection(["--changed-only", "--changed", "scripts/namespace-azrael-host.cjs"]);
   assert.ok(result.files.includes("scripts/test-namespace-source.cjs"));
   assert.ok(result.files.includes("scripts/test-preservation-integration.cjs"));

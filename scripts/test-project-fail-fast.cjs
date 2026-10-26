@@ -32,6 +32,15 @@ test("failure collection requires an explicit CLI flag", () => {
 
 test("fixture readiness is explicit and blocks before output creation or command launch", async () => {
   assert.equal(parseArgs(["--check-fixtures"]).checkFixtures, true);
+  const inspect = require('./source-test-fixtures.cjs').inspectSourceFixtures;
+  const hostEnvironment = { AZRAEL_INSTRUCTION_TEST_ROOT: os.tmpdir(),
+    AZRAEL_INSTRUCTION_TEST_ENGINE: process.execPath,
+    AZRAEL_INSTRUCTION_RELEASE_ASSETS: path.join(os.tmpdir(), 'absent-legacy-instruction-assets') };
+  const hostScope = { root: path.resolve(__dirname, '..'),
+    files: ['scripts/test-instruction-library-host.cjs'], env: hostEnvironment };
+  assert.equal(inspect(hostScope).status, 'ready');
+  assert.equal(inspect({ ...hostScope, env: { ...hostEnvironment,
+    AZRAEL_INSTRUCTION_TEST_ENGINE: path.join(os.tmpdir(), 'absent-instruction-engine') } }).status, 'blocked');
   const previous = process.env.AZRAEL_CATALOG_TEST_ROOT;
   delete process.env.AZRAEL_CATALOG_TEST_ROOT;
   const directory = path.join(os.tmpdir(), `azrael-fixture-gate-${require('node:crypto').randomUUID()}`);

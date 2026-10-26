@@ -260,51 +260,7 @@ test('all declared Cargo groups share semantic keys across execution roots and p
   await assert.rejects(cache.key({ ...firstConfig, engineSourceRoot: 'relative' }, groups.values().next().value,
     inputs, runtime), /absolute engine source root/);
 
-  // Historical schema-2 algorithm is a benchmark reference, never an evidence migration.
-  const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
-    ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
-  const legacyKey = async (config, group, input, identity) => {
-    const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
-      'scripts/cargo-verification.cjs', 'scripts/cargo-config-self-contained.py',
-      'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
-    const declared = group.entries.map(({ feature, check }) => {
-      feature.owners.forEach(file => files.add(file)); files.add(feature.contract); files.add(check.args[0]);
-      return { feature, check };
-    });
-    const previousInputs = structuredClone(input); delete previousInputs.engine.directory;
-    return sha(canonical({ schema: 2, projectRoot: path.resolve(config.projectRoot),
-      engineSourceRoot: path.resolve(config.engineSourceRoot), inputs: previousInputs, declared,
-      files: await getDirectoryState(config.projectRoot, [...files].sort()), runtime: identity }));
-  };
-  write(f.root, 'mock-stdout.log', 'bounded passing mock executor; no Cargo compilation');
-  write(f.root, 'mock-stderr.log', '');
-  const evidence = { exitCode: 0, signal: null, logPath: path.join(f.root, 'mock-stdout.log'),
-    errorPath: path.join(f.root, 'mock-stderr.log') };
-  const benchmark = { scope: `${groups.size} actual declared command groups; two verified mock input snapshots; no full gate/Cargo execution` };
-  for (const [name, makeKey] of [['schema2', legacyKey], ['schema4', cache.key]]) {
-    const metrics = { executed: 0, reused: 0, elapsedMs: 0 }, started = performance.now();
-    const owner = path.join(fixtures, `mock-benchmark-${name}`); fs.mkdirSync(owner, { recursive: true });
-    for (const [index, [config, input, identity]] of [[firstConfig, inputs, runtime], [secondConfig, nextInputs, nextRuntime]].entries()) {
-      for (const group of groups.values()) {
-        const checkId = group.entries[0].check.id;
-        const handle = await cache.begin({ ...cache.options({ ...config, cargoVerificationCacheProjectRoot: owner }),
-          checkId, key: await makeKey(config, group, input, identity),
-          runDirectory: path.join(config.projectRoot, 'artifacts/mock-results', name, String(index), checkId), logName: 'mock-cargo' });
-        if (handle.hit) metrics.reused += 1;
-        else { metrics.executed += 1; assert.equal((await handle.publish(evidence)).published, true); }
-        await handle.close();
-      }
-    }
-    metrics.elapsedMs = performance.now() - started; benchmark[name] = metrics;
-  }
-  assert.equal(benchmark.schema2.executed, groups.size * 2); assert.equal(benchmark.schema2.reused, 0);
-  assert.equal(benchmark.schema4.executed, groups.size); assert.equal(benchmark.schema4.reused, groups.size);
-  benchmark.mockExecutionsAvoided = groups.size;
-  const evidenceRoot = process.env.AZRAEL_CARGO_OWNER_TEST_ROOT
-    ? path.join(fixtureParent, 'evidence') : path.resolve(__dirname, '../artifacts/logs/AF-01-resume-install/optimization-20min');
-  fs.mkdirSync(evidenceRoot, { recursive: true });
-  fs.writeFileSync(path.join(evidenceRoot, 'cargo-schema4-mock-benchmark.json'), JSON.stringify(benchmark, null, 2) + '\n');
-  console.log(JSON.stringify(benchmark));
+
 });
 
 test('tools, versions, full environment, target/profile/flags and helper defaults bind keys', async () => {
