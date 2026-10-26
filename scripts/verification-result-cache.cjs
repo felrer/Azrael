@@ -362,7 +362,7 @@ async function begin(options) {
   if (inside(cacheRoot, runDirectory)) throw Error('Run evidence must be outside the verification result cache');
   const slot = path.join(cacheRoot, `v${CACHE_SCHEMA}`, sha(checkId)), entry = path.join(slot, key);
   let releaseCheck, releaseLifecycle, closing, needsPrune = false, closeRequested = false, closed = false, publishing = false;
-  const handle = { hit: null, reason: null, deferred, publish: async () => ({ published: false, reason: handle.reason || 'cache unavailable' }), close: () => {
+  const handle = { hit: null, reason: null, blockingLease: null, deferred, publish: async () => ({ published: false, reason: handle.reason || 'cache unavailable' }), close: () => {
     if (closed) return Promise.resolve();
     if (closing) return closing;
     if (publishing) return Promise.reject(Error('Cannot close cache while publishing'));
@@ -388,13 +388,22 @@ async function begin(options) {
     })().finally(() => { closing = null; });
     return closing;
   } };
+  const busy = async (lease, reason) => {
+    handle.reason = reason;
+    // Diagnostic snapshot only: recovery still requires independent producer
+    // tree evidence and recoverLease's fresh, exact identity checks. Never infer
+    // abandonment from age, PID absence, or a failed owner inspection.
+    try { handle.blockingLease = await inspectLease({ ...options, lease }); }
+    catch (error) { deferred.push(`blocking lease inspection: ${message(error)}`); }
+    return handle;
+  };
   try {
     await directory(cacheRoot, true);
     releaseLifecycle = await acquireLifecycle(cacheRoot, { runDirectory, checkId });
-    if (!releaseLifecycle) { handle.reason = 'busy: lifecycle lease'; return handle; }
+    if (!releaseLifecycle) return await busy('.lifecycle', 'busy: lifecycle lease');
     await obsolete(cacheRoot, deferred);
     releaseCheck = await acquire(cacheRoot, path.join(cacheRoot, '.leases', sha(checkId)), 0, { runDirectory, checkId });
-    if (!releaseCheck) { handle.reason = 'busy: check lease'; return handle; }
+    if (!releaseCheck) return await busy(sha(checkId), 'busy: check lease');
     needsPrune = true;
     handle.lease = { ...releaseCheck.owner, lease: sha(checkId), ownerSha256: (await inspectLease({ ...options, lease: sha(checkId) })).ownerSha256 };
     await directory(slot, true);

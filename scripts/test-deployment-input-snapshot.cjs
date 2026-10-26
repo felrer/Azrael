@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { createHash } = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const { snapshotProject, compareSnapshots } = require('./deployment-input-snapshot.cjs');
 
@@ -14,7 +15,7 @@ const fixtures = path.join(fixtureParent, `snapshot-${stamp} spaces 한글`);
 const results = [];
 
 function git(root, ...args) {
-  const result = spawnSync('git', ['-c', 'core.autocrlf=false', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-C', root, ...args], { encoding: 'utf8' });
+  const result = spawnSync('git', ['-c', 'core.longpaths=true', '-c', 'core.autocrlf=false', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-C', root, ...args], { encoding: 'utf8', windowsHide: true });
   assert.equal(result.status, 0, `git ${args.join(' ')} failed: ${result.error || result.stderr}`);
   return result.stdout.trim();
 }
@@ -82,6 +83,55 @@ async function main() {
     const after = await snapshotProject(root);
     assert.equal(after.bytes, before.bytes);
     assert.notEqual(after.sha256, before.sha256);
+  });
+  await test('empty, threshold and streamed inputs hash exact bytes despite partial descriptor reads', async () => {
+    const root = await repository('size-boundaries');
+    const expected = new Map();
+    for (const size of [0, 1, 65535, 65536, 65537, 256 * 1024]) {
+      const content = Buffer.alloc(size);
+      for (let i = 0; i < size; i++) content[i] = i % 251;
+      const name = `bytes-${size}.bin`;
+      await fs.writeFile(path.join(root, name), content);
+      expected.set(name, createHash('sha256').update(content).digest('hex'));
+    }
+    const originalOpen = fs.open;
+    fs.open = async (...args) => {
+      const handle = await originalOpen(...args);
+      if (path.basename(args[0]).startsWith('bytes-')) {
+        const read = handle.read.bind(handle);
+        handle.read = (buffer, offset, length, position) => read(buffer, offset, Math.min(length, 997), position);
+      }
+      return handle;
+    };
+    try {
+      const first = await snapshotProject(root, { concurrency: 1 });
+      const entries = new Map(first.inventory[0].entries.map(entry => [entry.path, entry.sha256]));
+      for (const [name, digest] of expected) assert.equal(entries.get(name), digest);
+      assert.deepEqual(summary(await snapshotProject(root, { concurrency: 8 })), summary(first));
+    } finally { fs.open = originalOpen; }
+  });
+  await test('small and streamed inputs reject mutation between descriptor stats', async () => {
+    for (const size of [0, 65536, 65537]) {
+      const root = await repository(`mid-read-${size}`);
+      const target = path.join(root, 'input.txt');
+      await fs.writeFile(target, Buffer.alloc(size, 17));
+      const originalOpen = fs.open;
+      fs.open = async (...args) => {
+        const handle = await originalOpen(...args);
+        if (args[0] === target) {
+          const stat = handle.stat.bind(handle);
+          let first = true;
+          handle.stat = async () => {
+            const observed = await stat();
+            if (first) { first = false; await fs.appendFile(target, 'changed'); }
+            return observed;
+          };
+        }
+        return handle;
+      };
+      try { await assert.rejects(snapshotProject(root), /Project input changed while hashing/); }
+      finally { fs.open = originalOpen; }
+    }
   });
   await test('untracked and deleted inputs included; ignored contents excluded', async () => {
     const root = await repository('membership');

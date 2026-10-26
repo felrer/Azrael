@@ -63,7 +63,21 @@ async function snapshotProject(directory, { concurrency = 8 } = {}) {
         const handle = await fs.promises.open(filename, "r");
         try {
           const before = await handle.stat();
-          await pipeline(handle.createReadStream({ autoClose: false }), hash);
+          if (before.size <= 64 * 1024) {
+            // Bound allocation even if the input grows after stat. The extra
+            // byte detects growth; partial descriptor reads must reach EOF.
+            const buffer = Buffer.alloc(before.size + 1);
+            let length = 0;
+            while (length < buffer.length) {
+              const { bytesRead } = await handle.read(buffer, length, buffer.length - length, null);
+              if (!bytesRead) break;
+              length += bytesRead;
+            }
+            if (length !== before.size) throw new Error(`Project input changed while hashing: ${filename}`);
+            hash.update(buffer.subarray(0, length));
+          } else {
+            await pipeline(handle.createReadStream({ autoClose: false }), hash);
+          }
           const after = await handle.stat();
           const current = await fs.promises.stat(filename);
           if ([after, current].some(stat => stat.size !== before.size || stat.mtimeMs !== before.mtimeMs ||

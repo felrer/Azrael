@@ -5,6 +5,13 @@ const path = require("node:path");
 const { createHash, randomUUID } = require("node:crypto");
 const { compilationSignature, physicalPath } = require("./cargo-target-owner.cjs");
 
+function targetIdentity(directory) {
+  const resolved = physicalPath(directory);
+  const stat = fs.statSync(resolved);
+  if (!stat.isDirectory()) throw new Error("Prepared Cargo target is not a directory");
+  return { path: resolved, device: stat.dev, inode: stat.ino, createdMs: stat.birthtimeMs };
+}
+
 // This records preparation, never passing test results. Cargo still validates
 // freshness, discovers tests and executes every requested filter.
 function preparationContext(spec, options = {}) {
@@ -19,19 +26,27 @@ function preparationContext(spec, options = {}) {
   }
   const env = { ...spec.env };
   for (const key of Object.keys(env)) if (key.startsWith("AZRAEL_CARGO_PREPARATION_")) delete env[key];
-  const key = createHash("sha256").update(JSON.stringify({ schema: 1,
+  // Build scripts may read arbitrary environment inputs. Callers that share
+  // preparation across attempts must supply the same compilation environment,
+  // including ownership labels and snapshot output locations.
+  const key = createHash("sha256").update(JSON.stringify({ schema: 2,
     sourceRoot: spec.selectedSourceRoot, sourceIdentity: options.sourceIdentity, runtimeIdentity: options.runtimeIdentity,
     compilation: compilationSignature({ ...spec, env }) })).digest("hex");
   const filename = path.join(directory, `${key}.json`);
   let previous, reason = "No matching completed preparation";
   try {
     previous = JSON.parse(fs.readFileSync(filename, "utf8"));
-    if (previous.schema !== 1 || previous.key !== key || previous.typeCheckExitCode !== 0 || previous.selectionExitCode !== 0) {
+    if (previous.schema !== 2 || previous.key !== key || previous.typeCheckExitCode !== 0 || previous.selectionExitCode !== 0 ||
+        previous.sourceIdentity !== options.sourceIdentity || previous.runtimeIdentity !== options.runtimeIdentity ||
+        !Number.isInteger(previous.selectedTests) || previous.selectedTests <= 0 ||
+        !Number.isFinite(previous.preparationMs) || previous.preparationMs < 0 ||
+        !Number.isFinite(Date.parse(previous.preparedUtc))) {
       previous = undefined; reason = "Preparation evidence is incomplete; prepare again";
-    } else if (!fs.existsSync(spec.env.CARGO_TARGET_DIR)) {
-      previous = undefined; reason = "Prepared Cargo target is absent; prepare again";
+    } else if (JSON.stringify(previous.targetIdentity) !== JSON.stringify(targetIdentity(spec.env.CARGO_TARGET_DIR))) {
+      previous = undefined; reason = "Prepared Cargo target identity changed; prepare again";
     }
   } catch (error) {
+    previous = undefined;
     if (error.code !== "ENOENT") reason = `Preparation evidence is unavailable: ${error.message}`;
   }
   Object.assign(report, { key, reason: previous ? "Frozen inputs and compilation settings match; Cargo will still check freshness and run this filter" : reason,
@@ -44,10 +59,13 @@ function preparationContext(spec, options = {}) {
     if (mode === "advice") return;
     const typeCheck = phases.find(phase => phase.phase === "typeCheck");
     const selection = phases.find(phase => phase.phase === "selection");
-    if (typeCheck?.exitCode !== 0 || typeCheck.signal || selection?.exitCode !== 0 || selection.signal || !selection.selectedTests) return;
+    if (typeCheck?.exitCode !== 0 || typeCheck.signal || typeCheck.error || selection?.exitCode !== 0 || selection.signal || selection.error ||
+        !Number.isInteger(selection.selectedTests) || selection.selectedTests <= 0 ||
+        ![typeCheck.durationMs, selection.durationMs].every(value => Number.isFinite(value) && value >= 0)) return;
     fs.mkdirSync(directory, { recursive: true });
-    const receipt = { schema: 1, key, sourceIdentity: options.sourceIdentity, runtimeIdentity: options.runtimeIdentity,
+    const receipt = { schema: 2, key, sourceIdentity: options.sourceIdentity, runtimeIdentity: options.runtimeIdentity,
       targetDirectory: physicalPath(spec.env.CARGO_TARGET_DIR), preparedUtc: new Date().toISOString(),
+      targetIdentity: targetIdentity(spec.env.CARGO_TARGET_DIR), selectedTests: selection.selectedTests,
       typeCheckExitCode: 0, selectionExitCode: 0, preparationMs: typeCheck.durationMs + selection.durationMs };
     const temporary = `${filename}.${randomUUID()}.tmp`;
     try { fs.writeFileSync(temporary, JSON.stringify(receipt, null, 2) + "\n", { flag: "wx" }); fs.renameSync(temporary, filename); }

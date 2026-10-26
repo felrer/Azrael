@@ -3,7 +3,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { test } = require("node:test");
-const { runCargoTest } = require("./cargo-verification.cjs");
+const { runCargoTest, buildCargoTestCommand } = require("./cargo-verification.cjs");
+const { preparationContext } = require("./cargo-test-preparation.cjs");
 
 function fixture(context) {
   const base = path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT || "artifacts/verification/cargo-owner-tests");
@@ -61,6 +62,69 @@ test("advice mode keeps normal execution even when reuse is recommended", contex
   assert.equal(result.preflight.preparation.recommendation, "reuse-recommended");
   assert.equal(result.preflight.preparation.action, "advice-only");
   assert.equal(f.calls[before].args[0], "check");
+});
+
+test("ownership labels and pending output locations remain compilation inputs", context => {
+  const f = fixture(context);
+  f.run("first", [], { env: { ...f.options.env, AZRAEL_CARGO_RUN_ID: "first-run" } });
+  const result = f.run("second", [], { env: { ...f.options.env, AZRAEL_CARGO_RUN_ID: "second-run" } });
+  assert.equal(result.status, 0);
+  assert.equal(result.preflight.preparation.action, "prepare");
+  assert.equal(f.calls.filter(call => call.args[0] === "check").length, 2);
+  assert.equal(f.calls.filter(call => call.args.includes("--list")).length, 2);
+  assert.equal(f.calls.filter(call => call.args[0] === "test" && !call.args.includes("--list")).length, 2);
+  const changedFlags = f.run("third", [], { env: { ...f.options.env, RUSTFLAGS: "--cfg changed" } });
+  assert.equal(changedFlags.preflight.preparation.action, "prepare");
+  const changedPending = f.run("fourth", [], { env: { ...f.options.env,
+    INSTA_PENDING_DIR: path.join(f.root, "another-pending") } });
+  assert.equal(changedPending.preflight.preparation.action, "prepare");
+});
+
+test("removing and recreating a Cargo target invalidates successful preparation", context => {
+  const f = fixture(context); f.run("first");
+  // Preserve the old directory as evidence; a different inode is deterministic
+  // even on filesystems with coarse creation-time resolution.
+  fs.renameSync(f.options.env.CARGO_TARGET_DIR, path.join(f.root, "previous-target"));
+  fs.mkdirSync(f.options.env.CARGO_TARGET_DIR);
+  const next = f.calls.length;
+  const result = f.run("second");
+  assert.equal(result.status, 0);
+  assert.equal(result.preflight.preparation.action, "prepare");
+  assert.equal(f.calls[next].args[0], "check");
+});
+
+test("missing targets and incomplete receipts never establish preparation", context => {
+  const f = fixture(context); f.run("first");
+  const receiptPath = path.join(f.options.preparation.directory, fs.readdirSync(f.options.preparation.directory).find(name => name.endsWith(".json")));
+  const original = JSON.parse(fs.readFileSync(receiptPath, "utf8"));
+  for (const patch of [{ selectedTests: 0 }, { selectedTests: -1 }, { selectionExitCode: null },
+    { typeCheckExitCode: 1 }, { preparationMs: -1 }, { runtimeIdentity: "changed" }, { schema: 1 }]) {
+    fs.writeFileSync(receiptPath, JSON.stringify({ ...original, ...patch }));
+    const before = f.calls.length;
+    assert.equal(f.run("second").status, 0);
+    assert.equal(f.calls[before].args[0], "check");
+  }
+  fs.renameSync(f.options.env.CARGO_TARGET_DIR, path.join(f.root, "absent-target-evidence"));
+  const spec = buildCargoTestCommand(path.join(f.root, "engine"), ["test", "--lib", "first", "--", "--test-threads=1"], f.options);
+  assert.equal(preparationContext(spec, f.options.preparation).skipTypeCheck, false);
+});
+
+test("failed, unknown and zero-test phases cannot write preparation evidence", context => {
+  const f = fixture(context);
+  fs.mkdirSync(f.options.env.CARGO_TARGET_DIR);
+  const spec = buildCargoTestCommand(path.join(f.root, "engine"), ["test", "--lib", "first"], f.options);
+  const prepared = preparationContext(spec, f.options.preparation);
+  const phases = [{ phase: "typeCheck", exitCode: 0, durationMs: 1 },
+    { phase: "selection", exitCode: 0, durationMs: 2, selectedTests: 1 }];
+  for (const [index, patch] of [[0, { exitCode: 1 }], [0, { exitCode: null }], [0, { signal: "SIGTERM" }],
+    [0, { error: "unobserved" }], [1, { exitCode: 1 }], [1, { selectedTests: 0 }], [1, { selectedTests: -1 }],
+    [1, { durationMs: NaN }], [1, { durationMs: -1 }]]) {
+    prepared.save(phases.map((phase, current) => current === index ? { ...phase, ...patch } : phase));
+    assert.equal(fs.existsSync(prepared.filename), false);
+  }
+  prepared.save(phases);
+  assert.equal(fs.existsSync(prepared.filename), true);
+  assert.equal(JSON.parse(fs.readFileSync(prepared.filename, "utf8")).selectedTests, 1);
 });
 
 test("environment handoff survives host isolation without leaking preparation controls to tests", context => {

@@ -3928,7 +3928,7 @@
       "engine.usage-window.native": 110,
       "engine.model-harness-profiles.context": 100,
       "engine.model-harness-profiles.config": 90,
-      "tool.project-maintenance.windows-cleanup": 80
+      "tool.project-maintenance.windows-cleanup": 200
     },
     "estimatedDurationMs": {
       "engine.model-harness-profiles.context": 424000,

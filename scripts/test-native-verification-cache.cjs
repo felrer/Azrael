@@ -56,9 +56,12 @@ console.log('passing native evidence '+id);process.exit(control.fail===id?9:0);`
     const receipt = await gate.runPreservation(config);
     assert.equal(receipt.status, status, receipt.error);
     assert.equal(calls().length - before, executed);
-    assert.equal(receipt.nativeCache.executed, executed); assert.equal(receipt.nativeCache.reused, reused);
+    const declaredEligible = config.manifest.features.some(feature => feature.checks.some(check => check.nativeCacheInputs));
+    assert.equal(receipt.nativeCache.executed, declaredEligible ? executed : 0); assert.equal(receipt.nativeCache.reused, reused);
+    assert.equal(receipt.executionSummary.kinds.native.executed, executed);
+    assert.equal(receipt.executionSummary.kinds.native.reused, reused);
     if (status === 'passed') {
-      const completedEligible = config.manifest.features.some(feature => feature.checks.some(check => check.nativeCacheInputs)) ? executed : 0;
+      const completedEligible = declaredEligible ? executed : 0;
       assert.equal(identities - identityBefore, 2 + completedEligible, 'full gate identities and per-completed-check publication identities must run');
       for (const duration of Object.values(receipt.timings)) assert(Number.isFinite(duration) && duration >= 0);
       assert.equal(receipt.checks.filter(check => check.executionStatus === 'reused').length, reused);

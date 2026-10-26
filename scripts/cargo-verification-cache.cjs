@@ -23,8 +23,14 @@ const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles
   'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs',
   'check-shared-engine-native.cjs'].map(file => `scripts/${file}`));
 const sourceOnlyHelpers = {
-  'scripts/cargo-test-preparation.cjs': '839a9693a24b9cc3c6fc746d835e178cc79c33032a3082387f238e55e0205b23',
-  'scripts/cargo-verification.cjs': '95b4efa40849cf97eee6f3531d455abf361053c63030508c2e00416048f8154a',
+  // Schema2 preparation retains every compiler input and checks target identity.
+  'scripts/cargo-test-preparation.cjs': '40772407a2358d38af4fc16927716d122b758b40196fb0e6daacad52a48f5924',
+  // Both reviewed variants have identical preparation/selection/execution gates.
+  // The latter only registers the selected-upstream/deletion-approval wrappers.
+  'scripts/cargo-verification.cjs': [
+    '9aac0bceeb7858cfa5222ba52b32b6b3bc02cd1417e38f1433b559bc6de0f552',
+    '7673d86f700d4b829bb5b945629827691f1379a90162228c9a2c11dbba5511af',
+  ],
   // Explicit recovery only retires verified lease metadata; Cargo payload inputs remain unchanged.
   'scripts/cargo-target-owner.cjs': '6bb5299038040a3dde8440adeec32c686817a37d6bc93c564579a8a0bbc0ef1b',
   'scripts/cargo-shared-cache.cjs': '3b9b9f1acca1b113e7b5722675b0d36aa61028f90d90049831fc9c6cdf2ec308',
@@ -33,7 +39,8 @@ function auditedSourceOnly(config, group) {
   try {
     if (!group.entries.every(({ check }) => require('./cargo-preflight-recipes.cjs').recipesForCheck(config, check).gaps.length === 0)) return false;
     return Object.entries(sourceOnlyHelpers).every(([filename, expected]) =>
-      sha(fs.readFileSync(path.join(config.projectRoot, filename), 'utf8').replace(/\r\n/g, '\n')) === expected);
+      (Array.isArray(expected) ? expected : [expected]).includes(
+        sha(fs.readFileSync(path.join(config.projectRoot, filename), 'utf8').replace(/\r\n/g, '\n'))));
   } catch { return false; }
 }
 
@@ -261,17 +268,23 @@ async function key(config, group, inputs, runtimeIdentity) {
     cargoInputs.checkRuntime = { ...inputs.checkRuntime, zod: { ...inputs.checkRuntime.zod } };
     delete cargoInputs.checkRuntime.zod.path;
   }
-  const cargoRuntime = { ...runtimeIdentity };
-  if (runtimeIdentity.helper && typeof runtimeIdentity.helper === 'object' && !Array.isArray(runtimeIdentity.helper)) {
-    cargoRuntime.helper = { ...runtimeIdentity.helper };
-    delete cargoRuntime.helper.path;
-  }
+  const cargoRuntime = relocationIndependentRuntime(runtimeIdentity);
   const fileIdentity = await getDirectoryState(config.projectRoot, [...files].sort());
   delete fileIdentity.path;
   return sha(canonical({ schema: 5,
     engineSourceRoot: path.resolve(config.engineSourceRoot), inputs: cargoInputs, declared,
     files: fileIdentity, runtime: cargoRuntime }));
 }
+
+function relocationIndependentRuntime(runtimeIdentity) {
+  const cargoRuntime = { ...runtimeIdentity };
+  if (runtimeIdentity.helper && typeof runtimeIdentity.helper === 'object' && !Array.isArray(runtimeIdentity.helper)) {
+    cargoRuntime.helper = { ...runtimeIdentity.helper };
+    delete cargoRuntime.helper.path;
+  }
+  return cargoRuntime;
+}
+const preparationRuntimeIdentity = runtime => sha(canonical(relocationIndependentRuntime(runtime)));
 
 function options(config) {
   const projectRoot = config.cargoVerificationCacheProjectRoot === undefined
@@ -282,5 +295,5 @@ function options(config) {
   return { projectRoot,
     cacheRoot: path.join(projectRoot, 'artifacts/cache/verification-results', CACHE_NAMESPACE) };
 }
-module.exports = { isEligible, runtime, key, options, resolveExecutable, CACHE_NAMESPACE, CACHE_SCHEMA: storage.CACHE_SCHEMA,
+module.exports = { isEligible, runtime, key, options, preparationRuntimeIdentity, resolveExecutable, CACHE_NAMESPACE, CACHE_SCHEMA: storage.CACHE_SCHEMA,
   begin: storage.begin, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };

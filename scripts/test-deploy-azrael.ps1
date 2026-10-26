@@ -12,16 +12,20 @@ $logs = Join-Path $runRoot 'logs'
 $reports = Join-Path $runRoot 'reports'
 $resultPath = Join-Path $reports 'results.json'
 $lifecycleId = "run:deploy-checks:$stamp"
-$lifecycleMembers = [ordered]@{run=$runRoot;logs=$logs;reports=$reports;fixture=$fixtures}
+$shortTemporary = Join-Path $project "artifacts/t-$($stamp.Substring(0,4))"
+$lifecycleMembers = [ordered]@{run=$runRoot;logs=$logs;reports=$reports;fixture=$fixtures;shortTemporary=$shortTemporary}
 $results = [Collections.Generic.List[object]]::new()
 $lifecycleRegistered = $false
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 try {
     if (Test-Path -LiteralPath $runRoot) { throw "Run identity already exists: $stamp" }
+    if (Test-Path -LiteralPath $shortTemporary) { throw "Short temporary identity already exists: $shortTemporary" }
     $recordKey = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($lifecycleId))).ToLowerInvariant()
     if (Test-Path -LiteralPath (Join-Path $project "artifacts/maintenance/lifecycles/$recordKey.json")) { throw "Run producer identity already exists: $stamp" }
     $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $lifecycleId -Kind run -Owner 'test-deploy-azrael' -State pending -MembershipComplete $false -Members $lifecycleMembers
     $lifecycleRegistered = $true
+    if (Test-Path -LiteralPath $shortTemporary) { throw "Short temporary identity already exists: $shortTemporary" }
+    New-Item -ItemType Directory -Path $shortTemporary | Out-Null
     $runParent = Split-Path $runRoot -Parent
     if (-not (Test-Path -LiteralPath $runParent)) { New-Item -ItemType Directory -Path $runParent | Out-Null }
     New-Item -ItemType Directory -Path $runRoot | Out-Null
@@ -106,7 +110,7 @@ fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.
 })().catch(e=>{console.error(e);process.exit(9)});
 '@
 $buildStub = @'
-param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory,[switch]$LifecycleParentActive)
+param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$CargoCacheProjectRoot,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory,[switch]$LifecycleParentActive)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
@@ -118,7 +122,7 @@ $lifecycle[0] | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $a 'build-life
 $runLifecycle=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object kind -eq 'run')
 if(-not $runLifecycle.Count -or @($runLifecycle | Where-Object {$_.state -ne 'pending' -or $_.membership_complete}).Count){throw 'fixture run ownership was not pending before build'}
 ConvertTo-Json -InputObject $runLifecycle -Depth 12 | Set-Content (Join-Path $a 'build-fixture-lifecycle-start.json')
-@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;WindowControlTargetDirectory=$WindowControlTargetDirectory;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
+@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;CargoCacheProjectRoot=$CargoCacheProjectRoot;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;WindowControlTargetDirectory=$WindowControlTargetDirectory;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-start.json')
 $deadline=[DateTime]::UtcNow.AddSeconds(10)
 while(-not (Test-Path (Join-Path $a 'source-start.json'))) { if([DateTime]::UtcNow -gt $deadline){throw 'source tests did not overlap build'}; Start-Sleep -Milliseconds 30 }
@@ -264,7 +268,7 @@ if($scenario.mode -eq 'prepared-version'){$version='9.9.9'}
 if($scenario.mode -eq 'wrong-package'){$vsix=Join-Path $a 'latest/azrael-host.vsix'}
 $preservationReceipt=Join-Path $OutputDirectory 'preservation-receipt.json'
 $preservationReport=Join-Path $OutputDirectory 'preservation-report.json'
-'{}' | Set-Content $preservationReceipt
+'{"status":"passed","executionSummary":{"unit":"invocation-group","kinds":{"source":{"executed":0,"reused":0,"miss":0,"forced":0,"preflightReused":0},"native":{"executed":0,"reused":0,"miss":0,"forced":0,"preflightReused":0},"cargo":{"executed":0,"reused":0,"miss":0,"forced":0,"preflightReused":0}}}}' | Set-Content $preservationReceipt
 '{}' | Set-Content $preservationReport
 $preservationBinding=Join-Path $OutputDirectory 'preservation-binding.json'
 @{fixture=($scenario.mode -ne 'package-preservation-binding')} | ConvertTo-Json | Set-Content $preservationBinding
@@ -477,7 +481,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             . $reader
             Assert-True ((@($policyPaths | Sort-Object) -join '|') -ceq 'spaces 한글.txt|tracked.txt') 'git policy paths lost tracked or UTF8 untracked path'
             $argsStart = $deployText.IndexOf('    $sourceTestArgs = @(')
-            $argsEnd = $deployText.IndexOf('    $metrics.testScope =', $argsStart)
+            $argsEnd = $deployText.IndexOf('    $fixtureArgsPath = Join-Path', $argsStart)
             $argumentBuilder = [scriptblock]::Create('param([string]$PSScriptRoot)' + "`n" + $deployText.Substring($argsStart, $argsEnd - $argsStart))
             $SourceTestConcurrency = 4; $FullRegression = $false
             . $argumentBuilder (Join-Path $savedProject 'scripts')
@@ -542,9 +546,24 @@ function Assert-AzraelVerificationStatePath {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') -Destination $scripts
+    $lockOwner = Join-Path $PSScriptRoot 'maintenance-lock-owner.cjs'
+    if (Test-Path -LiteralPath $lockOwner) { Copy-Item -LiteralPath $lockOwner -Destination $scripts }
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'build-module-cache.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') -Destination $scripts
     Write-Utf8 (Join-Path $scripts 'test-project.cjs') $nodeStub
+    # Model selection only: this orchestration fixture must never probe or run Cargo.
+    Write-Utf8 (Join-Path $scripts 'cargo-shared-cache.cjs') @'
+const fs=require('node:fs'),path=require('node:path');
+const root=path.dirname(__dirname),a=path.join(root,'artifacts'),args=process.argv.slice(2);
+if(args.length!==6 || args[0]!=='--project-root' || args[2]!=='--source-root' || args[4]!=='--target') throw Error('Unexpected shared Cargo selection arguments');
+const [projectRoot,sourceRoot,target]=[args[1],args[3],args[5]];
+if(projectRoot!==root || !path.isAbsolute(sourceRoot) || target!=='x86_64-pc-windows-msvc') throw Error('Shared Cargo selection lost its explicit owner/source/target');
+const key='c'.repeat(64),directory=path.join(projectRoot,'artifacts/cache/cargo',key);
+const selection={projectRoot,key,identity:{schema:1,platform:'win32',arch:'x64',target},directory,targetDirectory:path.join(directory,'target'),lifecycleId:`shared:cargo-target:${key}`};
+fs.appendFileSync(path.join(a,'cargo-selection-invocation.jsonl'),JSON.stringify({projectRoot,sourceRoot,target,selection})+'\n');
+// Keep the JSON protocol lossless through the fixture's native PowerShell pipe.
+console.log(JSON.stringify(selection).replace(/[^\x00-\x7f]/g,value=>'\\u'+value.charCodeAt(0).toString(16).padStart(4,'0')));
+'@
     Write-Utf8 (Join-Path $scripts 'feature-preservation.cjs') $preservationStub
     Write-Utf8 (Join-Path $scripts 'pipeline-preflight.cjs') @'
 const fs=require('node:fs'),path=require('node:path');
@@ -560,7 +579,8 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
    const record=lifecycle.catalog(root).find(record=>record.owner==='azrael-deployment-temporary');
    lifecycle.recordLifecycle(root,{...record,references:[{id:'version:other-consumer',reason:'Other active deployment must retain protection',kind:'execution'}]});
   }
-  console.log(JSON.stringify({environmentPatch:{TEMP:config.temporaryDirectory,TMP:config.temporaryDirectory,TMPDIR:config.temporaryDirectory},required:{python:false,cargo:false}}));return;
+  if(!path.isAbsolute(s.shortTemporary) || !fs.statSync(s.shortTemporary).isDirectory()) throw Error('Owned short fixture temporary directory missing');
+  console.log(JSON.stringify({environmentPatch:{TEMP:s.shortTemporary,TMP:s.shortTemporary,TMPDIR:s.shortTemporary},required:{python:false,cargo:false}}));return;
  }
  if(s.mode==='dependencies-fail'){console.error('causal dependency failure');process.exitCode=52;return;}
  console.log('{}');
@@ -598,7 +618,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         & git -c core.longpaths=true -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
     }
-    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'temporary references preserved')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
+    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;shortTemporary=$shortTemporary;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'temporary references preserved')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
     if($Mode -eq 'missing-registered-cache-project'){
         $cacheRoot=Join-Path $a 'cache/modules'
         New-Item -ItemType Directory -Path $cacheRoot | Out-Null
@@ -614,6 +634,9 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     $info.CreateNoWindow = $true
     $info.RedirectStandardOutput = $true
     $info.RedirectStandardError = $true
+    # The deployment process computes its account socket before launching the
+    # mocked command, so it also inherits the registered short temporary owner.
+    foreach($temporaryName in @('TEMP','TMP','TMPDIR')){$info.Environment[$temporaryName]=$shortTemporary}
     $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $a 'engine source 한글'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-OriginalExtensionPath',(Join-Path $a 'original Codex'),'-OriginalAudioPath',(Join-Path $a 'original audio'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
     if(-not $FullBuild){$argsList += @('-SkipEngineBuild','-EngineDirectory',(Join-Path $a 'explicit engine'))}
     else{$argsList += @('-CodeModeHostPath',(Join-Path $a 'code mode host.exe'),'-ComputerUseRuntimeDirectory',(Join-Path $a 'official computer runtime'),'-ComputerUsePluginDirectory',(Join-Path $a 'official computer plugin'))}
@@ -706,7 +729,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         Assert-True ($metrics.status -ceq 'failed') 'preservation rejection was not reported as failed'
         $calls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         $stageNames=@($metrics.stages.name)
-        $expectedStages='environment-preflight|verification-dependencies|engine-source-preflight|source-tests|build|engine-preservation|prepare'
+        $expectedStages='source-fixtures|environment-preflight|verification-dependencies|engine-source-preflight|source-tests|build|engine-preservation|prepare'
         $expectedActions='run|run'
         $markers=@('check-invocation.json','install-invocation.json')
         if($Mode -like 'package-preservation-*'){
@@ -793,6 +816,8 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Assert-True ($metrics.testScope -ceq $(if($FullRegression){'full'}else{'changed'})) 'source test scope metric lost'
     Assert-True ($metrics.forceNativeVerification -is [bool] -and $metrics.forceNativeVerification -eq $ForceNative) 'native verification policy metric lost'
     if($success){
+        Assert-True ($metrics.verificationResults.packagePreservation.status -ceq 'passed') 'package preservation status metric lost'
+        Assert-True ($metrics.verificationResults.packagePreservation.summary.unit -ceq 'invocation-group' -and $metrics.verificationResults.packagePreservation.summary.kinds.source.executed -eq 0) 'package preservation execution summary metric lost'
         $preservationCalls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         Assert-True (($preservationCalls.action -join '|') -ceq 'run|run|verify|verify|verify-receipt') 'successful preservation gate ordering changed'
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
@@ -813,6 +838,20 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         $buildCalls=@(Get-Content (Join-Path $a 'build-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         Assert-True ($buildCalls.Count -eq 1) 'build was invoked more than once'
         Assert-True ($buildCalls[0].SkipEngineBuild -eq (-not $FullBuild)) 'full build/engine reuse selection was lost'
+        if($FullBuild -and -not $TargetKind){
+            $cargoSelections=@(Get-Content (Join-Path $a 'cargo-selection-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
+            Assert-True ($cargoSelections.Count -eq 1) 'shared Cargo selection was not invoked exactly once'
+            $cargoSelection=$cargoSelections[0]
+            Assert-True ($cargoSelection.projectRoot -ceq $root -and $cargoSelection.sourceRoot -ceq $buildCalls[0].SourceRoot -and $cargoSelection.target -ceq 'x86_64-pc-windows-msvc') 'shared Cargo selection owner/source/target changed'
+            Assert-True ($buildCalls[0].CargoCacheProjectRoot -ceq $cargoSelection.selection.projectRoot -and $buildCalls[0].EngineTargetDirectory -ceq $cargoSelection.selection.targetDirectory) 'shared Cargo owner/target were not forwarded to build exactly'
+            Assert-True ($metrics.cargoCache.projectRoot -ceq $cargoSelection.selection.projectRoot -and $metrics.cargoCache.targetDirectory -ceq $cargoSelection.selection.targetDirectory) 'shared Cargo owner/target metrics lost selection'
+            foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
+                Assert-True ($call.config.cargoCacheProjectRoot -ceq $cargoSelection.selection.projectRoot -and $call.config.cargoTargetDirectory -ceq $cargoSelection.selection.targetDirectory) 'shared Cargo owner/target were not forwarded to preservation exactly'
+            }
+        }else{
+            Assert-True (-not (Test-Path -LiteralPath (Join-Path $a 'cargo-selection-invocation.jsonl'))) 'explicit engine reuse/target unexpectedly selected a shared Cargo cache'
+            Assert-True (-not $buildCalls[0].CargoCacheProjectRoot) 'engine reuse/explicit target unexpectedly forwarded a shared Cargo owner'
+        }
         Assert-True ($buildCalls[0].ModuleCacheProjectRoot -ceq $moduleOwner) 'shared module cache owner was not forwarded exactly'
         Assert-True ($buildCalls[0].WindowControlTargetDirectory -ceq $windowTarget) 'shared Window Control target was not forwarded exactly'
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){

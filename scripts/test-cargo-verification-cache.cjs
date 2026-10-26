@@ -8,6 +8,20 @@ const cache = require('./cargo-verification-cache.cjs');
 const storage = require('./verification-result-cache.cjs');
 const { getDirectoryState } = require('./directory-state.cjs');
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
+test('preparation runtime shares the existing helper relocation rule while retaining contents and unknown inputs', () => {
+  const runtime = { helper: { path: '/first/scripts', sha256: 'a'.repeat(64), files: 5 },
+    environmentSha256: 'b'.repeat(64), tools: { rustc: 'pinned' }, future: { flag: true } };
+  const before = structuredClone(runtime), key = cache.preparationRuntimeIdentity(runtime);
+  const relocated = structuredClone(runtime); relocated.helper.path = '/second/scripts';
+  assert.equal(cache.preparationRuntimeIdentity(relocated), key);
+  for (const mutate of [value => { value.helper.sha256 = 'c'.repeat(64); },
+    value => { value.environmentSha256 = 'd'.repeat(64); }, value => { value.tools.rustc = 'changed'; },
+    value => { value.future.flag = false; }, value => { value.helper.future = 1; }]) {
+    const changed = structuredClone(runtime); mutate(changed);
+    assert.notEqual(cache.preparationRuntimeIdentity(changed), key);
+  }
+  assert.deepEqual(runtime, before);
+});
 const fixtureParent = process.env.AZRAEL_CARGO_OWNER_TEST_ROOT ? path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT) : path.resolve(__dirname, '../artifacts/verification');
 fs.mkdirSync(fixtureParent, { recursive: true });
 const fixtures = fs.mkdtempSync(path.join(fixtureParent, 'cargo-cache-'));

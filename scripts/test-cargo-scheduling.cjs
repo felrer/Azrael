@@ -143,7 +143,7 @@ test('registered schedule retains every native check and batches declared compil
   }
 });
 
-test('account persistence regression owns its mandatory check and runs first in the native schedule', () => {
+test('account persistence remains the first Cargo check after the tooling prerequisite', () => {
   const manifest = gate.loadManifest(path.resolve(__dirname, '..'));
   const owner = 'engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs';
   const impacted = manifest.features.filter(feature => feature.owners.includes(owner));
@@ -156,7 +156,8 @@ test('account persistence regression owns its mandatory check and runs first in 
     .map(check => ({ check, entries: [{ feature, check }] })));
   const before = structuredClone(groups);
   const ordered = gate.scheduleNativeGroups(groups, manifest.verificationSchedule);
-  assert.equal(ordered[0].check.id, 'engine.usage-window.native');
+  assert.equal(ordered[0].check.id, 'tool.project-maintenance.windows-cleanup');
+  assert.equal(ordered.find(group => group.check.cargoPreflight)?.check.id, 'engine.usage-window.native');
   assert.deepEqual(ordered.map(group => group.check.id).sort(), groups.map(group => group.check.id).sort());
   assert.equal(new Set(ordered).size, groups.length);
   assert.deepEqual(groups, before, 'Scheduling must preserve all argv, filters and metadata');
