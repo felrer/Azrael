@@ -44,6 +44,7 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
   });
   let state = { thread: initial }, role = { role: "owner" }, callbacks, broadcastHandler;
   let sendFailure, prepareFailure, prepareHook, activeTurn = null, ready = false, canSend = true, queueMode = "steer";
+  let rootResumePending = false;
   let pendingQuestions = false, questionStateFailure;
   const writes = [], loads = [], events = [], sends = [], warnings = [], blockedLocks = new Set();
   const execution = {
@@ -65,6 +66,7 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     coordination: { registerBroadcastHandler: handler => { broadcastHandler = handler; return () => events.push("broadcast-disposed"); }, broadcast: async () => {} },
     logger: { error: (...args) => warnings.push(args), warning: (...args) => warnings.push(args) },
     submissionHost: {
+      isRootResumePending: () => rootResumePending,
       accountChangePending: async () => false,
       hasPendingQuestions: async () => { events.push("question-check"); if (questionStateFailure) throw questionStateFailure; return pendingQuestions; },
       needsResume: () => false, getActiveTurnId: () => activeTurn, hasPendingTurnStart: () => false,
@@ -86,6 +88,7 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     broadcast: (items, thread = "thread") => broadcastHandler({ params: { conversationId: thread, messages: items }, sourceClientId: "owner-client" }),
     setState: value => { state = value; }, setFailure: value => { sendFailure = value; },
     setCanSend: value => { canSend = value; }, setActive: value => { activeTurn = value; }, setReady: value => { ready = value; },
+    setRootResumePending: value => { rootResumePending = value; },
     setQuestions: value => { pendingQuestions = value; }, setQuestionFailure: value => { questionStateFailure = value; },
   };
 }
@@ -442,5 +445,22 @@ test("actual acceptLocally native success retains the sent result and consumes i
   assert.equal(result.status, "sent"); assert.equal(result.messageId, item.id);
   assert.deepEqual(ids(f.queue.readMessages("thread")), ["next"]);
   assert.deepEqual(f.sends, [item.id]); assert.equal(f.queue.accepted.size, 0);
+  f.queue.dispose();
+});
+
+
+// Retained contract: ordinary automatic replay cannot supersede a parked root.
+test('parked root holds local queue before taking the start lock', async () => {
+  const f = fixture(questionPatched, [message('accepted')]);
+  await f.queue.executionReady; await f.queue.loadMessages('thread');
+  f.setRootResumePending(true); f.setReady(true); f.changed();
+  await tick(); await tick();
+  assert.deepEqual(f.sends, []);
+  assert.deepEqual(ids(f.queue.readMessages('thread')), ['accepted']);
+  assert.ok(!f.events.includes('start-acquired'));
+  f.setRootResumePending(false); f.changed();
+  await tick();
+  assert.deepEqual(f.sends, ['accepted']);
+  f.setReady(false); for (const write of f.writes) write.resolve(); await tick();
   f.queue.dispose();
 });

@@ -9,6 +9,7 @@ const { injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs"
 const { injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const { injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
 const { QUESTION_QUEUE_ASSETS, QUESTION_QUEUE_PRESENTATION_ASSET, QUESTION_QUEUE_CORE_ASSET, QUESTION_QUEUE_LIST_ASSET, injectQuestionQueue, __azraelPendingQuestionCount, __azraelPendingResponseCounts } = require("./inject-question-queue.cjs");
+const { azraelIsRootResumePending: __azraelQueueRootResumePending } = require("./root-resume-wait.cjs");
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434");
 function prepare(asset) {
   let text = fs.readFileSync(path.join(root, asset), "utf8");
@@ -45,6 +46,7 @@ function adapterFixture() {
   const callbacks = new Map(), calls = [], requests = [], warnings = [];
   let items = [{ id: "q", clientUserMessageId: "client", input: [], kind: "userInput" }];
   let count = 2, approvalCount = 0, pendingAccount = false, interrupted = false, streaming = false, recovery = false;
+  let resumeTurn = null;
   const deferredLists=[];
   const manager = { getHostId: () => "local", getConversationCwd: () => "/", getConversation: () => ({ ephemeral: false }), isConversationStreaming: () => streaming,
     getStreamRole: () => ({ role: "owner" }),
@@ -57,7 +59,7 @@ function adapterFixture() {
       throw Error(method);
     } };
   const context = vm.createContext({ __azraelPendingQuestionCount, __azraelPendingResponseCounts, AE: () => false, Gf: () => true, Sy: () => true,
-    nt: () => interrupted ? { status: "interrupted" } : null, Nv: value => value, Lpt: "interrupted",
+    __azraelQueueRootResumePending, nt: () => interrupted ? { status: "interrupted" } : resumeTurn, Nv: value => value, Lpt: "interrupted",
     Apt: ({ input }) => ({ rawText: input.find(i => i.type === "text")?.text ?? "" }), mv: () => null, dv: value => value, t6t: () => [], Cv: () => null,
     bsn: (host, message) => ({ input: [{ type: "text", text: message.context.prompt }], responseItems: [] }),
     RD: { default: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
@@ -66,7 +68,7 @@ function adapterFixture() {
   const insertionIndex = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "xsn").getText(ast);
   vm.runInContext(insertionIndex + ";" + restored + ";" + declaration + ";globalThis.create=vsn", context);
   const queue = context.create({ manager, appServerVersion: () => "v" });
-  return { queue, calls, requests, callbacks, warnings, setItems: value => { items = value; }, setStreaming: value => { streaming = value; }, setRecovery: value => { recovery = value; }, setCount: value => { count = value; }, setApprovalCount: value => { approvalCount = value; }, deferList: fn=>deferredLists.push(fn), setAccount: value => { pendingAccount = value; }, setInterrupted: value => { interrupted = value; } };
+  return { queue, calls, requests, callbacks, warnings, setResumeTurn: value => { resumeTurn = value; }, setItems: value => { items = value; }, setStreaming: value => { streaming = value; }, setRecovery: value => { recovery = value; }, setCount: value => { count = value; }, setApprovalCount: value => { approvalCount = value; }, deferList: fn=>deferredLists.push(fn), setAccount: value => { pendingAccount = value; }, setInterrupted: value => { interrupted = value; } };
 }
 
 test("native automatic resume holds partial questions and rechecks before releasing the final hold", async () => {
@@ -256,4 +258,61 @@ test("legacy admission admits reply context only and preserves approval holds", 
   assert.equal(await hasPending("thread", reply), false);
   pendingApprovalCount = 1; assert.equal(await hasPending("thread", reply), true);
   pendingQuestionCount = 0; assert.equal(await hasPending("thread", reply), true);
+});
+
+
+// Retained regression: parked roots must preserve reservations and queued input.
+for (const state of ['waiting', 'claimed']) test('parked root holds server queue until reservation ends: ' + state, async () => {
+  const f = adapterFixture(); f.setCount(0);
+  f.setResumeTurn({ status: 'deferred', rootResumeWait: { state } });
+  await f.queue.load('thread');
+  await f.queue.resume('thread', () => true);
+  assert.equal(f.calls.filter(x => x === 'thread/queue/start').length, 0);
+  assert.equal(f.queue.read('thread')[0].id, 'q');
+  f.setResumeTurn({ status: 'deferred', rootResumeWait: { state: 'resumed' } });
+  await f.queue.resume('thread', () => true);
+  assert.equal(f.calls.filter(x => x === 'thread/queue/start').length, 1);
+  f.queue.dispose();
+});
+
+for (const state of ['waiting', 'claimed', 'resumed', 'cancelled', 'blocked']) test('composer queues only pending root reservations: ' + state, async () => {
+  const ast = asts.get(QUESTION_QUEUE_CORE_ASSET);
+  const declaration = ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === 'ajn').getText(ast);
+  const text = transformed.get(QUESTION_QUEUE_CORE_ASSET);
+  const start = text.indexOf('isRootResumePending:t=>') + 'isRootResumePending:'.length;
+  const end = text.indexOf(',hasPendingQuestions:', start);
+  const turn = { status: 'deferred', rootResumeWait: { state } };
+  const isRootResumePending = vm.runInNewContext('(' + text.slice(start, end) + ')', {
+    __azraelQueueRootResumePending, e: { getConversation: () => ({ turns: [turn] }) }, aQ: c => c.turns.at(-1),
+  });
+  const calls = [];
+  const create = vm.runInNewContext(declaration + ';ajn', { P1: Error, Oe: Error, Nt: () => false });
+  const host = { isRootResumePending, accountChangePending: async () => false, needsResume: () => false,
+    getActiveTurnId: () => null, hasPendingTurnStart: () => false, hasFinalAnswer: () => false,
+    start: async () => { calls.push('start'); return 'turn'; } };
+  const api = create({ host, isActive: () => true, isDurableThread: () => true, getQueueMode: async () => 'send-only',
+    enqueue: async () => { calls.push('enqueue'); return { status: 'queued' }; } });
+  const request = { conversationId: 'thread', message: { id: 'client', context: {} }, queueModeOverride: 'send-now' };
+  const prepare = async () => ({ conversationId: 'thread', resume: { conversationId: 'thread' }, start: {}, steer: {} });
+  assert.equal((await api.sendMessage(request, prepare)).status, ['waiting', 'claimed'].includes(state) ? 'queued' : 'sent');
+  assert.deepEqual(calls, [['waiting', 'claimed'].includes(state) ? 'enqueue' : 'start']);
+  calls.length = 0; request.explicitQueuedSteer = true;
+  assert.equal((await api.sendMessage(request, prepare)).status, 'sent');
+  assert.deepEqual(calls, ['start']);
+  calls.length = 0; request.explicitQueuedSteer = false; request.message.context.turnTrigger = 'send_user_message_async_question';
+  assert.equal((await api.sendMessage(request, prepare)).status, 'sent');
+  assert.deepEqual(calls, ['start']);
+});
+
+
+test('parked root preserves typed question reply and explicit queued send', async () => {
+  const f = adapterFixture(); f.setCount(0);
+  f.setResumeTurn({ status: 'deferred', rootResumeWait: { state: 'waiting' } });
+  f.setItems([{ id: 'ordinary', kind: 'userInput', input: [] }, { id: 'reply', kind: 'questionReply', input: [] }]);
+  await f.queue.load('thread'); await f.queue.resume('thread', () => true);
+  assert.equal(f.requests.find(r => r.method === 'thread/queue/start').params.queuedSubmissionId, 'reply');
+  f.setItems([{ id: 'ordinary', kind: 'userInput', input: [] }]); await f.queue.load('thread');
+  await f.queue.sendNow('thread', 'ordinary', null, async () => { throw Error('unexpected steer'); }, () => true);
+  assert.equal(f.requests.filter(r => r.method === 'thread/queue/start').at(-1).params.queuedSubmissionId, 'ordinary');
+  f.queue.dispose();
 });

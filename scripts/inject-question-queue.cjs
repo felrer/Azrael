@@ -1,4 +1,5 @@
 "use strict";
+const { azraelIsRootResumePending: __azraelQueueRootResumePending } = require("./root-resume-wait.cjs");
 
 const QUESTION_QUEUE_CORE_ASSET = "webview/assets/app-initial-97d3534ad35f.js";
 const QUESTION_QUEUE_PRESENTATION_ASSET = "webview/assets/app-initial-7a199c66e670.js";
@@ -21,8 +22,9 @@ function __azraelPendingResponseCounts(response) {
 
 function editsFor(asset) {
   if (asset === QUESTION_QUEUE_CORE_ASSET) return [
-    ["submissionHost:{accountChangePending:", "submissionHost:{hasPendingQuestions:async(t,n)=>{const c=__azraelPendingResponseCounts(await e.sendRequest(`thread/queue/list`,{threadId:t,limit:1}));return c.pendingApprovalCount>0||c.pendingQuestionCount>0&&n?.context?.turnTrigger!==`send_user_message_async_question`},accountChangePending:"],
-    ["if(!d()||r==null||!t.tryAcquireStartTurn(e)", "if(n==null&&await this.options.submissionHost.hasPendingQuestions(e,r))return;if(!d()||r==null||!t.tryAcquireStartTurn(e)"],
+    ["async function s(t){if(t.message?.context?.turnTrigger===`send_user_message_async_question`)return `send-now`;", "async function s(t){if(t.message?.context?.turnTrigger===`send_user_message_async_question`)return `send-now`;if(e.isRootResumePending?.(t.conversationId)&&t.explicitQueuedSteer!==!0)return `queue-only`;"],
+    ["submissionHost:{accountChangePending:", "submissionHost:{isRootResumePending:t=>{const n=e.getConversation(t);return __azraelQueueRootResumePending(n==null?null:aQ(n))},hasPendingQuestions:async(t,n)=>{const c=__azraelPendingResponseCounts(await e.sendRequest(`thread/queue/list`,{threadId:t,limit:1}));return c.pendingApprovalCount>0||c.pendingQuestionCount>0&&n?.context?.turnTrigger!==`send_user_message_async_question`},accountChangePending:"],
+    ["if(!d()||r==null||!t.tryAcquireStartTurn(e)", "if(n==null&&(r?.context?.turnTrigger!==`send_user_message_async_question`&&this.options.submissionHost.isRootResumePending?.(e)||await this.options.submissionHost.hasPendingQuestions(e,r)))return;if(!d()||r==null||!t.tryAcquireStartTurn(e)"],
   ];
   if (asset === QUESTION_QUEUE_PRESENTATION_ASSET) return [
     ["function vsn({scope:e,manager:t,appServerVersion:n}){", "function vsn({scope:e,manager:t,appServerVersion:n}){const __azraelQuestionCounts=new Map;"],
@@ -32,7 +34,7 @@ function editsFor(asset) {
     ["n.push(...r.data),i=r.nextCursor", "__azraelCount=__azraelPendingResponseCounts(r),n.push(...r.data),i=r.nextCursor"],
     ["if(l)return;let i=a.get(e)", "if(l)return;__azraelQuestionCounts.set(e,__azraelCount);let i=a.get(e)"],
     ["if(o)return{...a,pausedReason:Lpt};", "if(__azraelQuestionCounts.get(e)?.pendingQuestionCount>0&&r.kind!==`questionReply`||__azraelQuestionCounts.get(e)?.pendingApprovalCount>0)a={...a,submission:{...a.submission,status:a.submission?.status??`queued`,...__azraelQuestionCounts.get(e),...r.kind===`questionReply`?{pendingQuestionCount:0}:{}}};if(r.kind===`questionReply`&&a.submission?.accountChangePending)a={...a,submission:{...a.submission,accountChangePending:false}};if(o)return{...a,pausedReason:Lpt};"],
-    ["if(await __azraelRefreshAccount()||t.isConversationStreaming(e))return;let r=await _(e),i=r.items[0];", "let __azraelAccountPending=await __azraelRefreshAccount();if(t.isConversationStreaming(e))return;await m(e);if(__azraelQuestionCounts.get(e)?.pendingApprovalCount>0||nt(t.getConversation(e))?.status===`interrupted`)return;let r=await _(e),i=__azraelAccountPending||__azraelQuestionCounts.get(e)?.pendingQuestionCount>0?r.items.find(e=>e.kind===`questionReply`):r.items[0];"],
+    ["if(await __azraelRefreshAccount()||t.isConversationStreaming(e))return;let r=await _(e),i=r.items[0];", "let __azraelAccountPending=await __azraelRefreshAccount();if(t.isConversationStreaming(e))return;await m(e);if(__azraelQuestionCounts.get(e)?.pendingApprovalCount>0||nt(t.getConversation(e))?.status===`interrupted`)return;let r=await _(e),i=__azraelAccountPending||__azraelQueueRootResumePending(nt(t.getConversation(e)))||__azraelQuestionCounts.get(e)?.pendingQuestionCount>0?r.items.find(e=>e.kind===`questionReply`):r.items[0];"],
     ["!(0,RD.default)(r.items[0],i)", "!(0,RD.default)(r.items.find(e=>e.id===i.id),i)"],
     ["if(c.kind===`contextCompaction`)return null;", "if(c.kind===`contextCompaction`||c.kind===`questionReply`)return null;"],
     ["dispose(){l=!0,__azraelAccountSubscription()", "dispose(){l=!0,__azraelQuestionCounts.clear(),__azraelAccountSubscription()"],
@@ -57,7 +59,7 @@ function injectQuestionQueue(text, asset) {
     if (text.split(anchor).length !== 2) throw Error(`Pinned question queue anchor must occur exactly once: ${anchor.slice(0, 100)}`);
     text = text.replace(anchor, replacement);
   }
-  return { text: text + "\n" + marker + (asset === QUESTION_QUEUE_LIST_ASSET ? "" : "\n" + __azraelPendingQuestionCount.toString() + "\n" + __azraelPendingResponseCounts.toString()), count: 1 };
+  return { text: text + "\n" + marker + (asset === QUESTION_QUEUE_LIST_ASSET ? "" : "\nvar __azraelQueueRootResumePending=" + __azraelQueueRootResumePending.toString() + ";\n" + __azraelPendingQuestionCount.toString() + "\n" + __azraelPendingResponseCounts.toString()), count: 1 };
 }
 
 // Earlier transform owners validate their pinned boundaries against this exact
