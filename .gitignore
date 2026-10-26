@@ -8,6 +8,8 @@ __pycache__/
 # Azrael build and runtime artifacts
 node_modules/
 /artifacts/
+# Inactive generated build/test material moved here by explicit cleanup decisions.
+/archive/
 # Personal instruction drafts and publication journals are never committed wholesale.
 /instruction-library/
 # Machine-specific skills and operational records are local to this checkout.
