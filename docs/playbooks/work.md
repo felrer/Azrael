@@ -66,7 +66,7 @@ When handling generated inputs, logs, reports, backups and version evidence, als
 ## Test Groups and Generated Artifact Review
 
 - Distinguish test purposes `one_off`/`retained` and phases `prepare`/`test`/`build`. Follow [project maintenance operations](../ops/project-maintenance.md) for registration and execution. Preserve existing mandatory checks and criteria for adding tests.
-- Use one-off groups for failure fixes and reruns too. After reviewing results, the model decides deletion or deferral for each item and verifies actual cleanup. Record a reason and review condition for deferrals.
+- Use one-off groups for failure fixes and reruns too. After reviewing results and required rechecks, safely delete disposable material as soon as its current use ends and verify actual cleanup. Before task completion, obtain explicit user retention approval for every remaining cleanup-scope item under the installed `implementation` skill and [artifact lifecycle](artifact-lifecycle.md). Reasons, review conditions and tool deferral alone are insufficient; keep cleanup unresolved while approval is pending.
 - Use management tools in engines that provide the built-in tools. Where tools are unavailable, apply the same principles with existing commands; management functionality does not justify expanding scope to a full app build or installation.
 
 <a id="windows-산출물-삭제"></a>
