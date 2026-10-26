@@ -20,6 +20,7 @@
 
 ## Build and artifact cleanup
 
+- Task-owned disposable material must be cleaned up immediately after its current use ends, including failed/canceled runs. Verify actual removal. For every cleanup-scope leftover, obtain explicit user retention approval with exact paths, reasons and release/review conditions before task completion; reasons or defer records alone are insufficient. Preserve protected/uncertain material while asking and keep cleanup unresolved until approval. Follow the installed `implementation` skill and [artifact lifecycle](docs/playbooks/artifact-lifecycle.md); reuse unchanged explicit approval.
 - Before building, packaging, installing, updating, rolling back or cleaning generated artifacts, apply the [build playbook](docs/playbooks/build.md). It owns immutable inputs, provenance, protected paths, retention and required cleanup.
 
 ## Temporary snippets

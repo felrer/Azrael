@@ -93,8 +93,8 @@
         "size": 17375,
         "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 17232,
-      "sha256": "0ae7f50828f2536fc0e4696f2f7f8a568ad4ec655bdaee214e2fde45c1ff92ed",
+      "size": 19402,
+      "sha256": "28e88b9b0e35bfe12cb827327d3d4f0a14b160d366588f43cdb62131f09400d1",
       "adaptations": [
         "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy."
@@ -210,8 +210,8 @@
         "size": 7937,
         "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
       },
-      "size": 9353,
-      "sha256": "1a16e4efab9d94f82106f35daed6467241c211b94b56903321d08d66a81f0c78"
+      "size": 9594,
+      "sha256": "a5dce8a75a150c77af20bd4053cb691a0651754f2a9643ba2ec2a0d96627995b"
     },
     {
       "path": "skills/implementation/references/delegation.md",
@@ -260,8 +260,8 @@
     {
       "path": "skills/implementation/references/artifact-lifecycle.md",
       "source": "implementation/references/artifact-lifecycle.md",
-      "size": 11921,
-      "sha256": "a83c9c87c2ff678f18e1237e2ff11aeff867ab979aa5e7b7833d9d4be5dec644",
+      "size": 12405,
+      "sha256": "f3261b3db683dcc80d1d2d1ff1bcd1e0bbd132a85cfbb395b5063d02328d8bc5",
       "original": {
         "size": 4370,
         "sha256": "834485e7b1e853611b50da821109b8f171cd342b27e4438890aa9bb007fa3abe"
@@ -277,8 +277,8 @@
     {
       "path": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
       "source": "project-bootstrap/assets/playbooks/artifact-lifecycle.md",
-      "size": 19335,
-      "sha256": "b817c7219981a41a2f61d8beafb5d1e1463be7cea1836451a5ae7bce75f32123",
+      "size": 19894,
+      "sha256": "7cbbd22e5d1755debd6271b361e05969355e7e6823bc140b47b73cf1bced5ff8",
       "original": {
         "size": 10430,
         "sha256": "6f05e9cb306732e7b74b7c064066de63da2776d19c2e5d161aa072bcf431c15a"
