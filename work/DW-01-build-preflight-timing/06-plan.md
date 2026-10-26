@@ -1,4 +1,4 @@
-상태: 수정·회귀 검증·생성물 정리 완료. 사용자 추가 결정 없음.
+상태: 수정·회귀 검증·정리 완료, 추가 개선 가능성 분석 완료. 추가 후보는 미구현이며 실행 승인은 받지 않았다.
 
 # 캐시 회귀 테스트의 반복 해시와 프로세스 실행 최적화
 
@@ -39,3 +39,12 @@ Windows x64, Node v26.7.0에서 같은 명령 `node --test --test-reporter=spec 
 - 성공한 producer의 실제 종료를 확인하고 lifecycle을 close했다. 설치된 `maintenance-owner-6f6f874e-win-x64-dx05`의 실행파일 SHA256 `6ffd3d7e5787439381740a8bb3a32a7f4d4ab0d91beba4ee145c954287a06a96`을 확인한 뒤 inventory→소유 그룹 등록→registered review→fresh token apply를 수행했다. 완결 구성원2개, 참조/보호 blocker 없음.
 - `artifacts/tasks/dw06-cache`와 `artifacts/tasks/tw06` 삭제 실제 exit0, 30.9575013초. 두 결과 모두 deleted/remaining:false/error:null, aborted:false. 두 경로의 실제 부재와 lifecycle finalize(finalized, remaining/references/blockers 모두 빈 배열), registry 파일 부재를 확인했다. `.git/dw06-*` 임시 제어 파일도 일반 삭제 후 부재를 확인했다. 이번 생성물의 보존·archive 예외는 없다.
 - `node --check`와 최종 범위 `git diff --check` exit0. 측정 전후 기존 전체 index SHA256 `c1791f8cb7539c159bdc1b3ef2960244b84588a09c519058bd97e993ca9cbc72`가 같았다. 이번 source/기록 두 파일만 task commit 대상으로 삼고 기존 동시 변경과 staged 항목을 보존한다.
+
+## 추가 개선 가능성: 분석만 수행
+
+- 요청 범위: 167.17초 이후 추가 개선 후보 분석. 코드 수정·전체 테스트 재실행·제품 빌드 없이 호출 경로와 읽기 전용 소규모 측정으로 확인했다. 생성 파일·로그·fixture는 없다. 공통 Node 동작을 대상으로 하되 측정 환경은 앞과 같은 Windows x64이다.
+- Node 실행파일은 103,173,960바이트이다. 현재 `fileHash`와 같은 readFile+SHA256을 5회 측정하면 219.94~242.88ms, 메모리에 미리 읽은 같은 bytes의 SHA256만 계산하면 177.98~191.48ms였다. 두 실험은 별개이며 정확한 차감 분석은 아니다. 실제 해시 계산 자체의 비용도 크므로 스트림 전환이나 읽기 최적화만으로 큰 감소를 보장할 수 없다. 공통 runner 3개 파일의 getDirectoryState는 5회 중 1.76~4.95ms였다. 전체 167.17초에서 차지하는 비율은 새 프로파일을 실행하지 않아 미확인이다.
+- 우선 후보: `verification-result-cache.cjs`에서 최초 obsolete/removed prune가 lifecycle 잠금을 별도로 획득하고, 각 begin과 close도 obsolete 정리를 반복한다. 초기 두 정리를 같은 transaction으로 합치고 같은 보호 구간의 중복 directory/owner 관측을 줄일 여지가 있다. 다른 프로세스의 변경과 마지막 lease 해제 후 정리를 놓치지 않아야 한다. 기존 contention·abandoned owner·release 실패·안전한 삭제 계약을 유지하는 회귀가 필요하다. 개선율은 미측정이다.
+- 다음 후보: `sourceExecutionIdentity`와 `sourceCacheRuntime`가 source phase의 같은 검증 경계에서 각각 Node를 해시한다. 하나의 검증 시점에 필요한 공통 Node 관측/선언 파일 상태를 공유할 수 있는지 검토할 수 있다. 다음 check의 publish와 최종 gate에서는 새 관측을 수행해야 한다. 프로세스 수명 전체의 메모이제이션이나 mtime/size만으로 내용 동일성을 가정하는 방식은 현재 계약과 맞지 않는다. 앞선 cache fixture는 기본 all phase이므로 이 개선의 전체 파일 효과는 별도 확인해야 한다.
+- 테스트 전용 후보: rename 재시도·영수증 게시 등 한 기능만 확인하는 사례에도 동일한 5-feature setup이 쓰인다. 해당 사례만 최소 manifest로 줄이고, 선택 무효화/실패 후 독립 통과 evidence/동시 lease 검사는 복수 feature를 유지하는 방법이 있다. 불필요한 준비를 줄이는 후보이며 검사 자체 삭제를 뜻하지 않는다. 개선율은 미측정이다.
+- 우선순위는 캐시 정리 transaction 중복 축소, 검증 시점별 공통 관측 공유, 단일 목적 fixture 최소화이다. 실제 개선율 판단에는 항목별 계측과 같은 범위의 2회 비교가 필요하며, 167.17초 전체가 제거 가능한 비용이라고 주장하지 않는다. 이번에는 제품 정책·검사 범위·architecture 계약을 변경하지 않았다.
