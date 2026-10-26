@@ -48,3 +48,11 @@ Windows x64, Node v26.7.0에서 같은 명령 `node --test --test-reporter=spec 
 - 다음 후보: `sourceExecutionIdentity`와 `sourceCacheRuntime`가 source phase의 같은 검증 경계에서 각각 Node를 해시한다. 하나의 검증 시점에 필요한 공통 Node 관측/선언 파일 상태를 공유할 수 있는지 검토할 수 있다. 다음 check의 publish와 최종 gate에서는 새 관측을 수행해야 한다. 프로세스 수명 전체의 메모이제이션이나 mtime/size만으로 내용 동일성을 가정하는 방식은 현재 계약과 맞지 않는다. 앞선 cache fixture는 기본 all phase이므로 이 개선의 전체 파일 효과는 별도 확인해야 한다.
 - 테스트 전용 후보: rename 재시도·영수증 게시 등 한 기능만 확인하는 사례에도 동일한 5-feature setup이 쓰인다. 해당 사례만 최소 manifest로 줄이고, 선택 무효화/실패 후 독립 통과 evidence/동시 lease 검사는 복수 feature를 유지하는 방법이 있다. 불필요한 준비를 줄이는 후보이며 검사 자체 삭제를 뜻하지 않는다. 개선율은 미측정이다.
 - 우선순위는 캐시 정리 transaction 중복 축소, 검증 시점별 공통 관측 공유, 단일 목적 fixture 최소화이다. 실제 개선율 판단에는 항목별 계측과 같은 범위의 2회 비교가 필요하며, 167.17초 전체가 제거 가능한 비용이라고 주장하지 않는다. 이번에는 제품 정책·검사 범위·architecture 계약을 변경하지 않았다.
+
+### 테스트 축소의 구체 후보
+
+- schema2 aggregate 변이 사례는 gate9회, 별도 actual compiler 변이 사례는 gate7회이다. 공통 cold/hit 통합 검증을 유지하고 각 변이 뒤의 추가 warm 재실행3회+2회를 직접적인 새 key/게시 evidence 검증으로 대체하면 해당 두 사례 합계16회를11회로 줄일 후보가 된다. 변이별 재사용 보장을 대체 검증 없이 삭제해도 된다는 결론은 아니며, 실제 시간 절감은 미측정이다.
+- 손상 로그의 low-level miss 처리는 `test-verification-result-cache.cjs`에도 있다. cache gate 통합 사례는 malformed receipt로 miss→실제 재실행을 대표 검증하고, 로그 손상의 여러 변형은 owner 단위 테스트에 맡기는 통합 후보가 있다. 기존 복사 로그 독립성과 입력 변이 검증은 별도 계약이라 유지해야 한다.
+- schema1 실패/복구에서 실제 Node의 exit7/exit0 및 stdout/stderr를 검증한다. schema2의 같은 실제 child 실행2회는 주입 결과로 대체하고 schema2 runtime 변이와 이전 독립 통과 evidence 보존 검증을 유지할 후보가 있다. 전체 gate 횟수는 그대로이고 child 시작 비용만 감소한다.
+- manifest shape 검증과 receipt rename 정책 사례는 전체 5-feature fixture 대신 해당 계약에 필요한 최소 manifest/파일만 준비할 후보이다. malformed schema/fields 각각의 거부, 고정 checkpoint bytes 재시도, 이후 checkpoint 게시 검증은 유지해야 한다.
+- package binding과 verifyReceipt, 실행 중 변이와 cache hit 이후 변이, 동일 compiler root와 별도 compiler root는 서로 다른 경로를 검증하므로 제목이나 유사 assertion만으로 삭제하지 않는다. 분석은 기존 세 파일의 해당 사례를 읽어 수행했고 제품/테스트 코드·생성물 변경과 새 성능 측정은 없다.
