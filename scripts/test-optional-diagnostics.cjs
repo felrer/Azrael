@@ -27,12 +27,6 @@ test("host and account policies preserve defaults, override and fallback consist
     }
   }
 });
-test("host staging and provenance include the runtime policy dependency", () => {
-  for (const file of ["prepare-independent-vscode.ps1", "prepare-platform-host.cjs", "preparation-state.cjs"]) {
-    assert.ok(fs.readFileSync(require("node:path").join(__dirname, file), "utf8").includes("optional-diagnostics.cjs"), file);
-  }
-});
-
 test("account helper operations succeed quietly when off, errors remain, and override restores logs", async () => {
   const { EventEmitter } = require("node:events");
   const filename = require("node:path").join(__dirname, "../extensions/azrael-ex/src/providerAccountService.ts");

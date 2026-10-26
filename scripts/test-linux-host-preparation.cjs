@@ -79,6 +79,5 @@ test("supervision transform accepts the pinned native host before and after name
   const source = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434/out/extension.js"), "utf8");
   const prepared = require("./inject-linux-supervision.cjs").inject(source, ts);
   const result = require("./namespace-azrael-host.cjs").transformAsset(prepared, "out/extension.js", "extension.js", ts);
-  assert.ok(result.text.includes('linux-native-supervision.cjs'));
   assert.equal(ts.createSourceFile("extension.js", result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
 });

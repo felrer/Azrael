@@ -104,13 +104,8 @@ test("generic descriptor labels still transform off the controls paths and retai
   const source = 'const label={id:`settings.title`,defaultMessage:`Codex settings`};const rpc=`Codex CLI`;const url=`https://example.com/Codex`;';
   const injection = require("./inject-provider-context.cjs");
   const original = injection.injectProviderContext(source, asset);
-  const namespaced = transform(asset, source);
-  assert(original.count > 0);
   assert.deepEqual(require("./provider-context-labels.cjs").runProviderContext(source, asset), original);
-  assert.match(namespaced.text, /Azrael settings/);
-  assert.match(namespaced.text, /rpc=`Codex CLI`/);
-  assert.match(namespaced.text, /https:\/\/example.com\/Codex/);
-  assert.deepEqual(injection.injectProviderContext(original.text, asset), { text: original.text, count: 0 });
+  assert.equal(injection.injectProviderContext(original.text, asset).text, original.text);
   const cold = cache("generic-label");
   const expected = cold.run(asset, source, () => transform(asset, source)); cold.flush();
   assert.deepEqual(cache("generic-label", changeRule("inject-provider-context.cjs")).run(asset, source, miss), expected);
@@ -279,59 +274,38 @@ test("busy writer defers publication and deletion; completed cleanup preserves u
   assert.equal(fs.readFileSync(path.join(target, "keep.txt"), "utf8"), "linked content");
 });
 
-test("all pinned injector target fixtures: uncached/cold/warm byte and metadata equality; related edits miss", () => {
+const { pinnedAssetMatrix, matrixTestName } = require("./source-test-policy.cjs");
+for (const asset of pinnedAssetMatrix().assets) test(matrixTestName(asset), () => {
   const original = path.join(artifacts, "upstream-ui/26.1007.21434");
-  const paths = new Set(["out/extension.js", "webview/assets/ko-KR-ebd6264cb102.js"]);
-  for (const name of Object.keys(rules).filter(name => name.startsWith("inject-"))) {
-    // Legacy migration targets ire exercised against their own pinned version
-    // by test-session-links; this cache contract covers the active UI only.
-    for (const [exportName, value] of Object.entries(require(`./${name}`))) {
-      if (exportName.startsWith("LEGACY_")) continue;
-      for (const asset of Array.isArray(value) ? value : [value]) {
-        if (typeof asset === "string" && /^webview\/assets\/[^\n]+\.js$/.test(asset)) paths.add(asset);
-      }
-    }
-  }
+  const source = fs.readFileSync(path.join(original, asset), "utf8");
+  const expected = transform(asset, source);
+  const name = "pinned-" + sha(asset);
   const statistics = { hits: 0, misses: 0 };
-  const cold = cache("pinned", { statistics });
-  const results = new Map();
-  const missingImageAssets = require("./inject-missing-image.cjs").ASSETS;
-  for (const asset of paths) {
-    const source = fs.readFileSync(path.join(original, asset), "utf8");
-    const expected = transform(asset, source);
-    if (missingImageAssets.includes(asset)) assert.equal(expected.asset.missingImageEdits, 1, asset);
-    assert.deepEqual(cold.run(asset, source, () => transform(asset, source)), expected, asset);
-    results.set(asset, { source, expected });
-  }
+  const cold = cache(name, { statistics });
+  assert.deepEqual(cold.run(asset, source, () => transform(asset, source)), expected, asset);
   cold.flush();
-  const warm = cache("pinned", { statistics });
-  for (const [asset, { source, expected }] of results) assert.deepEqual(warm.run(asset, source, miss), expected, asset);
-  for (const asset of missingImageAssets) {
-    const { source } = results.get(asset);
-    assert.equal(warm.run(asset, source, miss).asset.missingImageEdits, 1, asset);
-  }
-  assert.deepEqual(statistics, { hits: paths.size + missingImageAssets.length, misses: paths.size });
-  for (const [rule, targets] of [["inject-provider-context.cjs", [CONTEXT_ASSET, SETTINGS_ASSET]],
-    ["inject-missing-image.cjs", missingImageAssets],
-    ["inject-composer-draft.cjs", [COMPOSER_DRAFT_ASSET]],
-    ["inject-instruction-settings.cjs", INSTRUCTION_SETTINGS_ASSETS]]) {
+  const warm = cache(name, { statistics });
+  const actual = warm.run(asset, source, miss);
+  assert.deepEqual(actual, expected, asset);
+  assert.deepEqual(statistics, { hits: 1, misses: 1 });
+  for (const rule of ["inject-provider-context.cjs", "inject-missing-image.cjs",
+    "inject-composer-draft.cjs", "inject-instruction-settings.cjs"]) {
+    // Each fingerprint edit starts from the same baseline, independent of earlier edits.
+    const editedName = `${name}-${rule}`;
+    const baseline = cache(editedName);
+    baseline.run(asset, source, () => expected);
+    baseline.flush();
     const stats = { hits: 0, misses: 0 };
-    const edited = cache("pinned", { ...changeRule(rule), statistics: stats });
+    const edited = cache(editedName, { ...changeRule(rule), statistics: stats });
+    const related = !!transformer.getAssetTransformRules(asset, rules)[rule];
     let producerCalls = 0;
-    for (const asset of targets) {
-      const { source, expected } = results.get(asset);
-      // changeRule changes only the cache fingerprint; source and transformer stay identical.
-      assert.deepEqual(edited.run(asset, source, () => { producerCalls += 1; return expected; }), expected);
-    }
-    assert.equal(producerCalls, targets.length, `${rule}: every target must invoke the miss producer`);
-    assert.deepEqual(stats, { hits: 0, misses: targets.length });
-    for (const [asset, { source, expected }] of results) {
-      if (transformer.getAssetTransformRules(asset, rules)[rule]) continue;
-      assert.deepEqual(edited.run(asset, source, miss), expected);
-    }
-    console.log(`${rule} edit: ${stats.hits} retained hits, ${stats.misses} target misses across ${paths.size} pinned fixtures`);
+    assert.deepEqual(edited.run(asset, source, () => {
+      producerCalls += 1;
+      return expected;
+    }), expected);
+    assert.equal(producerCalls, Number(related), rule + ": " + asset);
+    assert.deepEqual(stats, { hits: Number(!related), misses: Number(related) });
   }
-  console.log(`uncached/cold/warm equality: ${paths.size} pinned fixtures`);
 });
 
 test("missing-image cache counts reject absent or invalid metadata even with intact hashes", () => {

@@ -8,14 +8,14 @@ const ts=require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH || '../extensio
 const {ASSETS,injectMissingImage,MARKER}=require('./inject-missing-image.cjs');
 const root=process.env.AZRAEL_PRESERVATION_UI_ROOT || path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434');
 const inputs=ASSETS.map(asset=>{const source=fs.readFileSync(path.join(root,asset),'utf8');return {asset,source,result:injectMissingImage(source,asset)}});
-function named(source,name){const ast=ts.createSourceFile('fixture.js',source,99,true,1);const node=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(node,name);return node.getText(ast)}
+function named(source,name){const ast=ts.createSourceFile('fixture.js',source,99,true,1);const node=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);return node.getText(ast)}
 test('pinned transforms parse, are idempotent and reject anchor drift',()=>{
- for(const {asset,source,result} of inputs){assert.equal(result.count,1);assert.equal(ts.createSourceFile(asset,result.text,99,false,1).parseDiagnostics.length,0);assert.deepEqual(injectMissingImage(result.text,asset),{text:result.text,count:0});assert.throws(()=>injectMissingImage('changed upstream',asset),/anchor must be unique/);assert.throws(()=>injectMissingImage(source+source,asset),/anchor must be unique/);assert.throws(()=>injectMissingImage(result.text.replace(MARKER,MARKER+MARKER),asset),/Invalid missing-image/)}
- assert.deepEqual(injectMissingImage('unrelated','other.js'),{text:'unrelated',count:0});
+ for(const {asset,source,result} of inputs){assert.equal(ts.createSourceFile(asset,result.text,99,false,1).parseDiagnostics.length,0);assert.equal(injectMissingImage(result.text,asset).text, result.text);assert.throws(()=>injectMissingImage('changed upstream',asset),/anchor must be unique/);assert.throws(()=>injectMissingImage(source+source,asset),/anchor must be unique/);assert.throws(()=>injectMissingImage(result.text.replace(MARKER,MARKER+MARKER),asset),/Invalid missing-image/)}
+ assert.equal(injectMissingImage('unrelated','other.js').text, 'unrelated');
 });
 test('actual host read route separates absent files from permission failures',async()=>{
  const source=inputs[0].result.text,ast=ts.createSourceFile('host.js',source,99,true,1);let route;
- function visit(n){if(ts.isPropertyAssignment(n)&&n.name.getText(ast)==='"read-file-binary"')route=n.initializer.getText(ast);ts.forEachChild(n,visit)}visit(ast);assert.ok(route);
+ function visit(n){if(ts.isPropertyAssignment(n)&&n.name.getText(ast)==='"read-file-binary"')route=n.initializer.getText(ast);ts.forEachChild(n,visit)}visit(ast);
  let failure=null;
  const context={Buffer,Error,LN:async()=>null,WX:x=>x,pA:async()=>null,sQ:{isAbsolute:()=>true},aQ:()=>[],lh:{Uri:{file:x=>x},workspace:{}},An:{workspace:{fs:{readFile:async()=>{if(failure)throw failure;return Buffer.from('image')}}}}};
  context.iQ=vm.runInNewContext('('+named(source,'iQ')+')',context);

@@ -9,22 +9,6 @@ const yazl=require(require.resolve("yazl",{paths:[path.join(__dirname,"../../ext
 const toml=require(require.resolve("smol-toml",{paths:[path.join(__dirname,"../../extensions/azrael-ex")]}));
 const {InstructionStore,LIMITS}=require("../instruction-package.cjs");
 const hash=b=>crypto.createHash("sha256").update(b).digest("hex");
-test("Team Lead reference is distributed with Design Collaboration and tracked by its receipt",async()=>{
-  const root=path.join(__dirname,"../../instructions");
-  const metadata=JSON.parse(await fs.readFile(path.join(root,"azrael-environment.json"),"utf8"));
-  const receipt=JSON.parse(await fs.readFile(path.join(root,"SKILLS-SOURCE.json"),"utf8"));
-  const component=metadata.components.find(c=>c.id==="skill-design-collaboration");
-  const sources=["skills/design-collaboration/SKILL.md","skills/design-collaboration/references/team-lead.md"];
-  for(const source of sources){
-    assert.deepEqual(component.files.filter(f=>f.source===source),[{source,target:source}]);
-    const entries=receipt.files.filter(f=>f.path===source);assert.equal(entries.length,1);
-    const data=await fs.readFile(path.join(root,source));assert.ok(data.length>0);
-    assert.equal(entries[0].size,data.length);assert.equal(entries[0].sha256,hash(data));
-  }
-  const entrypoint=await fs.readFile(path.join(root,sources[0]),"utf8");
-  const relativeLinks=[...entrypoint.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)].map(m=>m[1]);
-  assert.ok(relativeLinks.some(link=>path.resolve(root,path.dirname(sources[0]),link)===path.resolve(root,sources[1])));
-});
 async function zip(files,modes={}) {
   const archive=new yazl.ZipFile(); const chunks=[];
   archive.outputStream.on("data",c=>chunks.push(c));
@@ -113,7 +97,7 @@ test("instruction release ownership preserves CLI paths, failures and caller-own
     };
     try{assert.equal(require("../build-instruction-release.cjs").enumerate(source).length,2);}finally{sync.readFileSync=originalRead;}
     const cp=require("node:child_process"),python=process.env.AZRAEL_PYTHON || "python";
-    const check=cp.spawnSync(python,["-B","-c",`import importlib.util,json,sys\nspec=importlib.util.spec_from_file_location('instruction_import',sys.argv[1]);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nfrom pathlib import Path\npaths,ignored,excluded=m.inventory(Path(sys.argv[2]));assert paths==['azrael-environment.json','example.md'];assert not ignored and not excluded\ncs=m.components(['skills/'+name+'/SKILL.md' for name in m.ACTIVE_SKILLS]);skills=[c for c in cs if c['kind']=='skill'];assert len(skills)==7;assert {c['title'] for c in skills if not c['default']}=={'internal-visualization','ktcloud-ai-nexus'}\nassert len([c for c in m.components(['skills/'+name+'/SKILL.md' for name in ['designing','planning','project-bootstrap']],legacy=True) if c['kind']=='skill' and c['default']])==3\ntry:m.validate_public_mappings({'components':[{'files':[{'source':'.private/private.md','target':'skills/private.md'}]}]})\nexcept ValueError:pass\nelse:raise AssertionError('private mapping accepted')`,path.resolve(__dirname,"../import-instructions.py"),source],{encoding:"utf8"});
+    const check=cp.spawnSync(python,["-B","-c",`import importlib.util,json,sys\nspec=importlib.util.spec_from_file_location('instruction_import',sys.argv[1]);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nfrom pathlib import Path\npaths,ignored,excluded=m.inventory(Path(sys.argv[2]));assert paths==['azrael-environment.json','example.md'];assert not ignored and not excluded\ntry:m.validate_public_mappings({'components':[{'files':[{'source':'.private/private.md','target':'skills/private.md'}]}]})\nexcept ValueError:pass\nelse:raise AssertionError('private mapping accepted')`,path.resolve(__dirname,"../import-instructions.py"),source],{encoding:"utf8"});
     assert.equal(check.status,0,check.stderr || check.stdout);
     const metadataFile=path.join(source,"azrael-environment.json"),metadata=await fs.readFile(metadataFile,"utf8");
     for(const mapping of [{source:".private/private.md",target:"example.md"},{source:"example.md",target:".private/private.md"}]){

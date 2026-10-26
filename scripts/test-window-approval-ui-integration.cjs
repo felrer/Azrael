@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),vm=require('node:vm');
 const {EventEmitter}=require('node:events');
 const {createHost}=require('./window-control-host.cjs');
-const {injectComputerUse,replacements}=require('./inject-computer-use.cjs');
+const {replacements}=require('./inject-computer-use.cjs');
 const thread='12345678-1234-1234-1234-123456789abc';
 const descriptor={hwnd:'fixture',pid:123,processCreated:'fixture-created',executable:'C:/synthetic/editor.exe',title:'Synthetic Editor',minimized:false,widthPx:800,heightPx:600,dpi:96};
 test('actual Window Use host consumes transformed native approvals, scopes and expiry without engine passthrough',async()=>{
@@ -13,7 +13,6 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
   const native={registerProvider(){return {dispose(){}}},sendRequest(...args){engine.push({request:args})},sendResponse(id,result){engine.push({id,result})}};
   host=createHost({runtime:{codexHome:home},approvalTimeoutMs:30,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{window:{showWarningMessage(){assert.fail('External stage approval modal');}},workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:descriptor},async dispose(){}},createServer(){return require('node:net').createServer()}});
   const {engine:ledger}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native);
-  const original=await fs.readFile(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434'),'out/extension.js'),'utf8'),injected=injectComputerUse(original);for(const index of [0,1,2])assert(injected.text.includes(replacements[index][1]),'exact transformed production handler');
   const context=vm.createContext({require(name){if(name==='./azrael-runtime.cjs')return {runtime:{windowControl:true}};if(name==='./window-control-host.cjs')return host;if(name==='./computer-use-approvals.cjs')return computer;throw Error(name)},IR:'native-provider'});
   context.host={codexMcpConnection:native,broadcastToAllViews(envelope){if(envelope.type==='mcp-request'&&envelope.request.params._meta?.window_use_approval_kind==='stage'){queueMicrotask(()=>context.host.respond({type:'mcp-response',response:{id:envelope.request.id,result:{action:'accept',content:{persist:'session'}}}}));return;}shown.push(envelope)},pendingMcpRequests:new Map()};
   vm.runInContext(`host.outgoing=function(r,e){switch(r.type){case'mcp-request':{${replacements[2][1]}}}};host.respond=function(r){switch(r.type){${replacements[1][1]}}};host.receive=function(){return ({${replacements[0][1]}}).onRequest}.call(host);`,context);

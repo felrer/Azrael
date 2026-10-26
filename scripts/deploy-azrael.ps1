@@ -35,6 +35,7 @@ param(
     [switch]$FullRegression,
     [switch]$ExhaustiveRegression,
     [ValidateRange(1,16)][int]$SourceTestConcurrency = 4,
+    [string]$SourcePreflightReceipt,
     [switch]$ForceNativeVerification,
     [string[]]$ChangedPath,
     [AllowEmptyCollection()][string[]]$EngineFeatureId,
@@ -77,6 +78,7 @@ if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTarg
 if ($WindowControlTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($WindowControlTargetDirectory)) { throw 'WindowControlTargetDirectory must be an absolute cache path.' }
 if ($CargoVerificationCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CargoVerificationCacheProjectRoot)) { throw 'CargoVerificationCacheProjectRoot must be an absolute cache owner path.' }
 if ($NamespaceCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($NamespaceCacheProjectRoot)) { throw 'NamespaceCacheProjectRoot must be an absolute cache owner path.' }
+if ($SourcePreflightReceipt -and -not [IO.Path]::IsPathFullyQualified($SourcePreflightReceipt)) { throw 'SourcePreflightReceipt must be an absolute receipt path.' }
 if ($FullRegression -and $ChangedPath) { throw 'ChangedPath cannot be combined with FullRegression.' }
 if ($FullRegression -and $PSBoundParameters.ContainsKey('EngineFeatureId')) { throw 'EngineFeatureId cannot be combined with FullRegression.' }
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
@@ -374,10 +376,18 @@ try {
     } finally { $preflightModuleCache.Lease.Dispose() }
     $dependencies = Start-OwnedCommand 'verification-dependencies' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), $sourceConfigPath)
     Wait-OwnedCommands @($dependencies)
-    $sourcePreflight = Start-OwnedCommand 'engine-source-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $sourceConfigPath)
+    $sourceAction = 'run'
+    if ($SourcePreflightReceipt) {
+        $sourceConfig.receiptPath = $SourcePreflightReceipt
+        $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
+        $sourceAction = 'verify-receipt'
+    }
+    $sourcePreflight = Start-OwnedCommand 'engine-source-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), $sourceAction, '--config', $sourceConfigPath)
     Wait-OwnedCommands @($sourcePreflight)
     $sourcePreflightResult = Get-Content -LiteralPath $sourcePreflight.Record.stdout -Raw | ConvertFrom-Json
     if (-not $sourcePreflightResult.receiptPath) { throw 'Source preflight receipt missing.' }
+    if (-not $sourcePreflightResult.sourceExecution) { throw 'Source preflight execution environment evidence missing.' }
+    $metrics.sourcePreflight = [ordered]@{ disposition = $(if ($SourcePreflightReceipt) { 'reused' } else { 'executed' }); receiptPath = [string]$sourcePreflightResult.receiptPath; report = $sourcePreflight.Record.stdout }
     $sourceConfig.receiptPath = [string]$sourcePreflightResult.receiptPath
     $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
     $sourceTestArgs += @('--source-preflight-config', $sourceConfigPath)

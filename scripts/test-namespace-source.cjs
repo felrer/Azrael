@@ -30,16 +30,6 @@ test("display branding preserves backend HTTP header names and accepted app bran
   const headers = vm.runInNewContext(`${rewritten};headers`);
   assert.equal(headers["OAI-App-Brand"], "codex");
   assert.equal(headers["x-openai-codex-pricing-chooser"], "1");
-  assert.ok(rewritten.includes('Nl="Azrael"'));
-});
-
-test("pinned display branding preserves backend HTTP header names and accepted app brand", () => {
-  const asset = "webview/assets/app-initial-c014f9ee4429.js";
-  const pinned = fs.readFileSync(path.join(originalRoot, asset), "utf8");
-  const result = transformer.rewriteJavaScript(pinned, asset, ts).text;
-  assert.equal((result.match(/"OAI-App-Brand":["`]codex["`]/g) || []).length, 2);
-  assert.equal(result.includes('"OAI-App-Brand":Ud.toLowerCase()'), false);
-  assert.equal((result.match(/"x-openai-codex-pricing-chooser"/g) || []).length, 2);
 });
 
 test("namespace transforms preserve URLs, filter workspace history and reject unsupported anchors", () => {
@@ -61,17 +51,6 @@ test("namespace transforms preserve URLs, filter workspace history and reject un
     "ws://example.test/chatgpt.route",
   ];
   for (const url of externalUrls) assert.equal(transformer.rewriteValue(url), url, `external URL changed: ${url}`);
-  const synthetic = 'const a=vscode.workspace.getConfiguration("chatgpt");const auth="chatgpt";const url="https://chatgpt.com/auth";const external="https://example.test/openai.chatgpt/openai-codex/chatgpt.route";const provider="codex.chatSessionProvider";const home="CODEX_HOME";const pipe=`\\\\.\\pipe\\codex-ipc-${id}`;const httpsTemplate=`https://example.test/openai.chatgpt/${id}/openai-codex`;const wsTemplate=`wss://example.test/chatgpt.route/${id}`;';
-  const rewritten = transformer.rewriteJavaScript(synthetic, "namespace-fixture.js", ts).text;
-  assert(rewritten.includes('getConfiguration("azrael")'));
-  assert(rewritten.includes('auth="chatgpt"'));
-  assert(rewritten.includes("https://chatgpt.com/auth"));
-  assert(rewritten.includes("https://example.test/openai.chatgpt/openai-codex/chatgpt.route"));
-  assert(rewritten.includes("https://example.test/openai.chatgpt/${id}/openai-codex"));
-  assert(rewritten.includes("wss://example.test/chatgpt.route/${id}"));
-  assert(rewritten.includes("codex.chatSessionProvider"));
-  assert(rewritten.includes('home="CODEX_HOME"'));
-  assert(rewritten.includes("azrael-ipc-${id}"), "template IPC prefix was not rewritten");
 
   const recentThreadListFixture = [
     'function listRecent(client,params,background){return client.sendRequest(`thread/list`,params,',

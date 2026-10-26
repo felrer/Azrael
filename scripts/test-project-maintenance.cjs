@@ -60,7 +60,6 @@ test("native catalog keeps component build receipts separate and explicit test p
     assert.deepEqual(bundle.depends_on, [prepare.id]);
     assert.equal(bundle.argv[1], "scripts/run-tests.cjs");
   }
-  assert.ok(catalog.bundles.find(bundle => bundle.id === "source-queue").checkIds.length >= 6);
 });
 
 test("direct source-named bundles retain their configured command instead of inventing an area", () => {

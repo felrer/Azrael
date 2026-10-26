@@ -51,7 +51,7 @@ function parseArgs(args) {
     if (option === "--check-fixtures") { options.checkFixtures = true; continue; }
     if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
-    if (!["--area", "--changed", "--log-directory", "--test-concurrency", "--work-id", "--source-preflight-config"].includes(option)) throw new Error(`Unknown option: ${option}`);
+    if (!["--area", "--changed", "--log-directory", "--test-concurrency", "--work-id", "--source-preflight-config", "--source-preflight-receipt"].includes(option)) throw new Error(`Unknown option: ${option}`);
     const value = args[++i];
     if (!value || value.startsWith("--")) throw new Error(`Missing value for ${option}`);
     if (option === "--area") {
@@ -62,9 +62,12 @@ function parseArgs(args) {
       options.testConcurrency = Number(value);
     } else if (option === "--work-id") options.workId = checkedWorkId(value);
     else if (option === "--source-preflight-config") options.sourcePreflightConfig = value;
+    else if (option === "--source-preflight-receipt") options.sourcePreflightReceipt = value;
     else if (option === "--changed") options.changed.push(normalize(value));
     else options.logDirectory = value;
   }
+  if (options.sourcePreflightReceipt && !options.sourcePreflightConfig)
+    throw new Error('--source-preflight-receipt requires --source-preflight-config');
   return options;
 }
 
@@ -480,12 +483,15 @@ function checkedWorkId(value) {
 
 async function runSelection(selection, options = {}) {
   const root = path.resolve(options.root || ROOT);
+  if (options.sourcePreflightReceipt && !options.sourcePreflightConfig)
+    throw new Error('--source-preflight-receipt requires --source-preflight-config');
   require('./source-test-fixtures.cjs').assertSourceFixtures({ root, files: selection.files });
   let sourcePreflight;
   if (options.sourcePreflightConfig) {
     const config = JSON.parse(fs.readFileSync(options.sourcePreflightConfig, 'utf8').replace(/^\uFEFF/, ''));
     if (['manifest', 'identityProvider', 'execute', 'transformRules'].some(key => Object.hasOwn(config, key)))
       throw new Error('Source preflight config cannot override verification owners');
+    if (options.sourcePreflightReceipt) config.receiptPath = options.sourcePreflightReceipt;
     sourcePreflight = await require('./source-preflight-reuse.cjs').bindSourcePreflight(selection, config, root);
     selection = sourcePreflight.selection;
   }
