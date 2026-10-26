@@ -1,4 +1,4 @@
-상태: 구현·관련 회귀 검증 및 승인된 경로 보완 완료. 검증 자료 삭제·producer 종료와 부재 확인 완료.
+상태: 구현·관련 회귀 검증 및 승인된 경로 보완 완료. 검증 자료 삭제·producer 종료·부재 확인과 사용자 승인 제어 파일 보관 완료.
 
 # DW-09 소스 테스트 추가 축소
 
@@ -58,8 +58,8 @@ Windows x64, Node 26.7.0, Python 3.12, PowerShell 7.6.7에서 실행했다. 제�
 
 동일 체크아웃의 별도 DW-11 측정이 소스 입력을 고정하고 있어, 최종 문서·대량 정리·커밋을 해당 producer의 실제 terminal 신호까지 보류했다. DW-11은 실제 테스트 exit 0 이후 다른 작업의 세 입력 변경으로 controller exit 1을 기록했다. 그 결과나 자료를 이번 작업의 성공 영수증으로 사용하거나 정리하지 않는다. DW-10의 후속 변경도 task index에 섞지 않고 작업 사본에 보존한다.
 
-정리 승인 근거와 실제 exit를 보존하는 작은 관리 증거는 `artifacts/maintenance/evidence/DW-09-retire-t-b7c4.json` 및 `DW-09-source-optimization-results.json`이 소유한다. 원시 로그·캐시·fixture와 `.git/dw09-*` 제어 파일은 현재 용도가 끝나면 제거하고 실제 부재를 확인한다. 별도 보존 예외는 없다.
+정리 승인 근거와 실제 exit를 보존하는 작은 관리 증거는 `artifacts/maintenance/evidence/DW-09-retire-t-b7c4.json` 및 `DW-09-source-optimization-results.json`이 소유한다. 원시 로그·캐시·fixture는 삭제했다. `.git/dw09-*` 임시 제어 파일의 일반 삭제 명령은 실행 정책의 `blocked by policy`로 거부되었다. 사용자가 삭제되지 않는 파일을 archive로 옮기도록 명시적으로 승인하여, 정확한 목록의 55개 파일(9,322,383바이트)을 `archive/dw09-controls-8da0dd6c/`로 옮겼다. 전 파일의 원래 경로 부재와 이동 전후 SHA-256 일치를 확인했다. DW-09 소유의 `archive-manifest.json`이 정확한 원본·목적지·해시와 승인 사유를 기록한다. 실행 정책이 일반 삭제를 허용하거나 사용자가 archive 정리를 요청하면 재검토한다.
 
 최종 재검증의 deployment 자식 묶음은 fresh review의 두 항목 모두 blocker 0이었고, apply exit 0(34.521초), deleted/remaining false/error null로 끝났다. 루트 묶음도 fresh review blocker 0, apply exit 0(26.853초), 두 항목 모두 deleted/remaining false/error null이었다. 두 producer 모두 finalize의 remaining/references/blockers가 비어 있음을 확인했다. 기존 `artifacts/t-b7c4`, 새 `artifacts/tasks/t-292c`, `artifacts/tasks/dw09-checks`, `artifacts/tasks/tw09`의 실제 부재와 세 producer 레코드 제거를 확인했다. 최초 실패한 검증 실행의 outcome은 failure/exit 1로 종료했으며 후속 성공으로 덮어쓰지 않았다.
 
-다른 정리 실행과 겹친 등록 시도 두 번은 점유된 maintenance 잠금으로 exit 1이었다. 잠금을 해제하거나 우회하지 않았고, 점유 종료 후 등록·검토·삭제를 순서대로 수행했다. 복원 후 별도 작업이 `question-queue-source` bundle을 추가했으므로 현재 설정 전체의 해시는 원본과 달라졌으나, managed roots는 원본과 동일하며 이 작업의 임시 확장은 남아 있지 않다. 별도 bundle과 DW-10/DW-11 변경은 보존한다. 커밋용 분리 index만 사용하며, `.git/dw09-*` 제어 파일은 커밋 확인 직후 일반 삭제와 부재 확인으로 마감한다.
+다른 정리 실행과 겹친 등록 시도 두 번은 점유된 maintenance 잠금으로 exit 1이었다. 잠금을 해제하거나 우회하지 않았고, 점유 종료 후 등록·검토·삭제를 순서대로 수행했다. 복원 후 별도 작업이 `question-queue-source` bundle을 추가했으므로 현재 설정 전체의 해시는 원본과 달라졌으나, managed roots는 원본과 동일하며 이 작업의 임시 확장은 남아 있지 않다. 별도 bundle과 DW-10/DW-11 변경은 보존한다. 코드 커밋 `8da0dd6c`는 분리 index로 이번 변경만 포함했고 기존 사용자 변경·다른 작업의 staging·작업 파일 바이트를 보존했다. 사용이 끝난 분리 index도 승인된 archive 이동에 포함했다.
