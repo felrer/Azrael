@@ -5,15 +5,31 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawn, spawnSync } = require("node:child_process");
 const { once } = require("node:events");
-const { test } = require("node:test");
+const { test, after } = require("node:test");
 const owner = require("./cargo-target-owner.cjs");
 const { createHash } = require("node:crypto");
 const { buildCargoTestCommand } = require("./cargo-verification.cjs");
 const root = path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT || "artifacts/verification/cargo-owner-tests");
 fs.mkdirSync(root, { recursive: true });
 const helper = path.join(__dirname, "cargo-target-owner.cjs");
+const ownedFixtures = [];
+// Teardown only links below fresh fixtures allocated by this test process.
+// Never follow them into their targets or leave junctions for generic cleanup.
+after(() => {
+  const removeLinks = directory => {
+    for (const name of fs.readdirSync(directory)) {
+      const filename = path.join(directory, name), stat = fs.lstatSync(filename);
+      if (stat.isSymbolicLink()) {
+        if (process.platform === "win32") fs.rmdirSync(filename);
+        else fs.unlinkSync(filename);
+      } else if (stat.isDirectory()) removeLinks(filename);
+    }
+  };
+  for (const directory of ownedFixtures) removeLinks(directory);
+});
 function fixture(name) {
   const cwd = fs.mkdtempSync(path.join(root, name + "-"));
+  ownedFixtures.push(cwd);
   return { command: process.execPath, args: ["-e", "process.stdout.write('fake Cargo\\n')"], cwd,
     env: { ...process.env, CARGO_TARGET_DIR: path.join(cwd, "target"), INSTA_PENDING_DIR: path.join(cwd, "pending") },
     stdio: "pipe", encoding: "utf8" };
@@ -337,7 +353,7 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   const spec = fixture("default-lifecycle");
   const scripts = path.join(spec.cwd, "scripts");
   fs.mkdirSync(scripts);
-  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs"]) {
+  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs", "maintenance-lock-owner.cjs"]) {
     fs.copyFileSync(path.join(__dirname, file), path.join(scripts, file));
   }
   const source = path.join(spec.cwd, "engine");

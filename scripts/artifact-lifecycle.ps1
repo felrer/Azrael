@@ -4,7 +4,8 @@ function Invoke-ArtifactLifecycleNode {
     $previousEncoding = [Console]::OutputEncoding
     try {
         [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
-        $lines = @(& (Get-Command node -CommandType Application).Source (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') @Arguments)
+        $node = (Get-Command node -CommandType Application | Select-Object -First 1).Source
+        $lines = @(& $node (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') @Arguments)
         if ($LASTEXITCODE -ne 0) { throw "Artifact lifecycle command failed (exit $LASTEXITCODE)." }
     } finally { [Console]::OutputEncoding = $previousEncoding }
     ($lines -join "`n") | ConvertFrom-Json -AsHashtable

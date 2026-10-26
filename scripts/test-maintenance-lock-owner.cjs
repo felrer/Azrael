@@ -34,6 +34,35 @@ try {
   assert.equal(fs.existsSync(lock), false);
   checks.push("metadata, real child contention and release");
 
+  const waitDriver = `
+    const fs=require('node:fs'),assert=require('node:assert/strict');
+    const {spawn}=require('node:child_process');
+    const {acquire}=require(${JSON.stringify(helper)});
+    const lock=${JSON.stringify(lock)},ready=lock+'.ready';
+    const code='const fs=require(\"node:fs\"),{acquire}=require('+${JSON.stringify(JSON.stringify(helper))}+');const lease=acquire('+JSON.stringify(lock)+',{operation:\"test.wait-owner\"});fs.writeFileSync('+JSON.stringify(ready)+',\"ready\");setTimeout(()=>lease.release(),500);';
+    const producer=spawn(process.execPath,['-e',code],{stdio:'inherit',windowsHide:true});
+    const deadline=performance.now()+5000;
+    while(!fs.existsSync(ready)){assert(performance.now()<deadline,'child readiness timed out');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);}
+    const started=performance.now();
+    const lease=acquire(lock,{operation:'test.wait-consumer',waitMs:2000});
+    assert(performance.now()-started>=100,'consumer did not wait for owner release');
+    lease.release();fs.unlinkSync(ready);
+    producer.on('exit',code=>{assert.equal(code,0);});
+  `;
+  const waited = child(waitDriver);
+  assert.equal(waited.status, 0, waited.stderr);
+  assert.equal(fs.existsSync(lock), false);
+  for (const waitMs of [-1, 5001, 1.5, NaN]) {
+    assert.throws(() => acquire(lock, { operation: "test.invalid-wait", waitMs }), /Lock wait/);
+    assert.equal(fs.existsSync(lock), false);
+  }
+  fs.writeFileSync(lock, "unknown owner");
+  const waitedBytes = fs.readFileSync(lock);
+  assert.throws(() => acquire(lock, { operation: "test.wait-timeout", waitMs: 50 }), error => error.code === "EEXIST" && error.recovery_required);
+  assert.deepEqual(fs.readFileSync(lock), waitedBytes);
+  fs.unlinkSync(lock);
+  checks.push("bounded contention waits for owned release; timeout never removes unknown markers");
+
   const crashed = child(`require(${JSON.stringify(helper)}).acquire(${JSON.stringify(lock)},{operation:'test.crash'});process.exit(7);`);
   assert.equal(crashed.status, 7, crashed.stderr);
   assert.throws(() => acquire(lock, { operation: "test.after-crash" }), e => e.code === "EEXIST" && e.owner.operation === "test.crash");

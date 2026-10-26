@@ -136,6 +136,44 @@ test("checkpoints retain partial running state and UTC/wall metrics for complete
   }
 });
 
+test("Windows checkpoint retries transient replacement errors without exposing partial state", { skip: process.platform !== "win32" }, async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-checkpoint-retry-"));
+  const target = path.join(directory, "results.json"), rename = fs.renameSync;
+  let attempts = 0, rejected = 0;
+  t.mock.method(fs, "renameSync", (from, to) => {
+    if (to === target && ++attempts >= 2 && attempts <= 3) {
+      assert.equal(JSON.parse(fs.readFileSync(target, "utf8")).activeCommand, null);
+      rejected++;
+      throw Object.assign(new Error("temporary sharing violation"), { code: attempts === 2 ? "EPERM" : "EBUSY" });
+    }
+    return rename(from, to);
+  });
+  try {
+    const report = await runSelection(selection(["source"]), { directory, runCommand: async () => ({ status: "passed", exitCode: 0 }) });
+    assert.equal(report.exitCode, 0); assert.equal(rejected, 2);
+    assert.equal(JSON.parse(fs.readFileSync(target, "utf8")).status, "passed");
+    assert.equal(fs.existsSync(target + ".tmp"), false);
+  } finally { fs.rmSync(directory, { recursive: true }); }
+});
+
+test("Windows checkpoint retry exhaustion preserves the previous checkpoint and original failure", { skip: process.platform !== "win32" }, async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-checkpoint-exhausted-"));
+  const target = path.join(directory, "results.json"), rename = fs.renameSync;
+  const failure = Object.assign(new Error("persistent sharing violation"), { code: "EPERM" });
+  let attempts = 0, launched = false;
+  t.mock.method(fs, "renameSync", (from, to) => {
+    if (to === target && fs.existsSync(target)) { attempts++; throw failure; }
+    return rename(from, to);
+  });
+  try {
+    await assert.rejects(runSelection(selection(["source"]), { directory,
+      runCommand: async () => { launched = true; return { status: "passed", exitCode: 0 }; } }), error => error === failure);
+    assert.equal(attempts, 6); assert.equal(launched, false);
+    assert.equal(JSON.parse(fs.readFileSync(target, "utf8")).activeCommand, null);
+    assert.equal(fs.existsSync(target + ".tmp"), true);
+  } finally { fs.rmSync(directory, { recursive: true }); }
+});
+
 test("real lightweight Node commands record failure logs without scheduling successors", async () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-source-process-"));
   try {

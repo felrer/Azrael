@@ -523,7 +523,16 @@ async function runSelection(selection, options = {}) {
       // Replace atomically so an interrupted write leaves the preceding checkpoint readable.
       const temporary = `${resultPath}.tmp`;
       fs.writeFileSync(temporary, JSON.stringify(report, null, 2) + "\n");
-      fs.renameSync(temporary, resultPath);
+      // Match preservation receipt publication: Windows readers can briefly
+      // deny replacement. Never remove the preceding checkpoint to work around it.
+      const delays = [25, 50, 100, 200, 400];
+      for (let attempt = 0; ; attempt++) {
+        try { fs.renameSync(temporary, resultPath); break; }
+        catch (error) {
+          if (process.platform !== "win32" || !["EPERM", "EBUSY"].includes(error.code) || attempt === delays.length) throw error;
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delays[attempt]);
+        }
+      }
       options.onCheckpoint?.(report, resultPath);
     };
     const passed = result => result.status === "passed" && result.exitCode === 0 && !result.signal && !result.error;

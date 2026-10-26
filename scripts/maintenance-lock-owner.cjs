@@ -47,11 +47,23 @@ function verify(filename, identity, bytes) {
   const stat = fs.lstatSync(filename, { bigint: true });
   if (!same(identity, stat) || !fs.readFileSync(filename).equals(bytes)) throw refuse(filename, "Lock owner changed; release refused");
 }
-function acquire(filename, { operation } = {}) {
+function acquire(filename, { operation, waitMs = 0 } = {}) {
   filename = checked(filename);
   if (typeof operation !== "string" || !/^[a-zA-Z0-9_.:-]{1,120}$/.test(operation)) throw Error("Bounded lock operation required");
+  if (!Number.isSafeInteger(waitMs) || waitMs < 0 || waitMs > 5000) throw Error("Lock wait must be between 0 and 5000ms");
+  const deadline = performance.now() + waitMs;
   let descriptor;
-  try { descriptor = fs.openSync(filename, "wx"); }
+  try {
+    for (;;) {
+      try { descriptor = fs.openSync(filename, "wx"); break; }
+      catch (error) {
+        const remaining = deadline - performance.now();
+        if (error.code !== "EEXIST" || remaining <= 0) throw error;
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(25, remaining));
+        checked(filename);
+      }
+    }
+  }
   catch (error) {
     if (error.code !== "EEXIST") throw error;
     throw Object.assign(Error(`EEXIST: maintenance lock busy: ${filename}; explicit recovery required`), {

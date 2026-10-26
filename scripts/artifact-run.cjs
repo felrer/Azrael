@@ -46,11 +46,12 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
   }
   fs.mkdirSync(claimDirectory, { recursive: true });
   const claimPath = path.join(claimDirectory, ".run-claim.lock");
-  const claim = acquire(claimPath, { operation: "artifact-run.claim" });
+  const claim = acquire(claimPath, { operation: "artifact-run.claim", waitMs: 5000 });
   try {
+  const existingClaims = lifecycle.catalog(projectRoot);
   for (const member of members) {
     if (fs.existsSync(member.path)) throw Error(`Artifact destination already exists: ${member.path}`);
-    if (lifecycle.catalog(projectRoot).some(record => record.members.some(old => inside(old.path, member.path) || inside(member.path, old.path)))) throw Error(`Artifact destination already claimed: ${member.path}`);
+    if (existingClaims.some(record => record.members.some(old => inside(old.path, member.path) || inside(member.path, old.path)))) throw Error(`Artifact destination already claimed: ${member.path}`);
   }
   run.record = lifecycle.recordLifecycle(projectRoot, { id: run.lifecycleId, kind: "run", owner, state: "pending", membership_complete: false, members, references, expected_revision: 0 });
   // Install before directory creation so partial preparation failures are reconciled too.
