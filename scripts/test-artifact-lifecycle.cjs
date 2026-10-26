@@ -669,7 +669,10 @@ test("PowerShell deletion holds the shared catalog lock through physical removal
   const probe = "const l=require(" + JSON.stringify(require.resolve("./artifact-lifecycle.cjs")) + ");try{l.recordLifecycle(" + JSON.stringify(root) + ",{id:'new-consumer',kind:'run',owner:'fixture',state:'pending',membership_complete:false,members:[{path:" + JSON.stringify(at("outputs/new-consumer")) + ",role:'output'}],references:[{id:'ps-lock',reason:'race'}]});process.exitCode=9}catch(e){if(e.code!=='EEXIST')throw e;process.stdout.write('catalog-locked')}";
   const script = "$ErrorActionPreference='Stop'; . " + quote(path.join(__dirname, "artifact-lifecycle.ps1")) + "; $result=Invoke-ArtifactLifecycleCleanup -ProjectRoot " + quote(root) + " -CandidatePath " + quote(member) + " -Apply $true -CheckMember { param($member) } -RemoveMember { param($member); $probe=& " + quote(process.execPath) + " -e " + quote(probe) + "; if ($LASTEXITCODE -ne 0 -or $probe -ne 'catalog-locked') { throw 'catalog lock was not held' }; Remove-Item -LiteralPath $member -ErrorAction Stop }; if ($result.status -ne 'deleted') { throw ($result | ConvertTo-Json -Depth 10 -Compress) }; Write-Output 'ps-lock-passed'";
   const executable = "pwsh";
-  const child = require("node:child_process").spawnSync(executable, ["-NoProfile", "-NonInteractive", "-Command", script], { encoding: "utf8", windowsHide: true });
+  const child = require("node:child_process").spawnSync(executable, ["-NoProfile", "-NonInteractive", "-Command", script], {
+    encoding: "utf8", windowsHide: true,
+    env: { ...process.env, PATH: path.dirname(process.execPath) + path.delimiter + (process.env.PATH || "") },
+  });
   assert.equal(child.status, 0, child.error?.message || child.stderr || child.stdout);
   assert.match(child.stdout, /ps-lock-passed/); assert.equal(fs.existsSync(member), false);
 });

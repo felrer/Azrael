@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { infer, catalog } from '../inference.ts';
-import { compileRequest } from '../inference-mapping.mjs';
+import { compileRequest, UNAVAILABLE_TOOL_NAMESPACE } from '../inference-mapping.mjs';
 import * as config from '../vendor/src/config.ts';
 import * as store from '../vendor/src/oauth/store.ts';
 
@@ -129,14 +129,24 @@ test('Meta pinned account survives default changes and rejects endpoint edits, r
   expect(captured).toHaveLength(2);
 }, 30000);
 
-test('Meta incomplete or undeclared calls never emit an executable native item', async () => {
+test('Meta incomplete responses fail without a completed or callable item', async () => {
   await setup(); const tools = [{ type: 'function', name: 'execute', parameters: { type: 'object', properties: {} } }];
-  for (const event of [
+  const frames: any[] = [];
+  await expect(infer(request('turn-1', tools), f => frames.push(f), fixture([
     { type: 'response.incomplete', response: { status: 'incomplete' } },
+  ]))).rejects.toThrow('provider_incomplete');
+  expect(frames.some(f => f.type === 'completed' || f.item?.type === 'function_call')).toBeFalse();
+}, 30000);
+
+test('Meta undeclared calls preserve only the native non-executing rejection identity', async () => {
+  await setup(); const tools = [{ type: 'function', name: 'execute', parameters: { type: 'object', properties: {} } }];
+  const frames: any[] = [];
+  await infer(request('turn-1', tools), f => frames.push(f), fixture([
     completed([{ type: 'function_call', call_id: 'bad', name: 'undeclared', arguments: '{}' }]),
-  ]) {
-    const frames: any[] = [];
-    await expect(infer(request('turn-1', tools), f => frames.push(f), fixture([event]))).rejects.toThrow();
-    expect(frames.some(f => f.type === 'completed' || f.item?.type === 'function_call')).toBeFalse();
-  }
+  ]));
+  const calls = frames.filter(f => f.item?.type === 'function_call').map(f => f.item);
+  expect(calls).toEqual([{ type: 'function_call', call_id: 'bad', namespace: UNAVAILABLE_TOOL_NAMESPACE,
+    name: 'undeclared', arguments: '{}' }]);
+  expect(frames.at(-1).type).toBe('completed');
+  expect(compileRequest(request('turn-1', tools)).acceptedNames.has('undeclared')).toBeFalse();
 }, 30000);

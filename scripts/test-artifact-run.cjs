@@ -151,6 +151,25 @@ try {
 }
 checks.push("registry-only claim and linked destination rejected before creation");
 const helper = JSON.stringify(require.resolve("./artifact-run.cjs"));
+const claimLock = path.join(project, "artifacts/maintenance/lifecycles/.run-claim.lock");
+const waitClaimCode = `
+  const fs=require('node:fs'),assert=require('node:assert/strict'),{spawn}=require('node:child_process');
+  const helper=require(${helper}),lock=${JSON.stringify(claimLock)},ready=lock+'.ready';
+  const code='const fs=require(\"node:fs\"),{acquire}=require('+${JSON.stringify(JSON.stringify(require.resolve("./maintenance-lock-owner.cjs")))}+');const lease=acquire('+JSON.stringify(lock)+',{operation:\"test.claim-owner\"});fs.writeFileSync('+JSON.stringify(ready)+',\"ready\");setTimeout(()=>lease.release(),500);';
+  const producer=spawn(process.execPath,['-e',code],{stdio:'inherit',windowsHide:true});
+  const deadline=performance.now()+5000;
+  while(!fs.existsSync(ready)){assert(performance.now()<deadline,'claim owner readiness timed out');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);}
+  const started=performance.now();
+  const run=helper.beginArtifactRun(${JSON.stringify(project)},{workId:'writers',owner:'test-artifact-run',runId:'waited-claim'});
+  assert(performance.now()-started>=100,'run claim did not wait for normal release');
+  helper.finishArtifactRun(run,{exitCode:0,producerStopped:true});fs.unlinkSync(ready);
+  producer.on('exit',code=>assert.equal(code,0));
+`;
+const waitedClaim = spawnSync(process.execPath, ["-e", waitClaimCode], { encoding: "utf8", windowsHide: true, timeout: 15000 });
+assert.equal(waitedClaim.status, 0, waitedClaim.stderr);
+assert.equal(catalog(project).find(record => record.id.endsWith(":waited-claim")).state, "complete");
+assert(!fs.existsSync(claimLock));
+checks.push("concurrent run claim waits for normal owner release without removing the marker");
 const childCode = suffix => `const fs=require('fs'),h=require(${helper});const r=h.beginArtifactRun(${JSON.stringify(project)},{workId:'writers',owner:'test-artifact-run',runId:${JSON.stringify(suffix)}});`;
 const failedProcess = spawnSync(process.execPath, ["-e", childCode("uncaught") + "throw Error('intentional writer failure');"], { encoding: "utf8" });
 assert.equal(failedProcess.status, 1);

@@ -16,7 +16,7 @@ Azrael은 프로젝트가 가진 테스트·빌드 명령을 등록된 묶음으
 
 계획은 선행 관계를 검사하고 동일한 실행 의미를 가진 명령을 공유한다. 작업 디렉터리, argv, 환경, 입력 identity, 단계, guard와 의존 관계가 다르면 같은 실행으로 합치지 않는다. 실행을 공유해도 소비하는 묶음별 결과를 남긴다. 컴파일·검사 결과 캐시의 eligibility와 무효화는 기존 프로젝트 소유자가 판단한다. 관리 도구가 새로운 느슨한 성공 캐시로 대체하지 않는다.
 
-프로젝트 테스트 runner의 기본 출력도 작업/실행 단위로 관리한다. `--work-id`로 작업을 지정하며 생략하면 `project-tests`를 사용한다. 고유한 run을 실행 전에 pending으로 등록하고 `logs/`에 개별 명령 출력, `reports/`에 결과 checkpoint를 둔다. 성공한 실행은 complete로 기록하여 모델 검토를 기다리고, 실패·미확인 실행은 보호 상태를 남긴다. 명시한 기존 출력 경로의 배치와 호출 계약은 단계적 이전 동안 유지한다. 목록/계획만 조회하면 run이나 producer record를 생성하지 않는다. 이 계약의 소스 수용 상태는 작업 기록에서 구별한다.
+프로젝트 테스트 runner의 기본 출력도 작업/실행 단위로 관리한다. `--work-id`로 작업을 지정하며 생략하면 `project-tests`를 사용한다. 고유한 run을 실행 전에 pending으로 등록하고 `logs/`에 개별 명령 출력, `reports/`에 결과 checkpoint를 둔다. 성공한 실행은 complete로 기록하여 모델 검토를 기다리고, 실패·미확인 실행은 보호 상태를 남긴다. 명시한 기존 출력 경로의 배치와 호출 계약은 단계적 이전 동안 유지한다. 목록/계획만 조회하면 run이나 producer record를 생성하지 않는다. 이 계약의 소스 수용 상태는 작업 기록에서 구별한다. Checkpoint는 원자적으로 교체하며, Windows의 일시적인 `EPERM`·`EBUSY` 교체 오류만 25·50·100·200·400ms 간격으로 재시도한다. 재시도 소진이나 다른 오류는 기존 checkpoint와 실패를 보존하고 이후 명령 실행을 막는다.
 
 Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs/`, `reports/`에 fixture·출력·요약을 함께 둔다. `ChangedOnly`는 검사 선택에만 영향을 주며 과거 작업 로그를 출력 루트로 재사용하지 않는다. 생성 전 pending, 실제 검사 종료 후 complete 또는 failed 상태를 기록한다. 이는 모의 검사 producer의 종료 상태이며 실제 앱 배포의 성공을 뜻하지 않는다.
 
@@ -24,7 +24,7 @@ Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs
 
 ### 관리 잠금의 소유와 명시적 복구
 
-소스 구현 계약 (Windows x64 회귀 확인, Linux/macOS 실행 미확인): 관리·producer catalog·run claim의 create-new sentinel은 자동 만료하지 않는다. 신규 marker는 PID·작업·획득 시각·고유 token과 관측 가능한 process 시작 identity를 기록한다. 정상 해제는 자신이 획득한 파일 identity와 원래 내용을 다시 확인하며 교체된 파일을 지우지 않는다. OS 잠금용 `.coordination.lock` 및 module cache의 영속 lock 파일과 구별한다.
+소스 구현 계약 (Windows x64 회귀 확인, Linux/macOS 실행 미확인): 관리·producer catalog·run claim의 create-new sentinel은 자동 만료하지 않는다. 신규 marker는 PID·작업·획득 시각·고유 token과 관측 가능한 process 시작 identity를 기록한다. 정상 해제는 자신이 획득한 파일 identity와 원래 내용을 다시 확인하며 교체된 파일을 지우지 않는다. OS 잠금용 `.coordination.lock` 및 module cache의 영속 lock 파일과 구별한다. 병렬 producer의 짧은 run claim 경합은 최대 5초 동안 기존 소유자의 정상 해제를 기다린다. 기본 sentinel 획득은 즉시 실패하며, 대기 만료·불명확한 marker·경로 변경은 기존 보호를 유지하고 자동 복구하지 않는다.
 
 소유자 실행기의 `recover_lock`은 `maintenance`, `catalog`, `run_claim`의 정확한 제어 경로만 다룬다. 요청은 원래 marker의 raw SHA-256·token(구형 token 없음은 null), 독립 producer/process-tree 종료 확인, 이유, 보호된 관리 evidence 경계의 증거와 SHA-256·별도 영수증 경로를 명시한다. 살아 있는 owner PID 또는 관측 권한의 불확실성은 복구를 거부한다. PID 부재나 경과 시간은 종료 증거를 대체하지 않는다. 원래 실행 결과와 nullable exit는 변경하지 않는다.
 

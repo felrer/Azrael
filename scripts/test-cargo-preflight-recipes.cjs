@@ -130,6 +130,46 @@ test('window approval preserves SDK environment only on all/queue scope', () => 
   assert.deepEqual(rpc.args.slice(0, 9), ['test', '-p', 'codex-app-server', '--features', 'integration-tests', '--test', 'all', 'host_approval_rpc', '--locked']);
 });
 
+test('deletion approval preparation preserves the four reviewed native command selections', () => {
+  const result = recipesForCheck(config, check('check-deletion-approval-native'));
+  assert.deepEqual(result.gaps, []);
+  assert.deepEqual(result.cargoPreparations.map(x => x.args), [
+    ['test', '-p', 'codex-shell-command', '--lib', 'command_safety::', '--locked', '--offline', '--', '--test-threads=1'],
+    ...['exec_policy::tests::', 'deletion_approval_', 'apply_patch::tests::'].map(filter =>
+      ['test', '-p', 'codex-core', '--lib', filter, '--locked', '--offline', '--', '--test-threads=1']),
+  ]);
+  assert.ok(result.cargoPreparations.every(x => x.isolateHostEnvironment === true));
+  assert.equal(recipesForCheck(config, check('check-deletion-approval-native', ['unknown'])).gaps.length, 1);
+});
+
+test('MCP startup recipes retain both integration and library checks', () => {
+  const result = recipesForCheck(config, check('check-mcp-lazy-startup'));
+  assert.deepEqual(result.gaps, []);
+  assert.deepEqual(result.cargoPreparations.map(x => x.args), [
+    ['test', '-p', 'codex-core', '--features', 'integration-tests', '--test', 'all', 'suite::mcp_tool_cache::', '--locked', '--offline', '--', '--test-threads=1'],
+    ['test', '-p', 'codex-mcp', '--lib', '--locked', '--offline', '--', '--test-threads=1'],
+  ]);
+  assert.equal(recipesForCheck(config, check('check-mcp-lazy-startup', ['unknown'])).gaps.length, 1);
+});
+
+test('selected upstream recipes match every actual host suite and preserve runtime binding', () => {
+  const { suites } = require('./check-selected-upstream-native.cjs');
+  for (const [scope, commands] of Object.entries(suites)) {
+    const tail = [scope, ...(scope === 'core-integration' ? ['{engineDirectory}'] : [])];
+    const result = recipesForCheck(config, check('check-selected-upstream-native', tail));
+    assert.deepEqual(result.gaps, [], scope);
+    assert.deepEqual(result.cargoPreparations.map(x => x.args), commands.map(([crate, target, ...selection]) =>
+      ['test', '-p', crate, target, ...selection.filter(Boolean),
+        ...(['codex-core', 'codex-app-server'].includes(crate) && target === '--test' ? ['--features', 'integration-tests'] : []),
+        '--locked', '--offline', '--', '--test-threads=1']), scope);
+    assert.ok(result.cargoPreparations.every(x => x.isolateHostEnvironment));
+    if (scope === 'core-integration') assert.ok(result.cargoPreparations.every(x => x.envRecipe === 'code-mode-host'));
+  }
+  for (const tail of [['unknown'], ['network', 'extra'], ['core-integration'], ['core-integration', '/different/runtime']]) {
+    assert.equal(recipesForCheck(config, check('check-selected-upstream-native', tail)).gaps.length, 1);
+  }
+});
+
 test('every registered selected-tests-v1 check has a reviewed recipe and valid shared type-check transformation', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(projectRoot, 'scripts/azrael-feature-contracts.json'), 'utf8'));
   const selected = manifest.features.flatMap(x => x.checks).filter(x => x.cargoPreflight === 'selected-tests-v1');

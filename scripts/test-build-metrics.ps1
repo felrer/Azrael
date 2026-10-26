@@ -6,7 +6,7 @@ $PSNativeCommandUseErrorActionPreference = $false
 $runDirectory = Join-Path $OutputDirectory ([guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $runDirectory -Force | Out-Null
 . (Join-Path $PSScriptRoot 'build-metrics.ps1')
-$pwsh = (Get-Command pwsh -ErrorAction Stop).Source
+$pwsh = (Get-Command pwsh -ErrorAction Stop | Select-Object -First 1).Source
 $results = [Collections.Generic.List[object]]::new()
 function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
@@ -307,7 +307,7 @@ Test-Case 'actual-build-isolated-provenance-failure' {
     $source = Join-Path $fixture 'source'
     $engine = Join-Path $fixture 'engine'
     New-Item -ItemType Directory -Path $fixtureScripts, (Join-Path $source 'codex-rs'), $engine, (Join-Path $fixture 'artifacts') -Force | Out-Null
-    foreach ($name in @('build-azrael.ps1', 'build-metrics.ps1', 'build-module-cache.ps1', 'build-module-companion-recipe.ps1', 'build-module-providers-recipe.ps1', 'artifact-lifecycle.ps1', 'artifact-lifecycle.cjs', 'engine-provenance.py', 'azrael-platforms.json')) {
+    foreach ($name in @('build-azrael.ps1', 'build-metrics.ps1', 'build-module-cache.ps1', 'build-module-companion-recipe.ps1', 'build-module-providers-recipe.ps1', 'artifact-lifecycle.ps1', 'artifact-lifecycle.cjs', 'maintenance-lock-owner.cjs', 'engine-provenance.py', 'azrael-platforms.json')) {
         Copy-Item (Join-Path $PSScriptRoot $name) (Join-Path $fixtureScripts $name)
         Assert-True ((Get-FileHash (Join-Path $PSScriptRoot $name)).Hash -eq (Get-FileHash (Join-Path $fixtureScripts $name)).Hash) 'Fixture must execute byte-identical production scripts.'
     }

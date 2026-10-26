@@ -9,6 +9,9 @@ const { createHash } = require('node:crypto');
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
+  'check-deletion-approval-native': '7f47ca2eea758b6bb2b43049325979c5567fb3dcf6d7340773a4501d73b93056',
+  'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
+  'check-selected-upstream-native': '79ad29b50caa12b8a53c2bb22c900f51d2c0246f7c8fff3ba3cf796097e44f12',
   'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
   'check-model-harness-profiles': 'a38d1ac09f80351d662d824245dbdcb03a6e9f320e8c550bed9c7066e2ae3928',
@@ -43,6 +46,38 @@ function reviewedRecipes(wrapper, tail, platform) {
     return Object.hasOwn(choices, name) ? choices[name] : undefined;
   };
   switch (wrapper) {
+    case 'check-mcp-lazy-startup':
+      if (!tail.length) args = [finish(['-p', 'codex-core', '--features', 'integration-tests', '--test', 'all', 'suite::mcp_tool_cache::']),
+        finish(['-p', 'codex-mcp', '--lib'])];
+      break;
+    case 'check-selected-upstream-native': {
+      const [scope, runtime, ...extra] = tail;
+      if (extra.length || (scope === 'core-integration' ? !runtime : tail.length !== 1)) break;
+      const choices = {
+        network: [['codex-network-proxy', '--lib', '']], protocol: [['codex-protocol', '--lib', 'permissions::']],
+        sandbox: [['codex-sandboxing', '--lib', '']], 'thread-store': [['codex-thread-store', '--lib', 'resolve_requested_rollout_path_']],
+        'core-lib': ['unified_exec::', 'persisted_permissions_initialize_proxy_with_expandable_managed_allowlist',
+          'explicit_permission_overrides_win_over_saved_unnamed_permissions', 'initial_settings_remain_pending_until_persistence_succeeds'].map(f => ['codex-core', '--lib', f]),
+        'core-integration': ['compaction_preserves_history_after_restart', 'manual_compact_emits_context_compaction_items',
+          'manual_compact_records_durable_and_local_token_usage', 'exec_command_consumes_pushed_remote_process_events',
+          'cloud_skill_reads_run_in_parallel', 'code_mode_interrupt_terminates_active_cells_and_nested_tools',
+          ...(platform === 'win32' ? [] : ['shell_snapshot_v2_returns_before_inherited_output_closes', 'agent_started_proxy_denies_brokered_provider_alias']),
+          ...(platform === 'darwin' ? ['apply_patch_system_aliases'] : [])].map(f => ['codex-core', '--test', 'all', f]),
+        'app-server-lib': ['persisted_resume_settings', 'collect_resume_override_mismatches_includes_service_tier'].map(f => ['codex-app-server', '--lib', f]),
+        'app-server': ['thread_resume::', 'thread_revert::', 'thread_settings_update::', 'rollout_compress_runs_after_startup_with_compression_disabled',
+          ...(platform === 'linux' ? ['cold_resume_restores_live_proxy_grants_and_persists_new_approvals'] : [])].map(f => ['codex-app-server', '--test', 'all', f]),
+        tui: ['fork_last_filters_latest_session_by_cwd_unless_show_all', 'configured_ctrl_space_submit_wins_over_transcript_selection',
+          'replay_preserves_typed_updates_before_voice_steers_the_turn', 'in_progress_voice_replay_restores_the_late_reasoning_guard'].map(f => ['codex-tui', '--lib', f]),
+      };
+      if (Object.hasOwn(choices, scope)) args = choices[scope].map(([crate, target, ...selection]) => finish(['-p', crate, target,
+        ...selection.filter(Boolean), ...(['codex-core', 'codex-app-server'].includes(crate) && target === '--test' ? ['--features', 'integration-tests'] : [])]));
+      if (scope === 'core-integration') envRecipe = 'code-mode-host';
+      break;
+    }
+    case 'check-deletion-approval-native':
+      if (!tail.length) args = [lib('codex-shell-command', 'command_safety::'),
+        ...['exec_policy::tests::', 'deletion_approval_', 'apply_patch::tests::'].map(filter => lib('codex-core', filter))];
+      break;
     case 'check-usage-window':
       if (!tail.length) args = [lib('codex-app-server', 'account_processor')];
       break;
@@ -163,6 +198,8 @@ function recipesForCheck(config, check) {
   const wrapper = path.basename(argv[0], '.cjs');
   if (!Object.hasOwn(wrapperHashes, wrapper)) return fail('no reviewed Cargo recipe for wrapper');
   if (argv[1] !== '{engineSourceRoot}' && argv[1] !== config.engineSourceRoot) return fail('wrapper does not select the configured engine source root');
+  if (wrapper === 'check-selected-upstream-native' && argv[2] === 'core-integration' &&
+      argv[3] !== '{engineDirectory}' && argv[3] !== config.engineDirectory) return fail('wrapper does not select the configured engine runtime directory');
   let source;
   try { source = fs.readFileSync(path.join(config.projectRoot, argv[0]), 'utf8'); }
   catch (error) { return fail(`cannot read wrapper: ${error.code || error.message}`); }
