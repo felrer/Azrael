@@ -15,13 +15,20 @@ const roots = [];
 const evidence = [];
 fs.mkdirSync(fixtures, { recursive: true });
 
-function setup() {
+function writeTypeScript(write, directory) {
+  write(`${directory}/package.json`, JSON.stringify({ name: 'typescript', version: '9.0.0-fixture', main: './lib/typescript.js' }));
+  write(`${directory}/lib/typescript.js`, 'module.exports={fixture:true};');
+  write(`${directory}/lib/typescript.d.ts`, '// compiler sibling');
+}
+
+function setup({ realChecks = [] } = {}) {
   const root = fs.mkdtempSync(path.join(fixtures, 'preservation-cache-')); roots.push(root);
   function write(file, text) { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); }
   for (const name of ['feature-preservation', 'verification-result-cache', 'directory-state']) write(`scripts/${name}.cjs`, fs.readFileSync(path.join(__dirname, `${name}.cjs`)));
   write('scripts/inject-provider-model-picker.cjs', 'module.exports={PROVIDER_PICKER_ASSET:"picker.js"};');
   write('ui/package.json', '{"version":"1.0.0"}'); write('ui/picker.js', 'pristine');
   write('portable/unrelated.txt', 'unrelated'); write('scripts/shared.cjs', '// shared');
+  writeTypeScript(write, 'runtime/typescript');
   const features = ['alpha', 'beta', 'gamma', 'uncached', 'native'].map(id => {
     write(`scripts/${id}.cjs`, `console.log(${JSON.stringify(id)});`);
     write(`scripts/owner-${id}.cjs`, '// owner'); write(`docs/${id}.md`, 'contract');
@@ -30,19 +37,23 @@ function setup() {
     return { id, area: id === 'native' ? 'engine' : 'ui', owners: [`scripts/owner-${id}.cjs`], contract: `docs/${id}.md`, reportFields: id === 'native' ? [] : [`${id}Edits`], checks: [check] };
   });
   let calls = []; let hook;
-  // Exact invalidation counts require uncontended cache acquisition. The sync
-  // child fixture can otherwise block another worker's lifecycle lease release.
+  // Exact invalidation counts require uncontended cache acquisition. Synchronous
+  // real-child execution can block another worker's lifecycle lease release.
   // Parallel cache safety is exercised separately with an intentional lease.
   const config = { projectRoot: root, uiRoot: path.join(root, 'ui'), outputDirectory: path.join(root, 'output'), sourceConcurrency: 1, area: 'all', manifest: { schema: 1, features }, transformRules: {},
-    typeScriptPath: require.resolve('typescript', { paths: [path.join(repository, 'extensions/azrael-ex')] }),
+    typeScriptPath: path.join(root, 'runtime/typescript/lib/typescript.js'),
     identityProvider: async () => ({ project: await getDirectoryState(root, ['portable/unrelated.txt', ...features.flatMap(f => [...f.owners, f.contract]), 'scripts/shared.cjs']), ui: await getDirectoryState(path.join(root, 'ui')) }),
     execute: async (_executable, args, options) => {
       calls.push(args[0]); if (hook) await hook(args, options);
-      const result = spawnSync(process.execPath, args, { cwd: options.cwd, env: options.env, encoding: 'utf8', windowsHide: true });
+      // Cache-only fixtures print their ID; keep real children for process/output
+      // integration and copied-executable coverage selected by the caller.
+      const result = realChecks.includes(path.basename(args[0], '.cjs'))
+        ? spawnSync(process.execPath, args, { cwd: options.cwd, env: options.env, encoding: 'utf8', windowsHide: true })
+        : { stdout: `${path.basename(args[0], '.cjs')}\n`, stderr: '', status: 0, signal: null };
       fs.writeFileSync(options.logPath, result.stdout || ''); fs.writeFileSync(options.errorPath, result.stderr || '');
       return { exitCode: result.status, signal: result.signal, error: result.error?.message };
     } };
-  return { root, config, write, calls: () => calls, hook: fn => { hook = fn; }, async run() { calls = []; const receipt = await gate.runPreservation(config); evidence.push({ fixture: path.basename(root), status: receipt.status, cache: receipt.cache, checks: receipt.checks.map(({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 }) => ({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 })) }); assert.equal(receipt.status, 'passed', receipt.error); return receipt; } };
+  return { root, config, write, calls: () => calls, hook: fn => { hook = fn; }, realChecks: ids => { realChecks = ids; }, async run() { calls = []; const receipt = await gate.runPreservation(config); evidence.push({ fixture: path.basename(root), status: receipt.status, cache: receipt.cache, checks: receipt.checks.map(({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 }) => ({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 })) }); assert.equal(receipt.status, 'passed', receipt.error); return receipt; } };
 }
 function keys(f, id) { const slot = path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`)); return fs.existsSync(slot) ? fs.readdirSync(slot).filter(name => /^[a-f0-9]{64}$/.test(name)) : []; }
 function entry(f, id, receipt) { return path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`), receipt.checks.find(c => c.checkId === `${id}.check`).cacheKey); }
@@ -142,28 +153,38 @@ test('UI, execution environment, runner and declared contract changes invalidate
   counts(await f.run(), 5, 0);
   f.write('scripts/directory-state.cjs', '// changed runner dependency'); counts(await f.run(), 5, 0);
   f.write('docs/gamma.md', 'changed contract'); counts(await f.run(), 3, 2);
-  // Use a complete, real installed TS package; changing a sibling proves the
+  // Copy the complete owned TS fixture package; changing a sibling proves the
   // key binds the runtime tree rather than only the require entry.
-  const copiedRuntime = path.join(f.root, 'runtime/typescript');
+  const copiedRuntime = path.join(f.root, 'runtime/copied-typescript');
   fs.cpSync(path.dirname(path.dirname(f.config.typeScriptPath)), copiedRuntime, { recursive: true });
   f.config.typeScriptPath = path.join(copiedRuntime, 'lib/typescript.js'); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
   fs.appendFileSync(path.join(copiedRuntime, 'lib/typescript.d.ts'), '\n// runtime sibling changed\n'); counts(await f.run(), 5, 0);
   // Execute a copied real Node binary, preserving and restoring process state.
   const nodeDescriptor = Object.getOwnPropertyDescriptor(process, 'execPath');
   const nodeCopy = path.join(f.root, 'runtime', path.basename(process.execPath)); fs.copyFileSync(process.execPath, nodeCopy);
-  try { Object.defineProperty(process, 'execPath', { ...nodeDescriptor, value: nodeCopy }); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3); }
-  finally { Object.defineProperty(process, 'execPath', nodeDescriptor); }
+  try {
+    f.realChecks(f.config.manifest.features.map(feature => feature.id));
+    Object.defineProperty(process, 'execPath', { ...nodeDescriptor, value: nodeCopy }); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  } finally { Object.defineProperty(process, 'execPath', nodeDescriptor); f.realChecks([]); }
   const original = f.config.typeScriptPath; f.config.typeScriptPath = path.join(f.root, 'missing/typescript.js');
   const noRuntime = await f.run(); counts(noRuntime, 5, 0); assert.ok(noRuntime.cache.disabledReason); f.config.typeScriptPath = original;
 });
 
 test('later failure preserves passing checks and a new complete gate receipt reuses them', async () => {
-  const f = setup(); f.write('scripts/uncached.cjs', 'process.exit(7);');
+  const f = setup({ realChecks: ['uncached'] });
+  f.write('scripts/uncached.cjs', 'console.log("before failure"); console.error("failure diagnostic"); process.exit(7);');
   const failed = await gate.runPreservation(f.config); assert.equal(failed.status, 'failed'); assert(failed.checks.some(c => c.exitCode === 7));
+  const failedCheck = failed.checks.find(check => check.checkId === 'uncached.check');
+  assert.equal(fs.readFileSync(failedCheck.logPath, 'utf8'), 'before failure\n');
+  assert.equal(fs.readFileSync(failedCheck.errorPath, 'utf8'), 'failure diagnostic\n');
   for (const id of ['alpha', 'beta', 'gamma']) assert.equal(keys(f, id).length, 1);
   await assert.rejects(gate.verifyReceipt({ ...f.config, receiptPath: failed.receiptPath }), /passing feature scope/);
   f.write('scripts/uncached.cjs', 'console.log("fixed");');
   const complete = await f.run(); counts(complete, 2, 3);
+  const fixedCheck = complete.checks.find(check => check.checkId === 'uncached.check');
+  assert.equal(fixedCheck.exitCode, 0);
+  assert.equal(fs.readFileSync(fixedCheck.logPath, 'utf8'), 'fixed\n');
+  assert.equal(fs.readFileSync(fixedCheck.errorPath, 'utf8'), '');
   await gate.verifyReceipt({ ...f.config, receiptPath: complete.receiptPath });
   assert.equal(JSON.parse(fs.readFileSync(failed.receiptPath)).status, 'failed');
 });
@@ -264,9 +285,7 @@ function setupV2(all = true) {
   for (const feature of f.config.manifest.features) {
     for (const check of feature.checks) if (check.cacheInputs && (all || feature.id === 'alpha')) check.cacheInputs.schema = 2;
   }
-  f.write('extensions/azrael-ex/node_modules/typescript/package.json', JSON.stringify({ name: 'typescript', version: '9.0.0-fixture', main: './lib/typescript.js' }));
-  f.write('extensions/azrael-ex/node_modules/typescript/lib/typescript.js', 'module.exports={fixture:true};');
-  f.write('extensions/azrael-ex/node_modules/typescript/lib/typescript.d.ts', '// actual project compiler sibling');
+  writeTypeScript(f.write, 'extensions/azrael-ex/node_modules/typescript');
   const previous = f.config.identityProvider;
   let aggregate = { sourceUi: { fixture: 'source-ui' }, futureUnknownInput: { nested: 'one' }, engine: { ignoredBinaryRoot: 'one' } };
   f.config.identityProvider = async () => ({ ...await previous(), ...structuredClone(aggregate) });
@@ -334,8 +353,9 @@ test('schema2 runtime reaffirm rejects compiler drift while later failures prese
   f.hook(() => { if (!changed) { changed = true; fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.d.ts'), '\n// drift during execution\n'); } });
   const drift = await gate.runPreservation(f.config); assert.equal(drift.status, 'failed'); assert.match(drift.error, /changed during verification/);
   for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
-  f.hook(null); f.write('scripts/uncached.cjs', 'process.exit(7);');
+  f.hook(null); f.realChecks(['uncached']); f.write('scripts/uncached.cjs', 'process.exit(7);');
   const failed = await gate.runPreservation(f.config); assert.equal(failed.status, 'failed');
+  assert.equal(failed.checks.find(check => check.checkId === 'uncached.check').exitCode, 7);
   for (const id of ['alpha', 'beta', 'gamma']) assert.equal(keys(f, id).length, 1);
   f.write('scripts/uncached.cjs', 'console.log("fixed");'); counts(await f.run(), 2, 3);
 });
