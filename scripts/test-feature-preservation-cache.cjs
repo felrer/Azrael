@@ -21,15 +21,18 @@ function writeTypeScript(write, directory) {
   write(`${directory}/lib/typescript.d.ts`, '// compiler sibling');
 }
 
-function setup({ realChecks = [] } = {}) {
+function setup({ realChecks = [], featureIds = ['alpha', 'beta', 'gamma', 'uncached', 'native'], manifestOnly = false } = {}) {
   const root = fs.mkdtempSync(path.join(fixtures, 'preservation-cache-')); roots.push(root);
   function write(file, text) { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); }
-  for (const name of ['feature-preservation', 'verification-result-cache', 'directory-state']) write(`scripts/${name}.cjs`, fs.readFileSync(path.join(__dirname, `${name}.cjs`)));
-  write('scripts/inject-provider-model-picker.cjs', 'module.exports={PROVIDER_PICKER_ASSET:"picker.js"};');
-  write('ui/package.json', '{"version":"1.0.0"}'); write('ui/picker.js', 'pristine');
-  write('portable/unrelated.txt', 'unrelated'); write('scripts/shared.cjs', '// shared');
-  writeTypeScript(write, 'runtime/typescript');
-  const features = ['alpha', 'beta', 'gamma', 'uncached', 'native'].map(id => {
+  if (!manifestOnly) {
+    for (const name of ['feature-preservation', 'verification-result-cache', 'directory-state']) write(`scripts/${name}.cjs`, fs.readFileSync(path.join(__dirname, `${name}.cjs`)));
+    write('scripts/inject-provider-model-picker.cjs', 'module.exports={PROVIDER_PICKER_ASSET:"picker.js"};');
+    write('ui/package.json', '{"version":"1.0.0"}'); write('ui/picker.js', 'pristine');
+    write('portable/unrelated.txt', 'unrelated'); writeTypeScript(write, 'runtime/typescript');
+  }
+  const sharedInputs = featureIds.some(id => ['alpha', 'beta'].includes(id)) ? ['scripts/shared.cjs'] : [];
+  if (sharedInputs.length) write('scripts/shared.cjs', '// shared');
+  const features = featureIds.map(id => {
     write(`scripts/${id}.cjs`, `console.log(${JSON.stringify(id)});`);
     write(`scripts/owner-${id}.cjs`, '// owner'); write(`docs/${id}.md`, 'contract');
     const check = { id: `${id}.check`, executable: 'node', args: [`scripts/${id}.cjs`], level: id === 'native' ? 'native' : 'source' };
@@ -40,16 +43,17 @@ function setup({ realChecks = [] } = {}) {
   // Exact invalidation counts require uncontended cache acquisition. Synchronous
   // real-child execution can block another worker's lifecycle lease release.
   // Parallel cache safety is exercised separately with an intentional lease.
-  const config = { projectRoot: root, uiRoot: path.join(root, 'ui'), outputDirectory: path.join(root, 'output'), sourceConcurrency: 1, area: 'all', manifest: { schema: 1, features }, transformRules: {},
+  const areas = new Set(features.map(feature => feature.area));
+  const config = { projectRoot: root, uiRoot: path.join(root, 'ui'), outputDirectory: path.join(root, 'output'), sourceConcurrency: 1, area: areas.size === 1 ? features[0].area : 'all', manifest: { schema: 1, features }, transformRules: {},
     typeScriptPath: path.join(root, 'runtime/typescript/lib/typescript.js'),
-    identityProvider: async () => ({ project: await getDirectoryState(root, ['portable/unrelated.txt', ...features.flatMap(f => [...f.owners, f.contract]), 'scripts/shared.cjs']), ui: await getDirectoryState(path.join(root, 'ui')) }),
+    identityProvider: async () => ({ project: await getDirectoryState(root, ['portable/unrelated.txt', ...features.flatMap(f => [...f.owners, f.contract]), ...sharedInputs]), ui: await getDirectoryState(path.join(root, 'ui')) }),
     execute: async (_executable, args, options) => {
-      calls.push(args[0]); if (hook) await hook(args, options);
+      calls.push(args[0]); const injected = hook ? await hook(args, options) : undefined;
       // Cache-only fixtures print their ID; keep real children for process/output
       // integration and copied-executable coverage selected by the caller.
-      const result = realChecks.includes(path.basename(args[0], '.cjs'))
+      const result = injected ?? (realChecks.includes(path.basename(args[0], '.cjs'))
         ? spawnSync(process.execPath, args, { cwd: options.cwd, env: options.env, encoding: 'utf8', windowsHide: true })
-        : { stdout: `${path.basename(args[0], '.cjs')}\n`, stderr: '', status: 0, signal: null };
+        : { stdout: `${path.basename(args[0], '.cjs')}\n`, stderr: '', status: 0, signal: null });
       fs.writeFileSync(options.logPath, result.stdout || ''); fs.writeFileSync(options.errorPath, result.stderr || '');
       return { exitCode: result.status, signal: result.signal, error: result.error?.message };
     } };
@@ -59,8 +63,32 @@ function keys(f, id) { const slot = path.join(f.root, 'artifacts/cache/verificat
 function entry(f, id, receipt) { return path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`), receipt.checks.find(c => c.checkId === `${id}.check`).cacheKey); }
 function counts(receipt, executed, reused) { assert.equal(receipt.cache.executed, executed); assert.equal(receipt.cache.reused, reused); assert.equal(receipt.checks.filter(c => c.reused).length, reused); }
 
+async function publishedMutation(f, previous) {
+  const receipt = await f.run(); counts(receipt, 5, 0);
+  for (const check of receipt.checks.filter(check => check.cacheKey)) {
+    const before = previous.checks.find(record => record.checkId === check.checkId);
+    assert.notEqual(check.cacheKey, before.cacheKey, `${check.checkId} must bind the mutation`);
+    assert.equal(check.reused, false);
+    const id = check.checkId.replace(/\.check$/, '');
+    assert.deepEqual(keys(f, id), [check.cacheKey], 'only newly published proof remains');
+    const handle = await verificationCache.begin({ projectRoot: f.root, checkId: check.checkId, key: check.cacheKey,
+      runDirectory: path.join(path.dirname(receipt.receiptPath), 'publication-probe') });
+    try {
+      assert.equal(handle.hit?.reused, true, handle.reason);
+      assert.equal(handle.hit.exitCode, 0); assert.equal(handle.hit.signal, null); assert.equal(handle.hit.error, undefined);
+      assert.equal(handle.hit.logSha256, check.logSha256); assert.equal(handle.hit.errorSha256, check.errorSha256);
+      for (const [filename, digest] of [[check.logPath, check.logSha256], [check.errorPath, check.errorSha256],
+        [handle.hit.logPath, check.logSha256], [handle.hit.errorPath, check.errorSha256]]) {
+        assert.equal(sha(fs.readFileSync(filename)), digest);
+      }
+    } finally { await handle.close(); }
+  }
+  assert.equal(receipt.checks.filter(check => check.cacheKey).length, 3);
+  return receipt;
+}
+
 test('Windows receipt publication retries transient EPERM and EBUSY without rewriting checkpoint', { skip: process.platform !== 'win32' }, async t => {
-  const f = setup(), rename = fs.promises.rename, write = fs.promises.writeFile;
+  const f = setup({ featureIds: ['uncached'] }), rename = fs.promises.rename, write = fs.promises.writeFile;
   const attempts = [], writes = [];
   t.mock.method(fs.promises, 'writeFile', async function (file, ...args) {
     if (String(file).startsWith(f.root) && String(file).endsWith('receipt.json.tmp')) writes.push(String(file));
@@ -84,7 +112,7 @@ test('Windows receipt publication retries transient EPERM and EBUSY without rewr
 });
 
 test('Windows receipt publication bounds transient retries and preserves final error', { skip: process.platform !== 'win32' }, async t => {
-  const f = setup(), rename = fs.promises.rename, write = fs.promises.writeFile;
+  const f = setup({ featureIds: ['uncached'] }), rename = fs.promises.rename, write = fs.promises.writeFile;
   let attempts = 0, writes = 0, finalError;
   t.mock.method(fs.promises, 'writeFile', async function (file, ...args) {
     if (String(file).startsWith(f.root) && String(file).endsWith('receipt.json.tmp')) writes++;
@@ -99,7 +127,7 @@ test('Windows receipt publication bounds transient retries and preserves final e
 });
 
 test('receipt publication immediately preserves errors outside Windows transient policy', async t => {
-  const f = setup(), rename = fs.promises.rename;
+  const f = setup({ featureIds: ['uncached'] }), rename = fs.promises.rename;
   let attempts = 0; const failure = Object.assign(new Error('denied by policy'), { code: 'EACCES' });
   t.mock.method(fs.promises, 'rename', async function (source, destination) {
     if (!String(destination).startsWith(f.root) || !String(destination).endsWith('receipt.json')) return rename.call(this, source, destination);
@@ -225,10 +253,12 @@ test('final gate still rejects declared input mutation after an earlier check wa
   assert.match(failed.error, /source cache inputs changed/);
 });
 
-test('corrupt cache receipt/log misses and copied run logs survive invalidation', async () => {
+test('corrupt cache receipt misses and copied run logs survive invalidation', async () => {
   const f = setup(); const cold = await f.run(); const warm = await f.run();
-  fs.writeFileSync(path.join(entry(f, 'alpha', cold), 'receipt.json'), '{corrupt'); counts(await f.run(), 3, 2);
-  const latest = await f.run(); fs.writeFileSync(path.join(entry(f, 'beta', latest), 'stdout.log'), 'tampered'); counts(await f.run(), 3, 2);
+  fs.writeFileSync(path.join(entry(f, 'alpha', cold), 'receipt.json'), '{corrupt');
+  const repaired = await f.run(); counts(repaired, 3, 2);
+  assert.equal(repaired.checks.find(check => check.checkId === 'alpha.check').reused, false);
+  assert.deepEqual(f.calls(), ['scripts/alpha.cjs', 'scripts/uncached.cjs', 'scripts/native.cjs']);
   f.write('scripts/shared.cjs', '// delete old cached evidence'); await f.run();
   for (const record of warm.checks) { assert.equal(sha(fs.readFileSync(record.logPath)), record.logSha256); assert.equal(sha(fs.readFileSync(record.errorPath)), record.errorSha256); }
   f.config.reuseSourceChecks = false; counts(await f.run(), 5, 0);
@@ -293,7 +323,9 @@ function setupV2(all = true) {
 }
 
 test('schema2 accepts exactly the existing files/schema shape and rejects unknown schemas or fields', () => {
-  const f = setupV2(); gate.validateManifest(f.config.manifest, f.root, {});
+  const f = setup({ featureIds: ['alpha'], manifestOnly: true });
+  f.config.manifest.features[0].checks[0].cacheInputs.schema = 2;
+  gate.validateManifest(f.config.manifest, f.root, {});
   for (const change of [check => { check.cacheInputs.schema = 3; }, check => { check.cacheInputs.schema = '2'; },
     check => { check.cacheInputs.extra = true; }, check => { check.cacheInputs.files = []; },
     check => { check.cacheInputs.files.push(check.cacheInputs.files[0]); }]) {
@@ -311,22 +343,22 @@ test('schema2 exact success reuses proof while project, source UI and unknown ag
     assert.equal(sha(fs.readFileSync(check.logPath)), check.logSha256); assert.equal(sha(fs.readFileSync(check.errorPath)), check.errorSha256);
     assert.ok(check.cacheKey && check.reused);
   }
-  f.write('portable/unrelated.txt', 'aggregate project drift'); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  f.write('portable/unrelated.txt', 'aggregate project drift'); let published = await publishedMutation(f, warm);
   f.aggregate({ sourceUi: { fixture: 'source-ui' }, futureUnknownInput: { nested: 'two' }, engine: { ignoredBinaryRoot: 'one' } });
-  counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  published = await publishedMutation(f, published);
   f.aggregate({ sourceUi: { fixture: 'source-ui-changed' }, futureUnknownInput: { nested: 'two' }, engine: { ignoredBinaryRoot: 'one' } });
-  counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  await publishedMutation(f, published);
   f.aggregate({ sourceUi: { fixture: 'source-ui-changed' }, futureUnknownInput: { nested: 'two' }, engine: { ignoredBinaryRoot: 'changed-only-removed-engine' } });
   counts(await f.run(), 2, 3);
 });
 
 test('schema2 binds actual project TypeScript separately from a provided compiler runtime', async () => {
-  const f = setupV2(); await f.run(); counts(await f.run(), 2, 3);
+  const f = setupV2(); await f.run(); const warm = await f.run(); counts(warm, 2, 3);
   assert.notEqual(f.config.typeScriptPath, path.join(f.projectTypeScript, 'lib/typescript.js'));
   fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.d.ts'), '\n// sibling changed\n');
-  counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  const published = await publishedMutation(f, warm);
   const pkgPath = path.join(f.projectTypeScript, 'package.json'); const pkg = JSON.parse(fs.readFileSync(pkgPath));
-  pkg.version = '9.0.1-fixture'; fs.writeFileSync(pkgPath, JSON.stringify(pkg)); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  pkg.version = '9.0.1-fixture'; fs.writeFileSync(pkgPath, JSON.stringify(pkg)); await publishedMutation(f, published);
   fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.js'), '\n// entry changed\n'); counts(await f.run(), 5, 0);
 });
 
@@ -353,11 +385,22 @@ test('schema2 runtime reaffirm rejects compiler drift while later failures prese
   f.hook(() => { if (!changed) { changed = true; fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.d.ts'), '\n// drift during execution\n'); } });
   const drift = await gate.runPreservation(f.config); assert.equal(drift.status, 'failed'); assert.match(drift.error, /changed during verification/);
   for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
-  f.hook(null); f.realChecks(['uncached']); f.write('scripts/uncached.cjs', 'process.exit(7);');
+  f.hook(args => args[0] === 'scripts/uncached.cjs'
+    ? { stdout: 'before failure\n', stderr: 'failure diagnostic\n', status: 7, signal: null } : undefined);
   const failed = await gate.runPreservation(f.config); assert.equal(failed.status, 'failed');
   assert.equal(failed.checks.find(check => check.checkId === 'uncached.check').exitCode, 7);
+  const failedCheck = failed.checks.find(check => check.checkId === 'uncached.check');
+  assert.equal(fs.readFileSync(failedCheck.logPath, 'utf8'), 'before failure\n');
+  assert.equal(fs.readFileSync(failedCheck.errorPath, 'utf8'), 'failure diagnostic\n');
   for (const id of ['alpha', 'beta', 'gamma']) assert.equal(keys(f, id).length, 1);
-  f.write('scripts/uncached.cjs', 'console.log("fixed");'); counts(await f.run(), 2, 3);
+  f.hook(null); const recovered = await f.run(); counts(recovered, 2, 3);
+  const recoveredCheck = recovered.checks.find(check => check.checkId === 'uncached.check');
+  assert.equal(recoveredCheck.exitCode, 0);
+  assert.equal(fs.readFileSync(recoveredCheck.logPath, 'utf8'), 'uncached\n');
+  assert.equal(fs.readFileSync(recoveredCheck.errorPath, 'utf8'), '');
+  assert.equal(JSON.parse(fs.readFileSync(failed.receiptPath)).status, 'failed');
+  assert.equal(fs.readFileSync(failedCheck.logPath, 'utf8'), 'before failure\n');
+  assert.equal(fs.readFileSync(failedCheck.errorPath, 'utf8'), 'failure diagnostic\n');
 });
 
 after(() => {

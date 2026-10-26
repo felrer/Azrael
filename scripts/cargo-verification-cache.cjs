@@ -296,4 +296,4 @@ function options(config) {
     cacheRoot: path.join(projectRoot, 'artifacts/cache/verification-results', CACHE_NAMESPACE) };
 }
 module.exports = { isEligible, runtime, key, options, preparationRuntimeIdentity, resolveExecutable, CACHE_NAMESPACE, CACHE_SCHEMA: storage.CACHE_SCHEMA,
-  begin: storage.begin, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };
+  begin: storage.begin, prune: storage.prune, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };
