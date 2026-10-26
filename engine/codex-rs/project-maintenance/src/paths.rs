@@ -1119,7 +1119,20 @@ pub(crate) fn delete_verified(
     {
         let junctions = auth.junctions.borrow().iter().filter(|(entry, _)| within(entry, path))
             .map(|(entry, spec)| json!({"path":entry,"target":spec["target"],"identity":spec["identity"]})).collect::<Vec<_>>();
-        delete_windows(path, entries, &junctions)
+        let mut worker = auth.windows_delete.borrow_mut();
+        if worker.is_none() {
+            *worker = Some(crate::windows_delete::Worker::new()?);
+        }
+        let result = worker
+            .as_mut()
+            .expect("initialized deletion worker")
+            .delete(path, entries, &junctions);
+        if result.is_err() || worker.as_ref().is_some_and(|worker| worker.is_stopped()) {
+            // Completed reports survive shell exit; discard the stopped worker.
+            // Never replay a request whose report was not received completely.
+            worker.take();
+        }
+        result
     }
     #[cfg(not(windows))]
     {
@@ -1183,243 +1196,7 @@ pub(crate) fn delete(path: &Path, entries: &[PathBuf]) -> Result<Value, String> 
 
 #[cfg(windows)]
 fn delete_windows(path: &Path, entries: &[PathBuf], junctions: &[Value]) -> Result<Value, String> {
-    use std::io::Write;
-    // JSON goes through stdin; no path is interpolated into shell source.
-    // Attribute observations and partial errors are returned even when removal fails.
-    const SCRIPT: &str = r#"
-$ErrorActionPreference='Stop'
-[Console]::InputEncoding=[Text.UTF8Encoding]::new($false)
-[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
-$request=[Console]::In.ReadToEnd() | ConvertFrom-Json
-$changes=[Collections.Generic.List[object]]::new(); $failure=$null; $target=$null
-$junctions=@{}
-if($true) {
-    # Reuse the non-following Windows identity boundary used by the producer
-    # cleanup helper; pin the full FILE_ID_INFO and mount-point payload here.
-    Add-Type -TypeDefinition @'
-using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using Microsoft.Win32.SafeHandles;
-public static class MaintenanceJunctionNative {
-    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern SafeFileHandle CreateFileW(string p, uint a, uint s, IntPtr sa, uint c, uint f, IntPtr t);
-    [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetFileInformationByHandleEx(SafeFileHandle h, int c, IntPtr b, uint n);
-    [DllImport("kernel32.dll", SetLastError=true)] static extern bool DeviceIoControl(SafeFileHandle h, uint c, IntPtr i, uint ni, byte[] o, uint no, out uint n, IntPtr ov);
-    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern bool RemoveDirectoryW(string p);
-    public static string NormalizationPin(string path) {
-        using(var h=CreateFileW(path,128,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
-            if(h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
-            var info=Marshal.AllocHGlobal(24);
-            try {
-                if(!GetFileInformationByHandleEx(h,1,info,24)) throw new Win32Exception(Marshal.GetLastWin32Error());
-                uint links=unchecked((uint)Marshal.ReadInt32(info,16));
-                if(links==0) throw new InvalidOperationException("Normalization link count unavailable");
-                if(!GetFileInformationByHandleEx(h,18,info,24)) throw new Win32Exception(Marshal.GetLastWin32Error());
-                var id=new byte[16]; Marshal.Copy(IntPtr.Add(info,8),id,0,16);
-                ulong volume=unchecked((ulong)Marshal.ReadInt64(info));
-                if(volume==0 || Array.TrueForAll(id,b=>b==0)) throw new InvalidOperationException("Normalization file identity unavailable");
-                return volume.ToString()+":"+String.Join(",",id)+":"+links.ToString();
-            } finally {Marshal.FreeHGlobal(info);}
-        }
-    }
-    public static void Unlink(string path, string expectedPin) {
-        if(Pin(path)!=expectedPin) throw new InvalidOperationException("Approved junction identity changed before unlink");
-        // RemoveDirectoryW removes the directory junction entry itself. It
-        // never enumerates or recursively removes the linked directory.
-        if(!RemoveDirectoryW(path)) throw new Win32Exception(Marshal.GetLastWin32Error());
-    }
-    public static string Pin(string path) {
-        using(var h=CreateFileW(path,128,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
-            if(h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
-            var info=Marshal.AllocHGlobal(24);
-            try {
-                if(!GetFileInformationByHandleEx(h,18,info,24)) throw new Win32Exception(Marshal.GetLastWin32Error());
-                var id=new byte[16]; Marshal.Copy(IntPtr.Add(info,8),id,0,16);
-                var raw=new byte[16384]; uint n;
-                if(!DeviceIoControl(h,0x900a8,IntPtr.Zero,0,raw,16384,out n,IntPtr.Zero)) throw new Win32Exception(Marshal.GetLastWin32Error());
-                if(n<16 || BitConverter.ToUInt32(raw,0)!=0xa0000003) throw new InvalidOperationException("Mount-point junction required");
-                using(var sha=SHA256.Create()) {
-                    var digest=BitConverter.ToString(sha.ComputeHash(raw,0,(int)n)).Replace("-", "").ToLowerInvariant();
-                    return unchecked((ulong)Marshal.ReadInt64(info)).ToString()+":"+String.Join(",",id)+":"+digest;
-                }
-            } finally {Marshal.FreeHGlobal(info);}
-        }
-    }
-}
-'@
-}
-function Extended-Literal([string]$literal) {
-    # Normalize provider-returned and approved paths into the same literal key.
-    # Do not resolve through the filesystem or use MAX_PATH-limited .NET helpers.
-    $plain=$literal.Replace('/','\')
-    if($plain.StartsWith('\\?\UNC\',[StringComparison]::OrdinalIgnoreCase)){$plain='\\'+$plain.Substring(8)}
-    elseif($plain.StartsWith('\\?\')){$plain=$plain.Substring(4)}
-    if($plain -match '^[A-Za-z]:\\') {
-        $root=$plain.Substring(0,3); $tail=$plain.Substring(3)
-        if($tail.Contains(':')){throw 'Alternate stream rejected'}
-        $prefix='\\?\'
-    } elseif($plain -match '^\\\\([^\\]+)\\([^\\]+)(?:\\|$)') {
-        $root='\\'+$Matches[1]+'\'+$Matches[2]+'\'
-        $tail=$plain.Substring([Math]::Min($root.Length,$plain.Length))
-        if($plain.Contains(':') -or $Matches[1] -eq '.' -or $Matches[1] -eq '?'){throw 'Device/stream path rejected'}
-        $prefix='\\?\UNC\'; $plain=$plain.Substring(2)
-    } else {throw 'Absolute drive or UNC path required'}
-    foreach($part in $tail.Split('\')) {
-        if($part -eq '.' -or $part -eq '..'){throw 'Ambiguous path rejected'}
-    }
-    $result=$prefix+$plain.TrimEnd('\')
-    if($tail.TrimEnd('\').Length -eq 0){$result+='\'}
-    return $result
-}
-function Literal-Root([string]$literal) {
-    if($literal -match '^\\\\\?\\[A-Za-z]:\\'){return $literal.Substring(0,7)}
-    if($literal -match '^\\\\\?\\UNC\\[^\\]+\\[^\\]+(?:\\|$)'){return $Matches[0].TrimEnd('\')+'\'}
-    throw 'Invalid extended root'
-}
-function Assert-Ancestors($literal) {
-    $cursor=$literal; $root=Literal-Root $literal
-    while($cursor) {
-        $attributes=[int][IO.File]::GetAttributes($cursor)
-        if(($attributes -band 1024) -ne 0){
-            if($cursor -ne $literal -or !$junctions.ContainsKey($literal)){throw 'Ancestor reparse path protected'}
-            Assert-Junction $literal
-        }
-        if($cursor.TrimEnd('\') -eq $root.TrimEnd('\')){break}
-        $parent=$cursor.Substring(0,$cursor.TrimEnd('\').LastIndexOf('\'))
-        if($parent.Length -lt $root.Length){$cursor=$root}else{$cursor=$parent}
-    }
-}
-function Assert-Junction($literal) {
-    $spec=$junctions[$literal]
-    $entry=Get-Item -LiteralPath $literal -Force -ErrorAction Stop
-    if($entry.LinkType -ne 'Junction' -or ([int]$entry.Attributes -band 4) -ne 0 -or
-       (Extended-Literal ([string]$entry.Target)) -ne (Extended-Literal ([string]$spec.target)) -or
-       [MaintenanceJunctionNative]::Pin($literal) -cne [string]$spec.identity.pin) {throw 'Approved junction changed'}
-}
-$approved=@{}
-function Assert-Tree {
-    $pending=[Collections.Generic.Stack[string]]::new(); $pending.Push($target)
-    $seen=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    while($pending.Count -gt 0) {
-        $literal=$pending.Pop()
-        if(!$approved.ContainsKey($literal)){throw 'Unreviewed descendant appeared'}
-        if(!$seen.Add($literal)){throw 'Duplicate observed descendant'}
-        Assert-Ancestors $literal
-        $attributes=[int][IO.File]::GetAttributes($literal)
-        if(($attributes -band 4) -ne 0){throw 'System attributes protected'}
-        # Top-level literal enumeration includes hidden/system entries. The
-        # checked leaf must be a plain directory before enumeration starts.
-        if(($attributes -band 16) -ne 0 -and !$junctions.ContainsKey($literal)){foreach($child in [IO.Directory]::EnumerateFileSystemEntries($literal)){$pending.Push((Extended-Literal $child))}}
-    }
-    if($seen.Count -ne $approved.Count){throw 'Approved descendant disappeared'}
-}
-try {
-    $target=Extended-Literal $request.path
-    foreach($original in $request.entries) {
-        $literal=Extended-Literal $original
-        if($literal -ne $target -and !$literal.StartsWith($target.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'Approved path escapes target'}
-        if($approved.ContainsKey($literal)){throw 'Duplicate approved path'}
-        $approved[$literal]=$original
-    }
-    foreach($spec in $request.junctions) {
-        $literal=Extended-Literal $spec.path
-        if($literal -eq $target -or !$approved.ContainsKey($literal) -or $junctions.ContainsKey($literal)){throw 'Invalid junction deletion approval'}
-        $junctions[$literal]=$spec
-    }
-    Assert-Tree
-    # Preflight every attribute-changing file before modifying any entry.
-    # Count every approved regular-file name in this one deletion root.
-    $normalizationPins=@{}
-    foreach($literal in $approved.Keys) {
-        Assert-Ancestors $literal
-        if($junctions.ContainsKey($literal)){continue}
-        $attributes=[int][IO.File]::GetAttributes($literal)
-        if(($attributes -band 16) -eq 0 -and (($attributes -band 3) -ne 0)) {
-            $normalizationPins[$literal]=[MaintenanceJunctionNative]::NormalizationPin($literal)
-        }
-    }
-    if($normalizationPins.Count -gt 0) {
-        $linkCounts=@{}
-        foreach($literal in $approved.Keys) {
-            Assert-Ancestors $literal
-            if($junctions.ContainsKey($literal)){continue}
-            $attributes=[int][IO.File]::GetAttributes($literal)
-            if(($attributes -band 16) -eq 0) {
-                $pin=[MaintenanceJunctionNative]::NormalizationPin($literal)
-                if(!$linkCounts.ContainsKey($pin)){$linkCounts[$pin]=0}
-                $linkCounts[$pin]++
-            }
-        }
-        foreach($pin in $normalizationPins.Values) {
-            $links=[uint32]($pin.Split(':')[-1])
-            if(!$linkCounts.ContainsKey($pin) -or $linkCounts[$pin] -ne $links) {throw 'ReadOnly/Hidden normalization blocked: multiple hardlinks extend outside one selected deletion root; cross-member link ownership is not verified'}
-        }
-    }
-    # Assert-Tree checked the exact full authorized set before normalization.
-    foreach($literal in $approved.Keys) {
-        Assert-Ancestors $literal
-        if($junctions.ContainsKey($literal)){continue}
-        $before=[int][IO.File]::GetAttributes($literal)
-        if(($before -band 4) -ne 0 -or ($before -band 1024) -ne 0) {throw 'System/reparse attributes protected'}
-        $after=$before -band (-bnot 3)
-        if($before -ne $after){
-            if(($before -band 16) -eq 0) {
-                if(!$normalizationPins.ContainsKey($literal) -or [MaintenanceJunctionNative]::NormalizationPin($literal) -cne $normalizationPins[$literal]) {throw 'Normalization file identity or link count changed'}
-            }
-            [IO.File]::SetAttributes($literal,[IO.FileAttributes]$after)
-            $changes.Add(@{path=$approved[$literal];before=$before;after=[int][IO.File]::GetAttributes($literal)})
-        }
-    }
-    Assert-Tree
-    foreach($literal in $junctions.Keys) {
-        Assert-Ancestors $literal
-        Assert-Junction $literal
-        [MaintenanceJunctionNative]::Unlink($literal, [string]$junctions[$literal].identity.pin)
-    }
-    # Ordinary recursive removal starts only after all approved links are gone.
-    $junctions.Clear()
-    foreach($original in $request.junctions){$approved.Remove((Extended-Literal $original.path))}
-    Assert-Tree
-    Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop
-} catch { $failure=$_.Exception.Message }
-$remaining=$null
-if($target) {
-    # Only explicit absence exceptions establish removal; access or other
-    # metadata failures preserve an unknown remaining state.
-    try {$null=[IO.File]::GetAttributes($target); $remaining=$true}
-    catch [IO.FileNotFoundException] {$remaining=$false}
-    catch [IO.DirectoryNotFoundException] {$remaining=$false}
-    catch {if(!$failure){$failure=$_.Exception.Message}}
-}
-@{status=$(if($remaining -eq $false -and !$failure){'deleted'}else{'failed'});attributes=@($changes.ToArray());error=$failure;remaining=$remaining;physical_bytes_reclaimed=$null} | ConvertTo-Json -Depth 8 -Compress
-"#;
-    let mut child = std::process::Command::new("powershell.exe")
-        .args([
-            "-NoLogo",
-            "-NoProfile",
-            "-NonInteractive",
-            "-Command",
-            SCRIPT,
-        ])
-        .stdin(std::process::Stdio::piped())
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::piped())
-        .spawn()
-        .map_err(|e| e.to_string())?;
-    let input = serde_json::to_vec(&json!({"path":path,"entries":entries,"junctions":junctions}))
-        .map_err(|e| e.to_string())?;
-    child
-        .stdin
-        .take()
-        .ok_or("missing shell stdin")?
-        .write_all(&input)
-        .map_err(|e| e.to_string())?;
-    let output = child.wait_with_output().map_err(|e| e.to_string())?;
-    if !output.status.success() {
-        return Err(String::from_utf8_lossy(&output.stderr).into_owned());
-    }
-    serde_json::from_slice(&output.stdout).map_err(|e| format!("invalid deletion report: {e}"))
+    crate::windows_delete::Worker::new()?.delete(path, entries, junctions)
 }
 
 #[cfg(all(test, windows))]

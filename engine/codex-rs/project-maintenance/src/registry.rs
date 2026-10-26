@@ -3,6 +3,21 @@ use crate::{AccessMode, Auth, hash, paths, string};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
+
+/// Request-local syntax and policy proofs, never filesystem or permission proofs.
+#[derive(Default)]
+pub(crate) struct CatalogCache {
+    records: BTreeMap<(PathBuf, PathBuf), Rc<CachedRecord>>,
+    #[cfg(test)]
+    misses: usize,
+}
+
+struct CachedRecord {
+    bytes: Vec<u8>,
+    record: Value,
+    member_paths: Vec<PathBuf>,
+}
 
 pub(crate) struct CatalogLock<'a> {
     path: PathBuf,
@@ -146,7 +161,7 @@ fn read(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, String> {
     }
     Ok(bytes)
 }
-fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<(), String> {
+fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<Vec<PathBuf>, String> {
     for key in ["id", "kind", "owner", "state"] {
         nonblank(record, key)?;
     }
@@ -184,6 +199,7 @@ fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<(), String> {
         .as_array()
         .filter(|m| !m.is_empty())
         .ok_or("invalid producer members")?;
+    let mut member_paths = Vec::with_capacity(members.len());
     for member in members {
         for key in ["generated", "protection_known"] {
             if member.get(key).is_some_and(|value| !value.is_boolean()) {
@@ -214,6 +230,7 @@ fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<(), String> {
         {
             return Err("producer member overlaps source or control state".into());
         }
+        member_paths.push(path);
     }
     for reference in record["references"]
         .as_array()
@@ -222,7 +239,7 @@ fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<(), String> {
         nonblank(reference, "id")?;
         nonblank(reference, "reason")?;
     }
-    Ok(())
+    Ok(member_paths)
 }
 fn canonical(value: &Value) -> Value {
     match value {
@@ -243,14 +260,36 @@ fn catalog(root: &Path, source: &Path, auth: Auth<'_>) -> Result<BTreeMap<String
     let mut records = BTreeMap::new();
     for path in names(root, source, auth)? {
         let bytes = read(root, &path, auth)?;
-        let record: Value =
-            serde_json::from_slice(&bytes).map_err(|e| format!("invalid producer JSON: {e}"))?;
-        validate(root, &record, auth)?;
-        if read(root, &path, auth)? != bytes {
+        let key = (root.to_path_buf(), path.clone());
+        // Release the borrow before any authorizer callback: callbacks may change
+        // the catalog or permissions during either read or member traversal.
+        let cached = auth.catalog.borrow().records.get(&key).cloned();
+        let entry = if let Some(cached) = cached.filter(|entry| entry.bytes == bytes) {
+            for member_path in &cached.member_paths {
+                paths::check(root, member_path, auth)?;
+            }
+            cached
+        } else {
+            #[cfg(test)]
+            {
+                auth.catalog.borrow_mut().misses += 1;
+            }
+            let record: Value = serde_json::from_slice(&bytes)
+                .map_err(|e| format!("invalid producer JSON: {e}"))?;
+            let member_paths = validate(root, &record, auth)?;
+            Rc::new(CachedRecord {
+                bytes,
+                record,
+                member_paths,
+            })
+        };
+        if read(root, &path, auth)? != entry.bytes {
             return Err("producer record bytes changed while observing".into());
         }
-        let id = string(&record, "id")?.to_owned();
-        if records.insert(id, record).is_some() {
+        // Admit only fully validated bytes that survived the second fresh read.
+        auth.catalog.borrow_mut().records.insert(key, entry.clone());
+        let id = string(&entry.record, "id")?.to_owned();
+        if records.insert(id, entry.record.clone()).is_some() {
             return Err("duplicate producer id".into());
         }
     }
@@ -269,6 +308,131 @@ fn relevant(records: &BTreeMap<String, Value>, id: &str) -> Vec<Value> {
         .map(|(_, record)| canonical(record))
         .collect()
 }
+
+#[cfg(test)]
+mod catalog_tests {
+    use super::*;
+    use std::cell::{Cell, RefCell};
+
+    fn fixture() -> (tempfile::TempDir, PathBuf, Value) {
+        let root = tempfile::tempdir().unwrap();
+        let source = root.path().join("artifacts/maintenance/lifecycles");
+        std::fs::create_dir_all(&source).unwrap();
+        let member = root.path().join("artifacts/payload/member");
+        std::fs::create_dir_all(member.parent().unwrap()).unwrap();
+        std::fs::write(&member, "payload").unwrap();
+        let record = json!({"schema":1,"id":"owner","kind":"work","owner":"test",
+            "state":"complete","membership_complete":true,
+            "members":[{"path":member,"role":"artifact"}],"references":[]});
+        std::fs::write(
+            source.join("owner.json"),
+            serde_json::to_vec(&record).unwrap(),
+        )
+        .unwrap();
+        (root, source, record)
+    }
+
+    #[test]
+    fn same_bytes_reuse_parsing_but_replay_ordered_checks_and_permission_denials() {
+        for ancestor in [false, true] {
+            let (root, source, record) = fixture();
+            let member = Path::new(record["members"][0]["path"].as_str().unwrap());
+            let denied_path = if ancestor {
+                member.parent().unwrap()
+            } else {
+                member
+            };
+            let denied = Cell::new(false);
+            let trace = RefCell::new(Vec::new());
+            let authorize = |path: &Path, mode| {
+                trace.borrow_mut().push((path.to_path_buf(), mode));
+                if denied.get() && path == denied_path {
+                    Err("fresh member permission denied".into())
+                } else {
+                    Ok(())
+                }
+            };
+            let auth = crate::Context::new(&authorize);
+            let initial = catalog(root.path(), &source, &auth).unwrap();
+            let first_trace = trace.take();
+            assert_eq!(catalog(root.path(), &source, &auth).unwrap(), initial);
+            assert_eq!(trace.take(), first_trace);
+            assert_eq!(auth.catalog.borrow().misses, 1);
+            denied.set(true);
+            assert_eq!(
+                catalog(root.path(), &source, &auth).unwrap_err(),
+                "fresh member permission denied"
+            );
+            assert_eq!(auth.catalog.borrow().misses, 1);
+        }
+    }
+
+    #[test]
+    fn cache_hit_member_callback_cannot_hide_changed_record_bytes() {
+        let (root, source, record) = fixture();
+        let mutate = Cell::new(false);
+        let member = Path::new(record["members"][0]["path"].as_str().unwrap());
+        let authorize = |path: &Path, _| {
+            if path == member && mutate.replace(false) {
+                let mut changed = record.clone();
+                changed["state"] = json!("pending");
+                std::fs::write(
+                    source.join("owner.json"),
+                    serde_json::to_vec(&changed).unwrap(),
+                )
+                .unwrap();
+            }
+            Ok(())
+        };
+        let auth = crate::Context::new(&authorize);
+        catalog(root.path(), &source, &auth).unwrap();
+        mutate.set(true);
+        assert_eq!(
+            catalog(root.path(), &source, &auth).unwrap_err(),
+            "producer record bytes changed while observing"
+        );
+        assert_eq!(auth.catalog.borrow().misses, 1);
+        let changed = catalog(root.path(), &source, &auth).unwrap();
+        assert_eq!(changed["owner"]["state"], "pending");
+        assert_eq!(auth.catalog.borrow().misses, 2);
+    }
+
+    #[test]
+    fn warm_catalog_still_detects_new_consumer_between_observation_passes() {
+        let (root, source, record) = fixture();
+        let add_consumer = Cell::new(false);
+        let member = Path::new(record["members"][0]["path"].as_str().unwrap());
+        let authorize = |path: &Path, _| {
+            if path == member && add_consumer.replace(false) {
+                let mut consumer = record.clone();
+                consumer["id"] = json!("consumer");
+                consumer["references"] = json!([{"id":"owner","reason":"still in use"}]);
+                std::fs::write(
+                    source.join("consumer.json"),
+                    serde_json::to_vec(&consumer).unwrap(),
+                )
+                .unwrap();
+            }
+            Ok(())
+        };
+        let auth = crate::Context::new(&authorize);
+        catalog(root.path(), &source, &auth).unwrap();
+        add_consumer.set(true);
+        assert_eq!(
+            observe(root.path(), &source, &record, &BTreeMap::new(), &auth).unwrap_err(),
+            "relevant producer records changed while observing"
+        );
+        assert_eq!(auth.catalog.borrow().misses, 2);
+        // Every source record still needs validation, even without an incoming reference.
+        std::fs::write(source.join("unrelated.json"), "invalid JSON").unwrap();
+        assert!(
+            catalog(root.path(), &source, &auth)
+                .unwrap_err()
+                .contains("invalid producer JSON")
+        );
+    }
+}
+
 fn lifecycle_role(role: &str) -> &'static str {
     let words = role
         .split(|c: char| c == '-' || c == '_' || c.is_whitespace())

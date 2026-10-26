@@ -3459,6 +3459,7 @@
         "engine/codex-rs/project-maintenance/examples/maintenance_dispatch.rs",
         "engine/codex-rs/project-maintenance/src/apply.rs",
         "engine/codex-rs/project-maintenance/src/lib.rs",
+    "engine/codex-rs/project-maintenance/src/windows_delete.rs",
         "engine/codex-rs/project-maintenance/src/retirement.rs",
         "engine/codex-rs/project-maintenance/src/nested_retirement.rs",
         "engine/codex-rs/project-maintenance/tests/nested_retirement.rs",

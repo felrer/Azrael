@@ -9,6 +9,8 @@ mod planning;
 mod registry;
 mod retirement;
 mod storage;
+#[cfg(windows)]
+mod windows_delete;
 
 pub use lock_recovery::recover_lock;
 
@@ -25,12 +27,15 @@ pub enum AccessMode {
 pub type Authorizer = dyn Fn(&Path, AccessMode) -> Result<(), String> + Send + Sync;
 pub(crate) type Auth<'a> = &'a Context<'a>;
 
-// Only content digests are memoized. Every caller still performs its complete
-// traversal, authorization and policy checks on each observation.
+// Memoized content/JSON decoding never replaces fresh filesystem observations,
+// authorization or policy checks. Windows deletion workers are request-scoped.
 pub(crate) struct Context<'a> {
     authorize: &'a dyn Fn(&Path, AccessMode) -> Result<(), String>,
     content: std::cell::RefCell<paths::ContentCache>,
     catalog_locks: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
+    catalog: std::cell::RefCell<registry::CatalogCache>,
+    #[cfg(windows)]
+    windows_delete: std::cell::RefCell<Option<windows_delete::Worker>>,
     retirement: std::cell::RefCell<Option<retirement::Retirement>>,
     nested_retirement: std::cell::RefCell<Option<nested_retirement::Retirement>>,
     junctions: std::cell::RefCell<BTreeMap<PathBuf, Value>>,
@@ -42,6 +47,9 @@ impl<'a> Context<'a> {
             authorize,
             content: Default::default(),
             catalog_locks: Default::default(),
+            catalog: Default::default(),
+            #[cfg(windows)]
+            windows_delete: Default::default(),
             retirement: Default::default(),
             nested_retirement: Default::default(),
             junctions: Default::default(),
