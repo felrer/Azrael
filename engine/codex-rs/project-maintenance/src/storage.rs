@@ -69,7 +69,7 @@ impl<'a> Store<'a> {
             .create_new(true)
             .open(&temporary)
             .map_err(|e| format!("state pending file requires recovery: {e}"))?;
-        file.write_all(&serde_json::to_vec_pretty(&self.state).map_err(|e| e.to_string())?)
+        file.write_all(&serde_json::to_vec(&self.state).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
         file.sync_all().map_err(|e| e.to_string())?;
         drop(file);

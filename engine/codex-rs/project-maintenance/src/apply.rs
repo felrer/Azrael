@@ -271,6 +271,7 @@ pub(crate) fn apply(
             None
         };
         let index = store.state.decisions.len();
+        let mut persisted_group = None;
         if destructive {
             outcome["attempt_id"] = json!(format!(
                 "attempt-{}-{}-{}",
@@ -368,6 +369,7 @@ pub(crate) fn apply(
                     json!({"results":results,"aborted":true,"reason":"result persistence failed; durable intent may remain pending"}),
                 );
             }
+            persisted_group = group_id.as_ref().map(|id| store.state.groups[id].clone());
         }
         let observation = (|| -> Result<bool, String> {
             paths::check(root, path, auth)?;
@@ -402,13 +404,21 @@ pub(crate) fn apply(
             &mut outcome,
             destructive,
         );
-        record(&mut store.state, index, &outcome);
-        if let Err(error) = store.save(auth) {
-            outcome["persistence_error"] = json!(error);
-            results.push(outcome);
-            return Ok(
-                json!({"results":results,"aborted":true,"reason":"observation persistence failed; prior destructive result remains recorded"}),
-            );
+        // The destructive receipt is already durable. Only a changed final
+        // observation or group state needs another commit; errors change the
+        // outcome too and must never be discarded with this redundant write.
+        if !destructive
+            || store.state.decisions[index] != outcome
+            || group_id.as_ref().map(|id| &store.state.groups[id]) != persisted_group.as_ref()
+        {
+            record(&mut store.state, index, &outcome);
+            if let Err(error) = store.save(auth) {
+                outcome["persistence_error"] = json!(error);
+                results.push(outcome);
+                return Ok(
+                    json!({"results":results,"aborted":true,"reason":"observation persistence failed; prior destructive result remains recorded"}),
+                );
+            }
         }
         results.push(outcome);
     }

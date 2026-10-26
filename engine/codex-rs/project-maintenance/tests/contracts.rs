@@ -668,6 +668,144 @@ fn registration_reference_contract_matches_explicit_decisions() {
 }
 
 #[test]
+fn unchanged_final_observation_keeps_durable_group_receipt_without_another_write() {
+    use std::cell::Cell;
+    let root = fixture();
+    let path = root.path().join("generated/a");
+    let manifest = root.path().join("artifacts/maintenance/manifest.json");
+    std::fs::write(&path, "owned").unwrap();
+    call(
+        &root,
+        json!({"operation":"register","group":{"id":"version","kind":"version","owner":"test","version":"old","membership_complete":true,"provenance_ref":"receipt:test","members":[{"id":"a","path":"generated/a","kind":"fixture","owner":"test","generated":true,"protection_known":true,"references":[],"lifecycle_role":"artifact"}]}}),
+    );
+    let observed = review(&root, "a");
+    let final_observed = Cell::new(false);
+    let authorize = |target: &Path, mode| {
+        if target == path && mode == AccessMode::Read {
+            let durable: Value =
+                serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+            if durable["decisions"][0]["status"] == "deleted" {
+                assert_eq!(durable["decisions"][0]["remaining"], false);
+                assert_eq!(durable["groups"]["version"]["cleanup_status"], "deleted");
+                final_observed.set(true);
+            }
+        }
+        if final_observed.get() && target == manifest && mode == AccessMode::Write {
+            return Err("redundant persistence denied after final observation".into());
+        }
+        Ok(())
+    };
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":[{"id":"a","token":observed["token"],"decision":"delete","reason":"complete"}]}),
+        &authorize,
+    )
+    .unwrap();
+    assert!(final_observed.get());
+    assert_eq!(result["aborted"], false);
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    assert!(!path.exists());
+    let bytes = std::fs::read(&manifest).unwrap();
+    assert!(!bytes.contains(&b'\n'), "manifest should use compact JSON");
+    let durable: Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(durable["decisions"][0], result["results"][0]);
+    assert_eq!(durable["items"]["a"]["cleanup_status"], "deleted");
+    assert_eq!(durable["items"]["a"]["remaining"], false);
+    assert_eq!(durable["groups"]["version"]["cleanup_status"], "deleted");
+    assert_eq!(
+        call(&root, json!({"operation":"inventory"}))["items"][0]["remaining"],
+        false
+    );
+}
+
+#[test]
+fn changed_or_denied_final_observation_is_persisted_after_destructive_receipt() {
+    use std::cell::Cell;
+    for deny_observation in [false, true] {
+        let root = fixture();
+        let path = root.path().join("generated/a");
+        let manifest = root.path().join("artifacts/maintenance/manifest.json");
+        std::fs::write(&path, "owned").unwrap();
+        register(&root, "a", "generated/a", json!({}));
+        let observed = review(&root, "a");
+        let final_observed = Cell::new(false);
+        let authorize = |target: &Path, mode| {
+            if target == path && mode == AccessMode::Read && !final_observed.get() {
+                let durable: Value =
+                    serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+                if durable["decisions"][0]["status"] == "deleted" {
+                    assert_eq!(durable["decisions"][0]["remaining"], false);
+                    final_observed.set(true);
+                    if deny_observation {
+                        return Err("final observation denied".into());
+                    }
+                    std::fs::write(&path, "reappeared after durable deletion receipt").unwrap();
+                }
+            }
+            Ok(())
+        };
+        let result = dispatch(
+            root.path(),
+            json!({"operation":"apply","decisions":[{"id":"a","token":observed["token"],"decision":"delete","reason":"complete"}]}),
+            &authorize,
+        )
+        .unwrap();
+        assert!(final_observed.get());
+        assert_eq!(result["aborted"], false);
+        let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+        assert_eq!(durable["decisions"][0], result["results"][0]);
+        assert_eq!(durable["decisions"][0]["deletion"]["remaining"], false);
+        assert_eq!(durable["decisions"][0]["status"], "deleted");
+        if deny_observation {
+            assert!(durable["decisions"][0]["remaining"].is_null());
+            assert_eq!(
+                durable["decisions"][0]["observation_error"],
+                "final observation denied"
+            );
+            assert!(durable["items"]["a"]["remaining"].is_null());
+            assert!(!path.exists());
+        } else {
+            assert_eq!(durable["decisions"][0]["remaining"], true);
+            assert_eq!(durable["items"]["a"]["remaining"], true);
+            assert_eq!(
+                std::fs::read(&path).unwrap(),
+                b"reappeared after durable deletion receipt"
+            );
+        }
+    }
+}
+
+#[test]
+fn intent_save_failure_preserves_target_manifest_and_pending_file() {
+    let root = fixture();
+    let path = root.path().join("generated/a");
+    let manifest = root.path().join("artifacts/maintenance/manifest.json");
+    let pending = root.path().join("artifacts/maintenance/manifest.pending");
+    std::fs::write(&path, "owned").unwrap();
+    register(&root, "a", "generated/a", json!({}));
+    let observed = review(&root, "a");
+    let before = std::fs::read(&manifest).unwrap();
+    std::fs::write(&pending, "unresolved prior write").unwrap();
+    let result = call(
+        &root,
+        json!({"operation":"apply","decisions":[{"id":"a","token":observed["token"],"decision":"delete","reason":"complete"}]}),
+    );
+    assert_eq!(result["aborted"], true);
+    assert_eq!(result["results"][0]["status"], "pending");
+    assert!(
+        result["results"][0]["persistence_error"]
+            .as_str()
+            .unwrap()
+            .contains("state pending file requires recovery")
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), b"owned");
+    assert_eq!(std::fs::read(&manifest).unwrap(), before);
+    assert_eq!(std::fs::read(&pending).unwrap(), b"unresolved prior write");
+    let durable: Value = serde_json::from_slice(&before).unwrap();
+    assert_eq!(durable["decisions"], json!([]));
+}
+
+#[test]
 fn destructive_receipt_survives_later_observation_and_save_denial() {
     use std::cell::Cell;
     let root = fixture();
