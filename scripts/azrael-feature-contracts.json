@@ -1225,6 +1225,7 @@
         "extensions/azrael-ex/test/instructionLibraryService.test.ts",
         "extensions/azrael-ex/test/instructionCatalogFlow.test.ts",
         "extensions/azrael-ex/test/instructionService.test.ts",
+        "scripts/current-instruction-test-release.cjs",
         "extensions/azrael-ex/test/instructionView.test.ts",
         "scripts/instruction-library.cjs",
         "scripts/instruction-migration.cjs",

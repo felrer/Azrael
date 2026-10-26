@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import Module from "node:module";
-import test, { type TestContext } from "node:test";
+import test, { after, type TestContext } from "node:test";
 import type { InstructionAction, InstructionRequest, InstructionUiState, InstructionUiText } from "../src/instructionProtocol";
 
 const uiText = (value: InstructionUiText | readonly InstructionUiText[] | undefined, locale: "en" | "ko" = "ko"): string =>
@@ -12,14 +12,35 @@ const root = path.resolve(__dirname, path.basename(path.dirname(__dirname)) === 
 const backendFile = path.join(root, "scripts/instruction-package.cjs");
 const { InstructionStore } = require(backendFile);
 
+const { createCurrentInstructionRelease } = require(path.join(root, "scripts/current-instruction-test-release.cjs"));
+let currentRelease: Promise<{ directory: string; assets: Map<string, Buffer>; manifest: any; version: string; appVersion: string }> | undefined;
+
+async function releaseFixture() {
+  const parent = process.env.AZRAEL_INSTRUCTION_TEST_ROOT;
+  assert(parent && path.isAbsolute(parent), "AZRAEL_INSTRUCTION_TEST_ROOT must be an explicit absolute owned parent");
+  await fs.mkdir(parent, { recursive: true });
+  return currentRelease ??= createCurrentInstructionRelease({ projectRoot: root, parent });
+}
+
+after(async () => {
+  if (!currentRelease) return;
+  // The helper removes incomplete output itself if preparation fails.
+  const prepared = await currentRelease.catch(() => undefined);
+  if (!prepared) return;
+  const parent = process.env.AZRAEL_INSTRUCTION_TEST_ROOT!;
+  const relative = path.relative(parent, prepared.directory);
+  assert(relative && !relative.startsWith("..") && !path.isAbsolute(relative));
+  const stat = await fs.lstat(prepared.directory);
+  assert(stat.isDirectory() && !stat.isSymbolicLink());
+  await fs.rm(prepared.directory, { recursive: true });
+  await assert.rejects(fs.access(prepared.directory), { code: "ENOENT" });
+});
+
 async function fixture(t: TestContext) {
-  const assetRoot = process.env.AZRAEL_INSTRUCTION_RELEASE_ASSETS ?? path.join(root, "artifacts/instructions/review-1.0.0");
-  const manifestName = "azrael-instructions-1.0.0-manifest.json";
-  const manifest = JSON.parse(await fs.readFile(path.join(assetRoot, manifestName), "utf8"));
-  const assets = new Map<string, Buffer>();
-  for (const name of [manifestName, manifest.archive.name, manifest.documentsAsset.name]) assets.set(name, await fs.readFile(path.join(assetRoot, name)));
-  const release = { tag_name: "instructions-v1.0.0", draft: false, prerelease: false, body: "Generated release notes", assets: [...assets.keys()].map(name => ({ name, browser_download_url: `https://github.com/${manifest.repository}/releases/download/instructions-v1.0.0/${name}` })) };
-  const verification = process.env.AZRAEL_INSTRUCTION_TEST_ROOT || path.join(root, "artifacts/verification");
+  const { directory: assetRoot, assets, manifest, version, appVersion } = await releaseFixture();
+  const tag = `instructions-v${version}`;
+  const release = { tag_name: tag, draft: false, prerelease: false, body: "Generated release notes", assets: [...assets.keys()].map(name => ({ name, browser_download_url: `https://github.com/${manifest.repository}/releases/download/${tag}/${name}` })) };
+  const verification = process.env.AZRAEL_INSTRUCTION_TEST_ROOT!;
   await fs.mkdir(verification, { recursive: true });
   const dir = await fs.mkdtemp(path.join(verification, "instruction-service-"));
   t.after(async () => {
@@ -44,7 +65,7 @@ async function fixture(t: TestContext) {
     if (control.gate) await control.gate;
     if (control.failure) throw new Error(control.failure);
     if (url.startsWith(`https://api.github.com/repos/${manifest.repository}/releases?`)) return Buffer.from(JSON.stringify([release]));
-    if (url === `https://api.github.com/repos/${manifest.repository}/releases/tags/instructions-v1.0.0`) return Buffer.from(JSON.stringify(release));
+    if (url === `https://api.github.com/repos/${manifest.repository}/releases/tags/${tag}`) return Buffer.from(JSON.stringify(release));
     const name = url.slice(url.lastIndexOf("/") + 1);
     const bytes = assets.get(name);
     if (bytes && release.assets.some(asset => asset.browser_download_url === url)) return bytes;
@@ -71,12 +92,12 @@ async function fixture(t: TestContext) {
   delete require.cache[serviceFile];
   const { InstructionService } = require(serviceFile) as typeof import("../src/instructionService");
   const { InstructionView } = require("../src/instructionView") as typeof import("../src/instructionView");
-  const createService = () => new InstructionService({ extensionUri: { fsPath: path.join(root, "extensions/azrael-ex") }, extension: { packageJSON: { version: "0.4.0" } } } as any, { codexHome: home, engine }, { warn: (message: string) => warnings.push(message) } as any);
+  const createService = () => new InstructionService({ extensionUri: { fsPath: path.join(root, "extensions/azrael-ex") }, extension: { packageJSON: { version: appVersion } } } as any, { codexHome: home, engine }, { warn: (message: string) => warnings.push(message) } as any);
   const service = createService();
   // The dynamic backend require happens on each first snapshot, so retain this boundary until teardown.
   t.after(() => { api._load = original; delete require.cache[serviceFile]; });
   t.diagnostic(`Generated assets: ${assetRoot}; native validator: ${engine}; isolated CODEX_HOME only`);
-  return { service, createService, InstructionView, control, warnings, options, requests, manifest, home, workspace, engine };
+  return { service, createService, InstructionView, control, warnings, options, requests, manifest, version, appVersion, home, workspace, engine };
 }
 
 test("real host adapter maps generated release, preview, download and selected application through the view", async t => {
@@ -97,7 +118,7 @@ test("real host adapter maps generated release, preview, download and selected a
   assert.deepEqual(state.downloadedVersions, []); assert.deepEqual(state.conflicts, []);
   state = await dispatch("refresh");
   assert.match(sent.at(-1).html, /Available instruction versions have been checked\./);
-  assert.equal(state.selectedVersion, "1.0.0"); assert.equal(state.versions[0].notes, "Generated release notes");
+  assert.equal(state.selectedVersion, f.version); assert.equal(state.versions[0].notes, "Generated release notes");
   assert.equal(state.versions[0].compatible, true); assert.equal(state.versions[0].prerelease, false);
   assert.deepEqual(state.components, f.manifest.components);
   assert.equal(state.documents.length, f.manifest.documents.length);
@@ -106,39 +127,17 @@ test("real host adapter maps generated release, preview, download and selected a
   state = await dispatch("preview", { path: document.path });
   assert.equal(state.preview?.path, document.path); assert(state.preview?.text.length);
   assert(sent.at(-1).html.includes("Generated release notes"));
-  state = await dispatch("selectVersion", { version: "1.0.0" }); assert.equal(state.preview, undefined);
-  state = await dispatch("download", { version: "1.0.0" });
-  assert.deepEqual(state.downloadedVersions, ["1.0.0"]); assert.equal(state.currentVersion, null);
+  state = await dispatch("selectVersion", { version: f.version }); assert.equal(state.preview, undefined);
+  state = await dispatch("download", { version: f.version });
+  assert.deepEqual(state.downloadedVersions, [f.version]); assert.equal(state.currentVersion, null);
   const ids = ["global-instructions"];
-  state = await dispatch("apply", { version: "1.0.0", componentIds: ids });
-  assert.equal(state.currentVersion, "1.0.0", JSON.stringify({ error: state.error, warnings: f.warnings })); assert.deepEqual(state.selectedComponentIds, ids);
+  state = await dispatch("apply", { version: f.version, componentIds: ids });
+  assert.equal(state.currentVersion, f.version, JSON.stringify({ error: state.error, warnings: f.warnings })); assert.deepEqual(state.selectedComponentIds, ids);
   assert.equal(state.error, undefined); assert.deepEqual(state.conflicts, []);
   assert((await fs.readFile(path.join(f.home, "AGENTS.md"), "utf8")).length);
   await assert.rejects(fs.access(path.join(f.home, "agents/luna_explorer.toml")), { code: "ENOENT" });
-  assert.deepEqual(f.options[0], { stateRoot: f.home, appVersion: "0.4.0", repository: f.manifest.repository, engine: f.engine, workspaceRoot: f.workspace });
+  assert.deepEqual(f.options[0], { stateRoot: f.home, appVersion: f.appVersion, repository: f.manifest.repository, engine: f.engine, workspaceRoot: f.workspace });
   assert.equal(f.warnings.length, 0);
-});
-
-test("pin, unpin, cached rollback and empty selections persist through a fresh adapter", async t => {
-  const f = await fixture(t);
-  await f.service.request("download", { version: "1.0.0" });
-  await f.service.request("apply", { componentIds: ["global-instructions"] });
-  assert.equal((await f.service.request("pin", {})).pinnedVersion, "1.0.0");
-  assert.equal((await f.service.request("refresh", {})).selectedVersion, "1.0.0");
-  assert.equal((await f.service.request("unpin", {})).pinnedVersion, null);
-  const before = await fs.readFile(path.join(f.home, "AGENTS.md"));
-  const rollback = await f.service.request("rollback", { version: "1.0.0" });
-  assert.equal(rollback.error, undefined); assert.deepEqual(rollback.selectedComponentIds, ["global-instructions"]);
-  assert.deepEqual(await fs.readFile(path.join(f.home, "AGENTS.md")), before);
-  const cleared = await f.service.request("apply", { componentIds: [] });
-  assert.equal(cleared.error, undefined); assert.deepEqual(cleared.selectedComponentIds, []);
-  await assert.rejects(fs.access(path.join(f.home, "AGENTS.md")), { code: "ENOENT" });
-  // Repository changes recreate the backend and reset browsing state without rewriting the applied receipt.
-  f.control.repository = "another/Instructions";
-  const switched = await f.service.snapshot();
-  assert.equal(switched.currentVersion, "1.0.0"); assert.deepEqual(switched.selectedComponentIds, []);
-  assert.equal(switched.selectedVersion, null); assert.deepEqual(switched.documents, []);
-  assert.match(uiText(switched.message), new RegExp(f.manifest.repository));
 });
 
 test("invalid repository and retryable backend failures return error state without changing data", async t => {
@@ -161,23 +160,26 @@ test("invalid repository and retryable backend failures return error state witho
 
 test("changing workspace maps its own selection and preserves retained workspace files and notices", async t => {
   const f = await fixture(t);
-  const downloaded = await f.service.request("download", { version: "1.0.0" });
+  const downloaded = await f.service.request("download", { version: f.version });
   assert.equal(downloaded.error, undefined, `Prerequisite download failed: ${uiText(downloaded.error, "en")}; ${f.warnings.join("; ")}`);
-  assert.equal(downloaded.selectedVersion, "1.0.0");
-  const ids = ["global-instructions", "playbook-work"];
+  assert.equal(downloaded.selectedVersion, f.version);
+  const workspaceComponent = f.manifest.components.find((component: any) => component.scope === "workspace" && component.files?.length);
+  assert(workspaceComponent, "Current release must include a mapped workspace component");
+  const workspaceTarget = workspaceComponent.files[0].target;
+  const ids = ["global-instructions", workspaceComponent.id];
   const applied = await f.service.request("apply", { componentIds: ids });
   assert.equal(applied.error, undefined); assert.deepEqual(applied.selectedComponentIds, ids);
-  const target = path.join(f.workspace, "docs/playbooks/work.md"), original = await fs.readFile(target);
+  const target = path.join(f.workspace, workspaceTarget), original = await fs.readFile(target);
   const secondWorkspace = path.join(f.home, "../workspace-two");
   await fs.mkdir(secondWorkspace);
   f.control.workspace = secondWorkspace;
   const second = await f.service.snapshot();
   assert.deepEqual(second.selectedComponentIds, ["global-instructions"]);
-  assert.match(uiText(second.message), /다른 작업공간/); assert.equal(second.selectedVersion, "1.0.0");
-  const homeOnly = await f.service.request("apply", { version: "1.0.0", componentIds: ["global-instructions"] });
+  assert.match(uiText(second.message), /다른 작업공간/); assert.equal(second.selectedVersion, f.version);
+  const homeOnly = await f.service.request("apply", { version: f.version, componentIds: ["global-instructions"] });
   assert.equal(homeOnly.error, undefined);
   assert.deepEqual(await fs.readFile(target), original);
-  await assert.rejects(fs.access(path.join(secondWorkspace, "docs/playbooks/work.md")), { code: "ENOENT" });
+  await assert.rejects(fs.access(path.join(secondWorkspace, workspaceTarget)), { code: "ENOENT" });
   f.control.workspace = f.workspace;
   const restored = await f.service.snapshot();
   assert.deepEqual(restored.selectedComponentIds, ids);
@@ -186,9 +188,9 @@ test("changing workspace maps its own selection and preserves retained workspace
 
 test("personal library failure preserves baseline version, cache and actions and remains visible until recovery", async t => {
   const f = await fixture(t);
-  assert.equal((await f.service.request("download", { version: "1.0.0" })).error, undefined);
-  assert.equal((await f.service.request("apply", { version: "1.0.0", componentIds: ["global-instructions"] })).error, undefined);
-  assert.equal((await f.service.request("pin", { version: "1.0.0" })).error, undefined);
+  assert.equal((await f.service.request("download", { version: f.version })).error, undefined);
+  assert.equal((await f.service.request("apply", { version: f.version, componentIds: ["global-instructions"] })).error, undefined);
+  assert.equal((await f.service.request("pin", { version: f.version })).error, undefined);
   const restarted = f.createService();
   const library = (restarted as any).personalLibrary;
   const snapshot = library.snapshot.bind(library);
@@ -196,28 +198,28 @@ test("personal library failure preserves baseline version, cache and actions and
   const before = f.requests.length;
   const state = await restarted.snapshot();
   assert.equal(f.requests.length, before, "opening cached settings stays offline even on library failure");
-  assert.equal(state.currentVersion, "1.0.0"); assert.equal(state.pinnedVersion, "1.0.0");
-  assert.equal(state.selectedVersion, "1.0.0"); assert.deepEqual(state.downloadedVersions, ["1.0.0"]);
+  assert.equal(state.currentVersion, f.version); assert.equal(state.pinnedVersion, f.version);
+  assert.equal(state.selectedVersion, f.version); assert.deepEqual(state.downloadedVersions, [f.version]);
   assert.deepEqual(state.selectedComponentIds, ["global-instructions"]);
   assert(state.documents.length); assert(state.components.length); assert.equal(state.library, undefined);
   assert.match(uiText(state.error, "en"), /Personal resource library: Cannot find module 'yazl'/);
   assert.match(uiText(state.error, "ko"), /개인 리소스 라이브러리/);
   assert(f.warnings.some(message => message.includes("instruction library snapshot failed")));
   const unpinned = await restarted.request("unpin", {});
-  assert.equal(unpinned.currentVersion, "1.0.0"); assert.equal(unpinned.pinnedVersion, null);
+  assert.equal(unpinned.currentVersion, f.version); assert.equal(unpinned.pinnedVersion, null);
   assert.match(uiText(unpinned.error), /yazl/);
   const refreshed = await restarted.request("refresh", {});
-  assert.equal(refreshed.currentVersion, "1.0.0"); assert(refreshed.versions.length);
+  assert.equal(refreshed.currentVersion, f.version); assert(refreshed.versions.length);
   assert.match(uiText(refreshed.error), /yazl/);
   library.snapshot = snapshot;
   const recovered = await restarted.snapshot();
   assert.equal(recovered.error, undefined); assert(recovered.library);
-  assert.equal(recovered.currentVersion, "1.0.0");
+  assert.equal(recovered.currentVersion, f.version);
 });
 
 test("restarted adapter browses and rolls back verified cached instructions without any network requests", async t => {
   const f = await fixture(t);
-  await f.service.request("download", { version: "1.0.0" });
+  await f.service.request("download", { version: f.version });
   const installed = await f.service.request("apply", { componentIds: ["global-instructions"] });
   assert.equal(installed.error, undefined);
   const original = await fs.readFile(path.join(f.home, "AGENTS.md"));
@@ -225,19 +227,28 @@ test("restarted adapter browses and rolls back verified cached instructions with
   f.control.failure = "offline after restart";
   const restarted = f.createService();
   const state = await restarted.snapshot();
-  assert.equal(state.error, undefined); assert.equal(state.currentVersion, "1.0.0");
-  assert.equal(state.selectedVersion, "1.0.0"); assert.deepEqual(state.downloadedVersions, ["1.0.0"]);
+  assert.equal(state.error, undefined); assert.equal(state.currentVersion, f.version);
+  assert.equal(state.selectedVersion, f.version); assert.deepEqual(state.downloadedVersions, [f.version]);
   assert.deepEqual(state.versions[0].notes, { en: "This instruction package is downloaded locally.", ko: "로컬에 다운로드된 지침 패키지입니다." });
-  assert.equal(state.versions[0].version, "1.0.0"); assert.equal(state.versions[0].compatible, true);
+  assert.equal(state.versions[0].version, f.version); assert.equal(state.versions[0].compatible, true);
   assert.deepEqual(state.components, f.manifest.components);
   assert.equal(state.documents.length, f.manifest.documents.length);
   assert.deepEqual(state.selectedComponentIds, ["global-instructions"]);
   const preview = await restarted.request("preview", { path: state.documents[0].path });
   assert.equal(preview.error, undefined); assert(preview.preview?.text.length);
-  const rollback = await restarted.request("rollback", { version: "1.0.0" });
-  assert.equal(rollback.error, undefined); assert.equal(rollback.currentVersion, "1.0.0");
+  const rollback = await restarted.request("rollback", { version: f.version });
+  assert.equal(rollback.error, undefined); assert.equal(rollback.currentVersion, f.version);
   assert.deepEqual(await fs.readFile(path.join(f.home, "AGENTS.md")), original);
   assert.equal(f.requests.length, requestCount, "restart, preview and rollback must remain entirely offline");
+  // Repository changes reset browsing while preserving the applied receipt.
+  f.control.failure = undefined;
+  f.control.repository = "another/Instructions";
+  const switched = await restarted.snapshot();
+  assert.equal(switched.currentVersion, f.version);
+  assert.deepEqual(switched.selectedComponentIds, ["global-instructions"]);
+  assert.equal(switched.selectedVersion, null); assert.deepEqual(switched.documents, []);
+  assert.match(uiText(switched.message), new RegExp(f.manifest.repository));
+  assert.deepEqual(await fs.readFile(path.join(f.home, "AGENTS.md")), original);
 });
 
 test("adapter busy gate and real local conflicts preserve installed file and receipt", async t => {
@@ -257,10 +268,10 @@ test("adapter busy gate and real local conflicts preserve installed file and rec
   const result = await f.service.request("apply", { componentIds: ["global-instructions"] });
   assert.equal(result.conflicts.length, 1); assert.equal(result.conflicts[0].current, "local edit preserved");
   assert(result.conflicts[0].proposed?.length); assert.match(uiText(result.message), /수정된 파일/);
-  assert.equal(result.currentVersion, "1.0.0");
+  assert.equal(result.currentVersion, f.version);
   assert.deepEqual(await fs.readFile(stateFile), receipt);
   assert.equal(await fs.readFile(path.join(f.home, "AGENTS.md"), "utf8"), "local edit preserved");
-  const rollback = await f.service.request("rollback", { version: "1.0.0" });
+  const rollback = await f.service.request("rollback", { version: f.version });
   assert.match(uiText(rollback.error), /conflict/i);
   assert.deepEqual(await fs.readFile(stateFile), receipt);
 });

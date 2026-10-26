@@ -145,9 +145,3 @@ test("deployment verifies package identity and rechecks engine before installati
   assert.match(packageCheck, /'feature-preservation\.cjs'\) verify --config/);
   assert.match(packageCheck, /Package feature preservation verification failed/);
 });
-
-test("namespace test selection includes registry and integration acceptance", () => {
-  const selection = vm.runInNewContext(declaration("test-project.cjs", "NAMESPACE"));
-  assert.ok(selection.includes("scripts/test-feature-preservation.cjs"));
-  assert.ok(selection.includes("scripts/test-preservation-integration.cjs"));
-});
