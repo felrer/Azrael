@@ -288,6 +288,38 @@ async function obsolete(root, deferred) {
     try { await remove(root, path.join(root, name)); } catch (error) { deferred.push(`obsolete ${name}: ${message(error)}`); }
   }
 }
+function activeChecks(options) {
+  if (!Array.isArray(options.checkIds) || options.checkIds.some(id => !safeId(id))) throw Error('Invalid active verification check IDs');
+  return new Set(options.checkIds.map(sha));
+}
+async function removedChecks(cacheRoot, active, removed, deferred) {
+  const version = path.join(cacheRoot, `v${CACHE_SCHEMA}`);
+  await directory(path.join(cacheRoot, '.leases'), true);
+  if (await inspect(version, 'directory', true)) for (const name of await fs.readdir(version)) {
+    if (active.has(name)) continue;
+    if (!isHash(name)) { deferred.push(`unrecognized check slot retained: ${name}`); continue; }
+    if (await fs.lstat(path.join(cacheRoot, '.leases', name)).catch(error => { if (error.code === 'ENOENT') return null; throw error; })) { deferred.push(`removed check ${name}: active or abandoned lease`); continue; }
+    try { await remove(cacheRoot, path.join(version, name)); removed.push(name); } catch (error) { deferred.push(`removed check ${name}: ${message(error)}`); }
+  }
+}
+async function prune(options = {}) {
+  const { cacheRoot } = configuration(options), active = activeChecks(options), deferred = [], removed = [];
+  let release;
+  try {
+    await directory(cacheRoot, true);
+    release = await acquireLifecycle(cacheRoot, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune' });
+    if (!release) return { removed, deferred: ['obsolete versions: lifecycle lease busy', 'removed checks: lifecycle lease busy'] };
+    // A failed scan must not suppress the independent maintenance operation.
+    // Revalidate ownership before each operation, including after a failure.
+    try { await release.assertOwned(); await obsolete(cacheRoot, deferred); }
+    catch (error) { deferred.push(`obsolete versions: ${message(error)}`); }
+    try { await release.assertOwned(); await removedChecks(cacheRoot, active, removed, deferred); }
+    catch (error) { deferred.push(`removed checks: ${message(error)}`); }
+  } catch (error) {
+    deferred.push(`obsolete versions: ${message(error)}`, `removed checks: ${message(error)}`);
+  } finally { if (release) await release().catch(error => deferred.push(message(error))); }
+  return { removed, deferred };
+}
 async function pruneObsoleteVersions(options = {}) {
   const { cacheRoot } = configuration(options), deferred = [];
   let release;
@@ -303,21 +335,13 @@ async function pruneObsoleteVersions(options = {}) {
 
 async function pruneRemovedChecks(options) {
   const { cacheRoot } = configuration(options), deferred = [], removed = [];
-  if (!Array.isArray(options.checkIds) || options.checkIds.some(id => !safeId(id))) throw Error('Invalid active verification check IDs');
-  const active = new Set(options.checkIds.map(sha));
+  const active = activeChecks(options);
   let release;
   try {
     await directory(cacheRoot, true);
     release = await acquireLifecycle(cacheRoot, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune-removed' });
     if (!release) return { removed, deferred: ['removed checks: lifecycle lease busy'] };
-    const version = path.join(cacheRoot, `v${CACHE_SCHEMA}`);
-    await directory(path.join(cacheRoot, '.leases'), true);
-    if (await inspect(version, 'directory', true)) for (const name of await fs.readdir(version)) {
-      if (active.has(name)) continue;
-      if (!isHash(name)) { deferred.push(`unrecognized check slot retained: ${name}`); continue; }
-      if (await fs.lstat(path.join(cacheRoot, '.leases', name)).catch(error => { if (error.code === 'ENOENT') return null; throw error; })) { deferred.push(`removed check ${name}: active or abandoned lease`); continue; }
-      try { await remove(cacheRoot, path.join(version, name)); removed.push(name); } catch (error) { deferred.push(`removed check ${name}: ${message(error)}`); }
-    }
+    await removedChecks(cacheRoot, active, removed, deferred);
   } catch (error) { deferred.push(message(error)); }
   finally { if (release) await release().catch(error => deferred.push(message(error))); }
   return { removed, deferred };
@@ -468,4 +492,4 @@ async function begin(options) {
   return handle;
 }
 
-module.exports = { CACHE_SCHEMA, begin, pruneObsoleteVersions, pruneRemovedChecks, inspectLease, recoverLease };
+module.exports = { CACHE_SCHEMA, begin, prune, pruneObsoleteVersions, pruneRemovedChecks, inspectLease, recoverLease };

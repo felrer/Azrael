@@ -54,4 +54,4 @@ async function key(config, group, runtimeIdentity) {
 
 const options = config => ({ projectRoot: config.projectRoot, cacheRoot: rootFor(config) });
 module.exports = { validateInputs, runtime, key, options, CACHE_SCHEMA: storage.CACHE_SCHEMA,
-  begin: storage.begin, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };
+  begin: storage.begin, prune: storage.prune, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };

@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs').promises;
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { begin, pruneObsoleteVersions, pruneRemovedChecks, inspectLease, recoverLease, CACHE_SCHEMA } = require('./verification-result-cache.cjs');
+const { begin, prune, pruneObsoleteVersions, pruneRemovedChecks, inspectLease, recoverLease, CACHE_SCHEMA } = require('./verification-result-cache.cjs');
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const storage = process.env.AZRAEL_CACHE_TEST_OUTPUT ? path.resolve(process.env.AZRAEL_CACHE_TEST_OUTPUT) : path.resolve(__dirname, '../artifacts/logs/verification-result-cache/storage');
 const fixtures = path.join(storage, `fixtures-${crypto.randomUUID()}`);
@@ -368,6 +368,106 @@ async function main() {
     await first.close();
     const removed = await pruneRemovedChecks({ ...options, checkIds: [] }); assert.deepEqual(removed.removed, [sha('check')]); assert.equal(await exists(slot), false);
     await assert.rejects(pruneRemovedChecks({ ...options, checkIds: ['../escape'] }), /Invalid active/);
+  });
+  await test('combined pruning keeps one lifecycle owner across obsolete and removed checks', async () => {
+    const { options, record, slot } = await setup('combined-prune');
+    for (const checkId of ['check', 'keep']) {
+      const handle = await begin({ ...options, checkId }); await handle.publish(record); await handle.close();
+    }
+    const old = path.join(options.cacheRoot, 'v0'); await fs.mkdir(old);
+    const lifecycle = path.join(options.cacheRoot, '.lifecycle'), version = path.join(options.cacheRoot, `v${CACHE_SCHEMA}`);
+    const mkdir = fs.mkdir, readdir = fs.readdir, tokens = []; let acquisitions = 0;
+    fs.mkdir = async function (filename, ...args) {
+      const result = await mkdir.call(this, filename, ...args);
+      if (filename === lifecycle) acquisitions++;
+      return result;
+    };
+    fs.readdir = async function (filename, ...args) {
+      if (filename === options.cacheRoot || filename === version) {
+        const owner = JSON.parse(await fs.readFile(path.join(lifecycle, 'owner.json'), 'utf8'));
+        assert.equal(owner.operation, 'prune'); tokens.push(owner.token);
+      }
+      return readdir.call(this, filename, ...args);
+    };
+    let result;
+    try { result = await prune({ ...options, checkIds: ['keep'] }); }
+    finally { fs.mkdir = mkdir; fs.readdir = readdir; }
+    assert.deepEqual(result.deferred, []); assert.deepEqual(result.removed, [sha('check')]);
+    assert.equal(acquisitions, 1); assert.ok(tokens.length >= 2); assert.equal(new Set(tokens).size, 1);
+    assert.equal(await exists(old), false); assert.equal(await exists(slot), false); assert.equal(await exists(lifecycle), false);
+    const keep = await begin({ ...options, checkId: 'keep' });
+    try { assert.equal(keep.hit?.reused, true); assert.equal(keep.hit.stdout, 'success\n'); }
+    finally { await keep.close(); }
+  });
+  await test('combined pruning protects active evidence and retains final-release obsolete cleanup', async () => {
+    const { options, record, slot } = await setup('combined-active');
+    const active = await begin(options); await active.publish(record);
+    const idle = await begin({ ...options, checkId: 'idle' }); await idle.publish(record); await idle.close();
+    const old = path.join(options.cacheRoot, 'v0'); await fs.mkdir(old);
+    const ownerFile = path.join(options.cacheRoot, '.leases', sha('check'), 'owner.json');
+    const owner = await fs.readFile(ownerFile);
+    try {
+      const result = await prune({ ...options, checkIds: [] });
+      assert.deepEqual(result.removed, [sha('idle')]); assert.match(result.deferred.join(), /obsolete versions: active or abandoned/);
+      assert.match(result.deferred.join(), /removed check .*active or abandoned/);
+      assert.equal(await exists(old), true); assert.equal(await exists(slot), true);
+      assert.deepEqual(await fs.readFile(ownerFile), owner);
+      assert.equal(await fs.readFile(path.join(slot, options.key, 'stdout.log'), 'utf8'), 'success\n');
+    } finally { await active.close(); }
+    assert.equal(await exists(old), false); assert.equal(await exists(ownerFile), false);
+    assert.deepEqual((await prune({ ...options, checkIds: [] })).removed, [sha('check')]);
+  });
+  await test('combined pruning isolates scan failures and releases ownership before retry', async () => {
+    for (const phase of ['obsolete', 'removed']) {
+      const { options, record, slot } = await setup(`combined-failure-${phase}`);
+      const handle = await begin(options); await handle.publish(record); await handle.close();
+      const old = path.join(options.cacheRoot, 'v0'), version = path.join(options.cacheRoot, `v${CACHE_SCHEMA}`);
+      await fs.mkdir(old);
+      const readdir = fs.readdir, lstat = fs.lstat; let injected = false;
+      fs.readdir = async function (filename, ...args) {
+        if (phase === 'obsolete' && filename === options.cacheRoot && !injected) {
+          injected = true; throw Object.assign(new Error('injected obsolete scan failure'), { code: 'EIO' });
+        }
+        return readdir.call(this, filename, ...args);
+      };
+      fs.lstat = async function (filename, ...args) {
+        if (phase === 'removed' && filename === version && !injected) {
+          injected = true; throw Object.assign(new Error('injected removed scan failure'), { code: 'EIO' });
+        }
+        return lstat.call(this, filename, ...args);
+      };
+      let result;
+      try { result = await prune({ ...options, checkIds: [] }); }
+      finally { fs.readdir = readdir; fs.lstat = lstat; }
+      assert.equal(injected, true); assert.match(result.deferred.join(), new RegExp(`injected ${phase} scan failure`));
+      assert.equal(await exists(path.join(options.cacheRoot, '.lifecycle')), false);
+      assert.equal(await exists(path.join(options.cacheRoot, '.lease-access')), false);
+      assert.equal(await exists(old), phase === 'obsolete'); assert.equal(await exists(slot), phase === 'removed');
+      const retried = await prune({ ...options, checkIds: [] });
+      assert.deepEqual(retried.deferred, []); assert.equal(await exists(old), false); assert.equal(await exists(slot), false);
+    }
+  });
+  await test('combined pruning rejects invalid IDs and preserves unknown lifecycle ownership', async () => {
+    const { options, record, slot } = await setup('combined-unknown');
+    await assert.rejects(prune({ ...options, checkIds: ['../escape'] }), /Invalid active/);
+    assert.equal(await exists(options.cacheRoot), false);
+    const handle = await begin(options); await handle.publish(record); await handle.close();
+    const old = path.join(options.cacheRoot, 'v0'), lifecycle = path.join(options.cacheRoot, '.lifecycle');
+    await fs.mkdir(old); await fs.mkdir(lifecycle);
+    const ownerFile = path.join(lifecycle, 'owner.json'), owner = '{"token":"owned-test-unknown","pid":null}';
+    await fs.writeFile(ownerFile, owner, { flag: 'wx' });
+    try {
+      const result = await prune({ ...options, checkIds: [] });
+      assert.deepEqual(result.removed, []);
+      assert.deepEqual(result.deferred, ['obsolete versions: lifecycle lease busy', 'removed checks: lifecycle lease busy']);
+      assert.equal(await fs.readFile(ownerFile, 'utf8'), owner);
+      assert.equal(await exists(old), true); assert.equal(await exists(slot), true);
+    } finally {
+      // This exact fixture guard has no producer; retire only the bytes created above.
+      assert.equal(await fs.readFile(ownerFile, 'utf8'), owner); await fs.unlink(ownerFile); await fs.rmdir(lifecycle);
+    }
+    assert.deepEqual((await prune({ ...options, checkIds: [] })).deferred, []);
+    assert.equal(await exists(old), false); assert.equal(await exists(slot), false);
   });
   await test('corrupt receipt, extra fields and altered evidence miss then replace', async () => {
     const { options, record, slot } = await setup('corrupt');

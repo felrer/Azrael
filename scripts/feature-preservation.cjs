@@ -433,10 +433,8 @@ async function runPreservation(config) {
       catch (error) { receipt.cargoCache.disabledReason = error.message; }
       receipt.timings.cacheInputMs += performance.now() - started;
       activeCargoCheckIds = manifest.features.flatMap(feature => feature.checks.filter(check => cargoCache.isEligible({ native: check.level === 'native', entries: [{ feature, check }], check })).map(check => check.id));
-      for (const method of ['pruneObsoleteVersions', 'pruneRemovedChecks']) {
-        const result = await cargoCache[method]({ ...cargoCache.options(config), checkIds: activeCargoCheckIds });
-        receipt.cargoCache.deferred.push(...(result?.deferred || []));
-      }
+      const result = await cargoCache.prune({ ...cargoCache.options(config), checkIds: activeCargoCheckIds });
+      receipt.cargoCache.deferred.push(...(result?.deferred || []));
     }
     receipt.cache = { schema: verificationCache.CACHE_SCHEMA, executed: 0, reused: 0, eligible: eligibleGroups.length, deferred: [] };
     receipt.nativeCache = { schema: nativeCache.CACHE_SCHEMA, executed: 0, reused: 0, eligible: nativeGroups.length, deferred: [] };
@@ -455,11 +453,9 @@ async function runPreservation(config) {
     }
     if (config.reuseNativeChecks !== false) {
       activeNativeCheckIds = manifest.features.flatMap(feature => feature.checks.filter(check => check.nativeCacheInputs).map(check => check.id));
-      for (const method of ['pruneObsoleteVersions', 'pruneRemovedChecks']) {
-        try { const result = await nativeCache[method]({ ...nativeCache.options(config), checkIds: activeNativeCheckIds });
-          receipt.nativeCache.deferred.push(...(result?.deferred || [])); }
-        catch (error) { receipt.nativeCache.deferred.push({ operation: method, reason: error.message }); }
-      }
+      try { const result = await nativeCache.prune({ ...nativeCache.options(config), checkIds: activeNativeCheckIds });
+        receipt.nativeCache.deferred.push(...(result?.deferred || [])); }
+      catch (error) { receipt.nativeCache.deferred.push({ operation: 'prune', reason: error.message }); }
     }
     if (eligibleGroups.length) {
       const started = performance.now();
@@ -470,12 +466,10 @@ async function runPreservation(config) {
     if (config.reuseSourceChecks !== false) {
       const options = { projectRoot: config.projectRoot, cacheRoot };
       activeCacheCheckIds = manifest.features.flatMap(feature => feature.checks.filter(check => feature.area === 'ui' && check.level === 'source' && check.cacheInputs).map(check => check.id));
-      for (const method of ['pruneObsoleteVersions', 'pruneRemovedChecks']) {
-        try { const result = await verificationCache[method]({ ...options,
-          checkIds: activeCacheCheckIds });
-          receipt.cache.deferred.push(...(result?.deferred || [])); }
-        catch (error) { receipt.cache.deferred.push({ operation: method, reason: error.message }); }
-      }
+      try { const result = await verificationCache.prune({ ...options,
+        checkIds: activeCacheCheckIds });
+        receipt.cache.deferred.push(...(result?.deferred || [])); }
+      catch (error) { receipt.cache.deferred.push({ operation: 'prune', reason: error.message }); }
     }
     const runGroup = async group => {
         const { check, args } = group;

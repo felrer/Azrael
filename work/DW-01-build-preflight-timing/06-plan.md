@@ -1,4 +1,4 @@
-상태: 수정·회귀 검증·정리 완료, 추가 개선 가능성 분석 완료. 추가 후보는 미구현이며 실행 승인은 받지 않았다.
+상태: 승인된 초기 캐시 정리 잠금 통합·네 가지 테스트 축소, 최종 회귀와 생성물 정리 완료. 전체 실행 시간 단축은 이번 비교에서 확인되지 않았다. 추가 사용자 결정 없음.
 
 # 캐시 회귀 테스트의 반복 해시와 프로세스 실행 최적화
 
@@ -56,3 +56,35 @@ Windows x64, Node v26.7.0에서 같은 명령 `node --test --test-reporter=spec 
 - schema1 실패/복구에서 실제 Node의 exit7/exit0 및 stdout/stderr를 검증한다. schema2의 같은 실제 child 실행2회는 주입 결과로 대체하고 schema2 runtime 변이와 이전 독립 통과 evidence 보존 검증을 유지할 후보가 있다. 전체 gate 횟수는 그대로이고 child 시작 비용만 감소한다.
 - manifest shape 검증과 receipt rename 정책 사례는 전체 5-feature fixture 대신 해당 계약에 필요한 최소 manifest/파일만 준비할 후보이다. malformed schema/fields 각각의 거부, 고정 checkpoint bytes 재시도, 이후 checkpoint 게시 검증은 유지해야 한다.
 - package binding과 verifyReceipt, 실행 중 변이와 cache hit 이후 변이, 동일 compiler root와 별도 compiler root는 서로 다른 경로를 검증하므로 제목이나 유사 assertion만으로 삭제하지 않는다. 분석은 기존 세 파일의 해당 사례를 읽어 수행했고 제품/테스트 코드·생성물 변경과 새 성능 측정은 없다.
+
+## 승인된 후속 구현
+
+- 범위: 초기 obsolete/removed cache 정리 두 작업을 동일 lifecycle 잠금으로 통합하고 source/native/Cargo 초기 호출에 연결한다. 기존 개별 API, begin/close의 정리, 마지막 lease 해제 후 정리, 외부/미확인 소유 보호, 안전한 삭제와 현재 검증 시점은 유지한다. runtime 해시 정책 변경은 제외한다.
+- 새 `prune(options)`는 active check IDs를 검증하고 기존 잠금 하나 안에서 두 정리를 순서대로 수행한다. 각 작업의 오류를 defer하며 잠금을 안전하게 해제한다. 기존 개별 API는 유지한다. 생산 동작의 허용 범위나 캐시 보호 의미가 바뀌지 않아 architecture 계약 수정은 필요하지 않다. 현재 다른 owner가 수정 중인 upstream-preservation 문서는 건드리지 않는다.
+- 테스트 축소: schema2 중간 warm gate5회는 새 key·실제 owner hit·로그 digest 검증으로 대체한다. 통합 손상 로그 변형은 owner 테스트에 맡기고 malformed receipt의 재실행 경로·복사 로그 독립성을 유지한다. schema2 child 실패/복구2회는 주입 결과로 대체하고 schema1 실제 stdout/stderr/exit 검증을 유지한다. manifest/rename 사례는 필요한 최소 fixture를 사용한다. 다중 feature 선택·독립 통과·동시 lease·실행 중/재사용 이후 변이는 유지한다.
+- 소유: cache fixture worker는 test-feature-preservation-cache.cjs만, prune worker는 verification-result-cache.cjs와 source/native/Cargo 호출자4개 파일만 수정한다. root는 combined prune의 behavioral 회귀, 통합 검토·측정·정리·task commit을 소유한다. root가 요구한 API와 보존 의미는 확정됐으며 병렬 구현 가능하다. children 추가 위임과 앱 빌드/설치는 하지 않는다.
+- 변경 전 기준 재사용: 현재 전체 선택 dependency closure digest가 직전 after의 `17b8705c0f0bed8df4bb69cd55c93ad5f3ef89c8cb3fa5b23fd1025d77ad183c`와 정확히 같고 Windows x64/Node26.7.0도 같다. 직전2회 166.7758571/167.5609474초(평균167.16840225초)를 기준으로 재사용한다. 이번 after는 동일 명령·동등한 짧은 project-local TEMP 설정으로2회 순차 실행하며 별도 시점 비교임을 표시한다.
+- 생성 전 선언: run:DW-06:cache-reduction2, owner DW-06; artifacts/tasks/dw06-reduce-20261026에 입력·보고서·로그·controller, artifacts/tasks/twr6에 fixture·TEMP를 둔다. 모든 producer의 actual 종료 후 설치된 최적화 owner로 등록/review/apply/finalize·실제 부재를 확인한다. 이번에도 archive/보존 예외는 없다. 작은 .git/dw06r-* 제어 파일은 사용 직후 일반 삭제한다.
+- 검증: changed 파일 syntax/diff, combined prune의 실제 obsolete+removed 정리/한 잠금/활성 보호/미확인 잠금/단계별 오류·release 회귀, 전체 storage owner·cache fixture·preservation·native/Cargo cache 관련 회귀를 선택한다. 후속 source 안정 시 cache fixture부터 장시간2회 측정하고 다른 무거운 검사는 순차 실행한다. 실제 exit/로그/count·입력 불변을 확인한다. 실제 환경은 Windows x64이며 Linux/macOS 실행과 전체130파일 gate는 미검증으로 남긴다.
+
+### 후속 구현·검증 상태
+
+- 초기 source/native/Cargo 정리 쌍을 공통 prune로 연결했다. 기존 개별 API와 마지막 pruneRemovedChecks, begin/close는 유지했다. 정리 실패 후에도 다음 작업 전에 동일 lease 소유를 다시 확인한다.
+- 캐시 테스트 전체 gate 실행7회와 schema2 실제 child2회를 제거했다. 중간 warm5회는 실제 storage hit와 게시/복사 로그 digest 검사로 대체했고, 손상 receipt의 정확한 fresh 호출을 보강했다. 최소 fixture는 가진 feature 영역으로 검증 범위를 설정한다. 기존 19개 사례와 중요한 실행/변이 경계는 유지한다.
+- 첫 after 시도는 225.7374943초, 실제 exit1, 18pass/1fail였다. 축소 rename fixture의 area가 all로 남아 engine이 없는데 전체 영역을 요구한 설정 오류였다. 제품의 mandatory area 검사를 유지하고 fixture 영역만 수정했다. 실패 결과를 reports/after.json에 별도 보존하고 속도 비교에서 제외한다. 수정 후 rename3개 집중 검사 exit0(3.6226978초), 3pass/0fail. 새 input identity와 after-v2 경로로 전체2회 검증을 시작했다. 기존 failed 입력/로그는 덮어쓰지 않았다.
+- storage owner의 기존 지속 회귀에 combined prune의 네 가지 행동 검사를 추가했다: 동일 소유로 두 정리 수행/남길 증거 재사용, 활성 lease와 마지막 해제 정리, 각 scan 오류의 독립성과 재시도, invalid IDs 및 미확인 lifecycle 보호. 새 공통 API의 동시성·실패 계약을 계속 보호하므로 이 네 사례는 유지하며 측정용 임시 검사는 정리한다.
+
+### 후속 측정 결과
+
+- 수정 후 전체 cache fixture2회 모두 실제 exit0, 각19pass/0fail/0skipped/0cancelled, 실행 중 선택 입력 불변. 174.7817367초(12:15:15.681Z~12:18:10.464Z), 171.4133339초(12:18:10.470Z~12:21:01.883Z), 평균173.0975353초. 날짜는 위와 같은2026-10-26 UTC이다. 선택 입력 digest `21ffb1471d840b2ca900f7dc81e23d2699e06d814f5005b9daf86306c18d0875`.
+- 지난 동일 입력 기준 평균167.16840225초보다5.92913305초(+3.54680249%) 길었다. 별도 시점의2회 비교에서 전체 시간 단축은 확인되지 않았다. 첫 실패 실행225.7374943초는 제외했다. 전체 gate7회·실제 child2회와 초기 정리 lease 획득2회→1회 감소는 구현/행동 회귀로 확인했지만 시간 개선율로 대체하지 않는다.
+- storage 전체33개(actual exit0,52.2531575초), preservation 전체23개(actual exit0,26.3506659초), native 전체18개(actual exit0,359.040361초)가 통과했다. source 입력은 각 실행 중 불변이었다.
+- 성능 비교 종료 후 native와 Cargo 회귀는 독립 fixture/캐시를 사용하고 CPU약20%, 여유 메모리약5.6GiB를 확인하여 병행했다. 이 시간은 합산해 총 경과 시간으로 보고하지 않는다. Cargo 첫 시도는 기본PATH에서 기존 Python을 찾지 못해 actual exit1(128.4320205초)이었다. Python3.12.10과 isolated tomllib 실행을 확인하고 Cargo child 환경에만 해당 설치 경로를 추가해 cargo-v2로 재실행했다. 제품 코드·사용자 PATH는 변경하지 않았고 원시 실패 결과는 별도 보존했다.
+- Cargo 첫 시도는20개 중15pass/5fail였고, 환경 수정 후 cargo-v2는20pass/0fail/0skipped/0cancelled, actual exit0,103.3073358초였다. 실제 Cargo 빌드·명령 그룹 실행은 하지 않았으며 cache owner/키/게이트 fixture 회귀이다. 캐시 파일19개 테스트2회, storage33개, preservation23개, native18개, Cargo20개가 최종 통과했다. 각 실제 명령과 outcome/input digest는 run의 reports/logs에서 검토했고 필요한 결과를 본 기록에 보존했다.
+- 생성물 원시 보고서에는 최초 cache after(exit1)와 Cargo(exit1)를 실패 그대로 남겼고 최종 통과 시도는 별도 이름으로 기록했다. 모든 동기 자식 종료와 두 worker의 final을 확인해 작업 lifecycle을 close했다. 기존 native inventory를 전체 페이지로 조회해 새 두 root와 충돌하는 등록 항목이 없음을 확인한 뒤 완결 그룹으로 등록했다. 이 원시 묶음은 최종 검토 후 삭제한다.
+
+### 후속 정리·인수 완료
+
+- 고정 SHA256으로 확인한 기존 최적화 maintenance_owner를 사용했다. 두 구성원을 registered review에서 blocker/참조 없음으로 확인하고 fresh token으로 동일 delete 결정을 적용했다. actual exit0,29.1705465초, aborted:false, 구성원 모두 deleted/remaining:false/error:null이었다.
+- `artifacts/tasks/dw06-reduce-20261026`과 `artifacts/tasks/twr6`의 실제 부재를 확인했다. lifecycle은 finalized, remaining/references/blockers 모두 빈 배열이고 registry 파일도 없다. `.git/dw06r-*` 제어 파일9개를 일반 삭제하고 부재를 확인했다. 최초 실패 자료를 포함한 이번 fixture/cache/source 복사/controller/원시 로그를 남기지 않았고 보존·archive 예외도 없다.
+- 관련 source6개 syntax와 최종 범위 diff 검사 exit0. task commit 직전 기존 전체 index SHA256이 시작 때의 `3228487c3dddf372d80714d63dffdda5e6b3a78574d5ce8d4d1d2a835eec33b7`와 같았다. source6개와 이 기록만 task commit하며 다른 owner의 architecture 문서와 기존 변경은 보존한다. 제품 빌드/설치 및 다른 OS 실행, 전체130파일 gate는 수행하지 않았다.
