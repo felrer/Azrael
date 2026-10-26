@@ -370,7 +370,7 @@ try {
     . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
     $preflightModuleCache = Open-BuildModuleCache $project $ModuleCacheProjectRoot
     try {
-        $metrics.moduleCachePreflight = [ordered]@{ owner = $preflightModuleCache.Owner; root = $preflightModuleCache.Root; registeredProjects = @(Get-BuildCacheProjects $preflightModuleCache) }
+        $metrics.moduleCachePreflight = [ordered]@{ owner = $preflightModuleCache.Owner; root = $preflightModuleCache.Root; registeredProjects = @(Get-BuildCacheProjects $preflightModuleCache -RequireExisting) }
     } finally { $preflightModuleCache.Lease.Dispose() }
     $dependencies = Start-OwnedCommand 'verification-dependencies' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), $sourceConfigPath)
     Wait-OwnedCommands @($dependencies)

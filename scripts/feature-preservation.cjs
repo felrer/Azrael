@@ -10,6 +10,7 @@ const verificationCache = require('./verification-result-cache.cjs');
 const nativeCache = require('./native-verification-cache.cjs');
 const cargoCache = require('./cargo-verification-cache.cjs');
 const { validateCargoPreflight } = require('./cargo-verification.cjs');
+const { physicalPath } = require('./cargo-target-owner.cjs');
 const { planVerificationSchedule } = require('./verification-schedule.cjs');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
@@ -229,6 +230,14 @@ function checkEnvironment(config, preparation) {
       ...(preparation.runtimeIdentity ? { AZRAEL_CARGO_PREPARATION_RUNTIME_IDENTITY: preparation.runtimeIdentity } : {}),
     } : {}) };
 }
+function cargoPreparationDirectory(config, runDirectory) {
+  const target = checkEnvironment(config).CARGO_TARGET_DIR;
+  if (!target) return path.join(runDirectory, 'cargo-preparation');
+  if (!path.isAbsolute(target)) throw Error('Cargo preparation requires an absolute owned target directory');
+  // Preparation belongs to the physical Cargo cache, not a disposable run.
+  // The managed Cargo owner serializes publication; selection and tests still run.
+  return path.join(physicalPath(target), '.azrael-test-preparation');
+}
 async function sourceExecutionIdentity(config) {
   return { executable: process.execPath, sha256: await fileHash(process.execPath),
     version: process.version, platform: process.platform, arch: process.arch,
@@ -306,8 +315,8 @@ async function runPreservation(config) {
     if (verifyIdentity && !same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
     if (receipt.sourceExecution && !same(receipt.sourceExecution, await sourceExecutionIdentity(config))) throw Error('Source execution environment changed');
     const finalRuntime = entries.some(entry => entry.kind === 'source') ? await sourceCacheRuntime(config, sourceCacheBindsProjectTypeScript) : null;
-    const finalNativeRuntime = nativeRuntime ? await nativeCache.runtime(config, checkEnvironment(config)) : null;
-    const finalCargoRuntime = cargoRuntime ? await cargoCache.runtime(config, checkEnvironment(config)) : null;
+    const finalNativeRuntime = nativeRuntime && entries.some(entry => entry.kind === 'native') ? await nativeCache.runtime(config, checkEnvironment(config)) : null;
+    const finalCargoRuntime = cargoRuntime && entries.some(entry => entry.kind === 'cargo') ? await cargoCache.runtime(config, checkEnvironment(config)) : null;
     for (const entry of entries) {
       const finalKey = entry.kind === 'native' ? await nativeCache.key(config, entry.group, finalNativeRuntime) : entry.kind === 'cargo' ? await cargoCache.key(config, entry.group, receipt.inputs, finalCargoRuntime) : await sourceCacheKey(config, entry.group, receipt.inputs, finalRuntime);
       if (entry.key !== finalKey) throw Error(`${entry.kind} cache inputs changed during verification`);
@@ -507,6 +516,8 @@ async function runPreservation(config) {
           kind = 'cargo'; cacheHandles.push({ handle, group, key, kind }); receipt.cargoCache.deferred.push(...(handle.deferred || []));
         }
         receipt.timings.cacheLookupMs += performance.now() - lookupStarted;
+        if (handle?.blockingLease) cacheSummary(kind).deferred.push({ checkId: check.id,
+          reason: handle.reason, blockingLease: handle.blockingLease });
         try {
         const reused = Boolean(handle?.hit);
         const evidenceKind = cargoGroups.includes(group) ? 'cargo' : group.native ? 'native' : 'source';
@@ -515,8 +526,8 @@ async function runPreservation(config) {
         const started = performance.now();
         const result = { ...(handle?.hit || await execution(check.executable, args, { cwd: config.projectRoot,
           env: checkEnvironment(config, group.native ? {
-            directory: path.join(runDirectory, 'cargo-preparation'), sourceIdentity: receipt.inputs.engineSource?.sha256,
-            runtimeIdentity: cargoRuntime ? hash(canonical(cargoRuntime)) : undefined,
+            directory: cargoPreparationDirectory(config, runDirectory), sourceIdentity: receipt.inputs.engineSource?.sha256,
+            runtimeIdentity: cargoRuntime ? cargoCache.preparationRuntimeIdentity(cargoRuntime) : undefined,
           } : undefined), logPath, errorPath })), logPath, errorPath };
         if (handle) cacheHandles.find(entry => entry.handle === handle).record = result;
         receipt.cache[reused ? 'reused' : 'executed']++;

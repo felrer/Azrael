@@ -386,6 +386,10 @@ async function main() {
     const { options, record, slot } = await setup('leases');
     const first = await begin(options), second = await begin({ ...options, key: sha('two') });
     assert.equal(second.hit, null); assert.match(second.reason, /busy: check lease/); assert.equal((await second.publish(record)).published, false); await second.close();
+    assert.deepEqual(second.blockingLease, await inspectLease({ ...options, lease: sha(options.checkId) }));
+    assert.equal(second.blockingLease.token, first.lease.token);
+    assert.equal(second.blockingLease.owner.pid, process.pid);
+    assert.equal(first.blockingLease, null);
     const other = await begin({ ...options, checkId: 'other' }); assert.equal((await other.publish(record)).published, true);
     assert.equal((await first.publish(record)).published, true); await first.close();
     assert.equal(await exists(path.join(options.cacheRoot, '.leases', sha('other'))), true);
@@ -539,8 +543,26 @@ async function main() {
     const lock = path.join(options.cacheRoot, '.lifecycle'); await fs.mkdir(lock, { recursive: true });
     const started = performance.now(), handle = await begin(options);
     assert.match(handle.reason, /busy: lifecycle/); assert.equal(await exists(lock), true);
+    assert.equal(handle.blockingLease, null);
+    assert.match(handle.deferred.join(), /blocking lease inspection:.*Unidentified lease contents/);
     assert.ok(performance.now() - started < 5000, 'lifecycle retry must remain bounded'); await handle.close();
     const result = await pruneObsoleteVersions(options); assert.match(result.deferred.join(), /lifecycle lease busy/);
+  });
+  await test('busy lifecycle reports exact owner without treating a dead PID as recovery authority', async () => {
+    const { options, record } = await setup('busy-lifecycle-diagnostics');
+    const producer = await orphan(options, record); producer.child.send('exit'); await producer.exited;
+    const lock = path.join(options.cacheRoot, '.lifecycle'); await fs.mkdir(lock);
+    const bytes = JSON.stringify({ token: 'stopped-fixture', pid: producer.child.pid, runDirectory: options.runDirectory });
+    await fs.writeFile(path.join(lock, 'owner.json'), bytes);
+    const handle = await begin(options);
+    assert.match(handle.reason, /busy: lifecycle/);
+    assert.equal(handle.blockingLease.ownerSha256, sha(bytes));
+    assert.equal(handle.blockingLease.token, 'stopped-fixture');
+    await handle.close();
+    assert.equal(await fs.readFile(path.join(lock, 'owner.json'), 'utf8'), bytes);
+    assert.equal(await exists(path.join(options.cacheRoot, '.leases', sha(options.checkId))), true);
+    await recoverLease(await retirement(options, '.lifecycle'));
+    await recoverLease(await retirement(options, sha(options.checkId)));
   });
   await test('oversized evidence bypasses and failed temporary entries prune', async () => {
     const { options, record, slot } = await setup('bounded'); const handle = await begin(options);

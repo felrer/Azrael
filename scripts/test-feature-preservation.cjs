@@ -36,19 +36,23 @@ const path = require('node:path');
     return { assets: [{ fixtureEdits: count }], transformRules: config.transformRules, sourceUi: {
       version: '1.2.3', packageSha256: sha(path.join(config.uiRoot, 'package.json')), webviewSha256: sha(path.join(config.uiRoot, 'picker.js')) } };
   }
-  test('native consumers receive preparation storage owned by the run and its frozen source identity', async () => {
+  test('native consumers share preparation owned by their physical Cargo target and frozen source identity', async () => {
     const { config } = setup(); config.area = 'engine';
+    config.cargoTargetDirectory = path.join(config.projectRoot, 'artifacts', 'cargo-target');
     const sourceIdentity = 'a'.repeat(64);
     config.identityProvider = async () => ({ engineSource: { sha256: sourceIdentity } });
     const execute = config.execute; let observed = false;
     config.execute = async (executable, args, options) => {
       observed = true;
       assert.equal(options.env.AZRAEL_CARGO_PREPARATION_SOURCE_IDENTITY, sourceIdentity);
-      assert.equal(options.env.AZRAEL_CARGO_PREPARATION_DIR, path.join(path.dirname(options.logPath), 'cargo-preparation'));
+      assert.equal(options.env.AZRAEL_CARGO_PREPARATION_DIR, path.join(config.cargoTargetDirectory, '.azrael-test-preparation'));
       return execute(executable, args, options);
     };
     const receipt = await gate.runPreservation(config);
     assert.equal(receipt.status, 'passed', receipt.error); assert.equal(observed, true);
+    config.outputDirectory = path.join(config.projectRoot, 'retry-output');
+    const retried = await gate.runPreservation(config);
+    assert.equal(retried.status, 'passed', retried.error);
   });
   test('measured Cargo runtime identity reaches the child without changing the base environment identity', () => {
     const { config } = setup();
@@ -453,4 +457,24 @@ const path = require('node:path');
     assert.equal(receipt.nativeSchedule.length, 2);
     assert.equal(receipt.nativeSchedule[0].priority, 10);
     assert.deepEqual(executed, [['scripts/check.cjs', 'second'], ['scripts/check.cjs', 'first']]);
+  });
+  test('a failing high-priority environment check blocks later expensive native commands', async () => {
+    const { config, manifest } = setup(); config.area = 'engine';
+    const expensive = manifest.features.find(feature => feature.area === 'engine');
+    expensive.checks[0].args.push('expensive');
+    const preflight = JSON.parse(JSON.stringify(expensive));
+    preflight.id = 'engine.preflight'; preflight.checks[0].id = 'engine.preflight.check';
+    preflight.checks[0].args = ['scripts/check.cjs', 'environment'];
+    manifest.features.push(preflight);
+    manifest.verificationSchedule = { priorities: { 'engine.preflight.check': 200 } };
+    const calls = []; const original = config.execute;
+    config.execute = async (executable, args, options) => {
+      calls.push([...args]); await original(executable, args, options);
+      return { exitCode: 29, signal: null };
+    };
+    const receipt = await gate.runPreservation(config);
+    assert.equal(receipt.status, 'failed');
+    assert.deepEqual(calls, [['scripts/check.cjs', 'environment']]);
+    assert.equal(receipt.checks[0].exitCode, 29);
+    assert.ok(receipt.skipped.some(check => check.checkId === expensive.checks[0].id));
   });
