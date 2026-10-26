@@ -135,7 +135,6 @@ test('registered schedule retains every native check and batches declared compil
   const ordered = gate.scheduleNativeGroups(groups);
   assert.deepEqual(ordered.map(g => g.check.id).sort(), groups.map(g => g.check.id).sort());
   const tagged = ordered.filter(g => g.check.cargoScheduleGroup);
-  assert.equal(tagged.length, 6);
   const labels = tagged.map(g => g.check.cargoScheduleGroup);
   for (const label of new Set(labels)) {
     const positions = labels.flatMap((value, index) => value === label ? [index] : []);

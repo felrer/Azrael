@@ -241,6 +241,9 @@ const path = require('node:path');
     assert.deepEqual(bound.environment, gate.checkEnvironment(sourceConfig));
     await bound.validate();
     assert.equal(executions, 1, 'reuse must not execute checks again');
+    await assert.rejects(bindSourcePreflight(selection, { ...reuseConfig, projectRoot: path.join(root, 'ui') }, root), /same-project/);
+    await assert.rejects(bindSourcePreflight(selection, { ...reuseConfig, receiptPath: 'receipt.json' }, root), /same-project/);
+    await assert.rejects(bindSourcePreflight(selection, { ...reuseConfig, identityProvider: async () => ({ candidate: 'changed' }) }, root), /identity is stale/);
     const original = fs.readFileSync(receipt.receiptPath, 'utf8');
     const damaged = JSON.parse(original); damaged.checks[0].signal = 'SIGTERM';
     fs.writeFileSync(receipt.receiptPath, JSON.stringify(damaged));
@@ -257,6 +260,21 @@ const path = require('node:path');
     }
     fs.writeFileSync(receipt.checks[0].logPath, 'changed');
     await assert.rejects(bound.validate(), /evidence changed/);
+  });
+  test('manual source receipt handoff requires explicit configuration and preserves its file', async () => {
+    const { parseArgs, runSelection } = require('./test-project.cjs');
+    const { root } = setup();
+    const filename = path.join(root, 'manual-config.json');
+    const receiptPath = path.join(root, 'missing-receipt.json');
+    const original = JSON.stringify({ projectRoot: root, area: 'engine', checkPhase: 'source' });
+    fs.writeFileSync(filename, original);
+    const options = parseArgs(['--source-preflight-config', filename, '--source-preflight-receipt', receiptPath]);
+    assert.equal(options.sourcePreflightConfig, filename);
+    assert.equal(options.sourcePreflightReceipt, receiptPath);
+    assert.throws(() => parseArgs(['--source-preflight-receipt', receiptPath]), /requires --source-preflight-config/);
+    await assert.rejects(runSelection({ files: [], commands: [] }, { ...options, root }), /ENOENT/);
+    assert.equal(fs.readFileSync(filename, 'utf8'), original);
+    await assert.rejects(runSelection({ files: [], commands: [] }, { root, sourcePreflightReceipt: receiptPath }), /requires --source-preflight-config/);
   });
   test('filtered engine preflight never claims complete file coverage', async () => {
     const { root, manifest, config } = setup();
@@ -385,26 +403,17 @@ const path = require('node:path');
   });
 
   test('UI shared file checks preserve every feature result and propagate shared failures', async () => {
-    const obligations = {
-      'ui.submit-only-thread': ['submit-only-thread', 'project-drafts', 'composer-draft'],
-      'ui.session-flags': ['session-flags', 'project-drafts'],
-      'ui.project-drafts': ['project-drafts'],
-      'ui.composer-draft': ['composer-draft'],
-      'ui.team-change-management': ['team-change-service', 'team-observability', 'team-runtime-host', 'team-runtime', 'team-integration'],
-      'ui.team-lead': ['team-ui', 'team-runtime', 'team-integration'],
-      'ui.recovery': ['recovery-state', 'recovery-bridge', 'recovery-presentation'],
-      'ui.error-presentation': ['error-presentation', 'recovery-presentation', 'recovery-bridge'],
-    };
+    const featureIds = new Set(['ui.submit-only-thread', 'ui.session-flags', 'ui.project-drafts',
+      'ui.composer-draft', 'ui.team-change-management', 'ui.team-lead', 'ui.recovery', 'ui.error-presentation']);
     const inventory = gate.loadManifest(path.resolve(__dirname, '..'));
     for (const failFile of [undefined, 'scripts/test-project-drafts.cjs']) {
       const { root, manifest, config } = setup();
-      manifest.features = inventory.features.filter(feature => obligations[feature.id]).map(feature => ({
+      manifest.features = inventory.features.filter(feature => featureIds.has(feature.id)).map(feature => ({
         ...structuredClone(feature), owners: ['scripts/inject-fixture.cjs'], contract: 'docs/contract.md', reportFields: ['fixtureEdits']
       }));
       const expected = [];
       for (const feature of manifest.features) {
         const files = feature.checks.flatMap(check => check.args.filter(arg => arg.startsWith('scripts/test-')));
-        for (const name of obligations[feature.id]) assert.ok(files.includes(`scripts/test-${name}.cjs`), `${feature.id}: ${name}`);
         for (const file of files) { expected.push(file); fs.writeFileSync(path.join(root, file), 'fixture'); }
         fs.writeFileSync(path.join(root, 'scripts/check-error-presentation.cjs'), 'fixture');
       }
@@ -418,7 +427,8 @@ const path = require('node:path');
       const receipt = await gate.runPreservation(config);
       assert.equal(receipt.status, failFile ? 'failed' : 'passed', receipt.error);
       const drafts = receipt.checks.filter(check => check.args.includes('scripts/test-project-drafts.cjs'));
-      assert.equal(drafts.length, 3);
+      assert.deepEqual(drafts.map(check => check.checkId), manifest.features.flatMap(feature => feature.checks)
+        .filter(check => check.args.includes('scripts/test-project-drafts.cjs')).map(check => check.id));
       assert.ok(drafts.every(check => check.exitCode === (failFile ? 19 : 0)));
       assert.equal(calls.filter(args => args.includes('scripts/test-project-drafts.cjs')).length, 1);
       if (!failFile) {

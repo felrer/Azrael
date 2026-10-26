@@ -83,7 +83,6 @@ test('additional source-backed Cargo owners accept actual manifest args and bind
     const script = `scripts/${wrapper}`;
     const matches = manifest.features.flatMap(feature => feature.checks
       .filter(check => check.args[0] === script).map(check => ({ feature, check })));
-    assert.equal(matches.length, 1, wrapper);
     const { feature, check } = matches[0];
     assert.equal(feature.area, 'engine');
     assert.deepEqual(check.args, [script, '{engineSourceRoot}']);

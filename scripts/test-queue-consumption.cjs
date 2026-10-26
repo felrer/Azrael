@@ -27,7 +27,7 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     ts.forEachChild(node, visit);
   }
   visit(ast);
-  assert.ok(expression, "pinned coordinator class expression exists");
+
   class Disposable { constructor(fn) { this.dispose = fn; } }
   const submissionFactory = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "ajn");
   class Cancelled extends Error {}
@@ -220,7 +220,7 @@ test("accepted receipts are scoped by conversation ID and disposal clears them",
 });
 
 test("injection is idempotent and fails closed for absent, repeated, and partial anchors", () => {
-  assert.deepEqual(injectQueueConsumption(patched), { text: patched, count: 0 });
+  assert.equal(injectQueueConsumption(patched).text, patched);
   assert.throws(() => injectQueueConsumption("changed host"), /anchor/);
   assert.throws(() => injectQueueConsumption(original + original), /anchor/);
   assert.throws(() => injectQueueConsumption(original.replace("#y(e,t){this.messages.set(e,{messages:t,refreshing:!1})", "changed-anchor")), /anchor/);
@@ -230,8 +230,6 @@ test("injection is idempotent and fails closed for absent, repeated, and partial
   assert.throws(() => injectQueueConsumption(original.replace("ljn=class extends DY{", "ljn=class extends DY{/*azrael-queue-consumption-v2*/")), /Outdated/);
   assert.throws(() => injectQueueConsumption(patched.replace("async __azraelCompleteQueued", "async brokenCompleteQueued")), /Partial/);
 });
-
-
 
 const localMessage = (id, status = "pending", pausedReason) => ({ ...message(id), submission: { hostId: "local-host", status }, ...(pausedReason == null ? {} : { pausedReason }) });
 

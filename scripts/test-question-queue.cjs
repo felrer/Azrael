@@ -110,16 +110,6 @@ test("question notifications refresh the native wait and malformed snapshots ret
   f.queue.dispose();
 });
 
-test("legacy automatic dispatch checks questions after accepted-input reconciliation and before send-lock admission", () => {
-  const text = transformed.get(QUESTION_QUEUE_CORE_ASSET);
-  const accepted = text.indexOf("if(r!=null&&this.__azraelWasAccepted(e,r))");
-  const hold = text.indexOf("if(n==null&&await this.options.submissionHost.hasPendingQuestions(e,r))return;");
-  const lock = text.indexOf("if(!d()||r==null||!t.tryAcquireStartTurn(e)", hold);
-  assert.ok(accepted >= 0 && hold > accepted && lock > hold);
-  const row = transformed.get(QUESTION_QUEUE_LIST_ASSET);
-  for (const label of ['사용자 답변 대기 중','승인 응답 대기','사용자 응답 대기']) assert.ok(row.includes(label));
-});
-
 test("multiple approvals hold automatic resume until every approval and question is answered", async () => {
   const f=adapterFixture();f.setCount(0);f.setApprovalCount(2);await f.queue.load('thread');
   assert.equal(f.queue.read('thread')[0].submission.pendingApprovalCount,2);

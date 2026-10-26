@@ -20,11 +20,12 @@ async function bindSourcePreflight(selection, config, root, verify = gate.verify
   const receiptHash = digest(config.receiptPath);
   const validate = async () => {
     if (digest(config.receiptPath) !== receiptHash) throw Error('Source preflight receipt changed');
-    return verify(config);
+    const receipt = await verify(config);
+    if (!receipt.sourceExecution || JSON.stringify(receipt.sourceExecution) !== JSON.stringify(await gate.sourceExecutionIdentity(config)))
+      throw Error('Source reuse requires matching execution environment evidence');
+    return receipt;
   };
   const receipt = await validate();
-  if (!receipt.sourceExecution || JSON.stringify(receipt.sourceExecution) !== JSON.stringify(await gate.sourceExecutionIdentity(config)))
-    throw Error('Source reuse requires matching execution environment evidence');
   const manifest = gate.loadManifest(root);
   const candidates = new Set(selection.commands.filter(command => command.name === 'source' &&
     command.executable === process.execPath && path.resolve(command.cwd) === path.resolve(root) &&

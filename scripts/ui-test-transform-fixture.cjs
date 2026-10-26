@@ -66,14 +66,27 @@ function createUiTestTransformFixture(options = {}) {
       }
     } catch (error) { bypassReason = error.message; statistics.bypassed += 1; }
     if (!instance) result = produce();
-    else {
+    else if (instance.last?.source === source) {
+      // Context identities were checked above. Share the immutable in-process
+      // result instead of rereading, parsing and validating its persisted copy.
+      result = instance.last.result;
+      hit = 1; statistics.hits += 1;
+    } else {
       const oldHits = instance.counters.hits, oldMisses = instance.counters.misses;
       result = instance.cache.run(relativePath, source, produce); instance.cache.flush();
       hit = instance.counters.hits - oldHits; miss = instance.counters.misses - oldMisses;
       statistics.hits += hit; statistics.misses += miss;
+      if (result.asset) Object.freeze(result.asset);
+      Object.freeze(result);
+      instance.last = { source, result };
     }
-    records.push({ relativePath, fullPath, argumentCount: args.length, environmentSha256: sha(canonical(process.env)), sourceSha256: typeof source === 'string' ? sha(source) : null,
-      outputSha256: sha(result.text), assetSha256: sha(canonical(result.asset)), producerCalled: produced, hit, miss, bypassReason });
+    const digests = instance?.last?.digests ?? {
+      sourceSha256: typeof source === 'string' ? sha(source) : null,
+      outputSha256: sha(result.text), assetSha256: sha(canonical(result.asset)),
+    };
+    if (instance?.last) instance.last.digests = digests;
+    records.push({ relativePath, fullPath, argumentCount: args.length, environmentSha256: sha(canonical(process.env)),
+      ...digests, producerCalled: produced, hit, miss, bypassReason });
     return result;
   }
   const api = { transformAsset, getStatistics: () => ({ ...statistics, records: records.map(record => ({ ...record })) }) };

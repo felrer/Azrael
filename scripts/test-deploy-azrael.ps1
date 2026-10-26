@@ -12,7 +12,7 @@ $logs = Join-Path $runRoot 'logs'
 $reports = Join-Path $runRoot 'reports'
 $resultPath = Join-Path $reports 'results.json'
 $lifecycleId = "run:deploy-checks:$stamp"
-$shortTemporary = Join-Path $project "artifacts/t-$($stamp.Substring(0,4))"
+$shortTemporary = Join-Path $project "artifacts/tasks/t-$($stamp.Substring(0,4))"
 $lifecycleMembers = [ordered]@{run=$runRoot;logs=$logs;reports=$reports;fixture=$fixtures;shortTemporary=$shortTemporary}
 $results = [Collections.Generic.List[object]]::new()
 $lifecycleRegistered = $false
@@ -22,9 +22,11 @@ try {
     if (Test-Path -LiteralPath $shortTemporary) { throw "Short temporary identity already exists: $shortTemporary" }
     $recordKey = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($lifecycleId))).ToLowerInvariant()
     if (Test-Path -LiteralPath (Join-Path $project "artifacts/maintenance/lifecycles/$recordKey.json")) { throw "Run producer identity already exists: $stamp" }
-    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $lifecycleId -Kind run -Owner 'test-deploy-azrael' -State pending -MembershipComplete $false -Members $lifecycleMembers
+    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $lifecycleId -Kind run -Owner 'test-deploy-azrael' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $lifecycleMembers
     $lifecycleRegistered = $true
     if (Test-Path -LiteralPath $shortTemporary) { throw "Short temporary identity already exists: $shortTemporary" }
+    $shortTemporaryParent = Split-Path $shortTemporary -Parent
+    if (-not (Test-Path -LiteralPath $shortTemporaryParent)) { New-Item -ItemType Directory -Path $shortTemporaryParent | Out-Null }
     New-Item -ItemType Directory -Path $shortTemporary | Out-Null
     $runParent = Split-Path $runRoot -Parent
     if (-not (Test-Path -LiteralPath $runParent)) { New-Item -ItemType Directory -Path $runParent | Out-Null }
@@ -205,7 +207,7 @@ if(args[0]==='run'){
  if(config.checkPhase==='source'){
   if(scenario.mode==='engine-source-preflight-fail'){console.error('causal source preflight failure');process.exit(51);}
   if(fs.existsSync(path.join(a,'build-start.json')))throw Error('source preflight ran after build');
-  fs.writeFileSync(receiptPath,JSON.stringify({status:'passed',checkPhase:'source'}));console.log(JSON.stringify({receiptPath}));process.exit(0);
+  fs.writeFileSync(receiptPath,JSON.stringify({status:'passed',checkPhase:'source',sourceExecution:{fixture:true}}));console.log(JSON.stringify({receiptPath,sourceExecution:{fixture:true}}));process.exit(0);
  }
  if(!config.sourceReceiptPath || !fs.existsSync(config.sourceReceiptPath))throw Error('source handoff receipt missing');
  same(config.engineDirectory,path.join(a,'releases/chosen/engine'),'engine directory');
@@ -238,6 +240,11 @@ if(args[0]==='run'){
  if(!fs.existsSync(config.receiptPath))throw Error('causal package preservation receipt missing');
  if(JSON.parse(fs.readFileSync(config.bindingPath,'utf8')).fixture!==true)throw Error('causal package preservation binding mismatch');
 }else if(args[0]==='verify-receipt'){
+ if(config.checkPhase==='source'){
+  if(scenario.mode==='engine-source-preflight-fail'){console.error('causal source preflight failure');process.exit(51);}
+  if(!config.receiptPath||!fs.existsSync(config.receiptPath))throw Error('source handoff receipt missing');
+  console.log(JSON.stringify({...JSON.parse(fs.readFileSync(config.receiptPath,'utf8')),receiptPath:config.receiptPath}));process.exit(0);
+ }
  if(scenario.mode==='engine-preservation-recheck'){console.error('causal engine preservation recheck failure');process.exit(47);}
  if(!config.receiptPath||!fs.existsSync(config.receiptPath))throw Error('engine preservation receipt missing');
 }else throw Error('unexpected preservation command');
@@ -336,7 +343,7 @@ if($scenario.mode -eq 'install-wrong-receipt-version'){$receipt.hostVersion='9.9
 $receipt | ConvertTo-Json | Set-Content -LiteralPath $receiptPath
 [pscustomobject]@{Prepared=$true;Installed=$true;ReloadRequired=$true;Receipt=$receiptPath;HostVsix=$prepared.HostVsix;ReleaseDirectory=$ReleaseDirectory;Launched=$false}
 '@
-function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '') {
+function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
     if($Exhaustive){$FullRegression=$true}
@@ -647,6 +654,11 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     if($Exhaustive){$argsList += '-ExhaustiveRegression'}elseif($FullRegression){$argsList += '-FullRegression'}
     if($PolicyChangedPath){$argsList += @('-ChangedPath',$PolicyChangedPath)}
     if($ForceNative){$argsList += '-ForceNativeVerification'}
+    if($ReuseSourcePreflight){
+        $priorReceipt=Join-Path $a 'prior-source-receipt.json'
+        @{status='passed';checkPhase='source';sourceExecution=@{fixture=$true}} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $priorReceipt -Encoding utf8NoBOM
+        $argsList += @('-SourcePreflightReceipt',$priorReceipt)
+    }
     # The real shared cache owner must contain its registered execution project.
     $moduleOwner=if($SharedModuleOwner){$fixtures}else{''}
     $windowTarget=if($SharedModuleOwner){Join-Path $a 'shared window target 한글'}else{''}
@@ -819,7 +831,10 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         Assert-True ($metrics.verificationResults.packagePreservation.status -ceq 'passed') 'package preservation status metric lost'
         Assert-True ($metrics.verificationResults.packagePreservation.summary.unit -ceq 'invocation-group' -and $metrics.verificationResults.packagePreservation.summary.kinds.source.executed -eq 0) 'package preservation execution summary metric lost'
         $preservationCalls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
-        Assert-True (($preservationCalls.action -join '|') -ceq 'run|run|verify|verify|verify-receipt') 'successful preservation gate ordering changed'
+        $expectedPreservationActions=if($ReuseSourcePreflight){'verify-receipt|run|verify|verify|verify-receipt'}else{'run|run|verify|verify|verify-receipt'}
+        Assert-True (($preservationCalls.action -join '|') -ceq $expectedPreservationActions) 'successful preservation gate ordering changed'
+        Assert-True ($metrics.sourcePreflight.disposition -ceq $(if($ReuseSourcePreflight){'reused'}else{'executed'})) 'source preflight reuse disposition lost'
+        if($ReuseSourcePreflight){Assert-True ($sourceReuseConfig.receiptPath -ceq $priorReceipt) 'explicit prior receipt handoff lost'}
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
             Assert-True ($call.config.reuseNativeChecks -is [bool] -and $call.config.reuseNativeChecks -eq (-not $ForceNative)) 'native preservation reuse policy lost'
             if($FullRegression){Assert-True ($null -eq $call.config.PSObject.Properties['featureIds']) 'full engine preservation was restricted'}
@@ -976,6 +991,8 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'dependencies-fail' 'dependencies-fail'
     Invoke-Case 'parallel prepare' 'success' $true
     Invoke-Case 'verify only' 'success' $true
+    Invoke-Case 'explicit source receipt reuse' 'success' $true -ReuseSourcePreflight $true
+    Invoke-Case 'explicit source receipt rejected' 'engine-source-preflight-fail' $true -ReuseSourcePreflight $true
     Invoke-Case 'full install' 'success'
     Invoke-Case 'short fixture install' 'success'
     Invoke-Case 'module cache install' 'success' -ModuleCache $true

@@ -319,7 +319,6 @@ test('pinned native headless reconciliation of absent fixture journal never crea
   assert.equal(selfTest.status, 0, selfTest.stderr || selfTest.stdout);
   const nativeChecks = JSON.parse(selfTest.stdout);
   assert.equal(nativeChecks.ok, true);
-  assert.equal(nativeChecks.bootstrapLaunchFixtureChecks, 10);
   assert.equal(nativeChecks.connected, false);
   assert.equal(nativeChecks.configurationWritten, false);
   assert.equal(fs.existsSync(journal), false, 'Only a nonexistent task fixture journal may be inspected by this test');

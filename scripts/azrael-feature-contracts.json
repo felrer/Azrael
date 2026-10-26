@@ -3528,6 +3528,8 @@
         "scripts/source-test-fixtures.cjs",
         "scripts/test-source-test-fixtures.cjs",
         "scripts/source-preflight-reuse.cjs",
+        "scripts/source-test-policy.cjs",
+        "scripts/test-source-test-policy.cjs",
         "scripts/artifact-run.cjs",
         "scripts/test-artifact-run.cjs",
         "scripts/test-artifact-check-ownership.cjs",
@@ -3606,6 +3608,7 @@
             "scripts/test-artifact-lifecycle.cjs",
             "scripts/test-project-fail-fast.cjs",
             "scripts/test-project-selection.cjs",
+            "scripts/test-source-test-policy.cjs",
             "scripts/test-source-test-fixtures.cjs",
             "scripts/test-account-fixture-environment.cjs",
             "scripts/test-account-models-catalog.cjs"

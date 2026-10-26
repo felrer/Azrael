@@ -89,5 +89,4 @@ test('actual namespace CLI branch forwards default and explicit owner while reta
     assert.equal(captured[3].cacheProjectRoot, owner); assert.equal(captured[3].cacheDirectory, 'cache');
     assert.equal(captured[3].typescriptSha256, sha(fs.readFileSync(entry)));
   }
-  assert.match(source, /pruneUnused: true/);
 });

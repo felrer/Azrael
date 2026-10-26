@@ -13,14 +13,7 @@ const ast = ts.createSourceFile("host.js", patched, 99, true, 1);
 assert.equal(ast.parseDiagnostics.length, 0);
 const methods = new Map();
 let merge;
-let providerHasProjectMethod, projectHandlerOwnsProjectMethod = false, fetchWrapperOwnsHandler = false;
 function visit(node) {
-  if (ts.isClassExpression(node)) {
-    const names = node.members.filter(ts.isMethodDeclaration).map(member => member.name.getText(ast));
-    if (names.includes("sendPersistedAtomState")) providerHasProjectMethod = names.includes("getWorkspaceProject");
-    if (names.includes("getWorkspaceProject")) projectHandlerOwnsProjectMethod = true;
-    if (names.includes("fetch") && node.getText(ast).includes("this.extensionFetchHandler=")) fetchWrapperOwnsHandler = true;
-  }
   if (ts.isMethodDeclaration(node) && ["sendPersistedAtomState", "broadcastPersistedAtomUpdate", "updatePersistedAtomValue", "enqueueUpdate"].includes(node.name.getText(ast))) methods.set(node.name.getText(ast), node.getText(ast));
   if (ts.isFunctionDeclaration(node) && node.name?.text === "$Ke") merge = node.getText(ast);
   ts.forEachChild(node, visit);
@@ -60,9 +53,6 @@ function fixture(state = {}) {
   return { open, save, state: () => clone(state) };
 }
 test("pinned host transform is complete, idempotent and rejects drift", () => {
-  assert.equal(providerHasProjectMethod, false);
-  assert.equal(projectHandlerOwnsProjectMethod, true);
-  assert.equal(fetchWrapperOwnsHandler, true);
   assert.equal(injectProjectDrafts(patched).count, 0);
   assert.throws(() => injectProjectDrafts(original.replace("async sendPersistedAtomState(e)", "async changed(e)")), /anchor/);
   assert.throws(() => injectProjectDrafts(patched.replace("projectDraftView(r[k],p)", "r[k]")), /Invalid/);

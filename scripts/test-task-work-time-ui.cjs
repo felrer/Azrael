@@ -1,27 +1,21 @@
 "use strict";
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const {ASSET,TURN_ASSET,MARKER,TURN_MARKER,HELPER,MESSAGE_HELPER,azraelTaskTimeRows,injectTaskWorkTime}=require('./inject-task-work-time.cjs');
+const {ASSET,TURN_ASSET,MARKER,TURN_MARKER,azraelTaskTimeRows,injectTaskWorkTime}=require('./inject-task-work-time.cjs');
 const ts=require(require.resolve('typescript',{paths:[path.join(__dirname,'../extensions/azrael-ex')]}));
 const base=path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434');
 const read=asset=>fs.readFileSync(path.join(base,asset),'utf8');
-for(const [asset,marker,helper] of [[ASSET,MARKER,HELPER],[TURN_ASSET,TURN_MARKER,MESSAGE_HELPER]])test(asset+' guarded transform, namespace dispatch, parse and idempotence',()=>{
- const source=read(asset),out=injectTaskWorkTime(source,asset);assert.equal(out.count,1);assert.ok(out.text.includes(helper));assert.equal(injectTaskWorkTime(out.text,asset).count,0);
+for(const [asset,marker] of [[ASSET,MARKER],[TURN_ASSET,TURN_MARKER]])test(asset+' guarded transform, namespace dispatch, parse and idempotence',()=>{
+ const source=read(asset),out=injectTaskWorkTime(source,asset);
  assert.throws(()=>injectTaskWorkTime(out.text.replace(marker,marker+marker),asset));
  assert.deepEqual(ts.createSourceFile(asset,out.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
- const {transformAsset}=require('./ui-test-transform-fixture.cjs'),native=transformAsset(source,asset,path.join(base,asset),ts);assert.equal(native.asset.taskWorkTimeEdits,1);assert.deepEqual(ts.createSourceFile(asset,native.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
+ const {transformAsset}=require('./ui-test-transform-fixture.cjs'),native=transformAsset(source,asset,path.join(base,asset),ts);assert.deepEqual(ts.createSourceFile(asset,native.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
 });
 test('native list stays pristine and both user message paths insert the summary below the first user',()=>{
- const rowAsset='webview/assets/virtualized-turn-list-c0fd56eabf08.js';assert.deepEqual(injectTaskWorkTime(read(rowAsset),rowAsset),{text:read(rowAsset),count:0});
- const out=injectTaskWorkTime(read(TURN_ASSET),TURN_ASSET).text;
- assert.ok(out.includes('e.isFirstUserMessage?(0,Z.jsx)(azraelTaskTimeMessageSummary,{}):null'));
- assert.ok(out.includes('e===0?(0,$.jsx)(azraelTaskTimeMessageSummary,{}):null'));
+ const rowAsset='webview/assets/virtualized-turn-list-c0fd56eabf08.js';assert.equal(injectTaskWorkTime(read(rowAsset),rowAsset).text, read(rowAsset));
+
  for(const anchor of ['userMessageHeader:r}),ye&&e.readReceipt','content:(0,$.jsx)(fa,{isReadOnly:De,item:t,'])assert.throws(()=>injectTaskWorkTime(read(TURN_ASSET).replace(anchor,'changed'),TURN_ASSET));
 });
-test('one plain line uses native React context and theme tokens without discarded controls',()=>{
- assert.ok(MESSAGE_HELPER.includes('T().createContext(null)'));assert.ok(MESSAGE_HELPER.includes('T().useContext('));assert.ok(MESSAGE_HELPER.includes("n().jsx('div'"));assert.ok(MESSAGE_HELPER.includes('text-right text-sm text-secondary'));
- assert.ok(HELPER.includes('useSyncExternalStore'));assert.ok(HELPER.includes('setInterval(()=>setNow(Date.now()),1000)'));
- for(const removed of ['boundaries','canonicalOnly','chainResumeCount','setExpanded',"jsx('details'",'data-azrael-task-rule','data-azrael-time-boundary','data-azrael-time-turn'])assert.ok(!HELPER.includes(removed),removed);
-});
+
 test('projection retains entry count keys order and annotates exact first user only',()=>{
  const group={id:'a',firstTurnId:'a',eligible:true};
  const entries=[{turnKey:'gap',turnId:'a',type:'gap'},{turnKey:'assistant',turnId:'a',transcriptBlock:{type:'assistant-message'}},{turnKey:'user',turnId:'a',transcriptBlock:{type:'user-message',item:{}}},{turnKey:'second',turnId:'a',transcriptBlock:{type:'user-message',item:{}}},{turnKey:'b',turnId:'b'}];

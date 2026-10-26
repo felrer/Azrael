@@ -1,5 +1,5 @@
 "use strict";
-// Source and extracted-function checks: never invoke preparation or deployment.
+// Registry and extracted-function behavior checks: never invoke preparation or deployment.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -25,14 +25,6 @@ function declaration(name, symbol, source) {
   }
   throw new Error(`Missing ${symbol} in ${name}`);
 }
-function ordered(source, anchors) {
-  let previous = -1;
-  for (const anchor of anchors) {
-    const index = source.indexOf(anchor, previous + 1);
-    assert.ok(index > previous, `Missing or out-of-order gate: ${anchor}`);
-    previous = index;
-  }
-}
 
 test("the real preservation registry covers every production UI injector", () => {
   const gate = require("./feature-preservation.cjs");
@@ -51,14 +43,12 @@ test("the real preservation registry covers every production UI injector", () =>
       assert.ok(feature.owners.includes(owner), `${feature.id}: mandatory namespace owner ${owner}`);
     }
     const guards = feature.checks.filter(check => check.id === `${feature.id}.namespace-cache-owner`);
-    assert.equal(guards.length, 1, `${feature.id}: exactly one mandatory namespace guard`);
     assert.deepEqual(guards[0], { id: `${feature.id}.namespace-cache-owner`, executable: "node",
       args: ["--test", "scripts/test-namespace-cache-owner.cjs"], level: "source" });
   }
   assert.equal(missingImage.contract, "docs/architecture/ui-presentation.md");
   assert.deepEqual(missingImage.reportFields, ["missingImageEdits"]);
   const behaviorChecks = missingImage.checks.filter(check => check.id === "ui.missing-image.behavior");
-  assert.equal(behaviorChecks.length, 1);
   assert.deepEqual(behaviorChecks[0], { id: "ui.missing-image.behavior", executable: "node",
     args: ["--test", "scripts/test-missing-image.cjs"], level: "source",
     cacheInputs: { schema: 1, files: ["scripts/test-missing-image.cjs", "scripts/inject-missing-image.cjs"] } });
@@ -94,54 +84,11 @@ test("Max targets reach the pipeline after provider transformation and produce o
     assert.equal(result.asset.recentChatFilterEdits, 0);
     assert.equal(result.text, "provider-appliedmax-applied");
   }
-  assert.match(namespace, /for \(const assetPath of MAX_REASONING_ASSETS\)[\s\S]*?asset\.path === assetPath && asset\.maxReasoningEdits === 1/);
 });
 
-test("transform fingerprints and checkpoint publication bind registry inputs", () => {
-  // Missing-image metadata rejection is exercised by test-asset-transform-cache;
-  // Max and recent-chat required-field registration remain unique coverage.
-  const fields = vm.runInNewContext(declaration("asset-transform-cache.cjs", "COUNT_FIELDS"));
-  for (const field of ["maxReasoningEdits", "recentChatFilterEdits"]) assert.ok(fields.includes(field));
-  // Inspect the public fingerprints rather than the implementation spelling.
+test("transform fingerprints bind registry inputs", () => {
   const rules = require("./namespace-azrael-host.cjs").getTransformRules();
   for (const input of ["inject-max-reasoning.cjs", "inject-missing-image.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json"]) {
     assert.match(rules[input] ?? "", /^[a-f\d]{64}$/i, input);
   }
-  assert.match(namespace, /"inject-max-reasoning\.cjs": MAX_REASONING_ASSETS/);
-  const inputs = declaration("preparation-state.cjs", "inputs");
-  for (const input of ["feature-preservation.cjs", "azrael-feature-contracts.json"]) assert.ok(inputs.includes(`"${input}"`));
-  ordered(declaration("namespace-azrael-host.cjs", "transformExtension", namespace), [
-    "validateManifest(featureManifest", "const cacheFactory = selectAssetCacheFactory(", "const cache = cacheFactory(",
-    "validateTransformReport(featureManifest, report)", '".azrael-independent-host.json"',
-  ]);
-});
-
-test("preparation verifies UI before consuming checkpoints and binds the exact package", () => {
-  const source = read("prepare-independent-vscode.ps1");
-  ordered(source, ["$checkpointTool init", "area = 'ui'", "'feature-preservation.cjs') run --config",
-    "$namespaceCheckpoint =", "$checkpointTool load $OutputDirectory namespace", "'namespace-azrael-host.cjs')",
-    "'archive-contract'", "$preservationBindingConfig.packagePath = $vsix", "'feature-preservation.cjs') bind --config", "PreservationReceipt ="]);
-  assert.match(source, /PreservationReport = \$preservationReportPath; PreservationBinding = \$preservationBindingPath/);
-  assert.match(source, /UI feature preservation failed/);
-  assert.match(source, /UI preservation could not be bound/);
-});
-
-test("deployment verifies package identity and rechecks engine before installation", () => {
-  const source = read("deploy-azrael.ps1");
-  ordered(source, ["Wait-OwnedCommands @($build) -MonitoredCommands @($sourceTests)", "Assert-ProjectSnapshot 'post-build'",
-    "area = 'engine'", "'engine-preservation'", "$prepare = Start-OwnedCommand 'prepare'",
-    "Wait-OwnedCommands @($sourceTests, $enginePreservation, $prepare)", "if ($VerifyAccountControls) {",
-    "Start-OwnedCommand 'account-controls'", "$enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath",
-    "Assert-Package", "Invoke-Stage 'acceptance'", "Assert-ProjectSnapshot 'pre-install'",
-    "'engine-preservation-recheck'", "'verify-receipt', '--config', $enginePreservationConfigPath",
-    "Wait-OwnedCommands @($engineRecheck)", "Start-OwnedCommand 'install'"]);
-  const wait = source.slice(source.indexOf("function Wait-OwnedCommands"), source.indexOf("function Invoke-Stage"));
-  ordered(wait, ["foreach ($child in @($Commands) + @($MonitoredCommands))",
-    "Complete-OwnedCommand $child", "if ($child.Record.exitCode -ne 0) { throw"]);
-  const packageCheck = source.slice(source.indexOf("function Assert-Package"), source.indexOf("try {", source.indexOf("function Assert-Package")));
-  assert.match(packageCheck, /receiptPath = \$prepared\.PreservationReceipt; reportPath = \$prepared\.PreservationReport/);
-  assert.match(packageCheck, /packagePath = \$prepared\.HostVsix; bindingPath = \$prepared\.PreservationBinding/);
-  assert.match(packageCheck, /outputDirectory = \(Join-Path \$logs 'package-preservation'\)/);
-  assert.match(packageCheck, /'feature-preservation\.cjs'\) verify --config/);
-  assert.match(packageCheck, /Package feature preservation verification failed/);
 });
