@@ -49,8 +49,11 @@ fn review(root: &TempDir) -> Value {
     call(root, json!({"operation":"review","group_ids":["version"]}))
 }
 fn apply(root: &TempDir, reviewed: &Value) -> Value {
+    call(root, deletion(reviewed))
+}
+fn deletion(reviewed: &Value) -> Value {
     let decisions = reviewed["items"].as_array().unwrap().iter().map(|item| json!({"id":item["id"],"token":item["token"],"decision":"delete","reason":"producer completed"})).collect::<Vec<_>>();
-    call(root, json!({"operation":"apply","decisions":decisions}))
+    json!({"operation":"apply","decisions":decisions})
 }
 fn blocked(reviewed: &Value) -> bool {
     reviewed["items"]
@@ -187,7 +190,7 @@ fn owner_coverage_metadata_and_completeness_must_match() {
 }
 
 #[test]
-fn missing_invalid_duplicate_denied_and_unknown_sources_fail_closed() {
+fn required_owner_catalog_structure_and_unknown_format_still_fail_closed() {
     let root = fixture();
     let mut unknown = registration(&root);
     unknown["group"]["membership_source_format"] = json!("unknown");
@@ -197,7 +200,7 @@ fn missing_invalid_duplicate_denied_and_unknown_sources_fail_closed() {
     write(&root, "version", &record(&root, "version"));
     call(&root, registration(&root));
     std::fs::write(directory(&root).join("invalid.json"), "not json").unwrap();
-    assert!(blocked(&review(&root)));
+    assert!(!blocked(&review(&root)));
     std::fs::remove_file(directory(&root).join("invalid.json")).unwrap();
     write(&root, "duplicate", &record(&root, "version"));
     assert!(blocked(&review(&root)));
@@ -220,6 +223,161 @@ fn missing_invalid_duplicate_denied_and_unknown_sources_fail_closed() {
     )
     .unwrap();
     assert!(blocked(&protected));
+}
+
+#[test]
+fn other_record_errors_do_not_prevent_owner_deletion() {
+    for corruption in ["malformed", "missing-field", "denied", "missing"] {
+        let root = fixture();
+        call(&root, registration(&root));
+        let other_path = directory(&root).join("other.json");
+        let mut other = record(&root, "other");
+        if corruption == "missing-field" {
+            other.as_object_mut().unwrap().remove("members");
+        }
+        write(&root, "other", &other);
+        if corruption == "malformed" {
+            std::fs::write(&other_path, "not json").unwrap();
+        }
+        let denied_seen = std::sync::atomic::AtomicBool::new(false);
+        let other_reads = std::sync::atomic::AtomicUsize::new(0);
+        let authorize = |path: &Path, mode| {
+            // Disappear after path validation, before opening the record,
+            // so this covers a fresh read failure.
+            if corruption == "missing"
+                && path == other_path
+                && mode == AccessMode::Read
+                && other_reads.fetch_add(1, std::sync::atomic::Ordering::Relaxed) == 1
+            {
+                std::fs::remove_file(&other_path).unwrap();
+            }
+            if corruption == "denied" && path == other_path && mode == AccessMode::Read {
+                denied_seen.store(true, std::sync::atomic::Ordering::Relaxed);
+                Err("other record denied".into())
+            } else {
+                Ok(())
+            }
+        };
+        let reviewed = dispatch(
+            root.path(),
+            json!({"operation":"review","group_ids":["version"]}),
+            &authorize,
+        )
+        .unwrap();
+        assert!(!blocked(&reviewed), "{corruption}: {reviewed}");
+        let applied = dispatch(root.path(), deletion(&reviewed), &authorize).unwrap();
+        assert_eq!(
+            applied["groups"][0]["status"], "deleted",
+            "{corruption}: {applied}"
+        );
+        for member in ["artifact", "log"] {
+            assert!(
+                !root
+                    .path()
+                    .join("artifacts/registry-fixtures")
+                    .join(member)
+                    .exists(),
+                "{corruption}: {member}"
+            );
+        }
+        if corruption == "denied" {
+            assert!(denied_seen.load(std::sync::atomic::Ordering::Relaxed));
+        } else if corruption == "missing" {
+            assert!(!other_path.exists());
+        }
+    }
+}
+
+#[test]
+fn valid_inbound_consumer_among_corrupt_records_still_protects_owner() {
+    let root = fixture();
+    call(&root, registration(&root));
+    std::fs::write(directory(&root).join("malformed.json"), "not json").unwrap();
+    let mut incomplete = record(&root, "incomplete");
+    incomplete.as_object_mut().unwrap().remove("members");
+    write(&root, "incomplete", &incomplete);
+    write(&root, "denied", &record(&root, "denied"));
+    let mut consumer = record(&root, "consumer");
+    consumer["references"] = json!([{"id":"version","reason":"live recovery consumer"}]);
+    write(&root, "consumer", &consumer);
+    let denied = directory(&root).join("denied.json");
+    let authorize = |path: &Path, mode| {
+        if path == denied && mode == AccessMode::Read {
+            Err("other record denied".into())
+        } else {
+            Ok(())
+        }
+    };
+    let reviewed = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &authorize,
+    )
+    .unwrap();
+    assert!(blocked(&reviewed));
+    assert!(
+        reviewed
+            .to_string()
+            .contains("producer inbound consumer protects group: consumer")
+    );
+    let applied = dispatch(root.path(), deletion(&reviewed), &authorize).unwrap();
+    assert_ne!(applied["groups"][0]["status"], "deleted");
+    for member in ["artifact", "log"] {
+        assert!(
+            root.path()
+                .join("artifacts/registry-fixtures")
+                .join(member)
+                .exists()
+        );
+    }
+}
+
+#[test]
+fn invalid_missing_or_denied_owner_still_blocks_deletion() {
+    for corruption in ["malformed", "missing-field", "denied", "missing"] {
+        let root = fixture();
+        call(&root, registration(&root));
+        let owner_path = directory(&root).join("version.json");
+        match corruption {
+            "malformed" => std::fs::write(&owner_path, "not json").unwrap(),
+            "missing-field" => {
+                let mut owner = record(&root, "version");
+                owner.as_object_mut().unwrap().remove("members");
+                write(&root, "version", &owner);
+            }
+            "missing" => std::fs::remove_file(&owner_path).unwrap(),
+            "denied" => {}
+            _ => unreachable!(),
+        }
+        let authorize = |path: &Path, mode| {
+            if corruption == "denied" && path == owner_path && mode == AccessMode::Read {
+                Err("owner record denied".into())
+            } else {
+                Ok(())
+            }
+        };
+        let reviewed = dispatch(
+            root.path(),
+            json!({"operation":"review","group_ids":["version"]}),
+            &authorize,
+        )
+        .unwrap();
+        assert!(blocked(&reviewed), "{corruption}: {reviewed}");
+        let applied = dispatch(root.path(), deletion(&reviewed), &authorize).unwrap();
+        assert_ne!(
+            applied["groups"][0]["status"], "deleted",
+            "{corruption}: {applied}"
+        );
+        for member in ["artifact", "log"] {
+            assert!(
+                root.path()
+                    .join("artifacts/registry-fixtures")
+                    .join(member)
+                    .exists(),
+                "{corruption}: {member}"
+            );
+        }
+    }
 }
 
 #[test]

@@ -111,6 +111,16 @@ fn names(root: &Path, source: &Path, auth: Auth<'_>) -> Result<Vec<PathBuf>, Str
     let mut names = Vec::new();
     for entry in std::fs::read_dir(source).map_err(|e| e.to_string())? {
         let path = entry.map_err(|e| e.to_string())?.path();
+        // Individual JSON records may be unavailable. Check each through read(),
+        // independently of the directory and its other control entries.
+        if path
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("json"))
+        {
+            names.push(path);
+            continue;
+        }
         paths::check(root, &path, auth)?;
         if !std::fs::symlink_metadata(&path)
             .map_err(|e| e.to_string())?
@@ -118,18 +128,26 @@ fn names(root: &Path, source: &Path, auth: Auth<'_>) -> Result<Vec<PathBuf>, Str
         {
             return Err("producer registry contains a nonregular or nested entry".into());
         }
-        if path
-            .extension()
-            .and_then(|ext| ext.to_str())
-            .is_some_and(|ext| ext.eq_ignore_ascii_case("json"))
-        {
-            names.push(path);
-        }
     }
     names.sort();
     Ok(names)
 }
-fn read(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, String> {
+enum RecordReadError {
+    Unavailable,
+    Changed,
+}
+impl From<String> for RecordReadError {
+    fn from(_: String) -> Self {
+        Self::Unavailable
+    }
+}
+impl From<&str> for RecordReadError {
+    fn from(_: &str) -> Self {
+        Self::Unavailable
+    }
+}
+
+fn read(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, RecordReadError> {
     use std::io::Read;
     paths::check(root, path, auth)?;
     let before = std::fs::symlink_metadata(path).map_err(|e| e.to_string())?;
@@ -157,11 +175,11 @@ fn read(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, String> {
         || before.modified().ok() != after.modified().ok()
         || paths::platform_identity(&before) != paths::platform_identity(&after)
     {
-        return Err("producer record changed while reading".into());
+        return Err(RecordReadError::Changed);
     }
     Ok(bytes)
 }
-fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<Vec<PathBuf>, String> {
+fn validate(root: &Path, record: &Value) -> Result<Vec<PathBuf>, String> {
     for key in ["id", "kind", "owner", "state"] {
         nonblank(record, key)?;
     }
@@ -212,7 +230,6 @@ fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<Vec<PathBuf>,
             return Err("producer member must be absolute".into());
         }
         let path = paths::resolve(root, path)?;
-        paths::check(root, &path, auth)?;
         let allowed = [root.join("artifacts"), root.join("engine/codex-rs/target")];
         if !allowed
             .iter()
@@ -255,35 +272,60 @@ fn canonical(value: &Value) -> Value {
     }
 }
 
-fn catalog(root: &Path, source: &Path, auth: Auth<'_>) -> Result<BTreeMap<String, Value>, String> {
+fn catalog(
+    root: &Path,
+    source: &Path,
+    owner_id: &str,
+    auth: Auth<'_>,
+) -> Result<BTreeMap<String, Value>, String> {
     check_lock(root, source, auth)?;
     let mut records = BTreeMap::new();
     for path in names(root, source, auth)? {
-        let bytes = read(root, &path, auth)?;
+        let bytes = match read(root, &path, auth) {
+            Ok(bytes) => bytes,
+            Err(RecordReadError::Unavailable) => continue,
+            Err(RecordReadError::Changed) => {
+                return Err("producer record changed while reading".into());
+            }
+        };
         let key = (root.to_path_buf(), path.clone());
         // Release the borrow before any authorizer callback: callbacks may change
         // the catalog or permissions during either read or member traversal.
         let cached = auth.catalog.borrow().records.get(&key).cloned();
         let entry = if let Some(cached) = cached.filter(|entry| entry.bytes == bytes) {
-            for member_path in &cached.member_paths {
-                paths::check(root, member_path, auth)?;
-            }
             cached
         } else {
             #[cfg(test)]
             {
                 auth.catalog.borrow_mut().misses += 1;
             }
-            let record: Value = serde_json::from_slice(&bytes)
-                .map_err(|e| format!("invalid producer JSON: {e}"))?;
-            let member_paths = validate(root, &record, auth)?;
+            let Ok(record) = serde_json::from_slice::<Value>(&bytes) else {
+                continue;
+            };
+            let Ok(member_paths) = validate(root, &record) else {
+                continue;
+            };
             Rc::new(CachedRecord {
                 bytes,
                 record,
                 member_paths,
             })
         };
-        if read(root, &path, auth)? != entry.bytes {
+        // Physical payload checks apply to the selected owner, not to unrelated
+        // work or consumers whose references already protect the selected group.
+        if entry.record["id"] == owner_id {
+            for member_path in &entry.member_paths {
+                paths::check(root, member_path, auth)?;
+            }
+        }
+        let after = match read(root, &path, auth) {
+            Ok(bytes) => bytes,
+            Err(RecordReadError::Unavailable) => continue,
+            Err(RecordReadError::Changed) => {
+                return Err("producer record changed while reading".into());
+            }
+        };
+        if after != entry.bytes {
             return Err("producer record bytes changed while observing".into());
         }
         // Admit only fully validated bytes that survived the second fresh read.
@@ -353,14 +395,17 @@ mod catalog_tests {
                 }
             };
             let auth = crate::Context::new(&authorize);
-            let initial = catalog(root.path(), &source, &auth).unwrap();
+            let initial = catalog(root.path(), &source, "owner", &auth).unwrap();
             let first_trace = trace.take();
-            assert_eq!(catalog(root.path(), &source, &auth).unwrap(), initial);
+            assert_eq!(
+                catalog(root.path(), &source, "owner", &auth).unwrap(),
+                initial
+            );
             assert_eq!(trace.take(), first_trace);
             assert_eq!(auth.catalog.borrow().misses, 1);
             denied.set(true);
             assert_eq!(
-                catalog(root.path(), &source, &auth).unwrap_err(),
+                catalog(root.path(), &source, "owner", &auth).unwrap_err(),
                 "fresh member permission denied"
             );
             assert_eq!(auth.catalog.borrow().misses, 1);
@@ -385,15 +430,72 @@ mod catalog_tests {
             Ok(())
         };
         let auth = crate::Context::new(&authorize);
-        catalog(root.path(), &source, &auth).unwrap();
+        catalog(root.path(), &source, "owner", &auth).unwrap();
         mutate.set(true);
         assert_eq!(
-            catalog(root.path(), &source, &auth).unwrap_err(),
+            catalog(root.path(), &source, "owner", &auth).unwrap_err(),
             "producer record bytes changed while observing"
         );
         assert_eq!(auth.catalog.borrow().misses, 1);
-        let changed = catalog(root.path(), &source, &auth).unwrap();
+        let changed = catalog(root.path(), &source, "owner", &auth).unwrap();
         assert_eq!(changed["owner"]["state"], "pending");
+        assert_eq!(auth.catalog.borrow().misses, 2);
+    }
+
+    #[test]
+    fn record_mutation_during_read_is_not_an_omission() {
+        let (root, source, _) = fixture();
+        let owner = source.join("owner.json");
+        let reads = Cell::new(0);
+        let authorize = |path: &Path, mode| {
+            if path == owner && mode == AccessMode::Read {
+                let count = reads.get();
+                reads.set(count + 1);
+                if count == 3 {
+                    let mut bytes = std::fs::read(&owner).unwrap();
+                    bytes.push(b' ');
+                    std::fs::write(&owner, bytes).unwrap();
+                }
+            }
+            Ok(())
+        };
+        let auth = crate::Context::new(&authorize);
+        assert_eq!(
+            catalog(root.path(), &source, "owner", &auth).unwrap_err(),
+            "producer record changed while reading"
+        );
+    }
+
+    #[test]
+    fn unrelated_payload_permissions_are_not_catalog_requirements() {
+        let (root, source, record) = fixture();
+        let unrelated = root.path().join("artifacts/other/private/member");
+        let mut consumer = record.clone();
+        consumer["id"] = json!("consumer");
+        consumer["members"][0]["path"] = json!(unrelated);
+        consumer["references"] = json!([{"id":"owner","reason":"still needed"}]);
+        std::fs::write(
+            source.join("consumer.json"),
+            serde_json::to_vec(&consumer).unwrap(),
+        )
+        .unwrap();
+        let owner_member = Path::new(record["members"][0]["path"].as_str().unwrap());
+        let owner_checks = Cell::new(0);
+        let authorize = |path: &Path, _| {
+            if path.starts_with(root.path().join("artifacts/other")) {
+                panic!("unrelated physical payload must not be inspected");
+            }
+            if path == owner_member {
+                owner_checks.set(owner_checks.get() + 1);
+            }
+            Ok(())
+        };
+        let auth = crate::Context::new(&authorize);
+        for _ in 0..2 {
+            let observed = observe(root.path(), &source, &record, &BTreeMap::new(), &auth).unwrap();
+            assert_eq!(observed["references"], json!(["consumer:still needed"]));
+        }
+        assert_eq!(owner_checks.get(), 4);
         assert_eq!(auth.catalog.borrow().misses, 2);
     }
 
@@ -416,20 +518,18 @@ mod catalog_tests {
             Ok(())
         };
         let auth = crate::Context::new(&authorize);
-        catalog(root.path(), &source, &auth).unwrap();
+        catalog(root.path(), &source, "owner", &auth).unwrap();
         add_consumer.set(true);
         assert_eq!(
             observe(root.path(), &source, &record, &BTreeMap::new(), &auth).unwrap_err(),
             "relevant producer records changed while observing"
         );
         assert_eq!(auth.catalog.borrow().misses, 2);
-        // Every source record still needs validation, even without an incoming reference.
+        // Unavailable references are accepted by policy; valid consumers survive.
         std::fs::write(source.join("unrelated.json"), "invalid JSON").unwrap();
-        assert!(
-            catalog(root.path(), &source, &auth)
-                .unwrap_err()
-                .contains("invalid producer JSON")
-        );
+        let records = catalog(root.path(), &source, "owner", &auth).unwrap();
+        assert_eq!(records.len(), 2);
+        assert_eq!(records["consumer"]["references"][0]["id"], "owner");
     }
 }
 
@@ -510,8 +610,8 @@ pub(crate) fn observe(
     let id = string(group, "id")?;
     // Revalidate the catalog to catch new consumers and changes to earlier
     // records. Changes to other validated producers do not alter this group.
-    let first = catalog(root, source, auth)?;
-    let records = catalog(root, source, auth)?;
+    let first = catalog(root, source, id, auth)?;
+    let records = catalog(root, source, id, auth)?;
     if relevant(&first, id) != relevant(&records, id) {
         return Err("relevant producer records changed while observing".into());
     }
