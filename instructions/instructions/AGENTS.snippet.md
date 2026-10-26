@@ -45,6 +45,7 @@
 ## File Deletion (All Agents)
 
 - Cleanup is mandatory as soon as task-owned disposable material is no longer needed, after success, failure or cancellation. Verify actual removal. Before task completion, obtain explicit user approval for every remaining cleanup-scope item, with exact paths, reasons and release/review conditions; recording a reason or defer decision alone is insufficient. Pending approval keeps cleanup unresolved. Preserve protected/uncertain items while asking; never bypass deletion safeguards. Reuse unchanged explicit approval. Follow `CODEX_HOME/skills/implementation/SKILL.md` for the owning contract.
+- If ordinary deletion of confirmed task-owned disposable material fails, move it safely to the project's `archive/<unique-work-or-run-id>/` and verify integrity and source absence. This is standing authorization for that archive retention; no repeated approval is needed. Record exact paths, failure reason, owner and review/release condition; report archival separately from deletion. Preserve active/protected/uncertain items and all lock, permission and tool boundaries. If movement is unsafe, forbidden or fails, keep cleanup unresolved and request retention approval. Follow the installed `implementation` archive procedure.
 - Do not use force-delete options (`Remove-Item -Force`, `rm -f`, `del /f`, etc.) when deleting files or directories. If ordinary deletion fails, investigate the cause; do not add force options or bypass the failure through another shell or API.
 
 ## Shared Instruction Maintenance
