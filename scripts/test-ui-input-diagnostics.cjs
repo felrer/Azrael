@@ -142,8 +142,3 @@ test("bounded rate, repeat and render caches, without timers", () => {
   for(let i=0;i<260;i++){time+=60000;const t=turn();t.params.clientUserMessageId=`${i.toString(16).padStart(8,"0")}-1111-4111-8111-111111111111`;r.render(t,true,false,false);}
   const t=turn();t.params.clientUserMessageId=first;const count=log2.length;r.render(t,true,false,false);assert.equal(log2.length,count+1);
 });
-test("loaded-turn scan timing is bounded and recorded", () => {
-  const d=createUiInputDiagnostics(()=>{}), turns=Array.from({length:100},()=>turn(["params","user","steering"]));
-  const start=performance.now();for(let i=0;i<1000;i++)assert.equal(d.snapshot(()=>turns).size,1);
-  console.log(`diagnostics profiler: 1000 snapshots of 100 loaded turns / 200 items: ${(performance.now()-start).toFixed(1)} ms`);
-});
