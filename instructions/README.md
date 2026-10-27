@@ -13,7 +13,7 @@ Existing unmanaged or edited files require conflict resolution before applicatio
 | --- | --- | --- | --- |
 | Global instructions | `instructions/AGENTS.snippet.md` | `CODEX_HOME/AGENTS.md` | Yes |
 | Agent roles | `agents/*.toml` | `CODEX_HOME/agents/*.toml` | Yes |
-| Five core skills | Entire named core `skills/` directories | `CODEX_HOME/skills/` | Yes |
+| Six core skills | Entire named core `skills/` directories | `CODEX_HOME/skills/` | Yes |
 | Visualization and ktcloud skills | Their named `skills/` directories | `CODEX_HOME/skills/` | No |
 | Agent configuration | `config.example.toml` | Allowed keys in `CODEX_HOME/config.toml` `[agents]` | Yes |
 | App logging | Bootstrap playbook asset | Workspace `docs/playbooks/app-logging.md` | No |
@@ -30,12 +30,14 @@ distribution metadata are packaged for provenance, never installed as components
 | [design-collaboration](skills/design-collaboration/SKILL.md) | Work entry through iterative discussion of linked user choices |
 | [design-documentation](skills/design-documentation/SKILL.md) | Agreed design in its owning documents |
 | [implementation](skills/implementation/SKILL.md) | Execute the agreed plan and authority through implementation, verification and cleanup |
+| [testing](skills/testing/SKILL.md) | Common test selection, admission, assertions, execution evidence, consolidation and retirement |
 | [project-bootstrap](skills/project-bootstrap/SKILL.md) | Project documentation entry points, skill routing and app logging guidance |
 | [internal-visualization](skills/internal-visualization/SKILL.md) | Standalone analytical charts, interactive reports and local exports (optional) |
 | [ktcloud-ai-nexus](skills/ktcloud-ai-nexus/SKILL.md) | Account-scoped cloud session operations and separate private records (optional) |
 
 Use these responsibilities as needed within the same work. Keep existing project
-Work guidance as local constraints; common execution rules belong to `implementation`.
+Work guidance as local constraints; common execution rules belong to `implementation`,
+and common test decisions belong to `testing`.
 
 ## Provenance and maintenance
 
@@ -57,7 +59,7 @@ these working-tree bytes. [SOURCE-README.md](SOURCE-README.md) retains upstream
 guidance; [SOURCE-CHANGELOG.md](SOURCE-CHANGELOG.md) retains upstream history.
 The current instruction release history is [CHANGELOG.md](CHANGELOG.md).
 
-The seven public skill directories are maintained Azrael sources.
+The eight public skill directories are maintained Azrael sources.
 [SKILLS-SOURCE.json](SKILLS-SOURCE.json) records their source-relative paths,
 original and copied hashes, sibling-link adaptation and LF normalization for distribution.
 `SOURCE.json` and `SOURCE-*` documents retain the original historical import record;

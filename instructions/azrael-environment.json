@@ -354,6 +354,19 @@
       ]
     },
     {
+      "id": "skill-testing",
+      "title": "testing",
+      "kind": "skill",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "skills/testing/SKILL.md",
+          "target": "skills/testing/SKILL.md"
+        }
+      ]
+    },
+    {
       "id": "playbook-app-logging",
       "title": "app-logging",
       "kind": "playbook",

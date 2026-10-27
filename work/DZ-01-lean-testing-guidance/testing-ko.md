@@ -1,6 +1,6 @@
 # Testing — 한국어 직역
 
-> 검토용 번역이다. 활성 지침이 아니며, 영어 `testing/SKILL.md`와 같은 순서로 작성했다.
+> 검토용 번역이다. 활성 지침이 아니며, [승인된 영어 원문](../../instructions/skills/testing/SKILL.md)과 같은 순서로 작성했다.
 
 **이름:** `testing`
 

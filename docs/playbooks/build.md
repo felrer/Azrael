@@ -3,6 +3,8 @@
 
 Applicability: Use when packaging Azrael engine, bridge or account module changes, or installing, updating or rolling back a local development distribution. [Development operations](../ops/development.md#build) owns execution commands.
 
+Apply the [testing skill](../../instructions/skills/testing/SKILL.md) for common test selection, assertions, execution evidence and suite maintenance. This playbook retains Azrael's build inputs, caches, prerequisite gates, check selectors and exact-package acceptance.
+
 When uploading a verified local build to GitHub Releases, also apply the [app release procedure](../ops/app-release.md).
 Keep the distribution version, tag and file hashes consistent; do not overwrite files in an already published version.
 Public macOS ARM64 distribution follows the [Mac distribution policy](../ops/app-release.md#macos-distribution-without-a-developer-id-certificate). Publish after obtaining a valid ad-hoc signature, an unnotarized-app notice and acceptance of the actual final package, without Developer ID or Apple notarization. This policy also applies to future Mac distributions and does not require obtaining a certificate first.
@@ -34,7 +36,7 @@ Apply the common [scope rules for build error fixes](../../instructions/skills/i
 <a id="빌드-사전-검사와-산출물-의존-조건"></a>
 ## Build Preflight and Artifact Dependencies
 
-Apply the common [build-input and result-reuse rules](../../instructions/skills/implementation/references/build-inputs.md#후속-소비자와-산출물-재사용) before expensive execution. Including all current changes does not itself select `-FullRegression`; record the selected check scope and reason in the current work plan. Final package identity and all six fresh-state host stages remain mandatory for installation.
+Apply the common [build-input and result-reuse rules](../../instructions/skills/implementation/references/build-inputs.md#후속-소비자와-산출물-재사용) before expensive execution. Including all current changes does not itself select `-FullRegression`. Final package identity and all six fresh-state host stages remain mandatory for installation.
 
 Gate each expensive consumer on its required prerequisites using the [operational probes](../ops/development.md#consolidated-build-preflight) as inputs become available. Check actual dependency loads, package closure/exports, executable interfaces and owned output paths where consumed. Start ready independent work; later-produced prerequisites gate their consumers when ready.
 
