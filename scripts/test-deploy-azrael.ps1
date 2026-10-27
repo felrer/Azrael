@@ -35,7 +35,7 @@ try {
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
 $changedCases = @('policy selection', 'full install', 'module cache install', 'exhaustive regression verify only', 'related integration verify only', 'explicit policy verify only', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 $pwsh = (Get-Process -Id $PID).Path
-$changedCases += @('environment preflight failure', 'missing registered cache project', 'temporary references preserved', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
+$changedCases += @('environment preflight failure', 'missing registered cache project', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -625,7 +625,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         & git -c core.longpaths=true -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
     }
-    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;shortTemporary=$shortTemporary;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'temporary references preserved')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
+    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;shortTemporary=$shortTemporary;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'full install')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
     if($Mode -eq 'missing-registered-cache-project'){
         $cacheRoot=Join-Path $a 'cache/modules'
         New-Item -ItemType Directory -Path $cacheRoot | Out-Null
@@ -970,7 +970,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
             Assert-True ($accountRuns.Count -eq 0 -and $metrics.accountLifecycle.state -eq 'complete' -and $metrics.accountLifecycle.membership_complete -and $metrics.accountLifecycle.members.Count -eq 1) 'completed account fixture run was not finalized independently'
         }
     }
-    if($Name -eq 'temporary references preserved'){
+    if($Name -eq 'full install'){
         $temporaryRecords=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object owner -eq 'azrael-deployment-temporary')
         Assert-True ($temporaryRecords.Count -eq 1 -and $temporaryRecords[0].state -ceq 'complete') 'stable temporary lifecycle missing after successful deployment'
         Assert-True (@($temporaryRecords[0].references | Where-Object { $_.id -ceq 'version:chosen' -and $_.kind -ceq 'execution' }).Count -eq 0) 'completed deployment temporary execution reference retained'
@@ -984,7 +984,6 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'fixture path selection' 'fixture-path-selection'
     Invoke-Case 'registered engine owner selection' 'registered-owner-selection'
     Invoke-Case 'missing registered cache project' 'missing-registered-cache-project'
-    Invoke-Case 'temporary references preserved' 'success'
     Invoke-Case 'policy selection' 'policy-selection'
     Invoke-Case 'engine-source-preflight-fail' 'engine-source-preflight-fail'
     Invoke-Case 'source-fixtures-fail' 'source-fixtures-fail'
@@ -993,6 +992,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'verify only' 'success' $true
     Invoke-Case 'explicit source receipt reuse' 'success' $true -ReuseSourcePreflight $true
     Invoke-Case 'explicit source receipt rejected' 'engine-source-preflight-fail' $true -ReuseSourcePreflight $true
+    # One successful install also verifies that closing it preserves another temporary consumer.
     Invoke-Case 'full install' 'success'
     Invoke-Case 'short fixture install' 'success'
     Invoke-Case 'module cache install' 'success' -ModuleCache $true

@@ -104,7 +104,9 @@ test("generic descriptor labels still transform off the controls paths and retai
   const source = 'const label={id:`settings.title`,defaultMessage:`Codex settings`};const rpc=`Codex CLI`;const url=`https://example.com/Codex`;';
   const injection = require("./inject-provider-context.cjs");
   const original = injection.injectProviderContext(source, asset);
-  assert.deepEqual(require("./provider-context-labels.cjs").runProviderContext(source, asset), original);
+  const expectedText = 'const label={id:`settings.title`,defaultMessage:`Azrael settings`};const rpc=`Codex CLI`;const url=`https://example.com/Codex`;' + "\n" + injection.MARKER;
+  assert.equal(original.text, expectedText);
+  assert.equal(require("./provider-context-labels.cjs").runProviderContext(source, asset).text, expectedText);
   assert.equal(injection.injectProviderContext(original.text, asset).text, original.text);
   const cold = cache("generic-label");
   const expected = cold.run(asset, source, () => transform(asset, source)); cold.flush();
