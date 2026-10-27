@@ -14,7 +14,7 @@ The installed `implementation` skill owns [verification selection](../../instruc
 
 ## Decide By Protected Value
 
-Zero deletions is a valid result. Weigh distinct recurring defect detection against execution, diagnosis, review and maintenance costs; reduce unnecessary machinery without discarding needed protection. Test count, file count, coverage percentage, age and test-to-product line ratio are signals, not deletion quotas or proof of equivalent protection. Coverage cannot establish assertion quality; unchanged coverage alone does not justify a deletion.
+Weigh distinct recurring defect detection against execution, diagnosis, review and maintenance costs; reduce unnecessary machinery without discarding needed protection. Test count, file count, coverage percentage, age and test-to-product line ratio are signals, not deletion quotas or proof of equivalent protection. Coverage cannot establish assertion quality; unchanged coverage alone does not justify a deletion.
 
 | Decision | Evidence needed |
 | --- | --- |
