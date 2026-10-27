@@ -42,6 +42,7 @@ function main(root) {
           const selected = request.ids.map(id => {
             const record = records.find(record => record.id === id);
             if (!record) throw Error("Unknown cleanup producer");
+            if (record.record_type === "observation") throw Error("Observation records have no cleanup authority");
             if (!Number.isSafeInteger(record.revision) || record.revision < 1) throw Error("Current cleanup producer revision required");
             // catalog() normalizes optional reference identities for readers.
             // Let the native owner load and pin the unmodified ledger snapshot.

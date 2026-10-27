@@ -34,7 +34,19 @@ function fixture(t) {
   });
   const at = relative => path.join(root, "artifacts", relative);
   const record = (id, members, extra = {}) => lifecycle.recordLifecycle(root, { id, kind: "version", owner: "fixture-producer", version: "1.0", state: "complete", membership_complete: true, members: members.map(([name, role]) => ({ path: at(name), role })), ...extra });
-  return { root, at, record };
+  // Historical duplicate claims predate the exclusive-owner writer. Seed only
+  // fixture metadata so tests can exercise migration/recovery without a bypass API.
+  const seedLegacy = (id, members, extra = {}) => {
+    const filename = lifecycle.registryPath(root, id);
+    fs.mkdirSync(path.dirname(filename), { recursive: true });
+    const previous = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename)) : null;
+    const now = new Date().toISOString();
+    const value = { schema: 1, id, kind: "version", owner: "fixture-producer", version: "1.0", state: "complete", membership_complete: true,
+      references: [], members: members.map(([name, role]) => ({ path: at(name), role })), revision: (previous?.revision ?? 0) + 1, created_at: previous?.created_at ?? now, updated_at: now, ...extra };
+    fs.writeFileSync(filename, JSON.stringify(value));
+    return value;
+  };
+  return { root, at, record, seedLegacy };
 }
 
 function custodyFixture(t) {
@@ -112,10 +124,10 @@ test("real native producer reservations protect ordinary readers and admit only 
 });
 
 test("frozen legacy custody retains unknown protection and excludes future direct siblings", t => {
-  const { root, at, record } = fixture(t);
+  const { root, at, record, seedLegacy } = fixture(t);
   const parent = at("logs/history"); fs.mkdirSync(parent, { recursive: true });
   const old = path.join(parent, "old.log"); fs.writeFileSync(old, "unknown");
-  const original = record("frozen", [], { state: "retained", membership_complete: false, members: [{ path: parent, role: "legacy-custody", generated: false, protection_known: false }] });
+  const original = seedLegacy("frozen", [], { state: "retained", membership_complete: false, members: [{ path: parent, role: "legacy-custody", generated: false, protection_known: false }] });
   const proof = at("freeze-proof.json"); fs.writeFileSync(proof, "external checked inventory evidence");
   const request = { owner: original.owner, expected_revision: original.revision, paths: [parent], reason: "Freeze checked existing inventory", evidence_ref: proof, evidence_sha256: require("node:crypto").createHash("sha256").update(fs.readFileSync(proof)).digest("hex") };
   const frozen = lifecycle.freezeCustody(root, original.id, request);
@@ -127,7 +139,7 @@ test("frozen legacy custody retains unknown protection and excludes future direc
   assert.ok(lifecycle.planCleanup(root, { paths: [old] }).groups[0].blockers.includes("unknown-member-protection"));
   assert.throws(() => record("frozen", [], { members: original.members }), /cannot be reclaimed/);
   const empty = at("logs/empty"); fs.mkdirSync(empty);
-  const emptyRecord = record("empty", [], { state: "retained", membership_complete: false, members: [{ path: empty, role: "legacy-input", generated: false, protection_known: false }] });
+  const emptyRecord = seedLegacy("empty", [], { state: "retained", membership_complete: false, members: [{ path: empty, role: "legacy-input", generated: false, protection_known: false }] });
   assert.throws(() => lifecycle.freezeCustody(root, emptyRecord.id, { ...request, expected_revision: emptyRecord.revision, paths: [empty] }), /Empty custody inventory/);
   assert.equal(lifecycle.catalog(root).find(value => value.id === emptyRecord.id).revision, emptyRecord.revision);
 });
@@ -199,8 +211,8 @@ test("custody rejects invalid identities, evidence, selected boundaries and cons
     missingAuthorization: f => { f.document.user_authorized = false; f.seal(); },
     unconfirmed: f => { f.document.entries[0].producer_stopped_verified = false; f.seal(); },
     duplicateTarget: f => { f.record(f.request.target.id, [["other", "output"]]); },
-    overlappingOwner: f => { f.record("other-owner", [], { members: [{ path: f.child, role: "log" }] }); },
-    overlappingAncestor: f => { f.record("other-owner", [], { members: [{ path: f.at("logs"), role: "log" }] }); },
+    overlappingOwner: f => { f.seedLegacy("other-owner", [], { members: [{ path: f.child, role: "log" }] }); },
+    overlappingAncestor: f => { f.seedLegacy("other-owner", [], { members: [{ path: f.at("logs"), role: "log" }] }); },
     incomingConsumer: f => { f.record("consumer", [["other", "output"]], { references: [{ id: f.source.id, reason: "retained evidence" }] }); },
     outgoingConsumer: f => { f.record(f.source.id, [], { members: f.members, state: "pending", membership_complete: false, references: [{ id: "external", reason: "retained dependency" }] }); }
   };
@@ -276,12 +288,206 @@ test("custody rejects proof inside unselected source custody", t => {
   assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
 });
 
+function observationFixture(t) {
+  const f = fixture(t), scope = f.at("observed"), selected = path.join(scope, "generated"), other = f.at("other-output");
+  fs.mkdirSync(selected, { recursive: true }); fs.mkdirSync(other);
+  fs.writeFileSync(path.join(selected, "output"), "generated");
+  const proof = f.at("original-producer-proof.json"); fs.writeFileSync(proof, "original stopped producer");
+  const digest = file => require("node:crypto").createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+  const original = f.record("real-owner", [], { kind: "run", state: "pending", membership_complete: false,
+    members: [selected, other].map(value => ({ path: value, role: "output", generated: true, protection_known: true })) });
+  const target = lifecycle.closeLifecycle(f.root, original.id, { owner: original.owner, expected_revision: original.revision,
+    producer_stopped_verified: true, outcome: "failure", exit_code: 1, reason: "Stopped original producer", evidence_ref: proof, evidence_sha256: digest(proof) });
+  const source = f.seedLegacy("unknown-custody", [], { state: "retained", membership_complete: false,
+    members: [scope, other].map(value => ({ path: value, role: "legacy-custody", generated: false, protection_known: false })) });
+  const raw = fs.readFileSync(lifecycle.registryPath(f.root, source.id), "utf8");
+  const request = { owner: source.owner, expected_revision: source.revision, source_sha256: digest(lifecycle.registryPath(f.root, source.id)),
+    reason: "Preserve uncertain historical observation", evidence_ref: f.at("migration-proof.json") };
+  const document = { schema: 1, action: "migrate-observation", user_authorized: true,
+    source: { id: source.id, owner: source.owner, expected_revision: source.revision, record_sha256: request.source_sha256 }, original_record_raw: raw };
+  const seal = () => { fs.writeFileSync(request.evidence_ref, JSON.stringify(document)); request.evidence_sha256 = digest(request.evidence_ref); };
+  seal();
+  const migrate = () => lifecycle.migrateObservation(f.root, source.id, request);
+  const resolution = () => {
+    const observation = lifecycle.catalog(f.root).find(record => record.id === source.id);
+    const resolveRequest = { owner: observation.owner, expected_revision: observation.revision,
+      target: { id: target.id, owner: target.owner, expected_revision: target.revision, record_sha256: digest(lifecycle.registryPath(f.root, target.id)) },
+      paths: [scope], reason: "Pinned proof excludes exact generated output from historical inputs", evidence_ref: f.at("resolution-proof.json") };
+    const resolveDocument = { schema: 1, action: "resolve-observation", user_authorized: true,
+      source: { id: source.id, owner: observation.owner, expected_revision: observation.revision }, target: resolveRequest.target, paths: resolveRequest.paths,
+      entries: [{ path: scope, generated: true, protection_known: true, consumers_released: true, producer_stopped_verified: true, generation_basis: "Verified original stopped producer receipt" }] };
+    const sealResolve = () => { fs.writeFileSync(resolveRequest.evidence_ref, JSON.stringify(resolveDocument)); resolveRequest.evidence_sha256 = digest(resolveRequest.evidence_ref); };
+    sealResolve();
+    return { resolveRequest, resolveDocument, sealResolve, resolve: () => lifecycle.resolveObservation(f.root, source.id, resolveRequest) };
+  };
+  return { ...f, scope, selected, other, source, target, proof, digest, request, document, seal, migrate, resolution };
+}
+
+test("observation migration separates uncertain scopes, preserves native holds and cannot confer deletion authority", t => {
+  const f = observationFixture(t), targetFile = lifecycle.registryPath(f.root, f.target.id), originalTarget = fs.readFileSync(targetFile, "utf8");
+  const observation = f.migrate();
+  assert.equal(observation.record_type, "observation"); assert.equal(observation.revision, f.source.revision + 1);
+  assert.equal(observation.observation.holds.length, 2);
+  assert.deepEqual(observation.observation.scopes.map(scope => scope.path), f.source.members.map(member => member.path));
+  assert.equal(f.migrate().revision, observation.revision);
+  const plan = lifecycle.planCleanup(f.root, { paths: [f.selected] });
+  assert.deepEqual(plan.groups.map(group => group.id), [f.target.id]); assert.equal(plan.observations.length, 1);
+  assert.ok(plan.groups[0].blockers.includes(`active-reference:${observation.id}`));
+  assert.ok(lifecycle.registerRequest(f.root, f.target.id).group.members.every(member => member.references.length));
+  for (const operation of [() => lifecycle.registerRequest(f.root, observation.id), () => lifecycle.finalize(f.root, observation.id),
+    () => lifecycle.recordLifecycle(f.root, { ...observation, record_type: undefined, state: "complete", membership_complete: true }),
+    () => lifecycle.recordLifecycle(f.root, observation), () => lifecycle.closeLifecycle(f.root, observation.id, {}),
+    () => lifecycle.releaseReferences(f.root, observation.id, {}), () => lifecycle.freezeCustody(f.root, observation.id, {}),
+    () => lifecycle.transferCustody(f.root, observation.id, {}), () => lifecycle.relocateCustody(f.root, observation.id, { destination_root: f.at("logs/migrated") })]) assert.throws(operation, /Observation/);
+  const lease = require("./maintenance-lock-owner.cjs").acquire(path.join(path.dirname(targetFile), "catalog.lock"), { operation: "test.observation-hold" });
+  try { assert.throws(() => lease.reserveProducers([f.target]), /consumer|reference/i); assert.throws(() => lease.reserveProducers([observation])); }
+  finally { lease.release(); }
+  assert.equal(fs.readFileSync(targetFile, "utf8"), originalTarget);
+  assert.equal(lifecycle.observationCatalog(f.root)[0].scopes.length, 2);
+});
+
+test("observation resolution releases only the exact target scope and preserves producer bytes and other holds", t => {
+  const f = observationFixture(t); f.migrate();
+  const second = lifecycle.recordObservation(f.root, { id: "second-observer", owner: "observer", scopes: [{ path: f.scope, reason: "Independent uncertainty" }] });
+  const before = fs.readFileSync(lifecycle.registryPath(f.root, f.target.id), "utf8"), r = f.resolution();
+  const resolved = r.resolve();
+  assert.equal(resolved.observation.holds.length, 1); assert.equal(resolved.observation.holds[0].scope, f.other);
+  assert.equal(resolved.observation.resolutions[0].scope, f.scope);
+  assert.equal(r.resolve().revision, resolved.revision);
+  assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.target.id), "utf8"), before);
+  assert.equal(lifecycle.catalog(f.root).find(record => record.id === second.id).observation.holds.length, 1);
+  assert.ok(lifecycle.planCleanup(f.root, { paths: [f.selected] }).groups[0].blockers.includes(`active-reference:${second.id}`));
+});
+
+test("overlapping historical custodians migrate independently without observation-to-observation holds", t => {
+  const f = observationFixture(t);
+  const second = f.seedLegacy("second-custody", [], { state: "retained", membership_complete: false,
+    members: f.source.members.map(member => ({ ...member, role: "legacy-input" })) });
+  const raw = fs.readFileSync(lifecycle.registryPath(f.root, second.id), "utf8"), evidence = f.at("second-migration-proof.json");
+  const request = { owner: second.owner, expected_revision: second.revision, source_sha256: f.digest(lifecycle.registryPath(f.root, second.id)),
+    reason: "Keep second independent observation", evidence_ref: evidence };
+  fs.writeFileSync(evidence, JSON.stringify({ schema: 1, action: "migrate-observation", user_authorized: true,
+    source: { id: second.id, owner: second.owner, expected_revision: second.revision, record_sha256: request.source_sha256 }, original_record_raw: raw }));
+  request.evidence_sha256 = f.digest(evidence);
+  f.migrate(); lifecycle.migrateObservation(f.root, second.id, request);
+  const observations = lifecycle.observationCatalog(f.root);
+  assert.equal(observations.length, 2);
+  assert.ok(observations.every(record => record.holds.length === 2 && record.holds.every(hold => hold.target_id === f.target.id)));
+  assert.ok(observations.every(record => record.references.every(reference => reference.id === f.target.id)));
+});
+
+test("resolved observation scopes remain visible while native cleanup authority returns only to the actual owner", t => {
+  const f = observationFixture(t); f.migrate();
+  const r = f.resolution(); r.resolveRequest.paths = [f.scope, f.other]; r.resolveDocument.paths = r.resolveRequest.paths;
+  r.resolveDocument.entries = r.resolveRequest.paths.map(value => ({ ...r.resolveDocument.entries[0], path: value })); r.sealResolve();
+  const original = fs.readFileSync(lifecycle.registryPath(f.root, f.target.id), "utf8");
+  assert.equal(r.resolve().observation.holds.length, 0);
+  assert.equal(lifecycle.observationCatalog(f.root)[0].scopes.length, 2);
+  assert.deepEqual(lifecycle.planCleanup(f.root, { paths: [f.selected] }).groups[0].blockers, []);
+  assert.ok(lifecycle.registerRequest(f.root, f.target.id).group.members.every(member => !member.references.length));
+  const lease = require("./maintenance-lock-owner.cjs").acquire(path.join(path.dirname(lifecycle.registryPath(f.root, f.target.id)), "catalog.lock"), { operation: "test.observation-resolved" });
+  let reserved = false;
+  try {
+    const result = lease.reserveProducers([f.target]); reserved = true; lease.releaseCatalog();
+    assert.deepEqual(lifecycle.planCleanup(f.root, { paths: [f.selected], reservations: result.observed }).groups[0].blockers, []);
+  } finally {
+    try {
+      if (reserved) {
+        const outcomes = [{ id: f.target.id, status: "deferred", members: f.target.members.map(member => ({ path: member.path, status: "deferred", remaining: true })) }];
+        const evidence = f.at("resolved-native-terminal.json"); fs.writeFileSync(evidence, JSON.stringify({ outcomes }));
+        lease.finishProducers(outcomes, evidence, f.digest(evidence));
+      }
+    } finally { lease.release(); }
+  }
+  assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.target.id), "utf8"), original);
+  assert.ok(fs.existsSync(f.selected) && fs.existsSync(f.other));
+  assert.deepEqual(lifecycle.planCleanup(f.root, { paths: [f.selected] }).groups[0].blockers, []);
+});
+
+test("observation publication protects a future owner before exposure and retries partial publication exactly", t => {
+  const f = fixture(t), scope = f.at("future"), output = path.join(scope, "output");
+  lifecycle.recordObservation(f.root, { id: "observer-a", owner: "observer", scopes: [{ path: scope, reason: "Unresolved scope" }] });
+  lifecycle.recordObservation(f.root, { id: "observer-b", owner: "observer", scopes: [{ path: scope, reason: "Independent unresolved scope" }] });
+  let calls = 0;
+  interruptLifecycleWrites(() => { if (++calls === 2) throw new Error("injected hold publication failure"); }, () => assert.throws(() => f.record("future-owner", [], {
+    members: [{ path: output, role: "output", generated: true, protection_known: true }] }), /injected/));
+  assert.equal(lifecycle.catalog(f.root).some(record => record.id === "future-owner"), false);
+  assert.equal(lifecycle.observationCatalog(f.root).reduce((count, record) => count + record.holds.length, 0), 1);
+  const owner = f.record("future-owner", [], { members: [{ path: output, role: "output", generated: true, protection_known: true }] });
+  assert.ok(lifecycle.observationCatalog(f.root).every(record => record.holds.length === 1));
+  assert.equal(lifecycle.registerRequest(f.root, owner.id).group.members[0].references.length, 2);
+});
+
+test("new actual ownership boundaries are exclusive while exact historical ownership updates and dependency sharing survive", async t => {
+  for (const kind of ["work", "run", "version"]) for (const boundary of ["exact", "ancestor", "descendant"]) await t.test(`${kind}:${boundary}`, t => {
+    const f = fixture(t), owned = f.at("owned/child");
+    fs.mkdirSync(owned, { recursive: true });
+    f.record("first", [], { members: [{ path: owned, role: "output" }] });
+    const candidate = boundary === "exact" ? owned : boundary === "ancestor" ? path.dirname(owned) : path.join(owned, "nested");
+    assert.throws(() => f.record("second", [], { kind, members: [{ path: candidate, role: "output" }] }), /already claimed/);
+    assert.throws(() => f.record("custody", [], { kind, state: "retained", membership_complete: false,
+      members: [{ path: candidate, role: "legacy-custody", generated: false, protection_known: false }] }), /already claimed|recordObservation/);
+    const legacy = f.seedLegacy("legacy-duplicate", [], { state: "pending", membership_complete: false, members: [{ path: owned, role: "output" }] });
+    const updated = f.record(legacy.id, [], { ...legacy, references: [{ id: "first", reason: "Shared use through dependency" }] });
+    assert.equal(updated.references.length, 1); assert.equal(updated.revision, legacy.revision + 1);
+  });
+});
+
+test("observation resolution requires exact consumer exclusions and preserves every inbound reference", t => {
+  const f = observationFixture(t); f.migrate();
+  const reader = f.record("reader", [["reader", "output"]], { references: [{ id: f.source.id, reason: "Historical input dependency", kind: "dependency" }] });
+  const r = f.resolution(), exclusion = f.at("reader-exclusion.json"); fs.writeFileSync(exclusion, "Checked exact selected generated paths are not historical inputs");
+  r.resolveRequest.consumer_exclusions = [{ id: reader.id, owner: reader.owner, expected_revision: reader.revision,
+    reference_ids: reader.references.map(ref => ref.reference_id), paths: r.resolveRequest.paths,
+    reason: "Independent consumer evidence excludes selected scope", evidence_ref: exclusion, evidence_sha256: f.digest(exclusion) }];
+  r.resolveDocument.consumer_exclusions = r.resolveRequest.consumer_exclusions; r.sealResolve();
+  const before = fs.readFileSync(lifecycle.registryPath(f.root, reader.id), "utf8");
+  assert.equal(r.resolve().observation.holds.length, 1);
+  assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, reader.id), "utf8"), before);
+  assert.equal(r.resolve().observation.holds.length, 1);
+});
+
+test("observation migration and resolution reject changed identities, evidence and consumers without source mutation", async t => {
+  const migrationCases = {
+    staleRevision: f => { f.request.expected_revision++; }, staleSourceHash: f => { f.request.source_sha256 = "0".repeat(64); },
+    changedEvidence: f => { fs.appendFileSync(f.request.evidence_ref, "changed"); },
+    missingOriginal: f => { delete f.document.original_record_raw; f.seal(); }
+  };
+  for (const [name, change] of Object.entries(migrationCases)) await t.test(`migration:${name}`, t => {
+    const f = observationFixture(t); change(f); const before = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8");
+    assert.throws(f.migrate); assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8"), before);
+  });
+  const resolveCases = {
+    staleRevision: (f, r) => { r.resolveRequest.expected_revision++; },
+    staleTarget: (f, r) => { r.resolveRequest.target.expected_revision++; r.sealResolve(); },
+    staleTargetHash: (f, r) => { r.resolveRequest.target.record_sha256 = "0".repeat(64); r.sealResolve(); },
+    changedProducerProof: f => { fs.appendFileSync(f.proof, "changed"); },
+    unknownGeneration: (f, r) => { r.resolveDocument.entries[0].generated = false; r.sealResolve(); },
+    activeConsumer: f => { f.record("reader", [["reader", "output"]], { references: [{ id: f.source.id, reason: "Reads unknown historical content" }] }); },
+    targetMissing: f => { fs.unlinkSync(lifecycle.registryPath(f.root, f.target.id)); }
+  };
+  for (const [name, mutate] of Object.entries({
+    unknownProducer: record => { record.producer.outcome = "unknown"; record.producer.exit_code = null; record.state = "pending"; },
+    incompleteTarget: record => { record.membership_complete = false; },
+    unknownProtection: record => { record.members[0].protection_known = false; },
+    untruthfulOutcome: record => { record.producer.exit_code = 0; }
+  })) resolveCases[name] = (f, r) => {
+    const file = lifecycle.registryPath(f.root, f.target.id), record = JSON.parse(fs.readFileSync(file)); mutate(record);
+    fs.writeFileSync(file, JSON.stringify(record)); r.resolveRequest.target.record_sha256 = f.digest(file); r.sealResolve();
+  };
+  for (const [name, change] of Object.entries(resolveCases)) await t.test(`resolve:${name}`, t => {
+    const f = observationFixture(t); f.migrate(); const r = f.resolution(); change(f, r);
+    const before = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8");
+    assert.throws(r.resolve); assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id), "utf8"), before);
+  });
+});
+
 function refinementFixture(t) {
   const f = fixture(t), parent = f.at("legacy-logs"), selected = path.join(parent, "generated"), remaining = path.join(parent, "unknown");
   fs.mkdirSync(selected, { recursive: true }); fs.mkdirSync(remaining);
   fs.writeFileSync(path.join(selected, "output.log"), "verified historical generated output");
   fs.writeFileSync(path.join(remaining, "user.txt"), "unclassified content");
-  const sources = ["legacy-custody", "legacy-input"].map((role, index) => f.record(`ancestor-${index}`, [], {
+  const sources = ["legacy-custody", "legacy-input"].map((role, index) => f.seedLegacy(`ancestor-${index}`, [], {
     state: "retained", membership_complete: false,
     members: [{ path: parent, role, generated: false, protection_known: false }, { path: f.at(`other-${index}`), role: "input", generated: false, protection_known: false }]
   }));
@@ -332,7 +538,7 @@ test("custody ancestor refinement rejects invalid proof, claims and boundaries w
     proofInsideSelected: f => { const file = path.join(f.selected, "output.log"); f.document.entries[0].producer_evidence = [{ path: file, sha256: f.digest(file) }]; f.seal(); },
     nestedSelection: f => { f.request.paths = [path.join(f.selected, "output.log")]; f.document.entries[0].path = f.request.paths[0]; f.seal(); },
     missingChild: f => { f.request.paths = [path.join(f.parent, "missing")]; f.document.entries[0].path = f.request.paths[0]; f.seal(); },
-    thirdOwner: f => { f.record("third-owner", [], { members: [{ path: f.selected, role: "output" }] }); },
+    thirdOwner: f => { f.seedLegacy("third-owner", [], { members: [{ path: f.selected, role: "output" }] }); },
     incomingReference: f => { f.record("reader", [["reader", "output"]], { references: [{ id: f.sources[0].id, reason: "still reads" }] }); },
     outgoingReference: f => { f.record(f.sources[0].id, [], { ...f.sources[0], references: [{ id: "dependency", reason: "unreleased" }] }); },
     linkedDescendant: f => { fs.symlinkSync(f.remaining, path.join(f.selected, "linked"), process.platform === "win32" ? "junction" : "dir"); }
@@ -410,7 +616,7 @@ test("custody ancestor refinement interruptions remain protected, resume exactly
     newReader: f => { f.record("new-reader", [["reader", "output"]], { references: [{ id: f.request.target.id, reason: "new active consumer" }] }); },
     replacedChild: f => { fs.renameSync(f.selected, f.at("saved-child")); fs.mkdirSync(f.selected); fs.writeFileSync(path.join(f.selected, "output.log"), "replacement"); },
     replacedParent: f => { fs.renameSync(f.parent, f.at("saved-parent")); fs.mkdirSync(f.parent); fs.mkdirSync(f.selected); fs.mkdirSync(f.remaining); },
-    newOverlap: f => { f.record("late-owner", [], { members: [{ path: path.join(f.selected, "output.log"), role: "output" }] }); }
+    newOverlap: f => { f.seedLegacy("late-owner", [], { members: [{ path: path.join(f.selected, "output.log"), role: "output" }] }); }
   };
   for (const [name, change] of Object.entries(retryChanges)) await t.test(`pending retry rejects ${name}`, t => {
     const f = refinementFixture(t); let count = 0;
@@ -493,7 +699,7 @@ test("physical custody rejects unsafe paths and identities before ownership writ
     owner: f => { f.request.owner = "wrong"; },
     outgoing: f => { f.record(f.source.id, [], { members: f.members, state: "pending", membership_complete: false, references: [{ id: "external", reason: "consumer" }] }); },
     incoming: f => { f.record("consumer", [["other", "output"]], { references: [{ id: f.source.id, reason: "consumer" }] }); },
-    otherOriginal: f => { f.record("other-owner", [], { members: [{ path: f.selected, role: "log" }] }); },
+    otherOriginal: f => { f.seedLegacy("other-owner", [], { members: [{ path: f.selected, role: "log" }] }); },
     otherDestination: f => { f.record("other-owner", [], { members: [{ path: path.join(f.destination, "child"), role: "log" }] }); },
     sourceDestination: f => { f.record(f.source.id, [], { members: [...f.members, { path: f.destination, role: "legacy-custody", generated: false, protection_known: false }], state: "pending", membership_complete: false }); },
     outside: f => { f.request.destination_root = f.at("outputs/new"); },
@@ -591,8 +797,8 @@ test("completed physical custody retry verifies destination and every moved root
 });
 
 test("legacy custody preserves uncertainty through parent projection and later producer updates", t => {
-  const { root, at, record } = fixture(t);
-  record("custody", [["legacy", "legacy-custody"]], { state: "retained", membership_complete: false,
+  const { root, at, record, seedLegacy } = fixture(t);
+  seedLegacy("custody", [["legacy", "legacy-custody"]], { state: "retained", membership_complete: false,
     members: [{ path: at("legacy"), role: "legacy-custody", generated: false, protection_known: false }] });
   record("custody", [["legacy", "legacy-custody"]], { state: "complete" });
   assert.equal(lifecycle.catalog(root)[0].members[0].generated, false);
@@ -651,9 +857,9 @@ test("selection expands all sibling outputs and native projection keeps disjoint
 });
 
 test("shared member protection, report destinations and active consumers protect whole groups", t => {
-  const { root, at, record } = fixture(t);
+  const { root, at, record, seedLegacy } = fixture(t);
   record("a", [["releases/a", "release"], ["shared/key", "cache"]]);
-  record("b", [["releases/b", "release"], ["shared/key", "cache"]]);
+  seedLegacy("b", [["releases/b", "release"], ["shared/key", "cache"]]);
   let plan = lifecycle.planCleanup(root, { paths: [at("releases/a")], protectedPaths: [at("releases/b/current")] });
   assert.deepEqual(plan.groups.map(group => group.id).sort(), ["a", "b"]);
   assert.ok(plan.groups.every(group => group.blockers.length));

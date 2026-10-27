@@ -355,7 +355,7 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   const spec = fixture("default-lifecycle");
   const scripts = path.join(spec.cwd, "scripts");
   fs.mkdirSync(scripts);
-  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs", "maintenance-lock-owner.cjs", "maintenance-lock-worker.cjs", "maintenance-owner-config.cjs"]) {
+  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs", "artifact-observations.cjs", "maintenance-lock-owner.cjs", "maintenance-lock-worker.cjs", "maintenance-owner-config.cjs"]) {
     fs.copyFileSync(path.join(__dirname, file), path.join(scripts, file));
   }
   const source = path.join(spec.cwd, "engine");

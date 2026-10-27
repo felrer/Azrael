@@ -34,6 +34,18 @@ OS 잠금 획득 대기는 최대 5초다. 획득 뒤 예약·완료 요청의 �
 
 Windows 명시적 복구는 프로세스 객체가 조회된다는 이유만으로 실행 중이라고 판단하지 않는다. OS 대기 결과가 종료를 나타내면 PID 거부 조건만 해제하며, 실행 중이거나 상태를 확인할 수 없으면 차단한다. 정확한 producer 트리의 독립적인 종료 근거와 레코드 SHA·fence·소유자·현재 잠금 검증은 별도로 모두 필요하다.
 
+## 보관·관찰 기록과 실제 생성자
+
+상태: `current` (현재 checkout의 Node 어댑터·Windows x64). 구현·통합 검증과 기존 기록의 전환 범위는 [현재 작업](../../work/DW-01-build-preflight-timing/16-plan.md)이 소유한다. 앱 내장 엔진이나 과거 frozen workspace의 자동 교체가 아니며 다른 OS 실기는 미검증이다.
+
+`record_type:"observation"`은 미분류 경로의 보관 책임과 발견 사항을 나타내며 변경·삭제 권한을 주지 않는다. 실제 생성자는 기존 producer 기록을 사용한다. 관찰끼리 또는 관찰과 생성자의 경로 겹침은 허용하고, 미확정 사용·복구는 실제 생성자에 향하는 scoped 보호 참조로 관리한다. 보호와 소유권을 같은 의미로 취급하지 않는다. 기존 native wire의 retained/incomplete·false ownership/protection carrier와 consumer reference를 재사용하므로 동일 catalog 잠금·CAS·예약/source fence가 보호한다.
+
+별도 조회는 `node scripts/artifact-lifecycle.cjs observation-catalog --project-root <ABS>`다. 새 관찰은 `record-observation`, 기존 순수 미분류 custody 전환은 `migrate-observation --id <ID>`, 확인된 범위의 보호 해소는 `resolve-observation --id <ID>`와 프로젝트 안의 `--request-file <ABS>`를 사용한다. 일반 producer 등록·종료·참조 해제·native cleanup 등록·예약·finalize를 관찰 기록에 적용하지 않는다. 관찰이 아닌 기존 실제 생성자의 정상 공유 사용은 consumer reference로 연결한다.
+
+전환 요청은 정확한 custodian/expected revision/source SHA와 외부 근거 SHA를 요구하며, 근거에는 원본 record bytes와 전환 identity를 보존한다. 원래 범위·불확실성·소비 참조를 유지하고 실제 payload는 변경하지 않는다. 미해결 scope가 실제 생성자와 겹치면 보호 참조를 생성자 출판 전에 저장한다. 해소 요청은 실제 생성자의 정확한 revision/record SHA·원래 producer 종료 근거와 모든 관찰 소비자의 범위별 제외 근거를 묶는다. 다른 hold는 남기고 실제 생성자의 기록·결과를 변경하지 않는다. 현재 보호·근거·예약이 바뀌면 중단하고 새 identity로 검토한다.
+
+기존 custody가 native 그룹으로도 등록됐다면 그 독립 소유 이력부터 확인한다. record type만 바꿔 native 등록이나 다른 consumer의 보호가 없어졌다고 간주하지 않는다. 전환 후 생성자에 fresh 등록/보호 refresh·검토를 적용하고 실제 보호 참조와 사용 종료를 확인한 대상만 별도 archive/정리 절차로 처리한다. 관찰 전환이나 hold 해제는 파일 이동·삭제 결과가 아니다. 원본 JSON을 수동 편집해 type·보호·소비 관계를 없애지 않는다.
+
 ## 프로젝트 등록
 
 저장소의 `project-maintenance.json`에 `schema_version: 1`, `project_id`, `managed_roots`, `protected_paths`, `bundles`를 둔다. 각 묶음은 `id`, `kind` (`test`, `prepare`, `build`), `purpose` (`one_off`, `retained`), `argv`를 가진다. `cwd`는 프로젝트 기준 상대 경로, `env`는 환경 변수, `depends_on`은 선행 묶음 ID, `inputs`는 명시한 입력 경로다. 현재 설정의 예는 [Azrael 설정](../../project-maintenance.json)을 따른다.
