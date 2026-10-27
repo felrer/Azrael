@@ -88,6 +88,7 @@ function mutateLifecycle(root, id, request, operation, mutate) {
     try {
       const record = validate(root, JSON.parse(fs.readFileSync(filename, "utf8")));
       if (record.custody_transfer && record.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
+      if (record.custody_refinement && record.state === "pending") throw new Error("Pending custody refinement requires refine-custody retry");
       if (record.id !== id || request.owner !== record.owner) throw new Error("Exact lifecycle owner required");
       const evidence = checkedEvidence(root, request);
       const identity = sha(JSON.stringify(Object.keys(request).sort().map(key => [key, request[key]])));
@@ -142,7 +143,9 @@ function recordLifecycleUnlocked(root, request) {
   try {
     const previous = fs.existsSync(filename) ? validate(root, JSON.parse(fs.readFileSync(filename, "utf8"))) : null;
     if (previous?.custody_transfer && previous.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
+    if (previous?.custody_refinement && previous.state === "pending") throw new Error("Pending custody refinement requires refine-custody retry");
     if (previous?.custody_handoffs?.some(receipt => incoming.members.some(member => receipt.paths.some(transferred => overlap(transferred, member.path))))) throw new Error("Transferred custody cannot be reclaimed by ordinary record writes");
+    if (previous?.custody_refinements?.some(receipt => incoming.members.some(member => receipt.paths.some(transferred => overlap(transferred, member.path))))) throw new Error("Refined custody cannot be reclaimed by ordinary record writes");
     if (previous && (previous.id !== incoming.id || previous.kind !== incoming.kind || previous.owner !== incoming.owner || (previous.version ?? null) !== (incoming.version ?? null))) throw new Error("Conflicting lifecycle identity");
     const newGeneration = previous && incoming.generation !== undefined && incoming.generation !== previous.generation;
     if (newGeneration && (request.expected_revision !== previous.revision || previous.producer?.status !== "stopped" || previous.producer.outcome === "unknown" || incoming.state !== "pending" || incoming.membership_complete)) throw new Error("New lifecycle generation requires exact revision and known stopped producer");
@@ -182,6 +185,8 @@ function recordLifecycleUnlocked(root, request) {
       ...(!newGeneration && previous?.release_receipt ? { release_receipt: previous.release_receipt } : {}),
       ...(previous?.custody_handoffs ? { custody_handoffs: previous.custody_handoffs } : {}),
       ...(previous?.custody_transfer ? { custody_transfer: previous.custody_transfer } : {}),
+      ...(previous?.custody_refinement ? { custody_refinement: previous.custody_refinement } : {}),
+      ...(previous?.custody_refinements ? { custody_refinements: previous.custody_refinements } : {}),
       revision: (previous?.revision || 0) + 1, created_at: previous?.created_at || new Date().toISOString(), updated_at: new Date().toISOString() };
     const temporary = checked(root, filename + "." + crypto.randomUUID() + ".tmp");
     fs.writeFileSync(temporary, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
@@ -277,6 +282,138 @@ function transferCustody(root, sourceId, request) {
       writeRecord(root, registryPath(root, target.id), validate(root, result));
     }
     return { status: "transferred", source_id: sourceId, target_id: target.id, record: result };
+  });
+}
+// Refine historical container claims without declaring its other contents generated.
+// A pending destination protects partial publication; native maintenance still deletes.
+function refineCustody(root, request) {
+  return withCatalogLock(root, () => {
+    root = path.resolve(root);
+    const records = catalog(root), parent = checked(root, request.parent, true), target = request.target;
+    const stable = value => Array.isArray(value) ? value.map(stable) : value && typeof value === "object"
+      ? Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])])) : value;
+    const equal = (a, b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
+    const identity = sha(JSON.stringify(stable(request)));
+    if (!target || typeof target.id !== "string" || !target.id || target.kind !== "work" || typeof target.owner !== "string" || !target.owner.trim() ||
+        (target.version !== undefined && (typeof target.version !== "string" || !target.version))) throw new Error("Invalid refinement target");
+    if (!Array.isArray(request.sources) || !request.sources.length || new Set(request.sources.map(s => s.id)).size !== request.sources.length ||
+        request.sources.some(s => !s.id || s.id === target.id || !s.owner || !Number.isInteger(s.expected_revision) || s.expected_revision < 1)) throw new Error("Exact refinement sources required");
+    if (!Array.isArray(request.paths) || !request.paths.length) throw new Error("Explicit refinement paths required");
+    const paths = request.paths.map(p => checked(root, p, true));
+    if (new Set(paths).size !== paths.length || paths.some(p => path.dirname(p) !== parent)) throw new Error("Refinement requires distinct immediate children");
+    const sources = request.sources.map(s => {
+      const record = records.find(r => r.id === s.id);
+      if (!record || record.owner !== s.owner || record.state !== "retained" || record.membership_complete || record.producer || record.references.length) throw new Error("Unresolved inactive legacy source required");
+      return record;
+    });
+    const evidence = checkedEvidence(root, request);
+    if (inside(registry(root), evidence.evidence_ref) || inside(parent, evidence.evidence_ref) || sources.some(s => s.members.some(m => inside(m.path, evidence.evidence_ref)))) throw new Error("Refinement evidence must survive outside custody");
+    const document = JSON.parse(fs.readFileSync(evidence.evidence_ref, "utf8"));
+    if (document.schema !== 1 || document.action !== "refine-custody" || document.parent !== parent || document.target_id !== target.id || document.user_authorized !== true ||
+        !equal(document.sources, request.sources) || !Array.isArray(document.entries) || document.entries.length !== paths.length) throw new Error("Invalid refinement evidence identity");
+    const seen = new Set(), proofFiles = new Map();
+    const addProof = proof => {
+      const file = checked(root, proof.path);
+      if (inside(registry(root), file) || inside(parent, file) || sources.some(s => s.members.some(m => inside(m.path, file))) || !fs.lstatSync(file).isFile() ||
+          !/^[a-f0-9]{64}$/.test(proof.sha256 || "") || (proofFiles.has(file) && proofFiles.get(file) !== proof.sha256)) throw new Error("Refinement producer evidence changed or unsafe");
+      proofFiles.set(file, proof.sha256);
+    };
+    for (const entry of document.entries) {
+      if (!paths.includes(entry.path) || seen.has(entry.path) || entry.generated !== true || entry.protection_known !== true || entry.consumers_released !== true ||
+          entry.producer_stopped_verified !== true || typeof entry.generation_basis !== "string" || !entry.generation_basis.trim() || !Array.isArray(entry.producer_evidence) || !entry.producer_evidence.length) throw new Error("Invalid refinement generation evidence");
+      seen.add(entry.path);
+      for (const proof of entry.producer_evidence) addProof(proof);
+    }
+    const exclusions = request.consumer_exclusions ?? [];
+    const consumers = records.filter(r => r.references.some(ref => request.sources.some(s => s.id === ref.id)));
+    if (!Array.isArray(exclusions) || !equal(exclusions, document.consumer_exclusions ?? []) || exclusions.length !== consumers.length ||
+        new Set(exclusions.map(c => c.id)).size !== exclusions.length) throw new Error("Exact custody consumer exclusions required");
+    for (const consumer of consumers) {
+      const exclusion = exclusions.find(c => c.id === consumer.id);
+      const references = consumer.references.filter(ref => request.sources.some(s => s.id === ref.id)).map(referenceIdentity).sort();
+      if (!exclusion || exclusion.owner !== consumer.owner || exclusion.expected_revision !== consumer.revision || !equal(exclusion.paths, paths) ||
+          !Array.isArray(exclusion.reference_ids) || !equal([...exclusion.reference_ids].sort(), references)) throw new Error("Active custody consumer references require exact owner exclusion");
+      const proof = checkedEvidence(root, exclusion);
+      addProof({ path: proof.evidence_ref, sha256: proof.evidence_sha256 });
+    }
+    const checkProofs = () => {
+      for (const [file, expected] of proofFiles) if (sha(fs.readFileSync(checked(root, file))) !== expected) throw new Error("Refinement producer evidence changed");
+    };
+    checkProofs();
+    const existing = records.find(r => r.id === target.id);
+    for (const r of records) {
+      if (r.references.some(ref => ref.id === target.id)) throw new Error("Active custody target consumer references");
+      if (r.id !== target.id && !sources.includes(r) && r.members.some(m => paths.some(p => overlap(p, m.path)))) throw new Error("Custody overlaps another lifecycle owner");
+    }
+    if (existing && (existing.custody_refinement?.request_sha256 !== identity || existing.owner !== target.owner || existing.kind !== target.kind ||
+        (existing.version ?? null) !== (target.version ?? null) || existing.references.length || existing.producer || !["pending", "complete"].includes(existing.state) ||
+        !equal(existing.members, paths.map(p => ({ path: p, role: "artifact", generated: true, protection_known: true }))))) throw new Error("Conflicting refinement target or retry");
+    const receipts = sources.map(s => s.custody_refinements?.find(r => r.request_sha256 === identity));
+    if (!existing && receipts.some(Boolean)) {
+      if (!receipts.every(Boolean)) throw new Error("Missing pending refinement target");
+      if (paths.some(custodyPresent)) throw new Error("Retired custody target still has extant paths");
+      return { status: "already-retired", target_id: target.id };
+    }
+    const parentIdentity = custodyFileIdentity(parent);
+    if (!fs.lstatSync(parent).isDirectory()) throw new Error("Refinement parent must be a directory");
+    const children = fs.readdirSync(parent).sort().map(name => checked(root, path.join(parent, name), true));
+    if (paths.some(p => !children.includes(p))) throw new Error("Selected refinement child missing or aliased");
+    const remaining = children.filter(p => !paths.includes(p));
+    if (!remaining.length) throw new Error("Refinement must preserve unknown container contents");
+    const childIdentities = children.map(p => ({ path: p, ...custodyFileIdentity(p) }));
+    for (const p of paths) {
+      if (!fs.lstatSync(p).isDirectory()) throw new Error("Refinement child must be a directory");
+      rejectCustodyLinks(p);
+    }
+    const snapshot = { parent_identity: parentIdentity, child_identities: childIdentities };
+    if (existing && !equal(existing.custody_refinement.snapshot, snapshot)) throw new Error("Refinement filesystem identity or membership changed");
+    const changes = sources.map((source, index) => {
+      const applied = receipts[index];
+      if (applied) {
+        if (source.revision !== request.sources[index].expected_revision + 1 || !equal(applied.paths, paths) || source.members.some(m => paths.some(p => overlap(p, m.path))) ||
+            !applied.replacements.every(m => source.members.some(other => equal(m, other)))) throw new Error("Refined source changed after publication");
+        return null;
+      }
+      if (source.revision !== request.sources[index].expected_revision) throw new Error("Stale custody source revision");
+      const claims = source.members.filter(m => m.path === parent);
+      if (claims.length !== 1 || !["legacy-custody", "legacy-input"].includes(claims[0].role) || claims[0].generated !== false || claims[0].protection_known !== false ||
+          source.members.some(m => m.path !== parent && paths.some(p => overlap(p, m.path)))) throw new Error("Exact unresolved legacy parent claim required");
+      const replacements = remaining.map(p => ({ ...claims[0], path: p }));
+      const members = [...source.members.filter(m => m.path !== parent)];
+      for (const m of replacements) if (!members.some(other => equal(m, other))) members.push(m);
+      return { source, members, receipt: { request_sha256: identity, parent, paths, original_member: claims[0], replacements, ...evidence } };
+    });
+    const checkSnapshot = () => {
+      verifyCustodyIdentity(parent, parentIdentity);
+      if (!equal(fs.readdirSync(parent).sort().map(name => path.join(parent, name)), children)) throw new Error("Refinement directory membership changed");
+      for (const child of childIdentities) verifyCustodyIdentity(child.path, child);
+      checkedEvidence(root, request);
+      checkProofs();
+    };
+    checkSnapshot();
+    const now = new Date().toISOString();
+    const pending = existing || validate(root, { schema: 1, id: target.id, kind: "work", owner: target.owner, version: target.version ?? null,
+      state: "pending", membership_complete: false, members: paths.map(p => ({ path: p, role: "artifact", generated: true, protection_known: true })), references: [],
+      custody_refinement: { request_sha256: identity, sources: request.sources, paths, snapshot, ...evidence }, revision: 1, created_at: now, updated_at: now });
+    if (!existing) writeRecord(root, registryPath(root, target.id), pending);
+    for (const change of changes.filter(Boolean)) {
+      checkSnapshot();
+      const { source, members, receipt } = change;
+      source.members = members;
+      source.custody_refinements = [...(source.custody_refinements || []), receipt];
+      source.revision++;
+      source.updated_at = new Date().toISOString();
+      writeRecord(root, registryPath(root, source.id), validate(root, source));
+    }
+    checkSnapshot();
+    if (pending.state !== "complete") {
+      pending.state = "complete";
+      pending.membership_complete = true;
+      pending.revision++;
+      pending.updated_at = new Date().toISOString();
+      writeRecord(root, registryPath(root, target.id), validate(root, pending));
+    }
+    return { status: "refined", target_id: target.id, record: pending };
   });
 }
 function custodyFileIdentity(filename) {
@@ -496,10 +633,10 @@ function main(argv = process.argv.slice(2)) {
   const retirementKeys = ["producer-stopped-verified", "evidence-ref", "evidence-sha256", "reason"];
   const retirementRequested = retirementKeys.some(key => Object.hasOwn(options, key));
   if (retirementRequested && !["finalize", "reconcile"].includes(action)) throw new Error("Retirement options require finalize or reconcile");
-  if (["close", "release", "transfer-custody", "relocate-custody"].includes(action)) {
+  if (["close", "release", "transfer-custody", "relocate-custody", "refine-custody"].includes(action)) {
     const requestFile = checked(root, options["request-file"]);
     const request = JSON.parse(fs.readFileSync(requestFile, "utf8"));
-    return action === "relocate-custody" ? relocateCustody(root, options.id, request) : action === "transfer-custody" ? transferCustody(root, options.id, request) : action === "close" ? closeLifecycle(root, options.id, request) : releaseReferences(root, options.id, request);
+    return action === "refine-custody" ? refineCustody(root, request) : action === "relocate-custody" ? relocateCustody(root, options.id, request) : action === "transfer-custody" ? transferCustody(root, options.id, request) : action === "close" ? closeLifecycle(root, options.id, request) : releaseReferences(root, options.id, request);
   }
   if (action === "record") {
     if (options["reference-kind"] !== undefined) {
@@ -531,5 +668,5 @@ function main(argv = process.argv.slice(2)) {
   }
   throw new Error("Expected record, plan, register, catalog or finalize");
 }
-module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, transferCustody, relocateCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
+module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }

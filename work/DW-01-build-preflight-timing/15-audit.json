@@ -1,0 +1,2848 @@
+{
+  "state": "full-body-review-and-focused-verification-passed; user-requested-archive-verified",
+  "scope": "Full build, exhaustive current/standalone/build union all feature source/native gates and package/host checks, all supported platform branches; body review required",
+  "baselineHead": "1b7f7af545983ff9761706c2644c9030ab75d1c1",
+  "source": [
+    {
+      "file": "instructions/skills/ktcloud-ai-nexus/scripts/test_state_roots.py",
+      "sha256": "e097793b572adec50fc2cd95ead5139927da72e93ace673a23373af40c08d742",
+      "lines": 46,
+      "review": "complete",
+      "currentSha256": "e097793b572adec50fc2cd95ead5139927da72e93ace673a23373af40c08d742"
+    },
+    {
+      "file": "providers/devin/tests/diagnostics.test.mjs",
+      "sha256": "b4a3c7d227d22049ab97408ab7b1934ab9412ddff8533b21a76f3833e3399d68",
+      "lines": 106,
+      "review": "complete",
+      "currentSha256": "b4a3c7d227d22049ab97408ab7b1934ab9412ddff8533b21a76f3833e3399d68"
+    },
+    {
+      "file": "providers/devin/tests/stall-diagnostics.test.mjs",
+      "sha256": "d8b38bd61b4673b9de82c6bd85956ae8a8af65dc93ecd7ccb2f28829364587ed",
+      "lines": 139,
+      "review": "complete",
+      "currentSha256": "d8b38bd61b4673b9de82c6bd85956ae8a8af65dc93ecd7ccb2f28829364587ed"
+    },
+    {
+      "file": "providers/opencodex/tests/harness-mapping.test.mjs",
+      "sha256": "b78dc710ec504f35813e6cbcec1b96ddb247106b8cfcdafd5ce0b36202e369bc",
+      "lines": 103,
+      "review": "complete",
+      "currentSha256": "b78dc710ec504f35813e6cbcec1b96ddb247106b8cfcdafd5ce0b36202e369bc"
+    },
+    {
+      "file": "providers/opencodex/tests/tool-diagnostics.test.mjs",
+      "sha256": "d4c4b5f66f4c785d72aba0a3dd769e9a9444ae1e680da15f59869d75f4ec1068",
+      "lines": 130,
+      "review": "complete",
+      "currentSha256": "d4c4b5f66f4c785d72aba0a3dd769e9a9444ae1e680da15f59869d75f4ec1068"
+    },
+    {
+      "file": "providers/opencodex/tests/unavailable-tool.test.mjs",
+      "sha256": "841c285cb7b25acf96b44cd4e47d0632752e542538c1d667fa4227960308f69c",
+      "lines": 78,
+      "review": "complete",
+      "currentSha256": "841c285cb7b25acf96b44cd4e47d0632752e542538c1d667fa4227960308f69c"
+    },
+    {
+      "file": "scripts/check-artifact-lifecycle.cjs",
+      "sha256": "4d15df02456b37942f52a86f5c4d00f772e13075496c12cda96ff9af618e9d97",
+      "lines": 83,
+      "review": "complete",
+      "currentSha256": "4d15df02456b37942f52a86f5c4d00f772e13075496c12cda96ff9af618e9d97"
+    },
+    {
+      "file": "scripts/check-deletion-approval-host.cjs",
+      "sha256": "58d9cb8892a05fb410c037d4f76df1569a7c59b076c0f7f69bad26bf586ec0aa",
+      "lines": 23,
+      "review": "complete",
+      "currentSha256": "58d9cb8892a05fb410c037d4f76df1569a7c59b076c0f7f69bad26bf586ec0aa"
+    },
+    {
+      "file": "scripts/check-engine-provenance-guards.cjs",
+      "sha256": "9f87f36f9b681145c1f5494548e33c3d46e73a263abe35f6c8a6d6e03ef697b1",
+      "lines": 28,
+      "review": "complete",
+      "currentSha256": "9f87f36f9b681145c1f5494548e33c3d46e73a263abe35f6c8a6d6e03ef697b1"
+    },
+    {
+      "file": "scripts/check-error-classification.cjs",
+      "sha256": "7c0910ecead86c69a3e53c175d01eef5659833fa8b88bcb857460affb2226866",
+      "lines": 16,
+      "review": "complete",
+      "currentSha256": "7c0910ecead86c69a3e53c175d01eef5659833fa8b88bcb857460affb2226866"
+    },
+    {
+      "file": "scripts/check-error-presentation.cjs",
+      "sha256": "2a6f877ff645a2581b547e1b5f308453b142a2638a7f06903e9828cf71c351ea",
+      "lines": 13,
+      "review": "complete",
+      "currentSha256": "2a6f877ff645a2581b547e1b5f308453b142a2638a7f06903e9828cf71c351ea"
+    },
+    {
+      "file": "scripts/check-meta-provider.cjs",
+      "sha256": "6a9b591f1e41cc21e54302d678058ef20270eaee0c0abd88005efb3a127c5258",
+      "lines": 14,
+      "review": "complete",
+      "currentSha256": "6a9b591f1e41cc21e54302d678058ef20270eaee0c0abd88005efb3a127c5258"
+    },
+    {
+      "file": "scripts/check-unavailable-tool-adapter.cjs",
+      "sha256": "61b2ac3a12df08cfcb575cce8695cb646fac3ebf17f69c4f5364f7bd0188a331",
+      "lines": 17,
+      "review": "complete",
+      "currentSha256": "61b2ac3a12df08cfcb575cce8695cb646fac3ebf17f69c4f5364f7bd0188a331"
+    },
+    {
+      "file": "scripts/check-window-child-logoff.cjs",
+      "sha256": "084ec7d75d09e2104365dd9b33d494de0d11698444135ee40b9097a537127fcc",
+      "lines": 27,
+      "review": "complete",
+      "currentSha256": "084ec7d75d09e2104365dd9b33d494de0d11698444135ee40b9097a537127fcc"
+    },
+    {
+      "file": "scripts/import-instructions.py",
+      "sha256": "7c5c48c87c196cf89c7af7490c0513b79972f51863b581ca0f7c55eacc4563c4",
+      "lines": 348,
+      "review": "complete",
+      "currentSha256": "7c5c48c87c196cf89c7af7490c0513b79972f51863b581ca0f7c55eacc4563c4"
+    },
+    {
+      "file": "scripts/test-account-fixture-environment.cjs",
+      "sha256": "3450f123f718be22a055d2f14e9de5a892b5382f7e8a2a70aa558650fbb32dee",
+      "lines": 81,
+      "review": "complete",
+      "currentSha256": "3450f123f718be22a055d2f14e9de5a892b5382f7e8a2a70aa558650fbb32dee"
+    },
+    {
+      "file": "scripts/test-account-models-catalog.cjs",
+      "sha256": "9ad774b73cf737d474cca2c3f18eba560941f153677ef625916360824bf1fab7",
+      "lines": 61,
+      "review": "complete",
+      "currentSha256": "8f9994351b507c07c686d16a227e9c6ef0354c40ff1c58d1070d288717903b39"
+    },
+    {
+      "file": "scripts/test-account-settings.cjs",
+      "sha256": "fd141661f1c3327a716df82df01fc233209ce9ffbae8018291b5084d6b1e341b",
+      "lines": 176,
+      "review": "complete",
+      "currentSha256": "fd141661f1c3327a716df82df01fc233209ce9ffbae8018291b5084d6b1e341b"
+    },
+    {
+      "file": "scripts/test-account-switch-queue.cjs",
+      "sha256": "bf42ccdc004eda53452714c50631687c92aa09100b36184c9304e090d91c41fc",
+      "lines": 238,
+      "review": "complete",
+      "currentSha256": "bf42ccdc004eda53452714c50631687c92aa09100b36184c9304e090d91c41fc"
+    },
+    {
+      "file": "scripts/test-anthropic-prompt-format.cjs",
+      "sha256": "c994cdc3edc96ebf015e10d8a6b24a9f02af98ebc4924c1c02d5b18eb0df3d7f",
+      "lines": 112,
+      "review": "complete",
+      "currentSha256": "c994cdc3edc96ebf015e10d8a6b24a9f02af98ebc4924c1c02d5b18eb0df3d7f"
+    },
+    {
+      "file": "scripts/test-artifact-lifecycle.cjs",
+      "sha256": "30a1f5f0c95e22341aa432d738575d4961ccaed03b9e8f428a226aaeb9732538",
+      "lines": 679,
+      "review": "complete",
+      "currentSha256": "30a1f5f0c95e22341aa432d738575d4961ccaed03b9e8f428a226aaeb9732538"
+    },
+    {
+      "file": "scripts/test-asset-transform-cache-retention.cjs",
+      "sha256": "66e7f80347363d19387332bdf58c5a2c5e7baafde26e3ed43eea93c19b742a79",
+      "lines": 150,
+      "review": "complete",
+      "currentSha256": "66e7f80347363d19387332bdf58c5a2c5e7baafde26e3ed43eea93c19b742a79"
+    },
+    {
+      "file": "scripts/test-asset-transform-cache.cjs",
+      "sha256": "91eb4a1edb3673499adfb80f3e249fd74ddc8ca48ecbdb6e7ba6ccc919eba233",
+      "lines": 349,
+      "review": "complete",
+      "currentSha256": "91eb4a1edb3673499adfb80f3e249fd74ddc8ca48ecbdb6e7ba6ccc919eba233"
+    },
+    {
+      "file": "scripts/test-auto-review.cjs",
+      "sha256": "77e1134e4c6f8cf52f23a63e6791e48ba0dbceea322360673de7bf97ef042b91",
+      "lines": 96,
+      "review": "complete",
+      "currentSha256": "77e1134e4c6f8cf52f23a63e6791e48ba0dbceea322360673de7bf97ef042b91"
+    },
+    {
+      "file": "scripts/test-btw.cjs",
+      "sha256": "0b22a40afb94813484f8b3640567b108af827689870cc61ddccd996ed926491d",
+      "lines": 416,
+      "review": "complete",
+      "currentSha256": "0b22a40afb94813484f8b3640567b108af827689870cc61ddccd996ed926491d"
+    },
+    {
+      "file": "scripts/test-build-metrics.ps1",
+      "sha256": "7507d0b746830d3fd8d6d37bce49a3e39b43740ddc71e9696d97c27606f35bd9",
+      "lines": 349,
+      "review": "complete",
+      "currentSha256": "7507d0b746830d3fd8d6d37bce49a3e39b43740ddc71e9696d97c27606f35bd9"
+    },
+    {
+      "file": "scripts/test-build-module-cache.ps1",
+      "sha256": "d31b018b24d494a66e915db9d8e7a91c74f5831ce2d36869eef34d3789b76ebc",
+      "lines": 544,
+      "review": "complete",
+      "currentSha256": "d31b018b24d494a66e915db9d8e7a91c74f5831ce2d36869eef34d3789b76ebc"
+    },
+    {
+      "file": "scripts/test-build-platform.cjs",
+      "sha256": "01b88164fd6fa18f4580149b77ab0a0164174aaec932e84e17005a97a857c4de",
+      "lines": 200,
+      "review": "complete",
+      "currentSha256": "01b88164fd6fa18f4580149b77ab0a0164174aaec932e84e17005a97a857c4de"
+    },
+    {
+      "file": "scripts/test-capacity-retry-stop.cjs",
+      "sha256": "e7a4708431d6d836019d4d0c2ad047462506094fee48f0da096aadc4fb603230",
+      "lines": 69,
+      "review": "complete",
+      "currentSha256": "e7a4708431d6d836019d4d0c2ad047462506094fee48f0da096aadc4fb603230"
+    },
+    {
+      "file": "scripts/test-capture-project-inputs.cjs",
+      "sha256": "86be73366d49aae2d79315a2bfb5c20a055c498c06a16ae2e5bcfacdf04d885f",
+      "lines": 247,
+      "review": "complete",
+      "currentSha256": "86be73366d49aae2d79315a2bfb5c20a055c498c06a16ae2e5bcfacdf04d885f"
+    },
+    {
+      "file": "scripts/test-cargo-preflight-recipes.cjs",
+      "sha256": "681fa5d68c18f4bccf720c2b544c7e4467825f03fc7effb65971336b63741353",
+      "lines": 206,
+      "review": "complete",
+      "currentSha256": "72f2f565dc8f3b0ab47b6c61d0f497192d5f6f756d6a9ea5d939945ebb6bcd99"
+    },
+    {
+      "file": "scripts/test-cargo-scheduling.cjs",
+      "sha256": "7ed403aabac5435f424df8cfd92b00b42b245dee38a1f5626a8fe8de6c2bb732",
+      "lines": 164,
+      "review": "complete",
+      "currentSha256": "7ed403aabac5435f424df8cfd92b00b42b245dee38a1f5626a8fe8de6c2bb732"
+    },
+    {
+      "file": "scripts/test-cargo-shared-cache.cjs",
+      "sha256": "ee91db545d98019409bb3943f44d8e61a7436cdd185184456b3b8779dd885b0b",
+      "lines": 60,
+      "review": "complete",
+      "currentSha256": "ee91db545d98019409bb3943f44d8e61a7436cdd185184456b3b8779dd885b0b"
+    },
+    {
+      "file": "scripts/test-cargo-target-owner.cjs",
+      "sha256": "a9d943bbbd2b98dcf6d1d23db9f504236b7e3a2e995b57986fbfa537ecfe2b16",
+      "lines": 428,
+      "review": "complete",
+      "currentSha256": "a9d943bbbd2b98dcf6d1d23db9f504236b7e3a2e995b57986fbfa537ecfe2b16"
+    },
+    {
+      "file": "scripts/test-cargo-test-preparation.cjs",
+      "sha256": "70c3a2a57b45dce6f67a3adfb6793b77d876a7fc7c831e561d8e8cbdb2fe20a2",
+      "lines": 186,
+      "review": "complete",
+      "currentSha256": "18fa2b9de81313576840900b711e117b885025b40b02d796d745697b7d019b68"
+    },
+    {
+      "file": "scripts/test-cargo-verification-cache.cjs",
+      "sha256": "8b3cecb0c2ebd821ea2cc076dbadd7d2ed2a3c0229b6d9de02d3772017384e28",
+      "lines": 598,
+      "review": "complete",
+      "currentSha256": "8b3cecb0c2ebd821ea2cc076dbadd7d2ed2a3c0229b6d9de02d3772017384e28"
+    },
+    {
+      "file": "scripts/test-cargo-verification.cjs",
+      "sha256": "cc54cb76573d89e7f02f9c84606ca69d12456337ec55ff6df381d495fb4f119c",
+      "lines": 415,
+      "review": "complete",
+      "currentSha256": "3b75b43462e78691d37b342c67f45efe02c8c4fbd452087e50b9ad740dd36f65"
+    },
+    {
+      "file": "scripts/test-check-shared-engine-resources.mjs",
+      "sha256": "621421a3a3ed860ccbdbec384ccc61586c84a2d5dfe1e6fde3045be4cbf8ff44",
+      "lines": 67,
+      "review": "complete",
+      "currentSha256": "621421a3a3ed860ccbdbec384ccc61586c84a2d5dfe1e6fde3045be4cbf8ff44"
+    },
+    {
+      "file": "scripts/test-check-shared-engine.mjs",
+      "sha256": "dd14636800fbe2e58f75d893f15c706b3d9ff55f5657fbb1a7c6ba101d677f62",
+      "lines": 226,
+      "review": "complete",
+      "currentSha256": "dd14636800fbe2e58f75d893f15c706b3d9ff55f5657fbb1a7c6ba101d677f62"
+    },
+    {
+      "file": "scripts/test-command-drag-block.cjs",
+      "sha256": "8397909d9885ca8918698e161133b65b12df7be5fb64adfc3d0e6d1e754c871c",
+      "lines": 66,
+      "review": "complete",
+      "currentSha256": "8397909d9885ca8918698e161133b65b12df7be5fb64adfc3d0e6d1e754c871c"
+    },
+    {
+      "file": "scripts/test-common-agent-instructions.cjs",
+      "sha256": "5c0b8a72cd08df992e4573f4149f962e6d1e6a92310ce966e7e37538cd4f6c82",
+      "lines": 55,
+      "review": "complete",
+      "currentSha256": "5c0b8a72cd08df992e4573f4149f962e6d1e6a92310ce966e7e37538cd4f6c82"
+    },
+    {
+      "file": "scripts/test-compaction-progress.cjs",
+      "sha256": "ee699577b189f25cea82857509cc801bea002dfb42e63520549a5d651dd1dd81",
+      "lines": 239,
+      "review": "complete",
+      "currentSha256": "ee699577b189f25cea82857509cc801bea002dfb42e63520549a5d651dd1dd81"
+    },
+    {
+      "file": "scripts/test-compile-scope.cjs",
+      "sha256": "b4106156442247ee71ab1bfa6a77c8ce92bf086ec88f70ce60f7afcf8025911a",
+      "lines": 153,
+      "review": "complete",
+      "currentSha256": "b4106156442247ee71ab1bfa6a77c8ce92bf086ec88f70ce60f7afcf8025911a"
+    },
+    {
+      "file": "scripts/test-composer-draft.cjs",
+      "sha256": "b42e9ca976969a9f111711db7c806ae2677cc08d4c2d634fbeb201439692f5dc",
+      "lines": 413,
+      "review": "complete",
+      "currentSha256": "b42e9ca976969a9f111711db7c806ae2677cc08d4c2d634fbeb201439692f5dc"
+    },
+    {
+      "file": "scripts/test-computer-use-approvals.cjs",
+      "sha256": "a6188fc4c832d383d82037a8dba2be323c0ee3dee67f9eb6f2fee0ab2dfc80e4",
+      "lines": 96,
+      "review": "complete",
+      "currentSha256": "a6188fc4c832d383d82037a8dba2be323c0ee3dee67f9eb6f2fee0ab2dfc80e4"
+    },
+    {
+      "file": "scripts/test-computer-use-injection.cjs",
+      "sha256": "e3998bd1818095b76d6f1904a2f90ccbabbbc2d74c8254845499417f8a52d32b",
+      "lines": 456,
+      "review": "complete",
+      "currentSha256": "e3998bd1818095b76d6f1904a2f90ccbabbbc2d74c8254845499417f8a52d32b"
+    },
+    {
+      "file": "scripts/test-computer-use-runtime.cjs",
+      "sha256": "0eac66da96c4acda88be5650603d98f75a17ca7715d8cda92e294da7f731ba86",
+      "lines": 187,
+      "review": "complete",
+      "currentSha256": "0eac66da96c4acda88be5650603d98f75a17ca7715d8cda92e294da7f731ba86"
+    },
+    {
+      "file": "scripts/test-content-fonts.cjs",
+      "sha256": "fb623c49f3bab7e489a2ea708b5945a95a722fe7d618ceffb645c2fa0006513a",
+      "lines": 409,
+      "review": "complete",
+      "currentSha256": "fb623c49f3bab7e489a2ea708b5945a95a722fe7d618ceffb645c2fa0006513a"
+    },
+    {
+      "file": "scripts/test-custom-api-host-integration.cjs",
+      "sha256": "fde493498d311d22d8928b0e7b337b5364b819a393b4883fcfa67fc958dafe74",
+      "lines": 32,
+      "review": "complete",
+      "currentSha256": "fde493498d311d22d8928b0e7b337b5364b819a393b4883fcfa67fc958dafe74"
+    },
+    {
+      "file": "scripts/test-deferred-turn.cjs",
+      "sha256": "53929f2ffa82164d1fb4426e4d6e9e377f1e61d504d0cc632623f8d4d75805bc",
+      "lines": 1095,
+      "review": "complete",
+      "currentSha256": "53929f2ffa82164d1fb4426e4d6e9e377f1e61d504d0cc632623f8d4d75805bc"
+    },
+    {
+      "file": "scripts/test-deploy-azrael.ps1",
+      "sha256": "9e307b973876e7925a24943d23d6f6e7d8fdc5294f30a190d0641cca9e1467f7",
+      "lines": 1087,
+      "review": "complete",
+      "currentSha256": "9e307b973876e7925a24943d23d6f6e7d8fdc5294f30a190d0641cca9e1467f7"
+    },
+    {
+      "file": "scripts/test-deployment-input-snapshot.cjs",
+      "sha256": "2987647f15d651e3e9a3fd3a77a6b0d23fbfbdd54bed7a1eea2f3300e223db8f",
+      "lines": 234,
+      "review": "complete",
+      "currentSha256": "2987647f15d651e3e9a3fd3a77a6b0d23fbfbdd54bed7a1eea2f3300e223db8f"
+    },
+    {
+      "file": "scripts/test-devin-native-host.cjs",
+      "sha256": "19edafbf328fface4859594315a0e47ae1c53ebc49cd3e9645c36408cc21ee6f",
+      "lines": 306,
+      "review": "complete",
+      "currentSha256": "19edafbf328fface4859594315a0e47ae1c53ebc49cd3e9645c36408cc21ee6f"
+    },
+    {
+      "file": "scripts/test-edit-stop-integration.cjs",
+      "sha256": "b63413aaafc195acabf9002d0ada2522883762282bb7a75695905b9206386259",
+      "lines": 98,
+      "review": "complete",
+      "currentSha256": "b63413aaafc195acabf9002d0ada2522883762282bb7a75695905b9206386259"
+    },
+    {
+      "file": "scripts/test-engine-check-selection.cjs",
+      "sha256": "bb2e6398724b8c0d966fd68e2460f2904ca92d2068434c2d752ce46737d6bd29",
+      "lines": 144,
+      "review": "complete",
+      "currentSha256": "bb2e6398724b8c0d966fd68e2460f2904ca92d2068434c2d752ce46737d6bd29"
+    },
+    {
+      "file": "scripts/test-error-presentation.cjs",
+      "sha256": "57396e772b9c6e37e074941938f1fe26e8d32ba6ee5d7fc43e340e45eabf382b",
+      "lines": 70,
+      "review": "complete",
+      "currentSha256": "57396e772b9c6e37e074941938f1fe26e8d32ba6ee5d7fc43e340e45eabf382b"
+    },
+    {
+      "file": "scripts/test-feature-preservation-cache.cjs",
+      "sha256": "ca180534899a2160f37b81f845e4d555034512202354b537962f3263f349c768",
+      "lines": 424,
+      "review": "complete",
+      "currentSha256": "ca180534899a2160f37b81f845e4d555034512202354b537962f3263f349c768"
+    },
+    {
+      "file": "scripts/test-feature-preservation.cjs",
+      "sha256": "d5ef85cdb17003b74958b26507ac4d8d1cddfc979d92dfd553e2cc2fc0639b1c",
+      "lines": 523,
+      "review": "complete",
+      "currentSha256": "d5ef85cdb17003b74958b26507ac4d8d1cddfc979d92dfd553e2cc2fc0639b1c"
+    },
+    {
+      "file": "scripts/test-fetch-response.cjs",
+      "sha256": "29a3f80e03811a368322e20767e23ead67eaeeb8c422b131da739bd8c8ff7197",
+      "lines": 176,
+      "review": "complete",
+      "currentSha256": "29a3f80e03811a368322e20767e23ead67eaeeb8c422b131da739bd8c8ff7197"
+    },
+    {
+      "file": "scripts/test-file-open-menu.cjs",
+      "sha256": "e17232c222b1b2d59fdec648c24c489987c5629ec0bee1dcc8b140099bf794a0",
+      "lines": 170,
+      "review": "complete",
+      "currentSha256": "e17232c222b1b2d59fdec648c24c489987c5629ec0bee1dcc8b140099bf794a0"
+    },
+    {
+      "file": "scripts/test-host-release-version.cjs",
+      "sha256": "da9857e30688f569335a52645cfcc372f5487a7996e32c3b4394e08b3159da22",
+      "lines": 43,
+      "review": "complete",
+      "currentSha256": "da9857e30688f569335a52645cfcc372f5487a7996e32c3b4394e08b3159da22"
+    },
+    {
+      "file": "scripts/test-image-file-open.cjs",
+      "sha256": "7481eb13ec64e1e51eaf143c43388398fb638799d92e4b823a3b9a78fe5cf5da",
+      "lines": 195,
+      "review": "complete",
+      "currentSha256": "7481eb13ec64e1e51eaf143c43388398fb638799d92e4b823a3b9a78fe5cf5da"
+    },
+    {
+      "file": "scripts/test-image-sketch.cjs",
+      "sha256": "3f2487c10bdbb62a8c405c1cf7565d2274cb48166a94c682ae26bb0abe5ce038",
+      "lines": 207,
+      "review": "complete",
+      "currentSha256": "3f2487c10bdbb62a8c405c1cf7565d2274cb48166a94c682ae26bb0abe5ce038"
+    },
+    {
+      "file": "scripts/test-immediate-stop.cjs",
+      "sha256": "bec2dc9ceab90933ecb0ee58d49ed554cbac26b8aa537ceebf163f987319ff8f",
+      "lines": 191,
+      "review": "complete",
+      "currentSha256": "bec2dc9ceab90933ecb0ee58d49ed554cbac26b8aa537ceebf163f987319ff8f"
+    },
+    {
+      "file": "scripts/test-incremental-extension-build.cjs",
+      "sha256": "f3ab4d1449523c73ad876fe55d0b7570b71af3caabc1cc480dc234c85fa477d2",
+      "lines": 152,
+      "review": "complete",
+      "currentSha256": "f3ab4d1449523c73ad876fe55d0b7570b71af3caabc1cc480dc234c85fa477d2"
+    },
+    {
+      "file": "scripts/test-independent-host-instructions.cjs",
+      "sha256": "5a36d2dbd2d6aec9a2cda2a7475b8754d97b4b23e315153523a1bc84811e4da8",
+      "lines": 49,
+      "review": "complete",
+      "currentSha256": "5a36d2dbd2d6aec9a2cda2a7475b8754d97b4b23e315153523a1bc84811e4da8"
+    },
+    {
+      "file": "scripts/test-instruction-library-host.cjs",
+      "sha256": "a8e469abffafbfc9662640a909ff0f19f6dfda554432d4d3d4c1e9c11e2c3809",
+      "lines": 30,
+      "review": "complete",
+      "currentSha256": "a8e469abffafbfc9662640a909ff0f19f6dfda554432d4d3d4c1e9c11e2c3809"
+    },
+    {
+      "file": "scripts/test-instruction-settings.cjs",
+      "sha256": "a1c83b1e1713e8e9e9107de6e40327f990d9fb7e8d4ac0809adc203f2998564a",
+      "lines": 175,
+      "review": "complete",
+      "currentSha256": "a1c83b1e1713e8e9e9107de6e40327f990d9fb7e8d4ac0809adc203f2998564a"
+    },
+    {
+      "file": "scripts/test-integrated-entry.cjs",
+      "sha256": "2e55dacf94a06c35042b2953a75b044f13e4afa724b3d21617bbb3f9f370588c",
+      "lines": 428,
+      "review": "complete",
+      "currentSha256": "2e55dacf94a06c35042b2953a75b044f13e4afa724b3d21617bbb3f9f370588c"
+    },
+    {
+      "file": "scripts/test-linux-host-preparation.cjs",
+      "sha256": "95ec51007fbcb0930d159d54a0f0175400fd37379db6cf6f4f63d8775d481509",
+      "lines": 84,
+      "review": "complete",
+      "currentSha256": "95ec51007fbcb0930d159d54a0f0175400fd37379db6cf6f4f63d8775d481509"
+    },
+    {
+      "file": "scripts/test-linux-native-supervision.cjs",
+      "sha256": "c29a46f2a11de8dbfdd487f3d687c4305870db39c5219a771f584b9b8bd350c3",
+      "lines": 86,
+      "review": "complete",
+      "currentSha256": "c29a46f2a11de8dbfdd487f3d687c4305870db39c5219a771f584b9b8bd350c3"
+    },
+    {
+      "file": "scripts/test-local-file-drop.cjs",
+      "sha256": "e2b5f04339cbdcf2c4efa79f17aa93da4020250cedce4781b1a806b35c857d89",
+      "lines": 156,
+      "review": "complete",
+      "currentSha256": "e2b5f04339cbdcf2c4efa79f17aa93da4020250cedce4781b1a806b35c857d89"
+    },
+    {
+      "file": "scripts/test-local-history-host.cjs",
+      "sha256": "97c0aaff15c4bf3d004e514296ebe9563c65591be1c90e94fb0188c7b902d94a",
+      "lines": 104,
+      "review": "complete",
+      "currentSha256": "97c0aaff15c4bf3d004e514296ebe9563c65591be1c90e94fb0188c7b902d94a"
+    },
+    {
+      "file": "scripts/test-macos-signing.cjs",
+      "sha256": "f37deb5bec2cde4d78f06956236968edbcb910a5c6f9122d831d0eedbe89a1e0",
+      "lines": 87,
+      "review": "complete",
+      "currentSha256": "f37deb5bec2cde4d78f06956236968edbcb910a5c6f9122d831d0eedbe89a1e0"
+    },
+    {
+      "file": "scripts/test-maintenance-lock-owner.cjs",
+      "sha256": "d8b66758598300056bff2a75cf394252b449b28ecdaa051a11b0201cdc96e1d1",
+      "lines": 149,
+      "review": "complete",
+      "currentSha256": "d8b66758598300056bff2a75cf394252b449b28ecdaa051a11b0201cdc96e1d1"
+    },
+    {
+      "file": "scripts/test-managed-native-fixture.cjs",
+      "sha256": "f2e1158fad17cc1ed385e0ef821b25b953692ccb4c87abd7d49208a7c7d95d69",
+      "lines": 81,
+      "review": "complete",
+      "currentSha256": "f2e1158fad17cc1ed385e0ef821b25b953692ccb4c87abd7d49208a7c7d95d69"
+    },
+    {
+      "file": "scripts/test-max-reasoning.cjs",
+      "sha256": "d36ee1c975d903ddd698ff2f78df0db753e8c66647500c291b07dc3908cce8b5",
+      "lines": 196,
+      "review": "complete",
+      "currentSha256": "d36ee1c975d903ddd698ff2f78df0db753e8c66647500c291b07dc3908cce8b5"
+    },
+    {
+      "file": "scripts/test-mcp-lazy-startup.cjs",
+      "sha256": "cd16c94e7665ce6fa530d25c3000aad4aa176062ff8cdf03b7a917cc4b6a2cc0",
+      "lines": 33,
+      "review": "complete",
+      "currentSha256": "cd16c94e7665ce6fa530d25c3000aad4aa176062ff8cdf03b7a917cc4b6a2cc0"
+    },
+    {
+      "file": "scripts/test-missing-image.cjs",
+      "sha256": "662edd24c613b81360c9d348609d7fc0a4637f98acb87e55e1ef14b55f444479",
+      "lines": 40,
+      "review": "complete",
+      "currentSha256": "662edd24c613b81360c9d348609d7fc0a4637f98acb87e55e1ef14b55f444479"
+    },
+    {
+      "file": "scripts/test-namespace-cache-owner.cjs",
+      "sha256": "24c4fb41e06c88aaf76dbf631bb50e0a63a8e673b88d9908a75cb32dba7fccd2",
+      "lines": 93,
+      "review": "complete",
+      "currentSha256": "24c4fb41e06c88aaf76dbf631bb50e0a63a8e673b88d9908a75cb32dba7fccd2"
+    },
+    {
+      "file": "scripts/test-namespace-source.cjs",
+      "sha256": "880f3c7bd37be7dcf1cc789eb555a8d86a5a645fcb846ca95385432ee85cfa93",
+      "lines": 177,
+      "review": "complete",
+      "currentSha256": "880f3c7bd37be7dcf1cc789eb555a8d86a5a645fcb846ca95385432ee85cfa93"
+    },
+    {
+      "file": "scripts/test-native-verification-cache.cjs",
+      "sha256": "3e9f02f14797d29890bbff39ab4b8cbf4128b5953b641ef14ff7b124677b0df5",
+      "lines": 188,
+      "review": "complete",
+      "currentSha256": "3e9f02f14797d29890bbff39ab4b8cbf4128b5953b641ef14ff7b124677b0df5"
+    },
+    {
+      "file": "scripts/test-optional-diagnostics.cjs",
+      "sha256": "42ba17b09a959dbbe56e55c6865ab90b3cdd9f2c9c91fd4d11ba116c7e13f75a",
+      "lines": 68,
+      "review": "complete",
+      "currentSha256": "42ba17b09a959dbbe56e55c6865ab90b3cdd9f2c9c91fd4d11ba116c7e13f75a"
+    },
+    {
+      "file": "scripts/test-ordered-asset-reader.cjs",
+      "sha256": "04b32518d920b26f6ebcff8946b710a55e6878dda6c9696ce1737f487a747a46",
+      "lines": 78,
+      "review": "complete",
+      "currentSha256": "04b32518d920b26f6ebcff8946b710a55e6878dda6c9696ce1737f487a747a46"
+    },
+    {
+      "file": "scripts/test-ordinary-runtime-node.cjs",
+      "sha256": "265fec67b3736b8342edcd5dd7114298066cdea121507875074df58f1a814d5d",
+      "lines": 119,
+      "review": "complete",
+      "currentSha256": "265fec67b3736b8342edcd5dd7114298066cdea121507875074df58f1a814d5d"
+    },
+    {
+      "file": "scripts/test-package-local-host.cjs",
+      "sha256": "79477d40ad1abc204953cabdb068a750e734900cc4edba7ec4e7842fccf36de2",
+      "lines": 383,
+      "review": "complete",
+      "currentSha256": "79477d40ad1abc204953cabdb068a750e734900cc4edba7ec4e7842fccf36de2"
+    },
+    {
+      "file": "scripts/test-paginated-history.cjs",
+      "sha256": "ba0b735336109e54eb79d28a1ae84811932852133edbd32a3d4a714dcf28e238",
+      "lines": 104,
+      "review": "complete",
+      "currentSha256": "ba0b735336109e54eb79d28a1ae84811932852133edbd32a3d4a714dcf28e238"
+    },
+    {
+      "file": "scripts/test-parent-request-activity.cjs",
+      "sha256": "24caae003b8d233274692b31c6d28965a613c2406b15d83d67d6f089a4cf01e2",
+      "lines": 55,
+      "review": "complete",
+      "currentSha256": "24caae003b8d233274692b31c6d28965a613c2406b15d83d67d6f089a4cf01e2"
+    },
+    {
+      "file": "scripts/test-pdf-file-open.cjs",
+      "sha256": "920396c58680cf25b0c286d669d7bf2c6a44fc18dfed89c204105727e1182e8e",
+      "lines": 116,
+      "review": "complete",
+      "currentSha256": "920396c58680cf25b0c286d669d7bf2c6a44fc18dfed89c204105727e1182e8e"
+    },
+    {
+      "file": "scripts/test-pets-cleanup.cjs",
+      "sha256": "6788d8a1862275cebde4228dace285f69eb9ca6bbccad882409dc310b61ae394",
+      "lines": 107,
+      "review": "complete",
+      "currentSha256": "6788d8a1862275cebde4228dace285f69eb9ca6bbccad882409dc310b61ae394"
+    },
+    {
+      "file": "scripts/test-pipeline-preflight.cjs",
+      "sha256": "5451f6b88e2638d0c5eecadb55af5b55cd56b8f892e4c98077fa7be1c3abef1a",
+      "lines": 170,
+      "review": "complete",
+      "currentSha256": "5451f6b88e2638d0c5eecadb55af5b55cd56b8f892e4c98077fa7be1c3abef1a"
+    },
+    {
+      "file": "scripts/test-pipeline-preservation.cjs",
+      "sha256": "49a5e9625f8730eaa49d35dece55e6dfd1498177766c00bd4516a41537ac0b46",
+      "lines": 197,
+      "review": "complete",
+      "currentSha256": "49a5e9625f8730eaa49d35dece55e6dfd1498177766c00bd4516a41537ac0b46"
+    },
+    {
+      "file": "scripts/test-platform-runtime.cjs",
+      "sha256": "e9a5a071a73782d25ad96e3359b3ea4f83223376337ac53a25e65ab324fdb27b",
+      "lines": 89,
+      "review": "complete",
+      "currentSha256": "e9a5a071a73782d25ad96e3359b3ea4f83223376337ac53a25e65ab324fdb27b"
+    },
+    {
+      "file": "scripts/test-preparation-state.cjs",
+      "sha256": "22cfa177d44f065803123ecaa5e7b4fa0e812b8e21507e4c87235d8eec7fdb0e",
+      "lines": 119,
+      "review": "complete",
+      "currentSha256": "22cfa177d44f065803123ecaa5e7b4fa0e812b8e21507e4c87235d8eec7fdb0e"
+    },
+    {
+      "file": "scripts/test-preservation-integration.cjs",
+      "sha256": "a15bb37467d389717f5a7ccb7f20392683592dde777616f34cb031de781b99a1",
+      "lines": 95,
+      "review": "complete",
+      "currentSha256": "a15bb37467d389717f5a7ccb7f20392683592dde777616f34cb031de781b99a1"
+    },
+    {
+      "file": "scripts/test-profile-menu-render.cjs",
+      "sha256": "361deda1d1b3e3eba0514cd9c6e0daee074ad5b3aeeea49c93044b705dcbb63a",
+      "lines": 85,
+      "review": "complete",
+      "currentSha256": "361deda1d1b3e3eba0514cd9c6e0daee074ad5b3aeeea49c93044b705dcbb63a"
+    },
+    {
+      "file": "scripts/test-project-drafts.cjs",
+      "sha256": "a92ff20e4a5cb4664a560e15b68dd4e1053c8ce084673374f48622f57a8d5b7c",
+      "lines": 121,
+      "review": "complete",
+      "currentSha256": "a92ff20e4a5cb4664a560e15b68dd4e1053c8ce084673374f48622f57a8d5b7c"
+    },
+    {
+      "file": "scripts/test-project-fail-fast.cjs",
+      "sha256": "5a73a0f1e97f21a4638c1dc425019b338ceb914ca0395213c6b883c4c785e98f",
+      "lines": 329,
+      "review": "complete",
+      "currentSha256": "5a73a0f1e97f21a4638c1dc425019b338ceb914ca0395213c6b883c4c785e98f"
+    },
+    {
+      "file": "scripts/test-project-maintenance.cjs",
+      "sha256": "f5a39c41b3241d7907ee611e258965e4ed46706c4f79d7c5841a9f0269544c90",
+      "lines": 183,
+      "review": "complete",
+      "currentSha256": "f5a39c41b3241d7907ee611e258965e4ed46706c4f79d7c5841a9f0269544c90"
+    },
+    {
+      "file": "scripts/test-project-selection.cjs",
+      "sha256": "072d910ca86f673562978df274e751dbab9883f8284f367ef164de469fc77c97",
+      "lines": 666,
+      "review": "complete",
+      "currentSha256": "072d910ca86f673562978df274e751dbab9883f8284f367ef164de469fc77c97"
+    },
+    {
+      "file": "scripts/test-provider-accounts-host.cjs",
+      "sha256": "b31933a84f6dd90cdf896859f2a8de9f51a0bb712307afeb53bae6b49da6aeb8",
+      "lines": 207,
+      "review": "complete",
+      "currentSha256": "b31933a84f6dd90cdf896859f2a8de9f51a0bb712307afeb53bae6b49da6aeb8"
+    },
+    {
+      "file": "scripts/test-provider-context.cjs",
+      "sha256": "1a46a76e86f638c5343de88151d4dbfa1d25ad09f01ed5531901871a04c40429",
+      "lines": 212,
+      "review": "complete",
+      "currentSha256": "1a46a76e86f638c5343de88151d4dbfa1d25ad09f01ed5531901871a04c40429"
+    },
+    {
+      "file": "scripts/test-provider-input-budget-helper.cjs",
+      "sha256": "2746631850c9fb22e2b1284051c0a9d9da1f89997bed4ede1f5e9fed3c9ae3d2",
+      "lines": 23,
+      "review": "complete",
+      "currentSha256": "2746631850c9fb22e2b1284051c0a9d9da1f89997bed4ede1f5e9fed3c9ae3d2"
+    },
+    {
+      "file": "scripts/test-provider-model-picker.cjs",
+      "sha256": "f21e18c5c00afbb6f86a68088c9bb9dec86c2ba6cbe6449af85ba29b535811a0",
+      "lines": 449,
+      "review": "complete",
+      "currentSha256": "f21e18c5c00afbb6f86a68088c9bb9dec86c2ba6cbe6449af85ba29b535811a0"
+    },
+    {
+      "file": "scripts/test-publish-platform-release.cjs",
+      "sha256": "a63312b2f7fbf65b8415bdba86c19d60a5d7c60210d5ef0dc6e983f1b5134a65",
+      "lines": 135,
+      "review": "complete",
+      "currentSha256": "a63312b2f7fbf65b8415bdba86c19d60a5d7c60210d5ef0dc6e983f1b5134a65"
+    },
+    {
+      "file": "scripts/test-question-queue.cjs",
+      "sha256": "5c8fc66c23cc8096207de183e1c13a16640d0432e13c99d64906330d3acffc73",
+      "lines": 309,
+      "review": "complete",
+      "currentSha256": "5c8fc66c23cc8096207de183e1c13a16640d0432e13c99d64906330d3acffc73"
+    },
+    {
+      "file": "scripts/test-question-withdrawal.cjs",
+      "sha256": "6812c7c6009c5fa719b003c3c0e844b21a91ecb296ba6f2ca19e3d00795ccdeb",
+      "lines": 129,
+      "review": "complete",
+      "currentSha256": "6812c7c6009c5fa719b003c3c0e844b21a91ecb296ba6f2ca19e3d00795ccdeb"
+    },
+    {
+      "file": "scripts/test-queue-consumption.cjs",
+      "sha256": "e2d4ec0f535cd6948c6d9291fa7b8fc615d298c52ab45c656b886edc186d1984",
+      "lines": 465,
+      "review": "complete",
+      "currentSha256": "e2d4ec0f535cd6948c6d9291fa7b8fc615d298c52ab45c656b886edc186d1984"
+    },
+    {
+      "file": "scripts/test-queue-refresh.cjs",
+      "sha256": "a1049691e5811574be1baed2fc558e534f2f443f944184bf945604402dad6fb4",
+      "lines": 119,
+      "review": "complete",
+      "currentSha256": "a1049691e5811574be1baed2fc558e534f2f443f944184bf945604402dad6fb4"
+    },
+    {
+      "file": "scripts/test-queued-compaction.cjs",
+      "sha256": "161f4beaaea26d693f9059a930a4c13fe1ee578e9119a909ade2d1cd69717a02",
+      "lines": 247,
+      "review": "complete",
+      "currentSha256": "161f4beaaea26d693f9059a930a4c13fe1ee578e9119a909ade2d1cd69717a02"
+    },
+    {
+      "file": "scripts/test-queued-input.cjs",
+      "sha256": "110a6c457156610ed9b1ee93fbaa8136cda68034b20f324d9a9fa5aae3a64fa6",
+      "lines": 154,
+      "review": "complete",
+      "currentSha256": "110a6c457156610ed9b1ee93fbaa8136cda68034b20f324d9a9fa5aae3a64fa6"
+    },
+    {
+      "file": "scripts/test-recent-chat-filter.cjs",
+      "sha256": "c48a97da837c1ff42e6d17caa8ed2c88cc14fee41391a34d1cf01a62b1c9b703",
+      "lines": 168,
+      "review": "complete",
+      "currentSha256": "c48a97da837c1ff42e6d17caa8ed2c88cc14fee41391a34d1cf01a62b1c9b703"
+    },
+    {
+      "file": "scripts/test-recovery-bridge.cjs",
+      "sha256": "b431efad5ec086b8cdaface033bad0462d0b49f727b195884e1fd840c1f36cb5",
+      "lines": 1030,
+      "review": "complete",
+      "currentSha256": "b431efad5ec086b8cdaface033bad0462d0b49f727b195884e1fd840c1f36cb5"
+    },
+    {
+      "file": "scripts/test-recovery-presentation.cjs",
+      "sha256": "d309035da6ff8563d6eae3a689f2ac3f4aa89ceb2b8f64cf9027f5604dbcf46b",
+      "lines": 192,
+      "review": "complete",
+      "currentSha256": "d309035da6ff8563d6eae3a689f2ac3f4aa89ceb2b8f64cf9027f5604dbcf46b"
+    },
+    {
+      "file": "scripts/test-recovery-state.cjs",
+      "sha256": "5abac9338b329f898b62a9d1cf737ab78b5eb1b10da5ef6560ec25c05c9afb21",
+      "lines": 1399,
+      "review": "complete",
+      "currentSha256": "5abac9338b329f898b62a9d1cf737ab78b5eb1b10da5ef6560ec25c05c9afb21"
+    },
+    {
+      "file": "scripts/test-root-resume-controls.cjs",
+      "sha256": "7fcd434611b7b552b59642af409f372957778cc1ee2a7115c50f8b1fb13df16c",
+      "lines": 88,
+      "review": "complete",
+      "currentSha256": "7fcd434611b7b552b59642af409f372957778cc1ee2a7115c50f8b1fb13df16c"
+    },
+    {
+      "file": "scripts/test-scroll-fade.cjs",
+      "sha256": "bf2c27f9830b4bae748614f009194840693820c0ced5fc4676d06d5999c05c53",
+      "lines": 91,
+      "review": "complete",
+      "currentSha256": "bf2c27f9830b4bae748614f009194840693820c0ced5fc4676d06d5999c05c53"
+    },
+    {
+      "file": "scripts/test-send-result-integration.cjs",
+      "sha256": "39d09fba2fe790aff07d730adbc31e2a9b13e063e561bd1852331baeaccbe787",
+      "lines": 210,
+      "review": "complete",
+      "currentSha256": "39d09fba2fe790aff07d730adbc31e2a9b13e063e561bd1852331baeaccbe787"
+    },
+    {
+      "file": "scripts/test-session-flags.cjs",
+      "sha256": "b48f8168534ed8076313824a5aa151640f7529b2b1a97b4c7e46ce778cab5c9e",
+      "lines": 63,
+      "review": "complete",
+      "currentSha256": "b48f8168534ed8076313824a5aa151640f7529b2b1a97b4c7e46ce778cab5c9e"
+    },
+    {
+      "file": "scripts/test-session-links.cjs",
+      "sha256": "5713409d020e766523c2ba9c882071dd3922ab69a1c7e0a89e54e1a516445ee3",
+      "lines": 163,
+      "review": "complete",
+      "currentSha256": "5713409d020e766523c2ba9c882071dd3922ab69a1c7e0a89e54e1a516445ee3"
+    },
+    {
+      "file": "scripts/test-shared-engine-host.cjs",
+      "sha256": "49ce53503f85cd072746a6768a6b35cc939ac4115ff303e80ff41205634705c6",
+      "lines": 96,
+      "review": "complete",
+      "currentSha256": "49ce53503f85cd072746a6768a6b35cc939ac4115ff303e80ff41205634705c6"
+    },
+    {
+      "file": "scripts/test-sky-control-policy.cjs",
+      "sha256": "397b395a10e0955c72d86446f6fe86e89eb601531040aef1e26687321146de1f",
+      "lines": 232,
+      "review": "complete",
+      "currentSha256": "397b395a10e0955c72d86446f6fe86e89eb601531040aef1e26687321146de1f"
+    },
+    {
+      "file": "scripts/test-source-test-fixtures.cjs",
+      "sha256": "5f6664dfcff40bc234b160874b492af717b30d00788d98451f5871bde1b1fcf2",
+      "lines": 141,
+      "review": "complete",
+      "currentSha256": "5f6664dfcff40bc234b160874b492af717b30d00788d98451f5871bde1b1fcf2"
+    },
+    {
+      "file": "scripts/test-source-test-policy.cjs",
+      "sha256": "4db53e7446e8f745cd2183c678caa305d62993a22396a735a905a20b6cd4bd5d",
+      "lines": 115,
+      "review": "complete",
+      "currentSha256": "4db53e7446e8f745cd2183c678caa305d62993a22396a735a905a20b6cd4bd5d"
+    },
+    {
+      "file": "scripts/test-student-avatar-assets.cjs",
+      "sha256": "31eddee6f4210258af0f49a38f14709d744b8fc3cdb8be33ef6d4b733ad5a065",
+      "lines": 80,
+      "review": "complete",
+      "currentSha256": "31eddee6f4210258af0f49a38f14709d744b8fc3cdb8be33ef6d4b733ad5a065"
+    },
+    {
+      "file": "scripts/test-student-design.cjs",
+      "sha256": "a9de526c13ec5cb9cc482308d7b22297104da0c3f453e2ffa488af136f756f77",
+      "lines": 669,
+      "review": "complete",
+      "currentSha256": "a9de526c13ec5cb9cc482308d7b22297104da0c3f453e2ffa488af136f756f77"
+    },
+    {
+      "file": "scripts/test-submit-only-thread.cjs",
+      "sha256": "bd1fd843de19a72638a51bfb8ebf827e7c51f2d0fab3c72f94bf2dbd1e0e40e2",
+      "lines": 154,
+      "review": "complete",
+      "currentSha256": "bd1fd843de19a72638a51bfb8ebf827e7c51f2d0fab3c72f94bf2dbd1e0e40e2"
+    },
+    {
+      "file": "scripts/test-task-work-time-history.cjs",
+      "sha256": "e809e97dc10240dd3a3f86a50b66a5fc826dbd4d27926bea74ed8f1deaedc39a",
+      "lines": 179,
+      "review": "complete",
+      "currentSha256": "e809e97dc10240dd3a3f86a50b66a5fc826dbd4d27926bea74ed8f1deaedc39a"
+    },
+    {
+      "file": "scripts/test-task-work-time-ui.cjs",
+      "sha256": "3de68f42aeb9073bca91cfd2a98c2694bd737db1d859dc79a7453f1004d9c42c",
+      "lines": 25,
+      "review": "complete",
+      "currentSha256": "3de68f42aeb9073bca91cfd2a98c2694bd737db1d859dc79a7453f1004d9c42c"
+    },
+    {
+      "file": "scripts/test-task-work-time.cjs",
+      "sha256": "a5ceaa776035046ab900b7be9de479c36ae15dc69574a46320d8c9233ab0cc74",
+      "lines": 254,
+      "review": "complete",
+      "currentSha256": "a5ceaa776035046ab900b7be9de479c36ae15dc69574a46320d8c9233ab0cc74"
+    },
+    {
+      "file": "scripts/test-team-change-service.cjs",
+      "sha256": "8d708d900173094f8fdbdf746baba1e86a645c2e50324c5a15d1e014a40fc9eb",
+      "lines": 158,
+      "review": "complete",
+      "currentSha256": "8d708d900173094f8fdbdf746baba1e86a645c2e50324c5a15d1e014a40fc9eb"
+    },
+    {
+      "file": "scripts/test-team-integration.cjs",
+      "sha256": "430c808c97d3af8829dc4ecb83b0198966930212ae6ef92c2f15528911058d9d",
+      "lines": 76,
+      "review": "complete",
+      "currentSha256": "430c808c97d3af8829dc4ecb83b0198966930212ae6ef92c2f15528911058d9d"
+    },
+    {
+      "file": "scripts/test-team-observability.cjs",
+      "sha256": "9c40ab9ed7cb38df86f52c058bea45fd847ee20ed4e0e2ac8484d5d1ffff25ac",
+      "lines": 208,
+      "review": "complete",
+      "currentSha256": "9c40ab9ed7cb38df86f52c058bea45fd847ee20ed4e0e2ac8484d5d1ffff25ac"
+    },
+    {
+      "file": "scripts/test-team-runtime-host.cjs",
+      "sha256": "a9108d5f331fe7abac1dfc90d93be59dfba9d31d2f29f57e0c8909d5b6db2680",
+      "lines": 146,
+      "review": "complete",
+      "currentSha256": "a9108d5f331fe7abac1dfc90d93be59dfba9d31d2f29f57e0c8909d5b6db2680"
+    },
+    {
+      "file": "scripts/test-team-runtime.cjs",
+      "sha256": "605d7d72acc5adfe1844d75cb33f510f41bec42903b8a38fc5a741b609eef258",
+      "lines": 312,
+      "review": "complete",
+      "currentSha256": "605d7d72acc5adfe1844d75cb33f510f41bec42903b8a38fc5a741b609eef258"
+    },
+    {
+      "file": "scripts/test-team-ui.cjs",
+      "sha256": "3b2d9b6398941278737445030ecad04e2c7ba9236267e6311ead72fcf91755a7",
+      "lines": 12,
+      "review": "complete",
+      "currentSha256": "3b2d9b6398941278737445030ecad04e2c7ba9236267e6311ead72fcf91755a7"
+    },
+    {
+      "file": "scripts/test-thread-branch.cjs",
+      "sha256": "68a5aaa4f098e06686bc24b415f6f601ac51acfb5ffe320c4695cf2346d20841",
+      "lines": 134,
+      "review": "complete",
+      "currentSha256": "68a5aaa4f098e06686bc24b415f6f601ac51acfb5ffe320c4695cf2346d20841"
+    },
+    {
+      "file": "scripts/test-ui-cleanup.cjs",
+      "sha256": "7025b8fe960b1c64117869434819cf2e0c34cea5b1b063a4db828b867dd85ba8",
+      "lines": 153,
+      "review": "complete",
+      "currentSha256": "7025b8fe960b1c64117869434819cf2e0c34cea5b1b063a4db828b867dd85ba8"
+    },
+    {
+      "file": "scripts/test-ui-health.cjs",
+      "sha256": "d0aae1ea9b3f3138bc935d267e718777fddeb7a054b007710967aac7e4da519d",
+      "lines": 93,
+      "review": "complete",
+      "currentSha256": "d0aae1ea9b3f3138bc935d267e718777fddeb7a054b007710967aac7e4da519d"
+    },
+    {
+      "file": "scripts/test-ui-input-diagnostics.cjs",
+      "sha256": "adad6b81905a8186599f4697b990f48541818dbb0003587127c2785654ce279a",
+      "lines": 145,
+      "review": "complete",
+      "currentSha256": "adad6b81905a8186599f4697b990f48541818dbb0003587127c2785654ce279a"
+    },
+    {
+      "file": "scripts/test-ui-test-transform-fixture.cjs",
+      "sha256": "d20f672938d85d9ad1ed8176ccf6daaa60217e11fbe331c008cc2c7dc44ab4f8",
+      "lines": 94,
+      "review": "complete",
+      "currentSha256": "d20f672938d85d9ad1ed8176ccf6daaa60217e11fbe331c008cc2c7dc44ab4f8"
+    },
+    {
+      "file": "scripts/test-url-safety-transport.cjs",
+      "sha256": "375b605194d478897092654d565db87e5cb4b6ee1de8f5090ecc2ae60f86c90c",
+      "lines": 217,
+      "review": "complete",
+      "currentSha256": "0ca702f5b74cfb81e00d07642f7be34fdf11c2f62eeb6790e76e7466ae3f0834"
+    },
+    {
+      "file": "scripts/test-usage-window-ui.cjs",
+      "sha256": "645a581907fab7d65a5c12748a6f0fbf46ec49a2473136451ede5ba10f1852bd",
+      "lines": 32,
+      "review": "complete",
+      "currentSha256": "645a581907fab7d65a5c12748a6f0fbf46ec49a2473136451ede5ba10f1852bd"
+    },
+    {
+      "file": "scripts/test-use-control-settings.cjs",
+      "sha256": "4c26344686dca36be431ab00877e9711ad59ae71c13f7bd938098e138b28d6d8",
+      "lines": 70,
+      "review": "complete",
+      "currentSha256": "4c26344686dca36be431ab00877e9711ad59ae71c13f7bd938098e138b28d6d8"
+    },
+    {
+      "file": "scripts/test-use-settings-host.cjs",
+      "sha256": "c046e34ec99a0d4f9eb691310a921531278ffdbc90dc804832df793b010259f3",
+      "lines": 89,
+      "review": "complete",
+      "currentSha256": "c046e34ec99a0d4f9eb691310a921531278ffdbc90dc804832df793b010259f3"
+    },
+    {
+      "file": "scripts/test-use-settings-integration.cjs",
+      "sha256": "66ca073b9187bb1a36518fa7919c9c1d1bcc17d807a0c56378dcf4bd3e3ccf8d",
+      "lines": 75,
+      "review": "complete",
+      "currentSha256": "66ca073b9187bb1a36518fa7919c9c1d1bcc17d807a0c56378dcf4bd3e3ccf8d"
+    },
+    {
+      "file": "scripts/test-use-settings-ui.cjs",
+      "sha256": "44383417739f8c6322792a528e28dbc3e9e2db5607ddbea3d09e1a1f9321fed5",
+      "lines": 96,
+      "review": "complete",
+      "currentSha256": "44383417739f8c6322792a528e28dbc3e9e2db5607ddbea3d09e1a1f9321fed5"
+    },
+    {
+      "file": "scripts/test-verification-result-cache.cjs",
+      "sha256": "e69769ab5a4b9223464d567a62856843eff69cd0876b02279e360c6bfacac4f0",
+      "lines": 695,
+      "review": "complete",
+      "currentSha256": "e69769ab5a4b9223464d567a62856843eff69cd0876b02279e360c6bfacac4f0"
+    },
+    {
+      "file": "scripts/test-verification-schedule.cjs",
+      "sha256": "47df8c1f65fd6025d790507c955f914cdbf253dcd1a3ecd1a443ae6a9ffa114f",
+      "lines": 74,
+      "review": "complete",
+      "currentSha256": "47df8c1f65fd6025d790507c955f914cdbf253dcd1a3ecd1a443ae6a9ffa114f"
+    },
+    {
+      "file": "scripts/test-verification-state.ps1",
+      "sha256": "2201687baff8a2a0ab910e90b34f7ec54f5f2cd385d48585beab7e63e7d81ff1",
+      "lines": 51,
+      "review": "complete",
+      "currentSha256": "2201687baff8a2a0ab910e90b34f7ec54f5f2cd385d48585beab7e63e7d81ff1"
+    },
+    {
+      "file": "scripts/test-webview-drag.cjs",
+      "sha256": "ac7de54d186a273094f4a742a56fd9731fc6de7f9f2d34ea5a36308d0adc10b8",
+      "lines": 85,
+      "review": "complete",
+      "currentSha256": "ac7de54d186a273094f4a742a56fd9731fc6de7f9f2d34ea5a36308d0adc10b8"
+    },
+    {
+      "file": "scripts/test-webview-idle.cjs",
+      "sha256": "dac051b78a028445f2d3356ae624666a78f6c130efc6412e01b1bdedf52c2725",
+      "lines": 190,
+      "review": "complete",
+      "currentSha256": "dac051b78a028445f2d3356ae624666a78f6c130efc6412e01b1bdedf52c2725"
+    },
+    {
+      "file": "scripts/test-window-approval-notifications.cjs",
+      "sha256": "d62878285f24c6cd30cb7a3dc140b80b2b5ffc3e86653cc35a351b24b04e977f",
+      "lines": 177,
+      "review": "complete",
+      "currentSha256": "d62878285f24c6cd30cb7a3dc140b80b2b5ffc3e86653cc35a351b24b04e977f"
+    },
+    {
+      "file": "scripts/test-window-approval-ui-integration.cjs",
+      "sha256": "fe5e9e49db7e000448400f0d6d4b42238de4c92c5feaa2817e7f1e86ab38d3f7",
+      "lines": 43,
+      "review": "complete",
+      "currentSha256": "fe5e9e49db7e000448400f0d6d4b42238de4c92c5feaa2817e7f1e86ab38d3f7"
+    },
+    {
+      "file": "scripts/test-window-async-approval-host.cjs",
+      "sha256": "fc89752e385b5a4105371bd1850117bd8b7c42039356ee0d0b314325fecffa26",
+      "lines": 135,
+      "review": "complete",
+      "currentSha256": "fc89752e385b5a4105371bd1850117bd8b7c42039356ee0d0b314325fecffa26"
+    },
+    {
+      "file": "scripts/test-window-child-explicit-logoff.cjs",
+      "sha256": "2ff002cfca4a5c6495e539d1ac3a8df618783d6687dacee83dfe182c9a47b963",
+      "lines": 53,
+      "review": "complete",
+      "currentSha256": "2ff002cfca4a5c6495e539d1ac3a8df618783d6687dacee83dfe182c9a47b963"
+    },
+    {
+      "file": "scripts/test-window-child-logoff.cjs",
+      "sha256": "4dee236f9f1188814875be1770070a675d9a47cbc2483581c90b760728e7ab2f",
+      "lines": 186,
+      "review": "complete",
+      "currentSha256": "4dee236f9f1188814875be1770070a675d9a47cbc2483581c90b760728e7ab2f"
+    },
+    {
+      "file": "scripts/test-window-child-reconnect-integration.cjs",
+      "sha256": "37de6343798ff480816cd5bd764e87a0c75c907d6fd429374f726659bda887d2",
+      "lines": 101,
+      "review": "complete",
+      "currentSha256": "37de6343798ff480816cd5bd764e87a0c75c907d6fd429374f726659bda887d2"
+    },
+    {
+      "file": "scripts/test-window-child-reconnect.cjs",
+      "sha256": "8774f9cb4c7414a23fa05e079b5172797e870bc5d8f4914596963e5747c992fb",
+      "lines": 156,
+      "review": "complete",
+      "currentSha256": "8774f9cb4c7414a23fa05e079b5172797e870bc5d8f4914596963e5747c992fb"
+    },
+    {
+      "file": "scripts/test-window-child-recovery.cjs",
+      "sha256": "b579e28977f759d70ee258960224db30df19e118777b15567fc8eb00f0224130",
+      "lines": 133,
+      "review": "complete",
+      "currentSha256": "b579e28977f759d70ee258960224db30df19e118777b15567fc8eb00f0224130"
+    },
+    {
+      "file": "scripts/test-window-child-session.cjs",
+      "sha256": "b975cd2d38ef1af63aed9b08bce8d6f85c9591fdbf96a2f4531cf0debb2e1799",
+      "lines": 416,
+      "review": "complete",
+      "currentSha256": "b975cd2d38ef1af63aed9b08bce8d6f85c9591fdbf96a2f4531cf0debb2e1799"
+    },
+    {
+      "file": "scripts/test-window-child-viewer.cjs",
+      "sha256": "1c2d789027d1c257a2f23d9047f8ed4cf194eacec1fc36b372ed7ed0830f5a4f",
+      "lines": 99,
+      "review": "complete",
+      "currentSha256": "1c2d789027d1c257a2f23d9047f8ed4cf194eacec1fc36b372ed7ed0830f5a4f"
+    },
+    {
+      "file": "scripts/test-window-control-approval.cjs",
+      "sha256": "7455cb1fe69d3324b82e14f00646d0a233e04e7d07a1194f9983d35622cea4f6",
+      "lines": 78,
+      "review": "complete",
+      "currentSha256": "7455cb1fe69d3324b82e14f00646d0a233e04e7d07a1194f9983d35622cea4f6"
+    },
+    {
+      "file": "scripts/test-window-control-backend.cjs",
+      "sha256": "9871c3eab5b49a3f63e59fc546a750a518c356bb8ffc034b495f04ee7ff05e87",
+      "lines": 223,
+      "review": "complete",
+      "currentSha256": "9871c3eab5b49a3f63e59fc546a750a518c356bb8ffc034b495f04ee7ff05e87"
+    },
+    {
+      "file": "scripts/test-window-control-errors.cjs",
+      "sha256": "b51e974345881ec07f776b1c6e8ac359df1b49cf0e9bd1c4d5d79a1ee03703b0",
+      "lines": 205,
+      "review": "complete",
+      "currentSha256": "b51e974345881ec07f776b1c6e8ac359df1b49cf0e9bd1c4d5d79a1ee03703b0"
+    },
+    {
+      "file": "scripts/test-window-control-host-errors.cjs",
+      "sha256": "ffac02da34126414a38fe9b17b47cec39f5b8c6b9add325124bc5294813b44d3",
+      "lines": 255,
+      "review": "complete",
+      "currentSha256": "ffac02da34126414a38fe9b17b47cec39f5b8c6b9add325124bc5294813b44d3"
+    },
+    {
+      "file": "scripts/test-window-control-host.cjs",
+      "sha256": "278374412db250f00ce0d4e32abd784c4efdc78c5acd3b6449ab67e61a6830a4",
+      "lines": 102,
+      "review": "complete",
+      "currentSha256": "278374412db250f00ce0d4e32abd784c4efdc78c5acd3b6449ab67e61a6830a4"
+    },
+    {
+      "file": "scripts/test-window-control-injection.cjs",
+      "sha256": "8e3b23d598a5cb11b1a3d472c18859e5cb74c4d1d90c3b01e0d43c0d2cf39f20",
+      "lines": 193,
+      "review": "complete",
+      "currentSha256": "8e3b23d598a5cb11b1a3d472c18859e5cb74c4d1d90c3b01e0d43c0d2cf39f20"
+    },
+    {
+      "file": "scripts/test-window-control-mcp.cjs",
+      "sha256": "0c82c6e6010f20c7e573b2cd56c0d48cf2961380666ead9d02e5ebec4aca52b2",
+      "lines": 162,
+      "review": "complete",
+      "currentSha256": "0c82c6e6010f20c7e573b2cd56c0d48cf2961380666ead9d02e5ebec4aca52b2"
+    },
+    {
+      "file": "scripts/test-window-control-observation-recovery.cjs",
+      "sha256": "a9f03c1e3b2775142844572695ec1303ddcbfb576ea91f62e727382a71671754",
+      "lines": 178,
+      "review": "complete",
+      "currentSha256": "a9f03c1e3b2775142844572695ec1303ddcbfb576ea91f62e727382a71671754"
+    },
+    {
+      "file": "scripts/test-window-control-occupancy.cjs",
+      "sha256": "68028dea5f045afacd5516361114961b7be88d3b47a01565e9f4209c277f285d",
+      "lines": 124,
+      "review": "complete",
+      "currentSha256": "68028dea5f045afacd5516361114961b7be88d3b47a01565e9f4209c277f285d"
+    },
+    {
+      "file": "scripts/test-window-control-policy.cjs",
+      "sha256": "e201fc850520548715ecbd9ce1ce275ad9e97f42082f9b3894f38b3bf0b5a9a0",
+      "lines": 218,
+      "review": "complete",
+      "currentSha256": "e201fc850520548715ecbd9ce1ce275ad9e97f42082f9b3894f38b3bf0b5a9a0"
+    },
+    {
+      "file": "scripts/test-window-control-runtime.cjs",
+      "sha256": "e93b85b685f64fabc820e87b42bd18c1b0ae7178664a0a440db94f417ca741ec",
+      "lines": 208,
+      "review": "complete",
+      "currentSha256": "e93b85b685f64fabc820e87b42bd18c1b0ae7178664a0a440db94f417ca741ec"
+    },
+    {
+      "file": "scripts/test-window-desktop-authority.cjs",
+      "sha256": "434d09c391c9cca4b70db0a8ea4ce2974b009dbeb7706554371ac085ea7df3e1",
+      "lines": 133,
+      "review": "complete",
+      "currentSha256": "434d09c391c9cca4b70db0a8ea4ce2974b009dbeb7706554371ac085ea7df3e1"
+    },
+    {
+      "file": "scripts/test-window-input-revalidation.cjs",
+      "sha256": "1d8faab3c9084a8762c51256485627b281f3b2f09504bc493ce7404ab78d0fc8",
+      "lines": 62,
+      "review": "complete",
+      "currentSha256": "1d8faab3c9084a8762c51256485627b281f3b2f09504bc493ce7404ab78d0fc8"
+    },
+    {
+      "file": "scripts/test-window-installed-application.cjs",
+      "sha256": "475aef2b89196efc86e84a176bcb2693d2454efc66cce0d0333ea022938c5adf",
+      "lines": 72,
+      "review": "complete",
+      "currentSha256": "475aef2b89196efc86e84a176bcb2693d2454efc66cce0d0333ea022938c5adf"
+    },
+    {
+      "file": "scripts/test-window-installed-launch.cjs",
+      "sha256": "6f357033c10976ddacb63fa9e654712f1700446afb3c5633aff3cc3fa69d26c7",
+      "lines": 29,
+      "review": "complete",
+      "currentSha256": "6f357033c10976ddacb63fa9e654712f1700446afb3c5633aff3cc3fa69d26c7"
+    },
+    {
+      "file": "scripts/test-window-overlay.cjs",
+      "sha256": "c6c2f6cab2f9d5584ee989c870213c738e4f4b7ac9f572c81ec385a563016556",
+      "lines": 157,
+      "review": "complete",
+      "currentSha256": "c6c2f6cab2f9d5584ee989c870213c738e4f4b7ac9f572c81ec385a563016556"
+    },
+    {
+      "file": "scripts/test-window-permission-preparation.cjs",
+      "sha256": "a71c08ec734dad3cdadfb876f552a43f824acd0660f427dced662145a5ad9905",
+      "lines": 61,
+      "review": "complete",
+      "currentSha256": "a71c08ec734dad3cdadfb876f552a43f824acd0660f427dced662145a5ad9905"
+    },
+    {
+      "file": "scripts/test-window-task-macros.cjs",
+      "sha256": "834daed4d25ba9572430a628b4acea86a9a73e07fba502f7814a746b1e5b10c2",
+      "lines": 155,
+      "review": "complete",
+      "currentSha256": "834daed4d25ba9572430a628b4acea86a9a73e07fba502f7814a746b1e5b10c2"
+    },
+    {
+      "file": "scripts/test-window-use-async-approvals.cjs",
+      "sha256": "adf10511a942c424c0a853cc909c7d955070f47329f775f86efa9829297a2b37",
+      "lines": 45,
+      "review": "complete",
+      "currentSha256": "adf10511a942c424c0a853cc909c7d955070f47329f775f86efa9829297a2b37"
+    },
+    {
+      "file": "scripts/test-window-use-host.cjs",
+      "sha256": "0cdc8795fc9433245922a504b90bc13d3e6d932bedc1566bbc0a742d3fa026d6",
+      "lines": 199,
+      "review": "complete",
+      "currentSha256": "0cdc8795fc9433245922a504b90bc13d3e6d932bedc1566bbc0a742d3fa026d6"
+    },
+    {
+      "file": "scripts/test-window-use-isolation.cjs",
+      "sha256": "ef2c1e325e58f0aa0cee8270bfc5eaa6b4b0f40cd23598158e350fe079c84416",
+      "lines": 309,
+      "review": "complete",
+      "currentSha256": "ef2c1e325e58f0aa0cee8270bfc5eaa6b4b0f40cd23598158e350fe079c84416"
+    },
+    {
+      "file": "scripts/test-window-use-resources.cjs",
+      "sha256": "30cece4aa5b67817a92623ce57bbd4cd9e0770572b1f7168630e113ad8783202",
+      "lines": 280,
+      "review": "complete",
+      "currentSha256": "30cece4aa5b67817a92623ce57bbd4cd9e0770572b1f7168630e113ad8783202"
+    },
+    {
+      "file": "scripts/test-window-use-stage-authority.cjs",
+      "sha256": "0568158144c8a973c6e1db7df24e7c59894415dfcb67017046836c591a5d18ca",
+      "lines": 318,
+      "review": "complete",
+      "currentSha256": "0568158144c8a973c6e1db7df24e7c59894415dfcb67017046836c591a5d18ca"
+    },
+    {
+      "file": "scripts/test-window-use-staging.cjs",
+      "sha256": "6a65255c2d9f07d9397a44da3c4c862771dffd2cb5a389aedc3b4fb1d79679e1",
+      "lines": 135,
+      "review": "complete",
+      "currentSha256": "6a65255c2d9f07d9397a44da3c4c862771dffd2cb5a389aedc3b4fb1d79679e1"
+    },
+    {
+      "file": "scripts/test-work-segment-folding.cjs",
+      "sha256": "8c406debadce9a01c21c4bd17833e6844201cad4889e04fac8bf01d86d5adeb6",
+      "lines": 130,
+      "review": "complete",
+      "currentSha256": "8c406debadce9a01c21c4bd17833e6844201cad4889e04fac8bf01d86d5adeb6"
+    },
+    {
+      "file": "scripts/tests/codex-environment-engine.test.cjs",
+      "sha256": "82d8fa6f672556a89c229160851dab0d1a9358a05920034ec4aad43a7b84d1e4",
+      "lines": 164,
+      "review": "complete",
+      "currentSha256": "82d8fa6f672556a89c229160851dab0d1a9358a05920034ec4aad43a7b84d1e4"
+    },
+    {
+      "file": "scripts/tests/inject-task-profile.test.cjs",
+      "sha256": "980075487fdd28fc354a985ddcea6e4e7910422278426754f4e17d4bc51657eb",
+      "lines": 63,
+      "review": "complete",
+      "currentSha256": "980075487fdd28fc354a985ddcea6e4e7910422278426754f4e17d4bc51657eb"
+    },
+    {
+      "file": "scripts/tests/instruction-catalog.test.cjs",
+      "sha256": "80722aeca7b7ee45919b3c72e3fc5d03424e0b3ff6998a314039d5692225181f",
+      "lines": 212,
+      "review": "complete",
+      "currentSha256": "80722aeca7b7ee45919b3c72e3fc5d03424e0b3ff6998a314039d5692225181f"
+    },
+    {
+      "file": "scripts/tests/instruction-library.test.cjs",
+      "sha256": "1deba83dd4e31a0ea6e1a499682a98abab3a08107223d821b40366935e0fa48d",
+      "lines": 364,
+      "review": "complete",
+      "currentSha256": "1deba83dd4e31a0ea6e1a499682a98abab3a08107223d821b40366935e0fa48d"
+    },
+    {
+      "file": "scripts/tests/instruction-migration.test.cjs",
+      "sha256": "c491c2bab6da239335cbf8a24e65e84f98bf8a8d08374463d4e45edfa1459db1",
+      "lines": 153,
+      "review": "complete",
+      "currentSha256": "c491c2bab6da239335cbf8a24e65e84f98bf8a8d08374463d4e45edfa1459db1"
+    },
+    {
+      "file": "scripts/tests/instruction-module-packaging.test.cjs",
+      "sha256": "9fccb6608345cf7cffa910a00b49e21c65fbbf889bf8ecbe1b3c5bb476b35754",
+      "lines": 101,
+      "review": "complete",
+      "currentSha256": "9fccb6608345cf7cffa910a00b49e21c65fbbf889bf8ecbe1b3c5bb476b35754"
+    },
+    {
+      "file": "scripts/tests/instruction-package.test.cjs",
+      "sha256": "ed7dad0586074ec75e03c2030df7438ee5ec20928ca899d4996e9690dfdf6458",
+      "lines": 357,
+      "review": "complete",
+      "currentSha256": "ed7dad0586074ec75e03c2030df7438ee5ec20928ca899d4996e9690dfdf6458"
+    },
+    {
+      "file": "scripts/tests/instruction-playbooks.test.cjs",
+      "sha256": "0af36ff7a490bb2a3015f7cd7987911703dfea341d16e1b198c225c8541f6bc5",
+      "lines": 155,
+      "review": "complete",
+      "currentSha256": "0af36ff7a490bb2a3015f7cd7987911703dfea341d16e1b198c225c8541f6bc5"
+    },
+    {
+      "file": "scripts/tests/instruction-publisher.test.cjs",
+      "sha256": "692d5571b135011144d538e9a63bc1b842339a25a14fc19510c8c1dca897beef",
+      "lines": 367,
+      "review": "complete",
+      "currentSha256": "692d5571b135011144d538e9a63bc1b842339a25a14fc19510c8c1dca897beef"
+    },
+    {
+      "file": "scripts/tests/sync-codex-environment.test.cjs",
+      "sha256": "c74172e4e1beafc0919d1dd17e57dd64b6a5666147a8b8c0834d412946c9e246",
+      "lines": 394,
+      "review": "complete",
+      "currentSha256": "c74172e4e1beafc0919d1dd17e57dd64b6a5666147a8b8c0834d412946c9e246"
+    },
+    {
+      "file": "scripts/tests/sync-shared-environment.test.cjs",
+      "sha256": "1293f58876b5fb3f555dec2159bad491305f37c69dcd8577e46eda8853b710cf",
+      "lines": 147,
+      "review": "complete",
+      "currentSha256": "1293f58876b5fb3f555dec2159bad491305f37c69dcd8577e46eda8853b710cf"
+    },
+    {
+      "file": "scripts/tests/task-profile-runtime.test.cjs",
+      "sha256": "9938216b0b696964c9773176be8b9ce813bd42b1aafec257c17992e0dd794a87",
+      "lines": 159,
+      "review": "complete",
+      "currentSha256": "9938216b0b696964c9773176be8b9ce813bd42b1aafec257c17992e0dd794a87"
+    },
+    {
+      "file": "scripts/tests/test_compile_scope_manifests.py",
+      "sha256": "a5eecbdf30c85ce6578866d288d58e955bee0ab0ff3c4381fade6a7239314f55",
+      "lines": 136,
+      "review": "complete",
+      "currentSha256": "a5eecbdf30c85ce6578866d288d58e955bee0ab0ff3c4381fade6a7239314f55"
+    },
+    {
+      "file": "scripts/tests/test_inspect_native_azrael_errors.py",
+      "sha256": "18d48617d6ea275bf597f6b227ca8e0b6aca032d15463010cdb4981fb33a4043",
+      "lines": 440,
+      "review": "complete",
+      "currentSha256": "a6da87e936625640cb9e536d438a513d7eab041b2d2ff62926b58e4254105912"
+    },
+    {
+      "file": "scripts/verify-composer-emoticon-render.mjs",
+      "sha256": "354afa4e28ae3ea498d6364f409d2dd592ae42aa65cab344fe52c2c5320651ff",
+      "lines": 160,
+      "review": "complete",
+      "currentSha256": "354afa4e28ae3ea498d6364f409d2dd592ae42aa65cab344fe52c2c5320651ff"
+    },
+    {
+      "file": "scripts/verify-context-compaction-render.mjs",
+      "sha256": "f92759d3a2910ac1624784bc7fd52774e8ace152547aec0334b86f94b32e54c5",
+      "lines": 184,
+      "review": "complete",
+      "currentSha256": "f92759d3a2910ac1624784bc7fd52774e8ace152547aec0334b86f94b32e54c5"
+    },
+    {
+      "file": "scripts/verify-file-summary-render.mjs",
+      "sha256": "a904a97c7c3c021476cb3f4f1d0cd2bae68bdc7779bee8013280006af7e5e0f4",
+      "lines": 102,
+      "review": "complete",
+      "currentSha256": "a904a97c7c3c021476cb3f4f1d0cd2bae68bdc7779bee8013280006af7e5e0f4"
+    },
+    {
+      "file": "scripts/verify-instruction-library-render.mjs",
+      "sha256": "7aec4defa16d88f11f5cdd4f209e1e7d7ed922499f1620cb187eff839509bb7b",
+      "lines": 270,
+      "review": "complete",
+      "currentSha256": "7aec4defa16d88f11f5cdd4f209e1e7d7ed922499f1620cb187eff839509bb7b"
+    },
+    {
+      "file": "scripts/verify-provider-context-render.mjs",
+      "sha256": "ea8f5f4ce1139a6ba511ae43b8e3d2e7f3678c5102bbaf64db44a0106daaa9e5",
+      "lines": 105,
+      "review": "complete",
+      "currentSha256": "ea8f5f4ce1139a6ba511ae43b8e3d2e7f3678c5102bbaf64db44a0106daaa9e5"
+    }
+  ],
+  "sourceGroups": [
+    {
+      "id": "source-1",
+      "lines": 4028,
+      "files": [
+        "scripts/test-recovery-state.cjs",
+        "scripts/tests/instruction-publisher.test.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-deployment-input-snapshot.cjs",
+        "scripts/test-image-sketch.cjs",
+        "scripts/test-immediate-stop.cjs",
+        "scripts/test-file-open-menu.cjs",
+        "scripts/test-cargo-scheduling.cjs",
+        "scripts/test-ui-cleanup.cjs",
+        "scripts/test-publish-platform-release.cjs",
+        "scripts/test-thread-branch.cjs",
+        "scripts/test-paginated-history.cjs",
+        "scripts/test-window-child-reconnect-integration.cjs",
+        "scripts/test-ui-health.cjs",
+        "providers/opencodex/tests/unavailable-tool.test.mjs",
+        "scripts/test-team-integration.cjs",
+        "scripts/test-verification-state.ps1",
+        "scripts/test-independent-host-instructions.cjs",
+        "scripts/check-error-presentation.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-2",
+      "lines": 4031,
+      "files": [
+        "scripts/test-deferred-turn.cjs",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-project-fail-fast.cjs",
+        "scripts/test-window-control-host-errors.cjs",
+        "scripts/test-url-safety-transport.cjs",
+        "scripts/test-cargo-preflight-recipes.cjs",
+        "scripts/test-native-verification-cache.cjs",
+        "scripts/test-account-settings.cjs",
+        "scripts/test-session-links.cjs",
+        "scripts/test-maintenance-lock-owner.cjs",
+        "scripts/tests/sync-shared-environment.test.cjs",
+        "scripts/test-preparation-state.cjs",
+        "scripts/test-pdf-file-open.cjs",
+        "scripts/test-shared-engine-host.cjs",
+        "scripts/test-macos-signing.cjs",
+        "scripts/test-linux-host-preparation.cjs",
+        "scripts/test-optional-diagnostics.cjs",
+        "scripts/test-window-input-revalidation.cjs",
+        "scripts/test-usage-window-ui.cjs",
+        "scripts/check-window-child-logoff.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-3",
+      "lines": 4029,
+      "files": [
+        "scripts/test-deploy-azrael.ps1",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-build-metrics.ps1",
+        "scripts/test-compaction-progress.cjs",
+        "scripts/test-window-control-backend.cjs",
+        "scripts/test-build-platform.cjs",
+        "scripts/test-window-control-injection.cjs",
+        "scripts/test-pipeline-preflight.cjs",
+        "scripts/tests/codex-environment-engine.test.cjs",
+        "scripts/tests/instruction-migration.test.cjs",
+        "scripts/test-window-async-approval-host.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "providers/devin/tests/diagnostics.test.mjs",
+        "scripts/test-window-child-viewer.cjs",
+        "scripts/test-ui-test-transform-fixture.cjs",
+        "scripts/test-ordered-asset-reader.cjs",
+        "scripts/test-use-settings-integration.cjs",
+        "scripts/test-window-child-explicit-logoff.cjs",
+        "instructions/skills/ktcloud-ai-nexus/scripts/test_state_roots.py",
+        "scripts/check-error-classification.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-4",
+      "lines": 4029,
+      "files": [
+        "scripts/test-recovery-bridge.cjs",
+        "scripts/test-integrated-entry.cjs",
+        "scripts/tests/instruction-library.test.cjs",
+        "scripts/test-devin-native-host.cjs",
+        "scripts/test-team-observability.cjs",
+        "scripts/test-image-file-open.cjs",
+        "scripts/test-project-maintenance.cjs",
+        "scripts/test-recent-chat-filter.cjs",
+        "scripts/test-team-change-service.cjs",
+        "scripts/test-submit-only-thread.cjs",
+        "scripts/test-window-use-staging.cjs",
+        "scripts/test-window-desktop-authority.cjs",
+        "scripts/verify-provider-context-render.mjs",
+        "scripts/tests/instruction-module-packaging.test.cjs",
+        "scripts/test-scroll-fade.cjs",
+        "scripts/test-account-fixture-environment.cjs",
+        "scripts/test-window-installed-application.cjs",
+        "scripts/test-common-agent-instructions.cjs",
+        "scripts/test-window-use-async-approvals.cjs",
+        "scripts/check-unavailable-tool-adapter.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-5",
+      "lines": 4034,
+      "files": [
+        "scripts/test-verification-result-cache.cjs",
+        "scripts/test-cargo-target-owner.cjs",
+        "scripts/test-package-local-host.cjs",
+        "scripts/import-instructions.py",
+        "scripts/test-account-switch-queue.cjs",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-provider-accounts-host.cjs",
+        "scripts/test-computer-use-runtime.cjs",
+        "scripts/test-window-control-observation-recovery.cjs",
+        "scripts/test-window-overlay.cjs",
+        "scripts/test-queued-input.cjs",
+        "scripts/test-team-runtime-host.cjs",
+        "scripts/test-ordinary-runtime-node.cjs",
+        "scripts/test-queue-refresh.cjs",
+        "scripts/test-use-settings-ui.cjs",
+        "scripts/test-linux-native-supervision.cjs",
+        "scripts/test-managed-native-fixture.cjs",
+        "scripts/test-error-presentation.cjs",
+        "scripts/test-account-models-catalog.cjs",
+        "scripts/test-missing-image.cjs",
+        "scripts/check-deletion-approval-host.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-6",
+      "lines": 4029,
+      "files": [
+        "scripts/test-artifact-lifecycle.cjs",
+        "scripts/tests/test_inspect_native_azrael_errors.py",
+        "scripts/test-content-fonts.cjs",
+        "scripts/test-team-runtime.cjs",
+        "scripts/test-task-work-time.cjs",
+        "scripts/test-provider-context.cjs",
+        "scripts/test-window-control-runtime.cjs",
+        "scripts/test-recovery-presentation.cjs",
+        "scripts/test-fetch-response.cjs",
+        "scripts/test-local-file-drop.cjs",
+        "scripts/test-window-task-macros.cjs",
+        "scripts/test-ui-input-diagnostics.cjs",
+        "scripts/test-project-drafts.cjs",
+        "scripts/test-source-test-policy.cjs",
+        "scripts/test-computer-use-approvals.cjs",
+        "scripts/test-root-resume-controls.cjs",
+        "scripts/check-artifact-lifecycle.cjs",
+        "scripts/test-capacity-retry-stop.cjs",
+        "scripts/test-window-permission-preparation.cjs",
+        "scripts/test-mcp-lazy-startup.cjs",
+        "scripts/test-task-work-time-ui.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-7",
+      "lines": 4034,
+      "files": [
+        "scripts/test-student-design.cjs",
+        "scripts/test-provider-model-picker.cjs",
+        "scripts/test-composer-draft.cjs",
+        "scripts/test-question-queue.cjs",
+        "scripts/test-capture-project-inputs.cjs",
+        "scripts/test-sky-control-policy.cjs",
+        "scripts/test-pipeline-preservation.cjs",
+        "scripts/test-webview-idle.cjs",
+        "scripts/test-instruction-settings.cjs",
+        "scripts/test-window-control-mcp.cjs",
+        "scripts/test-asset-transform-cache-retention.cjs",
+        "scripts/test-engine-check-selection.cjs",
+        "scripts/test-window-control-occupancy.cjs",
+        "scripts/test-pets-cleanup.cjs",
+        "scripts/test-edit-stop-integration.cjs",
+        "scripts/test-preservation-integration.cjs",
+        "scripts/test-window-control-approval.cjs",
+        "scripts/test-verification-schedule.cjs",
+        "scripts/test-parent-request-activity.cjs",
+        "scripts/test-host-release-version.cjs",
+        "scripts/test-provider-input-budget-helper.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-8",
+      "lines": 4031,
+      "files": [
+        "scripts/test-project-selection.cjs",
+        "scripts/test-computer-use-injection.cjs",
+        "scripts/tests/sync-codex-environment.test.cjs",
+        "scripts/test-window-use-stage-authority.cjs",
+        "scripts/test-window-use-resources.cjs",
+        "scripts/test-send-result-integration.cjs",
+        "scripts/test-max-reasoning.cjs",
+        "scripts/verify-context-compaction-render.mjs",
+        "scripts/test-namespace-source.cjs",
+        "scripts/verify-composer-emoticon-render.mjs",
+        "scripts/test-incremental-extension-build.cjs",
+        "scripts/test-source-test-fixtures.cjs",
+        "scripts/test-question-withdrawal.cjs",
+        "providers/opencodex/tests/harness-mapping.test.mjs",
+        "scripts/test-window-control-host.cjs",
+        "scripts/test-platform-runtime.cjs",
+        "scripts/test-profile-menu-render.cjs",
+        "scripts/test-check-shared-engine-resources.mjs",
+        "scripts/tests/inject-task-profile.test.cjs",
+        "scripts/test-instruction-library-host.cjs",
+        "scripts/test-window-installed-launch.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-9",
+      "lines": 4031,
+      "files": [
+        "scripts/test-cargo-verification-cache.cjs",
+        "scripts/test-queue-consumption.cjs",
+        "scripts/test-feature-preservation-cache.cjs",
+        "scripts/test-asset-transform-cache.cjs",
+        "scripts/verify-instruction-library-render.mjs",
+        "scripts/tests/instruction-catalog.test.cjs",
+        "scripts/test-window-use-host.cjs",
+        "scripts/test-cargo-test-preparation.cjs",
+        "scripts/test-task-work-time-history.cjs",
+        "scripts/test-window-child-reconnect.cjs",
+        "scripts/tests/instruction-playbooks.test.cjs",
+        "providers/devin/tests/stall-diagnostics.test.mjs",
+        "scripts/test-work-segment-folding.cjs",
+        "scripts/test-local-history-host.cjs",
+        "scripts/verify-file-summary-render.mjs",
+        "scripts/test-use-settings-host.cjs",
+        "scripts/test-webview-drag.cjs",
+        "scripts/test-command-drag-block.cjs",
+        "scripts/test-session-flags.cjs",
+        "scripts/test-custom-api-host-integration.cjs",
+        "scripts/check-engine-provenance-guards.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    },
+    {
+      "id": "source-10",
+      "lines": 4039,
+      "files": [
+        "scripts/test-build-module-cache.ps1",
+        "scripts/test-feature-preservation.cjs",
+        "scripts/test-btw.cjs",
+        "scripts/tests/instruction-package.test.cjs",
+        "scripts/test-queued-compaction.cjs",
+        "scripts/test-check-shared-engine.mjs",
+        "scripts/test-window-control-errors.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-approval-notifications.cjs",
+        "scripts/tests/task-profile-runtime.test.cjs",
+        "scripts/test-compile-scope.cjs",
+        "scripts/tests/test_compile_scope_manifests.py",
+        "providers/opencodex/tests/tool-diagnostics.test.mjs",
+        "scripts/test-anthropic-prompt-format.cjs",
+        "scripts/test-auto-review.cjs",
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/test-student-avatar-assets.cjs",
+        "scripts/test-use-control-settings.cjs",
+        "scripts/test-cargo-shared-cache.cjs",
+        "scripts/test-window-approval-ui-integration.cjs",
+        "scripts/check-meta-provider.cjs",
+        "scripts/test-team-ui.cjs"
+      ],
+      "review": "all listed bodies/assertions and reachable helper/child paths reviewed"
+    }
+  ],
+  "extension": [
+    {
+      "file": "extensions/azrael-ex/test/accountPresentation.test.ts",
+      "sha256": "9b94d48310e2044a08382c96a1fa238a9385f4838a12c766b229b6d3b4158069",
+      "review": "complete",
+      "currentSha256": "9b94d48310e2044a08382c96a1fa238a9385f4838a12c766b229b6d3b4158069"
+    },
+    {
+      "file": "extensions/azrael-ex/test/accountService.test.ts",
+      "sha256": "9c973368c6a661d20e1ac53d0edb66f94fcb0446f55a48dbd78656488604dac7",
+      "review": "complete",
+      "currentSha256": "9c973368c6a661d20e1ac53d0edb66f94fcb0446f55a48dbd78656488604dac7"
+    },
+    {
+      "file": "extensions/azrael-ex/test/anthropicReset.test.ts",
+      "sha256": "ed0eb55bc3dce7a4879d5b7fcae6d64cc332bab6709557d34c84babd88bec295",
+      "review": "complete",
+      "currentSha256": "ed0eb55bc3dce7a4879d5b7fcae6d64cc332bab6709557d34c84babd88bec295"
+    },
+    {
+      "file": "extensions/azrael-ex/test/appServerTransport.test.ts",
+      "sha256": "e258fe1a30df7c6812bd89b03f365a39437e20d900eb44d11097c3ca0042d663",
+      "review": "complete",
+      "currentSha256": "e258fe1a30df7c6812bd89b03f365a39437e20d900eb44d11097c3ca0042d663"
+    },
+    {
+      "file": "extensions/azrael-ex/test/autoAccountSwitch.test.ts",
+      "sha256": "7c88726644a928ea88a875cedefb9699604878a70e8bb6775218725c233e12d4",
+      "review": "complete",
+      "currentSha256": "7c88726644a928ea88a875cedefb9699604878a70e8bb6775218725c233e12d4"
+    },
+    {
+      "file": "extensions/azrael-ex/test/bridgeTransport.test.ts",
+      "sha256": "b04742a6f3ce45294ae5a75e0ec3951db8dc2b204ea04a3f2ed50e886dcf49a2",
+      "review": "complete",
+      "currentSha256": "b04742a6f3ce45294ae5a75e0ec3951db8dc2b204ea04a3f2ed50e886dcf49a2"
+    },
+    {
+      "file": "extensions/azrael-ex/test/chatActivation.test.ts",
+      "sha256": "2904e8c6e47dbf66733c320fda41380645b3c460c60a83bb400b0cbfb1809a5c",
+      "review": "complete",
+      "currentSha256": "2904e8c6e47dbf66733c320fda41380645b3c460c60a83bb400b0cbfb1809a5c"
+    },
+    {
+      "file": "extensions/azrael-ex/test/chatSession.test.ts",
+      "sha256": "b3eaae80c9b37b841f2962d7eb4d45e133c3ac48c6fb141f06e785270779dc2a",
+      "review": "complete",
+      "currentSha256": "b3eaae80c9b37b841f2962d7eb4d45e133c3ac48c6fb141f06e785270779dc2a"
+    },
+    {
+      "file": "extensions/azrael-ex/test/customApi.test.ts",
+      "sha256": "85ca4113fc1ede1a3dfc020ee033f627646f64a90f9075428358a240899358c1",
+      "review": "complete",
+      "currentSha256": "85ca4113fc1ede1a3dfc020ee033f627646f64a90f9075428358a240899358c1"
+    },
+    {
+      "file": "extensions/azrael-ex/test/devinProtocol.test.ts",
+      "sha256": "9647fcbd94074ad0c5a9f5e692f2df4aa03b201d0510763fb98cd7eb398c2b77",
+      "review": "complete",
+      "currentSha256": "9647fcbd94074ad0c5a9f5e692f2df4aa03b201d0510763fb98cd7eb398c2b77"
+    },
+    {
+      "file": "extensions/azrael-ex/test/devinUsage.test.ts",
+      "sha256": "7c021826fea19b83cec2aa50cdd0acfc6ce8fe857bcc1846e71a48151009b953",
+      "review": "complete",
+      "currentSha256": "7c021826fea19b83cec2aa50cdd0acfc6ce8fe857bcc1846e71a48151009b953"
+    },
+    {
+      "file": "extensions/azrael-ex/test/hostContract.test.ts",
+      "sha256": "6aa5c83b853c5163c55cfd78793ff675952aa5ecf8df4eeefba1ff754c616f36",
+      "review": "complete",
+      "currentSha256": "6aa5c83b853c5163c55cfd78793ff675952aa5ecf8df4eeefba1ff754c616f36"
+    },
+    {
+      "file": "extensions/azrael-ex/test/hostRuntime.test.ts",
+      "sha256": "05883adb1e9b2683d6ce8f975fa12266110704412948059b7c004404fbe79865",
+      "review": "complete",
+      "currentSha256": "05883adb1e9b2683d6ce8f975fa12266110704412948059b7c004404fbe79865"
+    },
+    {
+      "file": "extensions/azrael-ex/test/instructionCatalogFlow.test.ts",
+      "sha256": "f783ff02900413f1c277d63e819893432f57f348ef840adc19e6f606da0c1f48",
+      "review": "complete",
+      "currentSha256": "f783ff02900413f1c277d63e819893432f57f348ef840adc19e6f606da0c1f48"
+    },
+    {
+      "file": "extensions/azrael-ex/test/instructionLibraryService.test.ts",
+      "sha256": "3c2d86f80e64e74c338706b2e177bc859fe56a462aba3be6a5450d7ae87ce0b1",
+      "review": "complete",
+      "currentSha256": "3c2d86f80e64e74c338706b2e177bc859fe56a462aba3be6a5450d7ae87ce0b1"
+    },
+    {
+      "file": "extensions/azrael-ex/test/instructionManagement.test.ts",
+      "sha256": "cc0ca501545c74f92b89e55fee97f94b1140c95e8f525f04ca064c1e1f88dcd7",
+      "review": "complete",
+      "currentSha256": "cc0ca501545c74f92b89e55fee97f94b1140c95e8f525f04ca064c1e1f88dcd7"
+    },
+    {
+      "file": "extensions/azrael-ex/test/instructionMigrationFlow.test.ts",
+      "sha256": "77014ef5b275eaeb5aaeba0d765f3e1b6b4a5e6361118bcddf5bd5d2d12e39dd",
+      "review": "complete",
+      "currentSha256": "77014ef5b275eaeb5aaeba0d765f3e1b6b4a5e6361118bcddf5bd5d2d12e39dd"
+    },
+    {
+      "file": "extensions/azrael-ex/test/instructionService.test.ts",
+      "sha256": "aac25cc4edbb3eed624ebd7b5d8faff1f97b5242d7562a79de8f99745320f001",
+      "review": "complete",
+      "currentSha256": "aac25cc4edbb3eed624ebd7b5d8faff1f97b5242d7562a79de8f99745320f001"
+    },
+    {
+      "file": "extensions/azrael-ex/test/instructionSkillSettings.test.ts",
+      "sha256": "7623ea3d4d4cb78d8478174fe41e92ca69e3d31e8a503c4b53263338f235df43",
+      "review": "complete",
+      "currentSha256": "7623ea3d4d4cb78d8478174fe41e92ca69e3d31e8a503c4b53263338f235df43"
+    },
+    {
+      "file": "extensions/azrael-ex/test/instructionView.test.ts",
+      "sha256": "ceca3eb6f2d6b844e508c9aac6be0faf45a9db8177f9b7e021786356f607aca5",
+      "review": "complete",
+      "currentSha256": "ceca3eb6f2d6b844e508c9aac6be0faf45a9db8177f9b7e021786356f607aca5"
+    },
+    {
+      "file": "extensions/azrael-ex/test/nativeAzrael.test.ts",
+      "sha256": "ac014c6d682dac5aea88b7987635f22ede6ba66bb8433594d1c06e3d8935222b",
+      "review": "complete",
+      "currentSha256": "ac014c6d682dac5aea88b7987635f22ede6ba66bb8433594d1c06e3d8935222b"
+    },
+    {
+      "file": "extensions/azrael-ex/test/ordinaryRuntime.test.ts",
+      "sha256": "865d161be1f1d6ba65f98a41eafb0d436a30f818e6e596d23d4134c1692a5736",
+      "review": "complete",
+      "currentSha256": "865d161be1f1d6ba65f98a41eafb0d436a30f818e6e596d23d4134c1692a5736"
+    },
+    {
+      "file": "extensions/azrael-ex/test/projectUsageIntegration.test.ts",
+      "sha256": "b8cb4eb7cbd6e0683879845ddb78642fd8d28d3d41cad4fba40e0ee84b19badd",
+      "review": "complete",
+      "currentSha256": "b8cb4eb7cbd6e0683879845ddb78642fd8d28d3d41cad4fba40e0ee84b19badd"
+    },
+    {
+      "file": "extensions/azrael-ex/test/projectUsagePresentation.test.ts",
+      "sha256": "c49548b658d506977f3f24c69f1931593600402d3b1a079b9312683364f38e27",
+      "review": "complete",
+      "currentSha256": "c49548b658d506977f3f24c69f1931593600402d3b1a079b9312683364f38e27"
+    },
+    {
+      "file": "extensions/azrael-ex/test/protocol.test.ts",
+      "sha256": "70a34d27d4252c1d7b5a0675f471fa340df604d2f9cb57fe11ec1304bafeb274",
+      "review": "complete",
+      "currentSha256": "70a34d27d4252c1d7b5a0675f471fa340df604d2f9cb57fe11ec1304bafeb274"
+    },
+    {
+      "file": "extensions/azrael-ex/test/providerAccountService.test.ts",
+      "sha256": "9201a28147f7ea8350ec6b2cc56fc03b841172464cd696313d1ef020c813cf67",
+      "review": "complete",
+      "currentSha256": "9201a28147f7ea8350ec6b2cc56fc03b841172464cd696313d1ef020c813cf67"
+    },
+    {
+      "file": "extensions/azrael-ex/test/resetCredit.test.ts",
+      "sha256": "9010176c289f47ecb5ffdcde8314c814573f764ab9d9928e6e18450f15ac8090",
+      "review": "complete",
+      "currentSha256": "9010176c289f47ecb5ffdcde8314c814573f764ab9d9928e6e18450f15ac8090"
+    },
+    {
+      "file": "extensions/azrael-ex/test/rootResumeProtocol.test.ts",
+      "sha256": "c0b4615bb29cd69eec42c9577a933b898495a37e5ac689f449e31d4135559286",
+      "review": "complete",
+      "currentSha256": "c0b4615bb29cd69eec42c9577a933b898495a37e5ac689f449e31d4135559286"
+    },
+    {
+      "file": "extensions/azrael-ex/test/standaloneChatActivation.test.ts",
+      "sha256": "0065b42e10d6a0c23830b1e931fa20f87196eeee194b11cd5d38ad2f41be6ab9",
+      "review": "complete",
+      "currentSha256": "0065b42e10d6a0c23830b1e931fa20f87196eeee194b11cd5d38ad2f41be6ab9"
+    },
+    {
+      "file": "extensions/azrael-ex/test/standaloneHostContract.test.ts",
+      "sha256": "89fdfbf0c0d21874a401c466c1852940f04b311fa660b37badd0162976dc0709",
+      "review": "complete",
+      "currentSha256": "89fdfbf0c0d21874a401c466c1852940f04b311fa660b37badd0162976dc0709"
+    },
+    {
+      "file": "extensions/azrael-ex/test/studentDesign.test.ts",
+      "sha256": "bd2c7af4b25c1d8746cedea1225de995dc09e97c0e30952336a0b0fc087df10e",
+      "review": "complete",
+      "currentSha256": "bd2c7af4b25c1d8746cedea1225de995dc09e97c0e30952336a0b0fc087df10e"
+    },
+    {
+      "file": "extensions/azrael-ex/test/unifiedAccountsPresentation.test.ts",
+      "sha256": "2e0e984071749ee79efe0fd964c2f5dd45ec1bf8b4d7db70730ed82b2c3e48f4",
+      "review": "complete",
+      "currentSha256": "2e0e984071749ee79efe0fd964c2f5dd45ec1bf8b4d7db70730ed82b2c3e48f4"
+    },
+    {
+      "file": "extensions/azrael-ex/test/usagePresentation.test.ts",
+      "sha256": "e3e7d14e05bfa26c693e698d7513ab45dbde1865b85b16aaab3aceaed01c660f",
+      "review": "complete",
+      "currentSha256": "e3e7d14e05bfa26c693e698d7513ab45dbde1865b85b16aaab3aceaed01c660f"
+    },
+    {
+      "file": "extensions/azrael-ex/test/usageRefresh.test.ts",
+      "sha256": "0480b8da580ede1f874e5d669dffd23424633d9ccffc5dabfee0a900bc97a00c",
+      "review": "complete",
+      "currentSha256": "0480b8da580ede1f874e5d669dffd23424633d9ccffc5dabfee0a900bc97a00c"
+    },
+    {
+      "file": "extensions/azrael-ex/test/usageTicketView.test.ts",
+      "sha256": "16bd8b0f2307ab8b763e2e4f732b93f73b47bed3f6226497d58091eec00bb432",
+      "review": "complete",
+      "currentSha256": "16bd8b0f2307ab8b763e2e4f732b93f73b47bed3f6226497d58091eec00bb432"
+    },
+    {
+      "file": "extensions/azrael-ex/test/usageTimerView.test.ts",
+      "sha256": "bfc52989a6de57aaef6859d9b70e0e9e2f90eaa696b553b3db5ce39068e29252",
+      "review": "complete",
+      "currentSha256": "bfc52989a6de57aaef6859d9b70e0e9e2f90eaa696b553b3db5ce39068e29252"
+    },
+    {
+      "file": "extensions/azrael-ex/test/usageViewRefresh.test.ts",
+      "sha256": "95f0dea5fc8a0ad07938460a4ea0ec7b5b2307050158a37ee4953ba26236ebf7",
+      "review": "complete",
+      "currentSha256": "95f0dea5fc8a0ad07938460a4ea0ec7b5b2307050158a37ee4953ba26236ebf7"
+    },
+    {
+      "file": "extensions/azrael-ex/test/usageWindowService.test.ts",
+      "sha256": "10ed475daf5a0fe18847cdb4eca33adb315024f61f00e105df85843d35b1d73b",
+      "review": "complete",
+      "currentSha256": "10ed475daf5a0fe18847cdb4eca33adb315024f61f00e105df85843d35b1d73b"
+    }
+  ],
+  "nativeWrappers": [
+    "scripts/check-api-context.cjs",
+    "scripts/check-artifact-lifecycle.cjs",
+    "scripts/check-auto-account-switch.mjs",
+    "scripts/check-capacity-recovery.cjs",
+    "scripts/check-deletion-approval-native.cjs",
+    "scripts/check-devin-native-agents.mjs",
+    "scripts/check-devin-native-engine.mjs",
+    "scripts/check-error-classification-native.cjs",
+    "scripts/check-mcp-lazy-startup.cjs",
+    "scripts/check-mcp-oauth-store.cjs",
+    "scripts/check-meta-native-selection.cjs",
+    "scripts/check-model-harness-profiles.cjs",
+    "scripts/check-parent-requests.cjs",
+    "scripts/check-project-maintenance.cjs",
+    "scripts/check-question-withdrawal-native.cjs",
+    "scripts/check-question-withdrawal-sdk.cjs",
+    "scripts/check-response-tps-native.cjs",
+    "scripts/check-root-resume-reasoning.cjs",
+    "scripts/check-selected-upstream-native.cjs",
+    "scripts/check-shared-engine-native.cjs",
+    "scripts/check-startup-performance-native.cjs",
+    "scripts/check-task-profile-skills.cjs",
+    "scripts/check-task-recovery-native.cjs",
+    "scripts/check-task-work-time-native.cjs",
+    "scripts/check-thread-auto-compaction.cjs",
+    "scripts/check-unavailable-tool-native.cjs",
+    "scripts/check-usage-window.cjs",
+    "scripts/check-window-approval-native.cjs",
+    "scripts/test-accepted-input-engine.mjs",
+    "scripts/test-provider-context-engine.mjs",
+    "scripts/test-recovery-engine.mjs"
+  ],
+  "nativeReview": {
+    "state": "all selected Rust bodies, module registration, helpers and supported platform branches statically reviewed",
+    "selectedCheckEntries": 55,
+    "distinctWrappers": 31,
+    "sourceRoot": "engine/codex-rs",
+    "excludedWrongRoot": "An initial permissions audit of upstream/codex was discarded and fully redone against engine/codex-rs",
+    "groups": [
+      {
+        "owner": "native_network_credentials",
+        "scope": "credential_broker/configured broker",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_network_runtime",
+        "scope": "proxy/runtime",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_network_http",
+        "scope": "HTTP/MITM/tunnel/certificates",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_network_policy",
+        "scope": "all remaining selected network-proxy library modules",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_sandbox_common",
+        "scope": "bwrap/landlock/manager/policy transforms/terminal/violation/windows",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_sandbox_seatbelt",
+        "scope": "all selected macOS Seatbelt bodies",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_permissions",
+        "scope": "protocol permissions and linked test modules",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_upstream_core",
+        "scope": "all selected unified_exec module paths, config/state and platform integration; current source bytes compared with reviewed r7 files",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_upstream_resume",
+        "scope": "thread_resume and Linux child network module; turn-start helper",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_upstream_misc",
+        "scope": "revert/settings/rollout compression/persisted resume/thread-store/TUI",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_maintenance_tests",
+        "scope": "all project-maintenance default test targets and core handler/prompt registration",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_shared_server",
+        "scope": "shared server/entry/window context/session-handoff selectors",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_shared_daemon",
+        "scope": "PTY/daemon/core handoff and bridge selectors",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_context_profiles",
+        "scope": "context/model harness/task profile/skills selectors and all model-switching parameter cases",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_parent_root",
+        "scope": "parent request/response and root-resume selectors",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_questions_recovery",
+        "scope": "question/SDK/window approval/task recovery selectors and all broad-filter descendants",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_metrics_usage",
+        "scope": "startup/task timing/TPS/account processor",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_oauth_tests",
+        "scope": "all OAuth selected bodies under both map-feature recipes",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_wire_checks",
+        "scope": "Meta/provider/accepted input/recovery wire harnesses and Devin native agents/runtime",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      },
+      {
+        "owner": "native_compaction_capacity",
+        "scope": "thread compaction/capacity/error classification/unavailable-tool selectors",
+        "review": "complete",
+        "execution": "not run by read-only auditor"
+      }
+    ],
+    "wrapperIdentities": [
+      {
+        "file": "scripts/check-api-context.cjs",
+        "sha256": "05069afe348a8322e2e99700b9335afd069665e38fb5a5a2eb39e26c9697c681"
+      },
+      {
+        "file": "scripts/check-artifact-lifecycle.cjs",
+        "sha256": "4d15df02456b37942f52a86f5c4d00f772e13075496c12cda96ff9af618e9d97"
+      },
+      {
+        "file": "scripts/check-auto-account-switch.mjs",
+        "sha256": "cec8bbe9ed9c3cd905f59ccb4f3dccf6cbe7402682351c9d9f48702f642f020a"
+      },
+      {
+        "file": "scripts/check-capacity-recovery.cjs",
+        "sha256": "ca6cccb3d50df005500d5ceeedbba0c064806a74aa4c089c880f82186b6d4c37"
+      },
+      {
+        "file": "scripts/check-deletion-approval-native.cjs",
+        "sha256": "83c94db058a7b764f5c9bfe9e2d0e2b1cdb2033dcc690dee30dd1813df5d5070"
+      },
+      {
+        "file": "scripts/check-devin-native-agents.mjs",
+        "sha256": "705e83adc358b6991f37f09922b91a364704233c7437e1489cb2fdff6b9ceee5"
+      },
+      {
+        "file": "scripts/check-devin-native-engine.mjs",
+        "sha256": "7dd748b8ce6cf4e50294086bda8235c790cdd818154507ac8aaa909712a69cc4"
+      },
+      {
+        "file": "scripts/check-error-classification-native.cjs",
+        "sha256": "338386a3b633c8364fae67e268c86405328b60f809e951f193edc8a533c1d616"
+      },
+      {
+        "file": "scripts/check-mcp-lazy-startup.cjs",
+        "sha256": "58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86"
+      },
+      {
+        "file": "scripts/check-mcp-oauth-store.cjs",
+        "sha256": "1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa"
+      },
+      {
+        "file": "scripts/check-meta-native-selection.cjs",
+        "sha256": "3c726a157bbec773e3833abf9c13586e5f45254e2fba6c313a5056f4290ba32c"
+      },
+      {
+        "file": "scripts/check-model-harness-profiles.cjs",
+        "sha256": "54b74cfe2975933f1196a70a36f570ec7a441034e12314fe57912760bcf188b4"
+      },
+      {
+        "file": "scripts/check-parent-requests.cjs",
+        "sha256": "3e3f3099a415a289f0f0dcb04145762ede446ab62e21c198a304660bdb464e52"
+      },
+      {
+        "file": "scripts/check-project-maintenance.cjs",
+        "sha256": "1eea8c6a873bcf17a7899461a4c2e171796054bc13b9e3a48e87d95a8499e87e"
+      },
+      {
+        "file": "scripts/check-question-withdrawal-native.cjs",
+        "sha256": "b17ee0244ec76cb3fa54d0384dfdb260bd8d8055a5ff32958bd1305d5bf22080"
+      },
+      {
+        "file": "scripts/check-question-withdrawal-sdk.cjs",
+        "sha256": "6e49069a6825f195e3b8e8b599600af8437da87356617c9817db8fbef56f7535"
+      },
+      {
+        "file": "scripts/check-response-tps-native.cjs",
+        "sha256": "ff6fd89fe8103a7da51f5555f0c704bd37d056b3f5017f10251d7285563b74e0"
+      },
+      {
+        "file": "scripts/check-root-resume-reasoning.cjs",
+        "sha256": "ef3906ac9d1fbf7f7de81647a962253bfeb75b5e35b64ee924896d0abec9a3ac"
+      },
+      {
+        "file": "scripts/check-selected-upstream-native.cjs",
+        "sha256": "38f8d1f82c73fd06d4126c4b15f2e102c22d525541f47e5abfb54495519ed1eb"
+      },
+      {
+        "file": "scripts/check-shared-engine-native.cjs",
+        "sha256": "ddb6f1c7193eb42706291a3f7f0be7566832d607b8599e95d7e6e0a177654943"
+      },
+      {
+        "file": "scripts/check-startup-performance-native.cjs",
+        "sha256": "5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2"
+      },
+      {
+        "file": "scripts/check-task-profile-skills.cjs",
+        "sha256": "963c93a86d4c501dd7543fe4809ff48b4ee2d3e2cab2cd2e2727a1d484ef4d17"
+      },
+      {
+        "file": "scripts/check-task-recovery-native.cjs",
+        "sha256": "2ffa46f67e5fbab21b1ff7032588ef2de89263f227becd8986c23886bf136655"
+      },
+      {
+        "file": "scripts/check-task-work-time-native.cjs",
+        "sha256": "63cb1e6655af44990874fbf20c2158470631e25397c9a72ba24b96233354f973"
+      },
+      {
+        "file": "scripts/check-thread-auto-compaction.cjs",
+        "sha256": "45538fd544446ae4af9453e6cde0b4cd62e9ba87b1b62e5f2c57ea80723bb053"
+      },
+      {
+        "file": "scripts/check-unavailable-tool-native.cjs",
+        "sha256": "e49fb6e685951dbe91a83213f7e79722ffd62341610d06980253a29dedb7538d"
+      },
+      {
+        "file": "scripts/check-usage-window.cjs",
+        "sha256": "b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd"
+      },
+      {
+        "file": "scripts/check-window-approval-native.cjs",
+        "sha256": "525b897176b1c4ca2bd8c91fff09cd61b5f6c211ac874ea0aa02d5397c963325"
+      },
+      {
+        "file": "scripts/test-accepted-input-engine.mjs",
+        "sha256": "fae5d26e38c1f3b521a25e417f89e8e0dbefd519eacc64adac7ccb9c7d83d5e4"
+      },
+      {
+        "file": "scripts/test-provider-context-engine.mjs",
+        "sha256": "fbebb63f884420d782a0c70875240e5b792a10b413edf55b5eae56b15d89c66c"
+      },
+      {
+        "file": "scripts/test-recovery-engine.mjs",
+        "sha256": "cc7fd9945e7c300ce6a20bdf316c49b84c6833c3040b7aec13d4a49a85e88385"
+      }
+    ],
+    "limitations": [
+      "Counts are source-derived, not a libtest runtime listing or proof all native tests passed",
+      "Cross-feature duplicate selectors retained because independently selected feature gates remain mandatory",
+      "Platform branches reviewed; Linux/macOS native execution not performed"
+    ]
+  },
+  "packageReview": {
+    "state": "complete",
+    "files": [
+      {
+        "file": "scripts/check-independent-vscode.ps1",
+        "sha256": "d90d2f2d76a5e0723d13576bf6c3b1e210794c7d08983cd85679fd809115c8e3"
+      },
+      {
+        "file": "scripts/test-independent-namespace.cjs",
+        "sha256": "32fea6fb9205ce4dc6242e1ef67bbe60cdd4aec70721b54dfe9ee097878c240c"
+      },
+      {
+        "file": "scripts/independent-vscode-host-check.cjs",
+        "sha256": "34467132b7a40f0c27615c8d5ef7b9a624810de2a95f3fb6a3b0ed970b3947f1"
+      },
+      {
+        "file": "scripts/test-check-management.mjs",
+        "sha256": "a67d93316f2578ec11a01b42bb6938e396674fd9194d58428078541c0584e15f"
+      }
+    ],
+    "retiredAdjacentObsoleteTests": [
+      "scripts/test-independent-vscode-baseline.ps1",
+      "scripts/test-independent-vscode-window-safety.cjs"
+    ],
+    "preservedStages": [
+      "initialInventory",
+      "hostInstall",
+      "finalInventory",
+      "namespace",
+      "standaloneHost",
+      "host"
+    ],
+    "runtime": "Live host/package installation not run in cleanup-only task"
+  },
+  "reviewCompletedAt": "2026-10-27T03:41:24.049Z",
+  "reviewedInputChanges": [
+    "scripts/test-account-models-catalog.cjs",
+    "scripts/test-cargo-preflight-recipes.cjs",
+    "scripts/test-cargo-test-preparation.cjs",
+    "scripts/test-cargo-verification.cjs",
+    "scripts/test-url-safety-transport.cjs",
+    "scripts/tests/test_inspect_native_azrael_errors.py"
+  ],
+  "extensionReview": {
+    "state": "complete",
+    "groups": [
+      {
+        "owner": "full_extension_accounts",
+        "files": 18
+      },
+      {
+        "owner": "full_extension_runtime",
+        "files": 20
+      }
+    ],
+    "runtime": "Review only; unchanged extension suite not rerun"
+  },
+  "additionalSourceReview": {
+    "state": "complete",
+    "files": [
+      {
+        "file": "scripts/test-artifact-run.cjs",
+        "sha256": "14feb2f58c206dea127caa176877443e2e7b4234e86ca2ab15836f9ad1840cf2",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-deployment-workspace.cjs",
+        "sha256": "ee85a5c41b7d06e2a83fa93a054ef145b55791e7218dbddc14bb72aca9fb5fb0",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-artifact-check-ownership.cjs",
+        "sha256": "ec3b132ae83049b3502d9a00d8de49f51927320c29a3af5525e006d2991d6920",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-artifact-render-ownership.cjs",
+        "sha256": "e6498d785be31244c97b747626bc5cae374aedf7dd8f8bc66bf5bd9eecf5f383",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-platform-packaging.cjs",
+        "sha256": "baeae634e191cd10d369d93a2bb5fe63dd44e125e65014c9e6bea6afbb7f937b",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-clean-legacy-releases.ps1",
+        "sha256": "c317e57a4007e4ef96038eef94208d0ecc7323130a2404550aa10982496154a9",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-clean-verification-artifacts.ps1",
+        "sha256": "5dd9d2446b771d4df3d6b5c6f7c876e48aa0f9e88fa4497e407220e08762cc2c",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-clean-engine-caches.ps1",
+        "sha256": "466edc091e9b904888cdb8db360b80756494d3fdaf4fb859753e239f34dae2bb",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/tests/test_import_engine_source.py",
+        "sha256": "17adcaf74b10ad234f98b8652a086699a9fe0a45119c3ca5654580b93e667975",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/tests/test_engine_provenance.py",
+        "sha256": "930c14b763fe8b32902599695bd6249740e147ebb4a0cbec57a3a395d163ee78",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/test-check-management.mjs",
+        "sha256": "a67d93316f2578ec11a01b42bb6938e396674fd9194d58428078541c0584e15f",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/inference-errors.test.ts",
+        "sha256": "3d0e2c1050ce585e017961609796f0061d041945f7172438170859bf04902d59",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/stall-diagnostics.test.ts",
+        "sha256": "4e01c97c53acaf60b1017c320b0dbc2206d69f89d8a579650fd624b08101cb74",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/tool-diagnostics-inference.test.ts",
+        "sha256": "18f0a11caac456058bf4faaecca2035b92d20f1505ee2a7bb2c2b0d1a0b2d987",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/tool-name-replay.test.ts",
+        "sha256": "3de1b2a632fb36dbb7c2f4619ed44d1d6bae23c60e8195456d0b775bf16e3a8c",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/harness-projection.test.ts",
+        "sha256": "65ed3d9d1a94a0a070eca90dbdf0fd73487ea78f9c4e91f45ab4b2950971f1ff",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/context-budget.test.ts",
+        "sha256": "3773ee35f05a1edb94a6edf4e772a944068a382ee384ea60e0e8a87c2123704a",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/tool-search-history.test.ts",
+        "sha256": "702dd1c8c97343481677a67b6fddcda878f095c7bd90411585c4318e232d4b3f",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/meta-accounts.test.ts",
+        "sha256": "864404325d0d7ad742b36e9e38fca180a3664d5cfc735d39f9c8e7f479cf9d88",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/meta-responses.test.ts",
+        "sha256": "8ed5ca26fc94154ca6eebb49782d201b867ed58ed344a111151e81bdad0b62ca",
+        "review": "complete"
+      },
+      {
+        "file": "providers/opencodex/tests/meta-inference.test.ts",
+        "sha256": "8cb91a2280702f7d9d3dd6c2212921334eb3a3fef1e7ab64b04e5d4b66b5fc64",
+        "review": "complete"
+      },
+      {
+        "file": "scripts/check-claude-managed-inference.test.ts",
+        "sha256": "52bd172b2cc0532524f578467f5dd682acc61e305f93932b8575f0705081b976",
+        "review": "complete"
+      },
+      {
+        "file": "providers/devin/tests/context-budget.test.mjs",
+        "sha256": "20064d21e92898e17644d7746f2e1ac495b85a7f2f1394e4f3d4497557bc6ee4",
+        "review": "complete"
+      },
+      {
+        "file": "providers/devin/tests/progress.test.mjs",
+        "sha256": "bd3964f7b1af28a8afcc7e065d8173a78a126f74fd95eaad231c20aebd91074c",
+        "review": "complete"
+      }
+    ]
+  },
+  "exclusions": [
+    {
+      "file": "scripts/test-local-history.py",
+      "reason": "No invocation from full build/test-project/feature check or selected child closure; maintained source retained"
+    },
+    {
+      "file": "scripts/verify-work-segment-folding-render.mjs",
+      "reason": "Listed as a feature input, not invoked by its build check; required executable folding behavior reviewed in selected test-work-segment-folding.cjs; manual renderer retained"
+    }
+  ],
+  "verification": {
+    "sourceProof": "artifacts/tasks/dw13-build/test-cleanup-full-verification.json",
+    "commandPlans": "artifacts/tasks/dw13-build/test-cleanup-full-platform-recipes.json",
+    "selectors": {
+      "log": "artifacts/tasks/dw13-build/test-cleanup-full-cargo-selectors.log",
+      "actualExit": 0,
+      "tests": 64,
+      "pass": 64,
+      "skip": 0
+    },
+    "hostInstructions": {
+      "log": "artifacts/tasks/dw13-build/test-cleanup-full-host.log",
+      "actualExit": 0,
+      "tests": 15
+    },
+    "url": {
+      "log": "artifacts/tasks/dw13-build/test-cleanup-full-url.log",
+      "actualExit": 0,
+      "tests": 15,
+      "seconds": 2.469
+    },
+    "rust": {
+      "state": "passed",
+      "platform": "Windows x64",
+      "actualExit": 0,
+      "sourceSha256": "45e93f8d16a5c53d4ac5beeb2e49c8dff2af573511e43c52abe69810cf1f7713",
+      "receiptSha256": "b552b0aa3456ad225480e745bc18d8336faf1948d42754a49ade8e574f4ef1d0",
+      "inputsUnchanged": true,
+      "postSourceIdentityMatches": true,
+      "minimumObservedFreeBytes": "22063874048",
+      "cargoLeaseReleased": true,
+      "pendingSnapshots": [],
+      "checks": [
+        {
+          "id": "sandboxing",
+          "args": [
+            "test",
+            "-p",
+            "codex-sandboxing",
+            "--lib",
+            "violation::tests::",
+            "--locked",
+            "--offline"
+          ],
+          "actualExit": 0,
+          "signal": null,
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-sandboxing",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-27T03:47:57.626Z",
+              "durationMs": 60335,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-sandboxing",
+                "--lib",
+                "violation::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-27T03:48:57.961Z",
+              "durationMs": 28024,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 8
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-sandboxing",
+                "--lib",
+                "violation::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-27T03:49:25.985Z",
+              "durationMs": 4800,
+              "exitCode": 0,
+              "signal": null
+            }
+          ],
+          "result": "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 50 filtered out; finished in 0.00s"
+        },
+        {
+          "id": "mcp",
+          "args": [
+            "test",
+            "-p",
+            "codex-mcp",
+            "--lib",
+            "mcp_prompt_auto_approval_honors_approved_tools_in_all_permission_modes",
+            "--locked",
+            "--offline"
+          ],
+          "actualExit": 0,
+          "signal": null,
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-mcp",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-27T03:49:30.790Z",
+              "durationMs": 99073,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-mcp",
+                "--lib",
+                "mcp_prompt_auto_approval_honors_approved_tools_in_all_permission_modes",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-27T03:51:09.863Z",
+              "durationMs": 218360,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 1
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-mcp",
+                "--lib",
+                "mcp_prompt_auto_approval_honors_approved_tools_in_all_permission_modes",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-27T03:54:48.223Z",
+              "durationMs": 29059,
+              "exitCode": 0,
+              "signal": null
+            }
+          ],
+          "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 256 filtered out; finished in 0.00s"
+        },
+        {
+          "id": "groups",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--test",
+            "groups",
+            "all_absent_members_complete_without_write_authorization_and_stay_reconciled",
+            "--locked",
+            "--offline"
+          ],
+          "actualExit": 0,
+          "signal": null,
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "azrael-project-maintenance",
+                "--test",
+                "groups",
+                "--locked",
+                "--offline",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-27T03:55:17.287Z",
+              "durationMs": 6430,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "azrael-project-maintenance",
+                "--test",
+                "groups",
+                "all_absent_members_complete_without_write_authorization_and_stay_reconciled",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-27T03:55:23.717Z",
+              "durationMs": 9786,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 1
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "azrael-project-maintenance",
+                "--test",
+                "groups",
+                "all_absent_members_complete_without_write_authorization_and_stay_reconciled",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-27T03:55:33.503Z",
+              "durationMs": 2739,
+              "exitCode": 0,
+              "signal": null
+            }
+          ],
+          "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 26 filtered out; finished in 0.12s"
+        },
+        {
+          "id": "capacity-component-compile",
+          "args": [
+            "--edition=2024",
+            "--test",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\test-cleanup-full-rust-20261027\\engine\\codex-rs\\core\\src\\capacity_recovery.rs",
+            "-o",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\test-cleanup-full-rust-20261027\\capacity-recovery.exe"
+          ],
+          "actualExit": 0,
+          "signal": null
+        },
+        {
+          "id": "capacity-component-runtime",
+          "args": [
+            "--test-threads=1"
+          ],
+          "actualExit": 0,
+          "signal": null,
+          "result": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+        }
+      ],
+      "proof": "artifacts/tasks/dw13-build/test-cleanup-full-rust-verification.json",
+      "limits": [
+        "Capacity result covers the exact std-only component, not whole core integration",
+        "Other Rust suites were statically reviewed, not all executed",
+        "Linux/macOS runtime verification not performed"
+      ]
+    },
+    "artifactRunFinal": {
+      "actualExit": 0,
+      "checks": 14,
+      "sourceSha256": "14feb2f58c206dea127caa176877443e2e7b4234e86ca2ab15836f9ad1840cf2",
+      "proof": "artifacts/tasks/dw13-build/test-cleanup-full-artifact-run-final.json",
+      "cleanup": "fresh group deleted/finalized; all six member paths absent"
+    },
+    "diffCheck": {
+      "actualExit": 0,
+      "scope": [
+        "scripts/test-account-models-catalog.cjs",
+        "scripts/test-artifact-check-ownership.cjs",
+        "scripts/test-artifact-run.cjs",
+        "scripts/test-url-safety-transport.cjs",
+        "scripts/test-cargo-test-preparation.cjs",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-cargo-preflight-recipes.cjs",
+        "scripts/cargo-preflight-recipes.cjs",
+        "scripts/check-task-recovery-native.cjs",
+        "scripts/check-model-harness-profiles.cjs",
+        "scripts/tests/test_inspect_native_azrael_errors.py",
+        "engine/codex-rs/codex-mcp/src/mcp/mod_tests.rs",
+        "engine/codex-rs/core/src/capacity_recovery.rs",
+        "engine/codex-rs/project-maintenance/tests/groups.rs",
+        "engine/codex-rs/sandboxing/src/violation_tests.rs",
+        "work/DW-01-build-preflight-timing/15-plan.md"
+      ]
+    },
+    "custody": {
+      "proof": "artifacts/tasks/dw13-build/test-cleanup-custody-consumers-r20261027c.json",
+      "scope": "Refinement preservation, exact source/consumer evidence, interruption/retry, Windows PowerShell shared catalog lock; paired build-platform",
+      "actualExit": 0,
+      "tests": 122,
+      "pass": 122,
+      "skip": 0,
+      "platform": "Windows x64",
+      "helperSha256": "2c218fe6177bcf0e81302cdebb06b5e06e8426c994f7ab9757d3760ec948faee",
+      "testSha256": "185121f48be2cb12b6190360f98acd1a6350a74e6a9ccd1fb4d9de7bed2cb900",
+      "initialEnvironmentFailure": "PowerShell7 absent: 112/113 pass; official task-local portable7.4.13 then completed actual mandatory Windows case; no test relaxed"
+    }
+  },
+  "cleanup": {
+    "completed": "All current disposable material absent from original paths or retained in exact archive at user request; no pending retention question",
+    "pending": null,
+    "proof": "artifacts/tasks/dw13-build/test-cleanup-full-cargo-fixture-cleanup.json",
+    "rust": {
+      "disposableRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\test-cleanup-full-rust-20261027",
+      "actualAbsent": true,
+      "logicalBytesDeleted": 104418765,
+      "nativeApplyExitCode": 0,
+      "groupStatus": "deleted",
+      "remaining": false,
+      "archived": false,
+      "finalized": {
+        "id": "run:DW-15:full-rust-20261027",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4dc4650ce7987f63a846ddac23da62091d5de87a12fcc1c8c861423715b4f047.json"
+      },
+      "verificationFile": "artifacts/tasks/dw13-build/test-cleanup-full-rust-verification.json",
+      "verificationSha256": "240b131d3d12dfb3d9a9236779d5f7b15766a007cff2149c44dede4f9f9165d7",
+      "warmTargetLease": {
+        "exists": false,
+        "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+        "targetStat": {
+          "dev": "3057815611",
+          "ino": "9288674232793547",
+          "birthtimeNs": "1792128893220322200"
+        }
+      }
+    },
+    "retentionDecision": "User superseded deletion with explicit archive instruction; six remaining fixtures and five control files archived, no further payload deletion",
+    "cargoFixtures": {
+      "originalCount": 27,
+      "logicalBytesBefore": 13586,
+      "deletedBeforeStop": 21,
+      "archivedAfterStop": 6,
+      "archive": "archive/dw15-cargo-fixtures-20261027-user-archive",
+      "archivePayloadLogicalBytes": 20820,
+      "controlFilesArchived": 5,
+      "originalPathsAllAbsent": true,
+      "contentAndFilesystemIdentityVerified": true,
+      "unknownChildrenPreserved": 289,
+      "consumerReferencesUnchanged": true,
+      "primaryNativeOriginalsRemainingFalse": 27,
+      "originalSourceProducerFinalized": true,
+      "originalDeletionExecution": {
+        "exitCode": 4294967295,
+        "durationMs": 261367.8113,
+        "outcome": "interrupted per user; not a passing command"
+      },
+      "archiveNativeRegistrationExit": 0,
+      "archiveNativeDeferExit": 0,
+      "proof": "artifacts/tasks/dw13-build/test-cleanup-cargo-archive.json",
+      "reconciliation": "artifacts/tasks/dw13-build/test-cleanup-cargo-refinement-result.json",
+      "reviewCondition": "User requests archive cleanup, then verify current ownership/references using the archive dedicated management root"
+    },
+    "custodyVerification": "All three verification groups absent/finalized; portable tools and logs already removed before latest archive instruction; proofs under active DW13 report owner"
+  },
+  "commit": {
+    "state": "Custody writer/tests/owning docs/work evidence form a separate task commit; existing staged four and unrelated working tree preserved; earlier mixed source cleanup commit remains separate",
+    "priorReceiptGitBlob": "926892b64ac99b33396094497084dc2d9450a4c4",
+    "initiallyUntrackedWrappers": [
+      "scripts/check-selected-upstream-native.cjs",
+      "scripts/check-deletion-approval-native.cjs"
+    ],
+    "scope": "Only owned selector hunks in the initially untracked wrappers; SOURCE four-file delta, not pre-existing unrelated provenance/code",
+    "remainingSourceCommit": "Earlier full test-cleanup selector and four-Rust-file receipt edits remain uncommitted because two wrappers were already untracked and SOURCE.json contains unrelated existing deltas; do not adopt entire files",
+    "currentScope": [
+      "scripts/artifact-lifecycle.cjs",
+      "scripts/test-artifact-lifecycle.cjs",
+      "docs/architecture/project-maintenance.md (refinement paragraph only)",
+      "docs/ops/project-maintenance.md",
+      "work/DW-01-build-preflight-timing/15-plan.md",
+      "work/DW-01-build-preflight-timing/15-audit.json"
+    ]
+  }
+}
