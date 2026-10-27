@@ -1194,6 +1194,7 @@ dependencies = [
 name = "azrael-project-maintenance"
 version = "0.162.0"
 dependencies = [
+ "codex-utils-process",
  "dunce",
  "serde",
  "serde_json",
@@ -4354,6 +4355,7 @@ dependencies = [
  "icu_locale_core",
  "icu_provider",
  "landlock",
+ "libc",
  "pretty_assertions",
  "quick-xml 0.41.0",
  "schemars 0.8.22",

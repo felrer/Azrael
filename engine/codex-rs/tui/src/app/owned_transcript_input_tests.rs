@@ -78,6 +78,7 @@ async fn configured_ctrl_space_submit_wins_over_transcript_selection() -> Result
                 ServerNotification::TurnStarted(TurnStartedNotification {
                     thread_id: thread_id.to_string(),
                     turn: Turn {
+                        root_resume_wait: None,
                         id: "turn".into(),
                         root_turn_id: None,
                         parent_turn_id: None,

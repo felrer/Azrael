@@ -4,7 +4,7 @@ const repo=path.join(__dirname,".."), artifactRun=process.env.AZRAEL_PACKAGING_T
 const fixtureProject=path.join(process.env.AZRAEL_PACKAGING_TEST_ROOT || artifactRun.temporary,"portable-packaging-"+crypto.randomUUID()), root=path.join(fixtureProject,"artifacts/fixture");
 fs.mkdirSync(root,{recursive:true});
 const frozen=path.join(root,"scripts"); fs.mkdirSync(frozen);
-for(const name of ["install-platform-release.cjs","package-platform-release.cjs","artifact-lifecycle.cjs","maintenance-lock-owner.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
+for(const name of ["install-platform-release.cjs","package-platform-release.cjs","artifact-lifecycle.cjs","maintenance-lock-owner.cjs","maintenance-lock-worker.cjs","maintenance-owner-config.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
 const s=require(path.join(frozen,"install-platform-release.cjs")), p=require(path.join(frozen,"platform-runtime.cjs")), pack=require(path.join(frozen,"package-platform-release.cjs"));
 const lifecycle=require(path.join(frozen,"artifact-lifecycle.cjs"));
 let checks=0; function check(name,fn) {fn(); checks++;console.log("PASS "+name);}

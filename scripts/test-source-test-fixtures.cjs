@@ -87,39 +87,54 @@ test('legacy and current link assets stay hardcoded while current package honors
   assert.equal(report.requirements.find(r => r.status === 'blocked').path, legacy.path);
 });
 
-test('instruction host accepts exact existing latest codex fallback and validates all release assets', () => {
+test('instruction host requires current source metadata and accepts exact existing latest codex fallback', () => {
   const root = fixture(), release = path.join(root, 'release');
   const engine = write(release, `engine/${process.platform === 'win32' ? 'codex.exe' : 'codex'}`);
   write(root, 'artifacts/latest.json', JSON.stringify({ releaseDirectory: release }));
-  const assets = path.join(root, 'artifacts/instructions/review-1.0.0');
-  write(assets, 'azrael-instructions-1.0.0-manifest.json', JSON.stringify({ archive: { name: 'archive.zip' }, documentsAsset: { name: 'docs.json' } }));
-  write(assets, 'archive.zip'); write(assets, 'docs.json');
+  const metadata = write(root, 'instructions/azrael-environment.json', JSON.stringify({ schemaVersion: 1, instructionVersion: '1.1.0', components: [] }));
   const env = { AZRAEL_INSTRUCTION_TEST_ROOT: parent }, files = ['scripts/test-instruction-library-host.cjs'];
   assert.equal(check({ root, files, env }).status, 'ready');
+  fs.unlinkSync(metadata);
+  assert.equal(inspect({ root, files, env }).requirements.find(r => r.id === 'instruction.release-metadata').status, 'blocked');
+  write(root, 'instructions/azrael-environment.json', JSON.stringify({ schemaVersion: 1, instructionVersion: '1.1.0', components: [] }));
   fs.unlinkSync(engine);
   assert.equal(inspect({ root, files, env }).requirements.find(r => r.id === 'instruction.engine').status, 'blocked');
   assert.equal(inspect({ root, files, env: { ...env, AZRAEL_INSTRUCTION_TEST_ENGINE: 'relative.exe' } }).requirements.find(r => r.id === 'instruction.engine').status, 'blocked');
 });
 
-test('service-only keeps optional root default and explicit engine bypasses latest; management requires no release inputs', () => {
+test('service requires an absolute root and explicit engine bypasses latest; management requires only its root', () => {
   const root = fixture(), engine = write(root, 'engine.exe');
-  const service = inspect({ root, files: ['extensions/azrael-ex/test/instructionService.test.ts'], env: { AZRAEL_INSTRUCTION_TEST_ENGINE: engine } });
+  write(root, 'instructions/azrael-environment.json', JSON.stringify({ schemaVersion: 1, instructionVersion: '1.1.0', components: [] }));
+  const files = ['extensions/azrael-ex/test/instructionService.test.ts'];
+  const env = { AZRAEL_INSTRUCTION_TEST_ENGINE: engine, AZRAEL_INSTRUCTION_RELEASE_ASSETS: path.join(root, 'unused-legacy-assets') };
+  for (const testRoot of [undefined, 'relative']) {
+    const blocked = inspect({ root, files, env: { ...env, AZRAEL_INSTRUCTION_TEST_ROOT: testRoot } });
+    assert.equal(blocked.status, 'blocked');
+    assert.equal(blocked.requirements.find(r => r.id === 'instruction.test-root').status, 'blocked');
+  }
+  const service = check({ root, files, env: { ...env, AZRAEL_INSTRUCTION_TEST_ROOT: parent } });
+  assert.equal(service.status, 'ready');
+  assert.equal(service.requirements.find(r => r.id === 'instruction.test-root').path, parent);
   assert.equal(service.requirements.find(r => r.id === 'instruction.engine').status, 'ready');
-  assert(!service.requirements.some(r => r.id === 'instruction.latest-engine-metadata' || r.id === 'instruction.test-root'));
-  assert.equal(service.requirements.find(r => r.id === 'instruction.release-manifest').path,
-    path.join(root, 'artifacts/instructions/review-1.0.0/azrael-instructions-1.0.0-manifest.json'));
+  assert(!fs.existsSync(path.join(root, 'artifacts/latest.json')));
+  assert.equal(service.requirements.find(r => r.id === 'instruction.release-metadata').path,
+    path.join(root, 'instructions/azrael-environment.json'));
   const management = inspect({ root, files: ['extensions/azrael-ex/test/instructionManagement.test.ts'], env: { AZRAEL_INSTRUCTION_TEST_ROOT: parent } });
   assert.deepEqual(management.requirements.map(r => r.id), ['instruction.test-root']);
   assert.equal(management.status, 'ready');
 });
 
-test('malformed manifests and nonregular prerequisite paths block without changes', () => {
+test('malformed current metadata and nonregular engine paths block without changes', () => {
   const root = fixture();
-  const assets = path.join(root, 'assets');
-  write(assets, 'azrael-instructions-1.0.0-manifest.json', '{partial');
-  const report = inspect({ root, files: ['extensions/azrael-ex/test/instructionService.test.ts'], env: { AZRAEL_INSTRUCTION_RELEASE_ASSETS: assets, AZRAEL_INSTRUCTION_TEST_ENGINE: root } });
+  const metadata = write(root, 'instructions/azrael-environment.json', '{partial');
+  const engine = path.join(root, 'engine');
+  const sentinel = write(engine, 'unchanged.txt', 'engine directory contents');
+  const metadataBefore = fs.readFileSync(metadata), sentinelBefore = fs.readFileSync(sentinel);
+  const report = inspect({ root, files: ['extensions/azrael-ex/test/instructionService.test.ts'], env: { AZRAEL_INSTRUCTION_TEST_ROOT: parent, AZRAEL_INSTRUCTION_TEST_ENGINE: engine } });
   assert.equal(report.status, 'blocked');
   assert.equal(report.requirements.find(r => r.id === 'instruction.engine').status, 'blocked');
-  assert.equal(report.requirements.find(r => r.id === 'instruction.release-manifest').status, 'blocked');
-  assert.equal(fs.readFileSync(path.join(assets, 'azrael-instructions-1.0.0-manifest.json'), 'utf8'), '{partial');
+  assert.equal(report.requirements.find(r => r.id === 'instruction.release-metadata').status, 'blocked');
+  assert.deepEqual(fs.readFileSync(metadata), metadataBefore);
+  assert(fs.lstatSync(engine).isDirectory());
+  assert.deepEqual(fs.readFileSync(sentinel), sentinelBefore);
 });

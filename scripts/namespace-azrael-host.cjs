@@ -561,7 +561,7 @@ const ASSET_RULE_PATHS = {
   "command-drag-policy.cjs": COMMAND_DRAG_ASSETS,
   "content-fonts.cjs": CONTENT_FONT_ASSETS.filter(name => name.endsWith(".css") || name.includes("app-initial-7a199c66e670")),
   ...Object.fromEntries(Object.keys(getContentFontRules()).map(name => [name, name === "content-font-policy" ? CONTENT_FONT_ASSETS.filter(asset => asset.endsWith(".css") || asset.includes("app-initial-7a199c66e670")) : [CONTENT_FONT_CSS_ASSET]])),
-  "inject-deferred-turn.cjs": ["out/extension.js", DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET,
+  "inject-deferred-turn.cjs": ["out/extension.js", DEFERRED_HEADER_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET,
     DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET],
   "inject-work-segment-folding.cjs": [WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET],
   "inject-parent-request-activity.cjs": PARENT_REQUEST_ACTIVITY_ASSETS,

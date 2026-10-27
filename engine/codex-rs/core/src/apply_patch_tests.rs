@@ -11,6 +11,63 @@ use std::sync::Arc;
 
 use tempfile::tempdir;
 
+#[tokio::test]
+async fn deletion_approval_patch_requires_user_but_addition_does_not() {
+    let (_, turn) = make_session_and_context().await;
+    let mut step = StepContext::for_test(Arc::new(turn));
+    let settings = &mut Arc::get_mut(&mut step).expect("unshared step").settings;
+    update_selected_settings_for_test(Arc::make_mut(settings), |selected| {
+        selected
+            .approval_policy
+            .set(AskForApproval::Never)
+            .expect("full access policy");
+    });
+    let tmp = tempdir().expect("fixture");
+    let cwd = PathUri::from_host_native_path(tmp.path()).expect("fixture cwd");
+    std::fs::write(tmp.path().join("delete.txt"), "original\n").expect("fixture file");
+    let mut environment = step.environments.primary().expect("environment").clone();
+    environment.config_mut().permission_profile =
+        PermissionProfileSnapshot::legacy(PermissionProfile::Disabled);
+    let fs = environment.environment.get_filesystem();
+    let args = codex_apply_patch::parse_patch(
+        "*** Begin Patch\n*** Delete File: delete.txt\n*** End Patch",
+    )
+    .expect("parse delete");
+    let codex_apply_patch::MaybeApplyPatchVerified::Body(deletion) =
+        codex_apply_patch::verify_apply_patch_args(args, &cwd, fs.as_ref(), None).await
+    else {
+        panic!("verify deletion");
+    };
+    let addition = ApplyPatchAction::new_add_for_test(
+        &cwd.join_descendant("add.txt").expect("add path"),
+        "new".into(),
+    );
+    let policy = PermissionProfile::Disabled.file_system_sandbox_policy();
+    let sandbox = environment.sandbox_context(None);
+    let context = sandbox.policy_context();
+    let matching =
+        PatchSandboxRoute::Platform(codex_protocol::config_types::WindowsSandboxLevel::Disabled)
+            .prepare_matching(&policy, &context)
+            .expect("matching");
+    let deleted =
+        prepare_apply_patch(&step, &environment, &matching, deletion).expect("prepare deletion");
+    assert!(!deleted.auto_approved);
+    assert_eq!(
+        deleted.exec_approval_requirement,
+        ExecApprovalRequirement::NeedsApproval {
+            reason: Some(DELETION_APPROVAL_REASON.to_string()),
+            proposed_execpolicy_amendment: None,
+        }
+    );
+    let added =
+        prepare_apply_patch(&step, &environment, &matching, addition).expect("prepare addition");
+    assert!(added.auto_approved);
+    assert_eq!(
+        std::fs::read_to_string(tmp.path().join("delete.txt")).expect("still exists"),
+        "original\n"
+    );
+}
+
 #[test]
 fn convert_apply_patch_maps_add_variant() {
     let tmp = tempdir().expect("tmp");

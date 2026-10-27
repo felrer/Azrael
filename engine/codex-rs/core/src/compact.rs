@@ -793,6 +793,8 @@ async fn drain_to_completed(
     sess.record_input_context_policy(turn_context, turn_context.model_info(), prompt)
         .await;
     sess.send_token_count_event(turn_context).await;
+    sess.set_server_reasoning_included(turn_context.model_info().use_responses_lite)
+        .await;
     let mut stream = if crate::managed_catalog::is_managed(&turn_context.model_info().slug) {
         crate::managed_runtime::stream(
             sess,
@@ -842,26 +844,8 @@ async fn drain_to_completed(
             ));
         };
         match event {
-            Ok(ResponseEvent::OutputItemDone(item)) => {
-                if matches!(phase, CompactionPhase::PostTurn) {
-                    // Commit post-turn summaries only after success; failures must leave both
-                    // the live history and persisted rollout intact.
-                    output.push(item);
-                } else {
-                    sess.record_annotated_conversation_items(
-                        turn_context,
-                        turn_context.model_info(),
-                        vec![ResponseItemEnvelope {
-                            item,
-                            metadata: Some(CodexHarnessMetadata {
-                                compaction_output: true,
-                                ..Default::default()
-                            }),
-                        }],
-                    )
-                    .await;
-                }
-            }
+            // Keep each attempt isolated until the response completes successfully.
+            Ok(ResponseEvent::OutputItemDone(item)) => output.push(item),
             Ok(ResponseEvent::ServerReasoningIncluded(included)) => {
                 sess.set_server_reasoning_included(included).await;
             }
@@ -874,6 +858,22 @@ async fn drain_to_completed(
                 usage_metadata,
                 ..
             }) => {
+                if !matches!(phase, CompactionPhase::PostTurn) {
+                    for item in std::mem::take(&mut output) {
+                        sess.record_annotated_conversation_items(
+                            turn_context,
+                            turn_context.model_info(),
+                            vec![ResponseItemEnvelope {
+                                item,
+                                metadata: Some(CodexHarnessMetadata {
+                                    compaction_output: true,
+                                    ..Default::default()
+                                }),
+                            }],
+                        )
+                        .await;
+                    }
+                }
                 let mut usage_settings = (*turn_context.initial_settings).clone();
                 if !crate::managed_catalog::is_managed(&turn_context.model_info().slug)
                     && !crate::devin::catalog::is_devin(&turn_context.model_info().slug)

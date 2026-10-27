@@ -64,6 +64,8 @@ pub(crate) fn register(
     auth: Auth<'_>,
 ) -> Result<Value, String> {
     let group_id = string(&group, "id")?.to_owned();
+    crate::reservations::check_group(root, &group_id, auth)?;
+    crate::reservations::check_record_mutation(root, &group_id, Some(&group), auth)?;
     let owner = string(&group, "owner")?;
     let kind = string(&group, "kind")?;
     if owner.trim().is_empty()
@@ -259,6 +261,7 @@ pub(crate) fn refresh(
     state: &mut State,
     auth: Auth<'_>,
 ) -> Result<Value, String> {
+    crate::reservations::check_group(root, group_id, auth)?;
     let mut group = state
         .groups
         .get(group_id)
@@ -317,7 +320,10 @@ pub(crate) fn refresh(
                 .any(|member| member["protection_known"] == false);
         item["generated"] = json!(generated);
         item["protection_known"] = json!(protection_known);
-        item["references"] = observed["references"].clone();
+        item["references"] = observed["member_references"]
+            .get(string(item, "id")?)
+            .cloned()
+            .unwrap_or_else(|| observed["references"].clone());
         item["protection_revision"] = observed["identity"].clone();
     }
     group["membership_complete"] = observed["settled"].clone();
@@ -338,7 +344,7 @@ pub(crate) struct Batch {
     pub completed: BTreeSet<String>,
     pub verification: Verification,
 }
-fn source_measurement(
+pub(crate) fn source_measurement(
     root: &Path,
     group: &Value,
     items: &BTreeMap<String, Value>,
@@ -387,6 +393,7 @@ pub(crate) fn batch(
     auth: Auth<'_>,
     verification: Verification,
 ) -> Result<Batch, String> {
+    crate::reservations::check_group(root, group_id, auth)?;
     let group = state
         .groups
         .get(group_id)

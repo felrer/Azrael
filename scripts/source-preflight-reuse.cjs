@@ -17,11 +17,16 @@ async function bindSourcePreflight(selection, config, root, verify = gate.verify
       !path.isAbsolute(config.receiptPath || '') || physical(config.projectRoot) !== physical(root)) {
     throw Error('Source reuse requires a same-project engine source preflight receipt');
   }
-  const receiptHash = digest(config.receiptPath);
+  let receiptHash;
   const validate = async () => {
-    if (digest(config.receiptPath) !== receiptHash) throw Error('Source preflight receipt changed');
+    const currentHash = digest(config.receiptPath);
+    if (receiptHash && currentHash !== receiptHash) throw Error('Source preflight receipt changed');
+    receiptHash ??= currentHash;
+    // verifyReceipt owns the current input, log and execution-environment
+    // checks. Require its environment evidence without measuring it twice.
     const receipt = await verify(config);
-    if (!receipt.sourceExecution || JSON.stringify(receipt.sourceExecution) !== JSON.stringify(await gate.sourceExecutionIdentity(config)))
+    if (!receipt.sourceExecution || (verify !== gate.verifyReceipt &&
+        JSON.stringify(receipt.sourceExecution) !== JSON.stringify(await gate.sourceExecutionIdentity(config))))
       throw Error('Source reuse requires matching execution environment evidence');
     return receipt;
   };

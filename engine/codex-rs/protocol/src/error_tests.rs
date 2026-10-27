@@ -18,7 +18,9 @@ fn unclassified_error_preserves_unknown_cause_without_automatic_retry() {
     ));
     assert!(error.retry_delay(1).is_none());
     assert_eq!(
-        error.to_error_event(Some("SECRET context".to_string())).message,
+        error
+            .to_error_event(Some("SECRET context".to_string()))
+            .message,
         "정의되지 않은 오류"
     );
     assert_eq!(
@@ -124,14 +126,19 @@ fn retry_delay_distinguishes_server_advice_backoff_and_terminal_errors() {
         (Some(advice), Some(advice), Some(advice)),
     );
 
-    let error = CodexErr::QuotaExceeded.with_retry_after(retry_after);
-    assert_eq!(
-        (
-            error.retry_delay(/*retry_count*/ 1),
-            error.server_retry_delay(),
-        ),
-        (None, Some(advice)),
-    );
+    for error in [
+        CodexErr::QuotaExceeded,
+        CodexErrorDetails::GatewayLoginRequired("login required".to_string()).into(),
+    ] {
+        let error = error.with_retry_after(retry_after);
+        assert_eq!(
+            (
+                error.retry_delay(/*retry_count*/ 1),
+                error.server_retry_delay(),
+            ),
+            (None, Some(advice)),
+        );
+    }
 }
 
 fn rate_limit_snapshot() -> RateLimitSnapshot {

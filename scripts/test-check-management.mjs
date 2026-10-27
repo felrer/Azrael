@@ -16,7 +16,11 @@ if (process.env.AZRAEL_MANAGEMENT_SMOKE_FIXTURE) {
   const scenario = process.env.AZRAEL_MANAGEMENT_SMOKE_FIXTURE;
   const trace = process.env.AZRAEL_MANAGEMENT_SMOKE_TRACE;
   let config;
+  const originalSpawn = childProcess.spawn;
   childProcess.spawn = (executable, args, options) => {
+    if (!executable.endsWith('fake-engine') && !executable.endsWith('fake-bridge')) {
+      return originalSpawn(executable, args, options);
+    }
     const role = executable.endsWith('fake-engine') ? 'engine' : 'bridge';
     assert.equal(options.windowsHide, true);
     assert.deepEqual(options.stdio, ['pipe', 'pipe', 'pipe']);

@@ -796,7 +796,7 @@ mod registered_observation_tests {
         #[cfg(windows)]
         {
             // Directory junction creation does not require symlink privileges.
-            let output = std::process::Command::new("cmd.exe")
+            let output = codex_utils_process::background_command("cmd.exe")
                 .args(["/D", "/C", "mklink", "/J"])
                 .arg(&link)
                 .arg(&target)

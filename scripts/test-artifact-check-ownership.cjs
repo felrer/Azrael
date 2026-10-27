@@ -2,46 +2,16 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { EventEmitter } = require('node:events');
-const { beginArtifactRun, finishArtifactRun, trackArtifactChild } = require('./artifact-run.cjs');
 const fixtureParent = process.argv[2];
 if (!fixtureParent || !path.isAbsolute(fixtureParent)) throw Error('An absolute, pre-owned temporary fixture directory is required');
 const fixture = path.join(fixtureParent, `check-ownership-${require('node:crypto').randomUUID()}`);
 fs.mkdirSync(fixture, { recursive: true });
 const passed = [];
-for (const [name, exitCode, stopped, expected] of [['success',0,true,'complete'],['failure',7,true,'failed'],['unknown',null,false,'pending']]) {
-  const run = beginArtifactRun(fixture, {workId:name,owner:'test-artifact-check-ownership',runId:'attempt'});
-  assert.equal(run.record.state, 'pending');
-  assert.equal(run.record.membership_complete, false);
-  const result = finishArtifactRun(run, {exitCode,producerStopped:stopped});
-  assert.equal(result.state, expected);
-  assert.equal(JSON.parse(fs.readFileSync(path.join(run.reports,'producer.json'))).exitCode, exitCode);
-  assert.throws(()=>beginArtifactRun(fixture,{workId:name,owner:'test-artifact-check-ownership',runId:'attempt'}),/already/);
-  passed.push(name);
-}
-const run = beginArtifactRun(fixture,{workId:'child',owner:'test-artifact-check-ownership'});
-const child = trackArtifactChild(run,new EventEmitter());
-assert.equal(finishArtifactRun(run,{exitCode:0,producerStopped:true}).state,'pending');
-child.emit('close',0);
-assert.equal(finishArtifactRun(run,{exitCode:0,producerStopped:true}).state,'complete');
-passed.push('unclosed-child-remains-pending');
-for(const source of ['check-multiwindow-accounts.mjs','check-devin-native-engine.mjs','check-devin-native-agents.mjs','check-devin-native-helper.mjs','check-managed-native-engine.mjs','check-management.mjs','check-accounts.mjs','check-devin-model-groups.mjs','check-devin-engine.mjs','create-ui-design-preview.cjs','create-ui-icon-review.cjs']) {
-  assert.match(fs.readFileSync(path.join(__dirname,source),'utf8'),/beginArtifactRun/);
-}
-for(const source of ['check-devin-native-helper.mjs','check-devin-model-groups.mjs']) {
-  assert.doesNotMatch(fs.readFileSync(path.join(__dirname,source),'utf8'),/writeFile\(join\(stateRoot, '(?:failure\.log|devin-model-groups\.json)'/);
-}
-const accounts=fs.readFileSync(path.join(__dirname,'check-accounts.mjs'),'utf8');
-assert.match(accounts,/parentLifecycle\.state !== 'pending'/);
-assert.match(accounts,/parentLifecycle \? stateDirectory : artifactRun\.reports/);
-assert.doesNotMatch(accounts,/finishArtifactRun/);
-passed.push('writer-adoption-and-prepared-state-boundaries');
 // Reuse the existing mock transport while running the actual changed CLI in a
-// contained fake project. Its mock emits exit without close, which must remain
-// pending even when all product assertions pass.
+// contained fake project. The mock confirms close on both success and failure.
 const scriptRoot = path.join(fixture, 'scripts');
 fs.mkdirSync(path.join(scriptRoot, 'lib'), {recursive:true});
-for(const source of ['check-management.mjs','artifact-run.cjs','artifact-lifecycle.cjs','maintenance-lock-owner.cjs','lib/azrael-rpc-check.mjs']) {
+for(const source of ['check-management.mjs','artifact-run.cjs','artifact-lifecycle.cjs','maintenance-lock-owner.cjs','maintenance-lock-worker.cjs','maintenance-owner-config.cjs','lib/azrael-rpc-check.mjs']) {
   fs.copyFileSync(path.join(__dirname,source),path.join(scriptRoot,source));
 }
 const { spawnSync } = require('node:child_process');

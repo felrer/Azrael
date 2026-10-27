@@ -11,6 +11,7 @@ const { preparationContext } = require("./cargo-test-preparation.cjs");
 const PREFLIGHT = Object.freeze({ schema: 1, typeCheck: "selected-tests", testSelection: "nonzero" });
 const PREFLIGHT_ID = "selected-tests-v1";
 const guardedCargoWrappers = new Set([
+  "check-selected-upstream-native",
   "check-mcp-oauth-store",
   "check-mcp-lazy-startup",
   "check-window-approval-native", "check-question-withdrawal-native", "check-shared-engine-native", "check-startup-performance-native",
@@ -18,6 +19,7 @@ const guardedCargoWrappers = new Set([
   "check-task-work-time-native", "check-response-tps-native", "check-thread-auto-compaction",
   "check-capacity-recovery", "check-task-profile-skills", "check-project-maintenance", "check-error-classification-native",
   "check-task-recovery-native", "check-usage-window",
+  "check-deletion-approval-native",
 ].map(name => `scripts/${name}.cjs`));
 
 function validateCargoPreflight(check) {

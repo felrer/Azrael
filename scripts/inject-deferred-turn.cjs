@@ -193,7 +193,7 @@ function injectDeferredPresentation(text) {
   text = replaceOnce(text, "if(n.type===`loading`){let e;", "if(n.type===`loading`&&n.isRootResumePending)return(0,HZ.jsx)(fkr,{size:i,waiting:!0});if(n.type===`loading`){let e;");
   text = replaceOnce(text, "let a=n===`compact`?`icon-xs shrink-0`:`size-5 shrink-0`,o;", "let a=(n===`compact`?`icon-xs shrink-0`:`size-5 shrink-0`)+(e.waiting?` azrael-resume-wait`:``),o;");
   text = replaceOnce(text, "o=(0,HZ.jsx)(md,{className:a})", "o=(0,HZ.jsx)(md,{className:a,as:e.waiting?azraelResumeSpinner:void 0})");
-  text += "\nfunction azraelResumeSpinner(props){return(0,HZ.jsx)(`div`,{...props,style:{animationDuration:`4s`},\"data-azrael-resume-spinner\":true})}";
+  text += "\nfunction azraelResumeSpinner(props){return(0,HZ.jsx)(`div`,{...props,style:{animation:`none`,color:`var(--lightningcss-light, #2563eb) var(--lightningcss-dark, #60a5fa)`},\"data-azrael-resume-spinner\":true})}";
   return { text, count: 15 };
 }
 

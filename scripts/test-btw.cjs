@@ -11,7 +11,7 @@ const { injectComposerDraft } = require("./inject-composer-draft.cjs");
 const { transformAsset } = require("./ui-test-transform-fixture.cjs");
 const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const originals = BTW_ASSETS.map(asset => fs.readFileSync(path.join(root, asset), "utf8"));
-const patched = originals.map((source, i) => transformAsset(source, BTW_ASSETS[i], BTW_ASSETS[i], ts));
+const patched = originals.map((source, i) => transformAsset(source, BTW_ASSETS[i], path.join(root, BTW_ASSETS[i]), ts));
 function declaration(source, name) {
   const ast = ts.createSourceFile("pinned.js", source, 99, true, ts.ScriptKind.JS);
   const node = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name);

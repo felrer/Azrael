@@ -277,12 +277,85 @@ function Remove-ArtifactLifecycleMember {
     }
     Remove-Item -LiteralPath $Path -Recurse -ErrorAction Stop
 }
+function Receive-ArtifactMaintenanceResponse {
+    param($Client, [ValidateRange(1,75000)][int]$TimeoutMilliseconds = 15000)
+    $read = $Client.Process.StandardOutput.ReadLineAsync()
+    if (-not $read.Wait($TimeoutMilliseconds)) { throw 'Maintenance lock client response timed out; outcome unknown.' }
+    if ($null -eq $read.Result) { throw 'Maintenance lock client exited before responding; outcome unknown.' }
+    if ([Text.Encoding]::UTF8.GetByteCount($read.Result) + 1 -gt 64MB) { throw 'Maintenance lock client response exceeds frame bound; outcome unknown.' }
+    $packet = $read.Result | ConvertFrom-Json -AsHashtable
+    if ($packet.ok -ne $true) { throw ('Maintenance lock client failed (' + $packet['operation'] + '): ' + $packet.error) }
+    $packet
+}
+function Send-ArtifactMaintenanceCommand {
+    param($Client, [hashtable]$Request)
+    $Client.Sequence++
+    $Request.id = $Client.Sequence
+    $frame = $Request | ConvertTo-Json -Depth 100 -Compress
+    if ([Text.Encoding]::UTF8.GetByteCount($frame) + 1 -gt 64MB) { throw 'Maintenance lock client request exceeds frame bound; outcome unknown.' }
+    $Client.Process.StandardInput.WriteLine($frame)
+    $Client.Process.StandardInput.Flush()
+    $responseDeadlineMilliseconds = if ($Request.operation -in @('reserve','finish')) { 75000 } else { 15000 }
+    try { $packet = Receive-ArtifactMaintenanceResponse $Client -TimeoutMilliseconds $responseDeadlineMilliseconds }
+    catch { throw ("Maintenance lock client request '$($Request.operation)' failed: " + $_.Exception.Message) }
+    if ($packet.id -ne $Client.Sequence) { throw 'Maintenance lock client response mismatch; outcome unknown.' }
+    $packet.result
+}
+function Start-ArtifactMaintenanceClient {
+    param([string]$ProjectRoot)
+    $start = [Diagnostics.ProcessStartInfo]::new()
+    $start.FileName = (Get-Command node -CommandType Application | Select-Object -First 1).Source
+    $start.ArgumentList.Add((Join-Path $PSScriptRoot 'maintenance-lock-client.cjs'))
+    $start.ArgumentList.Add([IO.Path]::GetFullPath($ProjectRoot))
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardInput = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $start.StandardInputEncoding = [Text.UTF8Encoding]::new($false)
+    $start.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $start
+    $null = $process.Start()
+    $process.StandardInput.NewLine = "`n"
+    $client = @{Process=$process;Sequence=0;Errors=$process.StandardError.ReadToEndAsync()}
+    try {
+        $packet = Receive-ArtifactMaintenanceResponse $client
+        if ($packet.ready -ne $true) { throw 'Maintenance lock client ready handshake missing.' }
+        return $client
+    } catch {
+        $process.StandardInput.Close()
+        $process.WaitForExit()
+        $process.Dispose()
+        throw
+    }
+}
+function Get-ArtifactCleanupRemaining([string]$Path) {
+    try { $null = Get-Item -LiteralPath $Path -Force -ErrorAction Stop; return $true }
+    catch [System.Management.Automation.ItemNotFoundException] { return $false }
+    catch { return $null }
+}
+function Save-ArtifactCleanupEvidence {
+    param([string]$ProjectRoot, $Plan, $Outcomes)
+    $filename = Join-Path $ProjectRoot ('artifacts/maintenance/evidence/cleanup/' + [guid]::NewGuid().ToString('N') + '.json')
+    Assert-ArtifactReportOutside -ProjectRoot $ProjectRoot -Candidates @($Plan.groups.members.path) -ReportPath $filename -SkipLifecycle
+    $null = [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($filename))
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes((@{schema_version=1;operation='lifecycle.cleanup';outcomes=@($Outcomes)} | ConvertTo-Json -Depth 100 -Compress))
+    $stream = [IO.File]::Open($filename, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    try { $stream.Write($bytes, 0, $bytes.Length); $stream.Flush($true) } finally { $stream.Dispose() }
+    @{path=$filename;sha256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()}
+}
+function Add-ArtifactCleanupFailure {
+    param($Result, [string]$Stage, [string]$Message)
+    $Result.errors += @{stage=$Stage;message=$Message}
+    if (-not $Result.reason) { $Result.reason=$Message }
+}
 function Invoke-ArtifactLifecycleCleanup {
     param([string]$ProjectRoot, [Alias('Candidate')][string]$CandidatePath, [string[]]$ProtectedPaths = @(), [string]$ReportPath,
         [bool]$Apply, [scriptblock]$CheckMember, [scriptblock]$BeforeDelete, [scriptblock]$RemoveMember,
         [Collections.IDictionary]$VerifiedJunctions = @{})
     $plan = Get-ArtifactLifecyclePlan -ProjectRoot $ProjectRoot -Candidates @($CandidatePath) -ProtectedPaths $ProtectedPaths -ReportPath $ReportPath
-    $result = [ordered]@{status='selected';reason=$null;groups=@($plan.groups | ForEach-Object id);members=@();finalization=@()}
+    $result = [ordered]@{status='selected';reason=$null;groups=@($plan.groups | ForEach-Object id);members=@();finalization=@();errors=@()}
     $blockers = @($plan.blockers) + @($plan.groups | ForEach-Object { $_.blockers })
     if (@($plan.standalone).Count -or -not @($plan.groups).Count) { $blockers += 'lifecycle-membership-unreviewed' }
     if ($blockers.Count) { $result.status='blocked';$result.reason=($blockers -join '; ');return $result }
@@ -296,10 +369,22 @@ function Invoke-ArtifactLifecycleCleanup {
     if (-not $Apply) { return $result }
     if ($BeforeDelete) { $null = & $BeforeDelete }
     $plannedScope = @($plan.groups | ForEach-Object { $group=$_; @($group.members | ForEach-Object { "$($group.id)`0$($_.role)`0$($_.path)" }) } | Sort-Object) -join "`n"
-    $catalogLock = $null
+    $client = $null
+    $reserved = $false
+    $physicalWorkStarted = $false
+    $finishResult = $null
+    $clientExited = $false
+    $planRequest = @{operation='plan';paths=@($CandidatePath);protectedPaths=@($ProtectedPaths);reportPath=$ReportPath}
     try {
-    # Match Node's create-exclusive catalog lock. Never bypass an occupied lock.
-    $catalogLock = [IO.File]::Open((Join-Path $ProjectRoot 'artifacts/maintenance/lifecycles/catalog.lock'), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    $client = Start-ArtifactMaintenanceClient $ProjectRoot
+    # Validate the exact selected scope while the shared native catalog lease is held.
+    $freshPlan = Send-ArtifactMaintenanceCommand $client $planRequest
+    $freshScope = @($freshPlan.groups | ForEach-Object { $group=$_; @($group.members | ForEach-Object { "$($group.id)`0$($_.role)`0$($_.path)" }) } | Sort-Object) -join "`n"
+    $freshBlockers = @($freshPlan.blockers) + @($freshPlan.groups | ForEach-Object { $_.blockers })
+    if ($freshBlockers.Count -or @($freshPlan.standalone).Count -or $freshScope -cne $plannedScope) { throw ('Lifecycle changed before reservation: ' + ($freshBlockers -join '; ')) }
+    $null = Send-ArtifactMaintenanceCommand $client @{operation='reserve';ids=@($plan.groups.id)}
+    $reserved = $true
+    $null = Send-ArtifactMaintenanceCommand $client @{operation='releaseCatalog'}
     $removalContexts = @{}
     if (-not $RemoveMember -and [OperatingSystem]::IsWindows()) {
         foreach ($group in $plan.groups) {
@@ -309,14 +394,14 @@ function Invoke-ArtifactLifecycleCleanup {
     }
     foreach ($member in $result.members) {
         try {
-            $freshPlan = Get-ArtifactLifecyclePlan $ProjectRoot @($CandidatePath) $ProtectedPaths $ReportPath
+            $freshPlan = Send-ArtifactMaintenanceCommand $client $planRequest
             $freshScope = @($freshPlan.groups | ForEach-Object { $group=$_; @($group.members | ForEach-Object { "$($group.id)`0$($_.role)`0$($_.path)" }) } | Sort-Object) -join "`n"
             $freshBlockers = @($freshPlan.blockers) + @($freshPlan.groups | ForEach-Object { $_.blockers })
             if ($freshBlockers.Count -or @($freshPlan.standalone).Count -or $freshScope -cne $plannedScope) { throw ('Lifecycle changed before removal: ' + ($freshBlockers -join '; ')) }
             $reason = & $CheckMember $member.path
             if ($reason) { throw $reason }
             if (Test-Path -LiteralPath $member.path) {
-                if ($RemoveMember) { $null = & $RemoveMember $member.path }
+                if ($RemoveMember) { $physicalWorkStarted=$true; $null = & $RemoveMember $member.path }
                 else {
                     $member.attributes = [Collections.Generic.List[object]]::new()
                     $ownerGroups = @($freshPlan.groups | Where-Object { @($_.members | Where-Object path -CEQ $member.path).Count })
@@ -334,28 +419,71 @@ function Invoke-ArtifactLifecycleCleanup {
                     $ownershipVerified = @($owners | Where-Object { $_.generated -ne $true -or $_.protection_known -ne $true }).Count -eq 0
                     $context = $removalContexts[$ownerGroups[0].id]
                     if ($context -and $context.OwnershipVerified -ne $ownershipVerified) { throw 'Deletion group ownership changed after preflight.' }
+                    $physicalWorkStarted=$true
                     Remove-ArtifactLifecycleMember -Path $member.path -Audit $member.attributes -OwnershipVerified $ownershipVerified -GroupPaths @($owners.path) -VerifiedJunctions $VerifiedJunctions -RemovalContext $context
                 }
             }
             if (Test-Path -LiteralPath $member.path) { throw "Lifecycle member remains: $($member.path)" }
             $member.status='deleted'
-        } catch { $member.status='failed';$member.reason=$_.Exception.Message;$result.status='partial';$result.reason=$_.Exception.Message;break }
+        } catch { $member.status='failed';$member.reason=$_.Exception.Message;$result.status='partial';Add-ArtifactCleanupFailure $result 'member-removal' $_.Exception.Message;break }
     }
-    } catch { $result.status='blocked';$result.reason=$_.Exception.Message;return $result }
+    } catch { $result.status=if ($physicalWorkStarted) {'partial'} else {'blocked'};Add-ArtifactCleanupFailure $result 'cleanup' $_.Exception.Message }
     finally {
-        if ($catalogLock) {
-            $catalogLock.Dispose()
-            Remove-Item -LiteralPath (Join-Path $ProjectRoot 'artifacts/maintenance/lifecycles/catalog.lock') -ErrorAction Stop
+        if ($client) {
+            try {
+                if ($reserved) {
+                    foreach ($member in $result.members) {
+                        if ($member.status -eq 'selected') { $member.status='cancelled';$member.reason='Removal was not attempted after cleanup stopped.' }
+                    }
+                    $outcomes = @($plan.groups | ForEach-Object {
+                        $group = $_
+                        $memberOutcomes = @($group.members | ForEach-Object {
+                            $path = $_.path
+                            $observed = @($result.members | Where-Object path -CEQ $path)[0]
+                            @{path=$path;status=$observed.status;reason=$observed['reason'];remaining=(Get-ArtifactCleanupRemaining $path)}
+                        })
+                        $groupStatus = if (@($memberOutcomes | Where-Object { $null -eq $_.remaining }).Count) { 'unknown' }
+                            elseif (@($memberOutcomes | Where-Object { $_.status -ne 'deleted' -or $_.remaining -ne $false }).Count) { 'partial' }
+                            else { 'deleted' }
+                        @{id=$group.id;status=$groupStatus;members=$memberOutcomes}
+                    })
+                    $evidence = Save-ArtifactCleanupEvidence -ProjectRoot $ProjectRoot -Plan $plan -Outcomes $outcomes
+                    $result.evidence = $evidence
+                    $finishResult = Send-ArtifactMaintenanceCommand $client @{operation='finish';outcomes=$outcomes;evidenceRef=$evidence.path;evidenceSha=$evidence.sha256}
+                    $result.reservationFinalization = $finishResult
+                    if ($finishResult.finished -ne $true -or @($finishResult.reservations_retained).Count) {
+                        $result.status='partial';Add-ArtifactCleanupFailure $result 'reservation-finalization' 'Cleanup reservations remain protected or finalization is unconfirmed.'
+                    }
+                }
+            } catch { $result.status='partial';Add-ArtifactCleanupFailure $result 'reservation-finalization' $_.Exception.Message }
+            try { $null = Send-ArtifactMaintenanceCommand $client @{operation='release'} }
+            catch { $result.status=if ($reserved) {'partial'} else {'blocked'};Add-ArtifactCleanupFailure $result 'lease-release' $_.Exception.Message }
+            finally {
+                $client.Process.StandardInput.Close()
+                $client.Process.WaitForExit()
+                $clientExited = $client.Process.ExitCode -eq 0
+                if ($client.Process.ExitCode -ne 0) {
+                    $result.status=if ($reserved) {'partial'} else {'blocked'}
+                    Add-ArtifactCleanupFailure $result 'client-exit' "Maintenance lock client exit $($client.Process.ExitCode); outcome unknown. $($client.Errors.GetAwaiter().GetResult())"
+                }
+                $client.Process.Dispose()
+            }
         }
     }
-    foreach ($group in $plan.groups) {
-        try { $result.finalization += Invoke-ArtifactLifecycleNode @('finalize','--project-root',$ProjectRoot,'--id',$group.id) }
-        catch {
-            $result.finalization += @{id=$group.id;status='failed';reason=$_.Exception.Message}
-            $result.status='partial';$result.reason=$_.Exception.Message
+    if ($clientExited -and $finishResult -and $finishResult.finished -eq $true) {
+        foreach ($group in $plan.groups) {
+            if ($group.id -in @($finishResult.reservations_retained)) { continue }
+            $outcome = @($outcomes | Where-Object id -CEQ $group.id)[0]
+            if (@($outcome.members | Where-Object { $_.remaining -ne $false }).Count) { continue }
+            try { $result.finalization += Invoke-ArtifactLifecycleNode @('finalize','--project-root',$ProjectRoot,'--id',$group.id) }
+            catch {
+                $result.finalization += @{id=$group.id;status='failed';reason=$_.Exception.Message}
+                $result.status='partial';Add-ArtifactCleanupFailure $result 'ledger-finalization' $_.Exception.Message
+            }
         }
     }
-    if ($result.status -ne 'partial') { $result.status=if (@($result.finalization | Where-Object status -ne 'finalized').Count) {'partial'} else {'deleted'} }
+    if ($result.status -eq 'selected') { $result.status=if (@($result.members | Where-Object status -ne 'deleted').Count) {'partial'} else {'deleted'} }
+    if (@($result.finalization | Where-Object status -ne 'finalized').Count) { $result.status='partial' }
     $result
 }
 function Start-ArtifactCleanupOperation([string]$ProjectRoot, [string]$ReportPath) {

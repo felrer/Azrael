@@ -27,6 +27,8 @@ use codex_protocol::protocol::AskForApproval;
 use codex_shell_command::is_dangerous_command::DangerousCommandMatch;
 use codex_shell_command::is_dangerous_command::DangerousCommandPlatform;
 use codex_shell_command::is_dangerous_command::dangerous_command_match_for_platform;
+use codex_shell_command::is_dangerous_command::has_non_deletion_dangerous_command;
+use codex_shell_command::is_deletion_command::is_deletion_command;
 use thiserror::Error;
 use tokio::fs;
 use tokio::sync::Semaphore;
@@ -47,6 +49,14 @@ pub(crate) use model_policy::AllowPrefixRules;
 
 const PROMPT_CONFLICT_REASON: &str =
     "approval required by policy, but AskForApproval is set to Never";
+pub(crate) const DELETION_APPROVAL_REASON: &str = "File deletion requires user approval";
+
+pub(crate) fn deletion_approval_enabled(
+    policy: AskForApproval,
+    profile: &PermissionProfile,
+) -> bool {
+    matches!(policy, AskForApproval::Never) && matches!(profile, PermissionProfile::Disabled)
+}
 const REJECT_SANDBOX_APPROVAL_REASON: &str =
     "approval required by policy, but AskForApproval::Granular.sandbox_approval is false";
 const REJECT_RULES_APPROVAL_REASON: &str =
@@ -356,11 +366,22 @@ impl ExecPolicyManager {
         let exec_policy = self.current_for_environment(environment_policy, allow_prefix_rules);
         // Avoid reusable approvals when this model does not honor prefix rules.
         let auto_amendment_allowed = allow_prefix_rules == AllowPrefixRules::Honor;
+        let deletion_approval = deletion_approval_enabled(approval_policy, &permission_profile)
+            && commands
+                .iter()
+                .any(|cmd| is_deletion_command(cmd, command_platform));
         let exec_policy_fallback = |cmd: &[String]| {
             render_decision_for_unmatched_command_for_platform(
                 cmd,
                 UnmatchedCommandContext {
-                    approval_policy,
+                    approval_policy: if deletion_approval
+                        && is_deletion_command(cmd, command_platform)
+                        && !has_non_deletion_dangerous_command(cmd, command_platform)
+                    {
+                        AskForApproval::OnRequest
+                    } else {
+                        approval_policy
+                    },
                     permission_profile: &permission_profile,
                     windows_sandbox_level,
                     sandbox_permissions,
@@ -377,6 +398,15 @@ impl ExecPolicyManager {
             &exec_policy_fallback,
             &match_options,
         );
+
+        // Explicit forbidden rules and other forbidden commands still win. An
+        // allow prefix must not silently waive the user's deletion decision.
+        if deletion_approval && evaluation.decision != Decision::Forbidden {
+            return ExecApprovalRequirement::NeedsApproval {
+                reason: Some(DELETION_APPROVAL_REASON.to_string()),
+                proposed_execpolicy_amendment: None,
+            };
+        }
 
         let requested_amendment = if auto_amendment_allowed {
             derive_requested_execpolicy_amendment_from_prefix_rule(

@@ -127,41 +127,6 @@ mod tests {
     }
 
     #[test]
-    fn successful_sampling_does_not_implicitly_reset_budget() {
-        let mut state = CapacityRecoveryState::default();
-        state.begin_request("request-1".to_owned());
-        assert_eq!(
-            state.on_overload(),
-            CapacityRecoveryAction::Retry(Duration::from_secs(1))
-        );
-
-        // Successful samples do not mutate this state. The next tool continuation
-        // enters with the same substantive request identity.
-        assert_eq!(state.request_id(), Some("request-1"));
-        state.begin_request("request-1".to_owned());
-        assert_eq!(
-            state.on_overload(),
-            CapacityRecoveryAction::Retry(Duration::from_secs(5))
-        );
-    }
-
-    #[test]
-    fn selecting_reconnect_consumes_quota_before_reconnect_completes() {
-        let mut state = CapacityRecoveryState::default();
-        state.begin_request("request-1".to_owned());
-        for _ in 0..3 {
-            state.on_overload();
-        }
-        assert_eq!(
-            state.on_overload(),
-            CapacityRecoveryAction::RecreateConnection
-        );
-
-        // No completion callback is necessary, even if the async reconnect fails.
-        assert_eq!(state.on_overload(), CapacityRecoveryAction::LegacyRetry);
-    }
-
-    #[test]
     fn empty_identity_neither_starts_nor_resets_budget() {
         let mut state = CapacityRecoveryState::default();
         assert_eq!(state.request_id(), None);

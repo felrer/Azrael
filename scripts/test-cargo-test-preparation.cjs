@@ -10,6 +10,13 @@ function fixture(context) {
   const base = path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT || "artifacts/verification/cargo-owner-tests");
   fs.mkdirSync(base, { recursive: true });
   const root = fs.mkdtempSync(path.join(base, "reuse-"));
+  context.after(() => {
+    assert.equal(path.dirname(root), base);
+    assert.ok(path.basename(root).startsWith("reuse-"));
+    assert.ok(fs.lstatSync(root).isDirectory() && !fs.lstatSync(root).isSymbolicLink());
+    fs.rmSync(root, { recursive: true });
+    assert.equal(fs.existsSync(root), false);
+  });
   const options = { env: { CARGO_TARGET_DIR: path.join(root, "target"), INSTA_PENDING_DIR: path.join(root, "pending") },
     preparation: { directory: path.join(root, "preparation"), sourceIdentity: "frozen-one", runtimeIdentity: "measured-tools-and-config" } };
   const calls = [];

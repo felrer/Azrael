@@ -4,7 +4,23 @@
 
 ## 제품 경계
 
+### 명령 출력 수집과 권한 경계
+
+상태: `target`, 선택 이식 구현·검증은 [기존 선택 이식](../../work/DO-01-codex-version-comparison/01-plan.md)과 [추론 토큰 계산 후속 작업](../../work/DO-01-codex-version-comparison/02-plan.md)을 따른다. 보존 범위는 [feature inventory](../../scripts/azrael-feature-contracts.json)의 `engine.selected-upstream`에 등록하며, `engine.shared-engine`, `engine.recovery`와 `engine.devin-code-mode`의 기존 계약도 유지한다. Retained reasoning의 단일 계산과 요청별 포함 상태는 [컨텍스트 정책](context-policy.md#context-and-automatic-compaction)을 따른다.
+
+로컬 exec-server 명령은 foreground 종료 뒤 자식이 출력 파이프를 유지해도 제한된 수집을 마치고 실제 종료 코드와 수집된 출력을 전달한다. 원격 실행의 기존 경로는 exit 이후 전송 중이거나 읽지 않은 출력을 최종 수집까지 보존한다. 종료·출력 완료·취소는 서로 다른 상태이며 최종 polling과 종료 이벤트를 중복 발행하지 않는다. 이 경계의 보완은 신규 원격 제품 지원을 뜻하지 않는다.
+
+제한된 네트워크 정책은 hostname 승인 전에 DNS를 조회하지 않으며, 승인 뒤에도 명시적 거부와 private/local 주소 제한을 적용한다. credential alias의 원래 요청을 MITM hook으로 검사한 뒤 실제 자격 증명을 주입한다. 중복 Host header는 값이 같더라도 CONNECT·일반 HTTP의 정책 평가·전달·Unix socket routing 전에 거부한다. macOS managed proxy의 local binding은 외부 DNS 직접 접근을 허용하지 않는다.
+
+macOS의 protected metadata 쓰기는 실제 filesystem의 case sensitivity와 workspace root alias를 고려하고, 명시적 grant 및 더 좁은 deny의 우선순위를 유지한다. filesystem 성질을 확인할 수 없으면 쓰기를 승인하지 않는다. Linux의 sandbox 실행파일 선택은 원래 lookup symlink·parent alias·canonical target의 교체 가능성을 함께 검사하고 sticky directory ownership과 read-only carveout을 유지한다. 전체 액세스와 managed policy의 기존 의미는 아래 권한 계약을 따른다.
+
 Azrael은 VS Code 확장 하나로 채팅, 계정, 모델, 사용량, 진단 화면을 제공한다. 설치된 공식 Codex 확장 또는 별도 Codex 실행 파일을 채팅 backend로 활성화하지 않는다. Azrael이 자체 빌드한 하나의 실행기 인스턴스가 모든 provider의 대화 진행, 공통 지침, 도구와 권한, 세션 기록, 큐, 압축, 취소, 재개를 소유한다. 최신 공개 Codex 소스는 이 실행기를 발전시키는 기준으로 사용하며, 소스 버전과 실행 파일의 출처를 기록한다. 소스 갱신과 모델 목록 갱신은 서로 다른 작업이다.
+
+### 분석 상태와 Code Mode trace
+
+상태: `target`, [선택 업데이트 작업](../../work/DO-01-codex-version-comparison/02-plan.md)의 소스 구현 및 native 수락 범위를 따른다. 미완료 turn의 분석 상태는 최대 256개를 보관하고 새 turn 유입 시 가장 오래된 상태와 연결된 pending 분석 정보를 함께 버린다. 기존 turn 갱신은 보관 순서를 바꾸지 않는다. `ThreadClosed`는 해당 thread의 분석 상태를 정리하며 다른 thread와 정상 완료·한 번만 발행하는 이벤트 계약은 유지한다. 이 상한은 대화 기록·사용량 원장·사용자 큐를 삭제하는 정책이 아니다. 상한을 넘긴 오래된 background tool의 분석 정보도 폐기될 수 있다.
+
+Process-owned Code Mode stdio 실행은 각 execute의 W3C trace snapshot을 callback delegate에 전달한다. invoke와 notify는 span에 진입하기 전에 해당 parent를 복구하며 병행 실행·unsampled·untraced 요청의 context를 섞지 않는다. Snapshot은 실행 span을 보유하지 않으므로 yield 뒤에도 span 수명을 늘리지 않는다. 기존 gRPC 전파와 cell close·취소·종료 위임은 유지한다.
 
 ### 공용 실행기와 창 수명
 
@@ -70,7 +86,7 @@ Anthropic Claude는 첫 릴리스 필수 provider다. Azrael이 Claude.ai 구독
 
 새 turn을 시작할 때 실행기는 선택 모델, 계정, endpoint와 credential 연속성, 공통 지침, 필요한 모델별 보정, 현재 공개 history, 도구 schema를 하나의 불변 요청 snapshot으로 묶는다. 실행 중 UI에서 다음 모델이나 계정을 바꿔도 그 turn의 선택과 도구 후속 요청은 바뀌지 않는다. adapter는 구독 인증, 모델 발견, provider 추론 통신과 응답 변환을 맡는다. 도구 실행·승인·세션 쓰기는 adapter가 수행하지 않는다. adapter 결과는 기존 공통 응답 stream으로 들어오고, 실행기는 완결된 도구 호출만 실행 대상으로 받아들인다.
 
-Azrael의 `전체 액세스`는 provider와 무관하게 native thread에 `approvalPolicy: never`와 `danger-full-access` sandbox를 함께 지정한다. 새 대화·재개·provider 전환에서 실행기가 돌려준 유효 정책을 확인하고, 다음 turn의 설정 요청이 실패하면 해당 입력을 실행 큐에 넣지 않는다. 전체 액세스가 확인된 상태에서 Azrael이 시작한 turn의 명령·파일 변경·추가 권한 승인 요청은 자동 승인한다. 이전 정책에서 이미 실행 중이던 turn은 소급 승인하지 않는다. MCP의 정보 입력·외부 인증과 client가 직접 실행해야 하는 동적 도구 호출은 승인 응답으로 실행 성공을 위조하지 않는다.
+Azrael의 `전체 액세스`는 provider와 무관하게 native thread에 `approvalPolicy: never`와 `danger-full-access` sandbox를 함께 지정한다. 새 대화·재개·provider 전환에서 실행기가 돌려준 유효 정책을 확인하고, 다음 turn의 설정 요청이 실패하면 해당 입력을 실행 큐에 넣지 않는다. 전체 액세스가 확인된 상태에서 Azrael이 시작한 turn의 명령·파일 변경·추가 권한 승인 요청은 자동 승인하되, 엔진의 [삭제 승인 요청](auto-review.md#전체-액세스의-삭제-승인)은 실제 사용자에게 전달한다. 이전 정책에서 이미 실행 중이던 turn은 소급 승인하지 않는다. MCP의 정보 입력·외부 인증과 client가 직접 실행해야 하는 동적 도구 호출은 승인 응답으로 실행 성공을 위조하지 않는다.
 
 원본 native rollout이 대화와 도구 호출·결과의 권위 있는 기록이다. Provider 간 전환에는 공개 메시지와 정확한 tool call/result ID를 투영하고, 이전 provider의 비공개 reasoning·서명·캐시는 다른 provider 또는 계정으로 보내지 않는다. 전달이 필요한 불투명 checkpoint는 원래 provider에서 안전한 요약을 만든 후 새 checkpoint로 추가한다. 요약 실패의 제한적 공개 투영 조건과 원본 보존은 [provider 전환 설계](managed-providers.md#history-projection-and-provider-handoff)를 따른다. 요청 투영 때문에 저장된 원본을 다시 쓰지 않는다.
 

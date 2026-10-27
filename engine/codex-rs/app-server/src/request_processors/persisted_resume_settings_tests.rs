@@ -159,3 +159,57 @@ fn older_reviewer_is_used_when_latest_turn_context_omits_it() {
         })
     );
 }
+
+#[test]
+fn model_settings_restore_only_owned_or_unshadowed_legacy_snapshots() {
+    use super::latest_persisted_model_settings;
+    use codex_protocol::ThreadId;
+    use codex_rollout::InitialHistory;
+    use codex_rollout::ResumedHistory;
+    use std::sync::Arc;
+
+    let owner = ThreadId::new();
+    let snapshot = |thread_id, tier: &str| {
+        let mut item = settings_item(AskForApproval::Never, ApprovalsReviewer::User, None);
+        let RolloutItem::EventMsg(EventMsg::ThreadSettingsApplied(event)) = &mut item else {
+            unreachable!()
+        };
+        event.thread_id = thread_id;
+        event.thread_settings.service_tier = Some(tier.to_owned());
+        item
+    };
+    let resume = |items| {
+        InitialHistory::Resumed(ResumedHistory {
+            conversation_id: owner,
+            rollout_path: None,
+            history_revision: None,
+            history: Arc::new(items),
+        })
+    };
+    let legacy = resume(vec![snapshot(None, "flex")]);
+    assert_eq!(
+        latest_persisted_model_settings(&legacy)
+            .unwrap()
+            .service_tier
+            .as_deref(),
+        Some("flex")
+    );
+    let copied = resume(vec![
+        snapshot(None, "flex"),
+        snapshot(Some(ThreadId::new()), "priority"),
+    ]);
+    assert!(latest_persisted_model_settings(&copied).is_none());
+    let owned = resume(vec![
+        snapshot(Some(owner), "flex"),
+        snapshot(None, "default"),
+        snapshot(Some(ThreadId::new()), "priority"),
+    ]);
+    assert_eq!(
+        latest_persisted_model_settings(&owned)
+            .unwrap()
+            .service_tier
+            .as_deref(),
+        Some("flex")
+    );
+    assert!(latest_persisted_model_settings(&InitialHistory::New).is_none());
+}

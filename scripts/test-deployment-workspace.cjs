@@ -88,6 +88,11 @@ async function main() {
   assert.equal(context.workingRecord.kind, "run");
   assert(context.runRecord.references.some(ref => ref.id === context.workingLifecycleId && ref.kind === "execution"));
   assert(context.runRecord.references.some(ref => ref.id === context.inputLifecycleId && ref.kind === "execution"));
+  assert.deepEqual(context.workingRecord.references.find(ref => ref.id === context.inputLifecycleId).member_paths, [context.inputRoot]);
+  assert.deepEqual(context.runRecord.references.find(ref => ref.id === context.inputLifecycleId).member_paths, [context.inputRoot]);
+  assert.deepEqual(context.runRecord.references.find(ref => ref.id === context.workingLifecycleId).member_paths,
+    require("./artifact-lifecycle.cjs").projectMembers(context.workingRecord.members).map(member => member.path));
+  assert(context.runRecord.references.every(ref => ref.target_revision === undefined && ref.target_version === undefined));
   assert(!context.workingRecord.members.some(member => member.path === context.workingRoot || member.path === path.join(context.workingRoot, "artifacts")));
   const output = path.join(context.workingRoot, "artifacts/version");
   recordLifecycle(normal.projectRoot, { id: "separate-version", kind: "version", owner: "producer", state: "pending", membership_complete: false,

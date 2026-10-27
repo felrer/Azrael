@@ -156,7 +156,11 @@ for(const theme of ['light','dark']){
  for(const menu of [false,true]){
   await evaluate('fixtureMenu='+menu+';fixturePending=true;fixtureRunning=false;fixtureRerender()');
   await wait('!!document.querySelector(".azrael-resume-wait")');
-  check(theme+' '+menu+' waiting spinner is four seconds',await evaluate('[...document.querySelectorAll(".azrael-resume-wait")].every(e=>getComputedStyle(e.parentElement).animationDuration==="4s"&&e.parentElement.getAnimations().length>0)'));
+  const blue=theme==='light'?'rgb(37, 99, 235)':'rgb(96, 165, 250)';
+  check(theme+' '+menu+' waiting indicator is static blue',await evaluate('[...document.querySelectorAll(".azrael-resume-wait")].every(e=>{const s=getComputedStyle(e.parentElement);return s.animationName==="none"&&e.parentElement.getAnimations().length===0&&s.transform==="none"&&s.color==='+JSON.stringify(blue)+'})'));
+  const waitingTransforms=await evaluate('[...document.querySelectorAll("[data-azrael-resume-spinner]")].map(e=>getComputedStyle(e).transform)');
+  await new Promise(r=>setTimeout(r,250));
+  check(theme+' '+menu+' waiting indicator stays still without an angle override',JSON.stringify(waitingTransforms)===JSON.stringify(await evaluate('[...document.querySelectorAll("[data-azrael-resume-spinner]")].map(e=>getComputedStyle(e).transform)')));
   await shot(theme+'-waiting-'+menu);
   await evaluate('fixturePending=false;fixtureRunning=true;fixtureRerender()');
   await wait('!document.querySelector(".azrael-resume-wait")');

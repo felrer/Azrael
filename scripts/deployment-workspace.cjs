@@ -135,10 +135,10 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
     inputRecord = lifecycle.recordLifecycle(artifactProjectRoot, { id: inputLifecycleId, kind: "work", owner, state: "pending", membership_complete: false, members: [member(inputRoot, "immutable-input")], expected_revision: 0 });
     workingRecord = lifecycle.recordLifecycle(artifactProjectRoot, { id: workingLifecycleId, kind: "run", owner, state: "pending", membership_complete: false,
       members: [...topLevels].sort().map(top => member(path.join(workingRoot, top), "working-source")),
-      references: [{ id: inputLifecycleId, kind: "dependency", reason: "Working source consumes immutable deployment inputs" }], expected_revision: 0 });
+      references: [{ id: inputLifecycleId, member_paths: [inputRoot], kind: "dependency", reason: "Working source consumes immutable deployment inputs" }], expected_revision: 0 });
     runRecord = lifecycle.recordLifecycle(artifactProjectRoot, { ...runRecord, expected_revision: runRecord.revision, references: [...runRecord.references,
-      { id: inputLifecycleId, kind: "execution", reason: "Deployment controller consumes immutable inputs" },
-      { id: workingLifecycleId, kind: "execution", reason: "Deployment controller consumes working source" }] });
+      { id: inputLifecycleId, member_paths: [inputRoot], kind: "execution", reason: "Deployment controller consumes immutable inputs" },
+      { id: workingLifecycleId, member_paths: lifecycle.projectMembers(workingRecord.members).map(member => member.path), kind: "execution", reason: "Deployment controller consumes working source" }] });
   } finally { claim.release(); }
   const immutableProjectRoot = path.join(inputRoot, "project");
   const gitStarted = performance.now();

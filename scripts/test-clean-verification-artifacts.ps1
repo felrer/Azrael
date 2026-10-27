@@ -1,9 +1,19 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param()
+param([string]$FixtureRoot)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 $testRoot = Join-Path $project ('artifacts/logs/storage-cleanup-20261006/verification-fixtures-' + [guid]::NewGuid().ToString('N'))
+$explicitFixtureRoot = $PSBoundParameters.ContainsKey('FixtureRoot')
+if ($explicitFixtureRoot) {
+    if (-not [IO.Path]::IsPathFullyQualified($FixtureRoot)) { throw 'FixtureRoot must be an absolute new path.' }
+    $testRoot = [IO.Path]::GetFullPath($FixtureRoot)
+    $artifactBoundary = [IO.Path]::GetFullPath((Join-Path $project 'artifacts')).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $testRoot.StartsWith($artifactBoundary, [StringComparison]::OrdinalIgnoreCase)) { throw 'FixtureRoot must be below project artifacts.' }
+    try { $null = Get-Item -LiteralPath $testRoot -Force -ErrorAction Stop; throw 'FixtureRoot must not already exist.' }
+    catch [System.Management.Automation.ItemNotFoundException] { }
+}
+$fixtureBoundary = [IO.Path]::GetFullPath($testRoot)
 $cleaner = Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1'
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 $passed = 0
@@ -214,7 +224,7 @@ try {
     foreach ($ownerPrefix in @('deploy', 'manual')) {
         $stage = Join-Path $testRoot ("artifacts/deployments/${ownerPrefix}-interrupted/package/stage-" + [guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $stage -Force | Out-Null
-        $null = Register-ArtifactLifecycle -ProjectRoot $testRoot -Id "run:stage-$ownerPrefix" -Kind run -Owner fixture -State complete -MembershipComplete $true -Members @{stage=$stage}
+        $null = Register-ArtifactLifecycle -ProjectRoot $testRoot -Id "run:stage-$ownerPrefix" -Kind run -Owner fixture -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{stage=$stage}
         Assert ((Run-Clean $stage).candidates[0].reason -match 'immediate verification child') 'Package stage allowed without explicit diagnosis.'
         $proc = Start-Reference $stage
         try {
@@ -291,7 +301,8 @@ try {
 } finally {
     $resolvedTestRoot = [IO.Path]::GetFullPath($testRoot)
     $testContainer = [IO.Path]::GetFullPath((Join-Path $project 'artifacts/logs/storage-cleanup-20261006')).TrimEnd('\')
-    if (-not $resolvedTestRoot.StartsWith($testContainer + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Test cleanup escapes its fixture container.' }
+    if ($resolvedTestRoot -cne $fixtureBoundary) { throw 'Test cleanup fixture identity changed.' }
+    if (-not $explicitFixtureRoot -and -not $resolvedTestRoot.StartsWith($testContainer + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Test cleanup escapes its fixture container.' }
     if (Test-Path -LiteralPath $resolvedTestRoot) {
         # Failure fixtures can contain hardlink directory entries with stale attribute caches
         # after test-owned attributes were restored. Recheck through the same safe owner.

@@ -53,7 +53,7 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
     if (fs.existsSync(member.path)) throw Error(`Artifact destination already exists: ${member.path}`);
     if (existingClaims.some(record => record.members.some(old => inside(old.path, member.path) || inside(member.path, old.path)))) throw Error(`Artifact destination already claimed: ${member.path}`);
   }
-  run.record = lifecycle.recordLifecycle(projectRoot, { id: run.lifecycleId, kind: "run", owner, state: "pending", membership_complete: false, members, references, expected_revision: 0 });
+  run.record = lifecycle.recordLifecycle(projectRoot, { id: run.lifecycleId, kind: "run", owner, ownership_scope: "run-root", owned_root: runRoot, state: "pending", membership_complete: false, members, references, expected_revision: 0 });
   // Install before directory creation so partial preparation failures are reconciled too.
   run.onExit = exitCode => {
     try { finishArtifactRun(run, { exitCode, producerStopped: run.producerStopped && [...run.children].every(child => child.artifactClosed) }); }

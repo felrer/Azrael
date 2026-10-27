@@ -140,6 +140,7 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::time::Duration;
 use tempfile::TempDir;
+use test_case::test_case;
 use tokio::sync::oneshot;
 use tokio::time::timeout;
 use uuid::Uuid;
@@ -155,6 +156,10 @@ use super::analytics::thread_initialized_event;
 use super::analytics::wait_for_analytics_payload;
 use super::analytics::wait_for_goal_event;
 use super::analytics::wait_for_matching_analytics_event;
+
+#[cfg(target_os = "linux")]
+#[path = "thread_resume_network_tests.rs"]
+mod network_tests;
 
 #[cfg(windows)]
 const DEFAULT_READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(25);
@@ -491,7 +496,9 @@ async fn thread_resume_rejects_unmaterialized_thread() -> Result<()> {
 async fn thread_resume_with_empty_path_uses_running_thread_id() -> Result<()> {
     let server = create_mock_responses_server_repeating_assistant("Done").await;
     let codex_home = TempDir::new()?;
-    mock_responses_config(&server.uri()).write(codex_home.path())?;
+    mock_responses_config(&server.uri())
+        .enable_feature(Feature::FastMode)
+        .write(codex_home.path())?;
 
     let mut mcp = TestAppServer::builder()
         .with_codex_home(codex_home.path())
@@ -500,7 +507,8 @@ async fn thread_resume_with_empty_path_uses_running_thread_id() -> Result<()> {
 
     let start_id = mcp
         .send_thread_start_request_with_auto_env(ThreadStartParams {
-            model: Some("gpt-5.4".to_string()),
+            model: Some("gpt-daybreak-blue-latest".to_string()),
+            service_tier: Some(Some("priority".to_string())),
             ..Default::default()
         })
         .await?;
@@ -533,6 +541,7 @@ async fn thread_resume_with_empty_path_uses_running_thread_id() -> Result<()> {
         .send_thread_resume_request(ThreadResumeParams {
             thread_id: thread.id.clone(),
             path: Some(PathBuf::new()),
+            service_tier: Some(Some("priority".to_string())),
             exclude_turns: true,
             ..Default::default()
         })
@@ -542,6 +551,27 @@ async fn thread_resume_with_empty_path_uses_running_thread_id() -> Result<()> {
     } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(resume_id)).await??;
 
     assert_eq!(resumed.id, thread.id);
+
+    timeout(DEFAULT_READ_TIMEOUT, mcp.shutdown_gracefully()).await??;
+    mock_responses_config(&server.uri())
+        .enable_feature(Feature::FastMode)
+        .with_root_config("service_tier = \"flex\"")
+        .write(codex_home.path())?;
+    let mut mcp = TestAppServer::builder()
+        .with_codex_home(codex_home.path())
+        .build_initialized()
+        .await?;
+    let resumed: ThreadResumeResponse = mcp
+        .request(|request_id| ClientRequest::ThreadResume {
+            request_id,
+            params: ThreadResumeParams {
+                thread_id: thread.id,
+                ..Default::default()
+            },
+        })
+        .await?;
+    // The startup selection still wins over the new global flex tier, but remains ineffective.
+    assert_eq!(resumed.service_tier, None);
     Ok(())
 }
 
@@ -556,6 +586,12 @@ async fn thread_resume_running_thread_uses_cached_instruction_sources() -> Resul
     let codex_home = TempDir::new()?;
     mock_responses_config(&server.uri()).write(codex_home.path())?;
     let workspace = TempDir::new()?;
+    // This fixture owns its instruction boundary even when TEMP is below the checkout.
+    let initialized = Command::new("git")
+        .args(["init", "--quiet"])
+        .current_dir(workspace.path())
+        .status()?;
+    assert!(initialized.success(), "initialize the fixture repository");
     let project_agents = workspace.path().join("AGENTS.md");
     std::fs::write(&project_agents, "project instructions")?;
 
@@ -776,9 +812,22 @@ async fn thread_resume_restores_startup_and_updated_runtime_workspace_roots() ->
 
 #[tokio::test]
 async fn cold_resume_workspace_roots_honor_owned_snapshot_and_caller_overrides() -> Result<()> {
-    let server = create_mock_responses_server_repeating_assistant("Done").await;
+    let server = responses::start_mock_server().await;
+    let response_mock =
+        responses::mount_sse_sequence(&server, vec![responses::sse_completed("done"); 3]).await;
     let codex_home = TempDir::new()?;
-    mock_responses_config(&server.uri()).write(codex_home.path())?;
+    MockResponsesConfig::new(&server.uri())
+        .with_sandbox_mode("workspace-write")
+        .with_extra_config(
+            r#"[sandbox_workspace_write]
+exclude_tmpdir_env_var = true
+exclude_slash_tmp = true
+
+[windows]
+sandbox = "unelevated"
+"#,
+        )
+        .write(codex_home.path())?;
     let saved_cwd = normalized_existing_path(codex_home.path())?.abs();
     let new_workspace = TempDir::new()?;
     let new_cwd = normalized_existing_path(new_workspace.path())?.abs();
@@ -796,29 +845,39 @@ async fn cold_resume_workspace_roots_honor_owned_snapshot_and_caller_overrides()
     let owned: ThreadSettingsAppliedEvent = serde_json::from_value(json!({
         "thread_id": thread_id,
         "thread_settings": {
-            "model": "gpt-5.4",
+            "model": "gpt-5.5",
             "model_provider_id": "mock_provider",
             "cwd": saved_cwd,
             "runtime_workspace_roots": [saved_cwd, new_cwd, extra_root],
             "approval_policy": "never",
             "approvals_reviewer": "user",
-            "permission_profile": PermissionProfile::read_only(),
-            "collaboration_mode": { "mode": "default", "settings": { "model": "gpt-5.4" } },
+            "permission_profile": PermissionProfile::workspace_write()
+                .materialize_project_roots_with_workspace_roots(
+                    &[saved_cwd.clone(), new_cwd.clone(), extra_root.clone()]
+                ),
+            "service_tier": "flex",
+            "reasoning_summary": "concise",
+            "personality": "friendly",
+            "collaboration_mode": { "mode": "default", "settings": { "model": "gpt-5.5" } },
         },
     }))?;
     let mut foreign = owned.clone();
     foreign.thread_id = Some(ThreadId::new());
     foreign.thread_settings.runtime_workspace_roots = Some(vec![extra_root.clone()]);
-    for settings in [owned, foreign] {
+    foreign.thread_settings.permission_profile = PermissionProfile::Disabled;
+    foreign.thread_settings.service_tier = Some("default".to_string());
+    let mut ownerless = owned.clone();
+    ownerless.thread_id = None;
+    ownerless.thread_settings.service_tier = Some("priority".to_string());
+    for settings in [owned, ownerless.clone(), foreign] {
         append_rollout_item_to_path(
             &path,
             &RolloutItem::EventMsg(EventMsg::ThreadSettingsApplied(settings)),
         )
         .await?;
     }
-
     // Every iteration is a cold resume; the final one must retain the preceding explicit clear.
-    for (cwd_override, roots_override, expected_cwd, expected_roots) in [
+    for (index, (cwd_override, roots_override, expected_cwd, expected_roots)) in [
         (
             Some(&new_cwd),
             None,
@@ -833,10 +892,14 @@ async fn cold_resume_workspace_roots_honor_owned_snapshot_and_caller_overrides()
         ),
         (None, Some(Vec::new()), &saved_cwd, Vec::new()),
         (None, None, &saved_cwd, Vec::new()),
-    ] {
+    ]
+    .into_iter()
+    .enumerate()
+    {
         let mut mcp = TestAppServer::builder()
             .with_codex_home(codex_home.path())
             .without_auto_env()
+            .without_managed_config()
             .build_initialized()
             .await?;
         let resume_id = mcp
@@ -844,6 +907,14 @@ async fn cold_resume_workspace_roots_honor_owned_snapshot_and_caller_overrides()
                 thread_id: thread_id.clone(),
                 cwd: cwd_override.map(|cwd| cwd.to_string_lossy().into_owned()),
                 runtime_workspace_roots: roots_override,
+                service_tier: (index == 2).then_some(Some("priority".to_string())),
+                personality: (index == 2).then_some(Personality::None),
+                config: (index == 1).then(|| {
+                    std::collections::HashMap::from([
+                        ("model_reasoning_summary".to_string(), json!("detailed")),
+                        ("personality".to_string(), json!("none")),
+                    ])
+                }),
                 ..Default::default()
             })
             .await?;
@@ -853,6 +924,25 @@ async fn cold_resume_workspace_roots_honor_owned_snapshot_and_caller_overrides()
             (resumed.cwd, resumed.runtime_workspace_roots),
             (expected_cwd.clone(), expected_roots.clone())
         );
+        if index < 3 {
+            mcp.start_turn_and_wait_for_completion(TurnStartParams {
+                thread_id: thread_id.clone(),
+                ..Default::default()
+            })
+            .await?;
+            let request = response_mock.last_request().expect("response request");
+            assert_eq!(
+                (
+                    request.body_json()["service_tier"].as_str(),
+                    request.body_json()["reasoning"]["summary"].as_str(),
+                ),
+                [
+                    (Some("flex"), Some("concise")),
+                    (Some("priority"), Some("detailed")),
+                    (Some("priority"), Some("detailed")),
+                ][index]
+            );
+        }
 
         // Inspect persistence before shutdown or another resume can hide a missing checkpoint.
         let expected_thread_id = ThreadId::from_string(&thread_id)?;
@@ -864,15 +954,43 @@ async fn cold_resume_workspace_roots_honor_owned_snapshot_and_caller_overrides()
                 Some((
                     event.thread_settings.cwd,
                     event.thread_settings.runtime_workspace_roots,
+                    event.thread_settings.permission_profile,
+                    event.thread_settings.personality,
                 ))
             }
             _ => None,
         });
+        let (persisted_cwd, persisted_roots, permission_profile, personality) =
+            persisted.expect("resumed thread settings");
         assert_eq!(
-            persisted,
-            Some((expected_cwd.clone(), Some(expected_roots)))
+            personality,
+            Some(if index == 0 {
+                Personality::Friendly
+            } else {
+                Personality::None
+            }),
+            "owned personality must reflect the saved setting and explicit overrides"
         );
+        assert_eq!(
+            (persisted_cwd, persisted_roots),
+            (expected_cwd.clone(), Some(expected_roots.clone()))
+        );
+        let file_system = permission_profile.file_system_sandbox_policy();
+        for root in [&saved_cwd, &new_cwd, &extra_root] {
+            assert_eq!(
+                file_system.can_write_local_path_with_cwd(root.as_path(), expected_cwd.as_path()),
+                expected_roots.contains(root),
+                "resumed write permission at {root:?}"
+            );
+        }
         timeout(DEFAULT_READ_TIMEOUT, mcp.shutdown_gracefully()).await??;
+        if index == 0 {
+            append_rollout_item_to_path(
+                &path,
+                &RolloutItem::EventMsg(EventMsg::ThreadSettingsApplied(ownerless.clone())),
+            )
+            .await?;
+        }
     }
     Ok(())
 }
@@ -1761,32 +1879,87 @@ async fn cold_resume_permission_overrides_win_over_persisted_profile() -> Result
     Ok(())
 }
 
+// Unelevated Windows sandboxes cannot enforce managed deny-read.
+#[cfg_attr(unix, test_case(
+    SandboxMode::DangerFullAccess,
+    BUILT_IN_PERMISSION_PROFILE_WORKSPACE,
+    "[permissions.filesystem]\ndeny_read = [\"./private\"]",
+    AppSandboxPolicy::WorkspaceWrite {
+        writable_roots: Vec::new(),
+        network_access: false,
+        exclude_tmpdir_env_var: false,
+        exclude_slash_tmp: false,
+    };
+    "managed deny-read"
+))]
+#[test_case(
+    SandboxMode::DangerFullAccess,
+    BUILT_IN_PERMISSION_PROFILE_WORKSPACE,
+    "", AppSandboxPolicy::DangerFullAccess;
+    "restore saved full access"
+)]
+#[test_case(
+    SandboxMode::DangerFullAccess,
+    BUILT_IN_PERMISSION_PROFILE_WORKSPACE,
+    "allowed_sandbox_modes = [\"read-only\"]",
+    AppSandboxPolicy::ReadOnly { network_access: false };
+    "managed modes"
+)]
+#[test_case(
+    SandboxMode::DangerFullAccess,
+    BUILT_IN_PERMISSION_PROFILE_WORKSPACE,
+    "default_permissions = \":read-only\"\n[allowed_permission_profiles]\n\":read-only\" = true",
+    AppSandboxPolicy::ReadOnly { network_access: false };
+    "managed catalog"
+)]
+#[test_case(
+    SandboxMode::ReadOnly,
+    BUILT_IN_PERMISSION_PROFILE_DANGER_FULL_ACCESS,
+    "allowed_sandbox_modes = [\"read-only\"]",
+    AppSandboxPolicy::ReadOnly { network_access: false };
+    "saved read-only wins before incompatible default validation"
+)]
 #[tokio::test]
-async fn cold_resume_without_active_permission_profile_uses_current_config() -> Result<()> {
+async fn cold_resume_without_active_permission_profile_restores_base_permissions(
+    saved_sandbox: SandboxMode,
+    configured_default: &str,
+    requirements: &str,
+    expected: AppSandboxPolicy,
+) -> Result<()> {
     let server = create_mock_responses_server_repeating_assistant("Done").await;
     let codex_home = TempDir::new()?;
     mock_responses_config(&server.uri()).write(codex_home.path())?;
+    // Only deny-read names a path on the app-server host.
+    let local = requirements.contains("deny_read");
     let thread_id = {
-        let mut mcp = TestAppServer::builder()
+        let mut builder = TestAppServer::builder()
             .with_codex_home(codex_home.path())
-            .without_managed_config()
-            .build_initialized()
-            .await?;
-        let ThreadStartResponse { thread, .. } = mcp
-            .start_thread(ThreadStartParams {
-                model: Some("mock-model".to_string()),
-                ..Default::default()
-            })
-            .await?;
+            .without_managed_config();
+        if local {
+            builder = builder.without_auto_env();
+        }
+        let mut mcp = builder.build_initialized().await?;
+        let params = ThreadStartParams {
+            model: Some("mock-model".to_string()),
+            sandbox: Some(saved_sandbox),
+            approval_policy: Some(AskForApproval::Never),
+            ..Default::default()
+        };
+        let request_id = if local {
+            mcp.send_thread_start_request(params).await?
+        } else {
+            mcp.send_thread_start_request_with_auto_env(params).await?
+        };
+        let ThreadStartResponse { thread, .. } =
+            timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(request_id)).await??;
         timeout(
             DEFAULT_READ_TIMEOUT,
             mcp.start_turn_and_wait_for_completion(TurnStartParams {
                 thread_id: thread.id.clone(),
                 input: vec![UserInput::Text {
-                    text: "persist full access".to_string(),
+                    text: "persist permissions".to_string(),
                     text_elements: Vec::new(),
                 }],
-                sandbox_policy: Some(AppSandboxPolicy::DangerFullAccess),
                 ..Default::default()
             }),
         )
@@ -1795,33 +1968,27 @@ async fn cold_resume_without_active_permission_profile_uses_current_config() -> 
     };
 
     MockResponsesConfig::new(&server.uri())
-        .with_root_config(&format!(
-            "default_permissions = \"{BUILT_IN_PERMISSION_PROFILE_WORKSPACE}\""
-        ))
+        .with_approval_policy("on-request")
+        .with_root_config(&format!("default_permissions = \"{configured_default}\""))
         .write(codex_home.path())?;
-    let mut mcp = TestAppServer::builder()
-        .with_codex_home(codex_home.path())
-        .without_managed_config()
-        .build_initialized()
-        .await?;
+    std::fs::write(codex_home.path().join("requirements.toml"), requirements)?;
+    let mut builder = TestAppServer::builder().with_codex_home(codex_home.path());
+    if local {
+        builder = builder.without_auto_env();
+    }
+    let mut mcp = builder.build_initialized().await?;
     let resume_id = mcp
         .send_thread_resume_request(ThreadResumeParams {
             thread_id,
             ..Default::default()
         })
         .await?;
-    let ThreadResumeResponse {
-        sandbox,
-        active_permission_profile,
-        ..
-    } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(resume_id)).await??;
-
-    assert!(matches!(sandbox, AppSandboxPolicy::WorkspaceWrite { .. }));
+    let response: ThreadResumeResponse =
+        timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(resume_id)).await??;
     assert_eq!(
-        active_permission_profile,
-        Some(ActivePermissionProfile::new(
-            BUILT_IN_PERMISSION_PROFILE_WORKSPACE
-        ))
+        (response.sandbox, response.approval_policy),
+        (expected, AskForApproval::Never),
+        "requirements: {requirements}"
     );
     Ok(())
 }
@@ -2500,6 +2667,7 @@ async fn thread_resume_returns_rollout_history() -> Result<()> {
             "approval_policy": "never",
             "approvals_reviewer": "user",
             "permission_profile": PermissionProfile::read_only(),
+            "service_tier": "flex",
             "collaboration_mode": { "mode": "default", "settings": { "model": "gpt-5.4" } },
         },
     }))?;
@@ -2520,8 +2688,12 @@ async fn thread_resume_returns_rollout_history() -> Result<()> {
             ..Default::default()
         })
         .await?;
-    let ThreadResumeResponse { thread, cwd, .. } =
-        timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(resume_id)).await??;
+    let ThreadResumeResponse {
+        thread,
+        cwd,
+        service_tier,
+        ..
+    } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(resume_id)).await??;
 
     assert_eq!(thread.id, conversation_id);
     assert_eq!(thread.preview, preview);
@@ -2533,7 +2705,7 @@ async fn thread_resume_returns_rollout_history() -> Result<()> {
     assert_eq!(thread.source, SessionSource::Cli);
     assert_eq!(thread.git_info, None);
     assert_eq!(thread.status, ThreadStatus::Idle);
-
+    assert_eq!(service_tier.as_deref(), Some("flex"));
     assert_eq!(
         thread.turns.len(),
         1,
@@ -6455,4 +6627,54 @@ async fn setup_rollout_fixture(codex_home: &Path, server_uri: &str) -> Result<Ro
         conversation_id,
         rollout_file_path,
     })
+}
+
+#[tokio::test]
+async fn cold_resume_provider_override_does_not_restore_another_providers_service_tier()
+-> Result<()> {
+    let server = create_mock_responses_server_repeating_assistant("Done").await;
+    let codex_home = TempDir::new()?;
+    mock_responses_config(&server.uri()).write(codex_home.path())?;
+    let mut mcp = TestAppServer::builder()
+        .with_codex_home(codex_home.path())
+        .without_managed_config()
+        .build_initialized()
+        .await?;
+    let ThreadStartResponse { thread, .. } = mcp
+        .start_thread(ThreadStartParams {
+            service_tier: Some(Some("flex".to_owned())),
+            ..Default::default()
+        })
+        .await?;
+    mcp.start_turn_and_wait_for_completion(TurnStartParams {
+        thread_id: thread.id.clone(),
+        input: vec![UserInput::Text {
+            text: "persist settings".to_owned(),
+            text_elements: Vec::new(),
+        }],
+        ..Default::default()
+    })
+    .await?;
+    timeout(DEFAULT_READ_TIMEOUT, mcp.shutdown_gracefully()).await??;
+
+    mock_responses_config(&server.uri())
+        .with_model_provider("replacement_provider")
+        .write(codex_home.path())?;
+    let mut mcp = TestAppServer::builder()
+        .with_codex_home(codex_home.path())
+        .without_managed_config()
+        .build_initialized()
+        .await?;
+    let id = mcp
+        .send_thread_resume_request(ThreadResumeParams {
+            thread_id: thread.id,
+            model_provider: Some("replacement_provider".to_owned()),
+            ..Default::default()
+        })
+        .await?;
+    let resumed: ThreadResumeResponse =
+        timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(id)).await??;
+    assert_eq!(resumed.model_provider, "replacement_provider");
+    assert_eq!(resumed.service_tier, None);
+    Ok(())
 }

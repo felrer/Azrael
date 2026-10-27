@@ -5,6 +5,14 @@ const fs = require("node:fs");
 const path = require("node:path");
 const lifecycle = require("./artifact-lifecycle.cjs");
 const repo = path.resolve(__dirname, "..");
+function interruptLifecycleWrites(beforeCommit, action) {
+  const locks = require("./maintenance-lock-owner.cjs"), acquire = locks.acquire;
+  locks.acquire = (...args) => {
+    const lease = acquire(...args);
+    return { ...lease, writeRecord(record, expectedSha) { beforeCommit(record); return lease.writeRecord(record, expectedSha); } };
+  };
+  try { return action(); } finally { locks.acquire = acquire; }
+}
 function fixture(t) {
   const parent = process.env.AZRAEL_LIFECYCLE_FIXTURE_ROOT
     ? path.resolve(process.env.AZRAEL_LIFECYCLE_FIXTURE_ROOT) : path.join(repo, "artifacts/verification");
@@ -45,6 +53,120 @@ function custodyFixture(t) {
   seal();
   return { ...f, source, members, selected, remaining, child, proof, document, request, seal, transfer: () => lifecycle.transferCustody(root, source.id, request) };
 }
+
+test("durable cleanup reservations require an exact private owning observer and pinned source", t => {
+  const { root, at, record } = fixture(t);
+  const owner = record("reserved-owner", [["outputs/reserved", "output"]], { members: [{ path: at("outputs/reserved"), role: "output", generated: true, protection_known: true }] });
+  const directory = path.join(path.dirname(lifecycle.registryPath(root, owner.id)), "reservations"); fs.mkdirSync(directory);
+  const filename = path.join(directory, require("node:crypto").createHash("sha256").update(JSON.stringify(owner.id)).digest("hex") + ".json");
+  const durable = { schema: 1, id: owner.id, token: "unique-fence", status: "active", members: owner.members, source: path.dirname(lifecycle.registryPath(root, owner.id)), source_owner: owner, source_fence: "a".repeat(64) };
+  const plan = reservations => lifecycle.planCleanup(root, { paths: [owner.members[0].path], reservations }).groups[0];
+  fs.writeFileSync(filename, JSON.stringify(durable));
+  assert.ok(plan([]).blockers.includes("active-cleanup-reservation"));
+  assert.throws(() => lifecycle.registerRequest(root, owner.id), /active-cleanup-reservation/);
+  assert.ok(!plan([{ id: owner.id, fence: durable }]).blockers.includes("active-cleanup-reservation"));
+  const nativeSource = { ...durable, source: path.join(root, "artifacts") + "/maintenance/lifecycles" };
+  fs.writeFileSync(filename, JSON.stringify(nativeSource));
+  assert.ok(!plan([{ id: owner.id, fence: nativeSource }]).blockers.includes("active-cleanup-reservation"));
+  fs.writeFileSync(filename, JSON.stringify(durable));
+  assert.ok(plan([{ id: owner.id, fence: { ...durable, token: "wrong" } }]).blockers.includes("active-cleanup-reservation"));
+  const changed = { ...durable, source_owner: { ...owner, revision: owner.revision + 1 } };
+  fs.writeFileSync(filename, JSON.stringify(changed));
+  assert.ok(plan([{ id: owner.id, fence: changed }]).blockers.includes("active-cleanup-reservation"));
+  for (const contents of ["null", "{broken", JSON.stringify({ schema: 1, id: owner.id, members: [] })]) {
+    fs.writeFileSync(filename, contents);
+    assert.ok(plan([]).blockers.includes("active-cleanup-reservation"));
+  }
+  fs.unlinkSync(filename);
+  assert.ok(plan([{ id: owner.id, fence: durable }]).blockers.includes("active-cleanup-reservation"));
+  fs.writeFileSync(filename.replace(/\.json$/, ".lock"), "persistent OS lock metadata");
+  assert.ok(!plan([]).blockers.includes("active-cleanup-reservation"));
+});
+
+test("real native producer reservations protect ordinary readers and admit only their private observer", t => {
+  const { root, at, record } = fixture(t);
+  const member = at("outputs/native-reserved"); fs.mkdirSync(path.dirname(member), { recursive: true }); fs.writeFileSync(member, "owned fixture");
+  const owner = record("native-reserved-owner", [], { members: [{ path: member, role: "output", generated: true, protection_known: true }] });
+  const lease = require("./maintenance-lock-owner.cjs").acquire(path.join(path.dirname(lifecycle.registryPath(root, owner.id)), "catalog.lock"), { operation: "test.native-reservation" });
+  let reserved = false;
+  try {
+    const result = lease.reserveProducers([owner]); reserved = true;
+    lease.releaseCatalog();
+    const plan = reservations => lifecycle.planCleanup(root, { paths: [member], reservations }).groups.find(group => group.id === owner.id);
+    assert.ok(plan([]).blockers.includes("active-cleanup-reservation"));
+    assert.throws(() => lifecycle.registerRequest(root, owner.id), /active-cleanup-reservation/);
+    assert.deepEqual(plan(result.observed).blockers, []);
+    const tampered = result.observed.map(observer => ({ ...observer, fence: { ...observer.fence, token: "different-owner" } }));
+    assert.ok(plan(tampered).blockers.includes("active-cleanup-reservation"));
+  } finally {
+    try {
+      if (reserved) {
+        const outcomes = [{ id: owner.id, status: "deferred", members: [{ path: member, status: "deferred", remaining: true }] }];
+        const evidence = at("native-reservation-terminal.json"); fs.writeFileSync(evidence, JSON.stringify({ outcomes }));
+        const digest = require("node:crypto").createHash("sha256").update(fs.readFileSync(evidence)).digest("hex");
+        lease.finishProducers(outcomes, evidence, digest);
+      }
+    } finally { lease.release(); }
+  }
+  assert.deepEqual(lifecycle.planCleanup(root, { paths: [member] }).groups[0].blockers, []);
+});
+
+test("frozen legacy custody retains unknown protection and excludes future direct siblings", t => {
+  const { root, at, record } = fixture(t);
+  const parent = at("logs/history"); fs.mkdirSync(parent, { recursive: true });
+  const old = path.join(parent, "old.log"); fs.writeFileSync(old, "unknown");
+  const original = record("frozen", [], { state: "retained", membership_complete: false, members: [{ path: parent, role: "legacy-custody", generated: false, protection_known: false }] });
+  const proof = at("freeze-proof.json"); fs.writeFileSync(proof, "external checked inventory evidence");
+  const request = { owner: original.owner, expected_revision: original.revision, paths: [parent], reason: "Freeze checked existing inventory", evidence_ref: proof, evidence_sha256: require("node:crypto").createHash("sha256").update(fs.readFileSync(proof)).digest("hex") };
+  const frozen = lifecycle.freezeCustody(root, original.id, request);
+  assert.deepEqual(frozen.members, [{ ...original.members[0], path: old }]);
+  assert.equal(frozen.state, "retained"); assert.equal(frozen.membership_complete, false);
+  assert.equal(frozen.custody_snapshot.containers[0].children[0].path, old);
+  const future = path.join(parent, "future.log"); fs.writeFileSync(future, "new producer");
+  assert.deepEqual(lifecycle.planCleanup(root, { paths: [future] }).standalone, [{ path: future, registered: false }]);
+  assert.ok(lifecycle.planCleanup(root, { paths: [old] }).groups[0].blockers.includes("unknown-member-protection"));
+  assert.throws(() => record("frozen", [], { members: original.members }), /cannot be reclaimed/);
+  const empty = at("logs/empty"); fs.mkdirSync(empty);
+  const emptyRecord = record("empty", [], { state: "retained", membership_complete: false, members: [{ path: empty, role: "legacy-input", generated: false, protection_known: false }] });
+  assert.throws(() => lifecycle.freezeCustody(root, emptyRecord.id, { ...request, expected_revision: emptyRecord.revision, paths: [empty] }), /Empty custody inventory/);
+  assert.equal(lifecycle.catalog(root).find(value => value.id === emptyRecord.id).revision, emptyRecord.revision);
+});
+
+test("scoped references pin exact members and immutable bindings with independent stable identities", t => {
+  const { root, at, record } = fixture(t);
+  for (const name of ["outputs/a", "outputs/b"]) { fs.mkdirSync(at(name), { recursive: true }); }
+  const target = record("target-scoped", [["outputs/a", "output"], ["outputs/b", "output"]]);
+  const base = { id: target.id, reason: "exact input", kind: "dependency", target_revision: target.revision, target_version: target.version };
+  const refs = ["outputs/a", "outputs/b"].map(name => ({ ...base, member_paths: [at(name)] }));
+  record("single-scoped-reader", [["outputs/single-reader", "output"]], { references: [refs[0]] });
+  const single = lifecycle.registerRequest(root, target.id).group;
+  assert.equal(single.members.find(member => member.path === at("outputs/a")).references.length, 1);
+  assert.equal(single.members.find(member => member.path === at("outputs/b")).references.length, 0);
+  const reader = record("scoped-reader", [["outputs/reader", "output"]], { references: refs });
+  assert.notEqual(reader.references[0].reference_id, reader.references[1].reference_id);
+  const registered = lifecycle.registerRequest(root, target.id).group;
+  assert.equal(registered.members.find(member => member.path === at("outputs/a")).references.length, 2);
+  assert.equal(registered.members.find(member => member.path === at("outputs/b")).references.length, 1);
+  assert.ok(lifecycle.planCleanup(root, { paths: [at("outputs/b")] }).groups[0].blockers.includes("active-reference:scoped-reader"));
+  const add = reference => record("bad-reader", [["outputs/bad-reader", "output"]], { references: [reference] });
+  assert.throws(() => add({ ...base, member_paths: [at("outputs/a/nested")] }), /member mismatch/);
+  assert.throws(() => add({ ...refs[0], id: "missing-target" }), /target missing/);
+  assert.throws(() => add({ ...refs[0], target_revision: target.revision + 1 }), /binding mismatch/);
+  assert.throws(() => add({ ...refs[0], target_version: "different" }), /binding mismatch/);
+  assert.throws(() => record(reader.id, [], { members: reader.members, references: [{ ...refs[1], reference_id: reader.references[0].reference_id }] }), /Conflicting reference identity/);
+  const again = record(reader.id, [], { members: reader.members, references: [refs[0]] });
+  assert.equal(again.references[0].reference_id, reader.references[0].reference_id);
+  // A noncooperating writer cannot turn a stale pin into missing protection.
+  fs.writeFileSync(lifecycle.registryPath(root, target.id), JSON.stringify({ ...target, revision: target.revision + 1, version: "changed-version" }));
+  const stale = lifecycle.planCleanup(root, { paths: [at("outputs/a")] }).groups.find(group => group.id === target.id);
+  assert.ok(stale.blockers.includes("active-reference:scoped-reader"));
+  assert.ok(stale.blockers.includes("invalid-reference:scoped-reader:stale-target-binding"));
+  assert.throws(() => lifecycle.registerRequest(root, target.id), /Invalid inbound reference.*stale-target-binding/);
+  fs.writeFileSync(lifecycle.registryPath(root, target.id), JSON.stringify({ ...target, members: target.members.filter(member => member.path !== at("outputs/a")) }));
+  const invalid = lifecycle.planCleanup(root, { paths: [at("outputs/b")] }).groups.find(group => group.id === target.id);
+  assert.ok(invalid.blockers.includes("invalid-reference:single-scoped-reader:invalid-member-scope"));
+  assert.throws(() => lifecycle.registerRequest(root, target.id), /Invalid inbound reference.*invalid-member-scope/);
+});
 
 test("custody subset handoff preserves uncertainty, descendants, receipts and ordinary promotion rejection", t => {
   const f = custodyFixture(t);
@@ -92,9 +214,8 @@ test("custody rejects invalid identities, evidence, selected boundaries and cons
 
 test("custody staged filesystem failures stay protected and same request resumes", async t => {
   for (const stage of [1, 2, 3]) await t.test(`write ${stage}`, t => {
-    const f = custodyFixture(t), original = fs.renameSync; let count = 0;
-    fs.renameSync = (...args) => { if (++count === stage) throw new Error("injected custody write interruption"); return original(...args); };
-    try { assert.throws(f.transfer, /injected/); } finally { fs.renameSync = original; }
+    const f = custodyFixture(t); let count = 0;
+    interruptLifecycleWrites(() => { if (++count === stage) throw new Error("injected custody write interruption"); }, () => assert.throws(f.transfer, /injected/));
     const pending = lifecycle.catalog(f.root).find(item => item.id === f.request.target.id);
     if (pending) {
       assert.equal(pending.state, "pending"); assert.equal(pending.membership_complete, false);
@@ -263,9 +384,8 @@ test("custody refinement permits only pinned consumer exclusions and preserves e
 
 test("custody ancestor refinement interruptions remain protected, resume exactly and never resurrect retired payload", async t => {
   for (const stage of [1, 2, 3, 4]) await t.test(`publication ${stage}`, t => {
-    const f = refinementFixture(t), original = fs.renameSync; let count = 0;
-    fs.renameSync = (...args) => { if (++count === stage) throw new Error("injected refinement publication interruption"); return original(...args); };
-    try { assert.throws(f.refine, /injected/); } finally { fs.renameSync = original; }
+    const f = refinementFixture(t); let count = 0;
+    interruptLifecycleWrites(() => { if (++count === stage) throw new Error("injected refinement publication interruption"); }, () => assert.throws(f.refine, /injected/));
     const pending = lifecycle.catalog(f.root).find(item => item.id === f.request.target.id);
     if (pending) {
       assert.equal(pending.state, "pending"); assert.equal(pending.membership_complete, false);
@@ -293,9 +413,8 @@ test("custody ancestor refinement interruptions remain protected, resume exactly
     newOverlap: f => { f.record("late-owner", [], { members: [{ path: path.join(f.selected, "output.log"), role: "output" }] }); }
   };
   for (const [name, change] of Object.entries(retryChanges)) await t.test(`pending retry rejects ${name}`, t => {
-    const f = refinementFixture(t), original = fs.renameSync; let count = 0;
-    fs.renameSync = (...args) => { if (++count === 2) throw new Error("injected refinement source interruption"); return original(...args); };
-    try { assert.throws(f.refine, /injected/); } finally { fs.renameSync = original; }
+    const f = refinementFixture(t); let count = 0;
+    interruptLifecycleWrites(() => { if (++count === 2) throw new Error("injected refinement source interruption"); }, () => assert.throws(f.refine, /injected/));
     change(f);
     const before = lifecycle.catalog(f.root).map(record => [record.id, fs.readFileSync(lifecycle.registryPath(f.root, record.id), "utf8")]);
     assert.throws(f.refine);
@@ -347,12 +466,10 @@ test("physical custody migration preserves original claims after rename interrup
 
 test("physical custody migration resumes source/final target write interruptions", async t => {
   for (const stage of ["source", "target"]) await t.test(stage, t => {
-    const f = relocationFixture(t), rename = fs.renameSync; let targetWrites = 0;
-    fs.renameSync = (from, to) => {
-      if ((stage === "source" && to === lifecycle.registryPath(f.root, f.source.id)) || (to === lifecycle.registryPath(f.root, f.request.target.id) && ++targetWrites === 3 && stage === "target")) throw new Error("injected migration receipt interruption");
-      return rename(from, to);
-    };
-    try { assert.throws(f.relocate, /receipt interruption/); } finally { fs.renameSync = rename; }
+    const f = relocationFixture(t); let targetWrites = 0;
+    interruptLifecycleWrites(record => {
+      if ((stage === "source" && record.id === f.source.id) || (record.id === f.request.target.id && ++targetWrites === 3 && stage === "target")) throw new Error("injected migration receipt interruption");
+    }, () => assert.throws(f.relocate, /receipt interruption/));
     const source = lifecycle.catalog(f.root).find(item => item.id === f.source.id), target = lifecycle.catalog(f.root).find(item => item.id === f.request.target.id);
     assert.equal(target.state, "pending");
     assert.equal(source.members.length, stage === "source" ? f.members.length : 1);
@@ -361,9 +478,8 @@ test("physical custody migration resumes source/final target write interruptions
 });
 
 test("physical custody mkdir receipt gap fails closed without adopting existing destination", t => {
-  const f = relocationFixture(t), rename = fs.renameSync; let writes = 0;
-  fs.renameSync = (from, to) => { if (to === lifecycle.registryPath(f.root, f.request.target.id) && ++writes === 2) throw new Error("injected destination receipt interruption"); return rename(from, to); };
-  try { assert.throws(f.relocate, /destination receipt interruption/); } finally { fs.renameSync = rename; }
+  const f = relocationFixture(t); let writes = 0;
+  interruptLifecycleWrites(record => { if (record.id === f.request.target.id && ++writes === 2) throw new Error("injected destination receipt interruption"); }, () => assert.throws(f.relocate, /destination receipt interruption/));
   assert.equal(fs.existsSync(f.destination), true);
   assert.throws(f.relocate, /without saved identity/);
   assert.deepEqual(lifecycle.catalog(f.root).find(item => item.id === f.source.id).members, f.members);
@@ -785,10 +901,9 @@ test("catalog lock serializes mutations, and reference registration preserves ex
   const before = record("locked", [["outputs/locked", "output"]], { state: "pending", membership_complete: false });
   const request = stopEvidence(root, before);
   lifecycle.withCatalogLock(root, () => {
-    assert.throws(() => record("other", [["outputs/other", "output"]]), /EEXIST/);
-    assert.throws(() => lifecycle.closeLifecycle(root, before.id, request), /EEXIST/);
-    assert.throws(() => lifecycle.releaseReferences(root, before.id, request), /EEXIST/);
-    assert.throws(() => lifecycle.finalize(root, before.id), /EEXIST/);
+    assert.equal(record("other", [["outputs/other", "output"]]).id, "other");
+    assert.equal(lifecycle.closeLifecycle(root, before.id, request).producer.status, "stopped");
+    assert.equal(lifecycle.finalize(root, before.id).status, "finalized");
   });
   record("planned", [["outputs/planned", "output"]], { state: "pending", membership_complete: false });
   const external = record("external", [["outputs/external", "output"]], { references: [{ id: "another-project:key", reason: "external cache" }, { id: "planned", reason: "future output" }] });
@@ -810,13 +925,27 @@ test("shared producer generation reopens only known stopped identity and invalid
   assert.throws(() => record(before.id, [["outputs/generation", "output"]], { state: "pending", membership_complete: false, generation: "three", expected_revision: reopened.revision }), /known stopped/);
 });
 
-test("PowerShell deletion holds the shared catalog lock through physical removal", { skip: process.platform !== "win32" }, t => {
+test("PowerShell deletion releases the catalog while reserving its group through physical removal", { skip: process.platform !== "win32" }, t => {
   const { root, at, record } = fixture(t);
   const member = at("outputs/ps-lock"); fs.mkdirSync(path.dirname(member), { recursive: true }); fs.writeFileSync(member, "owned fixture");
-  record("ps-lock", [["outputs/ps-lock", "output"]]);
+  record("ps-lock", [], { members: [{ path: member, role: "output", generated: true, protection_known: true }] });
   const quote = value => "'" + value.replaceAll("'", "''") + "'";
-  const probe = "const l=require(" + JSON.stringify(require.resolve("./artifact-lifecycle.cjs")) + ");try{l.recordLifecycle(" + JSON.stringify(root) + ",{id:'new-consumer',kind:'run',owner:'fixture',state:'pending',membership_complete:false,members:[{path:" + JSON.stringify(at("outputs/new-consumer")) + ",role:'output'}],references:[{id:'ps-lock',reason:'race'}]});process.exitCode=9}catch(e){if(e.code!=='EEXIST')throw e;process.stdout.write('catalog-locked')}";
-  const script = "$ErrorActionPreference='Stop'; . " + quote(path.join(__dirname, "artifact-lifecycle.ps1")) + "; $result=Invoke-ArtifactLifecycleCleanup -ProjectRoot " + quote(root) + " -CandidatePath " + quote(member) + " -Apply $true -CheckMember { param($member) } -RemoveMember { param($member); $probe=& " + quote(process.execPath) + " -e " + quote(probe) + "; if ($LASTEXITCODE -ne 0 -or $probe -ne 'catalog-locked') { throw 'catalog lock was not held' }; Remove-Item -LiteralPath $member -ErrorAction Stop }; if ($result.status -ne 'deleted') { throw ($result | ConvertTo-Json -Depth 10 -Compress) }; Write-Output 'ps-lock-passed'";
+  const probe = `
+    const assert = require('node:assert/strict'), fs = require('node:fs');
+    const l = require(${JSON.stringify(require.resolve("./artifact-lifecycle.cjs"))});
+    const root = ${JSON.stringify(root)};
+    const original = l.catalog(root).find(record => record.id === 'ps-lock');
+    const before = fs.readFileSync(l.registryPath(root, original.id));
+    const unrelated = l.recordLifecycle(root, {id:'unrelated-writer',kind:'run',owner:'fixture',state:'pending',membership_complete:false,members:[{path:${JSON.stringify(at("outputs/unrelated"))},role:'output'}]});
+    assert.equal(unrelated.id, 'unrelated-writer');
+    const reserved = error => error.code === 'ELOCKOWNERSHIP' || /reserv(?:ed|ation)/i.test(error.message);
+    assert.throws(() => l.recordLifecycle(root, {id:'new-consumer',kind:'run',owner:'fixture',state:'pending',membership_complete:false,members:[{path:${JSON.stringify(at("outputs/new-consumer"))},role:'output'}],references:[{id:'ps-lock',reason:'race'}]}), reserved);
+    assert.throws(() => l.recordLifecycle(root, {...original, expected_revision:original.revision}), reserved);
+    assert.deepEqual(fs.readFileSync(l.registryPath(root, original.id)), before);
+    assert.equal(l.catalog(root).some(record => record.id === 'new-consumer'), false);
+    process.stdout.write('reservation-protected');
+  `;
+  const script = "$ErrorActionPreference='Stop'; . " + quote(path.join(__dirname, "artifact-lifecycle.ps1")) + "; $result=Invoke-ArtifactLifecycleCleanup -ProjectRoot " + quote(root) + " -CandidatePath " + quote(member) + " -Apply $true -CheckMember { param($member) } -RemoveMember { param($member); $probe=& " + quote(process.execPath) + " -e " + quote(probe) + "; if ($LASTEXITCODE -ne 0 -or $probe -ne 'reservation-protected') { throw 'group reservation did not preserve concurrent writer boundaries' }; Remove-Item -LiteralPath $member -ErrorAction Stop }; if ($result.status -ne 'deleted') { throw ($result | ConvertTo-Json -Depth 10 -Compress) }; Write-Output 'ps-lock-passed'";
   const executable = "pwsh";
   const child = require("node:child_process").spawnSync(executable, ["-NoProfile", "-NonInteractive", "-Command", script], {
     encoding: "utf8", windowsHide: true,
@@ -824,4 +953,5 @@ test("PowerShell deletion holds the shared catalog lock through physical removal
   });
   assert.equal(child.status, 0, child.error?.message || child.stderr || child.stdout);
   assert.match(child.stdout, /ps-lock-passed/); assert.equal(fs.existsSync(member), false);
+  assert.ok(lifecycle.catalog(root).some(record => record.id === "unrelated-writer"));
 });

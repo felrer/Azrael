@@ -14,6 +14,9 @@ const project = path.join(fixture, "project"); fs.mkdirSync(project);
 const start = (runId, options = {}) => beginArtifactRun(project, { workId: "writers", owner: "test-artifact-run", runId, ...options });
 const checks = [];
 const run = start("normal");
+assert.equal(run.record.ownership_scope, "run-root");
+assert.equal(run.record.owned_root, run.runRoot);
+assert.throws(() => recordLifecycle(project, { id: "steal-run", kind: "work", owner: "other", state: "pending", membership_complete: false, members: [{ path: path.join(run.runRoot, "future"), role: "output" }] }), /claimed/);
 assert.equal(catalog(project)[0].state, "pending");
 assert.equal(catalog(project)[0].membership_complete, false);
 assert(fs.existsSync(run.outputs));
@@ -21,17 +24,24 @@ assert(fs.existsSync(run.inputs));
 assert(run.record.members.some(member => member.role === "inputs" && member.path === run.inputs));
 fs.writeFileSync(path.join(run.outputs, "payload.txt"), "retained");
 assert.equal(finishArtifactRun(run, { exitCode: 0, producerStopped: true }).state, "complete");
-assert.throws(() => start("normal"), /already exists|claimed|revision/);
 checks.push("precreation ownership, complete result, collision refusal, retained payload");
 const failed = start("failed");
+assert.equal(failed.record.state, "pending");
+assert.equal(failed.record.membership_complete, false);
 assert.equal(finishArtifactRun(failed, { exitCode: 7, producerStopped: true }).state, "failed");
 assert.equal(failed.record.membership_complete, true);
 assert.equal(failed.record.producer.outcome, "failure");
 assert.equal(failed.record.producer.exit_code, 7);
 const unknown = start("unknown"); unknown.producerStopped = false;
+assert.equal(unknown.record.state, "pending");
+assert.equal(unknown.record.membership_complete, false);
 assert.equal(finishArtifactRun(unknown, { exitCode: null, producerStopped: false }).state, "pending");
 assert.equal(unknown.record.membership_complete, false);
 checks.push("known failed producer closes while unknown termination remains incomplete");
+for (const [producer, exitCode, runId] of [[run, 0, "normal"], [failed, 7, "failed"], [unknown, null, "unknown"]]) {
+  assert.equal(JSON.parse(fs.readFileSync(path.join(producer.reports, "producer.json"))).exitCode, exitCode);
+  assert.throws(() => start(runId), /already exists|claimed|revision/);
+}
 const immutable = path.join(project, "artifacts/inputs/source");
 recordLifecycle(project, { id: "immutable-input", kind: "work", owner: "input-owner", state: "pending", membership_complete: false, members: [{ path: immutable, role: "input" }], expected_revision: 0 });
 fs.mkdirSync(immutable, { recursive: true });
@@ -137,6 +147,9 @@ checks.push("custom input destinations retain ownership guards; resolved default
 const claimed = path.join(project, "artifacts/tasks/writers/runs/claimed");
 recordLifecycle(project, { id: "prior-claim", kind: "run", owner: "other", state: "pending", membership_complete: false, members: [{ path: claimed, role: "run" }], expected_revision: 0 });
 assert.throws(() => start("claimed"), /claimed/); assert(!fs.existsSync(claimed));
+const centralClaim = path.join(project, "artifacts/tasks/writers/runs/central-conflict");
+assert.throws(() => recordLifecycle(project, { id: "central-conflict", kind: "run", owner: "test", ownership_scope: "run-root", owned_root: centralClaim, state: "pending", membership_complete: false, members: [{ path: centralClaim, role: "run" }, { path: claimed, role: "output" }] }), /claimed/);
+assert.equal(fs.existsSync(centralClaim), false);
 const linked = path.join(project, "artifacts/tasks/link");
 fs.symlinkSync(fixture, linked, process.platform === "win32" ? "junction" : "dir");
 try {
@@ -168,7 +181,10 @@ const waitClaimCode = `
 const waitedClaim = spawnSync(process.execPath, ["-e", waitClaimCode], { encoding: "utf8", windowsHide: true, timeout: 15000 });
 assert.equal(waitedClaim.status, 0, waitedClaim.stderr);
 assert.equal(catalog(project).find(record => record.id.endsWith(":waited-claim")).state, "complete");
-assert(!fs.existsSync(claimLock));
+assert.equal(JSON.parse(fs.readFileSync(claimLock, "utf8")).schema, 2);
+const reacquiredClaim = require("./maintenance-lock-owner.cjs").acquire(claimLock, { operation: "test.reacquire-claim" });
+reacquiredClaim.release();
+assert.equal(fs.existsSync(claimLock), true);
 checks.push("concurrent run claim waits for normal owner release without removing the marker");
 const childCode = suffix => `const fs=require('fs'),h=require(${helper});const r=h.beginArtifactRun(${JSON.stringify(project)},{workId:'writers',owner:'test-artifact-run',runId:${JSON.stringify(suffix)}});`;
 const failedProcess = spawnSync(process.execPath, ["-e", childCode("uncaught") + "throw Error('intentional writer failure');"], { encoding: "utf8" });

@@ -363,11 +363,31 @@ fn invalid_missing_or_denied_owner_still_blocks_deletion() {
         )
         .unwrap();
         assert!(blocked(&reviewed), "{corruption}: {reviewed}");
-        let applied = dispatch(root.path(), deletion(&reviewed), &authorize).unwrap();
-        assert_ne!(
-            applied["groups"][0]["status"], "deleted",
-            "{corruption}: {applied}"
-        );
+        let manifest = root.path().join("artifacts/maintenance/manifest.json");
+        let before = std::fs::read(&manifest).unwrap();
+        match dispatch(root.path(), deletion(&reviewed), &authorize) {
+            Ok(applied) => {
+                assert_ne!(
+                    applied["groups"][0]["status"], "deleted",
+                    "{corruption}: {applied}"
+                );
+                assert!(
+                    applied["results"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .all(|item| item["status"] != "deleted"),
+                    "{corruption}: {applied}"
+                );
+            }
+            Err(error) => {
+                // Without a readable valid owner, acquisition cannot pin a
+                // producer fence and refuses before publishing an active claim.
+                assert_eq!(error, "reserved producer record missing", "{corruption}");
+                assert!(active_reservations(&root).is_empty(), "{corruption}");
+                assert_eq!(std::fs::read(&manifest).unwrap(), before, "{corruption}");
+            }
+        }
         for member in ["artifact", "log"] {
             assert!(
                 root.path()
@@ -559,7 +579,7 @@ fn refresh_preserves_explicit_unknown_ownership_and_pending_producer() {
 }
 
 #[test]
-fn catalog_contention_blocks_mutation_and_apply_holds_lock() {
+fn catalog_contention_blocks_mutation_and_apply_reserves_group_between_transactions() {
     use std::cell::Cell;
     let root = fixture();
     call(&root, registration(&root));
@@ -593,17 +613,396 @@ fn catalog_contention_blocks_mutation_and_apply_holds_lock() {
             contended.set(true);
         }
         if contended.get() && mode == AccessMode::Write && path.ends_with("manifest.pending") {
-            assert!(
-                lock.exists(),
-                "catalog lock must cover intent and result persistence"
-            );
+            assert_eq!(active_reservations(&root).len(), 1);
+            let transaction = std::fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(&lock)
+                .unwrap();
+            transaction
+                .try_lock()
+                .expect("physical apply must release global catalog protection");
         }
         Ok(())
     };
     let result = dispatch(root.path(), request, &authorize).unwrap();
     assert_eq!(result["groups"][0]["status"], "deleted");
     assert!(contended.get());
-    assert!(!lock.exists());
+    let metadata: Value = serde_json::from_slice(&std::fs::read(&lock).unwrap()).unwrap();
+    assert_eq!(metadata["schema"], 2);
+    let released = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(&lock)
+        .unwrap();
+    released.try_lock().unwrap();
+    assert!(active_reservations(&root).is_empty());
+}
+
+fn active_reservations(root: &TempDir) -> Vec<std::path::PathBuf> {
+    let directory = directory(root).join("reservations");
+    if !directory.exists() {
+        return Vec::new();
+    }
+    std::fs::read_dir(directory)
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
+        .collect()
+}
+
+#[test]
+fn registration_releases_global_locks_but_fences_scope_and_merges_unrelated_work() {
+    use std::cell::Cell;
+    let root = fixture();
+    let injected = Cell::new(false);
+    let artifact = root.path().join("artifacts/registry-fixtures/artifact");
+    let independent = root.path().join("artifacts/registry-fixtures/independent");
+    std::fs::write(&independent, "independent").unwrap();
+    let authorize = |path: &Path, mode| {
+        if path == artifact
+            && mode == AccessMode::Read
+            && !injected.get()
+            && !active_reservations(&root).is_empty()
+        {
+            let available = [
+                root.path().join("artifacts/maintenance/maintenance.lock"),
+                directory(&root).join("catalog.lock"),
+            ]
+            .iter()
+            .all(|path| {
+                let file = std::fs::OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(path)
+                    .unwrap();
+                file.try_lock().is_ok()
+            });
+            if available {
+                injected.set(true);
+                let item = json!({"id":"independent","path":independent,"kind":"artifact","owner":"other","generated":true,"protection_known":true,"references":[]});
+                call(&root, json!({"operation":"register","item":item}));
+                for (id, path) in [
+                    ("overlap", artifact.clone()),
+                    ("artifact", independent.clone()),
+                ] {
+                    assert!(dispatch(root.path(), json!({"operation":"register","item":{"id":id,"path":path,"kind":"artifact","owner":"other","generated":true,"protection_known":true,"references":[]}}), &allow).is_err());
+                }
+                assert!(dispatch(root.path(), registration(&root), &allow).is_err());
+                let reviewed = call(&root, json!({"operation":"review","ids":["independent"]}));
+                let outcome = call(
+                    &root,
+                    json!({"operation":"apply","decisions":[{"id":"independent","token":reviewed["items"][0]["token"],"decision":"defer","reason":"active independent work","revisit_condition":"consumer completes"}]}),
+                );
+                assert_eq!(outcome["results"][0]["status"], "deferred");
+            }
+        }
+        Ok(())
+    };
+    let result = dispatch(root.path(), registration(&root), &authorize).unwrap();
+    assert!(
+        injected.get(),
+        "independent work executes during payload measurement"
+    );
+    assert_eq!(result["group"]["id"], "version");
+    let durable: Value = serde_json::from_slice(
+        &std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        durable["items"]["independent"]["cleanup_status"],
+        "deferred"
+    );
+    assert_eq!(durable["groups"]["version"]["owner"], "test");
+    assert!(
+        durable["decisions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["id"] == "independent" && entry["status"] == "deferred")
+    );
+    assert!(active_reservations(&root).is_empty());
+}
+
+#[test]
+fn registration_rejects_changed_producer_fence_without_publishing_partial_state() {
+    use std::cell::Cell;
+    let root = fixture();
+    let changed = Cell::new(false);
+    let artifact = root.path().join("artifacts/registry-fixtures/artifact");
+    let authorize = |path: &Path, mode| {
+        if path == artifact
+            && mode == AccessMode::Read
+            && !changed.get()
+            && !active_reservations(&root).is_empty()
+        {
+            let maintenance = std::fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(root.path().join("artifacts/maintenance/maintenance.lock"))
+                .unwrap();
+            if maintenance.try_lock().is_ok() {
+                changed.set(true);
+                let mut consumer = record(&root, "new-consumer");
+                consumer["references"] =
+                    json!([{"id":"version","reason":"new inbound dependency"}]);
+                write(&root, "new-consumer", &consumer);
+            }
+        }
+        Ok(())
+    };
+    assert!(dispatch(root.path(), registration(&root), &authorize).is_err());
+    assert!(changed.get());
+    assert!(artifact.exists());
+    let manifest = root.path().join("artifacts/maintenance/manifest.json");
+    if manifest.exists() {
+        let state: Value = serde_json::from_slice(&std::fs::read(manifest).unwrap()).unwrap();
+        assert!(state["groups"].get("version").is_none());
+    }
+    assert!(
+        !active_reservations(&root).is_empty(),
+        "uncertain source mutation remains explicitly recoverable"
+    );
+}
+
+#[test]
+fn cancelled_registration_releases_its_scope_without_committing() {
+    use std::cell::Cell;
+    let root = fixture();
+    let cancelled = Cell::new(false);
+    let artifact = root.path().join("artifacts/registry-fixtures/artifact");
+    let authorize = |path: &Path, mode| {
+        if path == artifact && mode == AccessMode::Read && !active_reservations(&root).is_empty() {
+            let maintenance = std::fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(root.path().join("artifacts/maintenance/maintenance.lock"))
+                .unwrap();
+            if maintenance.try_lock().is_ok() {
+                cancelled.set(true);
+            }
+        }
+        Ok(())
+    };
+    let error = azrael_project_maintenance::dispatch_with_cancellation(
+        root.path(),
+        registration(&root),
+        &authorize,
+        &|| cancelled.get(),
+    )
+    .unwrap_err();
+    assert!(error.contains("cancelled"));
+    assert!(cancelled.get());
+    assert!(active_reservations(&root).is_empty());
+    assert!(artifact.exists());
+    assert!(
+        call(&root, json!({"operation":"inventory"}))["items"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    call(&root, registration(&root));
+}
+
+#[test]
+fn registration_source_switch_locks_both_original_and_incoming_catalogs_at_commit() {
+    use std::cell::Cell;
+    let root = fixture();
+    let original = root.path().join("artifacts/catalog-original");
+    let incoming = root.path().join("artifacts/catalog-incoming");
+    for source in [&original, &incoming] {
+        std::fs::create_dir(source).unwrap();
+        std::fs::write(
+            source.join("version.json"),
+            serde_json::to_vec(&record(&root, "version")).unwrap(),
+        )
+        .unwrap();
+    }
+    let mut first = registration(&root);
+    first["group"]["membership_source"] = json!(original);
+    call(&root, first);
+    let mut next = registration(&root);
+    next["group"]["membership_source"] = json!(incoming);
+    let measured = Cell::new(false);
+    let checked_commit = Cell::new(false);
+    let artifact = root.path().join("artifacts/registry-fixtures/artifact");
+    let owner = incoming.join("version.json");
+    let authorize = |path: &Path, mode| {
+        if mode == AccessMode::Read && !active_reservations(&root).is_empty() {
+            let maintenance = std::fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(root.path().join("artifacts/maintenance/maintenance.lock"))
+                .unwrap();
+            let outside_transaction = maintenance.try_lock().is_ok();
+            if path == artifact && outside_transaction {
+                measured.set(true);
+            }
+            if path == owner && measured.get() && !outside_transaction {
+                for source in [&original, &incoming] {
+                    let catalog = std::fs::OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .open(source.join("catalog.lock"))
+                        .unwrap();
+                    assert!(
+                        catalog.try_lock().is_err(),
+                        "both source catalogs must be locked at commit"
+                    );
+                }
+                checked_commit.set(true);
+            }
+        }
+        Ok(())
+    };
+    let result = dispatch(root.path(), next, &authorize).unwrap();
+    assert!(measured.get());
+    assert!(checked_commit.get());
+    assert_eq!(result["group"]["membership_source"], json!(incoming));
+    assert!(active_reservations(&root).is_empty());
+}
+
+#[test]
+fn reserved_apply_merges_unrelated_registration_and_deferred_receipt() {
+    use std::cell::Cell;
+    let root = fixture();
+    call(&root, registration(&root));
+    let initial = review(&root);
+    let injected = Cell::new(false);
+    let owner_path = directory(&root).join("version.json");
+    let maintenance = root.path().join("artifacts/maintenance/maintenance.lock");
+    let authorize = |path: &Path, mode| {
+        if path == owner_path
+            && mode == AccessMode::Read
+            && !injected.get()
+            && !active_reservations(&root).is_empty()
+        {
+            let probe = std::fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(&maintenance);
+            let available = probe.as_ref().is_ok_and(|file| file.try_lock().is_ok());
+            drop(probe);
+            if available {
+                injected.set(true);
+                std::fs::write(
+                    root.path().join("artifacts/registry-fixtures/independent"),
+                    "other producer",
+                )
+                .unwrap();
+                call(
+                    &root,
+                    json!({"operation":"register","item":{"id":"independent","path":"artifacts/registry-fixtures/independent","kind":"artifact","owner":"other","generated":true,"protection_known":true,"references":[]}}),
+                );
+                let separate = call(&root, json!({"operation":"review","ids":["independent"]}));
+                let result = call(
+                    &root,
+                    json!({"operation":"apply","decisions":[{"id":"independent","token":separate["items"][0]["token"],"decision":"defer","reason":"other owner still needs it","revisit_condition":"other owner finishes"}]}),
+                );
+                assert_eq!(result["results"][0]["status"], "deferred");
+            }
+        }
+        Ok(())
+    };
+    let result = dispatch(root.path(), deletion(&initial), &authorize).unwrap();
+    assert!(
+        injected.get(),
+        "independent writer must execute while outer reservation is live"
+    );
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    let durable: Value = serde_json::from_slice(
+        &std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(durable["items"]["independent"]["owner"], "other");
+    assert_eq!(
+        durable["items"]["independent"]["cleanup_status"],
+        "deferred"
+    );
+    let receipts = durable["decisions"].as_array().unwrap();
+    assert_eq!(receipts.len(), 3);
+    assert_eq!(receipts[0]["id"], "independent");
+    assert_eq!(receipts[0]["status"], "deferred");
+    for id in ["artifact", "log"] {
+        let receipt = receipts.iter().find(|receipt| receipt["id"] == id).unwrap();
+        assert_eq!(receipt["status"], "deleted");
+        assert_eq!(durable["items"][id]["cleanup_status"], "deleted");
+    }
+    let ids = receipts
+        .iter()
+        .map(|receipt| receipt["decision_id"].as_str().unwrap())
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(
+        ids.len(),
+        3,
+        "receipt identities survive concurrent append reordering"
+    );
+    assert!(active_reservations(&root).is_empty());
+}
+
+#[test]
+fn producer_fence_change_after_intent_preserves_payload_and_reservation() {
+    use std::cell::Cell;
+    let root = fixture();
+    call(&root, registration(&root));
+    let initial = review(&root);
+    let changed = Cell::new(false);
+    let owner_path = directory(&root).join("version.json");
+    let manifest = root.path().join("artifacts/maintenance/manifest.json");
+    let authorize = |path: &Path, mode| {
+        if path == owner_path && mode == AccessMode::Read && !changed.get() {
+            let state: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+            if state["decisions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|decision| decision["status"] == "pending")
+            {
+                changed.set(true);
+                let mut owner = record(&root, "version");
+                owner["revision"] = json!(9);
+                write(&root, "version", &owner);
+            }
+        }
+        Ok(())
+    };
+    assert!(dispatch(root.path(), deletion(&initial), &authorize).is_err());
+    assert!(
+        changed.get(),
+        "fault must occur after a durable deletion intent"
+    );
+    for name in ["artifact", "log"] {
+        assert!(
+            root.path()
+                .join("artifacts/registry-fixtures")
+                .join(name)
+                .exists()
+        );
+    }
+    assert_eq!(active_reservations(&root).len(), 1);
+    let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+    assert!(
+        durable["decisions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|decision| matches!(decision["status"].as_str(), Some("pending" | "blocked")))
+    );
+    assert!(
+        durable["decisions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|decision| decision["status"] != "deleted")
+    );
+    assert!(
+        dispatch(
+            root.path(),
+            json!({"operation":"review","group_ids":["version"]}),
+            &allow
+        )
+        .is_err()
+    );
 }
 
 #[test]

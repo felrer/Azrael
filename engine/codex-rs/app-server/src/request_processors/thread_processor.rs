@@ -12,6 +12,7 @@ mod side_question;
 mod resume_history_reuse_tests;
 
 use super::persisted_resume_settings::PersistedResumeSettings;
+use super::persisted_resume_settings::latest_persisted_model_settings;
 use super::persisted_resume_settings::latest_persisted_resume_settings;
 use super::thread_enrichment::enrich_loaded_threads;
 use super::thread_fork_goal::inherit_thread_goal_snapshot;
@@ -37,6 +38,7 @@ use codex_protocol::SanitizedGitUrl;
 use codex_protocol::config_types::MultiAgentMode;
 use codex_protocol::error::CodexErrorDetails;
 use codex_protocol::mcp::ClientMcpExtensions;
+use codex_protocol::models::PermissionProfile;
 use codex_protocol::protocol::ThreadHistoryMode;
 use codex_thread_store::PersistContext;
 use std::ops::ControlFlow;
@@ -100,6 +102,7 @@ struct ResumeConfigState {
     workspace_roots: Option<Vec<AbsolutePathBuf>>,
     persisted_metadata: Option<ThreadMetadata>,
     persisted_settings: Option<PersistedResumeSettings>,
+    persisted_permission_profile: Option<PermissionProfile>,
 }
 
 struct PreparedResumeConfig {
@@ -168,6 +171,7 @@ struct ThreadRevertRuntimeSnapshot {
 fn collect_resume_override_mismatches(
     request: &ThreadResumeParams,
     config_snapshot: &ThreadConfigSnapshot,
+    selected_service_tier: Option<&str>,
 ) -> Vec<String> {
     let mut mismatch_details = Vec::new();
 
@@ -188,7 +192,7 @@ fn collect_resume_override_mismatches(
         ));
     }
     if let Some(requested_service_tier) = request.service_tier.as_ref()
-        && requested_service_tier != &config_snapshot.service_tier
+        && Some(requested_service_tier.as_deref().unwrap_or("default")) != selected_service_tier
     {
         mismatch_details.push(format!(
             "service_tier requested={requested_service_tier:?} active={:?}",
@@ -2567,10 +2571,17 @@ impl ThreadRequestProcessor {
         app_server_client_version: Option<String>,
     ) -> Result<ThreadRevertResponse, JSONRPCErrorError> {
         let ThreadRevertRuntimeSnapshot {
-            config,
+            mut config,
             settings,
             client_mcp_extensions,
         } = runtime_snapshot;
+        if let Some(collaboration_mode) = settings.collaboration_mode.as_ref() {
+            config.model = Some(collaboration_mode.model().to_string());
+        }
+        if let Some(service_tier) = settings.service_tier.as_ref() {
+            config.service_tier.clone_from(service_tier);
+        }
+        config.personality = settings.personality;
         let thread_id_string = thread_id.to_string();
         let stored_thread = self
             .read_stored_thread_for_resume(
@@ -4230,7 +4241,7 @@ impl ThreadRequestProcessor {
         }
 
         // Copied or referenced history can contain another thread's settings. Only snapshots
-        // explicitly owned by this thread can override its startup cwd and workspace folders.
+        // explicitly owned by this thread can restore its permissions, cwd, and workspace folders.
         let history_settings = if let InitialHistory::Resumed(resumed) = &thread_history {
             resumed.history.iter().rev().find_map(|item| match item {
                 RolloutItem::EventMsg(EventMsg::ThreadSettingsApplied(event))
@@ -4322,9 +4333,42 @@ impl ThreadRequestProcessor {
         }
         let has_explicit_model_resume_override =
             has_model_resume_override(request_overrides.as_ref(), &typesafe_overrides);
+        let persisted_model_settings = latest_persisted_model_settings(&thread_history);
+        let has_override = |key| {
+            request_overrides
+                .as_ref()
+                .is_some_and(|overrides| overrides.contains_key(key))
+        };
+        let restore_service_tier =
+            typesafe_overrides.service_tier.is_none() && !has_override("service_tier");
+        let restore_summary = !has_override("model_reasoning_summary");
+        let restore_personality =
+            typesafe_overrides.personality.is_none() && !has_override("personality");
+        typesafe_overrides.persisted_permission_profile = history_settings
+            .filter(|settings| {
+                settings.active_permission_profile.is_none()
+                    && !has_permission_override(request_overrides.as_ref(), &typesafe_overrides)
+                    && !request_overrides.as_ref().is_some_and(|overrides| {
+                        overrides.keys().any(|key| {
+                            key == "sandbox_workspace_write"
+                                || key.starts_with("sandbox_workspace_write.")
+                        })
+                    })
+            })
+            .map(|settings| settings.permission_profile.clone());
+        let mut persisted_settings = match &thread_history {
+            InitialHistory::Resumed(resumed) => latest_persisted_resume_settings(&resumed.history),
+            InitialHistory::New | InitialHistory::Cleared | InitialHistory::Forked(_) => None,
+        };
+        // A TurnContext can describe an executor's profile, so an owned snapshot
+        // is authoritative for named permissions too.
+        if let (Some(settings), Some(snapshot)) = (&mut persisted_settings, history_settings) {
+            settings.active_permission_profile = snapshot.active_permission_profile.clone();
+        }
         let persisted_metadata = self
             .load_and_apply_persisted_resume_metadata(
                 &thread_history,
+                persisted_settings.as_ref(),
                 &mut request_overrides,
                 &mut typesafe_overrides,
             )
@@ -4338,12 +4382,8 @@ impl ThreadRequestProcessor {
             history_cwd: history_cwd.clone(),
             workspace_roots: typesafe_overrides.workspace_roots.clone(),
             persisted_metadata,
-            persisted_settings: match &thread_history {
-                InitialHistory::Resumed(resumed) => {
-                    latest_persisted_resume_settings(&resumed.history)
-                }
-                InitialHistory::New | InitialHistory::Cleared | InitialHistory::Forked(_) => None,
-            },
+            persisted_settings,
+            persisted_permission_profile: typesafe_overrides.persisted_permission_profile.clone(),
         };
         let mut config = match prepared_config.take() {
             Some(prepared) if prepared.state == config_state => prepared.config,
@@ -4369,6 +4409,20 @@ impl ThreadRequestProcessor {
         };
         if clear_reasoning_effort {
             config.model_reasoning_effort = None;
+        }
+
+        if let Some(settings) = persisted_model_settings {
+            // Service tiers belong to the selected provider; a provider override must
+            // not import OpenAI tier names into a managed-provider configuration.
+            if restore_service_tier && settings.model_provider_id == config.model_provider_id {
+                config.service_tier.clone_from(&settings.service_tier);
+            }
+            if restore_summary {
+                config.model_reasoning_summary = settings.reasoning_summary;
+            }
+            if restore_personality {
+                config.personality = settings.personality;
+            }
         }
 
         let handoff_restore = self.handoff_restores.lock().await.get(&thread_id).cloned();
@@ -4673,14 +4727,14 @@ impl ThreadRequestProcessor {
     async fn load_and_apply_persisted_resume_metadata(
         &self,
         thread_history: &InitialHistory,
+        persisted_settings: Option<&PersistedResumeSettings>,
         request_overrides: &mut Option<HashMap<String, serde_json::Value>>,
         typesafe_overrides: &mut ConfigOverrides,
     ) -> Option<ThreadMetadata> {
         let InitialHistory::Resumed(resumed_history) = thread_history else {
             return None;
         };
-        if let Some(persisted_settings) = latest_persisted_resume_settings(&resumed_history.history)
-        {
+        if let Some(persisted_settings) = persisted_settings {
             if typesafe_overrides.approval_policy.is_none() {
                 typesafe_overrides.approval_policy = Some(persisted_settings.approval_policy);
             }
@@ -4694,7 +4748,8 @@ impl ThreadRequestProcessor {
             if !has_permission_override(request_overrides.as_ref(), typesafe_overrides) {
                 typesafe_overrides.persisted_permission_profile_id = persisted_settings
                     .active_permission_profile
-                    .map(|profile| profile.id);
+                    .as_ref()
+                    .map(|profile| profile.id.clone());
             }
         }
         let state_db_ctx = self.state_db.clone()?;
@@ -4783,7 +4838,8 @@ impl ThreadRequestProcessor {
                     active_path.display()
                 )));
             }
-            let config_snapshot = existing_thread.config_snapshot().await;
+            let (config_snapshot, selected_service_tier) =
+                existing_thread.resume_config_snapshot().await;
             if params.computer_use_mode.is_some()
                 && params.computer_use_mode != config_snapshot.computer_use_mode
             {
@@ -4791,7 +4847,11 @@ impl ThreadRequestProcessor {
                     "computerUseMode is immutable; create a new selected-window thread",
                 ));
             }
-            let mismatch_details = collect_resume_override_mismatches(params, &config_snapshot);
+            let mismatch_details = collect_resume_override_mismatches(
+                params,
+                &config_snapshot,
+                selected_service_tier.as_deref(),
+            );
             if !mismatch_details.is_empty() {
                 let has_subscribers = !self
                     .thread_state_manager

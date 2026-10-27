@@ -1,6 +1,7 @@
 //! Central approval policy-stage execution and reviewer routing.
 
 use crate::command_canonicalization::canonicalize_command_for_approval;
+use crate::exec_policy::DELETION_APPROVAL_REASON;
 use crate::exec_policy::prompt_is_rejected_by_policy;
 use crate::guardian::GuardianNetworkAccessTrigger;
 use crate::guardian::GuardianReviewContext;
@@ -481,6 +482,9 @@ impl Session {
         action: ApprovalAction,
         ctx: ApprovalContext,
     ) -> Result<ReviewDecision, ToolError> {
+        // This reason is assigned by the native policy/patch classifier.
+        let deletion_requires_user =
+            ctx.approval_reason.as_deref() == Some(DELETION_APPROVAL_REASON);
         // Stdin that exceeds current permissions needs a fresh sandbox approval.
         // Strict review of ordinary input follows the same routing as ordinary exec.
         let policy = ctx.review_context.turn().approval_policy();
@@ -513,12 +517,18 @@ impl Session {
         )
         .await
         {
-            Some(PermissionRequestDecision::Allow) => ApprovalResolution {
-                decision: ReviewDecision::Approved,
-                source: ApprovalResolutionSource::Hook,
-            },
             Some(PermissionRequestDecision::Deny { message }) => ApprovalResolution {
                 decision: ReviewDecision::denied(message),
+                source: ApprovalResolutionSource::Hook,
+            },
+            Some(PermissionRequestDecision::Allow) | None if deletion_requires_user => {
+                ApprovalResolution {
+                    decision: self.request_user_approval(&action, &ctx).await,
+                    source: ApprovalResolutionSource::User,
+                }
+            }
+            Some(PermissionRequestDecision::Allow) => ApprovalResolution {
+                decision: ReviewDecision::Approved,
                 source: ApprovalResolutionSource::Hook,
             },
             None => self.request_reviewer_approval(action, &ctx).await,
@@ -692,6 +702,33 @@ impl Session {
                 ..
             } => {
                 let tool_name = "unified_exec";
+                if ctx.approval_reason.as_deref() == Some(DELETION_APPROVAL_REASON) {
+                    let decision = self
+                        .request_command_approval(
+                            ctx.review_context.turn(),
+                            ExecApprovalKind::Command,
+                            ctx.review_context.model_context(),
+                            ctx.call_id.clone(),
+                            None,
+                            Some(environment_id.clone()),
+                            command.clone(),
+                            cwd.clone(),
+                            ctx.approval_reason.clone(),
+                            None,
+                            None,
+                            additional_permissions.clone(),
+                            Some(vec![ReviewDecision::Approved, ReviewDecision::Abort]),
+                            None,
+                        )
+                        .await;
+                    // Do not accept a session/prefix decision from an old client.
+                    return match decision {
+                        ReviewDecision::Approved
+                        | ReviewDecision::Abort
+                        | ReviewDecision::Denied { .. } => decision,
+                        _ => ReviewDecision::Abort,
+                    };
+                }
                 let reason = ctx
                     .retry_reason
                     .clone()

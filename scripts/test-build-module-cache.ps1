@@ -166,7 +166,91 @@ try{
    $null=Register-ArtifactLifecycle $project 'run:consumer' run fixture complete $true @{payload=$member}
    $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$project,'--id','run:consumer')
    $inspection=Get-BuildCacheProjectInspection $cache $project
-   Assert ($inspection.status -eq 'ready-for-proof') 'Genuine catalog survives canonical finalization'
+   Assert ($inspection.status -eq 'ready-for-proof') ("Genuine catalog survives canonical finalization: "+($inspection|ConvertTo-Json -Depth 10 -Compress))
+   $catalogLock=Join-Path $project 'artifacts/maintenance/lifecycles/catalog.lock'
+   Assert (Test-Path $catalogLock) 'Canonical finalization preserves the stable OS lock file'
+   $heldCatalog=Start-ArtifactMaintenanceClient $project
+   try{Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Occupied OS catalog lease blocks retirement inspection'}
+   finally{$null=Send-ArtifactMaintenanceCommand $heldCatalog @{operation='release'};$heldCatalog.Process.StandardInput.Close();$heldCatalog.Process.WaitForExit();Assert ($heldCatalog.Process.ExitCode -eq 0) 'Inspection fixture lease exits successfully';$heldCatalog.Process.Dispose()}
+   $stableLockBytes=[IO.File]::ReadAllBytes($catalogLock)
+   try{[IO.File]::WriteAllText($catalogLock,'{"schema":1}');Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Legacy catalog marker is not mistaken for an idle stable lease'}
+   finally{[IO.File]::WriteAllBytes($catalogLock,$stableLockBytes)}
+   $reservationControls=Join-Path $project 'artifacts/maintenance/lifecycles/reservations'
+   New-Item -ItemType Directory $reservationControls|Out-Null
+   $unknownControl=Join-Path $reservationControls 'unknown.json';Set-Content $unknownControl '{}'
+   try{Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Unresolved reservation controls protect an otherwise empty catalog';Assert (Test-Path $unknownControl) 'Inspection preserves unresolved reservation evidence'}
+   finally{Remove-Item -LiteralPath $unknownControl;Remove-Item -LiteralPath $reservationControls}
+   $afterLease=Get-BuildCacheProjectInspection $cache $project
+   Assert ($afterLease.status -eq 'ready-for-proof' -and $afterLease.catalogSha256 -ceq $inspection.catalogSha256) 'Validated lease metadata renewal preserves semantic catalog identity'
+   # Exercise immutable controls emitted by the real owner, rather than fabricated idle markers.
+   $settledId='run:inspection-terminal';$settledMember=Join-Path $project 'artifacts/inspection-terminal'
+   $null=Register-ArtifactLifecycle -ProjectRoot $project -Id $settledId -Kind run -Owner fixture -State complete -MembershipComplete $true -Members @{payload=$settledMember} -Generated -ProtectionKnown
+   $terminalClient=Start-ArtifactMaintenanceClient $project
+   try{
+     $null=Send-ArtifactMaintenanceCommand $terminalClient @{operation='reserve';ids=@($settledId)}
+     $null=Send-ArtifactMaintenanceCommand $terminalClient @{operation='releaseCatalog'}
+     $outcomes=@(@{id=$settledId;status='deleted';members=@(@{path=$settledMember;status='deleted';remaining=$false})})
+     $terminalProof=Save-ArtifactCleanupEvidence $project @{groups=@(@{members=@(@{path=$settledMember})})} $outcomes
+     $finished=Send-ArtifactMaintenanceCommand $terminalClient @{operation='finish';outcomes=$outcomes;evidenceRef=$terminalProof.path;evidenceSha=$terminalProof.sha256}
+     Assert ($finished.finished -eq $true -and -not @($finished.reservations_retained).Count) 'Native terminal receipt is synced before active fence removal'
+   }finally{$null=Send-ArtifactMaintenanceCommand $terminalClient @{operation='release'};$terminalClient.Process.StandardInput.Close();$terminalClient.Process.WaitForExit();Assert ($terminalClient.Process.ExitCode -eq 0) 'Terminal fixture native owner stopped';$terminalClient.Process.Dispose()}
+   $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$project,'--id',$settledId)
+   $settledInspection=Get-BuildCacheProjectInspection $cache $project
+   Assert ($settledInspection.status -eq 'ready-for-proof') ('Genuine terminal controls permit independent retirement proof: '+$settledInspection.reason)
+   $renewedInspection=Get-BuildCacheProjectInspection $cache $project
+   Assert ($renewedInspection.catalogSha256 -ceq $settledInspection.catalogSha256) 'Group lock diagnostic renewal preserves semantic receipt identity'
+   $terminalReceipt=@(Get-ChildItem -LiteralPath $reservationControls -Filter '*.terminal')[0].FullName
+   $terminalBytes=[IO.File]::ReadAllBytes($terminalReceipt)
+   try{
+     [IO.File]::WriteAllText($terminalReceipt,'{}')
+     Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Malformed terminal controls remain protective'
+   }finally{[IO.File]::WriteAllBytes($terminalReceipt,$terminalBytes)}
+   try{
+     [IO.File]::AppendAllText($terminalReceipt,' ')
+     $changedReceipt=Get-BuildCacheProjectInspection $cache $project
+     Assert ($changedReceipt.status -eq 'ready-for-proof' -and $changedReceipt.catalogSha256 -cne $settledInspection.catalogSha256) 'Immutable terminal bytes remain part of retirement proof identity'
+   }finally{[IO.File]::WriteAllBytes($terminalReceipt,$terminalBytes)}
+   $groupLock=@(Get-ChildItem -LiteralPath $reservationControls -Filter '*.lock')[0].FullName
+   $groupLockBytes=[IO.File]::ReadAllBytes($groupLock)
+   try{
+     [IO.File]::WriteAllText($groupLock,'{"schema":1}')
+     Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Malformed or legacy group lock controls require explicit recovery'
+   }finally{[IO.File]::WriteAllBytes($groupLock,$groupLockBytes)}
+   $activeControl=Join-Path $reservationControls (('a'*64)+'.json')
+   try{[IO.File]::WriteAllText($activeControl,'{}');Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Any active reservation publication remains protective'}
+   finally{Remove-Item -LiteralPath $activeControl -ErrorAction Stop}
+   $unknownControl=Join-Path $reservationControls 'unknown.control'
+   try{[IO.File]::WriteAllText($unknownControl,'unknown');Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Unknown non-JSON reservation controls remain protective'}
+   finally{Remove-Item -LiteralPath $unknownControl -ErrorAction Stop}
+   $catalogGate=Start-ArtifactMaintenanceClient $project
+   try{$heldControls=Start-BuildCacheReservationInspection $project $reservationControls}
+   finally{$null=Send-ArtifactMaintenanceCommand $catalogGate @{operation='release'};$catalogGate.Process.StandardInput.Close();$catalogGate.Process.WaitForExit();$catalogGate.Process.Dispose()}
+   try{Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Occupied native group leases block an otherwise settled catalog'}
+   finally{$null=Send-ArtifactMaintenanceCommand $heldControls @{operation='release'};$heldControls.Process.StandardInput.Close();$heldControls.Process.WaitForExit();Assert ($heldControls.Process.ExitCode -eq 0) 'Held group inspection leases released';$heldControls.Process.Dispose()}
+   # Recovery uses a directly owned native child. Wait for its close event and
+   # the supervising Node process exit; PID lookup alone is not stop evidence.
+   $recoveredId='run:inspection-recovered';$recoveredMember=Join-Path $project 'artifacts/inspection-recovered'
+   $null=Register-ArtifactLifecycle -ProjectRoot $project -Id $recoveredId -Kind run -Owner fixture -State complete -MembershipComplete $true -Members @{payload=$recoveredMember} -Generated -ProtectionKnown
+   $crashSource='const path=require("node:path"),assert=require("node:assert/strict"),{spawn}=require("node:child_process"),{createInterface}=require("node:readline"),binary=require(process.argv[1]).resolveMaintenanceOwner();const child=spawn(binary,["--lease",path.join(process.argv[2],"artifacts/maintenance/lifecycles/catalog.lock"),"--operation","test.inspect-recovery","--wait-ms","0","--parent-pid",String(process.pid)],{stdio:["pipe","pipe","pipe"],windowsHide:true});let result,stage=0,error,stderr="";const fail=e=>{error=e;child.stdin.destroy();child.kill();};const timer=setTimeout(()=>fail(Error("Owned native helper close timeout")),10000);child.on("error",fail);child.stderr.on("data",b=>{stderr=(stderr+b).slice(0,4096);});createInterface({input:child.stdout}).on("line",line=>{try{assert(Buffer.byteLength(line)<1048576);const packet=JSON.parse(line);assert.equal(packet.ok,true,packet.error);assert.equal(packet.id,stage);if(stage++===0){assert.equal(packet.result.pid,child.pid);child.stdin.write(JSON.stringify({id:1,operation:"reserve_producers",records:[{id:process.argv[3],revision:1}]})+"\n");}else{assert.equal(stage,2);result=packet.result;assert.equal(result.observed[0].fence.lease_owner.pid,child.pid);child.stdin.end();}}catch(e){fail(e);}});child.on("close",(code,signal)=>{clearTimeout(timer);try{if(error)throw error;assert.equal(code,0,stderr);assert.equal(signal,null);assert.equal(stage,2);assert(result);process.stdout.write(JSON.stringify(result));}catch(e){console.error(e);process.exitCode=1;}});'
+   $node=(Get-Command node -CommandType Application|Select-Object -First 1).Source
+   $crashed=@(& $node -e $crashSource (Join-Path $PSScriptRoot 'maintenance-owner-config.cjs') $project $recoveredId)
+   Assert ($LASTEXITCODE -eq 0) 'Owned native helper close and supervising producer exit observed after real reservation publication'
+   $activeFiles=@(Get-ChildItem -LiteralPath $reservationControls -Filter '*.json');Assert ($activeFiles.Count -eq 1) 'Exactly one known fixture reservation remains active'
+   $stopProof=Join-Path $project 'artifacts/maintenance/evidence/inspection-recovery.json'
+   $recoveryRequest=Join-Path $project 'artifacts/maintenance/evidence/inspection-recovery-request.json'
+   # The native protocol compares lowercase raw SHA and the exact JSON fence.
+   # The cache hash helper returns uppercase, and PowerShell date conversion can
+   # alter producer timestamp strings. Preserve the native JSON through Node.
+   $prepareRecovery='const fs=require("node:fs"),crypto=require("node:crypto"),assert=require("node:assert/strict"),[active,proofPath,requestPath,id,observer]=process.argv.slice(1);const hash=bytes=>crypto.createHash("sha256").update(bytes).digest("hex"),raw=fs.readFileSync(active),fence=JSON.parse(raw),original=JSON.parse(observer).observed.find(item=>item.id===id);assert(original,"Exact acquired fixture observer required");assert.deepEqual(fence,original.fence,"Reservation changed after independently observed helper stop");const sha=hash(raw),proof=Buffer.from(JSON.stringify({id,producer_stopped_verified:true,process_tree_stopped_verified:true,reservation_sha256:sha,lease_owner:fence.lease_owner})+"\n");fs.writeFileSync(proofPath,proof,{flag:"wx"});fs.writeFileSync(requestPath,JSON.stringify({operation:"recover_reservation",id,producer_stopped_verified:true,reason:"Fixture-owned producer and bounded native helper tree stopped after EOF",expected_sha256:sha,token:fence.token,fence,evidence_ref:proofPath,evidence_sha256:hash(proof)}),{flag:"wx"});'
+   $null=& $node -e $prepareRecovery $activeFiles[0].FullName $stopProof $recoveryRequest $recoveredId ($crashed -join "`n")
+   Assert ($LASTEXITCODE -eq 0) 'Recovery request pins unchanged native fence, token and lowercase raw hashes'
+   $ownerBinary=(& $node -e 'process.stdout.write(require(process.argv[1]).resolveMaintenanceOwner())' (Join-Path $PSScriptRoot 'maintenance-owner-config.cjs'))
+   Assert ($LASTEXITCODE -eq 0) 'Frozen maintenance owner resolves for fixture recovery'
+   $null=& $ownerBinary --project-root $project --request $recoveryRequest
+   Assert ($LASTEXITCODE -eq 0) 'Real native reservation recovery emits immutable receipt without changing historical outcome'
+   $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$project,'--id',$recoveredId)
+   $inspection=Get-BuildCacheProjectInspection $cache $project
+   Assert ($inspection.status -eq 'ready-for-proof' -and @(Get-ChildItem -LiteralPath $reservationControls -Filter '*.recovered').Count -eq 1) ('Genuine recovered controls permit independent retirement proof: '+$inspection.reason)
    $evidence=Join-Path $owner 'retirement-proof.json'
    $proof=@{schema=1;project=$project;registry_sha256=$inspection.registrySha256;catalog_sha256=$inspection.catalogSha256;producer_stopped_verified=$true;consumers_released_verified=$true;installations_released_verified=$true;rollback_released_verified=$true;reason='Fixture producer and all consumers independently closed'}
    $proof|ConvertTo-Json|Set-Content $evidence
@@ -284,7 +368,7 @@ try{
   try {
    (Get-Item -LiteralPath $blockedFile).Attributes=$originalAttributes -bor [IO.FileAttributes]::ReadOnly
    $result=Remove-BuildModuleEntry $cache providers $entry.Key $entry.Path
-   Assert ($result.status -eq 'partial') 'ReadOnly payload deletion reports partial failure'
+   Assert ($result.status -eq 'partial') ("ReadOnly payload deletion reports partial failure: " + ($result|ConvertTo-Json -Depth 15 -Compress))
    Assert ((Test-Path $blockedFile) -and (Test-Path $log) -and (Test-Path (Join-Path $entry.Path 'owner.json')) -and (Test-Path (Join-Path $entry.Path 'cache.json'))) 'Payload failure preserves raw logs and control receipts'
   } finally {
    # This test created this single-link file; restore its exact original flags
@@ -312,6 +396,15 @@ try{
   $report=@(Remove-OldBuildModuleCaches $cache -Module providers)
   $row=@($report|Where-Object path -EQ $entry.Path)[0]
   Assert ($row.deletedBytes -eq $expected -and $row.deletedItemCount -eq 1 -and $row.cleanupComplete -and $row.absent) 'Deletion report counts actual removed entry bytes and verified absence'
+  $legacyKey='0'*64;$legacyPath=Join-Path $cache.Root "providers/$legacyKey"
+  New-Item -ItemType Directory $legacyPath|Out-Null
+  @{schema=1;module='providers';key=$legacyKey}|ConvertTo-Json|Set-Content (Join-Path $legacyPath 'owner.json')
+  $legacyPayload=Join-Path $legacyPath 'payload.txt';Set-Content $legacyPayload 'unconfirmed legacy fixture'
+  $legacyRecord=Register-ArtifactLifecycle -ProjectRoot $cache.Owner -Id "run:module-cache:providers:$legacyKey" -Kind run -Owner 'module-build-cache' -State pending -MembershipComplete $false -Members @{'cache-entry'=$legacyPath}
+  $legacyRegistry=Join-Path $cache.Owner ('artifacts/maintenance/lifecycles/'+[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($legacyRecord.id))).ToLowerInvariant()+'.json')
+  $legacyBefore=Get-BuildModuleFileHash $legacyRegistry
+  try{Remove-BuildModuleEntry $cache providers $legacyKey $legacyPath -Retry|Out-Null;throw 'Expected unknown legacy ownership guard'}catch{Assert ($_.Exception.Message -match 'Unconfirmed module cache') 'Retry preserves unconfirmed legacy ownership/protection'}
+  Assert ((Test-Path $legacyPayload) -and (Get-BuildModuleFileHash $legacyRegistry) -eq $legacyBefore) 'Unknown legacy payload and lifecycle metadata remain unchanged'
  }
  Test-ModuleDeletionOrder
  if($CleanupOnly){Write-Output 'Production module cleanup: ReadOnly payload preserves logs/receipts; locked log follows payload and preserves receipts; retries verify absence; exit=0';return}

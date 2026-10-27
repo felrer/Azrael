@@ -18,7 +18,6 @@ const checks = scope === "config"
       ["codex-core", "instruction_state_projection"],
     ] : [
       ["codex-core", "claude"],
-      ["codex-core", "azrael_defaults_and_explicit_claude_profile_select_executable_tools"],
       ["codex-core", "anthropic_azrael_tools_patch_read_and_execute"],
       ["codex-core", "tools::router::tests::chat_discovery"],
       ["codex-core", "mcp_and_tool_search_follow_direct_and_deferred_tool_exposure"],

@@ -64,7 +64,39 @@ pub(crate) fn lock_request<'a>(
                 .get(string(&request["refresh_group"], "id")?)
                 .ok_or("unknown lifecycle group")?)?;
         }
+        Some("register") if request.get("group").is_some() => {
+            let incoming = &request["group"];
+            let previous = state.groups.get(string(incoming, "id")?);
+            if let Some(previous) = previous {
+                add(previous)?;
+            }
+            let mut effective = incoming.clone();
+            for field in ["membership_source", "membership_source_format"] {
+                if effective.get(field).is_none() {
+                    if let Some(value) = previous.and_then(|old| old.get(field)) {
+                        effective[field] = value.clone();
+                    }
+                }
+            }
+            add(&effective)?;
+        }
         _ => {}
+    }
+    if matches!(
+        request["operation"].as_str(),
+        Some("apply" | "register" | "begin_run")
+    ) {
+        let source = root.join("artifacts/maintenance/lifecycles");
+        paths::check(root, &source, auth)?;
+        if !source.exists() {
+            auth(
+                source.parent().ok_or("missing catalog parent")?,
+                AccessMode::Write,
+            )?;
+            auth(&source, AccessMode::Write)?;
+            std::fs::create_dir(&source).map_err(|e| e.to_string())?;
+        }
+        sources.insert(source);
     }
     let mut locks = Vec::new();
     for source in sources {
@@ -85,10 +117,8 @@ pub(crate) fn lock_request<'a>(
 }
 fn check_lock(root: &Path, source: &Path, auth: Auth<'_>) -> Result<(), String> {
     let path = source.join("catalog.lock");
-    if !auth.catalog_locks.borrow().contains(&path)
-        && paths::checked_metadata(root, &path, auth)?.is_some()
-    {
-        return Err("producer catalog writer is active".into());
+    if !auth.catalog_locks.borrow().contains(&path) {
+        crate::lock_recovery::check_available(root, &path, auth)?;
     }
     Ok(())
 }
@@ -111,6 +141,16 @@ fn names(root: &Path, source: &Path, auth: Auth<'_>) -> Result<Vec<PathBuf>, Str
     let mut names = Vec::new();
     for entry in std::fs::read_dir(source).map_err(|e| e.to_string())? {
         let path = entry.map_err(|e| e.to_string())?.path();
+        if path == root.join("artifacts/maintenance/lifecycles/reservations") {
+            paths::check(root, &path, auth)?;
+            if !std::fs::symlink_metadata(&path)
+                .map_err(|e| e.to_string())?
+                .is_dir()
+            {
+                return Err("invalid reservation directory".into());
+            }
+            continue;
+        }
         // Individual JSON records may be unavailable. Check each through read(),
         // independently of the directory and its other control entries.
         if path
@@ -179,7 +219,7 @@ fn read(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, RecordReadE
     }
     Ok(bytes)
 }
-fn validate(root: &Path, record: &Value) -> Result<Vec<PathBuf>, String> {
+pub(crate) fn validate(root: &Path, record: &Value) -> Result<Vec<PathBuf>, String> {
     for key in ["id", "kind", "owner", "state"] {
         nonblank(record, key)?;
     }
@@ -255,6 +295,31 @@ fn validate(root: &Path, record: &Value) -> Result<Vec<PathBuf>, String> {
     {
         nonblank(reference, "id")?;
         nonblank(reference, "reason")?;
+        if let Some(member_paths) = reference.get("member_paths") {
+            let member_paths = member_paths
+                .as_array()
+                .filter(|paths| !paths.is_empty())
+                .ok_or("invalid reference member_paths")?;
+            for path in member_paths {
+                let path = Path::new(path.as_str().ok_or("invalid reference member path")?);
+                if !path.is_absolute() {
+                    return Err("reference member path must be absolute".into());
+                }
+                paths::resolve(root, path)?;
+            }
+        }
+        if reference
+            .get("target_revision")
+            .is_some_and(|v| v.as_u64().is_none())
+        {
+            return Err("invalid reference target_revision".into());
+        }
+        if reference
+            .get("target_version")
+            .is_some_and(|v| !v.is_null() && v.as_str().is_none_or(str::is_empty))
+        {
+            return Err("invalid reference target_version".into());
+        }
     }
     Ok(member_paths)
 }
@@ -349,6 +414,28 @@ fn relevant(records: &BTreeMap<String, Value>, id: &str) -> Vec<Value> {
         })
         .map(|(_, record)| canonical(record))
         .collect()
+}
+
+pub(crate) fn reservation_fence(
+    root: &Path,
+    source: &Path,
+    id: &str,
+    auth: Auth<'_>,
+) -> Result<Value, String> {
+    let records = catalog(root, source, id, auth)?;
+    if !records.contains_key(id) {
+        return Err("reserved producer record missing".into());
+    }
+    Ok(json!(hash(&relevant(&records, id))?))
+}
+
+pub(crate) fn producer_records(
+    root: &Path,
+    source: &Path,
+    id: &str,
+    auth: Auth<'_>,
+) -> Result<BTreeMap<String, Value>, String> {
+    catalog(root, source, id, auth)
 }
 
 #[cfg(test)]
@@ -531,6 +618,59 @@ mod catalog_tests {
         assert_eq!(records.len(), 2);
         assert_eq!(records["consumer"]["references"][0]["id"], "owner");
     }
+
+    #[test]
+    fn scoped_references_project_only_selected_member_and_stale_pins_protect_group() {
+        let (root, source, mut owner) = fixture();
+        let selected = owner["members"][0]["path"].clone();
+        let other = root.path().join("artifacts/payload/other");
+        owner["revision"] = json!(2);
+        owner["members"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"path":other,"role":"artifact"}));
+        std::fs::write(
+            source.join("owner.json"),
+            serde_json::to_vec(&owner).unwrap(),
+        )
+        .unwrap();
+        let mut consumer = owner.clone();
+        consumer["id"] = json!("consumer");
+        consumer["members"] =
+            json!([{"path":root.path().join("artifacts/consumer"),"role":"artifact"}]);
+        consumer["references"] = json!([{"id":"owner","reason":"selected input","member_paths":[selected],"target_revision":1}]);
+        std::fs::write(
+            source.join("consumer.json"),
+            serde_json::to_vec(&consumer).unwrap(),
+        )
+        .unwrap();
+        let items = BTreeMap::from([
+            (
+                "selected".to_owned(),
+                json!({"path":selected,"role":"artifact","lifecycle_role":"artifact","owner":"test"}),
+            ),
+            (
+                "other".to_owned(),
+                json!({"path":other,"role":"artifact","lifecycle_role":"artifact","owner":"test"}),
+            ),
+        ]);
+        let authorize = |_: &Path, _| Ok(());
+        let auth = crate::Context::new(&authorize);
+        let result = observe(root.path(), &source, &owner, &items, &auth).unwrap();
+        assert_eq!(
+            result["member_references"]["selected"],
+            json!(["consumer:selected input"])
+        );
+        assert_eq!(result["member_references"]["other"], json!([]));
+        assert_eq!(result["references"], json!(["consumer:selected input"]));
+        assert!(
+            result["blockers"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|blocker| blocker.as_str().unwrap().contains("reference pin differs"))
+        );
+    }
 }
 
 fn lifecycle_role(role: &str) -> &'static str {
@@ -608,6 +748,7 @@ pub(crate) fn observe(
     auth: Auth<'_>,
 ) -> Result<Value, String> {
     let id = string(group, "id")?;
+    crate::reservations::check_group(root, id, auth)?;
     // Revalidate the catalog to catch new consumers and changes to earlier
     // records. Changes to other validated producers do not alter this group.
     let first = catalog(root, source, id, auth)?;
@@ -672,6 +813,10 @@ pub(crate) fn observe(
         );
     }
     let mut references = Vec::new();
+    let mut member_references = items
+        .keys()
+        .map(|id| (id.clone(), Vec::<Value>::new()))
+        .collect::<BTreeMap<_, _>>();
     for (consumer_id, record) in &records {
         let inbound = record["references"]
             .as_array()
@@ -682,10 +827,49 @@ pub(crate) fn observe(
                 .ok_or("invalid producer references")?
             {
                 if reference["id"] == id {
-                    references.push(json!(format!(
-                        "{consumer_id}:{}",
-                        string(reference, "reason")?
-                    )));
+                    let description =
+                        json!(format!("{consumer_id}:{}", string(reference, "reason")?));
+                    references.push(description.clone());
+                    let scope = reference.get("member_paths").and_then(Value::as_array);
+                    if reference
+                        .get("target_revision")
+                        .is_some_and(|revision| *revision != owner["revision"])
+                        || reference
+                            .get("target_version")
+                            .is_some_and(|version| *version != owner["version"])
+                    {
+                        blockers.push(format!(
+                            "producer reference pin differs from current owner: {consumer_id}"
+                        ));
+                    }
+                    if let Some(scope) = scope {
+                        if scope.iter().any(|selected| {
+                            !projected.iter().any(|(path, _)| {
+                                selected.as_str().is_some_and(|selected| {
+                                    paths::within(path, Path::new(selected))
+                                        && paths::within(Path::new(selected), path)
+                                })
+                            })
+                        }) {
+                            blockers.push(format!("producer reference member scope differs from current owner: {consumer_id}"));
+                        }
+                    }
+                    for (member_id, item) in items {
+                        let member_path = Path::new(string(item, "path")?);
+                        if scope.is_none_or(|scope| {
+                            scope.iter().any(|selected| {
+                                selected.as_str().is_some_and(|selected| {
+                                    paths::within(member_path, Path::new(selected))
+                                        && paths::within(Path::new(selected), member_path)
+                                })
+                            })
+                        }) {
+                            member_references
+                                .get_mut(member_id)
+                                .ok_or("missing reference projection")?
+                                .push(description.clone());
+                        }
+                    }
                 }
             }
             blockers.push(format!(
@@ -695,6 +879,6 @@ pub(crate) fn observe(
     }
     Ok(
         json!({"status":"measured","identity":hash(&relevant(&records, id))?,"blockers":blockers,
-        "owner":owner,"membership_matches":membership_matches,"settled":settled,"references":references}),
+        "owner":owner,"membership_matches":membership_matches,"settled":settled,"references":references,"member_references":member_references}),
     )
 }

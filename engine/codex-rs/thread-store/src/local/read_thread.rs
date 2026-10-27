@@ -230,17 +230,39 @@ pub(super) async fn resolve_requested_rollout_path(
         }
         _ => {}
     }
-    let Some(path) = codex_rollout::existing_rollout_path(path.as_path()).await else {
-        return Err(ThreadStoreError::InvalidRequest {
-            message: format!(
-                "failed to resolve rollout path `{}`: file does not exist",
-                path.display()
-            ),
-        });
-    };
-    std::fs::canonicalize(path.as_path()).map_err(|err| ThreadStoreError::InvalidRequest {
-        message: format!("failed to resolve rollout path `{}`: {err}", path.display()),
-    })
+    // Compression can replace the physical file after lookup, before canonicalization.
+    // Resolve again from the requested path so either representation remains usable.
+    let mut retries_remaining = 3;
+    loop {
+        let resolved_path = match codex_rollout::existing_rollout_path(path.as_path()).await {
+            Some(path) => path,
+            None if retries_remaining > 0 => {
+                retries_remaining -= 1;
+                continue;
+            }
+            None => {
+                return Err(ThreadStoreError::InvalidRequest {
+                    message: format!(
+                        "failed to resolve rollout path `{}`: file does not exist",
+                        path.display()
+                    ),
+                });
+            }
+        };
+        match std::fs::canonicalize(&resolved_path) {
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound && retries_remaining > 0 => {
+                retries_remaining -= 1;
+            }
+            result => {
+                return result.map_err(|err| ThreadStoreError::InvalidRequest {
+                    message: format!(
+                        "failed to resolve rollout path `{}`: {err}",
+                        resolved_path.display()
+                    ),
+                });
+            }
+        }
+    }
 }
 
 async fn attach_history_if_requested(
@@ -589,6 +611,38 @@ mod tests {
     use crate::local::test_support::write_session_file;
     use crate::local::test_support::write_session_file_with_fork;
     use crate::local::test_support::write_session_file_with_history_mode;
+
+    #[tokio::test]
+    async fn resolve_requested_rollout_path_accepts_compressed_logical_paths() {
+        let home = TempDir::new().expect("temp dir");
+        let store = LocalThreadStore::new(test_config(home.path()), /*state_db*/ None);
+        let relative = PathBuf::from("sessions/rollout-test.jsonl");
+        let plain = home.path().join(&relative);
+        let compressed = plain.with_extension("jsonl.zst");
+        std::fs::create_dir_all(compressed.parent().expect("parent")).expect("create sessions");
+        std::fs::write(&compressed, b"compressed path lookup fixture").expect("write compressed");
+        let expected = std::fs::canonicalize(&compressed).expect("canonical compressed path");
+        for requested in [relative, plain, compressed] {
+            assert_eq!(
+                resolve_requested_rollout_path(&store, requested)
+                    .await
+                    .expect("resolve compressed rollout"),
+                expected,
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn resolve_requested_rollout_path_rejects_missing_and_directory_paths() {
+        let home = TempDir::new().expect("temp dir");
+        let store = LocalThreadStore::new(test_config(home.path()), /*state_db*/ None);
+        for requested in [home.path().join("missing.jsonl"), home.path().to_path_buf()] {
+            assert!(matches!(
+                resolve_requested_rollout_path(&store, requested).await,
+                Err(ThreadStoreError::InvalidRequest { .. })
+            ));
+        }
+    }
 
     #[tokio::test]
     async fn read_thread_waits_for_durable_session_meta_under_live_writer_lock() {

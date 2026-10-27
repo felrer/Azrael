@@ -55,7 +55,9 @@ fn run() -> Result<Value, String> {
             .map_err(|e| e.to_string())?;
     if !matches!(
         request["operation"].as_str(),
-        Some("inventory" | "register" | "review" | "apply" | "recover_lock")
+        Some(
+            "inventory" | "register" | "review" | "apply" | "recover_lock" | "recover_reservation"
+        )
     ) {
         return Err(
             "owner runner supports only inventory/register/review/apply/recover_lock".into(),
@@ -73,7 +75,41 @@ fn run() -> Result<Value, String> {
     })
 }
 
+fn lease_mode() -> Result<(), String> {
+    let args = std::env::args_os().skip(1).collect::<Vec<_>>();
+    if args.len() != 8
+        || args[0] != "--lease"
+        || args[2] != "--operation"
+        || args[4] != "--wait-ms"
+        || args[6] != "--parent-pid"
+    {
+        return Err("usage: maintenance_owner --lease ABS_LOCK --operation BOUNDED --wait-ms 0..5000 --parent-pid PID".into());
+    }
+    let operation = args[3].to_str().ok_or("invalid operation encoding")?;
+    let wait_ms = args[5]
+        .to_str()
+        .ok_or("invalid wait")?
+        .parse::<u64>()
+        .map_err(|_| "invalid wait")?;
+    let parent_pid = args[7]
+        .to_str()
+        .ok_or("invalid parent PID")?
+        .parse::<u32>()
+        .map_err(|_| "invalid parent PID")?;
+    azrael_project_maintenance::lease::run(&PathBuf::from(&args[1]), operation, wait_ms, parent_pid)
+}
+
 fn main() {
+    if std::env::args_os()
+        .nth(1)
+        .is_some_and(|arg| arg == "--lease")
+    {
+        if let Err(error) = lease_mode() {
+            eprintln!("{}", serde_json::json!({"error":error}));
+            std::process::exit(1);
+        }
+        return;
+    }
     match run() {
         Ok(result) => println!("{}", result),
         Err(error) => {

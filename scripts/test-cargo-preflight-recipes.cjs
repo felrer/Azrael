@@ -38,7 +38,7 @@ test('session restoration recipe preserves all recovery filters and preflight ga
   const result = recipesForCheck(config, check('check-task-recovery-native'));
   assert.deepEqual(result.gaps, []);
   const filters = [
-    'session_restore_', 'host_approval', 'async_question', 'session::accepted_user_inputs::tests',
+    'host_approval', 'async_question', 'session::accepted_user_inputs::tests',
     'context_manager::history::tests::normalize_',
     'context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history',
     'tasks::panic_tests::', 'tasks::tests::',
@@ -135,7 +135,7 @@ test('deletion approval preparation preserves the four reviewed native command s
   assert.deepEqual(result.gaps, []);
   assert.deepEqual(result.cargoPreparations.map(x => x.args), [
     ['test', '-p', 'codex-shell-command', '--lib', 'command_safety::', '--locked', '--offline', '--', '--test-threads=1'],
-    ...['exec_policy::tests::', 'deletion_approval_', 'apply_patch::tests::'].map(filter =>
+    ...['exec_policy::tests::', 'tools::approvals::tests::deletion_approval_', 'apply_patch::tests::'].map(filter =>
       ['test', '-p', 'codex-core', '--lib', filter, '--locked', '--offline', '--', '--test-threads=1']),
   ]);
   assert.ok(result.cargoPreparations.every(x => x.isolateHostEnvironment === true));

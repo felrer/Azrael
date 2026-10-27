@@ -13,6 +13,7 @@ const candidates = [
 const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const MATRIX_FILE = "scripts/test-asset-transform-cache.cjs";
+const PINNED_UI_ROOT = "artifacts/upstream-ui/26.1007.21434";
 const matrixTestName = asset => `pinned transform/cache fixture: ${asset}`;
 
 // Reuse the product's closed path gates. Missing gates never narrow coverage.
@@ -39,6 +40,12 @@ function omittedMatrixCases(changed) {
   const affected = new Set();
   for (const file of changed) {
     if (/^(?:docs|work)\//.test(file) || /^(?:README|AGENTS)\.md$/.test(file)) continue;
+    if (file.startsWith(`${PINNED_UI_ROOT}/`)) {
+      const asset = file.slice(PINNED_UI_ROOT.length + 1);
+      if (!assets.includes(asset)) return [];
+      affected.add(asset);
+      continue;
+    }
     const rule = file.startsWith("scripts/") ? file.slice("scripts/".length) : null;
     const targets = rule && /^inject-[^/]+\.cjs$/.test(rule) && rulePaths[rule];
     if (!Array.isArray(targets) || !targets.length || targets.some(asset => !assets.includes(asset))) return [];
@@ -46,7 +53,7 @@ function omittedMatrixCases(changed) {
   }
   return assets.filter(asset => !affected.has(asset)).map(asset => ({ file: MATRIX_FILE,
     test: matrixTestName(asset), reason: affected.size
-      ? "Pinned fixture is outside the changed injectors' closed asset targets"
+      ? "Pinned fixture is outside the changed injectors' closed targets and known pinned asset paths"
       : "Pinned transform/cache matrix is unrelated to documentation-only changes" }));
 }
 
@@ -69,4 +76,4 @@ function planSourceTests({ files, changedPaths = [], exhaustive = false }) {
   return { files: selected, skipPattern: names.length ? `^(?:${names.join("|")})$` : "", omitted };
 }
 
-module.exports = { planSourceTests, pinnedAssetMatrix, matrixTestName };
+module.exports = { planSourceTests, pinnedAssetMatrix, matrixTestName, PINNED_UI_ROOT };

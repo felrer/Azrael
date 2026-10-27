@@ -81,7 +81,7 @@ function inspectSourceFixtures({ root, files, env = process.env }) {
   const host = has('scripts/test-instruction-library-host.cjs');
   const management = host || has('extensions/azrael-ex/test/instructionManagement.test.ts') || has('extensions/azrael-ex/test/instructionMigrationFlow.test.ts');
   const service = host || has('extensions/azrael-ex/test/instructionService.test.ts');
-  if (management) fixtureRoot('instruction.test-root', env.AZRAEL_INSTRUCTION_TEST_ROOT);
+  if (management || service) fixtureRoot('instruction.test-root', env.AZRAEL_INSTRUCTION_TEST_ROOT);
   if (service) {
     // Host tests build the current maintained library in their owned fixture root.
     json('instruction.release-metadata', path.join(root, 'instructions/azrael-environment.json'));

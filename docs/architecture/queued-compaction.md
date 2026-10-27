@@ -245,6 +245,17 @@ terminal errors, other turns and other items stay. Repeated starts keep the
 existing manual/automatic source without consuming a later pending manual request.
 No public protocol or stored context format changes.
 
+### Local compaction completion (target)
+
+Each local compaction response attempt buffers output until `response.completed`.
+Failed, incomplete or disconnected attempts leave no partial summary in live or
+persisted conversation history; retries and resumed sessions retain the original
+messages and tool results. Successful non-post-turn output retains compaction
+metadata and emits raw item notifications before the response-completed
+notification. Post-turn summaries keep their existing success-only installation.
+This shared contract applies to Windows x64, Linux x64 and macOS ARM64; native
+verification remains separate for each target.
+
 A cached Responses WebSocket connection counts as closed when its command channel
 closes or its background pump terminates, even if the stream wrapper still exists;
 the client then reconnects, clearing connection-local continuation state and

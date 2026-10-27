@@ -246,6 +246,123 @@ function extensionOwners(root) {
   return { owners, tests: tests.map(file => normalize(path.relative(root, file))), extension };
 }
 
+// Parse executable syntax rather than examples embedded in comments or strings.
+// This is deliberately a closed expression evaluator, never execution of a module.
+function scriptImports(source, filename) {
+  const ts = require(require.resolve("typescript", { paths: [path.join(ROOT, "extensions/azrael-ex")] }));
+  const tree = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const bindings = new Map(), writes = new Set(), imports = [], dynamic = [];
+  const external = Symbol("external module"), resolving = new Set();
+  const bind = (name, declaration) => {
+    if (ts.isIdentifier(name)) {
+      if (!bindings.has(name.text)) bindings.set(name.text, []);
+      bindings.get(name.text).push(declaration);
+    } else if (name && (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name))) {
+      for (const element of name.elements) if (ts.isBindingElement(element)) bind(element.name, null);
+    }
+  };
+  const scan = node => {
+    if (ts.isVariableDeclaration(node)) bind(node.name, node);
+    else if (ts.isParameter(node) || ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node) || ts.isBindingElement(node)) {
+      if (node.name) bind(node.name, null);
+    } else if (ts.isImportClause(node) || ts.isImportSpecifier(node) || ts.isNamespaceImport(node)) {
+      if (node.name) bind(node.name, null);
+    }
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment) {
+      const assigned = child => { if (ts.isIdentifier(child)) writes.add(child.text); ts.forEachChild(child, assigned); };
+      assigned(node.left);
+    }
+    if ((ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) &&
+        [ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(node.operator) && ts.isIdentifier(node.operand)) writes.add(node.operand.text);
+    ts.forEachChild(node, scan);
+  };
+  scan(tree);
+  const plainRequire = node => ts.isIdentifier(node) && node.text === "require" && !bindings.has("require") && !writes.has("require");
+  const combine = (left, right, operation) => {
+    if (!left || !right || left.length * right.length > 32 || [...left, ...right].includes(external)) return null;
+    return [...new Set(left.flatMap(a => right.map(b => operation(a, b))))];
+  };
+  const values = node => {
+    if (!node) return null;
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return [node.text];
+    if (ts.isParenthesizedExpression(node)) return values(node.expression);
+    if (ts.isIdentifier(node)) {
+      if (writes.has(node.text)) return null;
+      if (!bindings.has(node.text)) return node.text === "__dirname" ? [path.dirname(filename)] : node.text === "__filename" ? [filename] : null;
+      const declarations = bindings.get(node.text), declaration = declarations.length === 1 && declarations[0];
+      if (!declaration || !(declaration.parent.flags & ts.NodeFlags.Const) || resolving.has(declaration)) return null;
+      const scope = declaration.parent.parent.parent;
+      if (!scope || node.pos < scope.pos || node.end > scope.end) return null;
+      resolving.add(declaration);
+      const result = values(declaration.initializer);
+      resolving.delete(declaration);
+      return result;
+    }
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) return combine(values(node.left), values(node.right), (a, b) => a + b);
+    if (ts.isConditionalExpression(node)) {
+      const left = values(node.whenTrue), right = values(node.whenFalse);
+      return left && right && left.length + right.length <= 32 ? [...new Set([...left, ...right])] : null;
+    }
+    if (ts.isTemplateExpression(node)) {
+      let result = [node.head.text];
+      for (const span of node.templateSpans) result = combine(result, values(span.expression), (a, b) => a + b + span.literal.text);
+      return result;
+    }
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
+      const { expression: receiver, name } = node.expression;
+      if (plainRequire(receiver) && name.text === "resolve") {
+        const specifiers = values(node.arguments[0]);
+        if (!specifiers) return null;
+        if (node.arguments.length > 1 && specifiers.some(specifier => specifier !== external && (specifier.startsWith(".") || path.isAbsolute(specifier)))) return null;
+        return specifiers.map(specifier => {
+          if (specifier === external || (!specifier.startsWith(".") && !path.isAbsolute(specifier))) return external;
+          const target = path.resolve(path.dirname(filename), specifier);
+          try { return require.resolve(target); } catch { return target; }
+        });
+      }
+      // Only a unique immutable node:path binding grants path operations.
+      const declaration = ts.isIdentifier(receiver) && bindings.get(receiver.text);
+      const binding = declaration?.length === 1 && declaration[0];
+      const initializer = binding?.initializer;
+      if (binding && (binding.parent.flags & ts.NodeFlags.Const) && !writes.has(receiver.text) && initializer &&
+          receiver.pos >= binding.parent.parent.parent.pos && receiver.end <= binding.parent.parent.parent.end &&
+          ts.isCallExpression(initializer) && plainRequire(initializer.expression) &&
+          ["node:path", "path"].includes(initializer.arguments[0]?.text) && ["join", "resolve", "dirname"].includes(name.text)) {
+        if (name.text === "dirname") return values(node.arguments[0])?.map(value => value === external ? external : path.dirname(value)) || null;
+        let result = [""];
+        for (const argument of node.arguments) result = combine(result, values(argument), (a, b) => name.text === "join" ? path.join(a, b) : path.resolve(a || path.dirname(filename), b));
+        return result;
+      }
+    }
+    return null;
+  };
+  const collect = (argument, allowDynamic = true) => {
+    const resolved = values(argument);
+    if (resolved) {
+      for (const value of resolved) if (value !== external && (value.startsWith(".") || path.isAbsolute(value))) imports.push(value);
+    } else if (allowDynamic) {
+      // Keep the existing conservative prefix contract for genuinely open calls.
+      const text = argument?.getText(tree) || "";
+      const relative = text.match(/^["'`](\.{1,2}\/[^"'`$]*?)(?:["'`]|\$\{)/);
+      const prefix = relative ? path.resolve(path.dirname(filename), relative[1]) + (relative[1].endsWith("/") ? path.sep : "") : path.dirname(filename) + path.sep;
+      dynamic.push({ prefix, bounded: !!relative && relative[1] !== "./" && relative[1] !== "../" });
+    }
+  };
+  const visit = node => {
+    if (ts.isCallExpression(node)) {
+      if (plainRequire(node.expression) || node.expression.kind === ts.SyntaxKind.ImportKeyword) collect(node.arguments[0]);
+      else if (ts.isPropertyAccessExpression(node.expression) && plainRequire(node.expression.expression) && node.expression.name.text === "resolve") collect(node.arguments[0]);
+      else if (ts.isIdentifier(node.expression) && node.expression.text === "require") {
+        dynamic.push({ prefix: path.dirname(filename) + path.sep, bounded: false });
+      }
+    } else if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier) collect(node.moduleSpecifier);
+    ts.forEachChild(node, visit);
+  };
+  visit(tree);
+  if (tree.parseDiagnostics.length) dynamic.push({ prefix: path.dirname(filename) + path.sep, bounded: false });
+  return { imports, dynamic };
+}
+
 function scriptOwners(candidates, root, owners = new Map(), evidence = new Map()) {
   const dependencies = new Map();
   const dynamicOwners = [];
@@ -262,21 +379,12 @@ function scriptOwners(candidates, root, owners = new Map(), evidence = new Map()
         const filename = path.join(root, file);
         if (fs.existsSync(filename) && /\.(?:cjs|mjs|js)$/.test(file)) {
           const source = fs.readFileSync(filename, "utf8");
-          const specifiers = [];
-          for (const match of source.matchAll(/\b(?:require|import)\s*\(\s*([^)]*)/g)) {
-            const literal = match[1].match(/^(["'`])([^"'`]+)\1\s*$/);
-            if (literal && !literal[2].includes("${")) {
-              if (literal[2].startsWith(".")) specifiers.push(literal[2]);
-            } else {
-              // A prefix narrows possible inputs, but never proves a computed
-              // dependency complete. Variable-only calls have directory scope.
-              const relative = match[1].match(/^["'`](\.{1,2}\/[^"'`$]*?)(?:["'`]|\$\{)/);
-              const prefix = relative ? normalize(path.relative(root, path.resolve(path.dirname(filename), relative[1]))) + (relative[1].endsWith("/") ? "/" : "") : `${normalize(path.dirname(file))}/`;
-              if (!prefix.startsWith("../")) dynamic.push({ source: file, prefix, bounded: !!relative && relative[1] !== "./" && relative[1] !== "../" });
-            }
+          const parsed = scriptImports(source, filename);
+          for (const item of parsed.dynamic) {
+            const prefix = normalize(path.relative(root, item.prefix)) + (item.prefix.endsWith(path.sep) ? "/" : "");
+            if (!prefix.startsWith("../")) dynamic.push({ source: file, prefix, bounded: item.bounded });
           }
-          for (const match of source.matchAll(/\b(?:import|export)\s+(?:[^;\n]*?\s+from\s*)?["'](\.{1,2}\/[^"']+)["']/g)) specifiers.push(match[1]);
-          for (const specifier of specifiers) {
+          for (const specifier of parsed.imports) {
             let dependency = path.resolve(path.dirname(filename), specifier);
             try { dependency = require.resolve(dependency); } catch {
               // An unresolved literal still owns its deleted path.
@@ -298,8 +406,14 @@ function scriptOwners(candidates, root, owners = new Map(), evidence = new Map()
       }
     };
     visit(test);
-    // Declared dynamic feature inputs also retain their local helper dependencies.
-    for (const [source, tests] of owners) if (tests.has(test)) visit(source);
+    // Declared modules retain their helpers. Cache data retains its direct owner,
+    // but parsing data as executable code would invent a module dependency graph
+    // (for example, an upstream UI asset consumed as transformation input).
+    for (const [source, tests] of owners) if (tests.has(test)) {
+      const kinds = evidence.get(`${source}\0${test}`);
+      if (kinds?.has("manifest-data") && !kinds.has("manifest-owner") && !kinds.has("static-import")) continue;
+      visit(source);
+    }
   }
   return dynamicOwners;
 }

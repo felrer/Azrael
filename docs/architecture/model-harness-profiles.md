@@ -39,7 +39,7 @@ The template replaces model behavior; immutable runtime identity, permissions, d
 
 ## Tool and context isolation
 
-The registry applies profile selection before discovery and code-mode planning. The default Azrael tool profile keeps native tools on every provider, including direct Anthropic function calls. Explicit Claude tool selection replaces native equivalents in executable registry entries, schemas, search results and nested definitions. The Azrael tool profile excludes the compatible built-ins. Historical calls and discovered definitions cannot grant current execution authority. MCP/server namespaces remain distinct from reserved built-in names.
+The registry applies profile selection before discovery and code-mode planning. The default Azrael tool profile keeps native tools on every provider. Anthropic follows the common tool-mode resolver: an explicit model tool mode takes precedence, followed by the shared Code Mode features and existing availability fallback. User API models retain their direct function-call override. This source policy does not establish installed Anthropic Code Mode acceptance or reduced context usage. Explicit Claude tool selection replaces native equivalents in executable registry entries, schemas, search results and nested definitions. The Azrael tool profile excludes the compatible built-ins. Historical calls and discovered definitions cannot grant current execution authority. MCP/server namespaces remain distinct from reserved built-in names.
 
 | Compatible tool | Native responsibility |
 | --- | --- |

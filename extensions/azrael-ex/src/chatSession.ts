@@ -356,7 +356,7 @@ export class ChatSession extends EventEmitter {
       && params.threadId === this.state.threadId && params.turnId === this.state.turnId
       && this.verifiedFullAccessThreads.has(params.threadId as string)
       && this.fullAccessTurns.has(`${params.threadId}:${params.turnId}`)) {
-      if (kind && str(params.itemId)) { this.wire.respond(id, { decision: "accept" }); return; }
+      if (kind && str(params.itemId) && params.reason !== "File deletion requires user approval") { this.wire.respond(id, { decision: "accept" }); return; }
       if (method === "item/permissions/requestApproval" && str(params.itemId) && object(params.permissions)) {
         this.wire.respond(id, { permissions: params.permissions, scope: "turn" }); return;
       }

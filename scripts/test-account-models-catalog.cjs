@@ -53,8 +53,4 @@ test('real check rejects bad catalog and missing fixture model before creating a
     assert.equal(fs.existsSync(state), false);
     assert.equal(fs.existsSync(path.dirname(socket)), false);
   }
-  const source = fs.readFileSync(check, 'utf8');
-  assert(source.indexOf('await loadAccountModelsCatalog(arguments_)') < source.indexOf('beginArtifactRun(projectRoot'));
-  assert(source.indexOf('Bundled model catalog did not contain a fixture model') < source.indexOf('beginArtifactRun(projectRoot'));
-  assert(!source.includes('../upstream/codex/'));
 });

@@ -4,6 +4,66 @@ use codex_models_manager::model_info::model_info_from_slug;
 use codex_protocol::approvals::NetworkPolicyAmendment;
 use pretty_assertions::assert_eq;
 
+#[tokio::test]
+async fn deletion_approval_always_prompts_user_and_rejects_session_reuse() {
+    use codex_protocol::protocol::EventMsg;
+    let (session, turn, events) = make_session_and_context_with_rx().await;
+    *session.active_turn.lock().await = Some(crate::state::ActiveTurn::default());
+    for (index, decision) in [
+        ReviewDecision::Approved,
+        ReviewDecision::Abort,
+        ReviewDecision::ApprovedForSession,
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let mut review_context = GuardianReviewContext::from(&turn);
+        review_context.approval_policy = AskForApproval::Never;
+        review_context.approvals_reviewer = ApprovalsReviewer::AutoReview;
+        let ctx = ApprovalContext {
+            review_context,
+            cancellation_token: None,
+            call_id: format!("delete-{index}"),
+            tool_name: ToolName::plain("exec_command"),
+            strict_auto_review: true,
+            approval_reason: Some(DELETION_APPROVAL_REASON.to_string()),
+            retry_reason: None,
+            network_approval_context: None,
+        };
+        let action = ApprovalAction::ExecCommand {
+            id: ctx.call_id.clone(),
+            environment_id: codex_exec_server::LOCAL_ENVIRONMENT_ID.to_string(),
+            command: vec!["rm".into(), "file".into()],
+            hook_command: "rm file".into(),
+            cwd: PathUri::from_host_native_path(std::env::current_dir().expect("cwd"))
+                .expect("cwd URI"),
+            sandbox_permissions: SandboxPermissions::UseDefault,
+            additional_permissions: None,
+            justification: None,
+            tty: false,
+            proposed_execpolicy_amendment: None,
+        };
+        let approval = session.request_approval(action, ctx);
+        tokio::pin!(approval);
+        tokio::select! {
+            result = &mut approval => panic!("expected human prompt, got {result:?}"),
+            event = events.recv() => {
+                let EventMsg::ExecApprovalRequest(request) = event.expect("prompt").msg else { panic!("command prompt"); };
+                assert_eq!(request.reason.as_deref(), Some(DELETION_APPROVAL_REASON));
+                assert_eq!(request.available_decisions, Some(vec![ReviewDecision::Approved, ReviewDecision::Abort]));
+                assert!(request.proposed_execpolicy_amendment.is_none());
+                session.notify_approval(&request.call_id, decision.clone()).await;
+            }
+        }
+        let result = approval.await;
+        if decision == ReviewDecision::Approved {
+            assert_eq!(result.expect("approved"), ReviewDecision::Approved);
+        } else {
+            assert!(result.is_err());
+        }
+    }
+}
+
 #[test]
 fn approval_resolution_rejects_denied_network_policy_amendment() {
     let resolution = ApprovalResolution {

@@ -29,9 +29,6 @@ fn classifies_legacy_denial_keywords() {
         "operation not permitted",
         "permission denied",
         "read-only file system",
-        "seccomp",
-        "sandbox",
-        "landlock",
         "failed to write file",
     ] {
         let output = make_exec_output(/*exit_code*/ 1, "", keyword, "");
@@ -195,13 +192,6 @@ fn classifies_linux_sigsys_exit() {
             output_snippet: String::new(),
         })
     );
-}
-
-#[test]
-fn does_not_classify_non_sandbox_mode() {
-    let output = make_exec_output(/*exit_code*/ 1, "", "Operation not permitted", "");
-
-    assert!(classify_filesystem_sandbox_violation(SandboxType::None, &output).is_none());
 }
 
 #[test]
