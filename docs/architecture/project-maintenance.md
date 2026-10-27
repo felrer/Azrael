@@ -2,6 +2,16 @@
 
 상태: `partial`. 공통 Rust·native handler/권한·가용성 지침과 주요 Windows producer/cleaner의 소스 수용을 확인했다. 설치 앱의 가용성, 다른 OS 실기기와 과거 경로의 물리 이전은 별도다. 상세 검증 상태는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)이 소유한다. 기능 보존 ID는 `tool.project-maintenance`다.
 
+## 생성 소유권과 보관·관찰 책임
+
+상태: `partial` — 현재 checkout의 Node 구현과 Windows x64 연동을 검증했다. 다른 OS 실기기·과거 기록의 전체 전환은 미완료이며, 앱 내장 엔진은 변경하지 않았다. [현재 구현·검증 작업](../../work/DW-01-build-preflight-timing/16-plan.md)이 수용 범위를 소유한다. 기능 보존 owner는 `tool.project-maintenance.lifecycle-source`와 같은 inventory의 writer 검사다.
+
+실제 생성자 기록은 자기 구성원의 변경·삭제 판단 경계를 나타낸다. 다른 작업의 공유 사용은 소비 참조로 연결한다. 보관·관찰 기록은 발견한 경로와 미확정 사항의 inventory이며, 해당 경로를 생성했다고 주장하거나 변경·삭제 권한을 얻지 않는다. 관찰 범위끼리 또는 관찰과 생성 범위가 겹치는 것은 허용한다. 새 실제 생성자가 기존 다른 생성자의 경계를 겹쳐 소유하려 하면 명시적 소유권 이관이 필요하며, 과거 중복 기록의 정확한 기존 구성에 대한 종료·참조 갱신은 막지 않는다.
+
+관찰 기록은 별도 record type과 조회·전환·해소 API로 관리하되 producer catalog와 같은 OS lease 및 예약 검사 경계를 사용한다. 미확정 사용·복구 보호는 실제 생성자에게 향하는 명시적인 scoped consumer reference로 투영한다. 현재 native protocol이 읽는 관찰 scope carrier는 retained/incomplete 및 generated/protection false를 유지하므로 삭제 가능한 producer가 아니다. 관찰 기록을 native 정리 그룹으로 등록하거나 producer cleanup/reservation/finalize의 대상으로 취급하지 않는다. 새 생성자와 미해결 관찰 범위가 겹치면 보호 참조를 먼저 저장하며, 부분 실패로 owner만 노출되거나 hold가 사라지지 않게 한다. 관련 없는 레코드와의 단순 경로 겹침을 소유권 충돌로 확대하지 않는다.
+
+기존 미분류 custody 전환은 정확한 custodian·revision·원본 bytes SHA와 외부 독립 근거를 요구하며, 관찰 경로·기존 소비자·원래 불확실성을 보존한다. 전환만으로 경로의 생성이나 종료를 확정하지 않는다. 선택한 hold의 해소에는 실제 생성자의 고정 identity·정확한 구성·기존 종료 근거와 관찰 소비자의 범위별 제외 근거가 필요하다. 다른 hold와 소비 참조는 유지하고 실제 생성자 기록·실행 결과를 변경하지 않는다. 현재 사용·복구 필요성이 불명확하면 보호를 유지한다. 같은 catalog의 변경은 기존 native source fence와 예약 충돌 검사에 포함되며, 이 분리가 파일 이동·삭제나 앱 내장 엔진 교체를 뜻하지 않는다.
+
 ## 목적과 책임
 
 Azrael은 프로젝트가 가진 테스트·빌드 명령을 등록된 묶음으로 실행하고, 일회성 검증물·빌드 결과·캐시·백업의 정리 판단에 필요한 정보를 제공한다. 판단은 현재 대화의 모델이 한다. 상주 서비스, 예약 실행기, 별도 모델 API 호출은 없다. 기간·용량 정책은 다음 관리 호출에서 검토할 후보를 고르는 조건이며 삭제 권한을 부여하지 않는다.

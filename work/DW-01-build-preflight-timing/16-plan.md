@@ -1,15 +1,49 @@
 # 소유권과 잠금의 책임 축소
 
-상태: 레거시 참조 심층 조사·정리 중. 실제 설치·사용·복구 참조를 보존하고, 해제 가능한 잔여 참조는 소유 API로 정리한 뒤 비활성 생성물만 archive 이관한다. 사용자 추가 판단이 필요한 범위는 현재 설치/프로필 변경 또는 복구 가능성 포기이며, 일반 조사·검증과 근거 있는 잔여 참조 해제는 승인된 정리 범위에서 진행한다.
+상태: 초기 primary 참조 그래프 조사와 명명된 설치·workspace 사례의 심층 검증을 마쳤고 만료 참조 4개를 지원 API로 해제했다. 필요한 소비자 보호가 누락된 native 그룹 2개도 갱신했다. 기존 레거시의 archive 정리는 아래 종료·복구·소유권 조건이 미해결이므로 완료가 아니다. 사용자 추가 판단이 필요한 범위는 현재 설치/프로필 변경 또는 복구 가능성 포기이며, 일반 조사·검증과 근거 있는 잔여 참조 해제는 승인된 정리 범위에서 진행한다.
 
 ## 레거시 참조의 현재 유효성 검증
+
+### 종료·소유권 해소와 추가 이관 실행
+
+사용자는 남은 소유권·종료 확인 문제를 해결하고 정리 가능한 파일을 archive로 이동하도록 승인했으며, 이어 변경·삭제 권한과 보관·관찰 기록을 별도로 관리하는 방향을 확정했다. 경로 중복을 일괄 차단하는 제안은 철회했다. 실제 생성자의 신규 소유권 충돌과 정당한 관찰 범위의 겹침을 구분하고, 미분류 보관 기록은 삭제 권한 없는 observation으로 명시 전환한다. 사용·복구가 미확정인 경로는 기존 native consumer-reference 프로토콜의 scoped hold로 보호한다. 같은 catalog/OS lease/예약 fence를 유지해 보호 기록을 물리적으로 분산하지 않으며, 현재 standalone의 보호 검사를 우회하지 않는다. 생성자 record/결과/구성은 그대로 두고 명확한 근거와 소비자 제외 확인으로 만족한 hold만 해제한다. 새로운 archive 제품 API, 강제 삭제, 활성 설치/진행 중 EB-01 작업의 취소나 보호 해제는 범위 밖이다. 공통 Node 의미를 유지하고 실제 검증은 Windows x64이며 다른 OS 실기를 주장하지 않는다.
+
+root는 운영·archive mapping·독립 근거·문서·최종 수용을 소유한다. `legacy_custody_reconcile`은 lifecycle helper/observation 보조 구현과 기존 behavioral tests만 담당한다. 기존 읽기 전용 조사자들의 미완료 운영 조사는 사용자 설계 재검토 시 보류했으며, 다시 필요할 때 승인된 같은 범위로 재개한다. 공용 catalog/native 변경은 root가 직렬 실행하고 별도 EB-01 producer/cache와 겹치지 않게 한다. 코드 READY 뒤 기존 source 단계의 lifecycle/build-platform/platform-packaging 및 writer 호출 경로 검사를 실행한다. 보관 기록의 등록·삭제 권한 거절, 실제 owner 보호의 native review/예약 연동, CAS·부분 실패·소비자 제외·다른 hold 보존을 검증한다. 생성자의 실제 실패를 성공으로 승격하지 않는다.
+
+작업의 보호 제어 기록은 `artifacts/maintenance/evidence/legacy-reference-resolution-20261027.json` 및 같은 고유 접두사의 불변 근거, owner `DW-legacy-reference-resolution-20261027`이다. disposable 검증/실행 로그는 충돌 확인 뒤 `artifacts/tasks/legacy-reference-resolution-20261027-a/`에 사전 선언하고, 사용 종료 후 ordinary 정리·실제 부재 확인한다. 이관 대상은 원래 owner를 유지하고 새로운 `archive/legacy-reference-resolution-20261027-a/`에 mapping과 파일시스템 identity를 보존한다. 관리 기록·근거·active reservation은 payload와 분리한다. 내용·권한·link 검사는 기존 owner 검사 범위를 재사용하고 같은 볼륨 ordinary rename 후 source 부재와 identity 보존을 확인한다. 일부 근거가 끝내 확인되지 않으면 정확한 미해결 대상/조건을 남기며 전체 정리 완료라고 보고하지 않는다.
+
+구현 수용: 현재 checkout의 Node helper에 관찰 전용 생성·전환·해소·조회 API를 추가했다. 일반 producer 등록/종료/참조 해제/native 등록/예약/finalize로 관찰을 소유자로 승격하지 못한다. 공통 fixture 복사와 Cargo 검증 identity에도 새 helper를 포함했다. 권한·보호 누락·부분 출판·동시 변경은 반복 방지가 필요한 계약이므로 기존 lifecycle behavioral suite에 회귀를 유지하며 별도 일회성 테스트 소스는 남기지 않는다.
+
+Windows x64 검증: source lifecycle/build-platform 171개 중 170 통과·Unix mode 1개 조건부 제외, platform-packaging, writer 5개 명령, Cargo cache/owner/pipeline 49개 및 실제 Windows RegistryOnly가 모두 실제 exit 0이었다. 앞선 source fixture 1건과 packaging fixture 중복 준비는 기대 계약을 보존하여 수정했다. Python PATH 부재에 따른 writer/cache 실패는 설치된 Python 3.13.15의 tomllib을 확인하고 검사 프로세스에만 경로를 추가해 재실행했다. 실패 시도와 실제 exit는 성공으로 바꾸지 않았다. 최소 독립 영수증은 `artifacts/maintenance/evidence/legacy-reference-resolution-20261027-acceptance.json`이며 원시 로그는 task disposable이다. 다른 OS 실행·앱 내장 엔진·과거 frozen workspace 교체는 검증하거나 수행하지 않았다.
+
+실제 기록 전환: DM revision 2→3의 관찰 범위 483개, BI revision 10→11의 2,694개를 원본 bytes·외부 근거와 고정하여 전환했다. 각각 scoped hold 10개·12개로 기존 불확실성을 보호하며 두 기록 간 중복을 새 생성 소유권으로 취급하지 않는다. BI의 h20 hold 1개만 원래 생성자의 정확한 stopped failure/exit 1과 소비자 부재 근거로 해소하여 revision 12, 나머지 hold 11개를 유지했다. 실제 생성자의 bytes·실패 결과·두 구성원은 불변이다. DM aggregate 소비자는 pending이고 확인한 고정 입력만 h20/z를 제외하므로 미기재·동적 사용까지 배제하지 않았다. DM h20 hold와 나머지 참조를 유지하여 h20/z archive는 미실행이다. 이관 선행조건은 현재 DM 소비자의 완전한 범위별 제외 또는 독립 종료·참조 해제다. 두 API의 물리 작업 결과는 모두 payload 이동/삭제 없음이다. catalog 점유로 시작 전에 거절된 해소/정리 시도는 잠금을 제거하지 않고 정상 점유 종료 후 정확한 요청으로 재개했다.
+
+이번 구현 단계의 임시 자료 정리 완료: 검증용 portable PowerShell·fixture·복제 입력·원시 로그를 포함한 task root 294,557,957 logical bytes를 standalone owner 최초 등록(133.078초) → registered fresh review(blockers 없음) → 명시적 delete apply(149.908초, actual exit 0)로 정리했다. 실제 status deleted/remaining false와 전체 root 부재, 활성 예약 부재 및 producer finalize를 확인했다. 실행기는 확인된 생성물의 ReadOnly/Hidden만 210건 정규화했으며 System/ACL/소유권을 바꾸지 않았다. 임시 요청·원시 관리 출력도 compact proof로 대체한 뒤 일반 삭제했다. 필요한 관리·전환 근거만 위의 보호 owner에 남고 관련 미확정 hold/이관 기록의 compaction 때 재검토한다. 독립 정리 영수증은 `artifacts/maintenance/evidence/legacy-reference-resolution-20261027-cleanup.json`이다. 이 구현 단계는 수용됐으며, 기존 레거시 전체 archive는 별도 잔여 작업이다.
 
 목표는 이전 선별에서 참조 때문에 제외된 항목을 현재 소비자와 대조하여 실제 보호·무효 기록·근거 부족으로 구분하고 정리 가능한 범위를 실행하는 것이다. primary producer/native 참조 전체를 분류하고, 별도 설치/프로필과 module/workspace 등록도 포함한다. 기록의 이름·나이·complete 상태·경로 누락만으로 참조를 해제하지 않는다. 현재 설치본, 유일한 복구/검증 근거와 종료 불명 작업을 보호하며, 삭제 속도·새 archive 제품 API·전체 빌드는 이번 범위가 아니다. 실제 관측은 Windows x64이다.
 
 - root는 전체 참조 그래프, 기존 해제 API, 원본과 독립된 현재 근거, native 정리/이관과 최종 검증을 소유한다. 읽기 전용 `legacy_install_reference_audit`는 명명된 레거시의 실제 설치/프로필 소비자를, `legacy_workspace_reference_audit`는 o/p/q 입력·module 등록·재시도 근거를 조사한다. 두 조사자는 파일이나 공유 관리 상태를 쓰지 않는다.
 - 보호된 제어 기록 `artifacts/maintenance/evidence/legacy-reference-audit-20261027.json`은 owner `DW-legacy-reference-audit-20261027`의 참조별 결론·identity·지원 API 결과를 담는다. 임시 실행 요청/스크립트는 같은 고유 접두사로 명시하고 사용 후 ordinary 삭제·부재 확인한다. 필요한 제어 근거만 남기며 관련 미해결 작업/복구/이관 기록의 compaction 시 함께 검토한다. archive 대상은 해당 기존 owner를 유지하며 감사 작업이 목록만으로 인수하지 않는다.
 - 선행조건은 소비자·대상·참조의 정확한 identity, 현재 reader/producer와 해제 근거, 관련 owner 절차 확인이다. 지원 API의 owner/revision/evidence 검사를 유지한다. 해제 후 영향 그룹만 protection refresh 및 fresh review하며, 비어 있거나 이관한 원본만 metadata 정리한다. 실제 payload는 기존 승인에 따라 archive로 이동하고, 새 목적지·identity/내용 보존·원본 부재를 검증한다. 전체 payload 재해시나 중복 producer 실행은 하지 않는다.
-- 완료 기준은 조사한 참조 전체의 현재 판정, 실행한 해제/이관의 실제 결과와 identity, 활성 설치·복구 보호 유지, 임시 생성물 정리 및 미확정 항목의 구체적 다음 조건이다. 원래 실패/unknown을 성공으로 바꾸거나 누락된 과거 근거를 재구성하지 않는다. 제품 동작 변경 없이 기존 운영 API만 쓰는 단계이므로 architecture 계약은 변경하지 않는다.
+- 완료 기준은 조사한 참조 전체의 현재 판정, 실행한 해제/이관의 실제 결과와 identity, 활성 설치·복구 보호 유지, 임시 생성물 정리 및 미확정 항목의 구체적 다음 조건이다. 원래 실패/unknown을 성공으로 바꾸거나 누락된 과거 근거를 재구성하지 않는다. 승인된 관찰·소유권 분리 계약은 기존 architecture/ops 소유 문서에 반영한다.
+
+### 2026-10-27 참조 조사·운영 결과
+
+13:21:05.410Z부터 13:38:56.002Z까지의 조사·운영 결과이다. 시작 당시 primary producer 499개, 참조 303개를 구조적으로 분류했다. 순환은 없었고, producer ID에 직접 대응하지 않는 참조 54개는 외부 작업명·문서·과거 handoff도 포함하므로 자동 무효 처리하지 않았다. execution 참조 77개는 소비자에 알려진 stopped 영수증이 없었다. 이는 실제 실행 중이라는 증거도, 종료됐다는 증거도 아니다. 심층 검증은 아래 명명된 사례에 한정하며 모든 참조의 현재 사용을 실증했다고 주장하지 않는다.
+
+| 대상 | 확인한 현재 의미 | 처리·남은 조건 |
+| --- | --- | --- |
+| `r19-install-final`의 0.11 준비 참조 3개 | 준비만 완료했고 실제 설치는 시작하지 못했다. 이후 ordinary profile 0.12 설치와 독립 검증이 존재한다. | owner/revision/독립 근거 SHA를 묶어 `releaseReferences`로 3개 해제, revision 3→4. 원래 producer/close 결과 불변. r16 중첩 소유권, r13의 다른 소비자, continuation2의 BI/DM custody가 남아 payload 이관은 미실행. |
+| `version:w10a`의 “Active requested Windows release build and installation” | 0.10 설치는 당시 실제 성공했으며 현재 ordinary profile은 0.12이다. 과거 진행 중 표식의 목적이 끝났다. | 동일 지원 API로 1개 해제, revision 3→4. 멤버 2개와 producer 상태는 유지했다. 전체 producer 종료·복구 정리 근거와 primary 관리 경계 문제가 남아 `n10a` 전체는 이동하지 않았다. |
+| CF approval engine / DC reply-native-2 | 현재 inbound 소비자가 cached native 참조보다 각각 2개·3개 더 많았다. | `refresh_group` 2회 실제 exit 0. 내용 identity/측정 시각·바이트는 유지하고 보호만 갱신했다. fresh registered review 실제 exit 0이며 두 그룹의 참조 차단을 확인했다. |
+| `iy17b` | 별도 external profile registry가 0.8을 선택하며 runtime이 해당 경로를 가리킨다. | 유효한 설치 보호이다. ordinary profile 교체로 해제하지 않는다. 그 프로필을 폐기하려면 설치 owner의 별도 처리가 필요하다. |
+| `workspaces/o·p·q`, `inputs/dw13-r2·r3·r4` | DW13 revision 14의 execution 참조 6개와 workspace→input 의존성이 있다. q/r8도 p/r7 engine 및 r3 입력을 검증·사용한다. | r2/r3–r5의 정확한 producer-tree 종료와 재시도/복구 인계가 미확정이다. 먼저 상위 소비자를 정리한 뒤 workspace/input, module 등록 순으로 해소해야 한다. module registry의 o/p/q 항목만으로 현재 실행 중이라고 단정하지 않는다. |
+| `w14w`, `verification/AK-02-api-context-fix` | BI/DM의 중복 custody이며 실제 생성·종료 근거가 부족하다. | 현재 설치가 다른 곳을 가리키는 사실만으로 이동하지 않았다. 원래 producer와 정확한 멤버를 확인하고 지원 소유권 절차로 중복을 해결해야 한다. |
+| DO native 검증 입력·출력 | 별도 진행 중인 제품 보존 작업과 공유 target 소유권 충돌이 존재한다. | 이 감사가 작업 종료나 전체 cache 소유권을 대신 결정하지 않는다. 해당 owner의 보존·generation 정리가 필요하다. |
+
+검증은 운영 API의 실제 결과와 변경 후 record를 확인하는 방식으로 수행했다. r19 해제 준비 첫 호출은 기존 PowerShell JSON의 UTF-8 BOM 때문에 쓰기 전에 실패했으며, 원본 바이트를 보존하고 BOM을 읽기에서 처리한 뒤 실제 성공했다. 제품 코드는 변경하지 않았고 빌드·테스트·설치·프로필 변경은 수행하지 않았다. 이번 파일 이동/삭제 0개, 용량 회수 주장 0이다. 임시 request 파일은 ordinary 삭제 및 부재 확인했다. 필요한 관리 제어 근거 3개는 합계 505,817바이트이며 관련 미해결 참조/이관 기록의 compaction 때 함께 검토한다.
+
+조사 중 별도 `EB-01-latest-windows-profile-install` 작업의 새 producer 4개와 참조 3개가 생성됐다. 이 범위는 변경하지 않았다. 따라서 관측 종료 시 primary는 503개/참조 302개이며, 초기 303개에서 이번 해제 4개와 동시 작업 추가 3개를 분리한다. [상세 감사 기록](../../artifacts/maintenance/evidence/legacy-reference-audit-20261027.json), [0.11 해제 근거](../../artifacts/maintenance/evidence/legacy-reference-audit-20261027-r19-retirement.json), [0.10 표식 해제 근거](../../artifacts/maintenance/evidence/legacy-reference-audit-20261027-w10a-retirement.json)에 정확한 identity·원본 SHA·API 결과·미해결 조건을 보존했다. 초기 그래프의 구조 분류와 명명된 사례 조사는 완료했으나 보호·근거 부족 레거시의 전체 archive 정리는 계속 미해결이다.
 
 ## 레거시 전체 선별 및 사용자 확인용 archive 이관
 

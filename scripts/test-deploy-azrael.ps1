@@ -601,6 +601,7 @@ function Assert-AzraelVerificationStatePath {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-observations.cjs') -Destination $scripts
     $lockOwner = Join-Path $PSScriptRoot 'maintenance-lock-owner.cjs'
     if (Test-Path -LiteralPath $lockOwner) { Copy-Item -LiteralPath $lockOwner -Destination $scripts }
     foreach ($maintenanceCompanion in @('maintenance-lock-worker.cjs', 'maintenance-lock-client.cjs', 'maintenance-owner-config.cjs')) {

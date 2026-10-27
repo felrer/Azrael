@@ -4,7 +4,7 @@ const repo=path.join(__dirname,".."), artifactRun=process.env.AZRAEL_PACKAGING_T
 const fixtureProject=path.join(process.env.AZRAEL_PACKAGING_TEST_ROOT || artifactRun.temporary,"portable-packaging-"+crypto.randomUUID()), root=path.join(fixtureProject,"artifacts/fixture");
 fs.mkdirSync(root,{recursive:true});
 const frozen=path.join(root,"scripts"); fs.mkdirSync(frozen);
-for(const name of ["install-platform-release.cjs","package-platform-release.cjs","artifact-lifecycle.cjs","maintenance-lock-owner.cjs","maintenance-lock-worker.cjs","maintenance-owner-config.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
+for(const name of ["install-platform-release.cjs","package-platform-release.cjs","artifact-lifecycle.cjs","artifact-observations.cjs","maintenance-lock-owner.cjs","maintenance-lock-worker.cjs","maintenance-owner-config.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
 const s=require(path.join(frozen,"install-platform-release.cjs")), p=require(path.join(frozen,"platform-runtime.cjs")), pack=require(path.join(frozen,"package-platform-release.cjs"));
 const lifecycle=require(path.join(frozen,"artifact-lifecycle.cjs"));
 let checks=0; function check(name,fn) {fn(); checks++;console.log("PASS "+name);}
@@ -62,8 +62,8 @@ check("failed packaging records pending before output and preserves the failed o
   assert.deepEqual(seen,["pending","failed"]);assert.equal(packageRecord(destination).state,"failed");assert.equal(packageRecord(destination).membership_complete,false);assert.equal(fs.readFileSync(archive,"utf8"),"existing archive sentinel");
 });
 check("explicit lifecycle must be a version that owns the selected release",()=>{
-  const invalid=lifecycle.recordLifecycle(fixtureProject,{id:"invalid-explicit",kind:"run",owner:"packaging-fixture",state:"retained",membership_complete:false,members:[{path:path.join(root,"not-a-release"),role:"release"}]});
-  const wrong=lifecycle.recordLifecycle(fixtureProject,{...invalid,id:"wrong-explicit",kind:"version"});
+  const invalid=lifecycle.recordLifecycle(fixtureProject,{id:"invalid-explicit",kind:"run",owner:"packaging-fixture",state:"retained",membership_complete:false,members:[{path:path.join(root,"invalid-explicit-release"),role:"release"}]});
+  const wrong=lifecycle.recordLifecycle(fixtureProject,{...invalid,id:"wrong-explicit",kind:"version",members:[{path:path.join(root,"wrong-explicit-release"),role:"release"}]});
   for(const id of ["missing-explicit",invalid.id,wrong.id,packageRecord(output).references[0].id]) {
     const destination=path.join(root,"invalid-explicit-"+s.sha(id).slice(0,8));
     assert.throws(()=>pack.packageRelease({"project-root":fixtureProject,"lifecycle-id":id,release,"host-vsix":host,output:destination,version:"1.2.3"}),/Explicit lifecycle/);assert.equal(fs.existsSync(destination),false);

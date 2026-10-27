@@ -11,7 +11,7 @@ const passed = [];
 // contained fake project. The mock confirms close on both success and failure.
 const scriptRoot = path.join(fixture, 'scripts');
 fs.mkdirSync(path.join(scriptRoot, 'lib'), {recursive:true});
-for(const source of ['check-management.mjs','artifact-run.cjs','artifact-lifecycle.cjs','maintenance-lock-owner.cjs','maintenance-lock-worker.cjs','maintenance-owner-config.cjs','lib/azrael-rpc-check.mjs']) {
+for(const source of ['check-management.mjs','artifact-run.cjs','artifact-lifecycle.cjs','artifact-observations.cjs','maintenance-lock-owner.cjs','maintenance-lock-worker.cjs','maintenance-owner-config.cjs','lib/azrael-rpc-check.mjs']) {
   fs.copyFileSync(path.join(__dirname,source),path.join(scriptRoot,source));
 }
 const { spawnSync } = require('node:child_process');

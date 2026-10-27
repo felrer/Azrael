@@ -33,7 +33,7 @@ const write = (root, file, value) => {
 function setup() {
   const root = path.join(fixtures, String(++sequence));
   for (const file of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-verification.cjs',
-    'cargo-target-owner.cjs', 'cargo-shared-cache.cjs', 'cargo-test-preparation.cjs', 'artifact-lifecycle.cjs',
+    'cargo-target-owner.cjs', 'cargo-shared-cache.cjs', 'cargo-test-preparation.cjs', 'artifact-lifecycle.cjs', 'artifact-observations.cjs',
     'verification-result-cache.cjs', 'directory-state.cjs', 'cargo-config-self-contained.py', 'cargo-preflight-recipes.cjs', 'check-api-context.cjs']) write(root, `scripts/${file}`, file);
   write(root, 'scripts/owner.cjs', 'owner'); write(root, 'docs/contract.md', 'contract');
   write(root, 'engine/codex-rs/Cargo.lock', 'lock'); write(root, 'engine/codex-rs/core/src/lib.rs', 'source');
@@ -248,7 +248,7 @@ test('all declared Cargo groups share semantic keys across execution roots and p
     const changedGroup = structuredClone(group); changedGroup.entries[0].check.args.push('--changed');
     assert.notEqual(await cache.key(secondConfig, changedGroup, nextInputs, nextRuntime), baseline);
     const first = group.entries[0];
-    for (const file of new Set([first.feature.owners[0], first.feature.contract, first.check.args[0], 'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs'])) {
+    for (const file of new Set([first.feature.owners[0], first.feature.contract, first.check.args[0], 'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs'])) {
       const full = path.join(second, file), original = fs.readFileSync(full);
       fs.appendFileSync(full, '\nchanged bound bytes');
       assert.notEqual(await cache.key(secondConfig, group, nextInputs, nextRuntime), baseline, file);
@@ -288,7 +288,7 @@ test('declared check flags, owners, contract and implementation inputs bind keys
   f.group.check.args.push('--new-flag'); assert.notEqual(await f.key(), baseline); f.group.check.args.pop();
   for (const file of ['scripts/owner.cjs', 'docs/contract.md', 'scripts/check-api-context.cjs',
     'scripts/verification-result-cache.cjs', 'scripts/cargo-verification-cache.cjs',
-    'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs',
+    'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs',
     'scripts/cargo-config-self-contained.py']) {
     const previous = await f.key(); fs.appendFileSync(path.join(f.root, file), ' changed');
     assert.notEqual(await f.key(), previous);

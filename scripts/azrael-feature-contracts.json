@@ -3533,6 +3533,7 @@
         "engine/codex-rs/project-maintenance/src/groups.rs",
         "engine/codex-rs/project-maintenance/tests/groups.rs",
         "scripts/artifact-lifecycle.cjs",
+        "scripts/artifact-observations.cjs",
         "scripts/artifact-lifecycle.ps1",
         "scripts/test-artifact-lifecycle.cjs",
         "scripts/build-module-cache.ps1",

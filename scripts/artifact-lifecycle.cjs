@@ -50,6 +50,8 @@ function validate(root, record) {
     checked(root, record.owned_root, true);
   }
   if (record.producer && (record.producer.status !== "stopped" || !["success", "failure", "unknown"].includes(record.producer.outcome) || !(record.producer.exit_code === null || Number.isInteger(record.producer.exit_code)) || typeof record.producer.reason !== "string" || !record.producer.reason.trim() || typeof record.producer.evidence_ref !== "string" || !/^[a-f0-9]{64}$/.test(record.producer.evidence_sha256 || ""))) throw new Error("Invalid lifecycle producer");
+  if (record.record_type !== undefined && record.record_type !== "observation") throw new Error("Unknown lifecycle record type");
+  if (record.record_type === "observation") observationApi.validateObservation(root, record);
   return record;
 }
 function catalog(root) {
@@ -94,6 +96,7 @@ function writeRecord(root, filename, record) {
   const lease = catalogLeases.get(path.resolve(root));
   if (!lease || filename !== registryPath(root, record.id)) throw new Error("Native catalog lease required for lifecycle write");
   const raw = fs.existsSync(filename) ? fs.readFileSync(filename) : null;
+  if (raw === null && record.record_type !== "observation") observationApi.protectOwner(root, record);
   lease.writeRecord(record, raw === null ? null : sha(raw));
 }
 function checkedEvidence(root, request) {
@@ -108,6 +111,7 @@ function mutateLifecycle(root, id, request, operation, mutate) {
   return withCatalogLock(root, () => {
     const filename = registryPath(root, id);
       const record = validate(root, JSON.parse(fs.readFileSync(filename, "utf8")));
+      if (record.record_type === "observation") throw new Error("Observation requires its dedicated API");
       if (record.custody_transfer && record.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
       if (record.custody_refinement && record.state === "pending") throw new Error("Pending custody refinement requires refine-custody retry");
       if (record.id !== id || request.owner !== record.owner) throw new Error("Exact lifecycle owner required");
@@ -155,13 +159,17 @@ function recordLifecycle(root, request) { return withCatalogLock(root, () => rec
 function recordLifecycleUnlocked(root, request) {
   root = path.resolve(root);
   const incoming = validate(root, { ...request, schema: 1, references: request.references || [] });
+  if (incoming.record_type === "observation") throw new Error("Observation requires its dedicated API");
   const filename = registryPath(root, incoming.id);
   fs.mkdirSync(path.dirname(filename), { recursive: true });
     const previous = fs.existsSync(filename) ? validate(root, JSON.parse(fs.readFileSync(filename, "utf8"))) : null;
+    if (previous?.record_type === "observation") throw new Error("Observation cannot become a lifecycle owner");
+    if (!previous && observationApi.isUnclassifiedCustody({ ...incoming, producer: undefined })) throw new Error("New uncertain custody must use recordObservation");
+    const otherOwners = catalog(root).filter(record => record.id !== incoming.id && record.record_type !== "observation");
     if (previous?.custody_snapshot && incoming.members.some(member => previous.custody_snapshot.containers.some(container => inside(member.path, container.path) || inside(container.path, member.path) && !previous.members.some(old => old.path === member.path && old.role === member.role)))) throw new Error("Frozen custody container cannot be reclaimed");
     if (previous && (incoming.ownership_scope !== undefined && incoming.ownership_scope !== previous.ownership_scope || incoming.owned_root !== undefined && incoming.owned_root !== previous.owned_root)) throw new Error("Cannot change lifecycle ownership scope");
     if (incoming.ownership_scope === "run-root" || previous?.ownership_scope === "run-root") {
-      const claims = catalog(root).filter(record => record.id !== incoming.id);
+      const claims = otherOwners;
       if (incoming.members.some(member => claims.some(record => record.members.some(old => overlap(old.path, member.path))))) throw new Error("Artifact destination already claimed by another lifecycle");
     }
     if (catalog(root).some(record => record.id !== incoming.id && record.ownership_scope === "run-root" && incoming.members.some(member => record.members.some(old => overlap(old.path, member.path))))) throw new Error("Artifact destination already claimed by reserved run");
@@ -175,6 +183,8 @@ function recordLifecycleUnlocked(root, request) {
     if (previous?.producer && !newGeneration && (incoming.state !== previous.state || incoming.membership_complete !== previous.membership_complete || incoming.members.some(member => !previous.members.some(old => old.path === member.path && old.role === member.role)))) throw new Error("Closed lifecycle cannot restart or extend membership");
     if (previous && incoming.members.some(member => member.role === "release" && previous.members.some(old => old.role === "release" && old.path !== checked(root, member.path, true)))) throw new Error("Conflicting lifecycle release identity");
     if (request.expected_revision !== undefined && request.expected_revision !== (previous?.revision || 0)) throw new Error("Stale lifecycle revision");
+    if (incoming.members.some(member => !previous?.members.some(old => old.path === member.path && old.role === member.role) &&
+        otherOwners.some(record => record.members.some(old => overlap(old.path, member.path))))) throw new Error("Artifact destination already claimed by another lifecycle");
     const members = [...(previous?.members || [])];
     for (const member of incoming.members) {
       const normalized = { path: checked(root, member.path, true), role: member.role };
@@ -216,6 +226,7 @@ function recordLifecycleUnlocked(root, request) {
       ...(previous?.custody_refinement ? { custody_refinement: previous.custody_refinement } : {}),
       ...(previous?.custody_refinements ? { custody_refinements: previous.custody_refinements } : {}),
       revision: (previous?.revision || 0) + 1, created_at: previous?.created_at || new Date().toISOString(), updated_at: new Date().toISOString() };
+    observationApi.protectOwner(root, result);
     writeRecord(root, filename, result);
     return result;
 }
@@ -224,6 +235,7 @@ function freezeCustody(root, id, request) {
   return withCatalogLock(root, () => {
     const filename = registryPath(root, id);
     const record = catalog(root).find(record => record.id === id);
+    if (record?.record_type === "observation") throw new Error("Observation requires its dedicated API");
     if (!record || record.owner !== request.owner || record.revision !== request.expected_revision) throw new Error("Exact custody owner and revision required");
     if (record.state !== "retained" || record.membership_complete || record.producer || record.ownership_scope || record.custody_snapshot) throw new Error("Unresolved retained legacy custody required");
     if (!Array.isArray(request.paths) || !request.paths.length || new Set(request.paths).size !== request.paths.length) throw new Error("Explicit unique custody containers required");
@@ -266,6 +278,7 @@ function freezeCustody(root, id, request) {
 function custodyInputs(root, sourceId, request, extraProofRoots = []) {
     root = path.resolve(root);
     const records = catalog(root), source = records.find(record => record.id === sourceId);
+    if (source?.record_type === "observation" || records.some(record => record.id === request.target?.id && record.record_type === "observation")) throw new Error("Observation cannot participate in custody transfer");
     if (!source || request.owner !== source.owner) throw new Error("Exact custody source owner required");
     const target = request.target;
     if (!target || typeof target.id !== "string" || !target.id || target.id === sourceId || target.kind !== "work" || typeof target.owner !== "string" || !target.owner.trim() || (target.version !== undefined && (typeof target.version !== "string" || !target.version))) throw new Error("Invalid custody target identity");
@@ -358,6 +371,7 @@ function refineCustody(root, request) {
   return withCatalogLock(root, () => {
     root = path.resolve(root);
     const records = catalog(root), parent = checked(root, request.parent, true), target = request.target;
+    if (records.some(record => record.record_type === "observation" && (record.id === target?.id || request.sources?.some(source => source.id === record.id)))) throw new Error("Observation cannot participate in custody refinement");
     const stable = value => Array.isArray(value) ? value.map(stable) : value && typeof value === "object"
       ? Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])])) : value;
     const equal = (a, b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
@@ -625,7 +639,8 @@ function cleanupReservation(root, record, observers = []) {
 }
 function planCleanup(root, { paths = [], protectedPaths = [], reportPath, reservations = [] } = {}) {
   if (!Array.isArray(reservations)) throw new Error("Explicit reservation observer array required");
-  const records = catalog(root);
+  const allRecords = catalog(root), records = allRecords.filter(record => record.record_type !== "observation");
+  const observations = allRecords.filter(record => record.record_type === "observation");
   const candidates = paths.map(value => checked(root, value, true));
   const protectedList = protectedPaths.map(value => path.resolve(value));
   const report = reportPath ? checked(root, reportPath) : null;
@@ -649,7 +664,7 @@ function planCleanup(root, { paths = [], protectedPaths = [], reportPath, reserv
     if (record.members.some(member => member.protection_known === false)) blockers.push("unknown-member-protection");
     if (record.members.some(member => protectedList.some(protectedPath => overlap(member.path, protectedPath)))) blockers.push("protected-member");
     if (report && record.members.some(member => inside(member.path, report))) blockers.push("report-inside-member");
-    for (const other of records) {
+    for (const other of allRecords) {
       if (other.references.some(ref => projectMembers(record.members).some(member => referenceMatches(ref, record.id, member)))) blockers.push(`active-reference:${other.id}`);
       for (const ref of other.references.filter(ref => ref.id === record.id)) {
         const error = referenceBindingError(ref, record);
@@ -661,6 +676,7 @@ function planCleanup(root, { paths = [], protectedPaths = [], reportPath, reserv
   const globalBlockers = [];
   const standalone = candidates.filter(candidate => !records.some(record => selected.has(record.id) && record.members.some(member => overlap(member.path, candidate)))).map(candidate => {
     if (report && inside(candidate, report)) globalBlockers.push(`report-inside-standalone:${candidate}`);
+    for (const observation of observations) if (observation.observation.scopes.some(scope => overlap(scope.path, candidate))) globalBlockers.push(`unresolved-observation:${observation.id}`);
     return { path: candidate, registered: false };
   });
   // Connected groups share protection; independent selected groups stay independent.
@@ -669,12 +685,13 @@ function planCleanup(root, { paths = [], protectedPaths = [], reportPath, reserv
     changed = false;
     for (const group of groups) if (!group.blockers.length && groups.some(other => other.blockers.length && other.members.some(a => group.members.some(b => overlap(a.path, b.path))))) { group.blockers.push("shared-group-protection"); changed = true; }
   }
-  return { groups, standalone, blockers: globalBlockers };
+  return { groups, observations: observationApi.views(observations), standalone, blockers: globalBlockers };
 }
 function registerRequest(root, id) {
   const records = catalog(root);
   const record = records.find(value => value.id === id);
   if (!record) throw new Error("Unknown lifecycle id");
+  if (record.record_type === "observation") throw new Error("Observation is not a cleanup owner");
   if (cleanupReservation(root, record)) throw new Error("Lifecycle group has active-cleanup-reservation");
   for (const consumer of records) for (const reference of consumer.references.filter(reference => reference.id === id)) {
     const error = referenceBindingError(reference, record);
@@ -700,6 +717,7 @@ function finalizeUnlocked(root, id, retirement) {
   const filename = registryPath(root, id);
     const records = catalog(root), record = records.find(value => value.id === id);
     if (!record) throw new Error("Unknown lifecycle id");
+    if (record.record_type === "observation") throw new Error("Observation cannot be finalized as a cleanup owner");
     const remaining = record.members.filter(member => {
       checked(root, member.path, true);
       try { fs.lstatSync(member.path); return true; } catch (error) { if (error.code === "ENOENT") return false; throw error; }
@@ -743,6 +761,12 @@ function main(argv = process.argv.slice(2)) {
   const retirementKeys = ["producer-stopped-verified", "evidence-ref", "evidence-sha256", "reason"];
   const retirementRequested = retirementKeys.some(key => Object.hasOwn(options, key));
   if (retirementRequested && !["finalize", "reconcile"].includes(action)) throw new Error("Retirement options require finalize or reconcile");
+  if (["record-observation", "migrate-observation", "resolve-observation"].includes(action)) {
+    const request = JSON.parse(fs.readFileSync(checked(root, options["request-file"]), "utf8"));
+    return action === "record-observation" ? observationApi.recordObservation(root, request)
+      : action === "migrate-observation" ? observationApi.migrateObservation(root, options.id, request) : observationApi.resolveObservation(root, options.id, request);
+  }
+  if (action === "observation-catalog") return observationApi.observationCatalog(root);
   if (["close", "release", "transfer-custody", "relocate-custody", "refine-custody"].includes(action)) {
     const requestFile = checked(root, options["request-file"]);
     const request = JSON.parse(fs.readFileSync(requestFile, "utf8"));
@@ -774,9 +798,13 @@ function main(argv = process.argv.slice(2)) {
     const limit = options.limit === undefined ? 50 : Number(options.limit), offset = options.offset === undefined ? 0 : Number(options.offset);
     if (!Number.isInteger(limit) || limit < 1 || limit > 200 || !Number.isInteger(offset) || offset < 0) throw new Error("Catalog limit 1..200 and nonnegative offset required");
     const records = catalog(root);
-    return { total: records.length, offset, limit, groups: records.slice(offset, offset + limit).map(({ id, kind, owner, version, state, membership_complete, members, references, revision, producer, generation }) => ({ id, kind, owner, version, state, membership_complete, member_count: members.length, references, revision, ...(producer ? { producer } : {}), ...(generation ? { generation } : {}) })) };
+    const page = records.slice(offset, offset + limit);
+    return { total: records.length, offset, limit, observations: observationApi.views(page.filter(record => record.record_type === "observation")), groups: page.filter(record => record.record_type !== "observation").map(({ id, kind, owner, version, state, membership_complete, members, references, revision, producer, generation }) => ({ id, kind, owner, version, state, membership_complete, member_count: members.length, references, revision, ...(producer ? { producer } : {}), ...(generation ? { generation } : {}) })) };
   }
   throw new Error("Expected record, plan, register, catalog or finalize");
 }
-module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
+const observationApi = require("./artifact-observations.cjs").createObservationApi({ fs, path, sha, inside, overlap, checked, registry, registryPath,
+  validate, catalog, projectMembers, withCatalogLock, writeRecord, checkedEvidence, referenceIdentity, cleanupReservation });
+module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main,
+  recordObservation: observationApi.recordObservation, migrateObservation: observationApi.migrateObservation, resolveObservation: observationApi.resolveObservation, observationCatalog: observationApi.observationCatalog };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }

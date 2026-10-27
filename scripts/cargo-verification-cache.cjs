@@ -202,7 +202,7 @@ async function runtime(config, env, providers = {}) {
     os: { release: os.release(), version: os.version(), machine: os.machine() }, tools, externalTools,
     cargoConfigs: configs, configParser,
     environmentSha256: sha(canonical(env)), normalized,
-    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs']) };
+    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs']) };
 }
 
 async function key(config, group, inputs, runtimeIdentity) {
@@ -213,7 +213,7 @@ async function key(config, group, inputs, runtimeIdentity) {
   }
   const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
     'scripts/cargo-preflight-recipes.cjs',
-    'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/cargo-config-self-contained.py',
+    'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs', 'scripts/cargo-config-self-contained.py',
     'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
   const declared = group.entries.map(({ feature, check }) => {
     feature.owners.forEach(file => files.add(file)); files.add(feature.contract); files.add(check.args[0]);
