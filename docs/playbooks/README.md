@@ -17,6 +17,7 @@ Record common-source provenance and revision or date when importing a playbook, 
 Improve guidance from demonstrated needs. Promote reusable lessons to common sources only in an authorized task, excluding project-specific assumptions. Define retention or cleanup for temporary artifacts when applicable.
 
 - [Work](work.md): Applies to implementation, fixes, refactoring, migration, verification, and retirement cleanup; adds Azrael owner routes, project verification constraints, and task-level commits to `implementation`.
+- [Test cleanup and consolidation](test-cleanup.md): Applies to authorized review, consolidation and retirement of existing tests; judges distinct contract protection, preserves required checks, and separates maintained source from disposable run artifacts.
 - [App logging and error diagnosis](app-logging.md): Applies to a new app's initial logging, work that adds or changes logging, and diagnosis where missing logs prevent tracing a cause.
 - [Build and reinstall](build.md): Applies to project-local engine/bridge/VSIX generation, delegated validation, local installation, updates, rollback and artifact cleanup.
 - [Artifact lifecycle and migration](artifact-lifecycle.md): Applies to generated work/run and version evidence, shared-cache ownership, group cleanup decisions, and phased adoption of existing artifact paths. Documentation adoption is separate from verified writer/reader migration.
