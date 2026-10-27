@@ -1,0 +1,13 @@
+"use strict";
+const fs=require("node:fs"),path=require("node:path");
+const root=path.resolve(__dirname,"../.."),reports=path.join(__dirname,"reports");
+const read=name=>JSON.parse(fs.readFileSync(path.join(reports,name),"utf8"));
+const snapshot=read("native-output-cleanup-terminal.json"),small=read("small-run-apply.json"),finalize=read("small-run-finalize.json");
+const absent=["artifacts/verification/ds01n1","artifacts/verification/ds01n2","artifacts/tasks/DS-01-version-011-cleanup/runs/native-output-cleanup","artifacts/tasks/DS-01-version-011-cleanup/runs/u22c-final-cli"].map(p=>({path:p,absent:!fs.existsSync(path.join(root,p))}));
+const complete=snapshot.success&&!small.aborted&&small.results.length===2&&small.results.every(r=>r.status==="deleted"&&r.remaining===false)&&finalize.length===2&&finalize.every(r=>r.status==="finalized")&&absent.every(r=>r.absent);
+if(!complete)throw Error("Final task output cleanup incomplete");
+fs.writeFileSync(path.join(reports,"final-task-cleanup.json"),JSON.stringify({complete,at:new Date().toISOString(),oldVersionLogicalBytes:20168314374,temporaryOutputLogicalBytes:392266690,physicalBytesReclaimed:null,absent,preserved:"Independent source/input verification and failure/success evidence, operational reports and residual ownership proof; five ongoing safety regression tests",residuals:"Protected old original groups and u17a stale module registration retained with conditions in work record"},null,2));
+console.log(JSON.stringify({complete,temporaryOutputLogicalBytes:392266690}));
+const plan=path.join(__dirname,"01-plan.md");
+const previous=fs.readFileSync(plan,"utf8");
+fs.writeFileSync(plan,previous.replace(/^[^\n]*\n/,"상태: 승인된 외부 테스트 프로필·연결 빌드의 실제 삭제 및 소유 기록 마감 완료. 확정 구버전 삭제량20,168,314,374 B(약18.78 GiB). 검증·실행 임시 산출물392,266,690 B도 별도 정리 완료. Windows native120개 통과. 작업 커밋 identity는 reports/task-commit.json에 기록하며 보호 근거가 남은 원래 전체 삭제 요청은 일부 보류다.\n"));

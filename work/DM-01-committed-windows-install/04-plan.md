@@ -174,3 +174,27 @@ R16 actual failed1/signal null: engine preservation2,876.355초 후 Windows life
 R14의 정확한 중단 producer/process tree를 fresh CIM과 독립 증거로 확인한 뒤 기존 recoverLease API로 해당 cache lease만 복구했다. 원래 unknown/exit null은 유지했다. 증거는 R/reports/engine-r14-cache-recovery-r18.json 및 l의 독립 control evidence에 보존했다. 성공 snapshot fixture run:DM-01-engine-hash:r18은 native review blockers[] → apply deleted/remaining=false/aborted=false, supported finalize remaining[]/references[]를 확인했다. 실패 진단과 빌드 후속 입력에 필요한 R 내 로그·벤치마크·준비 영수증 및 배포 regression 그룹은 현재 빌드 검증 종료 시 재검토한다. 사용자 파일·설치된 2026.0.12·공유 target은 삭제하지 않았다.
 
 최신 버전 제품 build/prepare의 앞선 actual0은 유지하지만 전체 엔진 및 최종 host 관문을 통과한 최신 배포 완료를 뜻하지 않는다. 최적화 결과를 고정 S 입력에 필요한 tooling delta만 이식하고 새 immutable input에서 나머지 Windows VerifyOnly 관문을 이어갈 예정이다. 제품 기능 입력은 기존 선택 407c7d43을 유지하고 이후 기능 변경/설치는 포함하지 않는다.
+
+### Windows 검증 빌드 R17 재개
+
+최적화 task commit: 9cb05ca66bec1e3f4d0904aa3d91a70296de6480. 임시 index로 18개 task 파일/부분만 커밋하고 실제 index의 다른 작업 엔트리가 바뀌지 않았음을 확인했다. 별도 보고서 R/reports/engine-optimization-commit-r18.json. root의 다른 제품 기능 변경은 S 입력에 복사하지 않았다.
+
+S의 승인된 tooling 14개 파일 차이에서 관련 Node77 및 account-success fixture를 실제0으로 재검증하고 바이트 고정을 확인했다(R/reports/engine-optimization-selected-verification-r18.json). R5 immutable preparation actual0: 841.278초, projectSHA86054c39237e7fbb11f1a0d1acaf410cd138db851f0d1e851b8cd3f737a71286, engine unchanged. 원래 R4 final comparison/Node1912 증거를 보존했다. working m 및 immutable win25-407c7d43-r5는 owning workspace helper가 사전 등록했다.
+
+R17 configSHA3cac1272eb4de81154fd460b145de5e6053d61a95f6b9eb60ccd2c59454865a7. fixed407c7d43/2026.0.13/VerifyOnly/9개 EngineFeatureId/5GiB, SourceRoot k engine 및 shared target 유지. 검증된 R16 product component4개 해시 재확인 후 handoff reference를 두고 재사용한다. Cargo 결과 캐시는 기존 소유 l 작업공간을 명시하며, 준비 캐시는 같은 physical target 소유로 공유한다. npm ci actual0/lock unchanged(약26초), handoff snapshot verified/actual0.
+
+dependency 첫 launcher는 잘못된 leaf 파일명으로 실제 npm 실행 전에 exit1이었다. 실패 로그/close를 그대로 두고 올바른 leaf와 별도 로그로 새 시도를 실행하여 actual0을 확인했다. 실패를 성공으로 덮어쓰지 않았다.
+
+R17 deployment completion workId6d3ce4e8-65a1-4efd-8190-06a46baf9191, session27492, R/reports/deploy-r17-close.json, R/logs/deploy-r17.stdout.log 및 stderr. 시작2026-10-26T02:46경 UTC; 첫 checkpoint10분. 실제 terminal 결과/전체 source·native·package·fresh host·final immutable 결과를 받기 전 완료나 전체 속도 개선을 주장하지 않는다. 사용자 설치는 하지 않는다.
+
+### 남은 검사 최적화 검토 (사용자 요청, R17 실행 입력 고정)
+
+검토 시점 native invocation group18개 중6개 통과,12개 남음: 질문 철회 native/SDK, 공유 엔진 appserver/handoff/manual, API-context prompts/skills, window approval, maintenance library/prompts/core, MCP. 이후 패키지/6 fresh host 관문은 별도이다. 현재 실제 cargo command는 질문 철회의 4개 package(core/protocol/app-server-protocol/app-server) check --lib --tests --profile test이며 선택 필터 실행 전에 compile 중이었다. 새로운 Rust compile을 병렬 실행하거나 R17 입력을 바꾸지 않았다.
+
+우선순위 후보:
+1. 준비 단위와 cfg(test) 범위: cargo-verification.cjs preflightCommands는 --lib 검사에도 --tests를 추가한다. 설치된 Cargo1.95 help에서 --tests는 test=true인 모든 target을 검사한다고 확인했다. --lib 선택보다 넓은 compile을 수행할 수 있다. 필요한 테스트 대상의 실제 compile/no-run을 공통 준비로 삼는 방안과 기존 넓은 type-check 보호 범위의 동등성을 먼저 검증해야 한다. 서로 다른 feature/profile/ABI를 합치거나 넓은 type-check를 조용히 없애지 않는다. 최초 compile 자체와 중복 compile을 구분해 측정한다.
+2. 빈 캐시 게시 및 반복 재측정: feature-preservation.cjs publishPassingCaches는 candidates가 비어도 entries가 있으면 source/runtime/key를 다시 계산한다. 먼저 게시 후보가 없는 호출을 즉시 반환하는 것이 작고 낮은 위험의 개선이다. 추가로 성공 결과를 임시 보관한 뒤 검증 경계에서 묶어 게시하는 설계는 독립 성공 결과의 failure-retry 보존, 중간 drift/unknown/원자성 계약을 확인한 뒤 판단한다. 현재 누적 cacheInput157.356초는 입력·runtime·key 작업 전체이고, 모두 없앨 수 있는 시간으로 취급하지 않는다.
+3. Windows 특수 runner: check-shared-engine-native.cjs runWindowsNativeTests는 일반 runCargoTest 준비 캐시를 경유하지 않고 type-check와 Cargo --no-run/JSON executable 탐색을 매번 수행한다. appserver scope의 PTY3 filters 및 daemon pid1 filter가 해당한다. 동일한 전체 compile identity에만 준비 재사용을 연결할 수 있다. Cargo artifact에서 정확히 하나의 libtest 실행 파일을 검증하고, filter nonzero 목록과 실제 테스트 실행, Cargo job 밖의 Windows breakaway/PSModulePath 계약은 유지한다.
+4. 자원별 scheduling: 현재 nativeSchedule은 전부 순차 실행한다. SDK5개 모델 검사(실제 Python+pydantic import)는 Cargo target을 사용하지 않는다. 별도 환경 준비가 확인되면 Rust compile과 겹치거나 앞에서 실패를 검출할 수 있다. 현재 AZRAEL_PYTHON_SDK는 ROOT engine/sdk/python/.venv/Scripts/python.exe로 명시되어 있고 파일 존재를 확인했으나 이것만으로 SDK 검사 통과를 주장하지 않는다. 같은 target의 Cargo 중첩은 늘리지 않는다. features나 Windows DLL/프로세스 전제 조건이 다른 테스트들을 무조건 합치지 않는다.
+
+6개의 fresh host 검사는 설치·inventory·namespace·실제 호스트의 서로 다른 계약을 검증하므로 캐시로 합격을 대신하지 않는다. immutable 원본 fixture 준비와 아카이브 staging을 재사용하는 방법만 별도 검토할 수 있다. 이 검토는 코드 변경이나 실행 중인 R17의 검사 생략을 하지 않았다. 후속 효과 수치는 아직 미측정이다.

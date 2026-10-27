@@ -3457,13 +3457,18 @@ async fn recompute_token_usage_uses_session_base_instructions() {
         state.session_configuration.base_instructions = override_instructions.clone();
     }
 
-    let item = user_message("hello");
+    let items = [
+        ResponseItem::Reasoning {
+            id: None,
+            summary: vec![],
+            content: None,
+            encrypted_content: Some("a".repeat(2_400)),
+            internal_chat_message_metadata_passthrough: None,
+        },
+        user_message("hello"),
+    ];
     session
-        .record_conversation_items(
-            &turn_context,
-            turn_context.model_info(),
-            std::slice::from_ref(&item),
-        )
+        .record_conversation_items(&turn_context, turn_context.model_info(), &items)
         .await;
 
     let history = session.clone_history().await;
@@ -3490,6 +3495,16 @@ async fn recompute_token_usage_uses_session_base_instructions() {
         .last_token_usage
         .total_tokens;
     assert_eq!(actual_tokens, expected_tokens.max(0));
+    assert_eq!(
+        session
+            .get_total_token_usage_for_model(turn_context.model_info().as_ref())
+            .await,
+        actual_tokens
+            + history.estimated_tokens_after_last_model_generated_item_for_model(
+                turn_context.model_info().as_ref(),
+            ),
+        "locally counted retained reasoning must not be added again",
+    );
 }
 
 #[tokio::test]

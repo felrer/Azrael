@@ -1,0 +1,54 @@
+{
+  "name": "w11m",
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e",
+  "success": true,
+  "logicalBytes": 3278071004,
+  "blockers": [],
+  "results": [
+    {
+      "id": "43cce158557392872462a96049abe8af7a2714b62559d7d2e4a0ca79d9d2d75f",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "4fdc12068bf00909007f29f809e165e65ea5cdd45a6641ac07ebc77fdafde7ee",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "d46a597bd58f8380a820bc862c1568cbdcb2af5255eca550b0a2a5c87d0cb6c6",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "1312f94f9d3ee0b43e64d8bd7d4def514df9948e39d53384ac304350da1984aa",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "1acc5c86d1b7fe1ce575d63eb1d8216ce9c18690b21428bfdb1faa9036c01b08",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "49ae075b37a3189c119e0de3ed14fc27681fb6fa8b04a75eabdfca07d51dc372",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "6b27d3458f0d6fe11b93bfa535044415b23fbd692e13b772f313f75c1a2c18bf",
+      "status": "deleted",
+      "remaining": false
+    }
+  ],
+  "finalize": {
+    "id": "version:w11m",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\maintenance\\lifecycles\\028db31c94cef91eba3c87c1f7392e819dd274d9b4a49882ba06f4ea08b1ac3a.json"
+  },
+  "actualExit": 0,
+  "ended": "2026-10-26T00:14:39.527Z"
+}

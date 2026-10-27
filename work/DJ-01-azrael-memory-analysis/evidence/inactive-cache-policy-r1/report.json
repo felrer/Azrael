@@ -1,0 +1,65 @@
+{
+  "scope": "Extracted installed UI candidate-selection method only; synthetic states. No UI, profile, RPC or inference execution.",
+  "asset": "C:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.11\\webview\\assets\\app-initial-97d3534ad35f.js",
+  "assetSha256": "3b9b36a6b02f1be22cbc9fd80485827347e63eb1d21f5f8c5b49c35bc2834d19",
+  "startCharacterOffset": 4694995,
+  "endCharacterOffset": 4696034,
+  "ttlMs": 10800000,
+  "maxInactiveOrdinaryOwners": 10,
+  "cases": [
+    {
+      "name": "ten idle owner conversations after one hour",
+      "count": 10,
+      "ageMs": 3600000,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "eleven idle owner conversations retire oldest",
+      "count": 11,
+      "ageMs": 3600000,
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "ten idle owner conversations expire after three hours",
+      "count": 10,
+      "ageMs": 10800100,
+      "expected": 10,
+      "actual": 10
+    },
+    {
+      "name": "active views remain excluded after TTL",
+      "count": 11,
+      "ageMs": 10800100,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "work protection remains excluded after TTL",
+      "count": 11,
+      "ageMs": 10800100,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "stream followers remain excluded after TTL",
+      "count": 11,
+      "ageMs": 10800100,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "ephemeral side conversations excluded from ordinary count cap",
+      "count": 11,
+      "ageMs": 3600000,
+      "expected": 0,
+      "actual": 0
+    }
+  ],
+  "limitations": [
+    "Eligibility and protection helpers are controlled fixture inputs, not full UI integration",
+    "No RAM saving is measured",
+    "No real conversation body or profile is read"
+  ]
+}

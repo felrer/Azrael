@@ -1,0 +1,13 @@
+{
+  "owner": "CF-01-window-use-admin-setup",
+  "expected_revision": 2,
+  "reference_ids": [
+    "36c3a7a60365b09c5fcbe35c3bd1066384fcd30e550a2e4cdab61e485f5c65f3",
+    "5b9a113187bb0f4e743661df825df5fe5f3789c043703b9032ded617c4868a20",
+    "e627b85fa05b3a9f0b0579ab08997be4086e395e9285c0ae5874b90f18d16212",
+    "9f9372715a10dad4254fb916f124c281075b3e49cc8f5f64ae8aa8fe9fec35ed"
+  ],
+  "reason": "User authorized retirement of both external 2026.0.10 installations and linked builds, cancelling pending acceptance and rollback consumers. Both registrations removed with exit 0.",
+  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DS-01-version-011-cleanup\\reports\\external-uninstall-results.json",
+  "evidence_sha256": "90da838b4882a8f0f3d052108b39062a9a682bc389331217511eea77f8e752b8"
+}

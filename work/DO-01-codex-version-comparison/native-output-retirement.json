@@ -1,0 +1,86 @@
+{
+  "groupId": "do1-unused-native-outputs-r1",
+  "members": [
+    {
+      "id": "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.exe",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\core-lib-final-r7-verified-rest\\reports\\result.json"
+    },
+    {
+      "id": "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.pdb",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\core-lib-final-r7-verified-rest\\reports\\result.json"
+    },
+    {
+      "id": "do1-unused-native-all-c71321a47dbe4ed9.exe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.exe",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\core-integration-final-r7\\reports\\result.json"
+    },
+    {
+      "id": "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.pdb",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\core-integration-final-r7\\reports\\result.json"
+    },
+    {
+      "id": "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_app_server-ab0fa3885fa06f43.exe",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\app-server-lib-final-r7\\reports\\result.json"
+    },
+    {
+      "id": "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_app_server-ab0fa3885fa06f43.pdb",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\app-server-lib-final-r7\\reports\\result.json"
+    },
+    {
+      "id": "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_tui-128ff604062e1c7e.exe",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\tui-prerequisite-r7\\reports\\result.json"
+    },
+    {
+      "id": "do1-unused-native-codex_tui-128ff604062e1c7e.pdb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_tui-128ff604062e1c7e.pdb",
+      "kind": "cache",
+      "generated": true,
+      "owner": "DO-01-codex-version-comparison",
+      "protection_known": true,
+      "references": [],
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\tui-prerequisite-r7\\reports\\result.json"
+    }
+  ],
+  "reason": "Final same-r7 core unit producer regenerated this pair; all 66 cases passed exit0; no remaining native consumers. Other six retired paths remain absent."
+}

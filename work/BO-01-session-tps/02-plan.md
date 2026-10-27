@@ -1,4 +1,4 @@
-﻿상태: 구현·Windows 필수 검증 완료 · 임시 산출물 일부 보호 보관. 제품 빌드·설치·배포 제외.
+﻿상태: 기존 구현·Windows 검증 완료. 2026-10-25 색상·정렬 후속 수정은 소스/집중 검사 완료, 실제 화면 검증 차단으로 커밋 대기. 제품 빌드·설치·배포 제외.
 
 # 요청별 40분 TPS와 모드 평균
 
@@ -65,3 +65,17 @@ core-r4 launcher도 실제 exit 0으로 종료됐다. reports/producer.json은 p
 - native-r3: 앞서 기록한 OS2 등록 불확실성이 해소될 때까지 보관한다. 사용 중인 공용 Cargo target과 legacy BO-01 자료는 이 작업 정리 대상에서 제외한다.
 
 기능 변경은 수용하지만 산출물 등록·정리의 위 제한은 남아 있다. 잠금 삭제나 다른 경로의 강제 정리는 수행하지 않았다. 설치본·실제 제공자·Linux/macOS는 검증하지 않았다.
+
+## 색상·시각 정렬 보정
+
+2026-10-25 사용자 스크린샷에 따라 Fast 주황을 조금 어둡게, Ultrafast 보라를 조금 밝게 조정하고 시각/점선 정렬을 수정한다. 공통 Windows x64/Linux glibc x64/macOS ARM64 webview 표시 변경이며 실제 검증은 Windows Chrome의 pinned native React/CSS에 한정한다. 설치/제품 빌드와 engine 계약 변경은 포함하지 않는다.
+
+원인은 시각의 별도 HTML 백분율 좌표와 오른쪽 80% clamp이다. SVG max-height에 의한 좌우 여백도 HTML 좌표와 일치하지 않을 수 있다. 같은 SVG 안에서 점선의 x 좌표에 HH:mm의 중심을 맞추고 가까운 요청은 y 행만 나눈다. 기존 테마 토큰에 color-mix를 적용하여 점/선/범례/평균에 같은 보정색을 쓴다. 이력·40분·가중평균·기본 off·대화 격리는 보존한다.
+
+기존 provider-context/model-picker 회귀와 native 렌더 검사를 확장해 양 테마 1000/474/360폭에서 시각 중심/점선 실제 좌표, 가까운 요청 겹침, 주황/보라 실제 luminance와 차이 0.05 미만을 검증한다. 같은 좌표계 회귀와 밝기 동작 검사는 보존 계약이므로 기존 retained 검사에 유지한다. 단위 로그는 새 BO-02-tps-history run, 렌더는 기존 verify-context-compaction-render의 새 고유 run에 기록한다. 임시 browser/profile은 종료 확인 뒤 현재 lifecycle 등록/review/apply 절차로 정리하고, 필요한 독립 로그·스크린샷은 보관한다. 기존 staged 타 작업 4파일은 유지하며 이번 파일만 선택하여 커밋한다.
+
+실행 결과: unit wrapper는 .run-claim.lock EEXIST, renderer는 catalog.lock EEXIST로 실제 검사/산출물 생성 전에 exit 1이었다. catalog.lock의 FileShare.None 열기가 공유 위반으로 실패해 실제 사용 중임을 확인했다. fs.watch로 두 잠금의 실제 부재를 10분 기다리는 시도도 no run started checkpoint로 exit 1이었다. 별도의 대기 launcher 첫 시도는 ESM require 문법 오류로 시작 전 종료됐으며 import 문법으로 고쳤다. 어느 시도도 browser를 시작하지 않았고 새 fixture/profile이나 수용 근거는 생성되지 않았다. 기존 보호 잠금을 수정하지 않았다.
+
+파일 생성 없는 `node --test --test-name-pattern "timestamped TPS" scripts/test-provider-context.cjs`는 최종 수정 후 1/1, exit 0이다. 양 끝 x=24/264와 가까운 요청의 시각/점선 동일 좌표, 기존 이력/평균/default off를 확인했다. 세 JS/MJS의 node --check와 선택 파일 git diff --check도 exit 0이었다. Fast는 테마 주황 95%+black 5%, Ultrafast는 테마 보라 95%+white 5%로 최종 조정했다. 초기 15%/20% 보정은 pinned 팔레트 수치 계산에서 과도하여 실행 전에 줄였다. 이 계산은 실제 browser 측정 대신이 아니다.
+
+남은 일: 다른 catalog writer가 종료되면 기존 wrapper로 UI 회귀를 실행하고 native renderer의 양 테마·세 폭·실제 luminance/정렬/겹침 검증, 화면 검토 및 해당 신규 run 정리를 수행한다. mandatory 실제 UI 검증이 차단됐으므로 현재 후속 수정은 커밋하지 않았다. 기존 staged 타 작업 4파일은 그대로 두며 현재 다섯 변경 파일만 후속 커밋 대상으로 유지한다. 이전 Windows 수용 근거를 이 후속 수정의 렌더 통과로 재사용하지 않는다.

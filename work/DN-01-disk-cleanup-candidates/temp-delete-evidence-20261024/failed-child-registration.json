@@ -1,0 +1,1 @@
+{"status":"failed","error":"group update cannot drop a live member","proposed_members":145,"destructive_apply_started":false,"note":"Original managed-root group remains protected; no bypass or raw-registry editing performed."}

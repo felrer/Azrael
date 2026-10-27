@@ -1,0 +1,290 @@
+{
+  "schema": 1,
+  "releaseName": "w11aa",
+  "startedUtc": "2026-10-22T04:18:08.2246815Z",
+  "status": "failed",
+  "verifyOnly": false,
+  "releaseDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+  "packageDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\deployments\\deploy-w11aa\\package",
+  "fixtureRoot": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/h24",
+  "stages": [
+    {
+      "name": "environment-preflight",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\pipeline-preflight.cjs",
+        "--environment",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-source-preflight-inputs.json"
+      ],
+      "startedUtc": "2026-10-22T04:18:17.1404372Z",
+      "durationMs": 485.6512,
+      "exitCode": 0,
+      "terminated": false,
+      "completedUtc": "2026-10-22T04:18:17.6377428Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\environment-preflight.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\environment-preflight.stderr.log"
+    },
+    {
+      "name": "cargo-preparation-plan",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\cargo-preflight-recipes.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-source-preflight-inputs.json"
+      ],
+      "startedUtc": "2026-10-22T04:18:18.0626525Z",
+      "durationMs": 120.0929,
+      "exitCode": 0,
+      "terminated": false,
+      "completedUtc": "2026-10-22T04:18:18.1905067Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\cargo-preparation-plan.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\cargo-preparation-plan.stderr.log"
+    },
+    {
+      "name": "verification-dependencies",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\pipeline-preflight.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-source-preflight-inputs.json"
+      ],
+      "startedUtc": "2026-10-22T04:18:18.2299525Z",
+      "durationMs": 110.6142,
+      "exitCode": 0,
+      "terminated": false,
+      "completedUtc": "2026-10-22T04:18:18.3471640Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\verification-dependencies.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\verification-dependencies.stderr.log"
+    },
+    {
+      "name": "engine-source-preflight",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\feature-preservation.cjs",
+        "run",
+        "--config",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-source-preflight-inputs.json"
+      ],
+      "startedUtc": "2026-10-22T04:18:18.3653191Z",
+      "durationMs": 208024.3344,
+      "exitCode": 0,
+      "terminated": false,
+      "completedUtc": "2026-10-22T04:21:46.3961333Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-source-preflight.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-source-preflight.stderr.log"
+    },
+    {
+      "name": "source-tests",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\test-project.cjs",
+        "--args-file",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\source-test-arguments.json",
+        "--args-sha256",
+        "10af92becec048143ab569a4e305d5e2cce87ab3bfcd18a636cacd3086151c36"
+      ],
+      "startedUtc": "2026-10-22T04:21:46.4426639Z",
+      "durationMs": 414361.5703,
+      "exitCode": 0,
+      "terminated": false,
+      "completedUtc": "2026-10-22T04:28:40.8133186Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\source-tests.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\source-tests.stderr.log"
+    },
+    {
+      "name": "changed-test-type-preparation",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\pipeline-preflight.cjs",
+        "--prepare-tests",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-source-preflight-inputs.json"
+      ],
+      "startedUtc": "2026-10-22T04:21:46.4644213Z",
+      "durationMs": 2695774.3791,
+      "exitCode": 0,
+      "terminated": false,
+      "completedUtc": "2026-10-22T05:06:42.2456097Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\changed-test-type-preparation.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\changed-test-type-preparation.stderr.log"
+    },
+    {
+      "name": "build",
+      "executable": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.7.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "arguments": [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-File",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\build-azrael.ps1",
+        "-ReleaseName",
+        "w11aa",
+        "-SourceRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\engine",
+        "-LifecycleParentActive",
+        "-EngineTargetDirectory",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+        "-ModuleCacheProjectRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13",
+        "-WindowControlTargetDirectory",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\window-control-native\\target",
+        "-ComputerUseRuntimeDirectory",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\sky-policy-package-boundary\\runtime-metadata-fixed",
+        "-ComputerUsePluginDirectory",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\tooling\\inputs\\computer-use-26.1007.21434",
+        "-CodeModeHostPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r19\\inputs\\azrael-code-mode-host.exe"
+      ],
+      "startedUtc": "2026-10-22T05:06:52.6366593Z",
+      "durationMs": 427393.5917,
+      "exitCode": 0,
+      "terminated": false,
+      "completedUtc": "2026-10-22T05:14:00.0761172Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\build.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\build.stderr.log"
+    },
+    {
+      "name": "engine-preservation",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "arguments": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\feature-preservation.cjs",
+        "run",
+        "--config",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-preservation-inputs.json"
+      ],
+      "startedUtc": "2026-10-22T05:14:07.6226843Z",
+      "durationMs": 971.6646,
+      "exitCode": -1,
+      "terminated": true,
+      "completedUtc": "2026-10-22T05:14:08.6103123Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-preservation.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-preservation.stderr.log"
+    },
+    {
+      "name": "prepare",
+      "executable": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.7.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "arguments": [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-File",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\scripts\\prepare-independent-vscode.ps1",
+        "-ReleaseDirectory",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+        "-OutputDirectory",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\deployments\\deploy-w11aa\\package",
+        "-StateRoot",
+        "C:\\Users\\felre\\.azrael-ex",
+        "-SourceCodexHome",
+        "C:\\Users\\felre\\.codex",
+        "-SourceExtensionPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+        "-TypeScriptPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\extensions\\azrael-ex\\node_modules\\typescript\\lib\\typescript.js",
+        "-SourceTestPolicyPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\source-test-policy-inputs.json",
+        "-HostVersion",
+        "2026.0.11",
+        "-NamespaceCacheProjectRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "-ChangedOnlyTests"
+      ],
+      "startedUtc": "2026-10-22T05:14:07.6496591Z",
+      "durationMs": 902.6703,
+      "exitCode": 1,
+      "terminated": false,
+      "completedUtc": "2026-10-22T05:14:08.5646014Z",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\prepare.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\prepare.stderr.log"
+    }
+  ],
+  "inputChecks": [
+    {
+      "phase": "initial",
+      "exitCode": 0,
+      "durationMs": 8100.0679,
+      "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\inputs-initial.json",
+      "fileCount": 24590,
+      "bytes": 476243078,
+      "sha256": "050b6fcc040e714acf35bdea133e25a01d62bc8a346f69f19047206da9aa5285"
+    },
+    {
+      "phase": "post-test-preparation",
+      "exitCode": 0,
+      "durationMs": 10373.669,
+      "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\inputs-post-test-preparation.json",
+      "fileCount": 24590,
+      "bytes": 476243078,
+      "sha256": "050b6fcc040e714acf35bdea133e25a01d62bc8a346f69f19047206da9aa5285"
+    },
+    {
+      "phase": "post-build",
+      "exitCode": 0,
+      "durationMs": 7515.3687,
+      "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\inputs-post-build.json",
+      "fileCount": 24590,
+      "bytes": 476243078,
+      "sha256": "050b6fcc040e714acf35bdea133e25a01d62bc8a346f69f19047206da9aa5285"
+    }
+  ],
+  "engineTargetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+  "wallTimeMs": 3360390.0494,
+  "projectInputSha256": "050b6fcc040e714acf35bdea133e25a01d62bc8a346f69f19047206da9aa5285",
+  "testScope": "changed",
+  "forceNativeVerification": false,
+  "changedPaths": [
+    "docs/architecture/accounts.md",
+    "docs/architecture/azrael-runtime.md",
+    "docs/architecture/upstream-preservation.md",
+    "docs/ops/development.md",
+    "engine/codex-rs/app-server-client/src/bin/azrael-bridge.rs",
+    "engine/codex-rs/app-server-daemon/src/azrael.rs",
+    "engine/codex-rs/app-server-daemon/src/azrael_lifecycle.rs",
+    "engine/codex-rs/app-server-daemon/src/backend/pid.rs",
+    "engine/codex-rs/app-server-daemon/src/backend/pid_tests.rs",
+    "engine/codex-rs/app-server-daemon/src/lib.rs",
+    "engine/codex-rs/app-server/src/azrael_shared_server.rs",
+    "engine/codex-rs/app-server/src/azrael_shared_server/tests.rs",
+    "engine/codex-rs/app-server/src/azrael_shutdown.rs",
+    "engine/codex-rs/app-server/src/lib.rs",
+    "engine/codex-rs/app-server/src/main.rs",
+    "engine/codex-rs/ext/skills/src/host_roots_tests.rs",
+    "extensions/azrael-ex/src/accountService.ts",
+    "extensions/azrael-ex/src/appServerTransport.ts",
+    "extensions/azrael-ex/src/bridgeTransport.ts",
+    "extensions/azrael-ex/src/extension.ts",
+    "extensions/azrael-ex/test/account-service-fixture.ts",
+    "extensions/azrael-ex/test/accountService.test.ts",
+    "extensions/azrael-ex/test/appServerTransport.test.ts",
+    "extensions/azrael-ex/test/bridge-fixture.ts",
+    "extensions/azrael-ex/test/bridgeTransport.test.ts",
+    "extensions/azrael-ex/test/standaloneChatActivation.test.ts",
+    "scripts/azrael-feature-contracts.json",
+    "scripts/cargo-preflight-recipes.cjs",
+    "scripts/check-shared-engine-native.cjs",
+    "scripts/test-cargo-preflight-recipes.cjs",
+    "scripts/test-cargo-verification.cjs",
+    "scripts/test-verification-result-cache.cjs",
+    "scripts/verification-result-cache.cjs"
+  ],
+  "environmentPreflight": {
+    "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\environment-preflight.stdout.log",
+    "required": {
+      "python": true,
+      "sdkPython": false,
+      "cargo": true
+    }
+  },
+  "moduleCachePreflight": {
+    "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13",
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\cache\\modules",
+    "registeredProjects": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13"
+    ]
+  },
+  "sourceTestArguments": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\source-test-arguments.json",
+    "sha256": "10af92becec048143ab569a4e305d5e2cce87ab3bfcd18a636cacd3086151c36",
+    "count": 73,
+    "characterCount": 2058.0
+  },
+  "error": "prepare failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\prepare.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\prepare.stdout.log.",
+  "completedUtc": "2026-10-22T05:14:08.6140595Z"
+}

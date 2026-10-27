@@ -23,7 +23,8 @@ function temporaryOwner(t) {
 const source = 'const label = "Codex";';
 const relative = 'webview/assets/fixture.js';
 test('real TypeScript warm reuse preserves results; cloned same-version TypeScript executes its producer', t => {
-  const fixture = createUiTestTransformFixture({ cacheProjectRoot: temporaryOwner(t) });
+  const cacheProjectRoot = temporaryOwner(t);
+  const fixture = createUiTestTransformFixture({ cacheProjectRoot });
   const { transformAsset } = fixture;
   const cold = transformAsset(source, relative, 'fixture.js', ts);
   assert.strictEqual(transformAsset(source, relative, 'fixture.js', ts), cold);
@@ -38,6 +39,20 @@ test('real TypeScript warm reuse preserves results; cloned same-version TypeScri
   const changed = transformAsset(changedSource, relative, 'fixture.js', ts);
   assert.notEqual(changed.text, cold.text);
   assert.equal(fixture.getStatistics().producerCalls, 2);
+  // Alternating source variants retain separate persisted entries even though
+  // the fixture keeps only its most recent result object in memory.
+  const restored = transformAsset(source, relative, 'fixture.js', ts);
+  assert.deepEqual(restored, cold);
+  assert.strictEqual(transformAsset(source, relative, 'fixture.js', ts), restored);
+  assert.equal(fixture.getStatistics().producerCalls, 2);
+  // Independent test consumers must reuse disk entries, not process-local state.
+  const consumer = createUiTestTransformFixture({ cacheProjectRoot });
+  const consumerTransform = consumer.transformAsset;
+  assert.deepEqual(consumerTransform(source, relative, 'fixture.js', ts), cold);
+  assert.deepEqual(consumerTransform(changedSource, relative, 'fixture.js', ts), changed);
+  assert.equal(consumer.getStatistics().hits, 2);
+  assert.equal(consumer.getStatistics().misses, 0);
+  assert.equal(consumer.getStatistics().producerCalls, 0);
   let parses = 0;
   const cloned = { ...ts, createSourceFile(...args) { parses++; return ts.createSourceFile(...args); } };
   assert.equal(cloned.version, ts.version);

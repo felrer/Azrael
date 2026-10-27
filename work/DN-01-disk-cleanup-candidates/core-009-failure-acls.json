@@ -1,0 +1,58 @@
+﻿[
+    {
+        "Path":  "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\codex-core-testsa4LCHT",
+        "Attributes":  16,
+        "Owner":  "FELRER\\felre",
+        "Protected":  false,
+        "AceCount":  5,
+        "Sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)"
+    },
+    {
+        "Path":  "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\codex-core-testsa4LCHT\\tmp",
+        "Attributes":  16,
+        "Owner":  "FELRER\\felre",
+        "Protected":  false,
+        "AceCount":  5,
+        "Sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)"
+    },
+    {
+        "Path":  "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\codex-core-testsa4LCHT\\tmp\\arg0",
+        "Attributes":  16,
+        "Owner":  "FELRER\\felre",
+        "Protected":  false,
+        "AceCount":  5,
+        "Sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)"
+    },
+    {
+        "Path":  "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\codex-core-testsa4LCHT\\tmp\\arg0\\codex-arg0RQgTn8",
+        "Attributes":  16,
+        "Owner":  "FELRER\\felre",
+        "Protected":  false,
+        "AceCount":  5,
+        "Sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)"
+    },
+    {
+        "Path":  "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\codex-core-testsa4LCHT\\tmp\\arg0\\codex-arg0RQgTn8\\.lock",
+        "Attributes":  32,
+        "Owner":  "FELRER\\felre",
+        "Protected":  false,
+        "AceCount":  5,
+        "Sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;ID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;ID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)"
+    },
+    {
+        "Path":  "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\codex-core-testsa4LCHT\\tmp\\arg0\\codex-arg0RQgTn8\\applypatch.bat",
+        "Attributes":  32,
+        "Owner":  "FELRER\\felre",
+        "Protected":  false,
+        "AceCount":  5,
+        "Sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;ID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;ID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)"
+    },
+    {
+        "Path":  "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\codex-core-testsa4LCHT\\tmp\\arg0\\codex-arg0RQgTn8\\apply_patch.bat",
+        "Attributes":  32,
+        "Owner":  "FELRER\\felre",
+        "Protected":  false,
+        "AceCount":  5,
+        "Sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;ID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;ID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)"
+    }
+]

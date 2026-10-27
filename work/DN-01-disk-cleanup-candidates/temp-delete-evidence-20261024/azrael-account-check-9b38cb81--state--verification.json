@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "engine": "C:\\Temp\\azrael-account-check-9b38cb81\\bin\\codex.exe",
+  "bridge": "C:\\Temp\\azrael-account-check-9b38cb81\\bin\\azrael-bridge.exe",
+  "stateRoot": "C:\\Temp\\azrael-account-check-9b38cb81\\state",
+  "socket": "C:\\Temp\\azrael-acct-ipc-9b38cb81\\control.sock",
+  "profilesTested": 2,
+  "checks": [
+    "synthetic managed ChatGPT capture without user credentials",
+    "native and bridge account notifications",
+    "inactive and active profile usage identity headers",
+    "inactive profile bounded 401 recovery with refreshed identity",
+    "429 usage refusal without refresh or retry",
+    "wrong profile and active removal rejection",
+    "bridge direct authentication rejection",
+    "switch and server reconnect restore of fixed-home config and empty persisted thread",
+    "persisted native thread survives account switch and server restart",
+    "config persistence at fixed home",
+    "synthetic secure profile credential cleanup",
+    "no automatic usage credit consumption"
+  ],
+  "realLogin": false,
+  "modelRequest": false,
+  "userCredentialRead": false,
+  "usageCreditConsumeRequests": 0,
+  "modelRequests": 0
+}

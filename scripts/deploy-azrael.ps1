@@ -156,8 +156,17 @@ function Assert-ProjectSnapshot {
         throw "Consumed deployment inputs changed under $project. See $difference for exact changed paths. Changes outside the selected input root are excluded; select corrected inputs and a new ReleaseName."
     }
 }
+function Assert-DeploymentCapacity {
+    if ($RequiredFreeBytes -le 0) { return }
+    $drive = [IO.DriveInfo]::new([IO.Path]::GetPathRoot($project))
+    $available = $drive.AvailableFreeSpace
+    if ($available -lt $RequiredFreeBytes) {
+        throw "Deployment capacity guard: project volume $($drive.Name) has $available available bytes; RequiredFreeBytes is $RequiredFreeBytes. Stop owned stages before reviewing safe cleanup and retry only after capacity recovers."
+    }
+}
 function Start-OwnedCommand {
     param([string]$Name, [string]$Executable, [string[]]$Arguments)
+    Assert-DeploymentCapacity
     $info = [Diagnostics.ProcessStartInfo]::new($Executable)
     $info.WorkingDirectory = $project
     $info.UseShellExecute = $false
@@ -192,7 +201,14 @@ function Complete-OwnedCommand {
 }
 function Wait-OwnedCommands {
     param([object[]]$Commands, [object[]]$MonitoredCommands = @())
+    $capacityTimer = [Diagnostics.Stopwatch]::StartNew()
+    $checkCapacity = $true
     while (@($Commands | Where-Object { -not $_.Completed }).Count) {
+        if ($RequiredFreeBytes -gt 0 -and ($checkCapacity -or $capacityTimer.ElapsedMilliseconds -ge 1000)) {
+            Assert-DeploymentCapacity
+            $checkCapacity = $false
+            $capacityTimer.Restart()
+        }
         foreach ($child in @($Commands) + @($MonitoredCommands)) {
             if (-not $child.Completed -and $child.Process.HasExited) {
                 Complete-OwnedCommand $child

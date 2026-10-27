@@ -1,105 +1,58 @@
 "use strict";
-// Create-new sentinels are shared with native maintenance. Existence always means busy.
 const fs = require("node:fs");
 const path = require("node:path");
-const { randomUUID } = require("node:crypto");
-const { performance } = require("node:perf_hooks");
-
-function checked(filename) {
-  if (typeof filename !== "string" || !path.isAbsolute(filename) || filename.includes("\0") || filename.split(/[\\/]/).includes("..")) throw Error("Absolute lock path without traversal required");
-  filename = path.resolve(filename);
-  let current = path.parse(filename).root;
-  for (const part of filename.slice(current.length).split(path.sep)) {
-    current = path.join(current, part);
-    try {
-      const stat = fs.lstatSync(current);
-      if (stat.isSymbolicLink() || (current === filename ? !stat.isFile() : !stat.isDirectory())) throw Error("Lock path requires plain file and directory ancestors");
-    } catch (error) { if (error.code !== "ENOENT") throw error; }
-  }
+const { Worker, MessageChannel, receiveMessageOnPort } = require("node:worker_threads");
+// Native registry records remain bounded at 16 MiB. The worker/native lease
+// transport accepts 64 MiB JSON frames, including their newline; reservation
+// batches are conservatively preflighted before any durable fence is created.
+function resolveOwner() {
+  const filename = require("./maintenance-owner-config.cjs").resolveMaintenanceOwner();
+  if (typeof filename !== "string" || !path.isAbsolute(filename) || !fs.statSync(filename).isFile()) throw Error("Absolute existing maintenance owner binary required");
   return filename;
 }
-const same = (a, b) => a.dev === b.dev && a.ino === b.ino && a.birthtimeNs === b.birthtimeNs;
-function ownerSummary(filename) {
-  try {
-    checked(filename);
-    const descriptor = fs.openSync(filename, "r");
-    try {
-      if (fs.fstatSync(descriptor).size > 4096) return null;
-      const buffer = Buffer.alloc(4097);
-      const length = fs.readSync(descriptor, buffer, 0, buffer.length, 0);
-      if (length > 4096) return null;
-      const data = JSON.parse(buffer.subarray(0, length).toString("utf8"));
-      if (data.schema !== 1) return null;
-      // Only bounded, typed fields may enter diagnostics; never expose arbitrary file text.
-      return Object.fromEntries(Object.entries(data).filter(([key, value]) =>
-        (["pid", "parent_pid", "acquired_at_ms"].includes(key) && Number.isSafeInteger(value) && value >= 0) ||
-        (key === "token" && typeof value === "string" && /^[a-f0-9-]{36}$/i.test(value)) ||
-        (key === "process_started_at" && typeof value === "string" && value.length === 24 && /^\d{4}-\d\d-\d\dT[\d:.]+Z$/.test(value)) ||
-        (key === "operation" && typeof value === "string" && /^[a-zA-Z0-9_.:-]{1,120}$/.test(value))));
-    } finally { fs.closeSync(descriptor); }
-  } catch { return null; }
-}
-function refuse(filename, message) {
-  return Object.assign(Error(`${message}: ${filename}; explicit recovery required`), { code: "ELOCKOWNERSHIP", path: filename, recovery_required: true });
-}
-function verify(filename, identity, bytes) {
-  checked(filename);
-  const stat = fs.lstatSync(filename, { bigint: true });
-  if (!same(identity, stat) || !fs.readFileSync(filename).equals(bytes)) throw refuse(filename, "Lock owner changed; release refused");
-}
 function acquire(filename, { operation, waitMs = 0 } = {}) {
-  filename = checked(filename);
+  if (typeof filename !== "string" || !path.isAbsolute(filename) || filename.includes("\0") || filename.split(/[\\/]/).some(x => x === ".." || x === ".")) throw Error("Absolute lock path without traversal required");
   if (typeof operation !== "string" || !/^[a-zA-Z0-9_.:-]{1,120}$/.test(operation)) throw Error("Bounded lock operation required");
   if (!Number.isSafeInteger(waitMs) || waitMs < 0 || waitMs > 5000) throw Error("Lock wait must be between 0 and 5000ms");
-  const deadline = performance.now() + waitMs;
-  let descriptor;
-  try {
+  const { port1, port2 } = new MessageChannel();
+  const signal = new Int32Array(new SharedArrayBuffer(8));
+  const worker = new Worker(require.resolve("./maintenance-lock-worker.cjs"), { workerData: { port: port2, signal: signal.buffer, binary: resolveOwner(), filename, operation, waitMs, parentPid: process.pid }, transferList: [port2] });
+  worker.on("error", () => {});
+  worker.unref(); port1.unref();
+  let closed = false, next = 1;
+  function wait(id, timeout) {
+    const until = performance.now() + timeout;
     for (;;) {
-      try { descriptor = fs.openSync(filename, "wx"); break; }
-      catch (error) {
-        const remaining = deadline - performance.now();
-        if (error.code !== "EEXIST" || remaining <= 0) throw error;
-        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(25, remaining));
-        checked(filename);
+      const tick = Atomics.load(signal, 0);
+      const packet = receiveMessageOnPort(port1)?.message;
+      if (packet) {
+        if (packet.id === null && !packet.ok) { close(); throw Error(packet.error || "Native lease terminated; outcome unknown"); }
+        if (packet.id !== id) { close(); throw Error("Native lease protocol response mismatch; outcome unknown"); }
+        if (!packet.ok) { const busy = id === 0 && /OS lock busy|legacy or unknown lock/.test(packet.error || ""); const error = Object.assign(Error(packet.error || "Native lease failed"), { code: busy ? "EEXIST" : "ELOCKOWNERSHIP", path: filename, recovery_required: /explicit recovery/.test(packet.error || "") }); throw error; }
+        return packet.result;
       }
+      if (Atomics.load(signal, 1) !== 0) { close(); throw Error("Native lease terminated; outcome unknown"); }
+      const remaining = until - performance.now();
+      if (remaining <= 0) { close(); throw Error("Native lease timeout; outcome unknown"); }
+      Atomics.wait(signal, 0, tick, Math.min(remaining, 100));
     }
   }
-  catch (error) {
-    if (error.code !== "EEXIST") throw error;
-    throw Object.assign(Error(`EEXIST: maintenance lock busy: ${filename}; explicit recovery required`), {
-      code: "EEXIST", path: filename, recovery_required: true, owner: ownerSummary(filename), cause: error,
-    });
+  function close() { if (!closed) { closed = true; port1.close(); worker.terminate(); } }
+  function request(operation, fields = {}) {
+    if (closed) throw Error("Native lease already released");
+    const id = next++; port1.postMessage({ id, operation, ...fields });
+    const responseDeadlineMs = ["reserve_producers", "finish_producers"].includes(operation) ? 60000 : 10000;
+    return wait(id, responseDeadlineMs);
   }
-  let identity;
-  const owner = { schema: 1, pid: process.pid, token: randomUUID(), acquired_at_ms: Date.now(), operation,
-    process_started_at: new Date(performance.timeOrigin).toISOString(), parent_pid: process.ppid };
-  const bytes = Buffer.from(JSON.stringify(owner) + "\n");
-  try {
-    identity = fs.fstatSync(descriptor, { bigint: true });
-    fs.writeFileSync(descriptor, bytes);
-    fs.fsyncSync(descriptor);
-    verify(filename, identity, bytes);
-  } catch (error) {
-    const failures = [error];
-    // A partial initialization can clean only the exact inode and bytes still held by us.
-    let observed;
-    try { observed = fs.readFileSync(filename); if (!identity || !same(identity, fs.lstatSync(filename, { bigint: true })) || !bytes.subarray(0, observed.length).equals(observed)) observed = undefined; }
-    catch (cleanupError) { failures.push(cleanupError); }
-    try { fs.closeSync(descriptor); } catch (closeError) { failures.push(closeError); observed = undefined; }
-    if (observed) try { verify(filename, identity, observed); fs.unlinkSync(filename); } catch (cleanupError) { failures.push(cleanupError); }
-    throw failures.length === 1 ? error : new AggregateError(failures, "Lock initialization and cleanup failed");
-  }
-  let released = false;
-  return { owner, release() {
-    if (released) throw refuse(filename, "Lock already released");
-    let verificationError;
-    try { verify(filename, identity, bytes); } catch (error) { verificationError = error; }
-    // Always close our descriptor, including when a replaced marker prevents removal.
-    released = true; // A failed close has unknown descriptor state and cannot safely be retried.
-    try { fs.closeSync(descriptor); } catch (error) { throw verificationError ? new AggregateError([verificationError, error], "Lock release failed") : error; }
-    if (verificationError) throw verificationError;
-    verify(filename, identity, bytes);
-    fs.unlinkSync(filename);
-  } };
+  let owner;
+  try { owner = wait(0, waitMs + 10000); } catch (error) { close(); throw error; }
+  return { owner,
+    writeRecord(record, expectedSha) { return request("write_record", { record, expected_sha256: expectedSha }); },
+    removeRecord(recordId, expectedSha) { return request("remove_record", { record_id: recordId, expected_sha256: expectedSha }); },
+    reserveProducers(records) { return request("reserve_producers", { records }); },
+    releaseCatalog() { return request("release_catalog"); },
+    finishProducers(outcomes, evidenceRef, evidenceSha) { return request("finish_producers", { outcomes, evidence_ref: evidenceRef, evidence_sha256: evidenceSha }); },
+    release() { try { return request("release"); } finally { close(); } }
+  };
 }
 module.exports = { acquire };

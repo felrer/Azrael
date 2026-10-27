@@ -70,7 +70,7 @@ function responsePerformanceGraph(jsx, p, ko, options = {}) {
   if (p?.startedAtUnixMs == null && p?.observedAtUnixMs == null) return legacyResponsePerformanceGraph(jsx,p,ko);
   const minuteMs=60000,windowMs=40*minuteMs,end=p?.observedAtUnixMs,start=end-windowMs;
   if (!p || !Number.isFinite(end) || !Number.isFinite(new Date(end).getTime()) || !Number.isFinite(p.startedAtUnixMs) || !Number.isFinite(new Date(p.startedAtUnixMs).getTime()) || p.startedAtUnixMs>end || typeof p.turnId!=="string" || !p.turnId.trim() || !Array.isArray(p.history) || !Array.isArray(p.minuteSamples)) return null;
-  const modes=["standard","fast","ultrafast"],colors={standard:"var(--color-chart-blue)",fast:"var(--color-chart-orange)",ultrafast:"var(--color-purple)"},names={standard:"Standard",fast:"Fast",ultrafast:"Ultrafast",unknown:ko?"모드 미상":"Unknown mode"};
+  const modes=["standard","fast","ultrafast"],colors={standard:"var(--color-chart-blue)",fast:"color-mix(in srgb, var(--color-chart-orange) 95%, black)",ultrafast:"color-mix(in srgb, var(--color-purple) 95%, white)"},names={standard:"Standard",fast:"Fast",ultrafast:"Ultrafast",unknown:ko?"모드 미상":"Unknown mode"};
   const color=mode=>colors[mode]??"var(--vscode-descriptionForeground, currentColor)",format=n=>n.toLocaleString(ko?"ko-KR":"en-US",{minimumFractionDigits:1,maximumFractionDigits:1});
   const clock=ms=>{const d=new Date(ms);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
   const turns=[...p.history,{turnId:p.turnId,startedAtUnixMs:p.startedAtUnixMs,minuteSamples:p.minuteSamples}],ids=new Set(),points=[],boundaries=[];
@@ -94,9 +94,10 @@ function responsePerformanceGraph(jsx, p, ko, options = {}) {
   const label=ko?"분별 TPS · 추정":"TPS by minute · estimated",range=ko?"최근 40분":"Recent 40 minutes",unit=ko?"토큰/초":"tokens/s",averageLabel=ko?"모드별 평균":"Mode averages";
   const description=[label,range,...points.map(s=>clock(s.time)+" "+names[s.mode??'unknown']+": "+format(s.rate)+" "+unit)].join(" · ");
   const shapes=[],timestampRows=[];
-  // A label occupies at most 20% of the narrow plot (five tabular digits).
-  // Allocate extra rows rather than overlap closely spaced request starts.
-  const timestamps=boundaries.map(b=>{const left=Math.max(0,Math.min(80,(b.time-start)/windowMs*100));let row=timestampRows.findIndex(right=>right<=left);if(row<0){row=timestampRows.length;timestampRows.push(0)}timestampRows[row]=left+20;return {...b,left,row}});
+  // Share SVG coordinates with the boundaries, including at the plot edges.
+  // Five tabular digits fit in 34 units; close starts use separate rows.
+  const timestamps=boundaries.map(b=>{const position=x(b.time),left=position-17;let row=timestampRows.findIndex(right=>right<=left);if(row<0){row=timestampRows.length;timestampRows.push(0)}timestampRows[row]=position+17;return {...b,position,row}});
+  const graphHeight=86+Math.max(1,timestampRows.length)*16;
   for(const [i,point] of points.entries()){
     const previous=points[i-1];
     if(previous&&previous.turnId===point.turnId&&previous.mode===point.mode&&point.minute===previous.minute+1)shapes.push(jsx("line",{key:"join-"+i,"data-tps-join":true,x1:x(previous.time),y1:y(previous.rate),x2:x(point.time),y2:y(point.rate),stroke:color(point.mode),strokeWidth:1.5}));
@@ -104,11 +105,11 @@ function responsePerformanceGraph(jsx, p, ko, options = {}) {
   }
   return jsx("div",{"data-azrael-response-tps-graph":"estimated","aria-label":description,style:{display:"flex",flexDirection:"column",gap:4,minWidth:0},children:[
     jsx("div",{className:"flex items-center justify-between gap-2 flex-wrap",children:[jsx("strong",{children:label}),jsx("span",{className:"text-token-description-foreground",children:range})]}),
-    jsx("svg",{viewBox:"0 0 288 86",role:"img","aria-label":description,style:{display:"block",width:"100%",height:"auto",maxHeight:112,overflow:"visible"},children:[
+    jsx("svg",{viewBox:"0 0 288 "+graphHeight,role:"img","aria-label":description,style:{display:"block",width:"100%",height:"auto",maxHeight:graphHeight*112/86,overflow:"visible"},children:[
       jsx("path",{d:"M24 20V78H264",fill:"none",stroke:"currentColor",strokeOpacity:0.3}),jsx("text",{x:24,y:13,fontSize:9,fill:"currentColor",children:format(max)+" "+unit}),
       ...boundaries.map(b=>jsx("line",{key:b.id,"data-turn-boundary":b.id,x1:x(b.time),x2:x(b.time),y1:20,y2:78,stroke:"currentColor",strokeOpacity:0.4,strokeDasharray:"3 3"})),
-      ...(options.averages?means.map(m=>jsx("line",{key:"average-"+m.mode,"data-mode-average":m.mode,"data-tps":m.rate,x1:24,x2:264,y1:y(m.rate),y2:y(m.rate),stroke:color(m.mode),strokeDasharray:"5 3"})):[]),...shapes]}),
-    jsx("div",{"data-tps-timestamps":true,style:{position:"relative",height:Math.max(1,timestampRows.length)*16,marginLeft:"8.333%",marginRight:"8.333%",fontSize:10,lineHeight:"16px",fontVariantNumeric:"tabular-nums"},children:timestamps.map(b=>jsx("span",{key:b.id,"data-turn-timestamp":b.id,"data-timestamp-row":b.row,title:clock(b.time),style:{position:"absolute",left:b.left+"%",top:b.row*16,whiteSpace:"nowrap"},children:clock(b.time)}))}),
+      ...(options.averages?means.map(m=>jsx("line",{key:"average-"+m.mode,"data-mode-average":m.mode,"data-tps":m.rate,x1:24,x2:264,y1:y(m.rate),y2:y(m.rate),stroke:color(m.mode),strokeDasharray:"5 3"})):[]),...shapes,
+      jsx("g",{"data-tps-timestamps":true,fontSize:10,fill:"currentColor",textAnchor:"middle",style:{fontVariantNumeric:"tabular-nums"},children:timestamps.map(b=>jsx("text",{key:b.id,"data-turn-timestamp":b.id,"data-timestamp-row":b.row,x:b.position,y:94+b.row*16,children:clock(b.time)}))})]}),
     jsx("div",{style:{display:"flex",gap:8,flexWrap:"wrap",fontSize:11},children:[...modes,"unknown"].filter(mode=>mode!=="unknown"||points.some(s=>s.mode===null)).map(mode=>jsx("span",{key:mode,style:{color:color(mode)},children:names[mode]}))}),
     options.Switch?jsx("div",{className:"flex items-center justify-between gap-4","data-tps-average-toggle":true,children:[jsx("span",{className:"text-sm",children:averageLabel}),jsx(options.Switch,{ariaLabel:averageLabel,checked:options.averages===true,onChange:options.onAveragesChange})]}):null,
     options.averages?jsx("div",{"data-tps-average-labels":true,style:{display:"flex",gap:8,flexWrap:"wrap",fontSize:11},children:means.map(m=>jsx("span",{key:m.mode,style:{color:color(m.mode)},children:names[m.mode]+": "+format(m.rate)+" "+unit}))}):null

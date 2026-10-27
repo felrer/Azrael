@@ -1,0 +1,371 @@
+[
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+      "kind": "run",
+      "owner": "record-retirement-provenance",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\09256d0e60d8fa8edd2d2b62053c3e7b3973d8882313277f2ac7f4ed68f9c9c3.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "6b15498cb07cb4ea6d5fb787978a186b2a0bcdef50fc320381de846af3d1ffee",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "record-retirement-provenance",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\09256d0e60d8fa8edd2d2b62053c3e7b3973d8882313277f2ac7f4ed68f9c9c3.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:DN-01-root-retirement:validation-20261024-2",
+      "kind": "run",
+      "owner": "DN-01-approved-temp-cleanup",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json"
+        },
+        {
+          "id": "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+          "role": "inputs",
+          "lifecycle_role": "snapshot",
+          "kind": "inputs",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json"
+        },
+        {
+          "id": "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+          "role": "temporary",
+          "lifecycle_role": "artifact",
+          "kind": "temporary",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json"
+        },
+        {
+          "id": "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+          "role": "outputs",
+          "lifecycle_role": "artifact",
+          "kind": "outputs",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json"
+        },
+        {
+          "id": "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+          "role": "logs",
+          "lifecycle_role": "log",
+          "kind": "logs",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json"
+        },
+        {
+          "id": "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+          "role": "reports",
+          "lifecycle_role": "evidence",
+          "kind": "reports",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+      "kind": "run",
+      "owner": "isolate-retirement-receipt",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\95a59b40508d5a6b00bb97fca0e696f286e60d801081d5dcbae8e80e898d10a2.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "af67f8290b543bb15ef41bcf204f00b501335ce7921cff855b0e424b9dc6a605",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "isolate-retirement-receipt",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\95a59b40508d5a6b00bb97fca0e696f286e60d801081d5dcbae8e80e898d10a2.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:DN-01-root-retirement:validation-20261024",
+      "kind": "run",
+      "owner": "DN-01-approved-temp-cleanup",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json"
+        },
+        {
+          "id": "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+          "role": "inputs",
+          "lifecycle_role": "snapshot",
+          "kind": "inputs",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json"
+        },
+        {
+          "id": "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+          "role": "temporary",
+          "lifecycle_role": "artifact",
+          "kind": "temporary",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json"
+        },
+        {
+          "id": "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+          "role": "outputs",
+          "lifecycle_role": "artifact",
+          "kind": "outputs",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json"
+        },
+        {
+          "id": "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+          "role": "logs",
+          "lifecycle_role": "log",
+          "kind": "logs",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json"
+        },
+        {
+          "id": "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+          "role": "reports",
+          "lifecycle_role": "evidence",
+          "kind": "reports",
+          "owner": "DN-01-approved-temp-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "kind": "run",
+      "owner": "record-retirement-provenance",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "record-retirement-provenance",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json"
+        },
+        {
+          "id": "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+          "role": "inputs",
+          "lifecycle_role": "snapshot",
+          "kind": "inputs",
+          "owner": "record-retirement-provenance",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json"
+        },
+        {
+          "id": "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+          "role": "temporary",
+          "lifecycle_role": "artifact",
+          "kind": "temporary",
+          "owner": "record-retirement-provenance",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json"
+        },
+        {
+          "id": "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+          "role": "outputs",
+          "lifecycle_role": "artifact",
+          "kind": "outputs",
+          "owner": "record-retirement-provenance",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json"
+        },
+        {
+          "id": "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+          "role": "logs",
+          "lifecycle_role": "log",
+          "kind": "logs",
+          "owner": "record-retirement-provenance",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json"
+        },
+        {
+          "id": "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+          "role": "reports",
+          "lifecycle_role": "evidence",
+          "kind": "reports",
+          "owner": "record-retirement-provenance",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+      "kind": "run",
+      "owner": "isolate-retirement-receipt",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e74127778bf39b424f0e1d49488a8c72c7d957a5a44b21ad52b109b7696d1990.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "6cf59eb3f7283770dc9b133684d274b2759f11cd5c576aee269eaf08a648ec44",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "isolate-retirement-receipt",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e74127778bf39b424f0e1d49488a8c72c7d957a5a44b21ad52b109b7696d1990.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+      "kind": "run",
+      "owner": "isolate-retirement-receipt",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f5352bacc766ee71ad00b60c1441422dec881cd1825b8a1bdad6224cf33f24a4.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "2438ffa8a91dbb0ed01dfa15055b0a5576386452b80f0bf9089b7bf641674597",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "isolate-retirement-receipt",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f5352bacc766ee71ad00b60c1441422dec881cd1825b8a1bdad6224cf33f24a4.json"
+        }
+      ]
+    }
+  }
+]

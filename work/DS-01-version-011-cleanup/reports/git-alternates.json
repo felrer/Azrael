@@ -1,0 +1,50 @@
+[
+  {
+    "path": "artifacts\\build\\b13\\.git\\objects\\info\\alternates",
+    "target": "C:\\Users\\felre\\Desktop\\pi-harness-init/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\c23a\\.git\\objects\\info\\alternates",
+    "target": "C:/Users/felre/Desktop/pi-harness-init/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\u19b\\.git\\objects\\info\\alternates",
+    "target": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/u18a-r2/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\u19c\\.git\\objects\\info\\alternates",
+    "target": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/u19b/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\u20a\\.git\\objects\\info\\alternates",
+    "target": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/u19c/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\u20b\\.git\\objects\\info\\alternates",
+    "target": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/u20a/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\u21a\\.git\\objects\\info\\alternates",
+    "target": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/u20a/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\u22c\\.git\\objects\\info\\alternates",
+    "target": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/u21a/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\v11a\\.git\\objects\\info\\alternates",
+    "target": "C:\\Users\\felre\\Desktop\\pi-harness-init/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\v11c\\.git\\objects\\info\\alternates",
+    "target": "C:\\Users\\felre\\Desktop\\pi-harness-init/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\v11e\\.git\\objects\\info\\alternates",
+    "target": "C:\\Users\\felre\\Desktop\\pi-harness-init/.git/objects"
+  },
+  {
+    "path": "artifacts\\build\\v11k\\.git\\objects\\info\\alternates",
+    "target": "C:\\Users\\felre\\Desktop\\pi-harness-init/.git/objects"
+  }
+]

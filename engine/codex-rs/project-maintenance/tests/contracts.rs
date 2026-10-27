@@ -150,12 +150,17 @@ fn rejects_escape_foreign_paths_and_denied_reads() {
     }
     let deny = |_: &Path, _| Err("denied".into());
     assert!(dispatch(root.path(), json!({"operation":"inventory"}), &deny).is_err());
-    assert!(
-        !root
-            .path()
-            .join("artifacts/maintenance/maintenance.lock")
-            .exists()
-    );
+    let lock = root.path().join("artifacts/maintenance/maintenance.lock");
+    let metadata: Value = serde_json::from_slice(&std::fs::read(&lock).unwrap()).unwrap();
+    assert_eq!(metadata["schema"], 2);
+    let released = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(lock)
+        .unwrap();
+    released
+        .try_lock()
+        .expect("failed requests must release their OS lease");
 }
 fn configure_bundles(root: &TempDir, bundles: Value) {
     let config = json!({"schema_version":1,"project_id":"fixture","managed_roots":["generated"],"bundles":bundles});

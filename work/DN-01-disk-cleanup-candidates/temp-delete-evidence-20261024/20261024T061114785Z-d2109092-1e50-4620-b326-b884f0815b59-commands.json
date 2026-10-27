@@ -1,0 +1,28 @@
+[
+  {
+    "name": "archive",
+    "executable": "git",
+    "args": [
+      "archive",
+      "--format=tar",
+      "--output=C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\archive\\original-engine.tar",
+      "ccbcbf93906a72cc7654aa9c57c670d5e2e3831d:engine"
+    ],
+    "status": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\logs\\archive.log"
+  },
+  {
+    "name": "extract",
+    "executable": "tar",
+    "args": [
+      "-xf",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\archive\\original-engine.tar",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\baseline"
+    ],
+    "status": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\logs\\extract.log"
+  }
+]

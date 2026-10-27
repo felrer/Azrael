@@ -1,0 +1,205 @@
+{
+  "results": [
+    {
+      "attempt_id": "attempt-73132-2539-1792934148436",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-89X3ty\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.idx"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-89X3ty\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.pack"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgsttag-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-89X3ty\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.rev"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libopus.so.0"
+          },
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-UC4WY8\\.git"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstbase-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstallocators-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstaudioresample.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgobject-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstaudio-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgio-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstrtp-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-UC4WY8\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.rev"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstnet-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstpbutils-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstcoreelements.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libintl.so.8"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstapp-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libffi.so.8"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstapp.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstvideo-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-UC4WY8\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.idx"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libz.so.1"
+          },
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-89X3ty\\.git"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\s\\.tmp\\plugins-clone-UC4WY8\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.pack"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgmodule-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstreamer-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libpcre2-8.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstaudioconvert.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libglib-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstrtp.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstopus.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstrtpmanager.so"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "cf01-viewer-u22c-host-fixture",
+      "lifecycle_group_id": "cf01-viewer-u22c-version",
+      "reason": "User retires old linked build/test fixtures; current full contents registered after all internal payload and historical install receipts retired; exact shared cache project registration released and original evidence preserved",
+      "remaining": false,
+      "status": "deleted",
+      "token": "f4d80760472c34ae1020b80e1291635881f7d1857980a05fced97b12ff6118b3"
+    },
+    {
+      "decision": "delete",
+      "error": "config changed during review",
+      "group_status": "partial",
+      "id": "cf01-viewer-u22c-payload",
+      "lifecycle_group_id": "cf01-viewer-u22c-version",
+      "reason": "User retires old linked build/test fixtures; current full contents registered after all internal payload and historical install receipts retired; exact shared cache project registration released and original evidence preserved",
+      "remaining": true,
+      "status": "blocked",
+      "token": "04d2086fba6db1ab219bc6bce2a41538cd7148a79c70548f671b524513e5e78b"
+    }
+  ],
+  "aborted": false
+}

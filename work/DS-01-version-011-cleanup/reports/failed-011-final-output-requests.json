@@ -1,0 +1,95 @@
+[
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k",
+    "id": "run:DS-01-retire-failed-011:w11v",
+    "request": {
+      "operation": "register",
+      "group": {
+        "id": "run:DS-01-retire-failed-011:w11v",
+        "kind": "run",
+        "owner": "DS-01-version-011-cleanup",
+        "version": null,
+        "membership_complete": true,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles\\cfd9382278ab1730dced0db97ab7c8e4c5d90d6448ed2466b891a993c904d4ee.json",
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "members": [
+          {
+            "id": "9b913958f6da64d4873b7ef6ff5847feee9803f463ed04ed72e572fb4d69f9e9",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11v",
+            "role": "cleanup-execution",
+            "lifecycle_role": "artifact",
+            "kind": "cleanup-execution",
+            "owner": "DS-01-version-011-cleanup",
+            "generated": true,
+            "protection_known": true,
+            "references": [],
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles\\cfd9382278ab1730dced0db97ab7c8e4c5d90d6448ed2466b891a993c904d4ee.json"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k",
+    "id": "run:DS-01-retire-failed-011:w11w",
+    "request": {
+      "operation": "register",
+      "group": {
+        "id": "run:DS-01-retire-failed-011:w11w",
+        "kind": "run",
+        "owner": "DS-01-version-011-cleanup",
+        "version": null,
+        "membership_complete": true,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles\\abbaebf9932544477dfaa1755ea0480b928af36f232695eb65fed3839fa2199b.json",
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "members": [
+          {
+            "id": "d456114d148d453aefd2fedfbe6c081e684cd65ba06f3e3e339378e97607b9f8",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11w",
+            "role": "cleanup-execution",
+            "lifecycle_role": "artifact",
+            "kind": "cleanup-execution",
+            "owner": "DS-01-version-011-cleanup",
+            "generated": true,
+            "protection_known": true,
+            "references": [],
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles\\abbaebf9932544477dfaa1755ea0480b928af36f232695eb65fed3839fa2199b.json"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+    "id": "run:DS-01-failed-011-owner",
+    "request": {
+      "operation": "register",
+      "group": {
+        "id": "run:DS-01-failed-011-owner",
+        "kind": "run",
+        "owner": "DS-01-version-011-cleanup",
+        "version": null,
+        "membership_complete": true,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f35bb58c04b750960eb57172e53b8c51186e4c2e629ad081fb2133c97c1c3fba.json",
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "members": [
+          {
+            "id": "9d9238acd323b6e21fea29c903c0783d8898c77f20872adfd59a447143321712",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\failed-011-owner",
+            "role": "native-owner-build",
+            "lifecycle_role": "artifact",
+            "kind": "native-owner-build",
+            "owner": "DS-01-version-011-cleanup",
+            "generated": true,
+            "protection_known": true,
+            "references": [],
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f35bb58c04b750960eb57172e53b8c51186e4c2e629ad081fb2133c97c1c3fba.json"
+          }
+        ]
+      }
+    }
+  }
+]

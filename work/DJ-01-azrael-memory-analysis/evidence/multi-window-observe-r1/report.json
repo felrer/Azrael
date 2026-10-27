@@ -1,0 +1,5539 @@
+{
+  "status": "complete",
+  "scope": "Read-only live observation; no app launch, close, UI input, account or profile writes",
+  "codeVersion": "1.143.0 (2d0b7506a36c1d6db9a466440131a8e01eab2289, 2026-10-20T14:31:47-07:00)",
+  "samples": [
+    {
+      "atUtc": "2026-10-23T01:19:52.1852009Z",
+      "processes": [
+        {
+          "pid": 10928,
+          "ppid": 32776,
+          "name": "Code.exe",
+          "creation": "134371670564318920",
+          "role": "code-other",
+          "privateBytes": 191569920,
+          "workingSetBytes": 133201920
+        },
+        {
+          "pid": 63436,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670566287460",
+          "role": "code-other",
+          "privateBytes": 503959552,
+          "workingSetBytes": 167612416
+        },
+        {
+          "pid": 36212,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670566353730",
+          "role": "code-other",
+          "privateBytes": 16420864,
+          "workingSetBytes": 47276032
+        },
+        {
+          "pid": 52784,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670567972320",
+          "role": "workspace-window",
+          "privateBytes": 242847744,
+          "workingSetBytes": 178909184,
+          "windowId": 1
+        },
+        {
+          "pid": 2200,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670577880640",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 1079357440,
+          "workingSetBytes": 967892992
+        },
+        {
+          "pid": 13696,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670577956590",
+          "role": "code-other",
+          "privateBytes": 102772736,
+          "workingSetBytes": 72781824
+        },
+        {
+          "pid": 24468,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670617152150",
+          "role": "workspace-window",
+          "privateBytes": 281735168,
+          "workingSetBytes": 216961024,
+          "windowId": 2
+        },
+        {
+          "pid": 60012,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670659591100",
+          "role": "extension-host",
+          "privateBytes": 280997888,
+          "workingSetBytes": 210124800,
+          "windowId": 2
+        },
+        {
+          "pid": 37228,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670660938940",
+          "role": "code-other",
+          "privateBytes": 122044416,
+          "workingSetBytes": 97624064
+        },
+        {
+          "pid": 45356,
+          "ppid": 60012,
+          "name": "Code.exe",
+          "creation": "134371670670325640",
+          "role": "code-other",
+          "privateBytes": 36171776,
+          "workingSetBytes": 48484352
+        },
+        {
+          "pid": 73632,
+          "ppid": 60012,
+          "name": "codex.exe",
+          "creation": "134371670677385140",
+          "role": "other-descendant",
+          "privateBytes": 36622336,
+          "workingSetBytes": 54030336
+        },
+        {
+          "pid": 37172,
+          "ppid": 73632,
+          "name": "conhost.exe",
+          "creation": "134371670677449470",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 6930432
+        },
+        {
+          "pid": 29276,
+          "ppid": 60012,
+          "name": "azrael.exe",
+          "creation": "134371670711583790",
+          "role": "azrael-connector",
+          "privateBytes": 13611008,
+          "workingSetBytes": 26021888
+        },
+        {
+          "pid": 50704,
+          "ppid": 29276,
+          "name": "conhost.exe",
+          "creation": "134371670711637200",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 61336,
+          "ppid": 20692,
+          "name": "azrael.exe",
+          "creation": "134371670731746020",
+          "role": "azrael-shared-engine",
+          "privateBytes": 4016599040,
+          "workingSetBytes": 2978471936
+        },
+        {
+          "pid": 54332,
+          "ppid": 60012,
+          "name": "azrael-bridge.exe",
+          "creation": "134371670783028120",
+          "role": "azrael-bridge",
+          "privateBytes": 6955008,
+          "workingSetBytes": 19968000
+        },
+        {
+          "pid": 24260,
+          "ppid": 54332,
+          "name": "conhost.exe",
+          "creation": "134371670783065020",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 70976,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670870676240",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 52809728,
+          "workingSetBytes": 47742976
+        },
+        {
+          "pid": 67912,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371671009977590",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 455200768,
+          "workingSetBytes": 373747712
+        },
+        {
+          "pid": 74644,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371671134975290",
+          "role": "other-descendant",
+          "privateBytes": 21712896,
+          "workingSetBytes": 25718784
+        },
+        {
+          "pid": 31148,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371671135005950",
+          "role": "other-descendant",
+          "privateBytes": 2801664,
+          "workingSetBytes": 9162752
+        },
+        {
+          "pid": 74268,
+          "ppid": 74644,
+          "name": "conhost.exe",
+          "creation": "134371671135020360",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7127040
+        },
+        {
+          "pid": 37088,
+          "ppid": 31148,
+          "name": "conhost.exe",
+          "creation": "134371671135048200",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6885376
+        },
+        {
+          "pid": 40048,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371671181371020",
+          "role": "other-descendant",
+          "privateBytes": 65896448,
+          "workingSetBytes": 76394496
+        },
+        {
+          "pid": 53544,
+          "ppid": 40048,
+          "name": "conhost.exe",
+          "creation": "134371671181525470",
+          "role": "other-descendant",
+          "privateBytes": 1228800,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 45240,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371675846087970",
+          "role": "other-descendant",
+          "privateBytes": 5046272,
+          "workingSetBytes": 12783616
+        },
+        {
+          "pid": 21176,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371675846129910",
+          "role": "other-descendant",
+          "privateBytes": 22036480,
+          "workingSetBytes": 25731072
+        },
+        {
+          "pid": 38828,
+          "ppid": 45240,
+          "name": "conhost.exe",
+          "creation": "134371675846241590",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7172096
+        },
+        {
+          "pid": 44228,
+          "ppid": 21176,
+          "name": "conhost.exe",
+          "creation": "134371675846282260",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7086080
+        },
+        {
+          "pid": 58068,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371675882395160",
+          "role": "other-descendant",
+          "privateBytes": 22306816,
+          "workingSetBytes": 6303744
+        },
+        {
+          "pid": 64548,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371675882427210",
+          "role": "other-descendant",
+          "privateBytes": 2736128,
+          "workingSetBytes": 9150464
+        },
+        {
+          "pid": 57816,
+          "ppid": 58068,
+          "name": "conhost.exe",
+          "creation": "134371675882440750",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 35892,
+          "ppid": 64548,
+          "name": "conhost.exe",
+          "creation": "134371675882475170",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 6905856
+        },
+        {
+          "pid": 488,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371678692440930",
+          "role": "workspace-window",
+          "privateBytes": 242831360,
+          "workingSetBytes": 187514880,
+          "windowId": 3
+        },
+        {
+          "pid": 34084,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679120911520",
+          "role": "extension-host",
+          "privateBytes": 246325248,
+          "workingSetBytes": 162295808,
+          "windowId": 3
+        },
+        {
+          "pid": 70068,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679122930710",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 1378381824,
+          "workingSetBytes": 1201684480
+        },
+        {
+          "pid": 6740,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679123007020",
+          "role": "code-other",
+          "privateBytes": 69369856,
+          "workingSetBytes": 58744832
+        },
+        {
+          "pid": 27760,
+          "ppid": 34084,
+          "name": "Code.exe",
+          "creation": "134371679153842850",
+          "role": "code-other",
+          "privateBytes": 25862144,
+          "workingSetBytes": 33636352
+        },
+        {
+          "pid": 42532,
+          "ppid": 34084,
+          "name": "codex.exe",
+          "creation": "134371679164415850",
+          "role": "other-descendant",
+          "privateBytes": 35946496,
+          "workingSetBytes": 34959360
+        },
+        {
+          "pid": 24756,
+          "ppid": 42532,
+          "name": "conhost.exe",
+          "creation": "134371679164672530",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 36344,
+          "ppid": 34084,
+          "name": "azrael.exe",
+          "creation": "134371679343245540",
+          "role": "azrael-connector",
+          "privateBytes": 12029952,
+          "workingSetBytes": 46256128
+        },
+        {
+          "pid": 56152,
+          "ppid": 36344,
+          "name": "conhost.exe",
+          "creation": "134371679343442910",
+          "role": "other-descendant",
+          "privateBytes": 1236992,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 42904,
+          "ppid": 34084,
+          "name": "azrael-bridge.exe",
+          "creation": "134371679343745800",
+          "role": "azrael-bridge",
+          "privateBytes": 3416064,
+          "workingSetBytes": 16695296
+        },
+        {
+          "pid": 40860,
+          "ppid": 42904,
+          "name": "conhost.exe",
+          "creation": "134371679343883750",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 6967296
+        },
+        {
+          "pid": 57960,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371680452466070",
+          "role": "other-descendant",
+          "privateBytes": 22011904,
+          "workingSetBytes": 12378112
+        },
+        {
+          "pid": 40580,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371680452536990",
+          "role": "other-descendant",
+          "privateBytes": 3960832,
+          "workingSetBytes": 10522624
+        },
+        {
+          "pid": 59824,
+          "ppid": 40580,
+          "name": "conhost.exe",
+          "creation": "134371680453468740",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7073792
+        },
+        {
+          "pid": 68696,
+          "ppid": 57960,
+          "name": "conhost.exe",
+          "creation": "134371680453495710",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 45016,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371680766780110",
+          "role": "other-descendant",
+          "privateBytes": 25677824,
+          "workingSetBytes": 50057216
+        },
+        {
+          "pid": 45676,
+          "ppid": 45016,
+          "name": "conhost.exe",
+          "creation": "134371680766950100",
+          "role": "other-descendant",
+          "privateBytes": 1224704,
+          "workingSetBytes": 6901760
+        },
+        {
+          "pid": 28336,
+          "ppid": 40580,
+          "name": "node.exe",
+          "creation": "134371680770750580",
+          "role": "other-descendant",
+          "privateBytes": 226983936,
+          "workingSetBytes": 38424576
+        },
+        {
+          "pid": 6656,
+          "ppid": 40580,
+          "name": "node.exe",
+          "creation": "134371680770844280",
+          "role": "other-descendant",
+          "privateBytes": 22274048,
+          "workingSetBytes": 26836992
+        },
+        {
+          "pid": 30984,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682446094710",
+          "role": "workspace-window",
+          "privateBytes": 256348160,
+          "workingSetBytes": 171458560,
+          "windowId": 4
+        },
+        {
+          "pid": 22364,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682527744240",
+          "role": "extension-host",
+          "privateBytes": 276840448,
+          "workingSetBytes": 160460800,
+          "windowId": 4
+        },
+        {
+          "pid": 65556,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682530257790",
+          "role": "code-other",
+          "privateBytes": 88797184,
+          "workingSetBytes": 56905728
+        },
+        {
+          "pid": 69284,
+          "ppid": 22364,
+          "name": "codex.exe",
+          "creation": "134371682613498840",
+          "role": "other-descendant",
+          "privateBytes": 34578432,
+          "workingSetBytes": 37478400
+        },
+        {
+          "pid": 10784,
+          "ppid": 22364,
+          "name": "Code.exe",
+          "creation": "134371682614022700",
+          "role": "code-other",
+          "privateBytes": 31379456,
+          "workingSetBytes": 48545792
+        },
+        {
+          "pid": 9044,
+          "ppid": 69284,
+          "name": "conhost.exe",
+          "creation": "134371682616008020",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 38244,
+          "ppid": 22364,
+          "name": "azrael.exe",
+          "creation": "134371682842038170",
+          "role": "azrael-connector",
+          "privateBytes": 12054528,
+          "workingSetBytes": 51990528
+        },
+        {
+          "pid": 35828,
+          "ppid": 38244,
+          "name": "conhost.exe",
+          "creation": "134371682842128820",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 25608,
+          "ppid": 22364,
+          "name": "azrael-bridge.exe",
+          "creation": "134371682842847580",
+          "role": "azrael-bridge",
+          "privateBytes": 7770112,
+          "workingSetBytes": 20799488
+        },
+        {
+          "pid": 68812,
+          "ppid": 25608,
+          "name": "conhost.exe",
+          "creation": "134371682843100570",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 26340,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371683296733890",
+          "role": "other-descendant",
+          "privateBytes": 2805760,
+          "workingSetBytes": 10346496
+        },
+        {
+          "pid": 74712,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371683296815800",
+          "role": "other-descendant",
+          "privateBytes": 21430272,
+          "workingSetBytes": 18108416
+        },
+        {
+          "pid": 67272,
+          "ppid": 26340,
+          "name": "conhost.exe",
+          "creation": "134371683296844240",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6979584
+        },
+        {
+          "pid": 10052,
+          "ppid": 74712,
+          "name": "conhost.exe",
+          "creation": "134371683296881940",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 10860,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371685051513790",
+          "role": "other-descendant",
+          "privateBytes": 21729280,
+          "workingSetBytes": 27213824
+        },
+        {
+          "pid": 38604,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371685051558640",
+          "role": "other-descendant",
+          "privateBytes": 2772992,
+          "workingSetBytes": 10297344
+        },
+        {
+          "pid": 51824,
+          "ppid": 10860,
+          "name": "conhost.exe",
+          "creation": "134371685051835280",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7139328
+        },
+        {
+          "pid": 48392,
+          "ppid": 38604,
+          "name": "conhost.exe",
+          "creation": "134371685051871540",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 6893568
+        },
+        {
+          "pid": 49156,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371685325737960",
+          "role": "other-descendant",
+          "privateBytes": 52658176,
+          "workingSetBytes": 79507456
+        },
+        {
+          "pid": 73904,
+          "ppid": 49156,
+          "name": "conhost.exe",
+          "creation": "134371685326085270",
+          "role": "other-descendant",
+          "privateBytes": 1228800,
+          "workingSetBytes": 7004160
+        },
+        {
+          "pid": 66516,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685550347830",
+          "role": "extension-host",
+          "privateBytes": 328687616,
+          "workingSetBytes": 175292416,
+          "windowId": 1
+        },
+        {
+          "pid": 56504,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685552767740",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 563539968,
+          "workingSetBytes": 491405312
+        },
+        {
+          "pid": 44628,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685552857840",
+          "role": "code-other",
+          "privateBytes": 69353472,
+          "workingSetBytes": 56602624
+        },
+        {
+          "pid": 49668,
+          "ppid": 66516,
+          "name": "Code.exe",
+          "creation": "134371685567296230",
+          "role": "code-other",
+          "privateBytes": 26386432,
+          "workingSetBytes": 65527808
+        },
+        {
+          "pid": 21416,
+          "ppid": 66516,
+          "name": "codex.exe",
+          "creation": "134371685597675350",
+          "role": "other-descendant",
+          "privateBytes": 32780288,
+          "workingSetBytes": 52715520
+        },
+        {
+          "pid": 32072,
+          "ppid": 21416,
+          "name": "conhost.exe",
+          "creation": "134371685598406490",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 8664,
+          "ppid": 66516,
+          "name": "azrael.exe",
+          "creation": "134371685673818130",
+          "role": "azrael-connector",
+          "privateBytes": 11894784,
+          "workingSetBytes": 70823936
+        },
+        {
+          "pid": 62340,
+          "ppid": 8664,
+          "name": "conhost.exe",
+          "creation": "134371685673891910",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 67980,
+          "ppid": 66516,
+          "name": "azrael-bridge.exe",
+          "creation": "134371685674358460",
+          "role": "azrael-bridge",
+          "privateBytes": 2994176,
+          "workingSetBytes": 16568320
+        },
+        {
+          "pid": 9364,
+          "ppid": 67980,
+          "name": "conhost.exe",
+          "creation": "134371685674518280",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 43264,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371686029117860",
+          "role": "other-descendant",
+          "privateBytes": 22237184,
+          "workingSetBytes": 32759808
+        },
+        {
+          "pid": 34772,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371686029151980",
+          "role": "other-descendant",
+          "privateBytes": 2945024,
+          "workingSetBytes": 10833920
+        },
+        {
+          "pid": 42312,
+          "ppid": 43264,
+          "name": "conhost.exe",
+          "creation": "134371686029170200",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7221248
+        },
+        {
+          "pid": 73948,
+          "ppid": 34772,
+          "name": "conhost.exe",
+          "creation": "134371686029214220",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6897664
+        },
+        {
+          "pid": 62100,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371686216654160",
+          "role": "other-descendant",
+          "privateBytes": 27918336,
+          "workingSetBytes": 51843072
+        },
+        {
+          "pid": 21468,
+          "ppid": 62100,
+          "name": "conhost.exe",
+          "creation": "134371686217646510",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 74392,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371695435601520",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 10317824
+        },
+        {
+          "pid": 3900,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371695435710040",
+          "role": "other-descendant",
+          "privateBytes": 21663744,
+          "workingSetBytes": 33988608
+        },
+        {
+          "pid": 39912,
+          "ppid": 74392,
+          "name": "conhost.exe",
+          "creation": "134371695435764030",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6975488
+        },
+        {
+          "pid": 19236,
+          "ppid": 3900,
+          "name": "conhost.exe",
+          "creation": "134371695435938220",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7213056
+        },
+        {
+          "pid": 67332,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371702937975060",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 33157120,
+          "workingSetBytes": 123654144
+        },
+        {
+          "pid": 68976,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371703062664000",
+          "role": "other-descendant",
+          "privateBytes": 3194880,
+          "workingSetBytes": 11464704
+        },
+        {
+          "pid": 68148,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371703062944640",
+          "role": "other-descendant",
+          "privateBytes": 22454272,
+          "workingSetBytes": 34013184
+        },
+        {
+          "pid": 74664,
+          "ppid": 68976,
+          "name": "conhost.exe",
+          "creation": "134371703063306970",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 55028,
+          "ppid": 68148,
+          "name": "conhost.exe",
+          "creation": "134371703063353070",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7348224
+        },
+        {
+          "pid": 45832,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371713726436760",
+          "role": "other-descendant",
+          "privateBytes": 22478848,
+          "workingSetBytes": 34000896
+        },
+        {
+          "pid": 20084,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371713726539710",
+          "role": "other-descendant",
+          "privateBytes": 2797568,
+          "workingSetBytes": 10424320
+        },
+        {
+          "pid": 73072,
+          "ppid": 45832,
+          "name": "conhost.exe",
+          "creation": "134371713726684210",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7393280
+        },
+        {
+          "pid": 67544,
+          "ppid": 20084,
+          "name": "conhost.exe",
+          "creation": "134371713726723440",
+          "role": "other-descendant",
+          "privateBytes": 1196032,
+          "workingSetBytes": 7036928
+        },
+        {
+          "pid": 18836,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371721071124700",
+          "role": "other-descendant",
+          "privateBytes": 22470656,
+          "workingSetBytes": 33742848
+        },
+        {
+          "pid": 28744,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371721071471130",
+          "role": "other-descendant",
+          "privateBytes": 2838528,
+          "workingSetBytes": 10502144
+        },
+        {
+          "pid": 13992,
+          "ppid": 18836,
+          "name": "conhost.exe",
+          "creation": "134371721071471380",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7393280
+        },
+        {
+          "pid": 35032,
+          "ppid": 28744,
+          "name": "conhost.exe",
+          "creation": "134371721071570240",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7032832
+        },
+        {
+          "pid": 24180,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371739090998060",
+          "role": "other-descendant",
+          "privateBytes": 22237184,
+          "workingSetBytes": 34234368
+        },
+        {
+          "pid": 18040,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371739091338020",
+          "role": "other-descendant",
+          "privateBytes": 3002368,
+          "workingSetBytes": 10899456
+        },
+        {
+          "pid": 51644,
+          "ppid": 24180,
+          "name": "conhost.exe",
+          "creation": "134371739091339130",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7467008
+        },
+        {
+          "pid": 48184,
+          "ppid": 18040,
+          "name": "conhost.exe",
+          "creation": "134371739091459750",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7127040
+        },
+        {
+          "pid": 68452,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371744210026350",
+          "role": "other-descendant",
+          "privateBytes": 22306816,
+          "workingSetBytes": 34058240
+        },
+        {
+          "pid": 11836,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371744210061370",
+          "role": "other-descendant",
+          "privateBytes": 2818048,
+          "workingSetBytes": 10571776
+        },
+        {
+          "pid": 51488,
+          "ppid": 11836,
+          "name": "conhost.exe",
+          "creation": "134371744210208500",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7188480
+        },
+        {
+          "pid": 66556,
+          "ppid": 68452,
+          "name": "conhost.exe",
+          "creation": "134371744210240820",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7491584
+        },
+        {
+          "pid": 47412,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371757113020970",
+          "role": "other-descendant",
+          "privateBytes": 3186688,
+          "workingSetBytes": 11014144
+        },
+        {
+          "pid": 66124,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371757113059890",
+          "role": "other-descendant",
+          "privateBytes": 21655552,
+          "workingSetBytes": 34938880
+        },
+        {
+          "pid": 32936,
+          "ppid": 47412,
+          "name": "conhost.exe",
+          "creation": "134371757113152560",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7122944
+        },
+        {
+          "pid": 18444,
+          "ppid": 66124,
+          "name": "conhost.exe",
+          "creation": "134371757113184990",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7471104
+        },
+        {
+          "pid": 61596,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371775176514870",
+          "role": "other-descendant",
+          "privateBytes": 2969600,
+          "workingSetBytes": 10956800
+        },
+        {
+          "pid": 4320,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371775176570410",
+          "role": "other-descendant",
+          "privateBytes": 21811200,
+          "workingSetBytes": 34471936
+        },
+        {
+          "pid": 59812,
+          "ppid": 61596,
+          "name": "conhost.exe",
+          "creation": "134371775176632620",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7122944
+        },
+        {
+          "pid": 33680,
+          "ppid": 4320,
+          "name": "conhost.exe",
+          "creation": "134371775176723920",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7503872
+        },
+        {
+          "pid": 30320,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371793196218990",
+          "role": "other-descendant",
+          "privateBytes": 2932736,
+          "workingSetBytes": 11837440
+        },
+        {
+          "pid": 19500,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371793196340370",
+          "role": "other-descendant",
+          "privateBytes": 22102016,
+          "workingSetBytes": 40316928
+        },
+        {
+          "pid": 63204,
+          "ppid": 30320,
+          "name": "conhost.exe",
+          "creation": "134371793196422590",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7278592
+        },
+        {
+          "pid": 27520,
+          "ppid": 19500,
+          "name": "conhost.exe",
+          "creation": "134371793196450620",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7823360
+        },
+        {
+          "pid": 25336,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371811309006560",
+          "role": "other-descendant",
+          "privateBytes": 2969600,
+          "workingSetBytes": 11517952
+        },
+        {
+          "pid": 36268,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371811309045890",
+          "role": "other-descendant",
+          "privateBytes": 22241280,
+          "workingSetBytes": 35983360
+        },
+        {
+          "pid": 35740,
+          "ppid": 25336,
+          "name": "conhost.exe",
+          "creation": "134371811309115450",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7372800
+        },
+        {
+          "pid": 2100,
+          "ppid": 36268,
+          "name": "conhost.exe",
+          "creation": "134371811309192140",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7614464
+        },
+        {
+          "pid": 33320,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371829383097680",
+          "role": "other-descendant",
+          "privateBytes": 3043328,
+          "workingSetBytes": 11546624
+        },
+        {
+          "pid": 72460,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371829383160790",
+          "role": "other-descendant",
+          "privateBytes": 22409216,
+          "workingSetBytes": 35254272
+        },
+        {
+          "pid": 18404,
+          "ppid": 33320,
+          "name": "conhost.exe",
+          "creation": "134371829383206040",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7229440
+        },
+        {
+          "pid": 21692,
+          "ppid": 72460,
+          "name": "conhost.exe",
+          "creation": "134371829383562060",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7593984
+        },
+        {
+          "pid": 56556,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371847619532830",
+          "role": "other-descendant",
+          "privateBytes": 3010560,
+          "workingSetBytes": 11202560
+        },
+        {
+          "pid": 10244,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371847619579210",
+          "role": "other-descendant",
+          "privateBytes": 22548480,
+          "workingSetBytes": 38473728
+        },
+        {
+          "pid": 71308,
+          "ppid": 56556,
+          "name": "conhost.exe",
+          "creation": "134371847619668300",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7213056
+        },
+        {
+          "pid": 24116,
+          "ppid": 10244,
+          "name": "conhost.exe",
+          "creation": "134371847619694450",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7720960
+        },
+        {
+          "pid": 39144,
+          "ppid": 10928,
+          "name": "CodeSetup-stable-e646868227c3e3a9e3f24277c8c7220be42c0be7.exe",
+          "creation": "134371851045217250",
+          "role": "other-descendant",
+          "privateBytes": 7557120,
+          "workingSetBytes": 11190272
+        },
+        {
+          "pid": 33648,
+          "ppid": 39144,
+          "name": "CodeSetup-stable-e646868227c3e3a9e3f24277c8c7220be42c0be7.tmp",
+          "creation": "134371851047332300",
+          "role": "other-descendant",
+          "privateBytes": 28291072,
+          "workingSetBytes": 38621184
+        },
+        {
+          "pid": 23564,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371865659751390",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 10862592
+        },
+        {
+          "pid": 14464,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371865659792730",
+          "role": "other-descendant",
+          "privateBytes": 22269952,
+          "workingSetBytes": 38703104
+        },
+        {
+          "pid": 49240,
+          "ppid": 23564,
+          "name": "conhost.exe",
+          "creation": "134371865659883690",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7442432
+        },
+        {
+          "pid": 22572,
+          "ppid": 14464,
+          "name": "conhost.exe",
+          "creation": "134371865659908240",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7790592
+        },
+        {
+          "pid": 72044,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371868408593190",
+          "role": "other-descendant",
+          "privateBytes": 2789376,
+          "workingSetBytes": 11595776
+        },
+        {
+          "pid": 20000,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371868408636880",
+          "role": "other-descendant",
+          "privateBytes": 55943168,
+          "workingSetBytes": 45015040
+        },
+        {
+          "pid": 16976,
+          "ppid": 72044,
+          "name": "conhost.exe",
+          "creation": "134371868408724580",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7548928
+        },
+        {
+          "pid": 24076,
+          "ppid": 20000,
+          "name": "conhost.exe",
+          "creation": "134371868408751010",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7766016
+        },
+        {
+          "pid": 40996,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371872280950400",
+          "role": "other-descendant",
+          "privateBytes": 22097920,
+          "workingSetBytes": 48377856
+        },
+        {
+          "pid": 43868,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371872280980080",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 11874304
+        },
+        {
+          "pid": 24004,
+          "ppid": 43868,
+          "name": "conhost.exe",
+          "creation": "134371872281082370",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7659520
+        },
+        {
+          "pid": 28292,
+          "ppid": 40996,
+          "name": "conhost.exe",
+          "creation": "134371872281085190",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 2164,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371872307527930",
+          "role": "other-descendant",
+          "privateBytes": 21950464,
+          "workingSetBytes": 48332800
+        },
+        {
+          "pid": 44872,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371872307562760",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11821056
+        },
+        {
+          "pid": 22272,
+          "ppid": 2164,
+          "name": "conhost.exe",
+          "creation": "134371872307618630",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7847936
+        },
+        {
+          "pid": 10964,
+          "ppid": 44872,
+          "name": "conhost.exe",
+          "creation": "134371872307657580",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 19932,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371874340039100",
+          "role": "other-descendant",
+          "privateBytes": 21995520,
+          "workingSetBytes": 48443392
+        },
+        {
+          "pid": 8376,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371874340071240",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11841536
+        },
+        {
+          "pid": 38588,
+          "ppid": 19932,
+          "name": "conhost.exe",
+          "creation": "134371874340167950",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7864320
+        },
+        {
+          "pid": 31300,
+          "ppid": 8376,
+          "name": "conhost.exe",
+          "creation": "134371874340177310",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7651328
+        },
+        {
+          "pid": 53336,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875085074660",
+          "role": "other-descendant",
+          "privateBytes": 2732032,
+          "workingSetBytes": 11812864
+        },
+        {
+          "pid": 46200,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875085121280",
+          "role": "other-descendant",
+          "privateBytes": 21663744,
+          "workingSetBytes": 48402432
+        },
+        {
+          "pid": 9972,
+          "ppid": 53336,
+          "name": "conhost.exe",
+          "creation": "134371875085201760",
+          "role": "other-descendant",
+          "privateBytes": 1196032,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 72648,
+          "ppid": 46200,
+          "name": "conhost.exe",
+          "creation": "134371875085231090",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 47164,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875128676730",
+          "role": "other-descendant",
+          "privateBytes": 22056960,
+          "workingSetBytes": 48340992
+        },
+        {
+          "pid": 56572,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875128705730",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11841536
+        },
+        {
+          "pid": 15144,
+          "ppid": 47164,
+          "name": "conhost.exe",
+          "creation": "134371875128720580",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7856128
+        },
+        {
+          "pid": 62104,
+          "ppid": 56572,
+          "name": "conhost.exe",
+          "creation": "134371875128746370",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7651328
+        },
+        {
+          "pid": 12980,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875272966570",
+          "role": "other-descendant",
+          "privateBytes": 22024192,
+          "workingSetBytes": 48369664
+        },
+        {
+          "pid": 63400,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875272998080",
+          "role": "other-descendant",
+          "privateBytes": 2768896,
+          "workingSetBytes": 11849728
+        },
+        {
+          "pid": 74132,
+          "ppid": 12980,
+          "name": "conhost.exe",
+          "creation": "134371875273009970",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 73420,
+          "ppid": 63400,
+          "name": "conhost.exe",
+          "creation": "134371875273040930",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 44104,
+          "ppid": 45240,
+          "name": "node.exe",
+          "creation": "134371875943964780",
+          "role": "other-descendant",
+          "privateBytes": 64581632,
+          "workingSetBytes": 90435584
+        },
+        {
+          "pid": 68572,
+          "ppid": 45240,
+          "name": "node.exe",
+          "creation": "134371875944038500",
+          "role": "other-descendant",
+          "privateBytes": 22028288,
+          "workingSetBytes": 49045504
+        },
+        {
+          "pid": 66040,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371883662651730",
+          "role": "other-descendant",
+          "privateBytes": 22069248,
+          "workingSetBytes": 48836608
+        },
+        {
+          "pid": 36780,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371883662709410",
+          "role": "other-descendant",
+          "privateBytes": 2871296,
+          "workingSetBytes": 11968512
+        },
+        {
+          "pid": 74436,
+          "ppid": 66040,
+          "name": "conhost.exe",
+          "creation": "134371883662823950",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7856128
+        },
+        {
+          "pid": 70756,
+          "ppid": 36780,
+          "name": "conhost.exe",
+          "creation": "134371883662856210",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 49000,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371901779955370",
+          "role": "other-descendant",
+          "privateBytes": 21594112,
+          "workingSetBytes": 48713728
+        },
+        {
+          "pid": 28900,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371901779988620",
+          "role": "other-descendant",
+          "privateBytes": 2887680,
+          "workingSetBytes": 11984896
+        },
+        {
+          "pid": 29820,
+          "ppid": 28900,
+          "name": "conhost.exe",
+          "creation": "134371901780094960",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 41380,
+          "ppid": 49000,
+          "name": "conhost.exe",
+          "creation": "134371901780097540",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7847936
+        },
+        {
+          "pid": 13780,
+          "ppid": 60012,
+          "name": "azrael-window-control.exe",
+          "creation": "134371918503780890",
+          "role": "other-descendant",
+          "privateBytes": 1753088,
+          "workingSetBytes": 12816384
+        },
+        {
+          "pid": 49300,
+          "ppid": 13780,
+          "name": "conhost.exe",
+          "creation": "134371918503977290",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7585792
+        },
+        {
+          "pid": 52464,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371919702838670",
+          "role": "other-descendant",
+          "privateBytes": 61075456,
+          "workingSetBytes": 74182656
+        },
+        {
+          "pid": 59156,
+          "ppid": 52464,
+          "name": "conhost.exe",
+          "creation": "134371919702977770",
+          "role": "other-descendant",
+          "privateBytes": 1241088,
+          "workingSetBytes": 7811072
+        },
+        {
+          "pid": 73192,
+          "ppid": 52464,
+          "name": "node.exe",
+          "creation": "134371919705483470",
+          "role": "other-descendant",
+          "privateBytes": 64204800,
+          "workingSetBytes": 98033664
+        },
+        {
+          "pid": 21188,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371919853794130",
+          "role": "other-descendant",
+          "privateBytes": 55975936,
+          "workingSetBytes": 67719168
+        },
+        {
+          "pid": 57652,
+          "ppid": 21188,
+          "name": "conhost.exe",
+          "creation": "134371919853907310",
+          "role": "other-descendant",
+          "privateBytes": 1249280,
+          "workingSetBytes": 7815168
+        },
+        {
+          "pid": 38556,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371919869876080",
+          "role": "other-descendant",
+          "privateBytes": 25600000,
+          "workingSetBytes": 50307072
+        },
+        {
+          "pid": 47688,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371919869915610",
+          "role": "other-descendant",
+          "privateBytes": 2871296,
+          "workingSetBytes": 11784192
+        },
+        {
+          "pid": 70964,
+          "ppid": 38556,
+          "name": "conhost.exe",
+          "creation": "134371919870034260",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7778304
+        },
+        {
+          "pid": 44536,
+          "ppid": 47688,
+          "name": "conhost.exe",
+          "creation": "134371919870057630",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7569408
+        },
+        {
+          "pid": 43040,
+          "ppid": 73192,
+          "name": "git.exe",
+          "creation": "134371919911931350",
+          "role": "other-descendant",
+          "privateBytes": 1622016,
+          "workingSetBytes": 6774784
+        },
+        {
+          "pid": 8060,
+          "ppid": 43040,
+          "name": "conhost.exe",
+          "creation": "134371919911989850",
+          "role": "other-descendant",
+          "privateBytes": 1253376,
+          "workingSetBytes": 7618560
+        },
+        {
+          "pid": 7264,
+          "ppid": 43040,
+          "name": "git.exe",
+          "creation": "134371919912186600",
+          "role": "other-descendant",
+          "privateBytes": 3063808,
+          "workingSetBytes": 8806400
+        }
+      ],
+      "freeBytes": 11240894464
+    },
+    {
+      "atUtc": "2026-10-23T01:20:03.4179746Z",
+      "processes": [
+        {
+          "pid": 10928,
+          "ppid": 32776,
+          "name": "Code.exe",
+          "creation": "134371670564318920",
+          "role": "code-other",
+          "privateBytes": 190185472,
+          "workingSetBytes": 131846144
+        },
+        {
+          "pid": 63436,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670566287460",
+          "role": "code-other",
+          "privateBytes": 487161856,
+          "workingSetBytes": 162086912
+        },
+        {
+          "pid": 36212,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670566353730",
+          "role": "code-other",
+          "privateBytes": 16420864,
+          "workingSetBytes": 47276032
+        },
+        {
+          "pid": 52784,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670567972320",
+          "role": "workspace-window",
+          "privateBytes": 251752448,
+          "workingSetBytes": 187400192,
+          "windowId": 1
+        },
+        {
+          "pid": 2200,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670577880640",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 1109446656,
+          "workingSetBytes": 994430976
+        },
+        {
+          "pid": 13696,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670577956590",
+          "role": "code-other",
+          "privateBytes": 98680832,
+          "workingSetBytes": 68612096
+        },
+        {
+          "pid": 24468,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670617152150",
+          "role": "workspace-window",
+          "privateBytes": 301723648,
+          "workingSetBytes": 236564480,
+          "windowId": 2
+        },
+        {
+          "pid": 60012,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670659591100",
+          "role": "extension-host",
+          "privateBytes": 284094464,
+          "workingSetBytes": 214376448,
+          "windowId": 2
+        },
+        {
+          "pid": 37228,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670660938940",
+          "role": "code-other",
+          "privateBytes": 121139200,
+          "workingSetBytes": 96808960
+        },
+        {
+          "pid": 45356,
+          "ppid": 60012,
+          "name": "Code.exe",
+          "creation": "134371670670325640",
+          "role": "code-other",
+          "privateBytes": 36171776,
+          "workingSetBytes": 48484352
+        },
+        {
+          "pid": 73632,
+          "ppid": 60012,
+          "name": "codex.exe",
+          "creation": "134371670677385140",
+          "role": "other-descendant",
+          "privateBytes": 36577280,
+          "workingSetBytes": 54009856
+        },
+        {
+          "pid": 37172,
+          "ppid": 73632,
+          "name": "conhost.exe",
+          "creation": "134371670677449470",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 6930432
+        },
+        {
+          "pid": 29276,
+          "ppid": 60012,
+          "name": "azrael.exe",
+          "creation": "134371670711583790",
+          "role": "azrael-connector",
+          "privateBytes": 13611008,
+          "workingSetBytes": 26021888
+        },
+        {
+          "pid": 50704,
+          "ppid": 29276,
+          "name": "conhost.exe",
+          "creation": "134371670711637200",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 61336,
+          "ppid": 20692,
+          "name": "azrael.exe",
+          "creation": "134371670731746020",
+          "role": "azrael-shared-engine",
+          "privateBytes": 4016611328,
+          "workingSetBytes": 2978476032
+        },
+        {
+          "pid": 54332,
+          "ppid": 60012,
+          "name": "azrael-bridge.exe",
+          "creation": "134371670783028120",
+          "role": "azrael-bridge",
+          "privateBytes": 7008256,
+          "workingSetBytes": 19992576
+        },
+        {
+          "pid": 24260,
+          "ppid": 54332,
+          "name": "conhost.exe",
+          "creation": "134371670783065020",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 70976,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670870676240",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 52809728,
+          "workingSetBytes": 47742976
+        },
+        {
+          "pid": 67912,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371671009977590",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 457527296,
+          "workingSetBytes": 375762944
+        },
+        {
+          "pid": 74644,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371671134975290",
+          "role": "other-descendant",
+          "privateBytes": 21712896,
+          "workingSetBytes": 25718784
+        },
+        {
+          "pid": 31148,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371671135005950",
+          "role": "other-descendant",
+          "privateBytes": 2801664,
+          "workingSetBytes": 9162752
+        },
+        {
+          "pid": 74268,
+          "ppid": 74644,
+          "name": "conhost.exe",
+          "creation": "134371671135020360",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7127040
+        },
+        {
+          "pid": 37088,
+          "ppid": 31148,
+          "name": "conhost.exe",
+          "creation": "134371671135048200",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6885376
+        },
+        {
+          "pid": 40048,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371671181371020",
+          "role": "other-descendant",
+          "privateBytes": 63188992,
+          "workingSetBytes": 75026432
+        },
+        {
+          "pid": 53544,
+          "ppid": 40048,
+          "name": "conhost.exe",
+          "creation": "134371671181525470",
+          "role": "other-descendant",
+          "privateBytes": 1228800,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 45240,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371675846087970",
+          "role": "other-descendant",
+          "privateBytes": 5046272,
+          "workingSetBytes": 12783616
+        },
+        {
+          "pid": 21176,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371675846129910",
+          "role": "other-descendant",
+          "privateBytes": 22036480,
+          "workingSetBytes": 25731072
+        },
+        {
+          "pid": 38828,
+          "ppid": 45240,
+          "name": "conhost.exe",
+          "creation": "134371675846241590",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7172096
+        },
+        {
+          "pid": 44228,
+          "ppid": 21176,
+          "name": "conhost.exe",
+          "creation": "134371675846282260",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7086080
+        },
+        {
+          "pid": 58068,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371675882395160",
+          "role": "other-descendant",
+          "privateBytes": 22306816,
+          "workingSetBytes": 6303744
+        },
+        {
+          "pid": 64548,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371675882427210",
+          "role": "other-descendant",
+          "privateBytes": 2736128,
+          "workingSetBytes": 9150464
+        },
+        {
+          "pid": 57816,
+          "ppid": 58068,
+          "name": "conhost.exe",
+          "creation": "134371675882440750",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 35892,
+          "ppid": 64548,
+          "name": "conhost.exe",
+          "creation": "134371675882475170",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 6905856
+        },
+        {
+          "pid": 488,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371678692440930",
+          "role": "workspace-window",
+          "privateBytes": 254767104,
+          "workingSetBytes": 198926336,
+          "windowId": 3
+        },
+        {
+          "pid": 34084,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679120911520",
+          "role": "extension-host",
+          "privateBytes": 254291968,
+          "workingSetBytes": 170516480,
+          "windowId": 3
+        },
+        {
+          "pid": 70068,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679122930710",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 1322278912,
+          "workingSetBytes": 1145749504
+        },
+        {
+          "pid": 6740,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679123007020",
+          "role": "code-other",
+          "privateBytes": 69443584,
+          "workingSetBytes": 58875904
+        },
+        {
+          "pid": 27760,
+          "ppid": 34084,
+          "name": "Code.exe",
+          "creation": "134371679153842850",
+          "role": "code-other",
+          "privateBytes": 25862144,
+          "workingSetBytes": 33636352
+        },
+        {
+          "pid": 42532,
+          "ppid": 34084,
+          "name": "codex.exe",
+          "creation": "134371679164415850",
+          "role": "other-descendant",
+          "privateBytes": 35889152,
+          "workingSetBytes": 34930688
+        },
+        {
+          "pid": 24756,
+          "ppid": 42532,
+          "name": "conhost.exe",
+          "creation": "134371679164672530",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 36344,
+          "ppid": 34084,
+          "name": "azrael.exe",
+          "creation": "134371679343245540",
+          "role": "azrael-connector",
+          "privateBytes": 12029952,
+          "workingSetBytes": 46256128
+        },
+        {
+          "pid": 56152,
+          "ppid": 36344,
+          "name": "conhost.exe",
+          "creation": "134371679343442910",
+          "role": "other-descendant",
+          "privateBytes": 1236992,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 42904,
+          "ppid": 34084,
+          "name": "azrael-bridge.exe",
+          "creation": "134371679343745800",
+          "role": "azrael-bridge",
+          "privateBytes": 3416064,
+          "workingSetBytes": 16695296
+        },
+        {
+          "pid": 40860,
+          "ppid": 42904,
+          "name": "conhost.exe",
+          "creation": "134371679343883750",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 6967296
+        },
+        {
+          "pid": 57960,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371680452466070",
+          "role": "other-descendant",
+          "privateBytes": 22011904,
+          "workingSetBytes": 12378112
+        },
+        {
+          "pid": 40580,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371680452536990",
+          "role": "other-descendant",
+          "privateBytes": 3960832,
+          "workingSetBytes": 10522624
+        },
+        {
+          "pid": 59824,
+          "ppid": 40580,
+          "name": "conhost.exe",
+          "creation": "134371680453468740",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7073792
+        },
+        {
+          "pid": 68696,
+          "ppid": 57960,
+          "name": "conhost.exe",
+          "creation": "134371680453495710",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 45016,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371680766780110",
+          "role": "other-descendant",
+          "privateBytes": 25677824,
+          "workingSetBytes": 50057216
+        },
+        {
+          "pid": 45676,
+          "ppid": 45016,
+          "name": "conhost.exe",
+          "creation": "134371680766950100",
+          "role": "other-descendant",
+          "privateBytes": 1224704,
+          "workingSetBytes": 6901760
+        },
+        {
+          "pid": 28336,
+          "ppid": 40580,
+          "name": "node.exe",
+          "creation": "134371680770750580",
+          "role": "other-descendant",
+          "privateBytes": 226983936,
+          "workingSetBytes": 38424576
+        },
+        {
+          "pid": 6656,
+          "ppid": 40580,
+          "name": "node.exe",
+          "creation": "134371680770844280",
+          "role": "other-descendant",
+          "privateBytes": 22274048,
+          "workingSetBytes": 26836992
+        },
+        {
+          "pid": 30984,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682446094710",
+          "role": "workspace-window",
+          "privateBytes": 280858624,
+          "workingSetBytes": 195506176,
+          "windowId": 4
+        },
+        {
+          "pid": 22364,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682527744240",
+          "role": "extension-host",
+          "privateBytes": 281010176,
+          "workingSetBytes": 164499456,
+          "windowId": 4
+        },
+        {
+          "pid": 65556,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682530257790",
+          "role": "code-other",
+          "privateBytes": 88891392,
+          "workingSetBytes": 57008128
+        },
+        {
+          "pid": 69284,
+          "ppid": 22364,
+          "name": "codex.exe",
+          "creation": "134371682613498840",
+          "role": "other-descendant",
+          "privateBytes": 34578432,
+          "workingSetBytes": 37478400
+        },
+        {
+          "pid": 10784,
+          "ppid": 22364,
+          "name": "Code.exe",
+          "creation": "134371682614022700",
+          "role": "code-other",
+          "privateBytes": 31379456,
+          "workingSetBytes": 48545792
+        },
+        {
+          "pid": 9044,
+          "ppid": 69284,
+          "name": "conhost.exe",
+          "creation": "134371682616008020",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 38244,
+          "ppid": 22364,
+          "name": "azrael.exe",
+          "creation": "134371682842038170",
+          "role": "azrael-connector",
+          "privateBytes": 12054528,
+          "workingSetBytes": 51990528
+        },
+        {
+          "pid": 35828,
+          "ppid": 38244,
+          "name": "conhost.exe",
+          "creation": "134371682842128820",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 25608,
+          "ppid": 22364,
+          "name": "azrael-bridge.exe",
+          "creation": "134371682842847580",
+          "role": "azrael-bridge",
+          "privateBytes": 7770112,
+          "workingSetBytes": 20799488
+        },
+        {
+          "pid": 68812,
+          "ppid": 25608,
+          "name": "conhost.exe",
+          "creation": "134371682843100570",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 26340,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371683296733890",
+          "role": "other-descendant",
+          "privateBytes": 2805760,
+          "workingSetBytes": 10346496
+        },
+        {
+          "pid": 74712,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371683296815800",
+          "role": "other-descendant",
+          "privateBytes": 21430272,
+          "workingSetBytes": 18108416
+        },
+        {
+          "pid": 67272,
+          "ppid": 26340,
+          "name": "conhost.exe",
+          "creation": "134371683296844240",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6979584
+        },
+        {
+          "pid": 10052,
+          "ppid": 74712,
+          "name": "conhost.exe",
+          "creation": "134371683296881940",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 10860,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371685051513790",
+          "role": "other-descendant",
+          "privateBytes": 21729280,
+          "workingSetBytes": 27213824
+        },
+        {
+          "pid": 38604,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371685051558640",
+          "role": "other-descendant",
+          "privateBytes": 2772992,
+          "workingSetBytes": 10297344
+        },
+        {
+          "pid": 51824,
+          "ppid": 10860,
+          "name": "conhost.exe",
+          "creation": "134371685051835280",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7139328
+        },
+        {
+          "pid": 48392,
+          "ppid": 38604,
+          "name": "conhost.exe",
+          "creation": "134371685051871540",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 6893568
+        },
+        {
+          "pid": 49156,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371685325737960",
+          "role": "other-descendant",
+          "privateBytes": 44187648,
+          "workingSetBytes": 71147520
+        },
+        {
+          "pid": 73904,
+          "ppid": 49156,
+          "name": "conhost.exe",
+          "creation": "134371685326085270",
+          "role": "other-descendant",
+          "privateBytes": 1228800,
+          "workingSetBytes": 7004160
+        },
+        {
+          "pid": 66516,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685550347830",
+          "role": "extension-host",
+          "privateBytes": 349200384,
+          "workingSetBytes": 195547136,
+          "windowId": 1
+        },
+        {
+          "pid": 56504,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685552767740",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 563212288,
+          "workingSetBytes": 491048960
+        },
+        {
+          "pid": 44628,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685552857840",
+          "role": "code-other",
+          "privateBytes": 69435392,
+          "workingSetBytes": 56737792
+        },
+        {
+          "pid": 49668,
+          "ppid": 66516,
+          "name": "Code.exe",
+          "creation": "134371685567296230",
+          "role": "code-other",
+          "privateBytes": 26386432,
+          "workingSetBytes": 65531904
+        },
+        {
+          "pid": 21416,
+          "ppid": 66516,
+          "name": "codex.exe",
+          "creation": "134371685597675350",
+          "role": "other-descendant",
+          "privateBytes": 32780288,
+          "workingSetBytes": 52715520
+        },
+        {
+          "pid": 32072,
+          "ppid": 21416,
+          "name": "conhost.exe",
+          "creation": "134371685598406490",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 8664,
+          "ppid": 66516,
+          "name": "azrael.exe",
+          "creation": "134371685673818130",
+          "role": "azrael-connector",
+          "privateBytes": 11894784,
+          "workingSetBytes": 70828032
+        },
+        {
+          "pid": 62340,
+          "ppid": 8664,
+          "name": "conhost.exe",
+          "creation": "134371685673891910",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 67980,
+          "ppid": 66516,
+          "name": "azrael-bridge.exe",
+          "creation": "134371685674358460",
+          "role": "azrael-bridge",
+          "privateBytes": 2990080,
+          "workingSetBytes": 16564224
+        },
+        {
+          "pid": 9364,
+          "ppid": 67980,
+          "name": "conhost.exe",
+          "creation": "134371685674518280",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 43264,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371686029117860",
+          "role": "other-descendant",
+          "privateBytes": 22237184,
+          "workingSetBytes": 32759808
+        },
+        {
+          "pid": 34772,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371686029151980",
+          "role": "other-descendant",
+          "privateBytes": 2945024,
+          "workingSetBytes": 10833920
+        },
+        {
+          "pid": 42312,
+          "ppid": 43264,
+          "name": "conhost.exe",
+          "creation": "134371686029170200",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7221248
+        },
+        {
+          "pid": 73948,
+          "ppid": 34772,
+          "name": "conhost.exe",
+          "creation": "134371686029214220",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6897664
+        },
+        {
+          "pid": 62100,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371686216654160",
+          "role": "other-descendant",
+          "privateBytes": 27869184,
+          "workingSetBytes": 51822592
+        },
+        {
+          "pid": 21468,
+          "ppid": 62100,
+          "name": "conhost.exe",
+          "creation": "134371686217646510",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 74392,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371695435601520",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 10317824
+        },
+        {
+          "pid": 3900,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371695435710040",
+          "role": "other-descendant",
+          "privateBytes": 21663744,
+          "workingSetBytes": 33988608
+        },
+        {
+          "pid": 39912,
+          "ppid": 74392,
+          "name": "conhost.exe",
+          "creation": "134371695435764030",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6975488
+        },
+        {
+          "pid": 19236,
+          "ppid": 3900,
+          "name": "conhost.exe",
+          "creation": "134371695435938220",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7213056
+        },
+        {
+          "pid": 67332,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371702937975060",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 34041856,
+          "workingSetBytes": 124456960
+        },
+        {
+          "pid": 68976,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371703062664000",
+          "role": "other-descendant",
+          "privateBytes": 3194880,
+          "workingSetBytes": 11464704
+        },
+        {
+          "pid": 68148,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371703062944640",
+          "role": "other-descendant",
+          "privateBytes": 22454272,
+          "workingSetBytes": 34013184
+        },
+        {
+          "pid": 74664,
+          "ppid": 68976,
+          "name": "conhost.exe",
+          "creation": "134371703063306970",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 55028,
+          "ppid": 68148,
+          "name": "conhost.exe",
+          "creation": "134371703063353070",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7348224
+        },
+        {
+          "pid": 45832,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371713726436760",
+          "role": "other-descendant",
+          "privateBytes": 22478848,
+          "workingSetBytes": 34000896
+        },
+        {
+          "pid": 20084,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371713726539710",
+          "role": "other-descendant",
+          "privateBytes": 2797568,
+          "workingSetBytes": 10424320
+        },
+        {
+          "pid": 73072,
+          "ppid": 45832,
+          "name": "conhost.exe",
+          "creation": "134371713726684210",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7393280
+        },
+        {
+          "pid": 67544,
+          "ppid": 20084,
+          "name": "conhost.exe",
+          "creation": "134371713726723440",
+          "role": "other-descendant",
+          "privateBytes": 1196032,
+          "workingSetBytes": 7036928
+        },
+        {
+          "pid": 18836,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371721071124700",
+          "role": "other-descendant",
+          "privateBytes": 22470656,
+          "workingSetBytes": 33742848
+        },
+        {
+          "pid": 28744,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371721071471130",
+          "role": "other-descendant",
+          "privateBytes": 2838528,
+          "workingSetBytes": 10502144
+        },
+        {
+          "pid": 13992,
+          "ppid": 18836,
+          "name": "conhost.exe",
+          "creation": "134371721071471380",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7393280
+        },
+        {
+          "pid": 35032,
+          "ppid": 28744,
+          "name": "conhost.exe",
+          "creation": "134371721071570240",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7032832
+        },
+        {
+          "pid": 24180,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371739090998060",
+          "role": "other-descendant",
+          "privateBytes": 22237184,
+          "workingSetBytes": 34234368
+        },
+        {
+          "pid": 18040,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371739091338020",
+          "role": "other-descendant",
+          "privateBytes": 3002368,
+          "workingSetBytes": 10899456
+        },
+        {
+          "pid": 51644,
+          "ppid": 24180,
+          "name": "conhost.exe",
+          "creation": "134371739091339130",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7467008
+        },
+        {
+          "pid": 48184,
+          "ppid": 18040,
+          "name": "conhost.exe",
+          "creation": "134371739091459750",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7127040
+        },
+        {
+          "pid": 68452,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371744210026350",
+          "role": "other-descendant",
+          "privateBytes": 22306816,
+          "workingSetBytes": 34058240
+        },
+        {
+          "pid": 11836,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371744210061370",
+          "role": "other-descendant",
+          "privateBytes": 2818048,
+          "workingSetBytes": 10571776
+        },
+        {
+          "pid": 51488,
+          "ppid": 11836,
+          "name": "conhost.exe",
+          "creation": "134371744210208500",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7188480
+        },
+        {
+          "pid": 66556,
+          "ppid": 68452,
+          "name": "conhost.exe",
+          "creation": "134371744210240820",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7491584
+        },
+        {
+          "pid": 47412,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371757113020970",
+          "role": "other-descendant",
+          "privateBytes": 3186688,
+          "workingSetBytes": 11014144
+        },
+        {
+          "pid": 66124,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371757113059890",
+          "role": "other-descendant",
+          "privateBytes": 21655552,
+          "workingSetBytes": 34938880
+        },
+        {
+          "pid": 32936,
+          "ppid": 47412,
+          "name": "conhost.exe",
+          "creation": "134371757113152560",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7122944
+        },
+        {
+          "pid": 18444,
+          "ppid": 66124,
+          "name": "conhost.exe",
+          "creation": "134371757113184990",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7471104
+        },
+        {
+          "pid": 61596,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371775176514870",
+          "role": "other-descendant",
+          "privateBytes": 2969600,
+          "workingSetBytes": 10956800
+        },
+        {
+          "pid": 4320,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371775176570410",
+          "role": "other-descendant",
+          "privateBytes": 21811200,
+          "workingSetBytes": 34471936
+        },
+        {
+          "pid": 59812,
+          "ppid": 61596,
+          "name": "conhost.exe",
+          "creation": "134371775176632620",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7122944
+        },
+        {
+          "pid": 33680,
+          "ppid": 4320,
+          "name": "conhost.exe",
+          "creation": "134371775176723920",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7503872
+        },
+        {
+          "pid": 30320,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371793196218990",
+          "role": "other-descendant",
+          "privateBytes": 2932736,
+          "workingSetBytes": 11837440
+        },
+        {
+          "pid": 19500,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371793196340370",
+          "role": "other-descendant",
+          "privateBytes": 22102016,
+          "workingSetBytes": 40316928
+        },
+        {
+          "pid": 63204,
+          "ppid": 30320,
+          "name": "conhost.exe",
+          "creation": "134371793196422590",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7278592
+        },
+        {
+          "pid": 27520,
+          "ppid": 19500,
+          "name": "conhost.exe",
+          "creation": "134371793196450620",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7823360
+        },
+        {
+          "pid": 25336,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371811309006560",
+          "role": "other-descendant",
+          "privateBytes": 2969600,
+          "workingSetBytes": 11517952
+        },
+        {
+          "pid": 36268,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371811309045890",
+          "role": "other-descendant",
+          "privateBytes": 22241280,
+          "workingSetBytes": 35983360
+        },
+        {
+          "pid": 35740,
+          "ppid": 25336,
+          "name": "conhost.exe",
+          "creation": "134371811309115450",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7372800
+        },
+        {
+          "pid": 2100,
+          "ppid": 36268,
+          "name": "conhost.exe",
+          "creation": "134371811309192140",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7614464
+        },
+        {
+          "pid": 33320,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371829383097680",
+          "role": "other-descendant",
+          "privateBytes": 3043328,
+          "workingSetBytes": 11546624
+        },
+        {
+          "pid": 72460,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371829383160790",
+          "role": "other-descendant",
+          "privateBytes": 22409216,
+          "workingSetBytes": 35254272
+        },
+        {
+          "pid": 18404,
+          "ppid": 33320,
+          "name": "conhost.exe",
+          "creation": "134371829383206040",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7229440
+        },
+        {
+          "pid": 21692,
+          "ppid": 72460,
+          "name": "conhost.exe",
+          "creation": "134371829383562060",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7593984
+        },
+        {
+          "pid": 56556,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371847619532830",
+          "role": "other-descendant",
+          "privateBytes": 3010560,
+          "workingSetBytes": 11202560
+        },
+        {
+          "pid": 10244,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371847619579210",
+          "role": "other-descendant",
+          "privateBytes": 22548480,
+          "workingSetBytes": 38473728
+        },
+        {
+          "pid": 71308,
+          "ppid": 56556,
+          "name": "conhost.exe",
+          "creation": "134371847619668300",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7213056
+        },
+        {
+          "pid": 24116,
+          "ppid": 10244,
+          "name": "conhost.exe",
+          "creation": "134371847619694450",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7720960
+        },
+        {
+          "pid": 39144,
+          "ppid": 10928,
+          "name": "CodeSetup-stable-e646868227c3e3a9e3f24277c8c7220be42c0be7.exe",
+          "creation": "134371851045217250",
+          "role": "other-descendant",
+          "privateBytes": 7557120,
+          "workingSetBytes": 11190272
+        },
+        {
+          "pid": 33648,
+          "ppid": 39144,
+          "name": "CodeSetup-stable-e646868227c3e3a9e3f24277c8c7220be42c0be7.tmp",
+          "creation": "134371851047332300",
+          "role": "other-descendant",
+          "privateBytes": 28291072,
+          "workingSetBytes": 38621184
+        },
+        {
+          "pid": 23564,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371865659751390",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 10862592
+        },
+        {
+          "pid": 14464,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371865659792730",
+          "role": "other-descendant",
+          "privateBytes": 22269952,
+          "workingSetBytes": 38703104
+        },
+        {
+          "pid": 49240,
+          "ppid": 23564,
+          "name": "conhost.exe",
+          "creation": "134371865659883690",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7442432
+        },
+        {
+          "pid": 22572,
+          "ppid": 14464,
+          "name": "conhost.exe",
+          "creation": "134371865659908240",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7790592
+        },
+        {
+          "pid": 72044,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371868408593190",
+          "role": "other-descendant",
+          "privateBytes": 2789376,
+          "workingSetBytes": 11595776
+        },
+        {
+          "pid": 20000,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371868408636880",
+          "role": "other-descendant",
+          "privateBytes": 55943168,
+          "workingSetBytes": 45015040
+        },
+        {
+          "pid": 16976,
+          "ppid": 72044,
+          "name": "conhost.exe",
+          "creation": "134371868408724580",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7548928
+        },
+        {
+          "pid": 24076,
+          "ppid": 20000,
+          "name": "conhost.exe",
+          "creation": "134371868408751010",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7766016
+        },
+        {
+          "pid": 40996,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371872280950400",
+          "role": "other-descendant",
+          "privateBytes": 22097920,
+          "workingSetBytes": 48377856
+        },
+        {
+          "pid": 43868,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371872280980080",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 11874304
+        },
+        {
+          "pid": 24004,
+          "ppid": 43868,
+          "name": "conhost.exe",
+          "creation": "134371872281082370",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7659520
+        },
+        {
+          "pid": 28292,
+          "ppid": 40996,
+          "name": "conhost.exe",
+          "creation": "134371872281085190",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 2164,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371872307527930",
+          "role": "other-descendant",
+          "privateBytes": 21950464,
+          "workingSetBytes": 48332800
+        },
+        {
+          "pid": 44872,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371872307562760",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11821056
+        },
+        {
+          "pid": 22272,
+          "ppid": 2164,
+          "name": "conhost.exe",
+          "creation": "134371872307618630",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7847936
+        },
+        {
+          "pid": 10964,
+          "ppid": 44872,
+          "name": "conhost.exe",
+          "creation": "134371872307657580",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 19932,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371874340039100",
+          "role": "other-descendant",
+          "privateBytes": 21995520,
+          "workingSetBytes": 48443392
+        },
+        {
+          "pid": 8376,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371874340071240",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11841536
+        },
+        {
+          "pid": 38588,
+          "ppid": 19932,
+          "name": "conhost.exe",
+          "creation": "134371874340167950",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7864320
+        },
+        {
+          "pid": 31300,
+          "ppid": 8376,
+          "name": "conhost.exe",
+          "creation": "134371874340177310",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7651328
+        },
+        {
+          "pid": 53336,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875085074660",
+          "role": "other-descendant",
+          "privateBytes": 2732032,
+          "workingSetBytes": 11812864
+        },
+        {
+          "pid": 46200,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875085121280",
+          "role": "other-descendant",
+          "privateBytes": 21663744,
+          "workingSetBytes": 48402432
+        },
+        {
+          "pid": 9972,
+          "ppid": 53336,
+          "name": "conhost.exe",
+          "creation": "134371875085201760",
+          "role": "other-descendant",
+          "privateBytes": 1196032,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 72648,
+          "ppid": 46200,
+          "name": "conhost.exe",
+          "creation": "134371875085231090",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 47164,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875128676730",
+          "role": "other-descendant",
+          "privateBytes": 22056960,
+          "workingSetBytes": 48340992
+        },
+        {
+          "pid": 56572,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875128705730",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11841536
+        },
+        {
+          "pid": 15144,
+          "ppid": 47164,
+          "name": "conhost.exe",
+          "creation": "134371875128720580",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7856128
+        },
+        {
+          "pid": 62104,
+          "ppid": 56572,
+          "name": "conhost.exe",
+          "creation": "134371875128746370",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7651328
+        },
+        {
+          "pid": 12980,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875272966570",
+          "role": "other-descendant",
+          "privateBytes": 22024192,
+          "workingSetBytes": 48369664
+        },
+        {
+          "pid": 63400,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875272998080",
+          "role": "other-descendant",
+          "privateBytes": 2768896,
+          "workingSetBytes": 11849728
+        },
+        {
+          "pid": 74132,
+          "ppid": 12980,
+          "name": "conhost.exe",
+          "creation": "134371875273009970",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 73420,
+          "ppid": 63400,
+          "name": "conhost.exe",
+          "creation": "134371875273040930",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 44104,
+          "ppid": 45240,
+          "name": "node.exe",
+          "creation": "134371875943964780",
+          "role": "other-descendant",
+          "privateBytes": 64581632,
+          "workingSetBytes": 90435584
+        },
+        {
+          "pid": 68572,
+          "ppid": 45240,
+          "name": "node.exe",
+          "creation": "134371875944038500",
+          "role": "other-descendant",
+          "privateBytes": 22028288,
+          "workingSetBytes": 49045504
+        },
+        {
+          "pid": 66040,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371883662651730",
+          "role": "other-descendant",
+          "privateBytes": 22069248,
+          "workingSetBytes": 48836608
+        },
+        {
+          "pid": 36780,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371883662709410",
+          "role": "other-descendant",
+          "privateBytes": 2871296,
+          "workingSetBytes": 11968512
+        },
+        {
+          "pid": 74436,
+          "ppid": 66040,
+          "name": "conhost.exe",
+          "creation": "134371883662823950",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7856128
+        },
+        {
+          "pid": 70756,
+          "ppid": 36780,
+          "name": "conhost.exe",
+          "creation": "134371883662856210",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 49000,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371901779955370",
+          "role": "other-descendant",
+          "privateBytes": 21594112,
+          "workingSetBytes": 48713728
+        },
+        {
+          "pid": 28900,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371901779988620",
+          "role": "other-descendant",
+          "privateBytes": 2887680,
+          "workingSetBytes": 11984896
+        },
+        {
+          "pid": 29820,
+          "ppid": 28900,
+          "name": "conhost.exe",
+          "creation": "134371901780094960",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 41380,
+          "ppid": 49000,
+          "name": "conhost.exe",
+          "creation": "134371901780097540",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7847936
+        },
+        {
+          "pid": 13780,
+          "ppid": 60012,
+          "name": "azrael-window-control.exe",
+          "creation": "134371918503780890",
+          "role": "other-descendant",
+          "privateBytes": 1753088,
+          "workingSetBytes": 12816384
+        },
+        {
+          "pid": 49300,
+          "ppid": 13780,
+          "name": "conhost.exe",
+          "creation": "134371918503977290",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7585792
+        },
+        {
+          "pid": 52464,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371919702838670",
+          "role": "other-descendant",
+          "privateBytes": 60108800,
+          "workingSetBytes": 73183232
+        },
+        {
+          "pid": 59156,
+          "ppid": 52464,
+          "name": "conhost.exe",
+          "creation": "134371919702977770",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 7798784
+        },
+        {
+          "pid": 73192,
+          "ppid": 52464,
+          "name": "node.exe",
+          "creation": "134371919705483470",
+          "role": "other-descendant",
+          "privateBytes": 101138432,
+          "workingSetBytes": 99864576
+        },
+        {
+          "pid": 21188,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371919853794130",
+          "role": "other-descendant",
+          "privateBytes": 55975936,
+          "workingSetBytes": 67719168
+        },
+        {
+          "pid": 57652,
+          "ppid": 21188,
+          "name": "conhost.exe",
+          "creation": "134371919853907310",
+          "role": "other-descendant",
+          "privateBytes": 1249280,
+          "workingSetBytes": 7815168
+        },
+        {
+          "pid": 38556,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371919869876080",
+          "role": "other-descendant",
+          "privateBytes": 21700608,
+          "workingSetBytes": 48709632
+        },
+        {
+          "pid": 47688,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371919869915610",
+          "role": "other-descendant",
+          "privateBytes": 2822144,
+          "workingSetBytes": 11780096
+        },
+        {
+          "pid": 70964,
+          "ppid": 38556,
+          "name": "conhost.exe",
+          "creation": "134371919870034260",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7778304
+        },
+        {
+          "pid": 44536,
+          "ppid": 47688,
+          "name": "conhost.exe",
+          "creation": "134371919870057630",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7569408
+        },
+        {
+          "pid": 12428,
+          "ppid": 73192,
+          "name": "node.exe",
+          "creation": "134371919949903090",
+          "role": "other-descendant",
+          "privateBytes": 35524608,
+          "workingSetBytes": 69148672
+        },
+        {
+          "pid": 13500,
+          "ppid": 12428,
+          "name": "rustup.exe",
+          "creation": "134371919957608950",
+          "role": "other-descendant",
+          "privateBytes": 4739072,
+          "workingSetBytes": 12546048
+        },
+        {
+          "pid": 39244,
+          "ppid": 13500,
+          "name": "cargo.exe",
+          "creation": "134371919958166560",
+          "role": "other-descendant",
+          "privateBytes": 87269376,
+          "workingSetBytes": 99811328
+        },
+        {
+          "pid": 58988,
+          "ppid": 61336,
+          "name": "devin.exe",
+          "creation": "134371920021024680",
+          "role": "other-descendant",
+          "privateBytes": 16994304,
+          "workingSetBytes": 35110912
+        },
+        {
+          "pid": 18948,
+          "ppid": 61336,
+          "name": "bun.exe",
+          "creation": "134371920021055640",
+          "role": "other-descendant",
+          "privateBytes": 176074752,
+          "workingSetBytes": 68083712
+        },
+        {
+          "pid": 64488,
+          "ppid": 58988,
+          "name": "conhost.exe",
+          "creation": "134371920021068970",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 7606272
+        },
+        {
+          "pid": 43800,
+          "ppid": 18948,
+          "name": "conhost.exe",
+          "creation": "134371920021100150",
+          "role": "other-descendant",
+          "privateBytes": 1257472,
+          "workingSetBytes": 7782400
+        },
+        {
+          "pid": 49840,
+          "ppid": 18948,
+          "name": "icacls.exe",
+          "creation": "134371920028977940",
+          "role": "other-descendant",
+          "privateBytes": 520192,
+          "workingSetBytes": 2756608
+        },
+        {
+          "pid": 37452,
+          "ppid": 49840,
+          "name": "conhost.exe",
+          "creation": "134371920029475990",
+          "role": "other-descendant",
+          "privateBytes": 1232896,
+          "workingSetBytes": 7417856
+        }
+      ],
+      "freeBytes": 11124023296
+    },
+    {
+      "atUtc": "2026-10-23T01:20:14.5671487Z",
+      "processes": [
+        {
+          "pid": 10928,
+          "ppid": 32776,
+          "name": "Code.exe",
+          "creation": "134371670564318920",
+          "role": "code-other",
+          "privateBytes": 266113024,
+          "workingSetBytes": 206983168
+        },
+        {
+          "pid": 63436,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670566287460",
+          "role": "code-other",
+          "privateBytes": 452509696,
+          "workingSetBytes": 160288768
+        },
+        {
+          "pid": 36212,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670566353730",
+          "role": "code-other",
+          "privateBytes": 16420864,
+          "workingSetBytes": 47276032
+        },
+        {
+          "pid": 52784,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670567972320",
+          "role": "workspace-window",
+          "privateBytes": 258928640,
+          "workingSetBytes": 194920448,
+          "windowId": 1
+        },
+        {
+          "pid": 2200,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670577880640",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 1115676672,
+          "workingSetBytes": 1000579072
+        },
+        {
+          "pid": 13696,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670577956590",
+          "role": "code-other",
+          "privateBytes": 118919168,
+          "workingSetBytes": 88604672
+        },
+        {
+          "pid": 24468,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670617152150",
+          "role": "workspace-window",
+          "privateBytes": 303767552,
+          "workingSetBytes": 238870528,
+          "windowId": 2
+        },
+        {
+          "pid": 60012,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670659591100",
+          "role": "extension-host",
+          "privateBytes": 312778752,
+          "workingSetBytes": 242720768,
+          "windowId": 2
+        },
+        {
+          "pid": 37228,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670660938940",
+          "role": "code-other",
+          "privateBytes": 121049088,
+          "workingSetBytes": 96735232
+        },
+        {
+          "pid": 45356,
+          "ppid": 60012,
+          "name": "Code.exe",
+          "creation": "134371670670325640",
+          "role": "code-other",
+          "privateBytes": 35233792,
+          "workingSetBytes": 47304704
+        },
+        {
+          "pid": 73632,
+          "ppid": 60012,
+          "name": "codex.exe",
+          "creation": "134371670677385140",
+          "role": "other-descendant",
+          "privateBytes": 36577280,
+          "workingSetBytes": 54009856
+        },
+        {
+          "pid": 37172,
+          "ppid": 73632,
+          "name": "conhost.exe",
+          "creation": "134371670677449470",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 6930432
+        },
+        {
+          "pid": 29276,
+          "ppid": 60012,
+          "name": "azrael.exe",
+          "creation": "134371670711583790",
+          "role": "azrael-connector",
+          "privateBytes": 13611008,
+          "workingSetBytes": 26021888
+        },
+        {
+          "pid": 50704,
+          "ppid": 29276,
+          "name": "conhost.exe",
+          "creation": "134371670711637200",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 61336,
+          "ppid": 20692,
+          "name": "azrael.exe",
+          "creation": "134371670731746020",
+          "role": "azrael-shared-engine",
+          "privateBytes": 4018008064,
+          "workingSetBytes": 2979889152
+        },
+        {
+          "pid": 54332,
+          "ppid": 60012,
+          "name": "azrael-bridge.exe",
+          "creation": "134371670783028120",
+          "role": "azrael-bridge",
+          "privateBytes": 7004160,
+          "workingSetBytes": 19988480
+        },
+        {
+          "pid": 24260,
+          "ppid": 54332,
+          "name": "conhost.exe",
+          "creation": "134371670783065020",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 70976,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371670870676240",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 52809728,
+          "workingSetBytes": 47742976
+        },
+        {
+          "pid": 67912,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371671009977590",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 462544896,
+          "workingSetBytes": 380268544
+        },
+        {
+          "pid": 74644,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371671134975290",
+          "role": "other-descendant",
+          "privateBytes": 21712896,
+          "workingSetBytes": 25718784
+        },
+        {
+          "pid": 31148,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371671135005950",
+          "role": "other-descendant",
+          "privateBytes": 2801664,
+          "workingSetBytes": 9162752
+        },
+        {
+          "pid": 74268,
+          "ppid": 74644,
+          "name": "conhost.exe",
+          "creation": "134371671135020360",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7127040
+        },
+        {
+          "pid": 37088,
+          "ppid": 31148,
+          "name": "conhost.exe",
+          "creation": "134371671135048200",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6885376
+        },
+        {
+          "pid": 40048,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371671181371020",
+          "role": "other-descendant",
+          "privateBytes": 65961984,
+          "workingSetBytes": 76701696
+        },
+        {
+          "pid": 53544,
+          "ppid": 40048,
+          "name": "conhost.exe",
+          "creation": "134371671181525470",
+          "role": "other-descendant",
+          "privateBytes": 1228800,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 45240,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371675846087970",
+          "role": "other-descendant",
+          "privateBytes": 5046272,
+          "workingSetBytes": 12783616
+        },
+        {
+          "pid": 21176,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371675846129910",
+          "role": "other-descendant",
+          "privateBytes": 22036480,
+          "workingSetBytes": 25731072
+        },
+        {
+          "pid": 38828,
+          "ppid": 45240,
+          "name": "conhost.exe",
+          "creation": "134371675846241590",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7172096
+        },
+        {
+          "pid": 44228,
+          "ppid": 21176,
+          "name": "conhost.exe",
+          "creation": "134371675846282260",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7086080
+        },
+        {
+          "pid": 58068,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371675882395160",
+          "role": "other-descendant",
+          "privateBytes": 22306816,
+          "workingSetBytes": 6303744
+        },
+        {
+          "pid": 64548,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371675882427210",
+          "role": "other-descendant",
+          "privateBytes": 2736128,
+          "workingSetBytes": 9150464
+        },
+        {
+          "pid": 57816,
+          "ppid": 58068,
+          "name": "conhost.exe",
+          "creation": "134371675882440750",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 35892,
+          "ppid": 64548,
+          "name": "conhost.exe",
+          "creation": "134371675882475170",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 6905856
+        },
+        {
+          "pid": 488,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371678692440930",
+          "role": "workspace-window",
+          "privateBytes": 241782784,
+          "workingSetBytes": 186540032,
+          "windowId": 3
+        },
+        {
+          "pid": 34084,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679120911520",
+          "role": "extension-host",
+          "privateBytes": 266997760,
+          "workingSetBytes": 182861824,
+          "windowId": 3
+        },
+        {
+          "pid": 70068,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679122930710",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 1377738752,
+          "workingSetBytes": 1200898048
+        },
+        {
+          "pid": 6740,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371679123007020",
+          "role": "code-other",
+          "privateBytes": 69902336,
+          "workingSetBytes": 59105280
+        },
+        {
+          "pid": 27760,
+          "ppid": 34084,
+          "name": "Code.exe",
+          "creation": "134371679153842850",
+          "role": "code-other",
+          "privateBytes": 25862144,
+          "workingSetBytes": 33636352
+        },
+        {
+          "pid": 42532,
+          "ppid": 34084,
+          "name": "codex.exe",
+          "creation": "134371679164415850",
+          "role": "other-descendant",
+          "privateBytes": 35889152,
+          "workingSetBytes": 34930688
+        },
+        {
+          "pid": 24756,
+          "ppid": 42532,
+          "name": "conhost.exe",
+          "creation": "134371679164672530",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 36344,
+          "ppid": 34084,
+          "name": "azrael.exe",
+          "creation": "134371679343245540",
+          "role": "azrael-connector",
+          "privateBytes": 12029952,
+          "workingSetBytes": 46256128
+        },
+        {
+          "pid": 56152,
+          "ppid": 36344,
+          "name": "conhost.exe",
+          "creation": "134371679343442910",
+          "role": "other-descendant",
+          "privateBytes": 1236992,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 42904,
+          "ppid": 34084,
+          "name": "azrael-bridge.exe",
+          "creation": "134371679343745800",
+          "role": "azrael-bridge",
+          "privateBytes": 3366912,
+          "workingSetBytes": 16674816
+        },
+        {
+          "pid": 40860,
+          "ppid": 42904,
+          "name": "conhost.exe",
+          "creation": "134371679343883750",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 6967296
+        },
+        {
+          "pid": 57960,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371680452466070",
+          "role": "other-descendant",
+          "privateBytes": 22011904,
+          "workingSetBytes": 12378112
+        },
+        {
+          "pid": 40580,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371680452536990",
+          "role": "other-descendant",
+          "privateBytes": 3960832,
+          "workingSetBytes": 10522624
+        },
+        {
+          "pid": 59824,
+          "ppid": 40580,
+          "name": "conhost.exe",
+          "creation": "134371680453468740",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7073792
+        },
+        {
+          "pid": 68696,
+          "ppid": 57960,
+          "name": "conhost.exe",
+          "creation": "134371680453495710",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 45016,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371680766780110",
+          "role": "other-descendant",
+          "privateBytes": 25677824,
+          "workingSetBytes": 50057216
+        },
+        {
+          "pid": 45676,
+          "ppid": 45016,
+          "name": "conhost.exe",
+          "creation": "134371680766950100",
+          "role": "other-descendant",
+          "privateBytes": 1224704,
+          "workingSetBytes": 6901760
+        },
+        {
+          "pid": 28336,
+          "ppid": 40580,
+          "name": "node.exe",
+          "creation": "134371680770750580",
+          "role": "other-descendant",
+          "privateBytes": 226983936,
+          "workingSetBytes": 38424576
+        },
+        {
+          "pid": 6656,
+          "ppid": 40580,
+          "name": "node.exe",
+          "creation": "134371680770844280",
+          "role": "other-descendant",
+          "privateBytes": 22274048,
+          "workingSetBytes": 26836992
+        },
+        {
+          "pid": 30984,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682446094710",
+          "role": "workspace-window",
+          "privateBytes": 264028160,
+          "workingSetBytes": 179613696,
+          "windowId": 4
+        },
+        {
+          "pid": 22364,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682527744240",
+          "role": "extension-host",
+          "privateBytes": 299061248,
+          "workingSetBytes": 182558720,
+          "windowId": 4
+        },
+        {
+          "pid": 65556,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371682530257790",
+          "role": "code-other",
+          "privateBytes": 88125440,
+          "workingSetBytes": 56520704
+        },
+        {
+          "pid": 69284,
+          "ppid": 22364,
+          "name": "codex.exe",
+          "creation": "134371682613498840",
+          "role": "other-descendant",
+          "privateBytes": 34578432,
+          "workingSetBytes": 37478400
+        },
+        {
+          "pid": 10784,
+          "ppid": 22364,
+          "name": "Code.exe",
+          "creation": "134371682614022700",
+          "role": "code-other",
+          "privateBytes": 31379456,
+          "workingSetBytes": 48545792
+        },
+        {
+          "pid": 9044,
+          "ppid": 69284,
+          "name": "conhost.exe",
+          "creation": "134371682616008020",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 38244,
+          "ppid": 22364,
+          "name": "azrael.exe",
+          "creation": "134371682842038170",
+          "role": "azrael-connector",
+          "privateBytes": 12156928,
+          "workingSetBytes": 52035584
+        },
+        {
+          "pid": 35828,
+          "ppid": 38244,
+          "name": "conhost.exe",
+          "creation": "134371682842128820",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 25608,
+          "ppid": 22364,
+          "name": "azrael-bridge.exe",
+          "creation": "134371682842847580",
+          "role": "azrael-bridge",
+          "privateBytes": 7774208,
+          "workingSetBytes": 20819968
+        },
+        {
+          "pid": 68812,
+          "ppid": 25608,
+          "name": "conhost.exe",
+          "creation": "134371682843100570",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 26340,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371683296733890",
+          "role": "other-descendant",
+          "privateBytes": 2805760,
+          "workingSetBytes": 10346496
+        },
+        {
+          "pid": 74712,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371683296815800",
+          "role": "other-descendant",
+          "privateBytes": 21430272,
+          "workingSetBytes": 18108416
+        },
+        {
+          "pid": 67272,
+          "ppid": 26340,
+          "name": "conhost.exe",
+          "creation": "134371683296844240",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6979584
+        },
+        {
+          "pid": 10052,
+          "ppid": 74712,
+          "name": "conhost.exe",
+          "creation": "134371683296881940",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7098368
+        },
+        {
+          "pid": 10860,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371685051513790",
+          "role": "other-descendant",
+          "privateBytes": 21729280,
+          "workingSetBytes": 27213824
+        },
+        {
+          "pid": 38604,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371685051558640",
+          "role": "other-descendant",
+          "privateBytes": 2772992,
+          "workingSetBytes": 10297344
+        },
+        {
+          "pid": 51824,
+          "ppid": 10860,
+          "name": "conhost.exe",
+          "creation": "134371685051835280",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7139328
+        },
+        {
+          "pid": 48392,
+          "ppid": 38604,
+          "name": "conhost.exe",
+          "creation": "134371685051871540",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 6893568
+        },
+        {
+          "pid": 49156,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371685325737960",
+          "role": "other-descendant",
+          "privateBytes": 52224000,
+          "workingSetBytes": 79523840
+        },
+        {
+          "pid": 73904,
+          "ppid": 49156,
+          "name": "conhost.exe",
+          "creation": "134371685326085270",
+          "role": "other-descendant",
+          "privateBytes": 1228800,
+          "workingSetBytes": 7004160
+        },
+        {
+          "pid": 66516,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685550347830",
+          "role": "extension-host",
+          "privateBytes": 354140160,
+          "workingSetBytes": 200609792,
+          "windowId": 1
+        },
+        {
+          "pid": 56504,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685552767740",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 561463296,
+          "workingSetBytes": 489746432
+        },
+        {
+          "pid": 44628,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371685552857840",
+          "role": "code-other",
+          "privateBytes": 69885952,
+          "workingSetBytes": 56893440
+        },
+        {
+          "pid": 49668,
+          "ppid": 66516,
+          "name": "Code.exe",
+          "creation": "134371685567296230",
+          "role": "code-other",
+          "privateBytes": 26386432,
+          "workingSetBytes": 65601536
+        },
+        {
+          "pid": 21416,
+          "ppid": 66516,
+          "name": "codex.exe",
+          "creation": "134371685597675350",
+          "role": "other-descendant",
+          "privateBytes": 32780288,
+          "workingSetBytes": 52715520
+        },
+        {
+          "pid": 32072,
+          "ppid": 21416,
+          "name": "conhost.exe",
+          "creation": "134371685598406490",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 8664,
+          "ppid": 66516,
+          "name": "azrael.exe",
+          "creation": "134371685673818130",
+          "role": "azrael-connector",
+          "privateBytes": 11898880,
+          "workingSetBytes": 70848512
+        },
+        {
+          "pid": 62340,
+          "ppid": 8664,
+          "name": "conhost.exe",
+          "creation": "134371685673891910",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6914048
+        },
+        {
+          "pid": 67980,
+          "ppid": 66516,
+          "name": "azrael-bridge.exe",
+          "creation": "134371685674358460",
+          "role": "azrael-bridge",
+          "privateBytes": 2990080,
+          "workingSetBytes": 16564224
+        },
+        {
+          "pid": 9364,
+          "ppid": 67980,
+          "name": "conhost.exe",
+          "creation": "134371685674518280",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 43264,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371686029117860",
+          "role": "other-descendant",
+          "privateBytes": 22237184,
+          "workingSetBytes": 32759808
+        },
+        {
+          "pid": 34772,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371686029151980",
+          "role": "other-descendant",
+          "privateBytes": 2945024,
+          "workingSetBytes": 10833920
+        },
+        {
+          "pid": 42312,
+          "ppid": 43264,
+          "name": "conhost.exe",
+          "creation": "134371686029170200",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7221248
+        },
+        {
+          "pid": 73948,
+          "ppid": 34772,
+          "name": "conhost.exe",
+          "creation": "134371686029214220",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 6897664
+        },
+        {
+          "pid": 62100,
+          "ppid": 61336,
+          "name": "azrael-code-mode-host.exe",
+          "creation": "134371686216654160",
+          "role": "other-descendant",
+          "privateBytes": 30695424,
+          "workingSetBytes": 53239808
+        },
+        {
+          "pid": 21468,
+          "ppid": 62100,
+          "name": "conhost.exe",
+          "creation": "134371686217646510",
+          "role": "other-descendant",
+          "privateBytes": 1220608,
+          "workingSetBytes": 6909952
+        },
+        {
+          "pid": 74392,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371695435601520",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 10317824
+        },
+        {
+          "pid": 3900,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371695435710040",
+          "role": "other-descendant",
+          "privateBytes": 21663744,
+          "workingSetBytes": 33988608
+        },
+        {
+          "pid": 39912,
+          "ppid": 74392,
+          "name": "conhost.exe",
+          "creation": "134371695435764030",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 6975488
+        },
+        {
+          "pid": 19236,
+          "ppid": 3900,
+          "name": "conhost.exe",
+          "creation": "134371695435938220",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7213056
+        },
+        {
+          "pid": 67332,
+          "ppid": 10928,
+          "name": "Code.exe",
+          "creation": "134371702937975060",
+          "role": "unnamed-window-renderer",
+          "privateBytes": 34934784,
+          "workingSetBytes": 125251584
+        },
+        {
+          "pid": 68976,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371703062664000",
+          "role": "other-descendant",
+          "privateBytes": 3194880,
+          "workingSetBytes": 11464704
+        },
+        {
+          "pid": 68148,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371703062944640",
+          "role": "other-descendant",
+          "privateBytes": 22454272,
+          "workingSetBytes": 34013184
+        },
+        {
+          "pid": 74664,
+          "ppid": 68976,
+          "name": "conhost.exe",
+          "creation": "134371703063306970",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 6918144
+        },
+        {
+          "pid": 55028,
+          "ppid": 68148,
+          "name": "conhost.exe",
+          "creation": "134371703063353070",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7348224
+        },
+        {
+          "pid": 45832,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371713726436760",
+          "role": "other-descendant",
+          "privateBytes": 22478848,
+          "workingSetBytes": 34000896
+        },
+        {
+          "pid": 20084,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371713726539710",
+          "role": "other-descendant",
+          "privateBytes": 2797568,
+          "workingSetBytes": 10424320
+        },
+        {
+          "pid": 73072,
+          "ppid": 45832,
+          "name": "conhost.exe",
+          "creation": "134371713726684210",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7393280
+        },
+        {
+          "pid": 67544,
+          "ppid": 20084,
+          "name": "conhost.exe",
+          "creation": "134371713726723440",
+          "role": "other-descendant",
+          "privateBytes": 1196032,
+          "workingSetBytes": 7036928
+        },
+        {
+          "pid": 18836,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371721071124700",
+          "role": "other-descendant",
+          "privateBytes": 22470656,
+          "workingSetBytes": 33742848
+        },
+        {
+          "pid": 28744,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371721071471130",
+          "role": "other-descendant",
+          "privateBytes": 2838528,
+          "workingSetBytes": 10502144
+        },
+        {
+          "pid": 13992,
+          "ppid": 18836,
+          "name": "conhost.exe",
+          "creation": "134371721071471380",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7393280
+        },
+        {
+          "pid": 35032,
+          "ppid": 28744,
+          "name": "conhost.exe",
+          "creation": "134371721071570240",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7032832
+        },
+        {
+          "pid": 24180,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371739090998060",
+          "role": "other-descendant",
+          "privateBytes": 22237184,
+          "workingSetBytes": 34234368
+        },
+        {
+          "pid": 18040,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371739091338020",
+          "role": "other-descendant",
+          "privateBytes": 3002368,
+          "workingSetBytes": 10899456
+        },
+        {
+          "pid": 51644,
+          "ppid": 24180,
+          "name": "conhost.exe",
+          "creation": "134371739091339130",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7467008
+        },
+        {
+          "pid": 48184,
+          "ppid": 18040,
+          "name": "conhost.exe",
+          "creation": "134371739091459750",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7127040
+        },
+        {
+          "pid": 68452,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371744210026350",
+          "role": "other-descendant",
+          "privateBytes": 22306816,
+          "workingSetBytes": 34058240
+        },
+        {
+          "pid": 11836,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371744210061370",
+          "role": "other-descendant",
+          "privateBytes": 2818048,
+          "workingSetBytes": 10571776
+        },
+        {
+          "pid": 51488,
+          "ppid": 11836,
+          "name": "conhost.exe",
+          "creation": "134371744210208500",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7188480
+        },
+        {
+          "pid": 66556,
+          "ppid": 68452,
+          "name": "conhost.exe",
+          "creation": "134371744210240820",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7491584
+        },
+        {
+          "pid": 47412,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371757113020970",
+          "role": "other-descendant",
+          "privateBytes": 3186688,
+          "workingSetBytes": 11014144
+        },
+        {
+          "pid": 66124,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371757113059890",
+          "role": "other-descendant",
+          "privateBytes": 21655552,
+          "workingSetBytes": 34938880
+        },
+        {
+          "pid": 32936,
+          "ppid": 47412,
+          "name": "conhost.exe",
+          "creation": "134371757113152560",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7122944
+        },
+        {
+          "pid": 18444,
+          "ppid": 66124,
+          "name": "conhost.exe",
+          "creation": "134371757113184990",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7471104
+        },
+        {
+          "pid": 61596,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371775176514870",
+          "role": "other-descendant",
+          "privateBytes": 2969600,
+          "workingSetBytes": 10956800
+        },
+        {
+          "pid": 4320,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371775176570410",
+          "role": "other-descendant",
+          "privateBytes": 21811200,
+          "workingSetBytes": 34471936
+        },
+        {
+          "pid": 59812,
+          "ppid": 61596,
+          "name": "conhost.exe",
+          "creation": "134371775176632620",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7122944
+        },
+        {
+          "pid": 33680,
+          "ppid": 4320,
+          "name": "conhost.exe",
+          "creation": "134371775176723920",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7503872
+        },
+        {
+          "pid": 30320,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371793196218990",
+          "role": "other-descendant",
+          "privateBytes": 2932736,
+          "workingSetBytes": 11837440
+        },
+        {
+          "pid": 19500,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371793196340370",
+          "role": "other-descendant",
+          "privateBytes": 22102016,
+          "workingSetBytes": 40316928
+        },
+        {
+          "pid": 63204,
+          "ppid": 30320,
+          "name": "conhost.exe",
+          "creation": "134371793196422590",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7278592
+        },
+        {
+          "pid": 27520,
+          "ppid": 19500,
+          "name": "conhost.exe",
+          "creation": "134371793196450620",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7823360
+        },
+        {
+          "pid": 25336,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371811309006560",
+          "role": "other-descendant",
+          "privateBytes": 2969600,
+          "workingSetBytes": 11517952
+        },
+        {
+          "pid": 36268,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371811309045890",
+          "role": "other-descendant",
+          "privateBytes": 22241280,
+          "workingSetBytes": 35983360
+        },
+        {
+          "pid": 35740,
+          "ppid": 25336,
+          "name": "conhost.exe",
+          "creation": "134371811309115450",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7372800
+        },
+        {
+          "pid": 2100,
+          "ppid": 36268,
+          "name": "conhost.exe",
+          "creation": "134371811309192140",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7614464
+        },
+        {
+          "pid": 33320,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371829383097680",
+          "role": "other-descendant",
+          "privateBytes": 3043328,
+          "workingSetBytes": 11546624
+        },
+        {
+          "pid": 72460,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371829383160790",
+          "role": "other-descendant",
+          "privateBytes": 22409216,
+          "workingSetBytes": 35254272
+        },
+        {
+          "pid": 18404,
+          "ppid": 33320,
+          "name": "conhost.exe",
+          "creation": "134371829383206040",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7229440
+        },
+        {
+          "pid": 21692,
+          "ppid": 72460,
+          "name": "conhost.exe",
+          "creation": "134371829383562060",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7593984
+        },
+        {
+          "pid": 56556,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371847619532830",
+          "role": "other-descendant",
+          "privateBytes": 3010560,
+          "workingSetBytes": 11202560
+        },
+        {
+          "pid": 10244,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371847619579210",
+          "role": "other-descendant",
+          "privateBytes": 22548480,
+          "workingSetBytes": 38473728
+        },
+        {
+          "pid": 71308,
+          "ppid": 56556,
+          "name": "conhost.exe",
+          "creation": "134371847619668300",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7213056
+        },
+        {
+          "pid": 24116,
+          "ppid": 10244,
+          "name": "conhost.exe",
+          "creation": "134371847619694450",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7720960
+        },
+        {
+          "pid": 39144,
+          "ppid": 10928,
+          "name": "CodeSetup-stable-e646868227c3e3a9e3f24277c8c7220be42c0be7.exe",
+          "creation": "134371851045217250",
+          "role": "other-descendant",
+          "privateBytes": 7557120,
+          "workingSetBytes": 11190272
+        },
+        {
+          "pid": 33648,
+          "ppid": 39144,
+          "name": "CodeSetup-stable-e646868227c3e3a9e3f24277c8c7220be42c0be7.tmp",
+          "creation": "134371851047332300",
+          "role": "other-descendant",
+          "privateBytes": 28291072,
+          "workingSetBytes": 38621184
+        },
+        {
+          "pid": 23564,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371865659751390",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 10862592
+        },
+        {
+          "pid": 14464,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371865659792730",
+          "role": "other-descendant",
+          "privateBytes": 22269952,
+          "workingSetBytes": 38703104
+        },
+        {
+          "pid": 49240,
+          "ppid": 23564,
+          "name": "conhost.exe",
+          "creation": "134371865659883690",
+          "role": "other-descendant",
+          "privateBytes": 1171456,
+          "workingSetBytes": 7442432
+        },
+        {
+          "pid": 22572,
+          "ppid": 14464,
+          "name": "conhost.exe",
+          "creation": "134371865659908240",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7790592
+        },
+        {
+          "pid": 72044,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371868408593190",
+          "role": "other-descendant",
+          "privateBytes": 2789376,
+          "workingSetBytes": 11595776
+        },
+        {
+          "pid": 20000,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371868408636880",
+          "role": "other-descendant",
+          "privateBytes": 55943168,
+          "workingSetBytes": 45015040
+        },
+        {
+          "pid": 16976,
+          "ppid": 72044,
+          "name": "conhost.exe",
+          "creation": "134371868408724580",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7548928
+        },
+        {
+          "pid": 24076,
+          "ppid": 20000,
+          "name": "conhost.exe",
+          "creation": "134371868408751010",
+          "role": "other-descendant",
+          "privateBytes": 1191936,
+          "workingSetBytes": 7766016
+        },
+        {
+          "pid": 40996,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371872280950400",
+          "role": "other-descendant",
+          "privateBytes": 22097920,
+          "workingSetBytes": 48377856
+        },
+        {
+          "pid": 43868,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371872280980080",
+          "role": "other-descendant",
+          "privateBytes": 2785280,
+          "workingSetBytes": 11874304
+        },
+        {
+          "pid": 24004,
+          "ppid": 43868,
+          "name": "conhost.exe",
+          "creation": "134371872281082370",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7659520
+        },
+        {
+          "pid": 28292,
+          "ppid": 40996,
+          "name": "conhost.exe",
+          "creation": "134371872281085190",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 2164,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371872307527930",
+          "role": "other-descendant",
+          "privateBytes": 21950464,
+          "workingSetBytes": 48332800
+        },
+        {
+          "pid": 44872,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371872307562760",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11821056
+        },
+        {
+          "pid": 22272,
+          "ppid": 2164,
+          "name": "conhost.exe",
+          "creation": "134371872307618630",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7847936
+        },
+        {
+          "pid": 10964,
+          "ppid": 44872,
+          "name": "conhost.exe",
+          "creation": "134371872307657580",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 19932,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371874340039100",
+          "role": "other-descendant",
+          "privateBytes": 21995520,
+          "workingSetBytes": 48443392
+        },
+        {
+          "pid": 8376,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371874340071240",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11841536
+        },
+        {
+          "pid": 38588,
+          "ppid": 19932,
+          "name": "conhost.exe",
+          "creation": "134371874340167950",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7864320
+        },
+        {
+          "pid": 31300,
+          "ppid": 8376,
+          "name": "conhost.exe",
+          "creation": "134371874340177310",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7651328
+        },
+        {
+          "pid": 53336,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875085074660",
+          "role": "other-descendant",
+          "privateBytes": 2732032,
+          "workingSetBytes": 11812864
+        },
+        {
+          "pid": 46200,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875085121280",
+          "role": "other-descendant",
+          "privateBytes": 21663744,
+          "workingSetBytes": 48402432
+        },
+        {
+          "pid": 9972,
+          "ppid": 53336,
+          "name": "conhost.exe",
+          "creation": "134371875085201760",
+          "role": "other-descendant",
+          "privateBytes": 1196032,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 72648,
+          "ppid": 46200,
+          "name": "conhost.exe",
+          "creation": "134371875085231090",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 47164,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875128676730",
+          "role": "other-descendant",
+          "privateBytes": 22056960,
+          "workingSetBytes": 48340992
+        },
+        {
+          "pid": 56572,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875128705730",
+          "role": "other-descendant",
+          "privateBytes": 2748416,
+          "workingSetBytes": 11841536
+        },
+        {
+          "pid": 15144,
+          "ppid": 47164,
+          "name": "conhost.exe",
+          "creation": "134371875128720580",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7856128
+        },
+        {
+          "pid": 62104,
+          "ppid": 56572,
+          "name": "conhost.exe",
+          "creation": "134371875128746370",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7651328
+        },
+        {
+          "pid": 12980,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371875272966570",
+          "role": "other-descendant",
+          "privateBytes": 22024192,
+          "workingSetBytes": 48369664
+        },
+        {
+          "pid": 63400,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371875272998080",
+          "role": "other-descendant",
+          "privateBytes": 2768896,
+          "workingSetBytes": 11849728
+        },
+        {
+          "pid": 74132,
+          "ppid": 12980,
+          "name": "conhost.exe",
+          "creation": "134371875273009970",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7852032
+        },
+        {
+          "pid": 73420,
+          "ppid": 63400,
+          "name": "conhost.exe",
+          "creation": "134371875273040930",
+          "role": "other-descendant",
+          "privateBytes": 1187840,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 44104,
+          "ppid": 45240,
+          "name": "node.exe",
+          "creation": "134371875943964780",
+          "role": "other-descendant",
+          "privateBytes": 64581632,
+          "workingSetBytes": 90435584
+        },
+        {
+          "pid": 68572,
+          "ppid": 45240,
+          "name": "node.exe",
+          "creation": "134371875944038500",
+          "role": "other-descendant",
+          "privateBytes": 22028288,
+          "workingSetBytes": 49045504
+        },
+        {
+          "pid": 66040,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371883662651730",
+          "role": "other-descendant",
+          "privateBytes": 22069248,
+          "workingSetBytes": 48836608
+        },
+        {
+          "pid": 36780,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371883662709410",
+          "role": "other-descendant",
+          "privateBytes": 2871296,
+          "workingSetBytes": 11968512
+        },
+        {
+          "pid": 74436,
+          "ppid": 66040,
+          "name": "conhost.exe",
+          "creation": "134371883662823950",
+          "role": "other-descendant",
+          "privateBytes": 1175552,
+          "workingSetBytes": 7856128
+        },
+        {
+          "pid": 70756,
+          "ppid": 36780,
+          "name": "conhost.exe",
+          "creation": "134371883662856210",
+          "role": "other-descendant",
+          "privateBytes": 1179648,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 49000,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371901779955370",
+          "role": "other-descendant",
+          "privateBytes": 21594112,
+          "workingSetBytes": 48713728
+        },
+        {
+          "pid": 28900,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371901779988620",
+          "role": "other-descendant",
+          "privateBytes": 2887680,
+          "workingSetBytes": 11984896
+        },
+        {
+          "pid": 29820,
+          "ppid": 28900,
+          "name": "conhost.exe",
+          "creation": "134371901780094960",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7655424
+        },
+        {
+          "pid": 41380,
+          "ppid": 49000,
+          "name": "conhost.exe",
+          "creation": "134371901780097540",
+          "role": "other-descendant",
+          "privateBytes": 1183744,
+          "workingSetBytes": 7847936
+        },
+        {
+          "pid": 13780,
+          "ppid": 60012,
+          "name": "azrael-window-control.exe",
+          "creation": "134371918503780890",
+          "role": "other-descendant",
+          "privateBytes": 1753088,
+          "workingSetBytes": 12816384
+        },
+        {
+          "pid": 49300,
+          "ppid": 13780,
+          "name": "conhost.exe",
+          "creation": "134371918503977290",
+          "role": "other-descendant",
+          "privateBytes": 1200128,
+          "workingSetBytes": 7585792
+        },
+        {
+          "pid": 52464,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371919702838670",
+          "role": "other-descendant",
+          "privateBytes": 60108800,
+          "workingSetBytes": 73183232
+        },
+        {
+          "pid": 59156,
+          "ppid": 52464,
+          "name": "conhost.exe",
+          "creation": "134371919702977770",
+          "role": "other-descendant",
+          "privateBytes": 1216512,
+          "workingSetBytes": 7798784
+        },
+        {
+          "pid": 73192,
+          "ppid": 52464,
+          "name": "node.exe",
+          "creation": "134371919705483470",
+          "role": "other-descendant",
+          "privateBytes": 62107648,
+          "workingSetBytes": 63729664
+        },
+        {
+          "pid": 21188,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371919853794130",
+          "role": "other-descendant",
+          "privateBytes": 55291904,
+          "workingSetBytes": 67371008
+        },
+        {
+          "pid": 57652,
+          "ppid": 21188,
+          "name": "conhost.exe",
+          "creation": "134371919853907310",
+          "role": "other-descendant",
+          "privateBytes": 1249280,
+          "workingSetBytes": 7815168
+        },
+        {
+          "pid": 38556,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371919869876080",
+          "role": "other-descendant",
+          "privateBytes": 21700608,
+          "workingSetBytes": 48709632
+        },
+        {
+          "pid": 47688,
+          "ppid": 61336,
+          "name": "node_repl.exe",
+          "creation": "134371919869915610",
+          "role": "other-descendant",
+          "privateBytes": 2822144,
+          "workingSetBytes": 11780096
+        },
+        {
+          "pid": 70964,
+          "ppid": 38556,
+          "name": "conhost.exe",
+          "creation": "134371919870034260",
+          "role": "other-descendant",
+          "privateBytes": 1208320,
+          "workingSetBytes": 7778304
+        },
+        {
+          "pid": 44536,
+          "ppid": 47688,
+          "name": "conhost.exe",
+          "creation": "134371919870057630",
+          "role": "other-descendant",
+          "privateBytes": 1204224,
+          "workingSetBytes": 7569408
+        },
+        {
+          "pid": 12428,
+          "ppid": 73192,
+          "name": "node.exe",
+          "creation": "134371919949903090",
+          "role": "other-descendant",
+          "privateBytes": 35524608,
+          "workingSetBytes": 69148672
+        },
+        {
+          "pid": 13500,
+          "ppid": 12428,
+          "name": "rustup.exe",
+          "creation": "134371919957608950",
+          "role": "other-descendant",
+          "privateBytes": 4739072,
+          "workingSetBytes": 12546048
+        },
+        {
+          "pid": 39244,
+          "ppid": 13500,
+          "name": "cargo.exe",
+          "creation": "134371919958166560",
+          "role": "other-descendant",
+          "privateBytes": 159879168,
+          "workingSetBytes": 172945408
+        },
+        {
+          "pid": 26800,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371920080144150",
+          "role": "other-descendant",
+          "privateBytes": 65015808,
+          "workingSetBytes": 78303232
+        },
+        {
+          "pid": 22256,
+          "ppid": 26800,
+          "name": "conhost.exe",
+          "creation": "134371920100047430",
+          "role": "other-descendant",
+          "privateBytes": 1241088,
+          "workingSetBytes": 7811072
+        },
+        {
+          "pid": 18084,
+          "ppid": 26800,
+          "name": "powershell.exe",
+          "creation": "134371920105947550",
+          "role": "other-descendant",
+          "privateBytes": 95670272,
+          "workingSetBytes": 115159040
+        },
+        {
+          "pid": 30136,
+          "ppid": 61336,
+          "name": "devin.exe",
+          "creation": "134371920132971390",
+          "role": "other-descendant",
+          "privateBytes": 16211968,
+          "workingSetBytes": 36368384
+        },
+        {
+          "pid": 22268,
+          "ppid": 30136,
+          "name": "conhost.exe",
+          "creation": "134371920133013630",
+          "role": "other-descendant",
+          "privateBytes": 1249280,
+          "workingSetBytes": 7610368
+        },
+        {
+          "pid": 18172,
+          "ppid": 61336,
+          "name": "node.exe",
+          "creation": "134371920137159610",
+          "role": "other-descendant",
+          "privateBytes": 75956224,
+          "workingSetBytes": 77266944
+        },
+        {
+          "pid": 42620,
+          "ppid": 18172,
+          "name": "conhost.exe",
+          "creation": "134371920137224440",
+          "role": "other-descendant",
+          "privateBytes": 1236992,
+          "workingSetBytes": 7806976
+        },
+        {
+          "pid": 19524,
+          "ppid": 61336,
+          "name": "powershell.exe",
+          "creation": "134371920140248950",
+          "role": "other-descendant",
+          "privateBytes": 1802240,
+          "workingSetBytes": 9064448
+        },
+        {
+          "pid": 71328,
+          "ppid": 19524,
+          "name": "conhost.exe",
+          "creation": "134371920140423260",
+          "role": "other-descendant",
+          "privateBytes": 1265664,
+          "workingSetBytes": 7782400
+        }
+      ],
+      "freeBytes": 10718445568
+    }
+  ],
+  "categories": [
+    {
+      "role": "code-other",
+      "counts": [
+        12,
+        12,
+        12
+      ],
+      "privateMiB": 1224.6015625,
+      "workingSetMiB": 845.85546875
+    },
+    {
+      "role": "workspace-window",
+      "counts": [
+        4,
+        4,
+        4
+      ],
+      "privateMiB": 1019.0078125,
+      "workingSetMiB": 762.88671875
+    },
+    {
+      "role": "unnamed-window-renderer",
+      "counts": [
+        6,
+        6,
+        6
+      ],
+      "privateMiB": 3397.4140625,
+      "workingSetMiB": 3057.6015625
+    },
+    {
+      "role": "extension-host",
+      "counts": [
+        4,
+        4,
+        4
+      ],
+      "privateMiB": 1114.4609375,
+      "workingSetMiB": 710.4296875
+    },
+    {
+      "role": "other-descendant",
+      "counts": [
+        160,
+        166,
+        169
+      ],
+      "privateMiB": 1998.140625,
+      "workingSetMiB": 3099.79296875
+    },
+    {
+      "role": "azrael-connector",
+      "counts": [
+        4,
+        4,
+        4
+      ],
+      "privateMiB": 47.29296875,
+      "workingSetMiB": 186.05859375
+    },
+    {
+      "role": "azrael-shared-engine",
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "privateMiB": 3830.5390625,
+      "workingSetMiB": 2840.49609375
+    },
+    {
+      "role": "azrael-bridge",
+      "counts": [
+        4,
+        4,
+        4
+      ],
+      "privateMiB": 20.15625,
+      "workingSetMiB": 70.6171875
+    }
+  ],
+  "limitations": [
+    "Not a controlled 1/2/4-window experiment; other work is active",
+    "All Code processes include other extensions; unnamed renderers are not attributed to Azrael",
+    "Window roles are from one CLI status snapshot; process identities and counts retained per sample",
+    "Private Bytes is commit; summed Working Set double-counts shared pages",
+    "Probe and its descendants excluded; no titles, command lines or user content retained",
+    "Managed isolated GUI stage3 unavailable: child-session-admission"
+  ]
+}

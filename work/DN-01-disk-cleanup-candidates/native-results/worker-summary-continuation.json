@@ -1,0 +1,1118 @@
+{
+  "scope": "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native",
+  "status": "PARTIAL",
+  "created_epoch": 1792838803.0358613,
+  "planned_groups": 99,
+  "planned_members": 8854,
+  "groups": [
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-000",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 976190758,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-001",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 1630496350,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-002",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 2392938044,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-003",
+      "planned": 54,
+      "status": "deleted",
+      "deleted": 54,
+      "logical_bytes_deleted": 524636815,
+      "states": {
+        "deleted": 54
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-000",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44502,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-001",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44620,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-002",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43920,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-003",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 45002,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-004",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44192,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-005",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44456,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-006",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43500,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-007",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43528,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-008",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43478,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-009",
+      "planned": 128,
+      "status": "partial",
+      "deleted": 103,
+      "logical_bytes_deleted": 35940,
+      "states": {
+        "deleted": 103,
+        "failed": 1,
+        "blocked": 24
+      },
+      "aborted": false,
+      "remaining": [
+        {
+          "id": "dn-legacy-codex-core-testsa4LCHT",
+          "status": "failed",
+          "error": "",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa4Ne2v",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa4VKoV",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa6PI8q",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa6z21X",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa7VZKA",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa8bsOq",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa8oY0W",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa8vE58",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa9QWOU",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsa9sTfZ",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaA5H50",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaAYxTz",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaAhfB3",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaAvP7R",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaBh8mH",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaBo0N0",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaCCDTm",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaChF84",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsaaGkQK",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsab7QH8",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsabMD4L",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsabsKQo",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsacmiNz",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        },
+        {
+          "id": "dn-legacy-codex-core-testsacmkWl",
+          "status": "blocked",
+          "error": "earlier lifecycle member did not delete; remaining evidence retained",
+          "remaining": true
+        }
+      ]
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-010",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44060,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-011",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44286,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-012",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44138,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-013",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43540,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-014",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43962,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-015",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43994,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-016",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44134,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-017",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44192,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-018",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44650,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-019",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44080,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-020",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43692,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-021",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43918,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-022",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44408,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-023",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43538,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-024",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43978,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-025",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44402,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-026",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43920,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-027",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43866,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-028",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44802,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-029",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43220,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-030",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44588,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-031",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44376,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-032",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43890,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-033",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44404,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-034",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43996,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-035",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44082,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-036",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43794,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-037",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43342,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-038",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44012,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-039",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44254,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-040",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44228,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-041",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 44306,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-042",
+      "planned": 128,
+      "status": "deleted",
+      "deleted": 128,
+      "logical_bytes_deleted": 43940,
+      "states": {
+        "deleted": 128
+      },
+      "aborted": false,
+      "remaining": []
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-043",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-044",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-045",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-046",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-047",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-048",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-049",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-050",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-051",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-052",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-053",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-054",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-055",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-056",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-057",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-058",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-059",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-060",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-061",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-062",
+      "planned": 22,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-exec-server-tests-000",
+      "planned": 128,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-codex-exec-server-tests-001",
+      "planned": 98,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-opencodex-antigravity-tests-000",
+      "planned": 1,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-account-scope-test-000",
+      "planned": 2,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-agent-controller-account-fence-test-000",
+      "planned": 3,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-agent-ledger-sync-service-test-000",
+      "planned": 1,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-calendar-app-data-test-000",
+      "planned": 8,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-calendar-presets-test-000",
+      "planned": 5,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-calendar-startup-deck-test-000",
+      "planned": 4,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-day-plan-sync-test-000",
+      "planned": 1,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-draft-manifest-filter-test-000",
+      "planned": 9,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-draft-metadata-test-000",
+      "planned": 1,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-draft-switch-test-000",
+      "planned": 47,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-event-alert-reconciler-test-000",
+      "planned": 5,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-local-db-overlap-test-000",
+      "planned": 5,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-map-page-snapshot-test-000",
+      "planned": 4,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-map-places-test-000",
+      "planned": 24,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-map-recovery-test-000",
+      "planned": 3,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-map-route-sheet-test-000",
+      "planned": 49,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-map-workspace-test-000",
+      "planned": 9,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-notification-service-test-000",
+      "planned": 9,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-ops-queue-rebind-test-000",
+      "planned": 7,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-project-notifications-test-000",
+      "planned": 2,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-project-test-000",
+      "planned": 1,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-route-persistence-test-000",
+      "planned": 9,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-server-notification-test-000",
+      "planned": 4,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-stopwatch-detail-page-test-000",
+      "planned": 2,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-stopwatch-start-dialog-test-000",
+      "planned": 3,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-sync-orchestrator-mutation-test-000",
+      "planned": 2,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-sync-orchestrator-source-plan-test-000",
+      "planned": 6,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-task-detail-test-000",
+      "planned": 4,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    },
+    {
+      "id": "dn-legacy-laio-windows-cli-calendar-adapter-test-000",
+      "planned": 2,
+      "status": "not_attempted",
+      "deleted": 0,
+      "logical_bytes_deleted": 0
+    }
+  ],
+  "native_operation_running": false,
+  "stop_reason": "Safe boundary: core-043 fresh reference check reported inaccessible node process error87; native operations stopped; parent visibility adjustment pending. Core-009 remains protected partial.",
+  "deleted_members": 5917,
+  "logical_bytes_deleted": 5526149097,
+  "complete_groups": 46,
+  "partial_groups": 1,
+  "unattempted_groups": 52,
+  "planned_members_remaining": 2937,
+  "limitations": [
+    "Logical bytes are receipt measurements; physical reclaimed space is not measured.",
+    "Handle snapshots cannot prove absence of every possible consumer; query/duplicate failures retained in each references receipt.",
+    "First failed item error is empty in native result; root exists with Directory attribute.",
+    "9 excluded antigravity ACL-denied paths and other unknown/active/postboot material not selected or changed.",
+    "No products tests/builds run; this is operational cleanup only."
+  ],
+  "continuation": {
+    "selected_groups": 85,
+    "complete_groups": 33,
+    "deleted_members": 4224,
+    "blocked_group": "dn-legacy-codex-core-test-binary-support-043",
+    "blocked_stage": "fresh-references",
+    "blocked_reference": {
+      "pid": 7300,
+      "name": "node.exe",
+      "error": 87
+    },
+    "remaining_continuation_groups": 52
+  }
+}

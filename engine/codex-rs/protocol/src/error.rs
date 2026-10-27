@@ -188,6 +188,9 @@ pub enum CodexErrorDetails {
     UnsupportedOperation(String),
     #[error("{0}")]
     RefreshTokenFailed(RefreshTokenFailedError),
+    /// Gateway credentials require user action before requests can resume.
+    #[error("{0}")]
+    GatewayLoginRequired(String),
     #[error("Fatal error: {0}")]
     Fatal(String),
     /// A failure whose cause has not been established. Do not imply a fatal
@@ -413,6 +416,7 @@ impl CodexErr {
             | CodexErrorDetails::InvalidPrompt { .. }
             | CodexErrorDetails::ToolCollision(_)
             | CodexErrorDetails::RefreshTokenFailed(_)
+            | CodexErrorDetails::GatewayLoginRequired(_)
             | CodexErrorDetails::UnsupportedOperation(_)
             | CodexErrorDetails::Sandbox(_)
             | CodexErrorDetails::LandlockSandboxExecutableNotProvided

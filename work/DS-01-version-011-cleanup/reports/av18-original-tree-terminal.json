@@ -1,0 +1,190 @@
+{
+  "owner": "CF-01-window-use-admin-setup",
+  "at": "2026-10-18T06:45:47.992Z",
+  "status": "external-recovery-data-and-session6-removed; shared-build-evidence-retained",
+  "deletedItems": 26,
+  "deletedVerified": [
+    {
+      "id": "session6-recovery-external-001",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-006-attempted.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-002",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-006-command.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-003",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-006-completed.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-004",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-006-delivered.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-005",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-006-events.jsonl",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-006",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-006-phase.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-007",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-006-readback.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-008",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-007-attempted.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-009",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-007-command.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-010",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-007-completed.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-011",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-007-delivered.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-012",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-007-events.jsonl",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-013",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-007-phase.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-014",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-007-readback.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-015",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-008-attempted.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-016",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-008-command.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-017",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-008-completed.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-018",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-008-delivered.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-019",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-008-events.jsonl",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-020",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-008-phase.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-021",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-008-readback.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-022",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-host-expectation.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-023",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-runner-ready.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-024",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-runner-activating.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-025",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-io\\retry-runner-extension-active.json",
+      "exists": false
+    },
+    {
+      "id": "session6-recovery-external-026",
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\s\\azrael\\window-use\\manual-recovery",
+      "exists": false
+    }
+  ],
+  "runnerRestoredVerified": true,
+  "testProcessTreeEnded": true,
+  "noSessionLogoffRequested": false,
+  "retainedRecoveryData": null,
+  "elevatedDeletionReceipt": {
+    "at": "2026-10-18T06:45:03.6176561Z",
+    "elevated": true,
+    "deleted": [
+      "consumed-b60cc10f-199b-4a54-92b0-4ed30db1dce5.json",
+      "expired.076bb982-4c12-4a37-94e7-f5f6a76974d0.json",
+      "superseded.d6859503-2a7e-4b2d-a3d7-bc5a16695ef7.json"
+    ],
+    "directoryRemoved": true,
+    "error": null
+  },
+  "retainedBuildEvidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261018-manual-recovery-r1\\live",
+      "reason": "Enclosing manual recovery run contains unresolved u20b wrapper evidence; retain whole run pending exact producer resolution"
+    },
+    {
+      "path": "artifacts/build/u20a",
+      "reason": "Shared Git/UI consumer references from u20b remain"
+    },
+    {
+      "path": "artifacts/build/u20b",
+      "reason": "Original wrapper final outcome unresolved; preserve source and acceptance evidence"
+    }
+  ],
+  "managementReconciliation": "Native cleanup review rejected the absent directory with tree entry disappeared; direct independent absence verification passed",
+  "sessionLogoff": {
+    "authority": "User explicit subsequent instruction to terminate session6",
+    "receipt": {
+      "approvedSession": 6,
+      "parentSession": 2,
+      "elevated": true,
+      "requestAccepted": true,
+      "error": 0,
+      "completionVerified": false
+    },
+    "verification": {
+      "verifiedAt": "2026-10-18T06:47:43.148Z",
+      "method": "Independent managed Window Use resource_status plus Windows CIM process query",
+      "parentSessionId": 2,
+      "childAbsent": true,
+      "childSessionId": null,
+      "idQuerySucceeded": false,
+      "idError": 1168,
+      "errors": [],
+      "session6ProcessCount": 0
+    }
+  }
+}

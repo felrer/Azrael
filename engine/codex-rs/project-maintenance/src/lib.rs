@@ -2,11 +2,14 @@
 //! Commands in plans are data: the host owns process execution and authorization.
 mod apply;
 mod groups;
+pub mod lease;
 mod lock_recovery;
 mod nested_retirement;
 mod paths;
 mod planning;
+mod registration;
 mod registry;
+mod reservations;
 mod retirement;
 mod storage;
 #[cfg(windows)]
@@ -34,6 +37,8 @@ pub(crate) struct Context<'a> {
     content: std::cell::RefCell<paths::ContentCache>,
     catalog_locks: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
     catalog: std::cell::RefCell<registry::CatalogCache>,
+    reservations: std::cell::RefCell<BTreeMap<String, Value>>,
+    cancelled: &'a dyn Fn() -> bool,
     #[cfg(windows)]
     windows_delete: std::cell::RefCell<Option<windows_delete::Worker>>,
     retirement: std::cell::RefCell<Option<retirement::Retirement>>,
@@ -43,17 +48,30 @@ pub(crate) struct Context<'a> {
 
 impl<'a> Context<'a> {
     fn new(authorize: &'a dyn Fn(&Path, AccessMode) -> Result<(), String>) -> Self {
+        Self::with_cancellation(authorize, &|| false)
+    }
+
+    fn with_cancellation(
+        authorize: &'a dyn Fn(&Path, AccessMode) -> Result<(), String>,
+        cancelled: &'a dyn Fn() -> bool,
+    ) -> Self {
         Self {
             authorize,
             content: Default::default(),
             catalog_locks: Default::default(),
             catalog: Default::default(),
+            reservations: Default::default(),
+            cancelled,
             #[cfg(windows)]
             windows_delete: Default::default(),
             retirement: Default::default(),
             nested_retirement: Default::default(),
             junctions: Default::default(),
         }
+    }
+
+    pub(crate) fn cancelled(&self) -> bool {
+        (self.cancelled)()
     }
 }
 
@@ -78,7 +96,7 @@ pub(crate) struct Config {
     metadata: BTreeMap<String, Value>,
 }
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize)]
 pub(crate) struct State {
     #[serde(default)]
     revision: u64,
@@ -158,6 +176,20 @@ pub fn dispatch(
     dispatch_inner(root, request, &Context::new(authorize))
 }
 
+/// Cancellation stops future destructive work without denying durable result writes.
+pub fn dispatch_with_cancellation(
+    root: &Path,
+    request: Value,
+    authorize: &dyn Fn(&Path, AccessMode) -> Result<(), String>,
+    cancelled: &dyn Fn() -> bool,
+) -> Result<Value, String> {
+    dispatch_inner(
+        root,
+        request,
+        &Context::with_cancellation(authorize, cancelled),
+    )
+}
+
 fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Value, String> {
     authorize(root, AccessMode::Read)?;
     paths::check(root, root, authorize)?;
@@ -166,6 +198,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     let operation = string(&request, "operation")?;
     if operation == "recover_lock" {
         return lock_recovery::recover_lock(&root, request, authorize.authorize);
+    }
+    if operation == "recover_reservation" {
+        return reservations::recover(&root, &request, authorize);
     }
     let receipt_operation = matches!(
         operation,
@@ -212,9 +247,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     ) {
         store.authorize_save(authorize)?;
     }
-    // Keep producer metadata stable through the final manifest commit, including
-    // all durable deletion intents and results written by apply.
-    let _catalog_locks = registry::lock_request(&root, &request, &store.state, authorize)?;
+    // Long payload work uses scoped fences between short state/catalog transactions.
+    let catalog_locks = registry::lock_request(&root, &request, &store.state, authorize)?;
+    reservations::check_request(&root, &request, &store.state, authorize)?;
     *authorize.retirement.borrow_mut() =
         retirement::validate(&root, config.as_ref(), &store.state, &request, authorize)?;
     *authorize.nested_retirement.borrow_mut() =
@@ -227,6 +262,17 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             &request,
             &mut store,
             authorize,
+            catalog_locks,
+        );
+    }
+    if operation == "register" && request.get("refresh_group").is_none() {
+        return registration::register(
+            &root,
+            &config_identity,
+            &request,
+            &mut store,
+            authorize,
+            catalog_locks,
         );
     }
     let state = &mut store.state;
@@ -276,6 +322,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
                     }
                     item["due_for_review"] = json!(!reasons.is_empty());
                     item["review_reasons"] = json!(reasons);
+                    if let Err(reason) = reservations::check_item(&root, &item, authorize) {
+                        item["reservation_protection"] = json!(reason);
+                    }
                     item
                 })
                 .collect::<Vec<_>>();
@@ -310,50 +359,40 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
                 .values()
                 .skip(offset)
                 .take(limit)
-                .map(|group| groups::summary(state, group))
+                .map(|group| {
+                    let mut summary = groups::summary(state, group);
+                    if let Some(id) = group["id"].as_str() {
+                        if let Err(reason) = reservations::check_group(&root, id, authorize) {
+                            summary["reservation_protection"] = json!(reason);
+                        }
+                    }
+                    summary
+                })
                 .collect::<Vec<_>>();
             json!({"project_id":config.project_id,"project_root":root,"items":items,"groups":groups,"bundles":bundles,"runs":runs,"decisions":decisions,"pagination":{"offset":offset,"limit":limit,"total":state.items.len(),"groups_total":state.groups.len(),"runs_total":state.runs.len(),"decisions_total":state.decisions.len(),"bundles_total":config.bundles.len()},"logical_bytes":total,"measurement":"cached logical bytes; not reclaimed physical space","policy":config.metadata})
         }
         "register" => {
-            if let Some(refresh) = request.get("refresh_group") {
-                if request.get("group").is_some() || request.get("item").is_some() {
-                    return Err("refresh_group cannot include item or group".into());
-                }
-                groups::refresh(&root, string(refresh, "id")?, state, authorize)?
-            } else if request.get("group").is_some() {
-                if request.get("item").is_some() {
-                    return Err("register accepts item or group, not both".into());
-                }
-                groups::register(&root, request["group"].clone(), state, authorize)?
-            } else {
-                let mut item = request.get("item").cloned().ok_or("missing item")?;
-                let id = string(&item, "id")?.to_owned();
-                if item.get("lifecycle_group_id").is_some()
-                    || item.get("lifecycle_role").is_some()
-                    || state.groups.values().any(|group| {
-                        group["members"].as_array().is_some_and(|members| {
-                            members
-                                .iter()
-                                .any(|member| member.as_str() == Some(id.as_str()))
-                        })
-                    })
-                    || state
-                        .items
-                        .get(&id)
-                        .is_some_and(|existing| existing["lifecycle_group_id"].as_str().is_some())
-                {
-                    return Err("grouped members must be updated through group registration".into());
-                }
-                item = prepare_item(&root, item, authorize)?;
-                state.items.insert(id, item.clone());
-                json!({"item":item})
+            let refresh = request
+                .get("refresh_group")
+                .ok_or("missing refresh_group")?;
+            if request.get("group").is_some() || request.get("item").is_some() {
+                return Err("refresh_group cannot include item or group".into());
             }
+            groups::refresh(&root, string(refresh, "id")?, state, authorize)?
         }
         "plan" | "begin_run" => {
             let config = config.as_ref().ok_or("valid project config required")?;
             let mut plan = planning::plan(&root, &config, &request, authorize)?;
             plan["config_identity"] = json!(config_identity);
             if operation == "begin_run" {
+                let reader_paths = plan["steps"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .flat_map(|step| step["inputs"].as_array().into_iter().flatten())
+                    .map(|input| string(input, "path").map(PathBuf::from))
+                    .collect::<Result<Vec<_>, _>>()?;
+                reservations::check_reader_paths(&root, &reader_paths, authorize)?;
                 for existing in state.runs.values() {
                     if !existing["steps"]
                         .as_array()
@@ -713,6 +752,7 @@ fn review_ungrouped(
     auth: Auth<'_>,
     verification: Verification,
 ) -> Result<Value, String> {
+    reservations::check_item(root, item, auth)?;
     let mut selected = review_single(
         root,
         config,

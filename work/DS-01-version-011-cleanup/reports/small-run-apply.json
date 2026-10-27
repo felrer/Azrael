@@ -1,0 +1,51 @@
+{
+  "aborted": false,
+  "groups": [
+    {
+      "id": "run:DS-01-native-output-cleanup",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DS-01-u22c-final-cli",
+      "status": "deleted"
+    }
+  ],
+  "results": [
+    {
+      "attempt_id": "attempt-73132-2574-1792940220362",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "4bc100b232b8677478fa281f2ad8a9be93890e8d204201c881c9e8eb5d315bff",
+      "lifecycle_group_id": "run:DS-01-u22c-final-cli",
+      "reason": "Owned completed one-off native cleanup executions; actual outcomes and independently readable logs retained in task reports, no live executable consumer",
+      "remaining": false,
+      "status": "deleted",
+      "token": "1e09ec7aec6d54c7898763b746a5b2cd9baa8f62c4145a5d3fe25c611f2ad782"
+    },
+    {
+      "attempt_id": "attempt-73132-2577-1792940258599",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "6ccc77a7e7c9ade2e4eff4c1d847123c8017732be714f329daa6128a7ee6a521",
+      "lifecycle_group_id": "run:DS-01-native-output-cleanup",
+      "reason": "Owned completed one-off native cleanup executions; actual outcomes and independently readable logs retained in task reports, no live executable consumer",
+      "remaining": false,
+      "status": "deleted",
+      "token": "fade393b3d4281eb720f24717abdbba9e0bdc7073db4e008027e19df02cb9f6f"
+    }
+  ]
+}

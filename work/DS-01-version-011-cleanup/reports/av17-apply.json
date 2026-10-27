@@ -1,0 +1,200 @@
+{
+  "aborted": false,
+  "groups": [
+    {
+      "id": "run:window-use-u17b-host6-r2",
+      "status": "deleted"
+    }
+  ],
+  "results": [
+    {
+      "attempt_id": "attempt-73132-3-1792922338642",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgobject-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\original-state\\.tmp\\plugins-clone-hzVkFq\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.idx"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\original-state\\.tmp\\plugins-clone-hzVkFq\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.rev"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstapp-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\s\\.tmp\\plugins\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.pack"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstopus.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstrtp.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgio-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstnet-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libopus.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstvideo-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstaudioresample.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libffi.so.8"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgmodule-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\s\\.tmp\\plugins\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.rev"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstreamer-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libz.so.1"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstallocators-1.0.so.0"
+          },
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\s\\.tmp\\plugins\\.git"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libglib-2.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libintl.so.8"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstaudioconvert.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstapp.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\s\\.tmp\\plugins\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.idx"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstbase-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstrtp-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\original-state\\.tmp\\plugins-clone-hzVkFq\\.git\\objects\\pack\\pack-f811a37b58b15bd30e1edad7816103ab8e2af16e.pack"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstcoreelements.so"
+          },
+          {
+            "after": 16,
+            "before": 18,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\original-state\\.tmp\\plugins-clone-hzVkFq\\.git"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libpcre2-8.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\gstreamer-1.0\\libgstrtpmanager.so"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstaudio-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgstpbutils-1.0.so.0"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64\\bin\\linux-x86_64\\codex-resources\\voice\\lib\\libgsttag-1.0.so.0"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "d6df3a596e82b48d21c1a022938d093b2659fba37136fa38af8961036585fdea",
+      "lifecycle_group_id": "run:window-use-u17b-host6-r2",
+      "reason": "User explicitly authorizes full external av17 test-profile retirement, including its settings/authentication/conversations/session data. Azrael registration removed with exit0, current fixture references absent; original complete producer evidence retained outside fixture.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "fd297e931078d738d024452af6383a143752d987be00dff4df926fff4b0e7c47"
+    }
+  ]
+}

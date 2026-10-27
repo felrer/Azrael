@@ -1,7 +1,19 @@
 #requires -Version 7.0
+[CmdletBinding()]
+param([string]$FixtureRoot)
 $ErrorActionPreference = 'Stop'
 $project = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $fixture = Join-Path $project ('artifacts/verification/engine-cache-cleanup-' + [guid]::NewGuid().ToString('N'))
+$explicitFixtureRoot = $PSBoundParameters.ContainsKey('FixtureRoot')
+if ($explicitFixtureRoot) {
+    if (-not [IO.Path]::IsPathFullyQualified($FixtureRoot)) { throw 'FixtureRoot must be an absolute new path.' }
+    $fixture = [IO.Path]::GetFullPath($FixtureRoot)
+    $artifactBoundary = [IO.Path]::GetFullPath((Join-Path $project 'artifacts')).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $fixture.StartsWith($artifactBoundary, [StringComparison]::OrdinalIgnoreCase)) { throw 'FixtureRoot must be below project artifacts.' }
+    try { $null = Get-Item -LiteralPath $fixture -Force -ErrorAction Stop; throw 'FixtureRoot must not already exist.' }
+    catch [System.Management.Automation.ItemNotFoundException] { }
+}
+$fixtureBoundary = [IO.Path]::GetFullPath($fixture)
 $external = Join-Path $fixture 'external'
 $sandbox = Join-Path $fixture 'project'
 $cleaner = Join-Path $PSScriptRoot 'clean-engine-caches.ps1'
@@ -344,7 +356,10 @@ try {
     }
     $resolved = [IO.Path]::GetFullPath($fixture)
     $allowed = [IO.Path]::GetFullPath((Join-Path $project 'artifacts/verification')) + [IO.Path]::DirectorySeparatorChar
-    Assert ($resolved.StartsWith($allowed, [StringComparison]::OrdinalIgnoreCase) -and [IO.Path]::GetFileName($resolved) -like 'engine-cache-cleanup-*') 'Fixture cleanup escaped verification root'
+    Assert ($resolved -ceq $fixtureBoundary) 'Fixture cleanup identity changed'
+    if (-not $explicitFixtureRoot) {
+        Assert ($resolved.StartsWith($allowed, [StringComparison]::OrdinalIgnoreCase) -and [IO.Path]::GetFileName($resolved) -like 'engine-cache-cleanup-*') 'Fixture cleanup escaped verification root'
+    }
     if (Test-Path -LiteralPath $resolved) { Remove-Item -LiteralPath $resolved -Recurse -ErrorAction Stop }
 }
 exit 0

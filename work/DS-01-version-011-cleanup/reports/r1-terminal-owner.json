@@ -1,0 +1,53 @@
+{
+  "exists": true,
+  "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target",
+  "targetStat": {
+    "dev": "3057815611",
+    "ino": "14636698799102538",
+    "birthtimeNs": "1792897014965197200"
+  },
+  "leasePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\.azrael-cargo-owner",
+  "leaseStat": {
+    "dev": "3057815611",
+    "ino": "4503599635288321",
+    "birthtimeNs": "1792931244960971300"
+  },
+  "ownerPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\.azrael-cargo-owner\\owner.json",
+  "ownerStat": {
+    "dev": "3057815611",
+    "ino": "4785074611998978",
+    "birthtimeNs": "1792931244960971300"
+  },
+  "token": "04b999c7-e25c-4356-9180-3c0ce4d97b7a",
+  "ownerSha256": "16f81d1a383df2f888d8d86d869e41e7a4c61013a59ce7a9a2f42127fe42bcde",
+  "owner": {
+    "schema": 1,
+    "token": "04b999c7-e25c-4356-9180-3c0ce4d97b7a",
+    "run": "pid-32780",
+    "coordinatorPid": 32780,
+    "producerPid": 51388,
+    "startedUtc": "2026-10-25T12:27:24.960Z",
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target",
+    "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target",
+    "command": "cargo",
+    "args": [
+      "test",
+      "-p",
+      "azrael-project-maintenance",
+      "--locked",
+      "--offline",
+      "--",
+      "--test-threads=1",
+      "--list",
+      "--format=terse"
+    ],
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ds01n1\\engine\\codex-rs",
+    "compilationSignature": "df8f8e5f3a4bc97244927e8e7bfc34f3a699219e17d17c4343926727e38db5c1",
+    "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\7ea180e5a8122951612664c5fc20406d989ffb5199e917e5d0f9ef99b160b2c2",
+    "status": "success",
+    "resultObservedUtc": "2026-10-25T12:27:41.929Z",
+    "exitCode": 0,
+    "signal": null
+  },
+  "ownerBytesBase64": "ewogICJzY2hlbWEiOiAxLAogICJ0b2tlbiI6ICIwNGI5OTljNy1lMjVjLTQzNTYtOTE4MC0zYzBjZTRkOTdiN2EiLAogICJydW4iOiAicGlkLTMyNzgwIiwKICAiY29vcmRpbmF0b3JQaWQiOiAzMjc4MCwKICAicHJvZHVjZXJQaWQiOiA1MTM4OCwKICAic3RhcnRlZFV0YyI6ICIyMDI2LTEwLTI1VDEyOjI3OjI0Ljk2MFoiLAogICJ0YXJnZXREaXJlY3RvcnkiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGNhY2hlXFxjYXJnb1xcZTY4MDBlNTdiNTEzMTg5YjE4ZTIzNTE1OWQ1ODA4YTYxOGZkNTZlOTliNGUzYWUxM2YwYjE2ZDQwNzVmMTM4OFxcdGFyZ2V0IiwKICAidGFyZ2V0SWRlbnRpdHkiOiAiYzpcXHVzZXJzXFxmZWxyZVxcZGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGNhY2hlXFxjYXJnb1xcZTY4MDBlNTdiNTEzMTg5YjE4ZTIzNTE1OWQ1ODA4YTYxOGZkNTZlOTliNGUzYWUxM2YwYjE2ZDQwNzVmMTM4OFxcdGFyZ2V0IiwKICAiY29tbWFuZCI6ICJjYXJnbyIsCiAgImFyZ3MiOiBbCiAgICAidGVzdCIsCiAgICAiLXAiLAogICAgImF6cmFlbC1wcm9qZWN0LW1haW50ZW5hbmNlIiwKICAgICItLWxvY2tlZCIsCiAgICAiLS1vZmZsaW5lIiwKICAgICItLSIsCiAgICAiLS10ZXN0LXRocmVhZHM9MSIsCiAgICAiLS1saXN0IiwKICAgICItLWZvcm1hdD10ZXJzZSIKICBdLAogICJjd2QiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXHZlcmlmaWNhdGlvblxcZHMwMW4xXFxlbmdpbmVcXGNvZGV4LXJzIiwKICAiY29tcGlsYXRpb25TaWduYXR1cmUiOiAiZGY4ZjhlNWYzYTRiYzk3MjQ0OTI3ZThlN2JmYzM0ZjNhNjk5MjE5ZTE3ZDE3YzQzNDM5MjY3MjdlMzhkYjVjMSIsCiAgInBlbmRpbmdEaXJlY3RvcnkiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXHZlcmlmaWNhdGlvblxcY2FyZ28tcGVuZGluZ1xcN2VhMTgwZTVhODEyMjk1MTYxMjY2NGM1ZmMyMDQwNmQ5ODlmZmI1MTk5ZTkxN2U1ZDBmOWVmOTliMTYwYjJjMiIsCiAgInN0YXR1cyI6ICJzdWNjZXNzIiwKICAicmVzdWx0T2JzZXJ2ZWRVdGMiOiAiMjAyNi0xMC0yNVQxMjoyNzo0MS45MjlaIiwKICAiZXhpdENvZGUiOiAwLAogICJzaWduYWwiOiBudWxsCn0="
+}

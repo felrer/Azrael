@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use azrael_project_maintenance::AccessMode;
-use azrael_project_maintenance::dispatch;
+use azrael_project_maintenance::{dispatch, dispatch_with_cancellation};
 use codex_protocol::permissions::ReadDenyMatcher;
 use codex_sandboxing::policy_transforms::effective_file_system_sandbox_policy;
 use codex_tools::JsonSchema;
@@ -744,9 +744,6 @@ async fn dispatch_local(
             .map_err(|e| e.to_string())?;
         let read_denials = ReadDenyMatcher::try_new_with_context(&policy, &policy_context)?;
         let authorize = |path: &Path, access: AccessMode| -> Result<(), String> {
-            if observe_cancellation && cancellation.is_cancelled() {
-                return Err("project maintenance cancelled".into());
-            }
             let path = PathUri::from(
                 AbsolutePathBuf::try_from(path.to_path_buf()).map_err(|e| e.to_string())?,
             );
@@ -770,7 +767,9 @@ async fn dispatch_local(
         {
             project_registry(&root, &request, &authorize)
         } else {
-            dispatch(&root, request, &authorize)
+            dispatch_with_cancellation(&root, request, &authorize, &|| {
+                observe_cancellation && cancellation.is_cancelled()
+            })
         }
     })
     .await

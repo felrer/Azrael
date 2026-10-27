@@ -1,0 +1,22 @@
+{
+  "status": "partial",
+  "baseline": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+    "rawSourceSha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+    "importerExit": 0,
+    "importerLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\dn01-root-provenance-final-baseline-check.log"
+  },
+  "fifthProducer": {
+    "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+    "observedExit": 1,
+    "stopped": true,
+    "error": "ENOENT incorrect preservation-check daemon path; actual path is engine/codex-rs/app-server-daemon/src/azrael_lifecycle.rs",
+    "closureError": "EEXIST shared artifacts/maintenance/lifecycles/catalog.lock; owner unresolved; no lock removal"
+  },
+  "sourceBeforeSha256": "9abb36b88ed63b2045fcfae09a7e5387dd80fd83d543658dd7da32dfcb98c9fe",
+  "sourceCurrentSha256": "9abb36b88ed63b2045fcfae09a7e5387dd80fd83d543658dd7da32dfcb98c9fe",
+  "sourceUnchanged": true,
+  "recorderInvoked": false,
+  "snapshotInvoked": false,
+  "retryCondition": "Shared lock normally released by actual owner or supported verified recovery; close fifth producer with actual exit1, then fresh registered recorder using validated final baseline and corrected daemon path."
+}

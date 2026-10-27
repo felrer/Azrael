@@ -1,0 +1,9 @@
+{
+  "scope": "Read-only command-shape classification; command lines not retained. Match PID and creation to captured sample before attribution.",
+  "rows": [
+    {"pid":5232,"creation":"134371949847014150","name":"node.exe","ppid":61336,"windowUse":true,"mcp":true},
+    {"pid":7844,"creation":"134371950142222590","name":"powershell.exe","ppid":61336},
+    {"pid":65532,"creation":"134371950145214440","name":"node.exe","ppid":7844,"windowUse":false,"mcp":false,"typescript":false,"languageServer":false,"bundler":false,"packageManager":false}
+  ],
+  "limitations": ["Negative keyword matches do not establish exact purpose or owning conversation", "New generic Node task is not attributed to Azrael engine heap or Window Use"]
+}

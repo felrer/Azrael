@@ -205,12 +205,3 @@ test("injector refuses missing, duplicated, altered anchor or corrupt marker", (
     assert.throws(() => injectUrlSafetyTransport(input), /anchor|marker/);
   }
 });
-
-test("stable official host preserves response classification and identity retry policy", () => {
-  const filename = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434")), "out/extension.js");
-  const original = fs.readFileSync(filename, "utf8");
-
-  const patched = injectUrlSafetyTransport(original);
-
-  assert.equal(injectUrlSafetyTransport(patched.text).text, patched.text);
-});

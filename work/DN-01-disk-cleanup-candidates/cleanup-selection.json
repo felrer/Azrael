@@ -1,0 +1,399 @@
+{
+  "root": "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native",
+  "management_root": "C:\\Users\\felre\\.azrael-ex\\tmp",
+  "config": "C:\\Users\\felre\\.azrael-ex\\tmp\\project-maintenance.json",
+  "groups": [
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-000",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-tui-chatwidget-tests-000.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-001",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-tui-chatwidget-tests-001.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-002",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-tui-chatwidget-tests-002.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-tui-chatwidget-tests-003",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-tui-chatwidget-tests-003.json",
+      "count": 54
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-000",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-000.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-001",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-001.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-002",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-002.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-003",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-003.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-004",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-004.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-005",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-005.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-006",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-006.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-007",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-007.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-008",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-008.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-009",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-009.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-010",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-010.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-011",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-011.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-012",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-012.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-013",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-013.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-014",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-014.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-015",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-015.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-016",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-016.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-017",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-017.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-018",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-018.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-019",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-019.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-020",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-020.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-021",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-021.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-022",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-022.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-023",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-023.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-024",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-024.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-025",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-025.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-026",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-026.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-027",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-027.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-028",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-028.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-029",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-029.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-030",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-030.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-031",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-031.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-032",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-032.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-033",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-033.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-034",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-034.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-035",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-035.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-036",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-036.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-037",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-037.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-038",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-038.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-039",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-039.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-040",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-040.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-041",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-041.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-042",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-042.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-043",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-043.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-044",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-044.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-045",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-045.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-046",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-046.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-047",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-047.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-048",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-048.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-049",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-049.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-050",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-050.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-051",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-051.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-052",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-052.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-053",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-053.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-054",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-054.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-055",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-055.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-056",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-056.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-057",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-057.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-058",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-058.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-059",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-059.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-060",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-060.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-061",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-061.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-core-test-binary-support-062",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-core-test-binary-support-062.json",
+      "count": 22
+    },
+    {
+      "id": "dn-legacy-codex-exec-server-tests-000",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-exec-server-tests-000.json",
+      "count": 128
+    },
+    {
+      "id": "dn-legacy-codex-exec-server-tests-001",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-codex-exec-server-tests-001.json",
+      "count": 98
+    },
+    {
+      "id": "dn-legacy-opencodex-antigravity-tests-000",
+      "file": "work\\DN-01-disk-cleanup-candidates\\cleanup-requests\\dn-legacy-opencodex-antigravity-tests-000.json",
+      "count": 1
+    }
+  ],
+  "selected_count": 8623,
+  "deferred": [
+    {
+      "name": "azrael-antigravity-36yJGO",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-3wB8gd",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-bXiAqt",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-hPs6jY",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-jplyrV",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-nUQdpd",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-roIU77",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-v3wKiA",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    },
+    {
+      "name": "azrael-antigravity-vdZMu2",
+      "reason": "Known empty protected DACL prevents inspection; no ACL modification authorized by applicable cleanup rules"
+    }
+  ],
+  "selected_logical_bytes": 5527092782,
+  "created": 1792809693.6589925,
+  "authorization": "User requested deleting all except retained items in ongoing devin-native task; no ACL changes, force deletion or user process termination"
+}

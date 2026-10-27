@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c",
+  "registry_sha256": "7483D6522B8F147BD1530082F52847B3849F5CADF8F9556FDD6EA282606B2F38",
+  "catalog_sha256": "b7f1d58e37049fbe4748dd54cb98695ed96a272711323a98ef86ca3ac315cd56",
+  "producer_stopped_verified": true,
+  "consumers_released_verified": true,
+  "installations_released_verified": true,
+  "rollback_released_verified": true,
+  "reason": "User retires old u22c; complete original consumer catalog preserved, exact outgoing cache reference released, live producer scan zero, original internal payload deleted and both records finalized; external installations and linked acceptance/rollback retired; historical external installation receipt preserved independently then retired through native exact-group deletion",
+  "evidence": [
+    "u22c-original-consumer-catalog.json",
+    "u22c-internal-retirement-evidence.json",
+    "u22c-internal-reference-release.json",
+    "u22c-internal-apply.json",
+    "u22c-internal-finalize.json",
+    "external-uninstall-results.json",
+    "released-references.json",
+    "u22c-deployment-retirement-evidence.json",
+    "u22c-deployment-retirement-apply.json"
+  ]
+}

@@ -1,0 +1,467 @@
+[
+  {
+    "schema": 1,
+    "id": "run:build-inputs:b13",
+    "kind": "run",
+    "owner": "azrael-bridge-improvement",
+    "version": "2026.0.11",
+    "state": "pending",
+    "membership_complete": false,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13",
+        "role": "source-snapshot",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [],
+    "revision": 1,
+    "created_at": "2026-10-22T02:12:34.341Z",
+    "updated_at": "2026-10-22T02:12:34.341Z"
+  },
+  {
+    "schema": 1,
+    "id": "work:b13-extension-dependencies-r2",
+    "kind": "work",
+    "owner": "azrael-release-dependency-preparation",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\extensions\\azrael-ex\\node_modules",
+        "role": "extension-dependencies",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "run:build-inputs:b13",
+        "kind": "dependency",
+        "reason": "Ignored dependency preparation for retained frozen input; source bytes unchanged",
+        "reference_id": "2836971082e97928ff53c48beb34bb0e07acddad44cbc9c0920d40246e044c4c"
+      },
+      {
+        "id": "run:build-inputs:b13",
+        "kind": "dependency",
+        "reason": "Prepared dependencies retained until b13 consumers finish",
+        "reference_id": "d16bcc69822d0f8039d9c91d634dc51b04895f4cfa38ff53d3888f76ed1d1cb5"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-22T03:22:06.810Z",
+    "updated_at": "2026-10-22T03:22:50.288Z"
+  },
+  {
+    "schema": 1,
+    "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r8",
+    "kind": "run",
+    "owner": "CR-01-build-legacy-cleanup",
+    "version": "2026.0.11",
+    "state": "pending",
+    "membership_complete": false,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r8",
+        "role": "run"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e",
+        "role": "inputs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\verification-results\\cargo-v2",
+        "role": "verification-cache"
+      }
+    ],
+    "references": [
+      {
+        "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r1",
+        "kind": "execution",
+        "reason": "Lease repair and verified continuation uses immutable source, prior build receipts and terminal evidence",
+        "reference_id": "03eb9a339537d1581fed6924a30c1a6b95e1a8d709f9dab47e942547982d4756"
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r6",
+        "kind": "execution",
+        "reason": "Lease repair and verified continuation uses immutable source, prior build receipts and terminal evidence",
+        "reference_id": "77b600145ae72dbc21fe48b4b32ff73bbd30759193c49a8eea3d88dfced3cae4"
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r7",
+        "kind": "execution",
+        "reason": "Lease repair and verified continuation uses immutable source, prior build receipts and terminal evidence",
+        "reference_id": "4f97ad77197428c1d83441fb32e2f471d3ecd1076a6dbe749d210dac4fe04a43"
+      },
+      {
+        "id": "work:CR-01-build-legacy-cleanup:build-tool-caches",
+        "kind": "execution",
+        "reason": "Workspace fixture and tool cache consumer",
+        "reference_id": "3450d5bb150d336f7d89a5264eb7e450a50d9cacb9ae00e583369dc110883ee3"
+      },
+      {
+        "id": "work:CR-01-build-legacy-cleanup:workspace-cargo-cache",
+        "kind": "execution",
+        "reason": "Focused native verification consumer",
+        "reference_id": "ff65a9ff39c9a5eeb4611df40ca624f40e13a65736dfe3ac3dc2e29087481182"
+      }
+    ],
+    "revision": 4,
+    "created_at": "2026-10-20T08:37:33.772Z",
+    "updated_at": "2026-10-20T12:09:10.592Z",
+    "release_receipt": {
+      "request_sha256": "60646286b01e1238574024ba33249669eb2d7626e0724db9d643600e683611fd",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r10\\reports\\retired-r4-handoff.json",
+      "evidence_sha256": "14b07cf64a4ed061af36757d6aa32ea7332233a04a79674a31e13847b7cfdd16",
+      "reason": "Completed immutable input handoff; retire replaced v11d snapshot and its run group"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "work:b13-bun-tool-r3",
+    "kind": "work",
+    "owner": "azrael-release-tool-preparation",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\tools\\bun-1.4.2",
+        "role": "bun-tool",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "run:build-inputs:b13",
+        "kind": "dependency",
+        "reason": "Ignored exact pinned Bun dependency for immutable b13 consumers",
+        "reference_id": "3367f9988e0291b377b311814e4ee1dc0afd99ebc7bc7300175a89cc4653fa33"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-22T03:30:56.996Z",
+    "updated_at": "2026-10-22T03:30:57.257Z"
+  },
+  {
+    "schema": 1,
+    "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r13",
+    "kind": "run",
+    "owner": "CR-01-build-legacy-cleanup",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r13",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11i",
+        "role": "snapshot",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [],
+    "generation": "r19-w11w-continuation-2",
+    "revision": 10,
+    "created_at": "2026-10-21T03:56:27.167Z",
+    "updated_at": "2026-10-21T16:55:18.230Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r19\\reports\\stopped-blocked-handoff.json",
+      "evidence_sha256": "8dba4b5f1e338e82d548fbd4b92eead1601b7be90660ea3090fcd4ed19a008ab",
+      "reason": "Actual host verification failure and independently stopped producers; retain current inputs for pending installation"
+    },
+    "close_receipt": {
+      "request_sha256": "726385b5a45b1afcc301c9da834dcdea79cf8ad54ad1881af80390e8f504eefd",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r19\\reports\\stopped-blocked-handoff.json",
+      "evidence_sha256": "8dba4b5f1e338e82d548fbd4b92eead1601b7be90660ea3090fcd4ed19a008ab",
+      "reason": "Actual host verification failure and independently stopped producers; retain current inputs for pending installation"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r16",
+    "kind": "run",
+    "owner": "azrael-release-retry",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r16",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k",
+        "role": "snapshot",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\h16",
+        "role": "host-fixture",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r17",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\h17",
+        "role": "host-fixture",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r18",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\h18",
+        "role": "host-fixture",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r19",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\h19",
+        "role": "host-fixture",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [],
+    "generation": "r19-w11w-continuation-2",
+    "revision": 12,
+    "created_at": "2026-10-21T06:45:39.201Z",
+    "updated_at": "2026-10-21T16:55:17.566Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r19\\reports\\stopped-blocked-handoff.json",
+      "evidence_sha256": "8dba4b5f1e338e82d548fbd4b92eead1601b7be90660ea3090fcd4ed19a008ab",
+      "reason": "Actual host verification failure and independently stopped producers; retain current inputs for pending installation"
+    },
+    "close_receipt": {
+      "request_sha256": "416ac1501d9c124f89867f0e0f037f68dde20fcb7f64ce68e6177426cbfc217c",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r19\\reports\\stopped-blocked-handoff.json",
+      "evidence_sha256": "8dba4b5f1e338e82d548fbd4b92eead1601b7be90660ea3090fcd4ed19a008ab",
+      "reason": "Actual host verification failure and independently stopped producers; retain current inputs for pending installation"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "work:b13-provider-dependencies-r3",
+    "kind": "work",
+    "owner": "azrael-release-tool-preparation",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\providers\\opencodex\\node_modules",
+        "role": "provider-dependencies",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "run:build-inputs:b13",
+        "kind": "dependency",
+        "reason": "Ignored exact pinned Bun dependency for immutable b13 consumers",
+        "reference_id": "3367f9988e0291b377b311814e4ee1dc0afd99ebc7bc7300175a89cc4653fa33"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-22T03:30:57.916Z",
+    "updated_at": "2026-10-22T03:31:38.952Z"
+  },
+  {
+    "schema": 1,
+    "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r1",
+    "kind": "run",
+    "owner": "/root",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r1",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a",
+        "role": "input",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [],
+    "revision": 2,
+    "created_at": "2026-10-20T00:37:58.831Z",
+    "updated_at": "2026-10-20T05:00:42.186Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r3\\reports\\release-2026-0-11-r1-producer-terminal.json",
+      "evidence_sha256": "0349005296670dd654ab056357290abdeedc98f8ff159f7e9a54ed288ef16a9b",
+      "reason": "Observed terminal failed wrapper; all invocation-owned commands ended. Preserve failed/terminated diagnostics; remove only execution protection and references."
+    },
+    "close_receipt": {
+      "request_sha256": "3ceee4f56b0bbf35e8e462f1a92e4e17a58741642226c55e88148e2228370fae",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r3\\reports\\release-2026-0-11-r1-producer-terminal.json",
+      "evidence_sha256": "0349005296670dd654ab056357290abdeedc98f8ff159f7e9a54ed288ef16a9b",
+      "reason": "Observed terminal failed wrapper; all invocation-owned commands ended. Preserve failed/terminated diagnostics; remove only execution protection and references."
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r3",
+    "kind": "run",
+    "owner": "CR-01-build-legacy-cleanup",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r3",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c",
+        "role": "snapshot",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [],
+    "revision": 4,
+    "created_at": "2026-10-20T04:38:08.712Z",
+    "updated_at": "2026-10-20T05:55:00.543Z",
+    "release_receipt": {
+      "request_sha256": "42f67842a51098adf582a568f73b7b402dc74f053f4b3b573aeff4f094a30db3",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r3\\reports\\input-transfer-completed.json",
+      "evidence_sha256": "3826e2afde6359198060a8cb0d601a5a5ac3a386719c095539b13a76c30f7e73",
+      "reason": "Completed immutable dependency transfer; no remaining parent path consumer."
+    },
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r5\\reports\\release-2026-0-11-r3-producer-terminal.json",
+      "evidence_sha256": "2a96c5ae7e3c09a0a9d9aa87da2134d202a55dd9de3f448e78b2cfd57ec28dd8",
+      "reason": "Wrapper terminal and owned CLI finally verified; release only completed execution protection"
+    },
+    "close_receipt": {
+      "request_sha256": "47d1987584268fcb8a27442b8d676852873d66c1827dd5faf22b8c3e06cf98eb",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r5\\reports\\release-2026-0-11-r3-producer-terminal.json",
+      "evidence_sha256": "2a96c5ae7e3c09a0a9d9aa87da2134d202a55dd9de3f448e78b2cfd57ec28dd8",
+      "reason": "Wrapper terminal and owned CLI finally verified; release only completed execution protection"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "work:b13-ui-test-dependencies-r4",
+    "kind": "work",
+    "owner": "azrael-release-dependency-preparation",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\upstream-ui\\26.1007.21434",
+        "role": "pinned-ui-test-inputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "run:build-inputs:b13",
+        "kind": "dependency",
+        "reason": "Exact selected tests require ignored pinned UI asset inputs",
+        "reference_id": "ad5478199747a173ff92fa9a73303628cd4c212bff1bdc97484f573c4cbd9791"
+      }
+    ],
+    "revision": 4,
+    "created_at": "2026-10-22T04:15:07.404Z",
+    "updated_at": "2026-10-22T04:16:34.401Z"
+  },
+  {
+    "schema": 1,
+    "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r14",
+    "kind": "run",
+    "owner": "CR-01-build-legacy-cleanup",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r14",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11j",
+        "role": "snapshot",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r13",
+        "reason": "Pinned immutable v11i engine and compatible passing focused regressions reused by r14",
+        "kind": "dependency",
+        "reference_id": "0d0f972911214448a5e40cd146bdf2dda99447d9a826885f3048e4253fea8f51"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-21T04:42:57.935Z",
+    "updated_at": "2026-10-21T05:07:07.151Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r14\\reports\\release-terminal.json",
+      "evidence_sha256": "472075260343b7030c02acc20a2349d1015f907fdb842bf93f8847536c7fd1e1",
+      "reason": "All4 actual preflight children completed0. Source-tests Process.Start failed before PID creation because argv exceeded Windows limit; later Cargo preparation/build were never launched. Synchronous deploy child and driver observed terminal1."
+    },
+    "close_receipt": {
+      "request_sha256": "f1e8492639093bfda09f0cf6dd545b2b49f4d377f916bca18712664d7f4a1896",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r14\\reports\\release-terminal.json",
+      "evidence_sha256": "472075260343b7030c02acc20a2349d1015f907fdb842bf93f8847536c7fd1e1",
+      "reason": "All4 actual preflight children completed0. Source-tests Process.Start failed before PID creation because argv exceeded Windows limit; later Cargo preparation/build were never launched. Synchronous deploy child and driver observed terminal1."
+    }
+  }
+]

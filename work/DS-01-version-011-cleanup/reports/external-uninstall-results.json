@@ -1,0 +1,18 @@
+﻿[
+    {
+        "root":  "C:/Users/felre/av17",
+        "exit_code":  0,
+        "azrael_registration_absent":  true,
+        "other_registrations_preserved":  true,
+        "old_extension_path":  "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\azrael-ex-local.azrael-2026.0.10",
+        "old_extension_remaining":  true
+    },
+    {
+        "root":  "C:/Users/felre/av18",
+        "exit_code":  0,
+        "azrael_registration_absent":  true,
+        "other_registrations_preserved":  true,
+        "old_extension_path":  "C:\\Users\\felre\\av18\\artifacts\\f\\extensions\\azrael-ex-local.azrael-2026.0.10",
+        "old_extension_remaining":  true
+    }
+]

@@ -12,7 +12,7 @@ $logs = Join-Path $runRoot 'logs'
 $reports = Join-Path $runRoot 'reports'
 $resultPath = Join-Path $reports 'results.json'
 $lifecycleId = "run:deploy-checks:$stamp"
-$shortTemporary = Join-Path $project "artifacts/tasks/t-$($stamp.Substring(0,4))"
+$shortTemporary = Join-Path $project "artifacts/t-$($stamp.Substring(0,4))"
 $lifecycleMembers = [ordered]@{run=$runRoot;logs=$logs;reports=$reports;fixture=$fixtures;shortTemporary=$shortTemporary}
 $results = [Collections.Generic.List[object]]::new()
 $lifecycleRegistered = $false
@@ -36,6 +36,7 @@ $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contract
 $changedCases = @('policy selection', 'full install', 'module cache install', 'exhaustive regression verify only', 'related integration verify only', 'explicit policy verify only', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 $pwsh = (Get-Process -Id $PID).Path
 $changedCases += @('environment preflight failure', 'missing registered cache project', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
+$changedCases += @('deployment capacity guard')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -351,6 +352,53 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if ($Mode -eq 'deployment-capacity') {
+        $deployText = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
+        $ast = [Management.Automation.Language.Parser]::ParseInput($deployText, [ref]$null, [ref]$null)
+        # Load actual functions and exercise behavior without running a deployment.
+        & {
+            foreach ($functionName in @('Assert-DeploymentCapacity', 'Start-OwnedCommand', 'Wait-OwnedCommands')) {
+                $definition = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $functionName}, $true)
+                . ([scriptblock]::Create($definition.Extent.Text))
+            }
+            $RequiredFreeBytes = 0L
+            $project = 'invalid-project-volume'
+            Assert-DeploymentCapacity
+            $project = $root
+            $RequiredFreeBytes = 1L
+            Assert-DeploymentCapacity
+            $RequiredFreeBytes = [long]::MaxValue
+            $rejected = $false
+            try { Start-OwnedCommand 'capacity-blocked' 'must-not-launch' @() | Out-Null }
+            catch { $rejected = $_.Exception.Message -like 'Deployment capacity guard:*available bytes*RequiredFreeBytes*' }
+            Assert-True $rejected 'insufficient physical volume capacity did not block stage launch'
+
+            $probe = [pscustomobject]@{ waiting = $false; rejected = $false; sleeps = 0 }
+            $child = [pscustomobject]@{ Completed = $false; Process = [pscustomobject]@{ HasExited = $false } }
+            function Assert-DeploymentCapacity {
+                if ($probe.waiting) { $probe.rejected = $true; throw 'fixture capacity dropped while waiting' }
+            }
+            function Start-Sleep {
+                param([int]$Milliseconds)
+                [Threading.Thread]::Sleep($Milliseconds)
+                $probe.waiting = $true
+                $probe.sleeps++
+                # Bound regressions so this test fails instead of hanging.
+                if ($probe.sleeps -ge 40) { $child.Completed = $true }
+            }
+            $rejected = $false
+            try { Wait-OwnedCommands @($child) }
+            catch { $rejected = $_.Exception.Message -ceq 'fixture capacity dropped while waiting' }
+            Assert-True ($rejected -and $probe.rejected -and -not $child.Completed) 'capacity loss during an active wait did not abort promptly'
+
+            $RequiredFreeBytes = 0L
+            $probe.rejected = $false
+            $probe.sleeps = 39
+            Wait-OwnedCommands @($child)
+            Assert-True (-not $probe.rejected -and $child.Completed) 'disabled capacity guard changed waiting behavior'
+        }
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null});return
+    }
     if ($Mode -eq 'account-socket-path') {
         $deployText = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
         $socketStart = $deployText.IndexOf('        $socketPath = Join-Path $accountControlsState')
@@ -555,6 +603,9 @@ function Assert-AzraelVerificationStatePath {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') -Destination $scripts
     $lockOwner = Join-Path $PSScriptRoot 'maintenance-lock-owner.cjs'
     if (Test-Path -LiteralPath $lockOwner) { Copy-Item -LiteralPath $lockOwner -Destination $scripts }
+    foreach ($maintenanceCompanion in @('maintenance-lock-worker.cjs', 'maintenance-lock-client.cjs', 'maintenance-owner-config.cjs')) {
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot $maintenanceCompanion) -Destination $scripts
+    }
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'build-module-cache.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') -Destination $scripts
     Write-Utf8 (Join-Path $scripts 'test-project.cjs') $nodeStub
@@ -669,7 +720,10 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     $proc=[Diagnostics.Process]::Start($info)
     $stdout=$proc.StandardOutput.ReadToEndAsync();$stderr=$proc.StandardError.ReadToEndAsync()
     try {
-        if(-not $proc.WaitForExit(45000)){$proc.Kill($true);$proc.WaitForExit();throw "case timed out: $Name"}
+        # Account cases run two real lifecycle cleanup passes after their mocked
+        # gates; retain a bounded outer watchdog without changing gate deadlines.
+        $caseTimeoutMilliseconds=if($Mode -like 'account-*'){90000}else{45000}
+        if(-not $proc.WaitForExit($caseTimeoutMilliseconds)){$proc.Kill($true);$proc.WaitForExit();throw "case timed out: $Name"}
         $exit=$proc.ExitCode
     } finally {
         Write-Utf8 (Join-Path $logs "$Name.stdout.log") $stdout.GetAwaiter().GetResult()
@@ -979,6 +1033,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     }
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
+    Invoke-Case 'deployment capacity guard' 'deployment-capacity'
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'
     Invoke-Case 'fixture path selection' 'fixture-path-selection'

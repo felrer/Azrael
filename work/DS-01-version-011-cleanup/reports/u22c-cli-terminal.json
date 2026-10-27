@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "success": true,
+  "nativeExitCode": 0,
+  "results": [
+    {
+      "id": "cf01-viewer-u22c-payload",
+      "status": "deleted",
+      "remaining": false
+    }
+  ],
+  "binarySha256": "59c47085e97d97e5cbeebb339b8dc91db49863db1916ead9f7ef47319587bbb3",
+  "ended": "2026-10-25T14:25:47.095Z"
+}

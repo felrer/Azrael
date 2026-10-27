@@ -1,0 +1,311 @@
+[
+  {
+    "path": "C:\\Temp\\azrael-account-check-0a349e33",
+    "bytes": 366583732,
+    "files": 84,
+    "readonly_files": 0,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:14:17.675134+00:00",
+    "evidence": {
+      "run-result.json": {
+        "finishedAt": "2026-09-13T10:14:17.6670708+09:00",
+        "exitCode": 1
+      }
+    },
+    "state_top_files": [
+      ".sandbox_migration",
+      "azrael",
+      "config.toml",
+      "failure.log",
+      "goals_1.sqlite",
+      "installation_id",
+      "logs_2.sqlite",
+      "memories_1.sqlite",
+      "models-fixture.json",
+      "queue_1.sqlite",
+      "session_index.jsonl",
+      "skills",
+      "state_5.sqlite",
+      "thread-writer-locks",
+      "tmp"
+    ]
+  },
+  {
+    "path": "C:\\Temp\\azrael-account-check-1e5075cd",
+    "bytes": 553202556,
+    "files": 10949,
+    "readonly_files": 9,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:10:19.374072+00:00",
+    "evidence": {
+      "run-result.json": {
+        "finishedAt": "2026-09-13T10:10:19.3673698+09:00",
+        "exitCode": 1
+      }
+    },
+    "state_top_files": [
+      ".sandbox_migration",
+      ".tmp",
+      "azrael",
+      "config.toml",
+      "failure.log",
+      "goals_1.sqlite",
+      "goals_1.sqlite-shm",
+      "goals_1.sqlite-wal",
+      "installation_id",
+      "logs_2.sqlite",
+      "logs_2.sqlite-shm",
+      "logs_2.sqlite-wal",
+      "mcp-oauth-locks",
+      "memories_1.sqlite",
+      "memories_1.sqlite-shm",
+      "memories_1.sqlite-wal",
+      "models-fixture.json",
+      "queue_1.sqlite",
+      "queue_1.sqlite-shm",
+      "queue_1.sqlite-wal",
+      "session_index.jsonl",
+      "skills",
+      "state_5.sqlite",
+      "state_5.sqlite-shm",
+      "state_5.sqlite-wal",
+      "thread-writer-locks",
+      "tmp"
+    ]
+  },
+  {
+    "path": "C:\\Temp\\azrael-account-check-9b38cb81",
+    "bytes": 368739883,
+    "files": 92,
+    "readonly_files": 0,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:18:09.215883+00:00",
+    "evidence": {
+      "run-result.json": {
+        "finishedAt": "2026-09-13T10:18:09.2101663+09:00",
+        "exitCode": 0
+      }
+    },
+    "state_top_files": [
+      ".sandbox_migration",
+      "azrael",
+      "config.toml",
+      "goals_1.sqlite",
+      "installation_id",
+      "logs_2.sqlite",
+      "logs_2.sqlite-shm",
+      "logs_2.sqlite-wal",
+      "memories_1.sqlite",
+      "memories_1.sqlite-shm",
+      "memories_1.sqlite-wal",
+      "models-fixture.json",
+      "queue_1.sqlite",
+      "queue_1.sqlite-shm",
+      "queue_1.sqlite-wal",
+      "session_index.jsonl",
+      "skills",
+      "state_5.sqlite",
+      "state_5.sqlite-shm",
+      "state_5.sqlite-wal",
+      "thread-writer-locks",
+      "tmp",
+      "verification.json"
+    ]
+  },
+  {
+    "path": "C:\\Temp\\azrael-account-check-a9a14fd1",
+    "bytes": 368545362,
+    "files": 94,
+    "readonly_files": 0,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:16:28.018511+00:00",
+    "evidence": {
+      "run-result.json": {
+        "finishedAt": "2026-09-13T10:16:28.0148527+09:00",
+        "exitCode": 1
+      }
+    },
+    "state_top_files": [
+      ".sandbox_migration",
+      "azrael",
+      "config.toml",
+      "failure.log",
+      "goals_1.sqlite",
+      "goals_1.sqlite-shm",
+      "goals_1.sqlite-wal",
+      "installation_id",
+      "logs_2.sqlite",
+      "logs_2.sqlite-shm",
+      "logs_2.sqlite-wal",
+      "memories_1.sqlite",
+      "memories_1.sqlite-shm",
+      "memories_1.sqlite-wal",
+      "models-fixture.json",
+      "queue_1.sqlite",
+      "queue_1.sqlite-shm",
+      "queue_1.sqlite-wal",
+      "session_index.jsonl",
+      "skills",
+      "state_5.sqlite",
+      "state_5.sqlite-shm",
+      "state_5.sqlite-wal",
+      "thread-writer-locks",
+      "tmp"
+    ]
+  },
+  {
+    "path": "C:\\Temp\\azrael-account-check-c7496cdc",
+    "bytes": 448318467,
+    "files": 5500,
+    "readonly_files": 3,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:01:10.694316+00:00",
+    "evidence": {},
+    "state_top_files": [
+      ".sandbox_migration",
+      ".tmp",
+      "azrael",
+      "config.toml",
+      "failure.log",
+      "goals_1.sqlite",
+      "installation_id",
+      "logs_2.sqlite",
+      "logs_2.sqlite-shm",
+      "logs_2.sqlite-wal",
+      "mcp-oauth-locks",
+      "memories_1.sqlite",
+      "queue_1.sqlite",
+      "skills",
+      "state_5.sqlite",
+      "state_5.sqlite-shm",
+      "state_5.sqlite-wal",
+      "thread-writer-locks",
+      "tmp"
+    ]
+  },
+  {
+    "path": "C:\\Temp\\azrael-account-refusal-0ff94daf",
+    "bytes": 316,
+    "files": 3,
+    "readonly_files": 0,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:19:08.840955+00:00",
+    "evidence": {},
+    "state_top_files": []
+  },
+  {
+    "path": "C:\\Temp\\azrael-host-bin-20260913-0953",
+    "bytes": 365725649,
+    "files": 6,
+    "readonly_files": 4,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:18:03.414874+00:00",
+    "evidence": {},
+    "state_top_files": []
+  },
+  {
+    "path": "C:\\Temp\\azrael-host-fixture-20260913-1005",
+    "bytes": 1100952118,
+    "files": 8320,
+    "readonly_files": 3,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:05:11.630604+00:00",
+    "evidence": {
+      "host-result.json": {
+        "passed": false,
+        "loginPerformed": false,
+        "modelRequestPerformed": false
+      }
+    },
+    "state_top_files": []
+  },
+  {
+    "path": "C:\\Temp\\azrael-host-fixture-20260913-1010",
+    "bytes": 1182899759,
+    "files": 13757,
+    "readonly_files": 3,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:10:19.870274+00:00",
+    "evidence": {
+      "host-result.json": {
+        "passed": false,
+        "loginPerformed": false,
+        "modelRequestPerformed": false
+      }
+    },
+    "state_top_files": []
+  },
+  {
+    "path": "C:\\Temp\\azrael-host-fixture-20260913-1020",
+    "bytes": 1180417016,
+    "files": 13761,
+    "readonly_files": 3,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:13:09.855005+00:00",
+    "evidence": {
+      "host-result.json": {
+        "passed": false,
+        "loginPerformed": false,
+        "modelRequestPerformed": false
+      }
+    },
+    "state_top_files": []
+  },
+  {
+    "path": "C:\\Temp\\azrael-host-fixture-20260913-1030",
+    "bytes": 1180415546,
+    "files": 13760,
+    "readonly_files": 3,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:15:47.407143+00:00",
+    "evidence": {
+      "host-result.json": {
+        "passed": false,
+        "loginPerformed": false,
+        "modelRequestPerformed": false
+      }
+    },
+    "state_top_files": []
+  },
+  {
+    "path": "C:\\Temp\\azrael-host-fixture-20260913-1040",
+    "bytes": 1086242554,
+    "files": 8322,
+    "readonly_files": 0,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:16:43.750487+00:00",
+    "evidence": {
+      "host-result.json": {
+        "passed": true,
+        "loginPerformed": false,
+        "modelRequestPerformed": false,
+        "engineHome": "C:\\Temp\\azrael-host-fixture-20260913-1040",
+        "version": "0.1.0"
+      }
+    },
+    "state_top_files": []
+  },
+  {
+    "path": "C:\\Temp\\azrael-live-diagnosis",
+    "bytes": 0,
+    "files": 1,
+    "readonly_files": 0,
+    "links": [],
+    "errors": [],
+    "latest_mtime": "2026-09-13T01:26:30.031090+00:00",
+    "evidence": {},
+    "state_top_files": []
+  }
+]

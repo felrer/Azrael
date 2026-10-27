@@ -855,10 +855,14 @@ async fn lookup_latest_session_target_with_app_server(
             .data
             .into_iter()
             .find_map(session_target_from_app_server_thread);
-        if target.as_ref().is_some_and(|target| {
-            uses_remote_workspace || target.path.as_deref().is_some_and(std::path::Path::exists)
-        }) {
-            return Ok(target);
+        if let Some(target) = target
+            && (uses_remote_workspace
+                || match target.path.as_deref() {
+                    Some(path) => codex_rollout::existing_rollout_path(path).await.is_some(),
+                    None => false,
+                })
+        {
+            return Ok(Some(target));
         }
     }
     Ok(None)
@@ -3410,6 +3414,9 @@ requires_openai_auth = {requires_openai_auth}
         config
             .features
             .set_enabled(codex_features::Feature::Worktrees, /*enabled*/ false)?;
+        config
+            .features
+            .enable(codex_features::Feature::LocalThreadStoreCompression)?;
         let model_provider = config.model_provider_id.as_str();
         let project_thread_id = write_session_rollout(
             temp_dir.path(),
@@ -3435,6 +3442,14 @@ requires_openai_auth = {requires_openai_auth}
             model_provider,
             &other_cwd,
         )?;
+        let rollout_paths = [
+            ("2025-01-02T10-00-00", project_thread_id),
+            ("2025-01-02T11-00-00", linked_thread_id),
+            ("2025-01-02T12-00-00", other_thread_id),
+        ]
+        .map(|(timestamp, thread_id)| {
+            app_test_support::rollout_path(temp_dir.path(), timestamp, &thread_id.to_string())
+        });
 
         let mut app_server = AppServerSession::new(
             codex_app_server_client::AppServerClient::InProcess(
@@ -3442,6 +3457,16 @@ requires_openai_auth = {requires_openai_auth}
             ),
             ThreadParamsMode::Embedded,
         );
+        // Exercise the logical .jsonl paths returned by thread/list after startup compression.
+        tokio::time::timeout(std::time::Duration::from_secs(/*secs*/ 30), async {
+            while rollout_paths
+                .iter()
+                .any(|path| path.exists() || !path.with_extension("jsonl.zst").exists())
+            {
+                tokio::time::sleep(std::time::Duration::from_millis(/*millis*/ 10)).await;
+            }
+        })
+        .await?;
         let filter_cwd = latest_session_cwd_filter(
             /*uses_remote_workspace*/ false, /*remote_cwd_override*/ None, &config,
             /*show_all*/ false,

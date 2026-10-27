@@ -1,0 +1,92 @@
+[
+  {
+    "target": "azrael_project_maintenance",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\azrael_project_maintenance-f9f87e218d401cdc.exe",
+    "sha256": "351f92332128672fe94bdea913c42d2c26aeee5017c3f3fd1b0427ba045d1f1f",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.28s"
+    ]
+  },
+  {
+    "target": "absent_adoption",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\absent_adoption-a6476132a3599a59.exe",
+    "sha256": "45ff0dad4dee1f726bebcc955899f5d2ee8cb50f825a90d28518378e50c1a382",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.63s"
+    ]
+  },
+  {
+    "target": "contracts",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\contracts-ec472f38fbbb372e.exe",
+    "sha256": "1cd27063688ad483aa18717b98ee26b54541c8ccbfadfb8ed6006e0a4d689e84",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.85s"
+    ]
+  },
+  {
+    "target": "groups",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\groups-534f76b609bae6a8.exe",
+    "sha256": "58a8aaa64c5af2f0ce3700f2c617a968b880acc5507fdd00ca049cdeff591402",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.28s"
+    ]
+  },
+  {
+    "target": "hardlink_normalization",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\hardlink_normalization-45a529ce804ab0e6.exe",
+    "sha256": "70fc61820fc1d86909f1963f96e497bf3af9e90c81cc31342a51e125b7a2a443",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.73s"
+    ]
+  },
+  {
+    "target": "nested_retirement",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\nested_retirement-56dab3b25665f6b7.exe",
+    "sha256": "81a399d4b1e118fe0871c0d3792439f1e766e97d304801314ea3f54a312a28c7",
+    "exitCode": 101,
+    "signal": null,
+    "summary": [
+      "test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.91s"
+    ]
+  },
+  {
+    "target": "registry",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\registry-95428e1e020a018d.exe",
+    "sha256": "1aa009bf134253fab9b7dfe613a9f1442e93250e5e610998c50580a191f27ce7",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.03s"
+    ]
+  },
+  {
+    "target": "root_retirement",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\root_retirement-d564d84595297f41.exe",
+    "sha256": "6634019c46feefeee5fc2851be123fa6f29244dce520b161071a2114caef2a49",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.31s"
+    ]
+  },
+  {
+    "target": "verified_junctions",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target\\debug\\deps\\verified_junctions-75d9a23fb38f1644.exe",
+    "sha256": "1f56526fe17e0f102c8a7f24e6a327aba9ce87f95a1dec2e4dee3d1caf01776e",
+    "exitCode": 0,
+    "signal": null,
+    "summary": [
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.03s"
+    ]
+  }
+]

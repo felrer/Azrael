@@ -1,0 +1,33 @@
+[
+  {
+    "name": "extract",
+    "executable": "tar",
+    "args": [
+      "-xf",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\archive\\original-engine.tar",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\baseline",
+      "--exclude=codex-rs/core/src/session/root_resume_timing.rs"
+    ],
+    "status": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\logs\\extract.log"
+  },
+  {
+    "name": "baseline-check",
+    "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+    "args": [
+      "-X",
+      "utf8",
+      "-B",
+      "scripts/import-engine-source.py",
+      "--check",
+      "--snapshot-only",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\baseline"
+    ],
+    "status": 1,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\logs\\baseline-check.log"
+  }
+]

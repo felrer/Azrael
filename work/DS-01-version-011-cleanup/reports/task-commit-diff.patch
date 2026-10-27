@@ -1,0 +1,734 @@
+diff --git a/docs/architecture/project-maintenance.md b/docs/architecture/project-maintenance.md
+index 72a803e6..01944ef7 100644
+--- a/docs/architecture/project-maintenance.md
++++ b/docs/architecture/project-maintenance.md
+@@ -51,6 +51,12 @@ ReadOnly·Hidden 속성의 일반화가 필요한 Windows 파일은 삭제 루
+ 일반 삭제 범위는 선택한 프로젝트의 `project-maintenance.json`에 있는 `managed_roots`의 엄격한 하위 경로다. 이 범위에 들어가지 않는 대상은 `outside configured managed roots`, 관리 루트 자체인 대상은 `managed root itself is protected; select owned descendants`로 구별한다. 등록된 묶음도 같은 경계와 별도의 보호 참조·권한 검사를 따른다.
+ 
+ 
++### 중첩 소유 항목의 단계적 폐기
++
++`retire_nested_member`는 같은 소유자가 완결된 서로 다른 두 묶음에서 엄격히 중첩된 항목을 정리하는 제한된 절차다. 각 묶음에는 실제 live 항목이 하나만 있어야 한다. 요청은 `parent`, `child`, `owner`, `reason`, 삭제 경계 밖 `evidence_ref`를 명시하고 양쪽 묶음을 함께 검토한다. 일반 중첩 보호는 유지하고, 이 정확한 쌍의 별도 whole-group 결정 요구만 대체한다. 다른 중첩 항목과 원본·membership evidence·실행·참조·권한·링크 보호는 유지한다.
++
++적용은 fresh token을 가진 상위 `defer`와 하위 `delete` 두 결정만 허용한다. 상위의 보호나 stale token도 하위 삭제를 차단한다. 하위를 먼저 처리하고 기존 durable intent·삭제·부분 실패 기록을 재사용한다. 삭제 직전 상위의 구성과 membership evidence도 다시 확인한다. 하위 삭제는 상위 내용 변경이므로 상위는 현재 내용으로 전체 재등록하고 새 검토를 받아야 한다. 상위까지 같은 호출에서 삭제하거나 원래 producer의 unknown 결과를 성공으로 바꾸지 않는다. 요청과 증거 identity를 토큰 및 결과에 보존한다. 검증 범위와 실제 적용 결과는 [작업 기록](../../work/DS-01-version-011-cleanup/01-plan.md)이 소유한다.
++
+ ### 관리 경계 폐기
+ 
+ 상태: 소스 구현 및 Windows 검증 완료. crate의 90개 검사에 폐기 회귀 8개가 포함되어 통과했고, 별도 소유자 실행기 컴파일을 확인했다. 다른 OS 실행과 설치된 제품의 반영은 별도다. 일반 검토·삭제의 관리 루트 보호는 유지한다. 생성물의 수명이 끝나 관리 경계 자체를 폐기할 때만 `review`와 `apply`에 같은 `retire_managed_roots` 요청을 명시한다. 요청은 정확한 항목 ID 목록, 등록된 소유자, 폐기 이유, 삭제 경계 밖의 보존 근거를 가진다. 등록 프로젝트 루트 자체는 폐기할 수 없다.
+diff --git a/docs/ops/project-maintenance.md b/docs/ops/project-maintenance.md
+index 4a8b827a..163695e2 100644
+--- a/docs/ops/project-maintenance.md
++++ b/docs/ops/project-maintenance.md
+@@ -23,6 +23,12 @@
+ 
+ `evidence_ref`는 선택 프로젝트의 `artifacts/maintenance/evidence/` 아래에 있는 1 MiB 이하 일반 파일이다. 현재 읽기 권한과 링크 검사를 통과해야 하며 내용 identity를 검토 토큰에 묶는다. 이 실행기는 선택 경계의 기존 OS 권한을 사용한다. 승격·force·ACL/소유권 변경을 하지 않는다. 거부된 보호를 다른 shell이나 API로 우회하지 않는다. `results`의 실제 status/remaining과 경로 부재를 확인하고 부분 실패를 보존한다. 설정된 경계와 native 이력은 보존되므로 payload 삭제가 별칭 해제나 관리 이력 삭제를 뜻하지 않는다. 별칭이 필요 없으면 실제 결과 확인 뒤 별도의 `unregister_project`로 메타데이터만 해제한다.
+ 
++## 중첩 소유 항목의 단계적 폐기
++
++검증한 `maintenance_owner`에서만 `retire_nested_member`를 사용한다. 예시는 `{"parent":"PARENT_ID","child":"CHILD_ID","owner":"OWNER","reason":"폐기 근거","evidence_ref":"artifacts/maintenance/evidence/retirement.json"}`다. 같은 소유자의 서로 다른 완결 묶음이며 각각 live 항목이 하나이고 child가 parent의 엄격한 하위여야 한다. 근거 파일은 parent 밖에 보존한다.
++
++review에 양쪽 ID 또는 양쪽 group ID를 명시한다. apply에는 같은 요청과 fresh token을 사용해 parent `defer` 및 child `delete` 두 결정을 제출한다. parent의 `revisit_condition`에는 하위 삭제 후 상위 현재 구성의 전체 재등록·재검토를 명시한다. 상위의 보호·stale 검토도 하위 삭제를 차단한다. 하위의 실제 삭제 결과와 부재를 확인한 뒤 상위를 전체 재등록하고 일반 review/apply로 진행한다. 실패하면 원래 소유와 pending 결과를 보존하며 원시 manifest 수정이나 직접 삭제로 우회하지 않는다.
++
+ ## 기존 테스트 선택기
+ 
+ 다음 명령은 목록과 계획만 출력한다.
+diff --git a/engine/codex-rs/project-maintenance/src/apply.rs b/engine/codex-rs/project-maintenance/src/apply.rs
+index b023da8e..e585cb1a 100644
+--- a/engine/codex-rs/project-maintenance/src/apply.rs
++++ b/engine/codex-rs/project-maintenance/src/apply.rs
+@@ -109,7 +109,7 @@ pub(crate) fn apply(
+                 if member_choice["decision"] != choice["decision"] {
+                     return Err("all lifecycle members must share delete or defer fate".into());
+                 }
+-                if choice["decision"] == "delete"
++                if (choice["decision"] == "delete" || auth.nested_retirement.borrow().is_some())
+                     && (initial[member_id]["token"] != member_choice["token"]
+                         || !initial[member_id]["blockers"]
+                             .as_array()
+@@ -124,6 +124,16 @@ pub(crate) fn apply(
+             batches.insert(group_id.to_owned(), batch);
+         }
+     }
++    // The enclosing group is deferred, but must pass the same complete fresh
++    // review as the child before the child may change its payload.
++    if auth.nested_retirement.borrow().is_some() && !stopped_groups.is_empty() {
++        for group in batches.keys() {
++            stopped_groups.insert(
++                group.clone(),
++                "nested retirement review is stale or protected".into(),
++            );
++        }
++    }
+     let mut ordered = Vec::new();
+     let mut approved_entries = BTreeMap::new();
+     // This precedes every destructive group member, so a later shared file
+@@ -181,6 +191,14 @@ pub(crate) fn apply(
+             ordered.push(choice);
+         }
+     }
++    if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
++        ordered.sort_by_key(|choice| choice["id"] == nested.parent);
++    }
++    let nested_parent_group = auth
++        .nested_retirement
++        .borrow()
++        .as_ref()
++        .and_then(|nested| groups::id(&store.state.items[&nested.parent]).map(str::to_owned));
+     let mut results = Vec::new();
+     for choice in ordered {
+         let id = string(choice, "id")?;
+@@ -188,6 +206,13 @@ pub(crate) fn apply(
+         let path = Path::new(string(&item, "path")?);
+         let group_id = groups::id(&item).map(str::to_owned);
+         let mut outcome = choice.clone();
++        if auth.nested_retirement.borrow().is_some() {
++            outcome["retire_nested_member"] =
++                serde_json::to_value(&*auth.nested_retirement.borrow())
++                    .map_err(|e| e.to_string())?;
++            outcome["nested_evidence_identity"] =
++                json!(crate::nested_retirement::evidence_identity(root, auth)?);
++        }
+         if crate::retirement::selected(auth, &item) {
+             outcome["retire_managed_roots"] = serde_json::to_value(&*auth.retirement.borrow())
+                 .map_err(|error| error.to_string())?;
+@@ -221,6 +246,9 @@ pub(crate) fn apply(
+                 auth,
+                 group_id.as_ref().and_then(|group| batches.get(group)),
+                 approved_entries.get(id).map(Vec::as_slice),
++                nested_parent_group
++                    .as_ref()
++                    .and_then(|group| batches.get(group)),
+             ) {
+                 Ok(entries) if entries.is_empty() => {
+                     outcome["status"] = json!("deleted");
+@@ -280,6 +308,9 @@ pub(crate) fn apply(
+                 } else {
+                     None
+                 },
++                nested_parent_group
++                    .as_ref()
++                    .and_then(|group| batches.get(group)),
+             ) {
+                 Err(error) => {
+                     outcome["status"] = json!("blocked");
+@@ -321,6 +352,14 @@ pub(crate) fn apply(
+             // Persist the actual deletion result before any subsequent read or
+             // authorization can fail. A denied result write returns the observed
+             // outcome while its durable intent remains pending for recovery.
++            if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
++                store
++                    .state
++                    .items
++                    .get_mut(&nested.parent)
++                    .ok_or("nested parent disappeared")?["nested_retirement_requires_registration"] =
++                    json!(true);
++            }
+             record(&mut store.state, index, &outcome);
+             if let Err(error) = store.save(auth) {
+                 outcome["persistence_error"] = json!(error);
+@@ -451,8 +490,12 @@ fn safe_entries(
+     auth: Auth<'_>,
+     batch: Option<&groups::Batch>,
+     approved: Option<&[PathBuf]>,
++    enclosing: Option<&groups::Batch>,
+ ) -> Result<Vec<PathBuf>, String> {
+     let observe = || -> Result<Value, String> {
++        if let Some(enclosing) = enclosing {
++            enclosing.unchanged_controls(root, state, auth)?;
++        }
+         if let Some(batch) = batch {
+             batch
+                 .current(root, config, config_identity, state, auth)?
+diff --git a/engine/codex-rs/project-maintenance/src/groups.rs b/engine/codex-rs/project-maintenance/src/groups.rs
+index 2c7dfb1b..ad98e50f 100644
+--- a/engine/codex-rs/project-maintenance/src/groups.rs
++++ b/engine/codex-rs/project-maintenance/src/groups.rs
+@@ -469,6 +469,42 @@ fn combine(
+     Ok(combined)
+ }
+ impl Batch {
++    pub(crate) fn unchanged_controls(
++        &self,
++        root: &Path,
++        state: &State,
++        auth: Auth<'_>,
++    ) -> Result<(), String> {
++        let group = state
++            .groups
++            .get(string(&self.definition, "id")?)
++            .ok_or("group disappeared")?;
++        if definition(group) != self.definition
++            || live_ids(root, state, group, auth)?
++                .into_iter()
++                .collect::<BTreeSet<_>>()
++                != self.members.keys().cloned().collect()
++            || observe_source(root, group, &self.source_members, auth) != self.source
++        {
++            return Err("enclosing lifecycle controls changed".into());
++        }
++        for (id, item) in &self.members {
++            let path = Path::new(string(item, "path")?);
++            let unchanged = match self.verification {
++                Verification::Registered => {
++                    paths::registered_observation(root, path, auth)?
++                        == self.reviews[id]["root_observation"]
++                }
++                Verification::Full => {
++                    paths::measure(root, path, auth)?["identity"] == self.reviews[id]["identity"]
++                }
++            };
++            if !unchanged {
++                return Err("enclosing lifecycle root changed".into());
++            }
++        }
++        Ok(())
++    }
+     pub fn initial(&self) -> Result<BTreeMap<String, Value>, String> {
+         combine(&self.definition, &self.reviews, &self.source)
+     }
+diff --git a/engine/codex-rs/project-maintenance/src/lib.rs b/engine/codex-rs/project-maintenance/src/lib.rs
+index 1c6af70d..9ef5b730 100644
+--- a/engine/codex-rs/project-maintenance/src/lib.rs
++++ b/engine/codex-rs/project-maintenance/src/lib.rs
+@@ -3,6 +3,7 @@
+ mod apply;
+ mod groups;
+ mod lock_recovery;
++mod nested_retirement;
+ mod paths;
+ mod planning;
+ mod registry;
+@@ -31,6 +32,7 @@ pub(crate) struct Context<'a> {
+     content: std::cell::RefCell<paths::ContentCache>,
+     catalog_locks: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
+     retirement: std::cell::RefCell<Option<retirement::Retirement>>,
++    nested_retirement: std::cell::RefCell<Option<nested_retirement::Retirement>>,
+     junctions: std::cell::RefCell<BTreeMap<PathBuf, Value>>,
+ }
+ 
+@@ -41,6 +43,7 @@ impl<'a> Context<'a> {
+             content: Default::default(),
+             catalog_locks: Default::default(),
+             retirement: Default::default(),
++            nested_retirement: Default::default(),
+             junctions: Default::default(),
+         }
+     }
+@@ -206,6 +209,8 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
+     let _catalog_locks = registry::lock_request(&root, &request, &store.state, authorize)?;
+     *authorize.retirement.borrow_mut() =
+         retirement::validate(&root, config.as_ref(), &store.state, &request, authorize)?;
++    *authorize.nested_retirement.borrow_mut() =
++        nested_retirement::validate(&root, &store.state, &request, authorize)?;
+     if operation == "apply" {
+         return apply::apply(
+             &root,
+@@ -750,7 +755,10 @@ fn review_ungrouped(
+                     Ok(_) => {}
+                 }
+             }
+-            if groups::id(other).is_some() && groups::id(other) != groups::id(item) {
++            if groups::id(other).is_some()
++                && groups::id(other) != groups::id(item)
++                && !nested_retirement::pair(auth, item, other)
++            {
+                 selected["blockers"]
+                     .as_array_mut()
+                     .ok_or("invalid review")?
+@@ -838,6 +846,9 @@ fn review_single(
+     if item["cleanup_status"] == "pending" {
+         blockers.push("cleanup attempt pending recovery");
+     }
++    if item["nested_retirement_requires_registration"] == true {
++        blockers.push("nested retirement changed enclosing content; full registration required");
++    }
+     if item["generated"] != true || item["protection_known"] != true {
+         blockers.push("generation or usage protection unconfirmed");
+     }
+@@ -963,7 +974,7 @@ fn review_single(
+         }
+     }
+     let token = hash(
+-        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity,"retire_managed_roots":*auth.retirement.borrow(),"retirement_evidence_identity":retirement::evidence_identity(root, auth)?}),
++        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity,"retire_managed_roots":*auth.retirement.borrow(),"retirement_evidence_identity":retirement::evidence_identity(root, auth)?,"retire_nested_member":*auth.nested_retirement.borrow(),"nested_evidence_identity":nested_retirement::evidence_identity(root, auth)?}),
+     )?;
+     Ok(
+         json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"verification":verification.name(),"root_observation":observation,"observed_at_ms":now_ms()?,"measured_at_ms":if verification == Verification::Registered {item["measured_at_ms"].clone()} else {json!(now_ms()?)},"token":token,"blockers":blockers}),
+@@ -1037,6 +1048,13 @@ fn prepare_registered_item(
+     item["path"] = json!(path);
+     item["identity"] = measured["identity"].clone();
+     item["logical_bytes"] = measured["logical_bytes"].clone();
++    if !absent {
++        item.as_object_mut()
++            .ok_or("invalid registered item")?
++            .remove("nested_retirement_requires_registration");
++    } else if measured["nested_retirement_requires_registration"] == true {
++        item["nested_retirement_requires_registration"] = json!(true);
++    }
+ 
+     if absent && measured["cleanup_status"] == "pending" {
+         item["cleanup_status"] = json!("pending");
+diff --git a/engine/codex-rs/project-maintenance/src/nested_retirement.rs b/engine/codex-rs/project-maintenance/src/nested_retirement.rs
+new file mode 100644
+index 00000000..80bc619d
+--- /dev/null
++++ b/engine/codex-rs/project-maintenance/src/nested_retirement.rs
+@@ -0,0 +1,106 @@
++//! Retire one nested claim while retaining its enclosing claim for a fresh review.
++//! No reference, membership, permission or producer guard is waived.
++use crate::{Auth, State, groups, paths, retirement, string};
++use serde::{Deserialize, Serialize};
++use serde_json::Value;
++use std::path::Path;
++
++#[derive(Deserialize, Serialize)]
++#[serde(deny_unknown_fields)]
++pub(crate) struct Retirement {
++    pub(crate) parent: String,
++    pub(crate) child: String,
++    owner: String,
++    reason: String,
++    evidence_ref: String,
++}
++
++pub(crate) fn pair(auth: Auth<'_>, item: &Value, other: &Value) -> bool {
++    auth.nested_retirement.borrow().as_ref().is_some_and(|r| {
++        (item["id"] == r.parent && other["id"] == r.child)
++            || (item["id"] == r.child && other["id"] == r.parent)
++    })
++}
++
++pub(crate) fn evidence_identity(root: &Path, auth: Auth<'_>) -> Result<Option<String>, String> {
++    auth.nested_retirement
++        .borrow()
++        .as_ref()
++        .map(|r| retirement::read_evidence(root, &r.evidence_ref, auth))
++        .transpose()
++}
++
++pub(crate) fn validate(
++    root: &Path,
++    state: &State,
++    request: &Value,
++    auth: Auth<'_>,
++) -> Result<Option<Retirement>, String> {
++    let Some(value) = request.get("retire_nested_member") else {
++        return Ok(None);
++    };
++    let r: Retirement = serde_json::from_value(value.clone()).map_err(|e| e.to_string())?;
++    if !matches!(string(request, "operation")?, "review" | "apply")
++        || [&r.parent, &r.child, &r.owner, &r.reason, &r.evidence_ref]
++            .iter()
++            .any(|s| s.trim().is_empty())
++        || r.parent == r.child
++        || request.get("retire_managed_roots").is_some()
++    {
++        return Err("invalid nested retirement descriptor or operation".into());
++    }
++    retirement::read_evidence(root, &r.evidence_ref, auth)?;
++    let parent = state.items.get(&r.parent).ok_or("unknown nested parent")?;
++    let child = state.items.get(&r.child).ok_or("unknown nested child")?;
++    let parent_path = paths::resolve(root, Path::new(string(parent, "path")?))?;
++    let child_path = paths::resolve(root, Path::new(string(child, "path")?))?;
++    let evidence = paths::resolve(root, Path::new(&r.evidence_ref))?;
++    if !paths::within(&child_path, &parent_path)
++        || paths::within(&parent_path, &child_path)
++        || paths::within(&evidence, &parent_path)
++        || groups::id(parent) == groups::id(child)
++    {
++        return Err(
++            "nested retirement requires distinct groups, strict containment and external evidence"
++                .into(),
++        );
++    }
++    for id in [&r.parent, &r.child] {
++        let item = &state.items[id];
++        let group_id = groups::id(item).ok_or("nested retirement requires grouped items")?;
++        let group = state.groups.get(group_id).ok_or("unknown nested group")?;
++        if item["owner"] != r.owner
++            || group["owner"] != r.owner
++            || group["membership_complete"] != true
++            || groups::live_ids(root, state, group, auth)? != vec![id.clone()]
++        {
++            return Err("nested retirement requires same owner and exactly one live member per complete group".into());
++        }
++        if request["operation"] == "review" {
++            let selected = request["ids"]
++                .as_array()
++                .is_some_and(|ids| ids.iter().any(|v| v == id))
++                || request["group_ids"]
++                    .as_array()
++                    .is_some_and(|ids| ids.iter().any(|v| v == group_id));
++            if !selected {
++                return Err("both nested groups require explicit review selection".into());
++            }
++        } else {
++            let choices = request["decisions"]
++                .as_array()
++                .ok_or("missing nested decisions")?;
++            if choices.len() != 2
++                || !choices.iter().any(|c| {
++                    c["id"] == *id
++                        && c["decision"] == if id == &r.parent { "defer" } else { "delete" }
++                })
++            {
++                return Err(
++                    "nested retirement requires exactly parent defer and child delete".into(),
++                );
++            }
++        }
++    }
++    Ok(Some(r))
++}
+diff --git a/engine/codex-rs/project-maintenance/src/retirement.rs b/engine/codex-rs/project-maintenance/src/retirement.rs
+index 4989f485..c2e9c03f 100644
+--- a/engine/codex-rs/project-maintenance/src/retirement.rs
++++ b/engine/codex-rs/project-maintenance/src/retirement.rs
+@@ -25,7 +25,11 @@ pub(crate) fn selected(auth: Auth<'_>, item: &Value) -> bool {
+     })
+ }
+ 
+-fn read_evidence(root: &Path, reference: &str, auth: Auth<'_>) -> Result<String, String> {
++pub(crate) fn read_evidence(
++    root: &Path,
++    reference: &str,
++    auth: Auth<'_>,
++) -> Result<String, String> {
+     let evidence = paths::resolve(root, Path::new(reference))?;
+     if !paths::within(&evidence, &root.join("artifacts/maintenance/evidence")) {
+         return Err(
+diff --git a/engine/codex-rs/project-maintenance/tests/nested_retirement.rs b/engine/codex-rs/project-maintenance/tests/nested_retirement.rs
+new file mode 100644
+index 00000000..dda7e4a6
+--- /dev/null
++++ b/engine/codex-rs/project-maintenance/tests/nested_retirement.rs
+@@ -0,0 +1,233 @@
++use azrael_project_maintenance::{AccessMode, dispatch};
++use serde_json::{Value, json};
++use std::path::Path;
++use tempfile::TempDir;
++
++fn allow(_: &Path, _: AccessMode) -> Result<(), String> {
++    Ok(())
++}
++fn call(root: &TempDir, request: Value) -> Value {
++    dispatch(root.path(), request, &allow).unwrap()
++}
++fn fixture(parent_refs: Value) -> TempDir {
++    let root = tempfile::tempdir().unwrap();
++    std::fs::create_dir_all(root.path().join("payload/outer/inner")).unwrap();
++    std::fs::create_dir_all(root.path().join("artifacts/maintenance/evidence")).unwrap();
++    std::fs::write(root.path().join("payload/outer/inner/data"), "child").unwrap();
++    std::fs::write(root.path().join("payload/outer/keep"), "parent").unwrap();
++    std::fs::write(
++        root.path().join("artifacts/maintenance/evidence/authority"),
++        "owner approval",
++    )
++    .unwrap();
++    std::fs::write(
++        root.path().join("project-maintenance.json"),
++        json!({"schema_version":1,"project_id":"nested","managed_roots":["payload"]}).to_string(),
++    )
++    .unwrap();
++    for (id, path, refs) in [
++        ("parent", "payload/outer", parent_refs),
++        ("child", "payload/outer/inner", json!([])),
++    ] {
++        call(
++            &root,
++            json!({"operation":"register","group":{"id":id,"kind":"work","owner":"owner","membership_complete":true,"provenance_ref":"fixture","members":[{"id":id,"path":path,"kind":"work","owner":"owner","generated":true,"protection_known":true,"references":refs}]}}),
++        );
++    }
++    root
++}
++fn descriptor() -> Value {
++    json!({"parent":"parent","child":"child","owner":"owner","reason":"retire nested claim first","evidence_ref":"artifacts/maintenance/evidence/authority"})
++}
++fn review(root: &TempDir) -> Value {
++    call(
++        root,
++        json!({"operation":"review","ids":["parent","child"],"retire_nested_member":descriptor()}),
++    )
++}
++fn choices(review: &Value) -> Value {
++    // Intentionally parent first: apply must delete the child before recording
++    // the parent's defer, which changes the enclosing item's token.
++    json!(["parent", "child"].map(|id| {
++        let item = review["items"].as_array().unwrap().iter().find(|i| i["id"] == id).unwrap();
++        json!({"id":id,"token":item["token"],"decision":if id == "parent" {"defer"} else {"delete"},"reason":"owner retirement","revisit_condition":"register enclosing content after child deletion"})
++    }))
++}
++fn apply(root: &TempDir, reviewed: &Value) -> Value {
++    call(
++        root,
++        json!({"operation":"apply","retire_nested_member":descriptor(),"decisions":choices(reviewed)}),
++    )
++}
++
++#[test]
++fn child_only_retirement_preserves_parent_and_requires_new_outer_measurement() {
++    let root = fixture(json!([]));
++    let ordinary = call(
++        &root,
++        json!({"operation":"review","ids":["parent","child"]}),
++    );
++    assert!(
++        ordinary["items"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .all(|i| !i["blockers"].as_array().unwrap().is_empty())
++    );
++    let reviewed = review(&root);
++    assert!(
++        reviewed["items"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .all(|i| i["blockers"] == json!([])),
++        "{reviewed}"
++    );
++    let result = apply(&root, &reviewed);
++    assert_eq!(result["results"][0]["id"], "child", "{result}");
++    assert_eq!(result["results"][0]["status"], "deleted", "{result}");
++    assert_eq!(result["results"][0]["remaining"], false);
++    assert_eq!(result["results"][1]["status"], "deferred");
++    assert!(root.path().join("payload/outer/keep").exists());
++    assert!(!root.path().join("payload/outer/inner").exists());
++    assert_eq!(result["results"][0]["retire_nested_member"], descriptor());
++    let outer = call(
++        &root,
++        json!({"operation":"review","ids":["parent"],"verification":"full"}),
++    );
++    assert!(
++        !outer["items"][0]["blockers"].as_array().unwrap().is_empty(),
++        "changed content must be registered: {outer}"
++    );
++    call(
++        &root,
++        json!({"operation":"register","group":{"id":"parent","kind":"work","owner":"owner","membership_complete":true,"provenance_ref":"current enclosing content","members":[{"id":"parent","path":"payload/outer","kind":"work","owner":"owner","generated":true,"protection_known":true,"references":[]}]}}),
++    );
++    let refreshed = call(&root, json!({"operation":"review","ids":["parent"]}));
++    assert_eq!(refreshed["items"][0]["blockers"], json!([]), "{refreshed}");
++}
++
++#[test]
++fn ancestor_reference_and_stale_ancestor_token_block_child() {
++    for references in [json!(["active installation"]), json!([])] {
++        let root = fixture(references.clone());
++        let mut reviewed = review(&root);
++        if references == json!([]) {
++            reviewed["items"]
++                .as_array_mut()
++                .unwrap()
++                .iter_mut()
++                .find(|i| i["id"] == "parent")
++                .unwrap()["token"] = json!("stale");
++        }
++        let result = apply(&root, &reviewed);
++        assert!(
++            result["results"]
++                .as_array()
++                .unwrap()
++                .iter()
++                .all(|i| i["status"] == "blocked"),
++            "{result}"
++        );
++        assert!(root.path().join("payload/outer/inner/data").exists());
++    }
++}
++
++#[test]
++fn descriptor_evidence_selection_and_fates_are_bound() {
++    for mutation in [
++        "evidence",
++        "owner",
++        "selection",
++        "parent-delete",
++        "omit-descriptor",
++    ] {
++        let root = fixture(json!([]));
++        let reviewed = review(&root);
++        let mut request = json!({"operation":"apply","retire_nested_member":descriptor(),"decisions":choices(&reviewed)});
++        match mutation {
++            "evidence" => std::fs::write(
++                root.path().join("artifacts/maintenance/evidence/authority"),
++                "changed",
++            )
++            .unwrap(),
++            "owner" => request["retire_nested_member"]["owner"] = json!("other"),
++            "selection" => {
++                request["decisions"].as_array_mut().unwrap().pop();
++            }
++            "parent-delete" => request["decisions"][0]["decision"] = json!("delete"),
++            _ => {
++                request
++                    .as_object_mut()
++                    .unwrap()
++                    .remove("retire_nested_member");
++            }
++        }
++        let result = dispatch(root.path(), request, &allow);
++        if let Ok(result) = result {
++            assert!(
++                result["results"]
++                    .as_array()
++                    .unwrap()
++                    .iter()
++                    .all(|i| i["status"] != "deleted"),
++                "{mutation}: {result}"
++            );
++        }
++        assert!(
++            root.path().join("payload/outer/inner/data").exists(),
++            "{mutation}"
++        );
++    }
++}
++
++#[test]
++fn enclosing_membership_evidence_change_during_authorization_blocks_child() {
++    let root = fixture(json!([]));
++    let control = root.path().join("control.json");
++    std::fs::write(&control, "original membership").unwrap();
++    call(
++        &root,
++        json!({"operation":"register","group":{"id":"parent","kind":"work","owner":"owner","membership_complete":true,"provenance_ref":"fixture","membership_source":"control.json","members":[{"id":"parent","path":"payload/outer","kind":"work","owner":"owner","generated":true,"protection_known":true,"references":[]}]}}),
++    );
++    let reviewed = review(&root);
++    let fired = std::sync::atomic::AtomicBool::new(false);
++    let authorize = |path: &Path, mode: AccessMode| {
++        if mode == AccessMode::Write
++            && path.ends_with("inner/data")
++            && !fired.swap(true, std::sync::atomic::Ordering::SeqCst)
++        {
++            std::fs::write(&control, "changed membership").unwrap();
++        }
++        Ok(())
++    };
++    let result = dispatch(root.path(), json!({"operation":"apply","retire_nested_member":descriptor(),"decisions":choices(&reviewed)}), &authorize).unwrap();
++    assert_eq!(result["results"][0]["status"], "blocked", "{result}");
++    assert!(root.path().join("payload/outer/inner/data").exists());
++}
++
++#[test]
++fn additional_live_member_and_write_denial_preserve_nested_payload() {
++    let root = fixture(json!([]));
++    std::fs::create_dir_all(root.path().join("payload/extra")).unwrap();
++    call(
++        &root,
++        json!({"operation":"register","group":{"id":"parent","kind":"work","owner":"owner","membership_complete":true,"provenance_ref":"fixture","members":[
++            {"id":"parent","path":"payload/outer","kind":"work","owner":"owner","generated":true,"protection_known":true,"references":[]},
++            {"id":"extra","path":"payload/extra","kind":"work","owner":"owner","generated":true,"protection_known":true,"references":[]}
++        ]}}),
++    );
++    assert!(dispatch(root.path(), json!({"operation":"review","ids":["parent","child"],"retire_nested_member":descriptor()}), &allow).is_err());
++    let root = fixture(json!([]));
++    let reviewed = review(&root);
++    let authorize = |path: &Path, mode: AccessMode| {
++        if mode == AccessMode::Write && path.ends_with("inner/data") {
++            Err("denied child write".into())
++        } else {
++            Ok(())
++        }
++    };
++    let result = dispatch(root.path(), json!({"operation":"apply","retire_nested_member":descriptor(),"decisions":choices(&reviewed)}), &authorize).unwrap();
++    assert_eq!(result["results"][0]["status"], "blocked", "{result}");
++    assert!(root.path().join("payload/outer/inner/data").exists());
++}
+diff --git a/scripts/azrael-feature-contracts.json b/scripts/azrael-feature-contracts.json
+index 50fe213f..2fd77691 100644
+--- a/scripts/azrael-feature-contracts.json
++++ b/scripts/azrael-feature-contracts.json
+@@ -3460,6 +3460,8 @@
+         "engine/codex-rs/project-maintenance/src/apply.rs",
+         "engine/codex-rs/project-maintenance/src/lib.rs",
+         "engine/codex-rs/project-maintenance/src/retirement.rs",
++        "engine/codex-rs/project-maintenance/src/nested_retirement.rs",
++        "engine/codex-rs/project-maintenance/tests/nested_retirement.rs",
+         "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+         "engine/codex-rs/project-maintenance/tests/root_retirement.rs",
+         "engine/codex-rs/project-maintenance/tests/absent_adoption.rs",
+diff --git a/work/DS-01-version-011-cleanup/01-plan.md b/work/DS-01-version-011-cleanup/01-plan.md
+new file mode 100644
+index 00000000..a919d0cd
+--- /dev/null
++++ b/work/DS-01-version-011-cleanup/01-plan.md
+@@ -0,0 +1,77 @@
++상태: 승인된 외부 테스트 프로필·연결 빌드의 실제 삭제 및 소유 기록 마감 완료. 확정 구버전 삭제량20,168,314,374 B(약18.78 GiB). 검증·실행 임시 산출물392,266,690 B도 별도 정리 완료. Windows native120개 통과. 작업 커밋 identity는 reports/task-commit.json에 기록하며 보호 근거가 남은 원래 전체 삭제 요청은 일부 보류다.
++
++# 2026.0.11 이하 생성물 정리
++
++## 목표·권한·보호 범위
++
++사용자는 구버전 캐시·빌드·로그 전체 정리로 용량 확보를 요청했다. 외부 av17/av18의2026.0.10 설치본과 연결 빌드, 외부 테스트 프로필 전체의 설정·인증·대화·세션 폐기를 각각 명시적으로 승인했다. 이후 관리 도구 보완·검증 후 계속 정리를 승인했다. u17a의 원래 전체 소비 근거를 복원하지 못하면 캐시 프로젝트 등록을 유지한다.
++
++Windows x64 로컬 작업이다. 공통 Rust 관리 정책의 보호 의미는 지원 플랫폼 전체에서 유지하며 실제 검증을 Linux/macOS 수용으로 확대하지 않는다. 일반 사용자2026.0.12와 사용자 데이터는 삭제 범위 밖이다. 원격 정리·일반 제품 빌드·설치·사용자 프로세스 종료는 수행하지 않았다. 기존 소스·staged 변경을 보존한다.
++
++## 방법과 안전 조건
++
++등록 묶음은 native 등록/review/apply를 사용하고 참조·빈 기록은 canonical lifecycle release/finalize로 정합했다. exact generated 경로의 ReadOnly만 native가 일반화했다. force·ACL/소유권/System 변경·원시 registry 편집·점유 잠금 삭제는 하지 않았다. 실제 item status/remaining과 호출의 terminal을 확인하며 논리 삭제량과 물리 디스크 회수량을 구분한다.
++
++중첩 정리는 기존 retirement 증거·검토 토큰·durable apply를 재사용한다. 같은 소유자의 서로 다른 완결 묶음에 각각 live 항목 하나가 있고 엄격히 중첩될 때만 parent defer/child delete를 허용한다. 양쪽 stale token·참조·보호를 검사하고, 상위 구성/근거/루트도 삭제 직전 재검사한다. 하위 삭제 시 상위 재등록 필요 표시를 남기며 상위는 full 등록과 fresh ordinary review 후 별도로 삭제한다. 일반 중첩 보호를 제거하지 않는다.
++
++## 실제 구버전 삭제 결과
++
++| 대상 | 확인 논리 크기 | 결과 |
++| --- | ---: | --- |
++| 2026.0.11 r5 실패 실행 로그 | 443274B | deleted/remaining=false, finalize 완료, 원래 실패/exit1 유지 |
++| u17a 빌드·연결 실행 자료 | 4773551172B | 두 멤버 deleted/remaining=false, finalize 완료 |
++| av17/artifacts/f 전체 테스트 프로필 | 3082290827B | deleted/remaining=false, finalize 완료 |
++| u22c 내부 릴리스·빌드 로그·빈 Cargo pending | 898634463B | 세 멤버 deleted/remaining=false, 원래 두 기록 finalize |
++| u22c 과거 외부 설치 영수증·복구 registry 사본 | 9650B | 원본 독립 보존 후 generated 배포 폴더 deleted/remaining=false |
++| av18/artifacts/f 전체 테스트 프로필 | 3606930455B | nested 처리 후 full 등록·ordinary apply exit0/deleted/remaining=false, 원래 pending 상태 보존한 retirement finalize |
++| q 연결 테스트 fixture | 2997330105B | deleted/remaining=false |
++| u22c 나머지 source/build snapshot | 4809124428B | 검증 실행기 actual exit0/deleted/remaining=false, q와 함께 원래 complete producer finalize |
++| 합계 | 20168314374B, 약18.78GiB | 물리 회수량은 native 미측정 |
++
++먼저 삭제한 u22c 내부 자료는 이후 상위의 새 측정값에서 제외돼 중복 집계하지 않는다. av18 nested child는 실제 삭제됐지만843B는 과거 cached 수치여서 합계에서 제외했다. 상위 full 재측정값3606930455B만 실제 삭제 후 합산했다. 현재 작업이 만든 검증용 산출물의 정리는 구버전 회수량과 별도로 기록한다.
++
++상세 결과는 reports의 r5/u17a/av17 apply, u22c-internal-apply, u22c-deployment-retirement-apply, av18-parent-apply, u22c-final-apply-first, u22c-cli-apply 및 각 finalize JSON이 소유한다. 모든 counted 결과는 aborted=false/remaining=false다. ReadOnly 정상화는 u17a11152개, av17 34개, av18 42개, q34개, u22c34개이며 상세 before/after는 해당 원시 영수증에 보존한다.
++
++## 설치·캐시 소비 정합
++
++- 정확한 외부 extensions-dir/user-data-dir에서 VS Code CLI Azrael 제거 각각 exit0을 확인했다. av18 영수증의 별도 agent-user-data도 같은 extensions-dir을 사용하며 현재 Azrael 등록0을 확인했다. 이후 승인된 외부 f 전체를 native로 삭제했다.
++- u22c의 원래 complete canonical consumer catalog, build-metrics, module 소비, q 최종 검사 및 historical hostInstalled=true 설치 영수증을 독립 보존했다. 원래 pending/unknown 실행을 성공으로 바꾸지 않았다. old runtime0, 정확한 outgoing cache 참조 해제, 내부 native 삭제·원래 기록 finalize 후 공유 module owner를 호출했다.
++- 첫 module retire는 과거 설치 영수증 보호로 exit1/등록 변경0이었다. 원본과 복구 사본을 보존한 뒤 해당 generated 배포 폴더를 native로 정리했고, 재호출 exit0/status retired/registrationAbsent=true였다. .projects.json 전후 차이는 u22c 하나 제거뿐이다. u17a는 유지한다.
++
++## 검증·공유 소스 통합
++
++- r1: 고정 입력 typecheck0와 목록 컴파일0 이후 타 작업의 catalog lock 충돌로 wrapper1. 기존 binary 직접 검사는105pass/1fail였다. 새 검사에서 상위 재등록 강제가 빠진 점을 찾아 수정했다. 실패를 보존했다.
++- r2: Windows x64 Rust stable1.98, locked/offline, typecheck·nonzero listing·execution 각각 exit0. native108/108 및 owner CLI 컴파일/실제 av18 nested→parent 삭제를 확인했다. binary SHA59c47085e97d97e5cbeebb339b8dc91db49863db1916ead9f7ef47319587bbb3. native-verification-r2.json과 native-evidence에 입력/실패/성공 근거를 보존했다.
++- 공유 DT-01 lock recovery 변경(e0c448a0)은 별도 소유로 보존했다. 현재 전체 crate와 DT의 실제120개 통과 frozen source, Cargo.toml/lock/config/toolchain 및 utils/process 입력이 정확히 일치함을 확인했다. 해당 Windows actual exit0/typecheck0/listing120/execution0 증거를 재사용하고 integrated-native-evidence에 독립 보존했다. 이120개에는 이번 nested 회귀5개가 포함된다. 중복 컴파일하지 않았다.
++- 기능 보존 목록 검증 exit0. 일반 제품 배포 빌드·설치는 없으며 설치된 도구가 새 소스로 갱신됐다고 주장하지 않는다. Linux/macOS 실행은 미검증이다.
++- 새 회귀5개는 nested 소유·stale/참조/권한/membership 변경·상위 full 재등록 계약을 지속 보호하므로 유지한다. 작은 selected source/전체 입력 manifest·검증 로그는 원래 실패와 실제 삭제 근거를 독립적으로 검토하기 위한 감사 자료로 유지한다. 전체 source snapshot과 실행기 copy는 소비 종료 후 owner 경유로 정리 중이다.
++
++## 동시 실행·잠금·재시도
++
++q/u22c 첫 apply는 q 삭제 후 외부 프로젝트 관리 설정 변경을 감지해 u22c를 config changed during review로 차단했다. 새 검토 후 첫 재호출도 현재 다른 maintenance sentinel 때문에 시작 전 거절됐다(삭제0). 점유/소유 미확정 파일을 삭제하지 않았다. 검증 CLI helper는 정상 해제를 기다려14:03:23UTC fresh review,14:03:24UTC PID31584로 실제 apply에 진입했고14:25:47UTC actual exit0/deleted/remaining=false를 반환했다. 기존 caller의 실제 terminal을 확인한 뒤에만 재시도했다.
++
++모든 구버전 삭제 호출은 terminal이다. 등록·삭제 완료 감시의10분 timeout은 원래 native 결과로 분류하지 않았다. 독립 루트의 병행은 실제 디스크 사용률1%/대기열0 관측 후 선택했고 같은 루트의 mutation은 직렬화했다. 실행 중 source/payload를 수정하거나 중복 producer를 시작하지 않았다. 부분 삭제·거절·원래 실패와 unknown은 그대로 보존한다. 중간 대기/재측정을 삭제 성능 개선 수치로 주장하지 않는다.
++
++## 일반 사용자 프로필 보존 확인
++
++최종 확인 general-profile-final.json에서 일반 extensions.json의2026.0.12 등록, VS Code settings.json, .azrael-ex/config.toml 세 파일의 해시는 모두 최초 기준과 같다. 중간 확인 general-profile-after-av18.json에서는 config.toml 해시가 달랐으나 최종 확인에서는 원래 해시와 일치했다. 이번 cleanup은 해당 파일을 쓰거나 복원하지 않았으며 중간 변경·복귀 주체/원인은 확인되지 않았다. 사용자 상태 전체 내용을 전수 검증했다는 뜻은 아니다.
++
++## 잔여 보류·재검토 조건
++
++| 대상 | 유지 근거 | 재검토 조건 |
++| --- | --- | --- |
++| 삭제된 u17a의 module 프로젝트 등록 | parent payload 삭제 전 별도 소비 등록을 놓쳤다. 독립적으로 보존된 원래 전체 내부 소비 목록을 확인하지 못했다. inspect-legacy는 ready-for-proof이나 schema3 proof는 미충족 | 원래 complete consumer index를 독립 근거로 복원하고 정확한 schema3 proof/지원 owner를 통과할 때만 해제 |
++| e10 | 원래 generation/usage 보호 미확정, configured managed roots 밖 | 실제 소유·소비와 정식 관리 경계 근거 확인 |
++| n10a/w10e 및 구 source/cache 프로젝트 | 기존 latest/설치·공유 소비·원래 catalog 정합 보호 유지 | 원래 owner의 정상 퇴역·replacement/recovery·소비 해제 후 fresh review. 부모 통삭제로 등록 유실을 추가하지 않음 |
++| v11 계열 등 원래 link/누락 구성 보호 | 이전 owner/native가 거부했던 원래 구성·링크 관계를 임의 변경하지 않음 | exact 원래 소유·현재 링크/구성 및 지원 등록 근거를 확인한 후 재검토 |
++| b12 | 원래 absent/remaining=false, producer source 누락 | 원래 metadata 정합. 이번 용량 집계에서 제외 |
++
++n10a의 과거 w10b/c/d 기록은 현재 catalog에 없어 과거 보고만으로 이번 삭제라고 집계하지 않는다. 잔여 원래 소유의 정합이 완료될 때 작은 helper/요청·상세 증거의 추가 정리도 검토한다. 현재 구버전 payload 정리 근거·감사 자료는 보존한다.
++
++## 현재 후속 작업
++
++검증 snapshot r1/r2는 지원 native 등록·fresh review/apply에서 둘 다 deleted/remaining=false, 실제 exit0으로 정리하고 원래 producer를 finalize했다. 이번 작업이 생성한389,748,693 B는 구버전 회수량과 별도다. work completion09a8de7d-c133-49bd-a4f8-861a3b2f55ce와 helper session54610은 성공 종료했다. 검증 binary를 정리 대상 밖의 소유 run에 SHA 고정 복사했으며 실행 중인 maintenance_owner.exe는 없음을 확인했다.
++
++cleanup run 및 u22c 실행 run의 작은 산출물2,517,997 B도 정상 잠금 해제 후 native 등록·fresh review/apply에서 모두 deleted/remaining=false, aborted=false를 확인하고 canonical finalize했다. small-run-apply.json, small-run-finalize.json 참조. 대기 work completion7da2217f-47aa-4f39-8ba7-743a30a4c82a 및 observer session94527도 실제 성공 종료했다. 작업 helper node 프로세스가 남지 않았음을 확인했다. 이번 검증·실행 임시 산출물의 별도 정리량은 합계392,266,690 B다.
++
++최종 task diff는 소스6개, ops 문서, architecture의 중첩 폐기 문단, feature owner 경로2개, 이 기록의10개 파일로 한정한다. 타 작업 staged4개와 Windows background_command 문단·paths.rs·다른 feature 변경은 포함하지 않는다. 임시 Git index에서 diff --check 및 정확한 파일 목록을 확인하고, 현재120개 통과 소스의 동일성을 재검사한 뒤 task commit을 기록한다. 실제 commit identity는 reports/task-commit.json에 기록한다. 원격 push는 하지 않는다. 원래 잔여 보호 대상은 위 표의 재검토 조건을 유지한다.

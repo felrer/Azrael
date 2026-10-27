@@ -1,0 +1,2850 @@
+{
+  "groups": [
+    {
+      "cached_live_members": 6,
+      "cleanup_status": null,
+      "id": "run:DN-01-root-retirement:validation-20261024",
+      "kind": "run",
+      "members_total": 6,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "88e46248acd5c9fcb514aa36374cc8b13a1abaa9b5cf94ac9fef252f65a135d5",
+      "owner": "DN-01-approved-temp-cleanup",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 6,
+      "cleanup_status": null,
+      "id": "run:DN-01-root-retirement:validation-20261024-2",
+      "kind": "run",
+      "members_total": 6,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "af346273b6cb27c149de216d68ff6d8dac007a81d424e31275271c021cecc3a3",
+      "owner": "DN-01-approved-temp-cleanup",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 6,
+      "cleanup_status": null,
+      "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "kind": "run",
+      "members_total": 6,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "23678a6fbe20c6963fc621b14175243fe24ce929f289b73b9afd9bd249c7feaf",
+      "owner": "record-retirement-provenance",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": null,
+      "id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "1bf9bd9ac7d9f3c56abfe10f4e03cd39d577024fa515908f1d41c4bc62e5b1ae",
+      "owner": "record-retirement-provenance",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\09256d0e60d8fa8edd2d2b62053c3e7b3973d8882313277f2ac7f4ed68f9c9c3.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": null,
+      "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "2d7de6bd6580d0b0b22ab84f2326cf1b131da8ae733fc23c689c8086024d538e",
+      "owner": "isolate-retirement-receipt",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e74127778bf39b424f0e1d49488a8c72c7d957a5a44b21ad52b109b7696d1990.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": null,
+      "id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "46875639f491633403ca4108723a6d74be3fcc73f80ef64a97c81897b36e0550",
+      "owner": "isolate-retirement-receipt",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\95a59b40508d5a6b00bb97fca0e696f286e60d801081d5dcbae8e80e898d10a2.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": null,
+      "id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "8114e43775c5b6143ecb7ed352e0087ac412274b91dcb8c028d1ca02c34fc07d",
+      "owner": "isolate-retirement-receipt",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f5352bacc766ee71ad00b60c1441422dec881cd1825b8a1bdad6224cf33f24a4.json",
+      "version": null
+    }
+  ],
+  "items": [
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+        "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+        "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+        "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+        "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+        "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd"
+      ],
+      "group_token": "d8d22ef72551cc50002400ea68cfc0753dc38482e1c501ac05cf1f469eabe242",
+      "id": "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+      "identity": "479a5136886feeded1e3982b01375c5cec38dfd2fa52d9af75e9f28695901fa8",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792825053533,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "23678a6fbe20c6963fc621b14175243fe24ce929f289b73b9afd9bd249c7feaf",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "request_sha256": "6f597c61236b729fafce8e1c3cd1c2904b7384f729d35b5108fde50a3f527120"
+          },
+          "created_at": "2026-10-24T06:21:16.952Z",
+          "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "record-retirement-provenance",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "411c957bbbdebfce0c734ebcdfd7ba54a47a8e4022113e49caaafc52c8a1792d"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.798Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825229529,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            45,
+            87,
+            67,
+            0,
+            0,
+            0,
+            9,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "ba10750f3077209c097da2aa39825f42d844324d0e5516325d50b43b2005dc81",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+        "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+        "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+        "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+        "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+        "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8"
+      ],
+      "group_token": "029392d7670402bcdde81e5349426c86bc4ff23a5716a3fd38773afcd9fd760c",
+      "id": "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+      "identity": "1d9eeeba8f54889da7fb4e7af303e5ba8233402a7f7dd196d725a9155bdba768",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "logical_bytes": 100361504,
+      "measured_at_ms": 1792825036155,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "88e46248acd5c9fcb514aa36374cc8b13a1abaa9b5cf94ac9fef252f65a135d5",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "4139d61194b3e53af59b2315e6bedc2fb9986b8d811033df879b05400b3041d3"
+          },
+          "created_at": "2026-10-24T06:04:04.975Z",
+          "id": "run:DN-01-root-retirement:validation-20261024",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.785Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825196984,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            30,
+            210,
+            58,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "cfcc2e45f3b68da80c16ae309e40ef6602265f0a02161dc09687d05e629640a0",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+        "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+        "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+        "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+        "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+        "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659"
+      ],
+      "group_token": "f364a6ea4079ef42ac1809c3a230eb9bafbb25fbfcf51de8ddafb02e61b13534",
+      "id": "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+      "identity": "4c97bfb8383c863bc1e9fc6ac58cac849ea8752810bc5fed51804c6ec655c6fc",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792824882063,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "af346273b6cb27c149de216d68ff6d8dac007a81d424e31275271c021cecc3a3",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "b01d43c04542876a7ec63fe2b88d7d6600bee589c64d318ee769a271925e3c6c"
+          },
+          "created_at": "2026-10-24T06:06:09.584Z",
+          "id": "run:DN-01-root-retirement:validation-20261024-2",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.764Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825213258,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            235,
+            5,
+            100,
+            0,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "ef32923bc936bb067c5a67dd5b1c0bb24c1166860a5fa557b12c8b8bd832d620",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "2438ffa8a91dbb0ed01dfa15055b0a5576386452b80f0bf9089b7bf641674597"
+      ],
+      "group_token": "1fe962a40be8cba4287d25542b21e4b8cb0b24880a3dc375540e57a1d5c8da6e",
+      "id": "2438ffa8a91dbb0ed01dfa15055b0a5576386452b80f0bf9089b7bf641674597",
+      "identity": "3b3d738a71320af1d51174c9943de8f63c5d8e042e0c8a3f0dc996e7d288e72f",
+      "lifecycle_group_id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+      "logical_bytes": 254307,
+      "measured_at_ms": 1792825172129,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "8114e43775c5b6143ecb7ed352e0087ac412274b91dcb8c028d1ca02c34fc07d",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports\\producer.json",
+            "evidence_sha256": "18451814724ac1a177005b1a804d0c82a2d0d355edd060d36fd084ba995dfd0d",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "75e0a4512010e03f8c139e70c98e6da868da6c8d962a23ab7297b11eb02ca4f0"
+          },
+          "created_at": "2026-10-24T06:46:32.781Z",
+          "id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "isolate-retirement-receipt",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports\\producer.json",
+            "evidence_sha256": "18451814724ac1a177005b1a804d0c82a2d0d355edd060d36fd084ba995dfd0d",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "688508877d8575613a156a6c8b4ce951bc63ef5f9d0d43b27f72f60893c35b94"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.838Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825296403,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            246,
+            111,
+            38,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "5ab0c291312c0f2e39ad60beb26597a08d7002f82775b383acc49134b4651f26",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+        "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+        "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+        "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+        "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+        "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd"
+      ],
+      "group_token": "d8d22ef72551cc50002400ea68cfc0753dc38482e1c501ac05cf1f469eabe242",
+      "id": "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+      "identity": "eb7f76054311d56980816fe45aa353a5235b4523b8f889f815d13c394ba043d9",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "logical_bytes": 5249862,
+      "measured_at_ms": 1792825138572,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "23678a6fbe20c6963fc621b14175243fe24ce929f289b73b9afd9bd249c7feaf",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "request_sha256": "6f597c61236b729fafce8e1c3cd1c2904b7384f729d35b5108fde50a3f527120"
+          },
+          "created_at": "2026-10-24T06:21:16.952Z",
+          "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "record-retirement-provenance",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "411c957bbbdebfce0c734ebcdfd7ba54a47a8e4022113e49caaafc52c8a1792d"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.798Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825229557,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            131,
+            174,
+            67,
+            0,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "da78f6c6bbb90ef2f651fd94f51aacbff950b9cf14ddce3c3b778fc4a64a1ff9",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+        "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+        "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+        "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+        "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+        "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8"
+      ],
+      "group_token": "029392d7670402bcdde81e5349426c86bc4ff23a5716a3fd38773afcd9fd760c",
+      "id": "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+      "identity": "1d65307f7eb581cd9922fbe8af970035e867b271c5926a31ebd88b98df7f38ea",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "logical_bytes": 1349,
+      "measured_at_ms": 1792825036173,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "88e46248acd5c9fcb514aa36374cc8b13a1abaa9b5cf94ac9fef252f65a135d5",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "4139d61194b3e53af59b2315e6bedc2fb9986b8d811033df879b05400b3041d3"
+          },
+          "created_at": "2026-10-24T06:04:04.975Z",
+          "id": "run:DN-01-root-retirement:validation-20261024",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.785Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825197013,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            32,
+            210,
+            58,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "55a63b7d16b68c9eeb307244d8a5f210d89c8c5450ba82323b4c2742dac2fad5",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+        "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+        "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+        "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+        "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+        "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd"
+      ],
+      "group_token": "d8d22ef72551cc50002400ea68cfc0753dc38482e1c501ac05cf1f469eabe242",
+      "id": "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+      "identity": "20534b7c6f759f4dcd963b40a8816a1b40540203b44eb60c69d8b7088236c12f",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "logical_bytes": 273,
+      "measured_at_ms": 1792825138508,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "23678a6fbe20c6963fc621b14175243fe24ce929f289b73b9afd9bd249c7feaf",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "request_sha256": "6f597c61236b729fafce8e1c3cd1c2904b7384f729d35b5108fde50a3f527120"
+          },
+          "created_at": "2026-10-24T06:21:16.952Z",
+          "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "record-retirement-provenance",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "411c957bbbdebfce0c734ebcdfd7ba54a47a8e4022113e49caaafc52c8a1792d"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.798Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825229585,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            155,
+            172,
+            67,
+            0,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "14a8161daaa017f6eb5cf2a643ce59f1579c47d7ec72e40e835318b7520dcb5f",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+        "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+        "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+        "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+        "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+        "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd"
+      ],
+      "group_token": "d8d22ef72551cc50002400ea68cfc0753dc38482e1c501ac05cf1f469eabe242",
+      "id": "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+      "identity": "d55d3491278d5ccd0aca8d4bc8e20d00c54583e9dedc3f0bf0451a88285c6a3d",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "logical_bytes": 95475732,
+      "measured_at_ms": 1792825138491,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "23678a6fbe20c6963fc621b14175243fe24ce929f289b73b9afd9bd249c7feaf",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "request_sha256": "6f597c61236b729fafce8e1c3cd1c2904b7384f729d35b5108fde50a3f527120"
+          },
+          "created_at": "2026-10-24T06:21:16.952Z",
+          "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "record-retirement-provenance",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "411c957bbbdebfce0c734ebcdfd7ba54a47a8e4022113e49caaafc52c8a1792d"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.798Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825229613,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            7,
+            169,
+            67,
+            0,
+            0,
+            0,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "1e8173b3004d6040a06b1574231d73e6a58614dd301df38a9fb9273a0ded2c8f",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+        "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+        "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+        "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+        "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+        "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd"
+      ],
+      "group_token": "d8d22ef72551cc50002400ea68cfc0753dc38482e1c501ac05cf1f469eabe242",
+      "id": "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+      "identity": "dd8f1d4b2fe1eed1d8ff5cdfc5236d967f75e53d6a71bc9e3c109cdfd50ee57a",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792825138493,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "23678a6fbe20c6963fc621b14175243fe24ce929f289b73b9afd9bd249c7feaf",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "request_sha256": "6f597c61236b729fafce8e1c3cd1c2904b7384f729d35b5108fde50a3f527120"
+          },
+          "created_at": "2026-10-24T06:21:16.952Z",
+          "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "record-retirement-provenance",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "411c957bbbdebfce0c734ebcdfd7ba54a47a8e4022113e49caaafc52c8a1792d"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.798Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825229641,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            136,
+            174,
+            67,
+            0,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "2755b6957b9474f0fe9a12aa7bd4257cc53ebe77e68f1628e9115325990adaae",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+        "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+        "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+        "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+        "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+        "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8"
+      ],
+      "group_token": "029392d7670402bcdde81e5349426c86bc4ff23a5716a3fd38773afcd9fd760c",
+      "id": "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+      "identity": "75205a7f5b756eea123e5d76c38e1c06a97617e35ae949fb49c6297381920206",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792825036163,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "88e46248acd5c9fcb514aa36374cc8b13a1abaa9b5cf94ac9fef252f65a135d5",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "4139d61194b3e53af59b2315e6bedc2fb9986b8d811033df879b05400b3041d3"
+          },
+          "created_at": "2026-10-24T06:04:04.975Z",
+          "id": "run:DN-01-root-retirement:validation-20261024",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.785Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825197041,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            34,
+            210,
+            58,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "bde8d7d075faa4540cdaedf3b7f674619183d8d851b698bb31d0c7382d1b1200",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+        "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+        "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+        "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+        "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+        "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659"
+      ],
+      "group_token": "f364a6ea4079ef42ac1809c3a230eb9bafbb25fbfcf51de8ddafb02e61b13534",
+      "id": "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+      "identity": "b954e872811020356d6a1a4cb6d859e239ea2276190a5278a68fe3a75a1199d7",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "logical_bytes": 2284544,
+      "measured_at_ms": 1792824895062,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "af346273b6cb27c149de216d68ff6d8dac007a81d424e31275271c021cecc3a3",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "b01d43c04542876a7ec63fe2b88d7d6600bee589c64d318ee769a271925e3c6c"
+          },
+          "created_at": "2026-10-24T06:06:09.584Z",
+          "id": "run:DN-01-root-retirement:validation-20261024-2",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.764Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825213297,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            39,
+            6,
+            100,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "1d3a0695be2ad5bf331d22e029e3a19dd543ed1bde81bf4d173de9412e0b74be",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "6b15498cb07cb4ea6d5fb787978a186b2a0bcdef50fc320381de846af3d1ffee"
+      ],
+      "group_token": "3742a1802cbfdf9751af765b5d1e8626c3b2eeb3350f7fb4948af0e28184fe12",
+      "id": "6b15498cb07cb4ea6d5fb787978a186b2a0bcdef50fc320381de846af3d1ffee",
+      "identity": "f2f2686fdb85371a0f0d6db4841d5ca6aafc95d72180bc56410006f2d9148b9d",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+      "logical_bytes": 10738508,
+      "measured_at_ms": 1792824862072,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "1bf9bd9ac7d9f3c56abfe10f4e03cd39d577024fa515908f1d41c4bc62e5b1ae",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\reports\\producer.json",
+            "evidence_sha256": "ba4644aaf1379792d83ac9e1c33475b93d5733bb4e0da046a1b2dd39d93aabb7",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "2ad750f6372c1512d04756e4496a0cffcff8f224a63e309e12302e810193ef64"
+          },
+          "created_at": "2026-10-24T06:29:22.236Z",
+          "id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "record-retirement-provenance",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\reports\\producer.json",
+            "evidence_sha256": "ba4644aaf1379792d83ac9e1c33475b93d5733bb4e0da046a1b2dd39d93aabb7",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "98fd75f33f7dd83383869e45f3a611304035f6b8af2c72488c846e64b525fd1e"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.713Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825246346,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            156,
+            15,
+            94,
+            0,
+            0,
+            0,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "9c3430127cc214647f7cec015682dcf26fb8ed4d4f5c053d3576419b8dfd80be",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "6cf59eb3f7283770dc9b133684d274b2759f11cd5c576aee269eaf08a648ec44"
+      ],
+      "group_token": "66ce3419bf22afd6169785af599404f1242f47b4331e05d6e4430694dc2e4ceb",
+      "id": "6cf59eb3f7283770dc9b133684d274b2759f11cd5c576aee269eaf08a648ec44",
+      "identity": "36504d6f5ae9f26ae91a3267a0dbc2a37aa4a7c90975309b62f9358911ea3022",
+      "lifecycle_group_id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+      "logical_bytes": 3712,
+      "measured_at_ms": 1792825155539,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "2d7de6bd6580d0b0b22ab84f2326cf1b131da8ae733fc23c689c8086024d538e",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\reports\\producer.json",
+            "evidence_sha256": "0655ddc8fea77e7d14a04e7b9215ca2121aeff7a3b76360d0a85ddf70c5b0810",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "aaa4f574ea44d044dd87aa2f6073da2ce896f56dfc08eb1e6d0fb0458b80ce94"
+          },
+          "created_at": "2026-10-24T06:41:46.323Z",
+          "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "isolate-retirement-receipt",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\reports\\producer.json",
+            "evidence_sha256": "0655ddc8fea77e7d14a04e7b9215ca2121aeff7a3b76360d0a85ddf70c5b0810",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "9cdf0f27fff796e5c07c759df967f632591a84bca33070d052c04dc06b2b3c17"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.825Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825262582,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            221,
+            26,
+            39,
+            0,
+            0,
+            0,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "f360644883f0a520cdbe5cb1bb5ea95a66aa9a78d392f614a75ef0ad7041ee54",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+        "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+        "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+        "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+        "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+        "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8"
+      ],
+      "group_token": "029392d7670402bcdde81e5349426c86bc4ff23a5716a3fd38773afcd9fd760c",
+      "id": "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+      "identity": "b02f9b2adcada052f6918dec7f00106bc1e9607218a32375669a222823a9e8cc",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792824927293,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "88e46248acd5c9fcb514aa36374cc8b13a1abaa9b5cf94ac9fef252f65a135d5",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "4139d61194b3e53af59b2315e6bedc2fb9986b8d811033df879b05400b3041d3"
+          },
+          "created_at": "2026-10-24T06:04:04.975Z",
+          "id": "run:DN-01-root-retirement:validation-20261024",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.785Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825197070,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            122,
+            178,
+            58,
+            0,
+            0,
+            0,
+            6,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "53a076bf3394a8a2f359afd53a7af276bd3aa9446a52adfc584a700bd8d463e6",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "af67f8290b543bb15ef41bcf204f00b501335ce7921cff855b0e424b9dc6a605"
+      ],
+      "group_token": "1724f80e40577347042fbb15cac44b1519bbafc3e6bf69bfed429456176749fb",
+      "id": "af67f8290b543bb15ef41bcf204f00b501335ce7921cff855b0e424b9dc6a605",
+      "identity": "15d3f3e23fc0dedea4e3af1b7b709a888df0fb01cb1def43298e86a97cf585a7",
+      "lifecycle_group_id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+      "logical_bytes": 4970,
+      "measured_at_ms": 1792824911381,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "46875639f491633403ca4108723a6d74be3fcc73f80ef64a97c81897b36e0550",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\reports\\producer.json",
+            "evidence_sha256": "8553fe2e6152c2a00561ff4f588c62032a4cdb4df9f95ba1941463699b5ebdd8",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "5c95a2db9cf398fa2ae8f233840c2e8203e3e119dc40386b63c0dc32e7b1db36"
+          },
+          "created_at": "2026-10-24T06:43:38.833Z",
+          "id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "isolate-retirement-receipt",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\reports\\producer.json",
+            "evidence_sha256": "8553fe2e6152c2a00561ff4f588c62032a4cdb4df9f95ba1941463699b5ebdd8",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "688508877d8575613a156a6c8b4ce951bc63ef5f9d0d43b27f72f60893c35b94"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.777Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825280533,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            240,
+            25,
+            39,
+            0,
+            0,
+            0,
+            8,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "1eebef51c97ab303bb4205dfe4e9597ed52d8656d8bb64371aba3c6c06ad9afc",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+        "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+        "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+        "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+        "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+        "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659"
+      ],
+      "group_token": "f364a6ea4079ef42ac1809c3a230eb9bafbb25fbfcf51de8ddafb02e61b13534",
+      "id": "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+      "identity": "18a4f8c7a2acb55a6726b2b87930f7247e297bd93c9a8b701bb2c06f0167d7fc",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792824882061,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "af346273b6cb27c149de216d68ff6d8dac007a81d424e31275271c021cecc3a3",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "b01d43c04542876a7ec63fe2b88d7d6600bee589c64d318ee769a271925e3c6c"
+          },
+          "created_at": "2026-10-24T06:06:09.584Z",
+          "id": "run:DN-01-root-retirement:validation-20261024-2",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.764Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825213340,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            79,
+            5,
+            100,
+            0,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "4fd8aef3e74c9c299a614f661c7a25c4379c112debd6170e8f9bb2131a7e43f5",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+        "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+        "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+        "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+        "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+        "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8"
+      ],
+      "group_token": "029392d7670402bcdde81e5349426c86bc4ff23a5716a3fd38773afcd9fd760c",
+      "id": "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+      "identity": "badd0e711213b2d979629c1048d6a586de07a42219d74b05c51f8d645b301c6c",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "logical_bytes": 2099937,
+      "measured_at_ms": 1792825036207,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "88e46248acd5c9fcb514aa36374cc8b13a1abaa9b5cf94ac9fef252f65a135d5",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "4139d61194b3e53af59b2315e6bedc2fb9986b8d811033df879b05400b3041d3"
+          },
+          "created_at": "2026-10-24T06:04:04.975Z",
+          "id": "run:DN-01-root-retirement:validation-20261024",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.785Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825197099,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            33,
+            210,
+            58,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "55147e7c302ecb84716fb2bc098178ec43fa9898830a3ac130e0dfa319329270",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+        "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+        "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+        "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+        "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+        "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659"
+      ],
+      "group_token": "f364a6ea4079ef42ac1809c3a230eb9bafbb25fbfcf51de8ddafb02e61b13534",
+      "id": "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+      "identity": "92282417077a33ab1e6621a40e5349a4d8942cbae14d3519cc48ea928d743388",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "logical_bytes": 22920,
+      "measured_at_ms": 1792824895079,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "af346273b6cb27c149de216d68ff6d8dac007a81d424e31275271c021cecc3a3",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "b01d43c04542876a7ec63fe2b88d7d6600bee589c64d318ee769a271925e3c6c"
+          },
+          "created_at": "2026-10-24T06:06:09.584Z",
+          "id": "run:DN-01-root-retirement:validation-20261024-2",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.764Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825213383,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            36,
+            6,
+            100,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "54f74d29e24aa0df85c6157834471627b123fc5c4149f4eb5b348724487185a6",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+        "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+        "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+        "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+        "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+        "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd"
+      ],
+      "group_token": "d8d22ef72551cc50002400ea68cfc0753dc38482e1c501ac05cf1f469eabe242",
+      "id": "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd",
+      "identity": "e28139c7af9ed4a2ac21a8aa6d08bd0ede5e68a46d665457a548b3dfe50b3f93",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792825053531,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "23678a6fbe20c6963fc621b14175243fe24ce929f289b73b9afd9bd249c7feaf",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "request_sha256": "6f597c61236b729fafce8e1c3cd1c2904b7384f729d35b5108fde50a3f527120"
+          },
+          "created_at": "2026-10-24T06:21:16.952Z",
+          "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "record-retirement-provenance",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+            "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees",
+            "status": "stopped"
+          },
+          "references": [],
+          "release_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\artifact-cleanup-owner-evidence.json",
+            "evidence_sha256": "669b21fc0adde37c64996d219c24a71c0307976424a9be9ad497b85fd08305d3",
+            "reason": "Approved10 deletion and task commit complete; compact causal logs, test/source proofs and deletion results preserved in work; no remaining consumer needs temporary payloads.",
+            "request_sha256": "411c957bbbdebfce0c734ebcdfd7ba54a47a8e4022113e49caaafc52c8a1792d"
+          },
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.798Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825229675,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            205,
+            225,
+            66,
+            0,
+            0,
+            0,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "75ca7f3f0f3953cfcec16c27c2ec336f03731948918b0a3e9d081292c2273675",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+        "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+        "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+        "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+        "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+        "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659"
+      ],
+      "group_token": "f364a6ea4079ef42ac1809c3a230eb9bafbb25fbfcf51de8ddafb02e61b13534",
+      "id": "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+      "identity": "ca888f82b5933318b9deb368a4287fb18290c72d5e4dfbd3d15c46a59c2104a1",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "logical_bytes": 2099370,
+      "measured_at_ms": 1792824895112,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "af346273b6cb27c149de216d68ff6d8dac007a81d424e31275271c021cecc3a3",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "b01d43c04542876a7ec63fe2b88d7d6600bee589c64d318ee769a271925e3c6c"
+          },
+          "created_at": "2026-10-24T06:06:09.584Z",
+          "id": "run:DN-01-root-retirement:validation-20261024-2",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.764Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825213422,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            37,
+            6,
+            100,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "51fab515bc892c42c5e29b393794cf7e60077744280a9189906fdc161ec1aed7",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+        "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+        "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+        "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+        "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+        "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8"
+      ],
+      "group_token": "029392d7670402bcdde81e5349426c86bc4ff23a5716a3fd38773afcd9fd760c",
+      "id": "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8",
+      "identity": "1aa1034097cacca36ec2c2b106655c63234e39a7e4bf5a5ff24bd6bada6e7d43",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "logical_bytes": 0,
+      "measured_at_ms": 1792825036162,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "88e46248acd5c9fcb514aa36374cc8b13a1abaa9b5cf94ac9fef252f65a135d5",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "4139d61194b3e53af59b2315e6bedc2fb9986b8d811033df879b05400b3041d3"
+          },
+          "created_at": "2026-10-24T06:04:04.975Z",
+          "id": "run:DN-01-root-retirement:validation-20261024",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\reports\\producer.json",
+            "evidence_sha256": "abf4e3a509c29280b5d40539231b628f17c2777066bbbb2745eec932296db742",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-24T06:54:06.785Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825197129,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement\\temporary",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            31,
+            210,
+            58,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "538ef797361f6356e13df9a6e57819c36570c13fd54025707562dd0f05eee11e",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+        "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+        "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+        "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+        "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+        "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659"
+      ],
+      "group_token": "f364a6ea4079ef42ac1809c3a230eb9bafbb25fbfcf51de8ddafb02e61b13534",
+      "id": "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659",
+      "identity": "335b425d423570fe8b511d2a8f9c1199b75e8095b6af7b97770c5def6b59b7ed",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "logical_bytes": 382714989,
+      "measured_at_ms": 1792824894911,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "af346273b6cb27c149de216d68ff6d8dac007a81d424e31275271c021cecc3a3",
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "request_sha256": "b01d43c04542876a7ec63fe2b88d7d6600bee589c64d318ee769a271925e3c6c"
+          },
+          "created_at": "2026-10-24T06:06:09.584Z",
+          "id": "run:DN-01-root-retirement:validation-20261024-2",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-root-retirement\\runs\\validation-20261024-2",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DN-01-approved-temp-cleanup",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\reports\\producer.json",
+            "evidence_sha256": "00332d5ef09e91718bc8ddb931172c91990f2af43a598a622c6d311cdd00355a",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All synchronous owned verification producers returned terminal outcomes",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-24T06:54:06.764Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1792825213460,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-retirement-2\\temporary",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            35,
+            6,
+            100,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "e9d45e2c0735a4b6092f5158107436c0835480e532133066cdc611fe8b370e6e",
+      "verification": "registered"
+    }
+  ]
+}

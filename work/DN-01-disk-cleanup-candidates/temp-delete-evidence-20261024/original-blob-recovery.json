@@ -1,0 +1,45 @@
+[
+  {
+    "path": "codex-rs/core/src/client.rs",
+    "commit": "a165b38dbbdee702bdc716a830aee0bb4c400628",
+    "sha256": "6c9238a941414cb6126a4ebb87fba929a97c5b8236839e54c31678a6ca6c47e0",
+    "size": 125179
+  },
+  {
+    "path": "codex-rs/core/src/session/mod.rs",
+    "commit": "c3afaf71f10c8be387b5580936096a9d735acbb1",
+    "sha256": "db080c0a9b78cd7bab8b9f1ebdaa30a490bae564a4c5b7d6fc2e305214699986",
+    "size": 214779
+  },
+  {
+    "path": "codex-rs/core/src/session/root_resume.rs",
+    "commit": "a7c0f7301dabdce7c65330ba2ba5cf95fcc04af6",
+    "sha256": "6d64d2fb1a22c112da64afe8689d4b24bb78b0e55716d640d9c6859a3a95d243",
+    "size": 38396
+  },
+  {
+    "path": "codex-rs/core/src/session/turn.rs",
+    "commit": "a165b38dbbdee702bdc716a830aee0bb4c400628",
+    "sha256": "9e9f481d03e74d0054894a0924dc255517b3c313b13dbdb024a72b5d7e113e26",
+    "size": 130756
+  },
+  {
+    "path": "codex-rs/prompts/src/root_coordination_instructions.rs",
+    "commit": "a1bdefc3cff85306e004b93e483bf5014a3185e8",
+    "sha256": "ddbf16dd5a5b1a9c4e855715f28808fc38f2504b85136486bb57d6202272e1dd",
+    "size": 9396
+  },
+  {
+    "path": "codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql",
+    "commit": "a165b38dbbdee702bdc716a830aee0bb4c400628",
+    "sha256": "c7e13191290a168326efcb2ceef52ae952970f4f8a2d2fd22a7b686225266174",
+    "size": 63
+  },
+  {
+    "path": "codex-rs/vendor/bubblewrap/LICENSE",
+    "commit": "ccbcbf93906a72cc7654aa9c57c670d5e2e3831d",
+    "sha256": "400d38e5cfee181230373a8b02d38f50271a5bf62c62410382efddb8e8b19e22",
+    "size": 7,
+    "materialization": "git-symlink-placeholder regular file per original Windows receipt"
+  }
+]

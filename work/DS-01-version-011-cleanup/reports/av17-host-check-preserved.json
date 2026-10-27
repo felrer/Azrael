@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "fixtureRoot": "C:\\Users\\felre\\av17\\artifacts\\f",
+  "standaloneHostResult": "C:\\Users\\felre\\av17\\artifacts\\f\\standalone-host-result.json",
+  "hostResult": "C:\\Users\\felre\\av17\\artifacts\\f\\host-result.json",
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u17a\\artifacts\\logs\\same-window-validation\\same-window-20261018-004437-281.log",
+  "namespaceLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u17a\\artifacts\\logs\\same-window-validation\\namespace-20261018-004437-281.log",
+  "exitCodes": {
+    "initialInventory": 0,
+    "hostInstall": 0,
+    "finalInventory": 0,
+    "namespace": 0,
+    "standaloneHost": 0,
+    "host": 0
+  },
+  "inventory": [
+    "azrael-ex-local.azrael@2026.0.10",
+    "openai.chatgpt@26.1007.21434",
+    "openai.codex-audio@26.1007.21434"
+  ],
+  "useFreshState": true,
+  "uiSourcePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+  "officialVersions": {
+    "codex": "26.1007.21434",
+    "audio": "26.1007.21434"
+  },
+  "hostPackage": {
+    "vsix": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u17a\\artifacts\\deployments\\manual-u17b\\package\\azrael-host.vsix",
+    "sha256": "93cc17b2db47d2385ee29ad876c7805dca234c8b50b02f3b5abfee231f0d461b",
+    "version": "2026.0.10",
+    "installedPath": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\azrael-ex-local.azrael-2026.0.10"
+  },
+  "runtimeConfigOverride": {
+    "applied": true,
+    "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\azrael-ex-local.azrael-2026.0.10\\out\\azrael-runtime.json",
+    "changedField": "codexHome",
+    "beforeSha256": "f1b7eed464de34df3624b33285a0a9cd81c8d338c7d792fc7d061ed63310d1cd",
+    "afterSha256": "239dd349205ad0f057c71ab1aa3e23fae71f210f8b66b6c94cd437ee0af951da",
+    "beforeCodexHome": "C:\\Users\\felre\\.azrael-ex",
+    "afterCodexHome": "C:\\Users\\felre\\av17\\artifacts\\f\\s",
+    "engineUnchanged": true,
+    "bridgeUnchanged": true
+  },
+  "originalSource": {
+    "before": {
+      "path": "C:\\Users\\felre\\.vscode\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+      "sha256": "d43b75a85941024d3e9bba3cd4f601cf9aff6ef4e6122c225e6865db2b6fe7a5",
+      "fileCount": 19633,
+      "bytes": 1452150427
+    },
+    "after": {
+      "path": "C:\\Users\\felre\\.vscode\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+      "sha256": "d43b75a85941024d3e9bba3cd4f601cf9aff6ef4e6122c225e6865db2b6fe7a5",
+      "fileCount": 19633,
+      "bytes": 1452150427
+    },
+    "unchanged": true
+  },
+  "originalFixture": {
+    "before": {
+      "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+      "sha256": "d43b75a85941024d3e9bba3cd4f601cf9aff6ef4e6122c225e6865db2b6fe7a5",
+      "fileCount": 19633,
+      "bytes": 1452150427
+    },
+    "after": {
+      "path": "C:\\Users\\felre\\av17\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+      "sha256": "d43b75a85941024d3e9bba3cd4f601cf9aff6ef4e6122c225e6865db2b6fe7a5",
+      "fileCount": 19633,
+      "bytes": 1452150427
+    },
+    "unchanged": true
+  },
+  "loginPerformed": false,
+  "modelRequestPerformed": false,
+  "newThreadPerformed": false,
+  "testObjectMutationPerformed": false
+}

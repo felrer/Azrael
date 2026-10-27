@@ -1,0 +1,14 @@
+[
+  {
+    "reused": true,
+    "key": "72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+    "module": "companion"
+  },
+  {
+    "reused": true,
+    "key": "1aba2bb247560d117504c6039afe0226aa6b62f47e7bee1b3f2b3bbd34f9676e",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\1aba2bb247560d117504c6039afe0226aa6b62f47e7bee1b3f2b3bbd34f9676e",
+    "module": "providers"
+  }
+]

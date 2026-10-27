@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "project": "C:\\Users\\felre\\Desktop\\pi-harness-init/artifacts/build/u22c",
+  "membership_complete": true,
+  "scope": "Complete canonical lifecycle catalog at inspection; original pending state preserved",
+  "records": [
+    {
+      "schema": 1,
+      "id": "version:u22c",
+      "kind": "version",
+      "owner": "azrael-release",
+      "version": null,
+      "state": "pending",
+      "membership_complete": false,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\releases\\u22c",
+          "role": "release"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c",
+          "role": "build-logs"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\vsix\\u22c",
+          "role": "vsix"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\deploy-u22c",
+          "role": "deployment"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\deploy-u22c",
+          "role": "deploy-logs"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\verification-evidence\\deploy-u22c",
+          "role": "verification-evidence"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\verification-evidence\\account-controls-u22c",
+          "role": "account-evidence"
+        }
+      ],
+      "references": [
+        {
+          "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+          "reason": "companion-tool",
+          "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+        }
+      ],
+      "revision": 3,
+      "created_at": "2026-10-18T18:38:41.340Z",
+      "updated_at": "2026-10-18T18:42:59.284Z"
+    },
+    {
+      "schema": 1,
+      "id": "shared:cargo-pending:324ecfeca9ddf1b76193212ad5d944a28d18caa4767bd7e615f126e7e6e36ec0",
+      "kind": "work",
+      "owner": "cargo-target-owner",
+      "version": null,
+      "state": "complete",
+      "membership_complete": true,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\verification\\cargo-pending\\324ecfeca9ddf1b76193212ad5d944a28d18caa4767bd7e615f126e7e6e36ec0",
+          "role": "pending"
+        }
+      ],
+      "references": [],
+      "revision": 12,
+      "created_at": "2026-10-18T18:43:35.827Z",
+      "updated_at": "2026-10-18T18:45:37.521Z"
+    }
+  ]
+}

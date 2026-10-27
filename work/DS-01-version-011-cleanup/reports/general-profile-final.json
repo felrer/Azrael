@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-25T14:49:47.096Z",
+  "versions": [
+    "2026.0.12"
+  ],
+  "files": [
+    {
+      "path": "C:\\Users\\felre/.vscode/extensions/extensions.json",
+      "before": "13DC869147A36650E6739BEE540AA29FAC820C2423080EF81A5F50DC257AB013",
+      "after": "13DC869147A36650E6739BEE540AA29FAC820C2423080EF81A5F50DC257AB013",
+      "same": true,
+      "sameAsPriorCheckpoint": true,
+      "lastWriteUtc": "2026-10-24T19:41:35.302Z",
+      "bytes": 5409
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Roaming/Code/User/settings.json",
+      "before": "AAD34706DA5798C14A8711AED3FB1B5F11AF3022DF276CCCDC838E137774CD5E",
+      "after": "AAD34706DA5798C14A8711AED3FB1B5F11AF3022DF276CCCDC838E137774CD5E",
+      "same": true,
+      "sameAsPriorCheckpoint": true,
+      "lastWriteUtc": "2026-10-19T14:13:02.653Z",
+      "bytes": 1101
+    },
+    {
+      "path": "C:\\Users\\felre/.azrael-ex/config.toml",
+      "before": "E261D268FEDABB14CCC08177B9FB10AAF04E9567EA86236804BBCCB4B9CA159E",
+      "after": "E261D268FEDABB14CCC08177B9FB10AAF04E9567EA86236804BBCCB4B9CA159E",
+      "same": true,
+      "sameAsPriorCheckpoint": false,
+      "lastWriteUtc": "2026-10-25T13:46:10.949Z",
+      "bytes": 5133
+    }
+  ],
+  "configChangeAttribution": "Unestablished; cleanup commands did not write this ordinary-profile file; current contents retained, no restore attempted"
+}

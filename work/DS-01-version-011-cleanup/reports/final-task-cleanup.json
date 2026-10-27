@@ -1,0 +1,27 @@
+{
+  "complete": true,
+  "at": "2026-10-25T14:58:59.614Z",
+  "oldVersionLogicalBytes": 20168314374,
+  "temporaryOutputLogicalBytes": 392266690,
+  "physicalBytesReclaimed": null,
+  "absent": [
+    {
+      "path": "artifacts/verification/ds01n1",
+      "absent": true
+    },
+    {
+      "path": "artifacts/verification/ds01n2",
+      "absent": true
+    },
+    {
+      "path": "artifacts/tasks/DS-01-version-011-cleanup/runs/native-output-cleanup",
+      "absent": true
+    },
+    {
+      "path": "artifacts/tasks/DS-01-version-011-cleanup/runs/u22c-final-cli",
+      "absent": true
+    }
+  ],
+  "preserved": "Independent source/input verification and failure/success evidence, operational reports and residual ownership proof; five ongoing safety regression tests",
+  "residuals": "Protected old original groups and u17a stale module registration retained with conditions in work record"
+}

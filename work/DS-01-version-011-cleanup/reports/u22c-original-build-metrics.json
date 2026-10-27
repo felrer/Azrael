@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "startedUtc": "2026-10-18T18:38:41.4330765Z",
+  "completedUtc": "2026-10-18T18:42:59.2162074Z",
+  "stages": [
+    {
+      "name": "engine-provenance-and-binary-check",
+      "startedUtc": "2026-10-18T18:38:42.2738714Z",
+      "completedUtc": "2026-10-18T18:38:53.8438351Z",
+      "elapsedMs": 11569,
+      "status": "success"
+    },
+    {
+      "name": "command:engine-source-check.log",
+      "startedUtc": "2026-10-18T18:38:42.3019660Z",
+      "completedUtc": "2026-10-18T18:38:53.8337404Z",
+      "elapsedMs": 11531,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\engine-source-check.log"
+    },
+    {
+      "name": "companion-staging",
+      "startedUtc": "2026-10-18T18:38:53.8467484Z",
+      "completedUtc": "2026-10-18T18:42:01.6864629Z",
+      "elapsedMs": 187839,
+      "status": "success"
+    },
+    {
+      "name": "release-packaging-and-copy",
+      "startedUtc": "2026-10-18T18:42:01.6889687Z",
+      "completedUtc": "2026-10-18T18:42:27.3331847Z",
+      "elapsedMs": 25644,
+      "status": "success"
+    },
+    {
+      "name": "script:package.log",
+      "startedUtc": "2026-10-18T18:42:01.6937444Z",
+      "completedUtc": "2026-10-18T18:42:27.3306592Z",
+      "elapsedMs": 25636,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\package.log"
+    },
+    {
+      "name": "computer-use-runtime-staging",
+      "startedUtc": "2026-10-18T18:42:27.3354458Z",
+      "completedUtc": "2026-10-18T18:42:33.0774036Z",
+      "elapsedMs": 5741,
+      "status": "success"
+    },
+    {
+      "name": "command:computer-use-runtime.log",
+      "startedUtc": "2026-10-18T18:42:27.3379363Z",
+      "completedUtc": "2026-10-18T18:42:31.0833394Z",
+      "elapsedMs": 3745,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\computer-use-runtime.log"
+    },
+    {
+      "name": "command:window-control-build.log",
+      "startedUtc": "2026-10-18T18:42:31.0861784Z",
+      "completedUtc": "2026-10-18T18:42:31.9922687Z",
+      "elapsedMs": 906,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\window-control-build.log"
+    },
+    {
+      "name": "command:window-child-session-build.log",
+      "startedUtc": "2026-10-18T18:42:31.9970762Z",
+      "completedUtc": "2026-10-18T18:42:32.3640993Z",
+      "elapsedMs": 366,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\window-child-session-build.log"
+    },
+    {
+      "name": "command:window-control-runtime.log",
+      "startedUtc": "2026-10-18T18:42:32.3675276Z",
+      "completedUtc": "2026-10-18T18:42:32.6511120Z",
+      "elapsedMs": 283,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\window-control-runtime.log"
+    },
+    {
+      "name": "devin-staging",
+      "startedUtc": "2026-10-18T18:42:33.0797073Z",
+      "completedUtc": "2026-10-18T18:42:33.5785429Z",
+      "elapsedMs": 498,
+      "status": "success"
+    },
+    {
+      "name": "devin-runtime-and-hash-checks",
+      "startedUtc": "2026-10-18T18:42:33.5810215Z",
+      "completedUtc": "2026-10-18T18:42:34.1868001Z",
+      "elapsedMs": 605,
+      "status": "success"
+    },
+    {
+      "name": "command:devin-node-version.log",
+      "startedUtc": "2026-10-18T18:42:33.5879121Z",
+      "completedUtc": "2026-10-18T18:42:33.6165498Z",
+      "elapsedMs": 28,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\devin-node-version.log"
+    },
+    {
+      "name": "packaged-engine-provenance-check",
+      "startedUtc": "2026-10-18T18:42:48.0007797Z",
+      "completedUtc": "2026-10-18T18:42:59.1820877Z",
+      "elapsedMs": 11181,
+      "status": "success"
+    },
+    {
+      "name": "command:packaged-source-check.log",
+      "startedUtc": "2026-10-18T18:42:48.0040650Z",
+      "completedUtc": "2026-10-18T18:42:59.0626916Z",
+      "elapsedMs": 11058,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\packaged-source-check.log"
+    },
+    {
+      "name": "command:packaged-window-control-source-check.log",
+      "startedUtc": "2026-10-18T18:42:59.0659577Z",
+      "completedUtc": "2026-10-18T18:42:59.1795859Z",
+      "elapsedMs": 113,
+      "status": "success",
+      "exitCode": 0,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c\\packaged-window-control-source-check.log"
+    },
+    {
+      "name": "release-selection",
+      "startedUtc": "2026-10-18T18:42:59.1855592Z",
+      "completedUtc": "2026-10-18T18:42:59.1995902Z",
+      "elapsedMs": 14,
+      "status": "success"
+    }
+  ],
+  "elapsedMs": 257783,
+  "status": "success"
+}

@@ -4,17 +4,35 @@
 
 ## 이 체크아웃의 정리 실행기
 
-상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-6f6f874e-win-x64-dx05/payload/maintenance_owner.exe`를 사용한다. 설치·검증 결과는 [작업 기록](../../work/DX-01-cleanup-performance/05-plan.md), 입력·실행파일 identity는 같은 version의 `verification/build.json`에서 확인한다. 이 실행기는 최적화된 실제 `maintenance_owner`이며 benchmark example이 아니다. 실행파일과 최소 검증 영수증은 계속 사용하는 설치물로 관리하고, 교체 또는 사용 종료 시 참조를 해제한 뒤 정리한다.
+상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-08180d46-win-x64-dw17-release/payload/maintenance_owner.exe`를 사용한다. 설치·검증 결과는 [작업 기록](../../work/DW-01-build-preflight-timing/16-plan.md), 입력·실행파일 identity와 실제 수용 결과는 같은 version의 `verification/optimization-acceptance.json`과 `verification/installation-verification.json`에서 확인한다. 이 실행기는 최적화된 실제 `maintenance_owner`이며 benchmark example이 아니다. 실행파일과 최소 검증 영수증은 계속 사용하는 설치물로 관리하고, 교체 또는 사용 종료 시 참조를 해제한 뒤 정리한다.
 
 ```powershell
 $projectRoot = 'C:/Users/felre/Desktop/pi-harness-init'
-$ownerExecutable = "$projectRoot/artifacts/versions/maintenance-owner-6f6f874e-win-x64-dx05/payload/maintenance_owner.exe"
+$ownerExecutable = "$projectRoot/artifacts/versions/maintenance-owner-08180d46-win-x64-dw17-release/payload/maintenance_owner.exe"
 & $ownerExecutable --project-root $projectRoot --request "$projectRoot/정리작업의-요청.json"
 ```
 
-요청 JSON은 선택 프로젝트 안의 일반 파일로 만들고 해당 작업 묶음에서 관리한다. `operation`은 `inventory`, `register`, `review`, `apply`, `recover_lock`만 지원한다. 먼저 기존 등록 그룹을 조회하고, 현재 소유·참조·보호와 membership을 확인한 뒤 fresh review token으로 명시한 결정을 적용한다. unchanged 그룹은 재등록하지 않으며 `registered` 검증을 기본으로 한다. 실제 항목별 결과와 부재를 확인한다. 점유 잠금 해제나 실패한 보호 검사를 우회하는 용도로 사용하지 않는다.
+요청 JSON은 선택 프로젝트 안의 일반 파일로 만들고 해당 작업 묶음에서 관리한다. `operation`은 `inventory`, `register`, `review`, `apply`, `recover_lock`, `recover_reservation`을 지원한다. 먼저 기존 등록 그룹을 조회하고, 현재 소유·참조·보호와 membership을 확인한 뒤 fresh review token으로 명시한 결정을 적용한다. unchanged 그룹은 재등록하지 않으며 `registered` 검증을 기본으로 한다. 실제 항목별 결과와 부재를 확인한다. 점유 잠금 해제나 실패한 보호 검사를 우회하는 용도로 사용하지 않는다.
 
 앱 내장 `project_*`는 엔진에 정적으로 연결되어 있어 이 설치로 교체되지 않는다. 테스트·빌드 실행과 프로젝트 별칭은 기존 내장 도구를 사용한다. 별도 실행기는 OS 권한과 선택 프로젝트 경계를 적용하며, 내장 도구의 turn별 sandbox/grant 검사를 자체적으로 재현하지 않는다. 명령 실행 환경의 실제 권한·승인과 삭제 안전장치를 그대로 지킨다. 다른 OS/CPU용 설치물은 제공하지 않는다.
+
+### OS 잠금과 기본 실행기 선택
+
+상태: `current` (Windows x64 standalone·Node·PowerShell). [소유권 전환 작업](../../work/DW-01-build-preflight-timing/16-plan.md)에서 실제 잠금·취소·예약·복구와 producer/cleaner 연동을 검증했다. 새 Node·PowerShell producer는 native lease 프로토콜을 가진 standalone 실행기가 필요하다. 기존 dx05 실행기는 이 프로토콜을 제공하지 않으며 자동 컴파일이나 구형 sentinel fallback은 없다. 별도 검증은 `AZRAEL_MAINTENANCE_OWNER`에 지정한 고정 실행파일을 사용한다. 기본 선택은 `artifacts/maintenance/owner-installation.json`의 `schema:1`, `protocol:"maintenance-owner-lease-v1"`, 프로젝트 상대 `executable`과 `sha256`을 검증한다. 설치 기록은 `artifacts/deployments/maintenance-owner-dw16/installation.json`이며 정확한 version에 installation 참조를 둔다.
+
+새 lease 프로토콜은 기존 producer 레코드의 16 MiB 한도를 유지하고, 줄바꿈을 포함한 JSON 프레임은 64 MiB로 제한한다. 예약 응답은 원본 레코드와 투영한 구성원을 포함하므로 catalog 잠금 안에서 크기를 사전 확인한다. 한도를 넘는 묶음은 durable 예약 생성 전에 거절하며 더 작은 독립 묶음으로 명시적으로 선택한다. 자동 분할이나 구형 잠금 fallback은 제공하지 않는다.
+
+전역 잠금 축소는 apply의 물리 삭제와 최초·변경 등록의 내용 측정에 적용된다. 등록은 기존·incoming 항목 ID와 경로, 구성 증거 및 변경 전후 producer source를 durable 예약으로 보호한 뒤 전역 잠금을 놓는다. commit은 maintenance → 관련 catalog 순서로 잠금을 다시 얻어 CAS 병합·설정·루트 객체·source fence·참조를 확인한다. 관계없는 작업은 병행할 수 있고 같은 범위의 변경은 차단한다. 정상 취소와 저장 전 검증 실패는 자기 예약만 해제하며, 저장·source fence가 불확실하면 명시적 복구를 위해 예약을 보존한다. `refresh_group`은 내용 재측정 없는 기존 짧은 경로를 유지한다.
+
+producer 예약 완료는 명령 시작 시 전체 집합을 검증하고, 각 terminal 영수증 동기 저장 뒤에는 해당 그룹의 OS lease·예약·source fence만 새로 확인한다. 기본 standalone은 이 반복 검증 개선을 포함하며, 실제 설치 version·수용·측정 근거는 설치 영수증이 선택하는 version의 `verification/`에 둔다. 미확인 outcome과 변경된 보호 근거는 계속 예약을 유지한다. 이 변경은 일반 apply의 물리 삭제 처리량 개선을 뜻하지 않는다.
+
+OS 잠금 획득 대기는 최대 5초다. 획득 뒤 예약·완료 요청의 응답 한도는 native bridge 60초, PowerShell 호출부 75초이며 다른 요청은 각각 10초·15초다. 응답 한도 초과는 미확인 결과로 남긴다. 실제 종료와 durable 예약 상태를 확인하기 전에는 재시도하거나 잠금을 제거하지 않는다. 정리 결과는 최초 원인을 보존하고 release·완료 처리의 후속 오류를 별도로 기록한다.
+
+모듈 프로젝트 폐기 검사는 catalog와 그룹 OS lease를 확인하고 알려진 완료·복구 영수증의 고정 내용만 catalog identity에 포함한다. 갱신되는 잠금 진단 bytes는 identity에서 제외한다. 활성 예약, 점유된 그룹, 알 수 없거나 손상된 제어 파일과 변경·누락된 증거는 보호한다. 이 검사에는 제어 파일 10,000개, 동시 그룹 lease 128개, 영수증별 64 MiB·증거별 16 MiB·보유 증거 합계 128 MiB 한도가 있다. 한도 초과는 폐기 검사를 차단하며 일반 삭제의 그룹 수 제한을 뜻하지 않는다.
+
+전환한 schema 2 잠금 파일은 점유 여부와 무관하게 남으며 일반 삭제 대상으로 삼지 않는다. 구형 내장 도구는 같은 파일을 busy로 판단할 수 있으므로 새 프로토콜을 검증한 standalone owner로 정리한다. 소스 변경이나 standalone 교체가 앱 내장 도구의 교체를 의미하지 않는다. 기존 미확정 sentinel은 정확한 종료 근거와 `recover_lock`으로 전환하고 새 그룹 예약의 미확정 결과는 `recover_reservation`으로 별도 복구한다. archive API는 추가하지 않는다.
+
+Windows 명시적 복구는 프로세스 객체가 조회된다는 이유만으로 실행 중이라고 판단하지 않는다. OS 대기 결과가 종료를 나타내면 PID 거부 조건만 해제하며, 실행 중이거나 상태를 확인할 수 없으면 차단한다. 정확한 producer 트리의 독립적인 종료 근거와 레코드 SHA·fence·소유자·현재 잠금 검증은 별도로 모두 필요하다.
 
 ## 프로젝트 등록
 

@@ -872,8 +872,6 @@ impl Session {
             &config.features,
             &model_info,
         );
-        let service_tier =
-            get_service_tier(config.service_tier.clone(), &config.features, &model_info);
         let storage_originator = AuthStorageOriginator::from_client_name(&originator);
         let session_configuration = SessionConfiguration {
             auto_compaction_enabled: thread_settings::initial_auto_compaction_enabled(
@@ -892,7 +890,7 @@ impl Session {
             step_settings: Arc::new(StepSettings {
                 collaboration_mode,
                 reasoning_summary: config.model_reasoning_summary,
-                service_tier,
+                service_tier: config.service_tier.clone(),
                 personality: config.personality,
                 approval_policy: config.permissions.approval_policy.clone(),
                 approvals_reviewer: config.approvals_reviewer,
@@ -2104,18 +2102,27 @@ impl Session {
         &self,
         updates: &SessionSettingsUpdate,
     ) -> ConstraintResult<ThreadConfigSnapshot> {
-        let state = self.state.lock().await;
-        let configuration = self.apply_session_settings(&state.session_configuration, updates)?;
-        Ok(configuration.thread_config_snapshot(configuration.environments.clone()))
+        let configuration = {
+            let state = self.state.lock().await;
+            self.apply_session_settings(&state.session_configuration, updates)?
+        };
+        Ok(self
+            .effective_thread_config_snapshot(&configuration, configuration.environments.clone())
+            .await)
     }
 
     pub(crate) async fn thread_config_snapshot(&self) -> ThreadConfigSnapshot {
-        let state = self.state.lock().await;
-        let mut snapshot = state
-            .session_configuration
-            .thread_config_snapshot(state.session_configuration.environments.clone());
+        self.resume_config_snapshot().await.0
+    }
+
+    pub(crate) async fn resume_config_snapshot(&self) -> (ThreadConfigSnapshot, Option<String>) {
+        let configuration = self.state.lock().await.session_configuration.clone();
+        let selected_service_tier = configuration.step_settings.service_tier.clone();
+        let mut snapshot = self
+            .effective_thread_config_snapshot(&configuration, configuration.environments.clone())
+            .await;
         snapshot.computer_use_mode = self.computer_use_mode;
-        snapshot
+        (snapshot, selected_service_tier)
     }
 
     pub(crate) async fn configured_environment_selections(&self) -> Vec<TurnEnvironmentSelection> {
@@ -3715,9 +3722,30 @@ impl Session {
                     metadata: image,
                 });
         }
-        let rollout_items: Vec<RolloutItem> =
-            items.into_iter().map(RolloutItem::ResponseItem).collect();
+        // Azrael prepares the reference context before recording accepted input.
+        // The first-input checkpoint must follow its own pending state instead.
+        let settings_guard = if force_mcp_checkpoint {
+            Some(thread_settings::acquire_persistence_lock(self).await)
+        } else {
+            None
+        };
+        let initial_settings =
+            if settings_guard.is_some() && self.state.lock().await.initial_settings_pending() {
+                Some(thread_settings::applied_event(self).await)
+            } else {
+                None
+            };
+        let checkpointing_initial_settings = initial_settings.is_some();
+        let rollout_items = initial_settings
+            .into_iter()
+            .map(RolloutItem::EventMsg)
+            .chain(items.into_iter().map(RolloutItem::ResponseItem))
+            .collect::<Vec<_>>();
         let persisted = self.persist_rollout_items(&rollout_items).await;
+        if persisted && checkpointing_initial_settings {
+            self.state.lock().await.take_initial_settings_pending();
+        }
+        drop(settings_guard);
         if persisted && let Some(revision) = mcp_revision {
             self.services
                 .executed_tool_calls
@@ -4981,6 +5009,8 @@ impl Session {
             }
 
             state.set_token_info(Some(info));
+            // The local estimate already includes every retained reasoning item.
+            state.set_server_reasoning_included(/*included*/ true);
         }
         self.set_auto_compact_window_estimated_prefill_for_scope(
             turn_context,

@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "official": {
+    "id": "openai.chatgpt",
+    "version": "26.908.40401",
+    "active": true,
+    "local": true,
+    "extensionKind": 1,
+    "labels": [
+      "azrael",
+      "azrael",
+      "azrael",
+      "azrael"
+    ]
+  },
+  "companion": {
+    "id": "azrael-ex-local.azrael-ex",
+    "version": "0.1.0",
+    "active": true,
+    "local": true,
+    "extensionKind": 1,
+    "commands": [
+      "azrael-ex.devinAccount",
+      "azrael-ex.manageAccounts",
+      "azrael-ex.accountQuickPick",
+      "azrael-ex.refreshAccounts",
+      "azrael-ex.openCodex",
+      "azrael-ex.openCodexSettings"
+    ]
+  },
+  "nativeSidebarCommand": true,
+  "accountsWebview": {
+    "viewType": "mainThreadWebview-azrael-ex.accounts",
+    "label": "azrael-ex OpenAI Accounts"
+  },
+  "engine": {
+    "codexHome": "C:\\Temp\\azrael-host-fixture-20260913-1040",
+    "serverVersion": "0.154.0-alpha.6.2",
+    "instanceId": "e88aaf1e-08c3-49a8-adca-e576dacfd178",
+    "loggedOut": true
+  },
+  "loginPerformed": false,
+  "modelRequestPerformed": false
+}

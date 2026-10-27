@@ -23,6 +23,11 @@ path = "tests/mcp_trace_propagation.rs"
 required-features = ["integration-tests"]
 
 [[test]]
+name = "code_mode_tracing"
+path = "tests/code_mode_tracing.rs"
+required-features = ["integration-tests"]
+
+[[test]]
 name = "responses_headers"
 path = "tests/responses_headers.rs"
 required-features = ["integration-tests"]

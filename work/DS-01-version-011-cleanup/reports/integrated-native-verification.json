@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "reused_from": "DT-01-old-log-cleanup",
+  "platform": "Windows x64",
+  "nativeTestsPassed": 120,
+  "nativeExitCode": 0,
+  "nestedTestsIncluded": 5,
+  "matchedInputs": [
+    "complete project-maintenance crate including current nested retirement and committed lock recovery",
+    "Cargo.toml",
+    "Cargo.lock",
+    ".cargo/config.toml",
+    "rust-toolchain.toml",
+    "utils/process"
+  ],
+  "crateSha256": "68fd2d37abc80b2e3ec07ed41a25fa5846a0bd8129af2b83e43f022b4738afe0",
+  "dependencyCommit": "e0c448a0",
+  "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DS-01-version-011-cleanup\\reports\\integrated-native-evidence",
+  "evidenceSha256": "75561c97d9a72b757e2b911a279ea63bcba6448c2cefc5daf59fcfb7108634ba",
+  "unverified": [
+    "Linux runtime",
+    "macOS runtime",
+    "installed product update"
+  ]
+}

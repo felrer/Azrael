@@ -1,18 +1,22 @@
 //! Thread-owned cloud catalog and legacy selected-root cache, guarded by a short-lived mutex.
 
 use codex_core_plugins::PluginCatalog;
+use codex_extension_api::CatalogRefreshBackoff;
 use codex_extension_api::SelectedPluginContribution;
 use codex_mcp::CODEX_APPS_MCP_SERVER_NAME;
 use codex_mcp::McpResourceClient;
 use codex_mcp::McpResourceClientAuthKey;
+use codex_mcp::McpResourceServerCacheKey;
 use codex_protocol::capabilities::SelectedCapabilityRoot;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
+use tokio::sync::Mutex as AsyncMutex;
 
 /// Plugin configuration and caches owned by one thread; mutable state stays extension-private.
 #[derive(Default)]
 pub struct PluginsThreadState {
     state: Mutex<PluginContributorState>,
+    pub(crate) cloud_refresh_lock: AsyncMutex<bool>,
 }
 
 impl PluginsThreadState {
@@ -33,12 +37,14 @@ impl PluginsThreadState {
 pub(crate) struct PluginContributorState {
     pub(crate) plugins_enabled: bool,
     pub(crate) cloud_generation: Option<CloudPluginGeneration>,
+    pub(crate) cloud_retry: Option<CatalogRefreshBackoff>,
     pub(crate) executor_cache: Vec<CachedSelectedRoot>,
 }
 
 /// Keeps cloud plugin metadata within one published auth scope and Apps availability state.
 pub(crate) struct CloudPluginGeneration {
     pub(crate) auth_cache_key: Option<McpResourceClientAuthKey>,
+    pub(crate) resource_cache_key: Option<McpResourceServerCacheKey>,
     pub(crate) mcp_resources: Option<McpResourceClient>,
     pub(crate) catalog: Option<PluginCatalog>,
 }
@@ -50,9 +56,16 @@ impl CloudPluginGeneration {
             .map(|client| client.auth_cache_key_for_server(CODEX_APPS_MCP_SERVER_NAME));
         Self {
             auth_cache_key,
+            resource_cache_key: None,
             mcp_resources,
             catalog: None,
         }
+    }
+
+    pub(crate) fn current_resource_cache_key(&self) -> Option<McpResourceServerCacheKey> {
+        self.mcp_resources
+            .as_ref()
+            .and_then(|client| client.server_cache_key(CODEX_APPS_MCP_SERVER_NAME))
     }
 
     pub(crate) fn is_current(&self) -> bool {
@@ -66,7 +79,7 @@ impl CloudPluginGeneration {
 
 impl PluginContributorState {
     /// Returns the cloud catalog only while it belongs to the live auth generation.
-    fn cloud_catalog(&self) -> Option<&PluginCatalog> {
+    pub(crate) fn cloud_catalog(&self) -> Option<&PluginCatalog> {
         self.cloud_generation
             .as_ref()
             .filter(|generation| generation.is_current())
@@ -85,6 +98,7 @@ impl PluginContributorState {
             .as_ref()
             .is_none_or(|generation| generation.auth_cache_key != auth_cache_key)
         {
+            self.cloud_retry = None;
             self.cloud_generation = Some(CloudPluginGeneration::new(mcp_resources));
         }
         auth_cache_key
@@ -103,6 +117,7 @@ impl PluginContributorState {
         else {
             return false;
         };
+        generation.resource_cache_key = generation.current_resource_cache_key();
         generation.catalog = Some(catalog);
         true
     }

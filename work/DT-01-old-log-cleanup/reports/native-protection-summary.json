@@ -1,0 +1,2752 @@
+{
+  "at": "2026-10-25T13:31:07.862Z",
+  "itemCount": 730,
+  "groupCount": 371,
+  "liveItems": [
+    {
+      "id": "00036e18b9810d9658b861e8a4ae49d1e37572158941084f6b3b46d790f84527",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BO-02-tps-history\\runs\\acceptance-schema-r1",
+      "group": "run:BO-02-tps-history:acceptance-schema-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "01c99d154bd8a07bc5403c93e2737302457e8e8a296d19f5f9c59dab3248b754",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\ledger-producer.json",
+      "group": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0232404c462d1e3052914993aea40a26f569b2b016c2e5f9d836c958acf400ae",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\missing-member-fix-20261020-r2",
+      "group": "run:CR-01-build-legacy-cleanup:missing-member-fix-20261020-r2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "03c48071372e4c8d144f7c5e130fdda9ba126db9fe350fcdef9677132e6a47a4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-source-2",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-source-2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "04450ba51235d61f11d4c70b7971bc25a6e8c737666e2ecfda30269e932720dc",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\cleanup-1792389201814-5b4f7900\\reports",
+      "group": "run:CO-01-design-preview-modules:cleanup-1792389201814-5b4f7900:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0783bd3f422597e520a9b200e654e70766735f0628708ea264efa99b686f58af",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-5",
+      "group": "run:CL-01-question-withdrawal:native-5",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0a40a14fe0b1ed0c06b8404e7fa3cd6b80654ea866ae8c9aac856fb3b150ddc0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\protection-release-20261020-r1",
+      "group": "run:CR-01-build-legacy-cleanup:protection-release-20261020-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0aebd7f7572cf57b31e90d4187a974b9751903250122be2c305df23804517f6a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-1-zero-tests-4sHaVX",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0b390ad8da9e91307a5451537a2514f9d36545e5346283544be0573a671cad2f",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DG-01-chat-history-performance\\runs\\20261025T071825635Z-88a6cccc-52c2-4d76-9630-01aaa6e8f0ab",
+      "group": "run:DG-01-chat-history-performance:20261025T071825635Z-88a6cccc-52c2-4d76-9630-01aaa6e8f0ab",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0cdda5dcce85de0b0792c781e4be460a27c0801dda44a64a693de49ebae9d068",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs",
+      "group": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0e09a14e3536ad8d644ad94a4f795f9c9054cf202093a5e0655614a74ff10d9a",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CU-01-laio-oauth-store-review/native-v1",
+      "group": "run:CU-01-oauth-native-v1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22a",
+      "group": "run:CX-01:shutdown-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "15cb7e68734a14d31adee9ac5b611a23031fde6b4f64126a49d5894f54283b7c",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\source-checks-r1",
+      "group": "run:do1:source-checks-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "18f15fc18d9e4c4d1668b299de249c283134d53cf423ec26e66c9a4f4ade6a9f",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\test-scope-reduction-policy",
+      "group": "run:test-scope-reduction:policy",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "1b150051a2e2435bfcc8c4197050952eddf4644aa1760d3770dcbc951fcdec89",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\source-checks-r4",
+      "group": "run:do1:source-checks-r4",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "1b738c307901c1ce1472cb68cd09d05fefab38d569d93552b5db894e5f2fb3f5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r2",
+      "group": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "1b98935d39844258bf8319b9ca2cd2faeb44e61927d1a20e824ee5815a051ec9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r1",
+      "group": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "1bc514877cab29986902762b1bfe914c87a351c0a89829c58edbcee26dc6c767",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-ui-debug-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-ui-debug-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "1c70f92c4a0ebcc83138c4bdd270008dae072400828f48c92161b1cd8dae0fd6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\temporary",
+      "group": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "1e228adb298f8d85339b350f930f5d7956b0ad10ef675d25c59edc64ef60eb5a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-management-root-r1",
+      "group": "run:CF-01-window-use-admin-setup:20261019-cache-management-root-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "1fdb459d79ab87366ff34f6bfa55baad3b65f094ae4e05b79eceb0adadc681f0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\protection-native-20261020-r1",
+      "group": "run:CR-01-build-legacy-cleanup:protection-native-20261020-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2013907533bd0a73faf5ed4903c2e6ac709fe2c8e1069e454a3c8bfc4125a862",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\schemas-1",
+      "group": "run:CL-01-question-withdrawal:schemas-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "247b29defa3fc591108a510252290e3c4d6220b45726ec88228297ba1d5da48d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-8",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-8",
+      "known": true,
+      "generated": true,
+      "references": [
+        "run:DC-01-queue-question-wait-diagnosis:native-9:Passing full queue scope; product bytes unchanged"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "24a18a5873d27e6324716e4a2e6be768a09832215690f56290c20484e6ec2e7e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\compile-scope-2",
+      "group": "run:CL-01-question-withdrawal:compile-scope-2",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "26c8a73cef545c6c36ddd9f09bc6efa0c535f69366b3405eb06e4aab772b7ae3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r3",
+      "group": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r3",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "26f7a269f3b3d08104c67ecfda52468961b6a83752d3281826e5d24e8e35b104",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "group": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2711f10e8169123b83b6ec408c2883fb35d26c74357aac82984b818926a9cad1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\integration",
+      "group": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "27c7d592aab897d01db506859af355f295d2f500a8b4cd5cb4d12d11febbb3f2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\reports",
+      "group": "run:CN-01-catalog-modules:unit-1792388389368-8c1d01d6:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "293dfb90102112c81e3027c7f7961a4620b3be2a688af9b587394784ac1aa070",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-2",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2a45f8d2ac3f59f3f5d813e708c0606066d32dc051fc7e46109bfa0891cff3e1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003606886Z-fbf867fa-5714-4a31-87d4-40c9144494bb",
+      "group": "run:CM-01-instruction-library-experience:20261019T003606886Z-fbf867fa-5714-4a31-87d4-40c9144494bb",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2ae377ce9dc9071806daf6a3154483d25f449b2125195495da99736ed1305c88",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-reconnect-r1\\producer.json",
+      "group": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2c25c0bf72fc4a9fbd59c22eb06cf02bd223a941fed246e09cf2735016acc451",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-u23-registry-r1",
+      "group": "run:CF-01-window-use-admin-setup:20261019-u23-registry-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2c72d018a367f10fd0849348474046d494ca989e11453a99253dd595b83c241b",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-1",
+      "group": "run:CL-01-question-withdrawal:native-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2cc8b85e1b3658c9c3f9bec19639f79cc9eaa597c0c2f08f6e5c4e743fd9a920",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\sdk-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:sdk-1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "run:DC-01-queue-question-wait-diagnosis:native-5:SDK pass for identical frozen source",
+        "run:DC-01-queue-question-wait-diagnosis:native-4:Reuse SDK compatibility pass for identical frozen models",
+        "run:DC-01-queue-question-wait-diagnosis:native-6:Reuse SDK compatibility pass"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "2e4fb4120d4fab435228708bb23e459b167bc0f9134e8217284472706adb2554",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-source-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-source-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "2f3825b47d072249bc002366bd66ddbeefd9862aae7c857a4390f7cfb662b0df",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\permission-disabled-host\\runs\\rmvl4okue",
+      "group": "run:permission-disabled-host:rmvl4okue",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "307040d766587465cc26c1ee7fb7fe48ddfaebfadf8c07d06d4a677c02af3417",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\network-r1",
+      "group": "run:do1:network-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "3148b23e116352d06d334f0fcc30328d552996db08cc237e7e048f8918472436",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-window-native-approval-render\\runs\\20261019T014508252Z-c874bae8-cc27-4675-a709-f239e279a92a",
+      "group": "run:verify-window-native-approval-render:20261019T014508252Z-c874bae8-cc27-4675-a709-f239e279a92a",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "31b28ff0ca02c3316b0844f9693c50ff71faee9287a14d0a34d79972387a4982",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\ledger-unit.log",
+      "group": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1",
+      "group": "run:CX-01:shutdown-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "3933b39447b18380faf9cebf5761aaaf361772739bc1b1d3816caa6fdde54e07",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "group": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "3acc71d235a128bfc5c2c89f9b93e4316b586de491305a4fcac33fb372f34135",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-4c720674",
+      "group": "run:CM-01:host-4c720674",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "3ad1102519a71b4a01ad9db41e5cfd664460b04d320eeb63291da376f52ee6bc",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\question-withdrawal\\evidence",
+      "group": "work:CL-01-question-withdrawal:evidence",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "3c0f1bb6f6b270228d28417091e93eb3672258264db6edc3cd566f00bfe8e89a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DH-01-project-storage-review\\runs\\retire-old-v2",
+      "group": "run:DH-01-project-storage-review:retire-old-v2",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work:DH-01-project-storage-review:retention:Current storage-review work consumes immutable deletion/verification/failure records until remaining32 partitions and additional approval are resolved"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "3cdc472d9d129d7dad5ee41ddc874a3007caa515ff1a28f7e34d6dee42b9b165",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r2",
+      "group": "run:engine-check-retirement:r2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "3e2717618a0287a4f8b579b4f47b870d843c9f92bf8fa5b202e9936adde80f46",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\logs",
+      "group": "run:CN-01-catalog-modules:ui-1792389952549-13bf1059:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "3e7fc5d347e45038e1cf16e11ed8571ff400f1cb3a136bfc942d18d0cec0f191",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\compile-scope-3",
+      "group": "run:CL-01-question-withdrawal:compile-scope-3",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "42413eec7c2a4f241077bcaaa885e3688e68d37cb34fe37b47759df0f1e747bb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\source-checks-r8",
+      "group": "run:do1:source-checks-r8",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "4262d39765dea69f0d19ac9303ed42afb321c0d1eb87580bbfa40c5b70720319",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\formal-custody-handoff-20261024-r3",
+      "group": "run:DN-01:formal-custody-handoff-20261024-r3",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "440726894d12631238b703e0a0a337a2425b47aec35d3b60cafe11e906adbda5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "446a1d79117a6f2cfe3b6f45dc5ee2d05f93d7552dda154b4d275ecf1d811e88",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-0-type-failure-oGaCIk",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "447a634153854806dc68d97f356957164ee48c9797ef61d97f73e440756f0a3f",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\cleanup-20261020-r1",
+      "group": "run:CR-01-build-legacy-cleanup:cleanup-20261020-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "4c378ff1dd59ed2a232fc2c15c4dfe510e81b118f423d5fa7343cbf26dbabfec",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-legacy-custody\\runs\\bwd2",
+      "group": "run:DM-01-legacy-custody:bwd2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "4f70c3ccd72d0372f849fb02d5a723ccab2705f541e48db83554dc7706282199",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\logs",
+      "group": "run:CN-01-catalog-modules:ui-1792386502416-54118d51:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "4f8971eba4b604391a5d6104e6b4809e1ba479639e411c05d90f81740527ff54",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-source-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-source-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "52d4173bb6affcc8b16dd81ea005be62fd91fb20cbb5155896f0f98e358ab03d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "group": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "5314ed8c03bff8068e60ffd63fbff37a6d9ff2e7c2662c8349fa4eb84acd0dae",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-7",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-7",
+      "known": true,
+      "generated": true,
+      "references": [
+        "run:DC-01-queue-question-wait-diagnosis:native-8:Passing accepted/compact/turn scopes reused"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "53665fd6124e17d06c9a3defc33f2a67fc051e11393362d0eff31590454d081e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\reports",
+      "group": "run:CN-01-catalog-modules:ui-1792388685132-f2cce11a:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "55852fe10d90b2682ffa0b6d5ee257ba2b97d699cc359169ea2780af91a398c1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\command-contract-7AAgeo",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "564edbfb9742ba934fc27fe7cbdbbf353fba8e3988af51903ba39cfcf1cefd5f",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CR-01-build-legacy-cleanup/runs/group-tool-review-20261019-r1",
+      "group": "run:CR-01-build-legacy-cleanup:group-tool-review-20261019-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "58118fb04717e6571060b8f241d35de987c6697419f94df1534712aa74e12bf5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-4",
+      "group": "run:CL-01-question-withdrawal:native-4",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "58c57aaf638ab56e49b7a19be849d39243453ad8acddd813b415c2bd8f1c9538",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\reports",
+      "group": "run:CN-01-catalog-modules:unit-1792386245807-e568e0eb:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "594056286edf8e5988327c3f89a84b97c83d7aae2ba2c18de772010fb2479372",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DD-01-anthropic-session-failure\\runs\\20261022T123636807Z-f1487c6a-9a52-42e2-b6e0-963601bb11d4",
+      "group": "run:DD-01-anthropic-session-failure:20261022T123636807Z-f1487c6a-9a52-42e2-b6e0-963601bb11d4",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "5ad08bf9128e94612acedf470992e2efe740efe2cf2963d8e45b246f0da6de97",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/logs/verification-evidence/build-flow-20261021-r1",
+      "group": "work:CR-01-build-legacy-cleanup:build-flow-evidence-20261021-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "5e2f6877ef7af55b47f9373dc0bb91ce41d43053ecfad2d69bfc4e0d3e238e39",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-cargo-recovery-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-cargo-recovery-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "5f741468d3934650540f8b552154db2aba7f63c832e295d22fc066712bccdd00",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\source-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:source-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "618f562416c0983f9bc182edfcb3b361e4db6b4856b20e903c6bdf197d17f723",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CU-01-laio-oauth-store-review/native-v2",
+      "group": "run:CU-01-oauth-native-v2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "61cc5d1a80d2207607ada27f9e43607b7cdfff8ce67941054184b4c1589a9306",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-reconnect-r1\\integration",
+      "group": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\080d3acc97d040d1a5b0cc7d92315698",
+      "group": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "66721d2c79e7728a0dbb2fe24b6511a5abd23c1c28f92d8a0c7aaed31f8b9d0c",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports",
+      "group": "run:DN-01:approved-log-retirement-20261024-r2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "66a4a91a7f2d16980a341022b72464854c76aee59bffc20c1304c3e71cc18dfd",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-5",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-5",
+      "known": true,
+      "generated": true,
+      "references": [
+        "run:DC-01-queue-question-wait-diagnosis:native-7:Passing async-question scope reused",
+        "run:DC-01-queue-question-wait-diagnosis:native-6:Reuse successful async-question command from interrupted aggregate"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "67a39a25ec2c696067682f7c1b0c0e32610f28d11eca27578a37c87179fe74b1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-1-inconsistent-interruption-ELN4I2",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "682070e6f10551014745fa40a36960479b50f23579ad7e675542efe13239edbc",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\boundary-retry-20261020-r1",
+      "group": "run:CR-01-build-legacy-cleanup:boundary-retry-20261020-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22b",
+      "group": "run:CX-01:shutdown-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "6c1c4117994214617a879a7b8ff6af30a2b8d35926efabb8b45a53d77b9da1f0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-5",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-5",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "6fc9d33c004130c08dc80063e00a82657db16ea1b18638f8c7bdd7d145df2e09",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\logs",
+      "group": "run:CN-01-catalog-modules:ui-1792388685132-f2cce11a:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "7102ab138d62035e3b6504a26b23c1c1b60c80772e7140f7fdc03889b36087de",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-6",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-6",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "73cac88d27a51917e60ed2d181a34cad7d938cd4f1ed241a776bac4743fdb4ae",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\compile-scope-1",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "76d18fdf0b07fab872cb666946601e4e40a515056a53f4a353057b9d1cc308d1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-native-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-native-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "77f1a32c05ec077e34f5f126e59d50900279511b93cde715dcda541e2f7b15a3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002847408Z-54f38789-20c8-463a-8270-334f7d90aa08",
+      "group": "run:CM-01-instruction-library-experience:20261019T002847408Z-54f38789-20c8-463a-8270-334f7d90aa08",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "786f406c2c886dc58b016cb2fda2bc42f9c253ab9adc20d10a8d3dc12c629256",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-0-missing-tool-LMwZMh",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "7a84aaf689442a17334539eebc028b94d5e6c1772a2b4a7d060997f758c73558",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports",
+      "group": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "7b4b7554e09560ec1d1294e885172bd267d7996c339c8f04f4ee7bb35a36a0f0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\logs",
+      "group": "run:CO-01-design-preview-modules:unit-1792388012948-f16db1b1:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "7e665271d02493698005aaec0e3b9fc3c412374990142bda1ba3126e783f709d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-3",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-3",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "7fc02538569fa839dfc4f735dab38b8c92c4790910c7d1eb67beffea882a5308",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-module-cache-management-r1",
+      "group": "run:module-cache-management-r1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "82c7d2ec3c739d120b360b174d598f180cc0ffb6dad2a690f49d39499bce893a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\logs",
+      "group": "run:CO-01-design-preview-modules:ui-1792388015827-e21688e9:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "849effa4a54daf7b1ba4076dae4d222638b2ea6b92a965b5099fe9b6e21714e3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\parent-request-grouping-evidence\\runs\\20261022T103019893Z-3f4f9f2f-2157-499c-b26f-7935f0d18907",
+      "group": "run:parent-request-grouping-evidence:20261022T103019893Z-3f4f9f2f-2157-499c-b26f-7935f0d18907",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "88edf1843035d04d8f23818c168d58e8e109e656581acc554e980bb0f38e1aa7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\reports",
+      "group": "run:CO-01-design-preview-modules:unit-1792388012948-f16db1b1:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "8bf4051754ad8ebea0aabb2920f0c87b478ba3d599d2977532780e4a86092ef2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1",
+      "group": "CF-01-cache-lease-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "8c4602b8f114967076331c45ec0264ff5ae6e9dd620ebb4d129bb84dd38e1273",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-question-withdrawal-render\\runs\\20261023T012125487Z-5dc392cb-0f9e-4306-b8b2-2be474dbf495",
+      "group": "run:verify-question-withdrawal-render:20261023T012125487Z-5dc392cb-0f9e-4306-b8b2-2be474dbf495",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "8e58862049c6340a6eaec67efe1b3cfc82e1ff8b017a0d3ffda115b3d112dbfa",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/DH-01-project-storage-review/runs/retire-old-v3",
+      "group": "run:DH-01-project-storage-review:retire-old-v3",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work:DH-01-project-storage-review:retention:Current approved three-root cleanup consumes immutable v3 native decisions and restoration evidence"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "93c87190a7f4cffab5d2b2bf9f74dd5afb3279b302125a9c9f0dae8c2523f0ae",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DG-01-chat-history-performance\\runs\\20261022T151714784Z-2e67a52a-d6fb-40c7-8ed1-3c610b84ad62",
+      "group": "run:DG-01-chat-history-performance:20261022T151714784Z-2e67a52a-d6fb-40c7-8ed1-3c610b84ad62",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "976cc076db16517789e84e6e2bf9e6cb84e2339188f072fb2e17bc06be9e0793",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\temporary",
+      "group": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "9a10a63181a722da8b10b6cea0e1c27e174ab464ba0af784e4d02004e560b6fe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\temporary",
+      "group": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "9ad3b3e0a08067e21813a29c74319f500411a6fe3136fed095c0d6a123fc5fca",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-native-prep-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-native-prep-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "BB-01-composer-scope-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\BB-01-composer-scope",
+      "group": "BB-01-composer-scope-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BB-01-btw-scope-diagnosis/02-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-engine-original",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\engine-original-ccbcbf93",
+      "group": "version:engine-original-ccbcbf93",
+      "known": true,
+      "generated": true,
+      "references": [
+        "engine/SOURCE.json"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-error-specificity-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\error-specificity\\runs\\01\\logs",
+      "group": "work:BU-01-error-specificity-run-01",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/02-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-error-specificity-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\error-specificity\\runs\\01\\reports",
+      "group": "work:BU-01-error-specificity-run-01",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/02-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-02-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\02\\logs",
+      "group": "work:BU-01-refusal-cause-run-02",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-02-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\02\\reports",
+      "group": "work:BU-01-refusal-cause-run-02",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-03-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\03\\logs",
+      "group": "work:BU-01-refusal-cause-run-03",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-03-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\03\\reports",
+      "group": "work:BU-01-refusal-cause-run-03",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-04-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\04\\logs",
+      "group": "work:BU-01-refusal-cause-run-04",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-04-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\04\\reports",
+      "group": "work:BU-01-refusal-cause-run-04",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-05-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\05\\logs",
+      "group": "work:BU-01-refusal-cause-run-05",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-05-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\05\\reports",
+      "group": "work:BU-01-refusal-cause-run-05",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\01\\logs",
+      "group": "work:BU-01-refusal-cause-run-01",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BU-01-refusal-cause-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\01\\reports",
+      "group": "work:BU-01-refusal-cause-run-01",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "BW-01-final-verification",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\bw3",
+      "group": "work:BW-01-profile-dedup-run-03",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BW-01-openai-profile-context-analysis/01-plan.md: verified source and check evidence pending independently preserved installed-candidate acceptance"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "CG-01-implementation-01-files",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CG-01-startup-session-performance-review\\runs\\implementation-01",
+      "group": "CG-01-implementation-01",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/CG-01-startup-session-performance-review/01-plan.md: exact tested source and verification evidence; retain until packaged-host acceptance"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "CR-01-legacy-inventory",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\inventory-20261019-r1",
+      "group": "run:CR-01-build-legacy-cleanup:inventory-20261019-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "CR-01-legacy-module-preview",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\module-preview-20261019-r1",
+      "group": "run:CR-01-build-legacy-cleanup:module-preview-20261019-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "CR-build-improvements-evidence",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CR-01-build-legacy-cleanup/runs/build-improvements-r1",
+      "group": "run:CR-01-build-legacy-cleanup:build-improvements-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "CT-01-evidence-0",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/orphan-output-recovery/runs/20261019-r1",
+      "group": "CT-01-orphan-output-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "verification:CT-01-orphan-output-recovery"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "CT-01-evidence-1",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/orphan-output-recovery/runs/20261019-r2",
+      "group": "CT-01-orphan-output-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "verification:CT-01-orphan-output-recovery"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "CT-01-evidence-2",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/orphan-output-recovery/runs/20261019-r3",
+      "group": "CT-01-orphan-output-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "verification:CT-01-orphan-output-recovery"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "CT-01-source-0",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/ct01",
+      "group": "CT-01-orphan-output-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "verification:CT-01-orphan-output-recovery"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "CT-01-source-1",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/ct01-r2",
+      "group": "CT-01-orphan-output-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "verification:CT-01-orphan-output-recovery"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "CT-01-source-2",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/ct01-r3",
+      "group": "CT-01-orphan-output-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "verification:CT-01-orphan-output-recovery"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "DB01-native-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DB-01-window-child-logoff\\runs\\native-r1",
+      "group": "run:DB01:native-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "native verification pending"
+      ]
+    },
+    {
+      "id": "DB01-native-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DB-01-window-child-logoff\\runs\\native-r2",
+      "group": "run:DB01:native-r2",
+      "known": true,
+      "generated": true,
+      "references": [
+        "native verification pending"
+      ]
+    },
+    {
+      "id": "DK-01-native-backend-fixtures",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\native-backend",
+      "group": "run:DK-01:native-backend-fixtures",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DK-01-backend-verification-active"
+      ]
+    },
+    {
+      "id": "DK-01-private-skills-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\private-skills-20261025-b1b49cd2\\logs",
+      "group": "work:DK-01:private-skills-evidence-20261025",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/DK-01-instruction-catalog-diagnosis/01-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "DK-01-private-skills-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\private-skills-20261025-b1b49cd2\\reports",
+      "group": "work:DK-01:private-skills-evidence-20261025",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/DK-01-instruction-catalog-diagnosis/01-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "a0679b7ab589b502f120619ceedac0eebd852790966595cc4ec5be9e1fa20e47",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1",
+      "group": "work:engine-check-retirement-r1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "a096977b03fa1788ab4e99dea5b874e1d05676728c1ef9e0b4f84768145e5592",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\source-checks-r7",
+      "group": "run:do1:source-checks-r7",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "a25d09e7ac6abb9bda85b02a317b8e9cb311770bd8802d8cec50915764d7f51f",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\question-withdrawal\\source-1",
+      "group": "run:CL-01-question-withdrawal:source-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "a2ea2b8860ed63a6f02d9a9c5be35df57822f364af916d74b34789e91ba04d06",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\reports",
+      "group": "run:CO-01-design-preview-modules:ui-1792388015827-e21688e9:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "a414f8fb761a026071c51d4bcb0aa3e3fad30905e2351ecd0a5828f0f5a7a5fb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003712055Z-ed612182-8ec1-4aa2-9fd3-bbc09b3f92df",
+      "group": "run:CM-01-instruction-library-experience:20261019T003712055Z-ed612182-8ec1-4aa2-9fd3-bbc09b3f92df",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "a71e8532f40df25890b0e6a48992ec6c66f405f4624ac641acaed70e8a3bf0bc",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\service-404168de",
+      "group": "run:DK-01-instruction-catalog-diagnosis:service-404168de",
+      "known": true,
+      "generated": true,
+      "references": []
+    },
+    {
+      "id": "a79cdcd163a1398514f8ec463a73c10956760ab58d9fb123a1776bb1e34e4bf5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-3",
+      "group": "run:CL-01-question-withdrawal:native-3",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "a88a452f3f8b123dd3a93b69aba6f73e04a813fea402d1a60494b1c96e5e4896",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893",
+      "group": "run:CM-01:host-35dac893",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "aa23be1c2f30a1c4318054842e90c4e3d71ba50e22c8344c08d712c33d2ba656",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\producer.json",
+      "group": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "abd070bfee08f4a8b8320ca1f5a16c3d3c3f2bedbefc538cdb113b1210279c51",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\logs",
+      "group": "run:CN-01-catalog-modules:unit-1792386245807-e568e0eb:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ad07ecd044fe288480c4481992bd865a94e2c4e672c5a6e0795b1998c65084e2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports",
+      "group": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ad0eb15ef4253ec46a81e264337b09284f91ff2133cba14d6e33d5a82e526db6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z",
+      "group": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ad4850f2a3fdfe07bea3fa6c8711c91268759aafc226d7a10481c3e00422581e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-2",
+      "group": "run:CL-01-question-withdrawal:native-2",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "af6afe09e0817c2479af67f36b75cfdc5285a7d98373ff1b3aaf8592d9db00bd",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-6",
+      "group": "run:CL-01-question-withdrawal:native-6",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "afef3ab108b0bc9770a272b20aec663e01bd9c0d234f30300f773b078a92a32d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\logs",
+      "group": "run:CN-01-catalog-modules:unit-1792388389368-8c1d01d6:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ar01-parent-request-usage-20261019-report",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\parent-request-usage-20261019",
+      "group": "ar01-parent-request-usage-20261019",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/AR-01-root-child-mail-analysis/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "ar01-parent-routing-evidence-20261019-files",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\parent-request-routing-20261019",
+      "group": "ar01-parent-routing-evidence-20261019",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/AR-01-root-child-mail-analysis/03-plan.md",
+        "docs/architecture/root-resume.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "b328b365c8a393d80b7680cfc4d009497c920a7d4d2cbb848bbfbd1621073398",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002152367Z-722d1796-bbc6-4543-b4ba-c8faaf2e8c49",
+      "group": "run:CM-01-instruction-library-experience:20261019T002152367Z-722d1796-bbc6-4543-b4ba-c8faaf2e8c49",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "b446598e10fd312120ad65c85f4313f16043a5d7d726680c5c88fc1233e373e6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-question-withdrawal-render\\runs\\20261022T185807581Z-c278d560-3203-4bfa-90d2-e0fdc15386a3",
+      "group": "run:verify-question-withdrawal-render:20261022T185807581Z-c278d560-3203-4bfa-90d2-e0fdc15386a3",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "b4732815775cea576dcc199efb2475f7cf87508f90b0f9dce2d0712533ade415",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\test-scope-reduction-r1",
+      "group": "run:test-scope-reduction:r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "b6d79d0eef69a66f0022eb427a6b13d3b1bce8093e917a7ba13d770306ca6e1d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-cargo-recovery-2",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-cargo-recovery-2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "b7ede202355675f4e9dbfcadf9e8ef93b2e26417b2c2af9aeb81a5f08c015b25",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034436213Z-c7b81c71-30b4-45d2-adcf-729533a9736e",
+      "group": "run:BB-01-btw-panel-route:20261019T034436213Z-c7b81c71-30b4-45d2-adcf-729533a9736e",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ba4391a7e3361ae47756c0768c4cb3e0de5d98f5b2ab903080f349704788468c",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-yazl\\runs\\a",
+      "group": "run:instruction-yazl-a",
+      "known": false,
+      "generated": true,
+      "references": [
+        "version:instruction-external-iy17a:Active verification extension and acceptance evidence retained for this installed profile"
+      ]
+    },
+    {
+      "id": "bb6d26b34d164a587cb96a9a2338eb55211a7e4a05a76b792d731445ea046097",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\20261022T184957405Z-92f56840-876a-411c-b799-5bbed9101c3b",
+      "group": "run:DK-01-instruction-catalog-diagnosis:20261022T184957405Z-92f56840-876a-411c-b799-5bbed9101c3b",
+      "known": true,
+      "generated": true,
+      "references": []
+    },
+    {
+      "id": "bd7febd1ead0dd932a1f4e0f87aeac0ea8bf437c9806393d8b71f88f3ab0080b",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption",
+      "group": "run:BI-01-project-maintenance:20261019-full-adoption",
+      "known": true,
+      "generated": true,
+      "references": []
+    },
+    {
+      "id": "bd8e8ebdb65dcdfe31668ba4939da63c5bb296ebda70dd36615936dcceddd3bf",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-4",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-4",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "bdde5e2ea2e40aaa3f21a53041e2bc7611e760c5b42882f7cb510c274f12fa57",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\reports",
+      "group": "run:CN-01-catalog-modules:ui-1792386502416-54118d51:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "be906b29f70c655c7c9d5bb7916e3f3846586033231196e5719b2878794a1210",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/DH-01-project-storage-review/retention",
+      "group": "work:DH-01-project-storage-review:retention",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "bec8232adf1002f958850f7fa4030de0b336c5f6ea4e18957fb5ff9b56de2caf",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-9",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-9",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "bn01-scope-fix-render-01-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BN-01-image-sketch\\runs\\scope-fix-render-01",
+      "group": "bn01-scope-fix-render-01",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "bn01-scope-fix-tests-01-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BN-01-image-sketch\\runs\\scope-fix-tests-01",
+      "group": "bn01-scope-fix-tests-01",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "bn01-scope-fix-tests-02-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BN-01-image-sketch\\runs\\scope-fix-tests-02",
+      "group": "bn01-scope-fix-tests-02",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "bx01-retirement-control",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BX-01\\control",
+      "group": "bx01-retirement-evidence",
+      "known": true,
+      "generated": true,
+      "references": [
+        "BX-01 verification reproduction and diagnosis"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "bx01-retirement-evidence-files",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BX-01\\evidence\\retirement-01",
+      "group": "bx01-retirement-evidence",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/BX-01-legacy-unused-feature-audit/01-plan.md: retained source regression evidence"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "c02a8fd87a5d0b0b3c8e29a894834ab28b1dfdaeb731bb3402ffb58c4ee1d26f",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\wd18",
+      "group": "run:window-use-diagnostic-20261018-r1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "c1608b9f90240ffcb88eae2c430b1c8bfd14c88d9a03863bc9744ae1a3514e43",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-reform\\runs\\postinstall-retirement-r1",
+      "group": "run:DM-01-boundary-reform:postinstall-retirement-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "c20dee209737e36c0291c3b2bd161eee4fa899975f2b49e6f476011c2652d263",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\20261022T184950908Z-b77d418f-1d21-4bdd-82a5-5aefa8ade0ab",
+      "group": "run:DK-01-instruction-catalog-diagnosis:20261022T184950908Z-b77d418f-1d21-4bdd-82a5-5aefa8ade0ab",
+      "known": true,
+      "generated": true,
+      "references": []
+    },
+    {
+      "id": "c29cb38526f41df07fea4250181202646b4470bc19198bae128b6cc53e28f4e6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\catalog-21ffadd3-a512-483c-83fb-a1e2817e6445",
+      "group": "run:DK-01-instruction-catalog-diagnosis:catalog-21ffadd3-a512-483c-83fb-a1e2817e6445",
+      "known": true,
+      "generated": true,
+      "references": []
+    },
+    {
+      "id": "c356466f201aa06a49eded273de04b6e676903151353596698aabcfbc7264ad2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e10",
+      "group": "run:windows-2026.0.10-host",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "c442358784b16c124a7149b836ab375494e7c640b6b117b3d17fa1a9e0771293",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\cargo-preflight-1",
+      "group": "run:CL-01-question-withdrawal:cargo-preflight-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "c6077704e7f7298ec791e0da8adf54a2bf1b3b2c9189e4b7ef87ee044d7f876b",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\missing-member-fix-20261020-r1",
+      "group": "run:CR-01-build-legacy-cleanup:missing-member-fix-20261020-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "c651050f2dd90c849b6961f3a7977be7f4dd3c29fa9c2ce087d96437c7b20463",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\unknown-proof-refusal-20261023T144746673Z",
+      "group": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "c98231fea92bf529b3719467ff762c529f40879fa49bad74586b0477921d51ec",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\engine",
+      "group": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:engine",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "c9fef60504b78f6f7973779c117caabd76d7df4ec93de98de50e709b4f6e6189",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-0-interruption-oFmHKl",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ca460f01a8504e94133fbd90d6c5440d2c639f1f943088bf8154daf700fd808a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\reports",
+      "group": "run:CN-01-catalog-modules:ui-1792389952549-13bf1059:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "cb02899e98937fe878c6ecb20d477f5496adce810c2a38dca357cc83ae001d7c",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\logs",
+      "group": "run:CN-01-catalog-modules:ui-1792388453979-5e7b05a3:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "cb73558e68d6518b85871f8d5503e7241e7b150f31f71e02f03a1b341b3465fb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-4",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-4",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ce053e28890f8db06867678494c26c0bc927dd87b6f4d13e8f24f98eb38570d5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\reports",
+      "group": "run:CN-01-catalog-modules:ui-1792388453979-5e7b05a3:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ce333fa0e83bd44dd521c2685cb628936e11f37428eeb5ab808c4688832fb754",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-approval-async-ui\\runs\\20261019T014329625Z-001257fa-fd59-4631-b8c1-d7aef3d5b167",
+      "group": "run:DU-01-approval-async-ui:20261019T014329625Z-001257fa-fd59-4631-b8c1-d7aef3d5b167",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ceae4fb64b7d55e23ee7ebd009a5cd897213aadf0bf29f881ff680efbe20cc63",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\types-91c2c6e7",
+      "group": "run:CM-01:types-91c2c6e7",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "cecb6f43e39cc1e48f7069bb01f31286aed1c6296c2d177ed3377b94411d2ddd",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-source-3",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-source-3",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-async-approval-host-test-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\tests",
+      "group": "cf01-async-approval-host-tests-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "CF-01 async Window Use root integration acceptance"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-bootstrap-length-r1-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-bootstrap-length-r1",
+      "group": "cf01-bootstrap-length-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "retained-bootstrap-source-verification",
+        "future-immutable-package-acceptance"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-logoff-verification-files",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\window-use-logoff-cleanup-20261018",
+      "group": "cf01-logoff-verification",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/CF-01-window-use-admin-setup/02-plan.md:required verification and own-only patches; live acceptance and separate commit remain pending"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-queue-integration-r1-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-queue-integration-r1",
+      "group": "cf01-queue-integration-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/CF-01-window-use-admin-setup/03-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-reconnect-r1-manager-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-reconnect-r1\\manager",
+      "group": "cf01-reconnect-r1-manager",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-u21a-live-retry005-io-0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-attempted.json",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005-io-1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-command.json",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005-io-2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-completed.json",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005-io-3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-delivered.json",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005-io-4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-events.jsonl",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005-io-5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-phase.json",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005-io-6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-readback.json",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\reports\\retry005",
+      "group": "cf01-u21a-live-retry005",
+      "known": true,
+      "generated": true,
+      "references": [
+        "live-session7-unknown-input-diagnosis"
+      ]
+    },
+    {
+      "id": "cf01-viewer-live-r1-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\logs",
+      "group": "cf01-viewer-live-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "active-f-diagnostic-fixture",
+        "pending-fresh-child-acceptance",
+        "user-retained-verification"
+      ]
+    },
+    {
+      "id": "cf01-viewer-live-r1-outputs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\outputs",
+      "group": "cf01-viewer-live-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "active-f-diagnostic-fixture",
+        "pending-fresh-child-acceptance",
+        "user-retained-verification"
+      ]
+    },
+    {
+      "id": "cf01-viewer-live-r1-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\reports",
+      "group": "cf01-viewer-live-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "active-f-diagnostic-fixture",
+        "pending-fresh-child-acceptance",
+        "user-retained-verification"
+      ]
+    },
+    {
+      "id": "cf01-viewer-live-r1-temporary",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\temporary",
+      "group": "cf01-viewer-live-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "active-f-diagnostic-fixture",
+        "pending-fresh-child-acceptance",
+        "user-retained-verification"
+      ]
+    },
+    {
+      "id": "cf01-viewer-revalidation-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-revalidation\\logs",
+      "group": "cf01-viewer-revalidation-evidence",
+      "known": true,
+      "generated": true,
+      "references": [
+        "source-native-verification-and-pending-installed-acceptance"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-viewer-revalidation-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-revalidation\\reports",
+      "group": "cf01-viewer-revalidation-evidence",
+      "known": true,
+      "generated": true,
+      "references": [
+        "source-native-verification-and-pending-installed-acceptance"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "cf01-viewer-u22c-payload",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c",
+      "group": "cf01-viewer-u22c-version",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "blocked"
+    },
+    {
+      "id": "ch01-runtime-and-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\sky-policy-package-boundary",
+      "group": "ch01-sky-policy-package-boundary",
+      "known": true,
+      "generated": true,
+      "references": [
+        "C:/Users/felre/.azrael-ex/config.toml",
+        "work/CH-01-sky-policy-package-boundary/01-plan.md"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "ck01-inputs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CK-01\\runs\\installed\\inputs",
+      "group": "ck01-installed-evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ck01-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CK-01\\runs\\installed\\logs",
+      "group": "ck01-installed-evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "ck01-reports",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CK-01\\runs\\installed\\reports",
+      "group": "ck01-installed-evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "d32e64041f1429dea6f58d7de85a02da06ab87bf53ca7976bfdceb479bb89ea0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\pd13",
+      "group": "run:permission-disabled-host:rmvl4okue",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "d532e64ea17c09d822806a33325713f5531324f388b300a14733483308140179",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CR-01-build-legacy-cleanup/runs/managed-group-guidance-20261019-r1",
+      "group": "run:CR-01-build-legacy-cleanup:managed-group-guidance-20261019-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "d5ac2e193817c5ac62fb51d734354729028428b83695769e84e549350173325e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-source-2",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-source-2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "d8bea75c126313e9e570ae8cab4e76927650e2a9bb37c194b5bf62425076b83a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BZ-01-resume-list-indicators\\runs\\projection-and-render-03",
+      "group": "run:BZ-01:projection-and-render-03",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "d9f5c60ec18f9f0eb9b2396552672aa9236baf6d231f7c4532b4ad0fbf40573d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DG-01-chat-history-performance\\runs\\2026-10-22T15-14-09-766Z-5fe96a03-92e5-46ce-a8e0-b2eecfc5d978",
+      "group": "run:DG-01-chat-history-performance:2026-10-22T15-14-09-766Z-5fe96a03-92e5-46ce-a8e0-b2eecfc5d978",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "dc17393fccaf5a1b2cbf28a978e6f6abf8b1cf552e2ed67746cb4c707780bf6d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs",
+      "group": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "dc6bafcf01a6be2ca0a13a220e0d73807c917c476ff1300daa4b665451800715",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\grouped-relocation-20261024-r4",
+      "group": "run:DN-01:grouped-relocation-20261024-r4",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "dd244bd8eb9e38c11f3082b5c23d7cb6e90d4e87335c72e0b0902d5830b96441",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-1",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "deaa547a7bf270beda349316588449ce19577c79ccefbc03895b0978aeda817a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002621537Z-5509aa03-d7b9-4d3a-8710-2fa3eddd119c",
+      "group": "run:CM-01-instruction-library-experience:20261019T002621537Z-5509aa03-d7b9-4d3a-8710-2fa3eddd119c",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "df3b6b56bccff8a51ff90f276b81aaef3d11317b53e21b6b9ed6eb682bebd90b",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "group": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "direct-admin-child-1-bundle",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-direct-admin-r1",
+      "group": "direct-admin-child-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "direct-admin-child-2-bundle",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-direct-admin-r2",
+      "group": "direct-admin-child-2",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "direct-admin-child-3-bundle",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-direct-admin-r3",
+      "group": "direct-admin-child-3",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "direct-admin-child-auth-diagnosis-bundle",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-auth-diagnosis-r1",
+      "group": "direct-admin-child-auth-diagnosis",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-approval50-host-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261018-approval50-r1\\host",
+      "group": "du01-approval50-host-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages root acceptance and regression diagnosis"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-checks-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r1",
+      "group": "du01-child-checks-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-checks-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r2",
+      "group": "du01-child-checks-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-checks-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r3",
+      "group": "du01-child-checks-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-checks-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r4",
+      "group": "du01-child-checks-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r1",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r10",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r10",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r11",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r11",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r2",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r3",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r4",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r5",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r6",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r7",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r8",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-child-native-prep-r9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r9",
+      "group": "du01-child-native-preparations-20261017",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/native-adapter-integration"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-desktop-authority-r1-output",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-desktop-authority-r1",
+      "group": "du01-desktop-authority-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01 active integration validation"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-explicit-stop-r1-output",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-explicit-stop-r1",
+      "group": "du01-explicit-stop-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "root-integration-handoff"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-integration-20261017-run",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-integration-r1",
+      "group": "du01-integration-20261017-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "verification:DU-01-source-acceptance-and-live-admission-followup"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-native-retrieval-perf-r1-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-retrieval-perf-r1",
+      "group": "du01-native-retrieval-perf-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-postboot-20261016-cleanup",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\window-use-stages\\rdp-postboot-20261016-cleanup-r1.json",
+      "group": "du01-postboot-20261016-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/01-plan.md: verified removal receipt"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-postboot-20261016-inspection",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\window-use-stages\\rdp-postboot-20261016-inspection-r1.json",
+      "group": "du01-postboot-20261016-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/01-plan.md: cleanup preconditions"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-postboot-20261016-run",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261016-postboot-investigation-r1",
+      "group": "du01-postboot-20261016-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "DU-01-window-use-stages/01-plan.md: current investigation and restoration evidence"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-settings-r1-payload",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-settings-r1",
+      "group": "du01-settings-r1",
+      "known": true,
+      "generated": true,
+      "references": [
+        "active DU-01 integration and source/render acceptance"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-window-use-isolation-r1-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-isolation-r1",
+      "group": "du01-window-use-isolation-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "du01-window-use-resources-r1-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-resources-r1",
+      "group": "du01-window-use-resources-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "e0b26022a50a0af4289cd5cc968ad8adf358a1bb027d6c711536975059c09ffe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\log-version-cleanup-20261024-r1\\reports",
+      "group": "run:DN-01:log-version-cleanup-20261024-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "e325c4de0b933f14a48dc3adad5c66f07770a80283991798231b56ce20311661",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\bwp1",
+      "group": "work:BW-01-profile-provider-run-01",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "e7fac9aa5b0f66ba2ef72843d0a533ef3baf0ec0772fa96fcd3bfc20309b5eaa",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-1-selection-failure-kv2gW3",
+      "group": "run:CL-01-question-withdrawal:compile-scope-1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "e8d91b9567b17260ed25cb13a4bca2cd0664d3f15984bf167c4475efa3dbccda",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\core-lib-r1",
+      "group": "run:do1:core-lib-r1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "eb4e9dbe401478fd137d608afbd41ca30c7c2b3b3b10428ea92aca0a94fff9a8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-reconnect-r1\\native",
+      "group": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:native",
+      "known": true,
+      "generated": true,
+      "references": [
+        "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration:Final helper and native checks substantiate source reconnect acceptance."
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "ebc2feba3931098491119a56116ca3ed0d59a6a9cf2f1ccaa96b730b5be7e00a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "group": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "efad417a9bc3cf2d57e4729a8c632006d1a4b2e23e41c86460f70021a1ab16d9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\window-use-u17b",
+      "group": "version:window-use-u17b",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "f2d8d47257b0d57c7348f983a256d64bde5d1a24ddbcd8ac5bb5e6d07b625978",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261018-diagnostic-r1",
+      "group": "run:window-use-diagnostic-20261018-r1",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "f4f336e2751cd41b2e5fafb6e9b514e5dfc1a4a912e92b160dae39b1cd74d1e3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "group": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "f95e20ea9a00756ea01539bf89184f3a35b8697d57a5c6f9d0ed4e03c5fe92e5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "group": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "known": false,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "f9d9376c79c6175848447ca1f346603392b2ea950d24c5cfaf5fc08d9fcd527d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DD-01-anthropic-session-failure\\runs\\20261022T124035425Z-f772cc06-1d6b-4490-84ff-a884a8ab588d",
+      "group": "run:DD-01-anthropic-session-failure:20261022T124035425Z-f772cc06-1d6b-4490-84ff-a884a8ab588d",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "fa13e2e2cb9abc16a8fcdeed3d038c6d4a046c1cc6eccc57e99155f9e2d8bd34",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-3",
+      "group": "run:DC-01-queue-question-wait-diagnosis:native-3",
+      "known": true,
+      "generated": true,
+      "references": [
+        "run:DC-01-queue-question-wait-diagnosis:native-5:Immutable engine source 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+        "run:DC-01-queue-question-wait-diagnosis:native-4:Reuse immutable engine inputs 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+        "run:DC-01-queue-question-wait-diagnosis:native-7:Frozen native verification inputs",
+        "run:DC-01-queue-question-wait-diagnosis:native-9:Base frozen source, test-only overlay",
+        "run:DC-01-queue-question-wait-diagnosis:native-8:Frozen native verification inputs",
+        "run:DC-01-queue-question-wait-diagnosis:native-6:Same immutable engine inputs 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+        "run:DC-01-queue-question-wait-diagnosis:sdk-1:Immutable source for SDK verification"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "fda26ebd2c586d53a32684969f233ec755f144561bddf5e4f6608a3b6e9793d3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-native-2",
+      "group": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+      "known": true,
+      "generated": true,
+      "references": [
+        "run:DC-01-queue-question-wait-diagnosis:reply-account-native-2:Reuses immutable source baseline whose native checks passed",
+        "run:DC-01-queue-question-wait-diagnosis:reply-account-native-1:Reuses immutable source baseline whose native checks passed"
+      ],
+      "status": "deferred"
+    },
+    {
+      "id": "managed-stage3-test-1-bundle",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-managed-stage3-r1",
+      "group": "managed-stage3-test-1",
+      "known": true,
+      "generated": true,
+      "references": [],
+      "status": "deferred"
+    },
+    {
+      "id": "session-storage-cleanup-audit-20261022-files",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\session-storage-cleanup-20261022\\runs\\audit-1",
+      "group": "session-storage-cleanup-audit-20261022",
+      "known": true,
+      "generated": true,
+      "references": [
+        "work/DE-01-session-storage-cleanup/01-plan.md"
+      ],
+      "status": "deferred"
+    }
+  ],
+  "incompleteGroups": [
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "CF-01-cache-lease-r1",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "89208f8d95cbb7ec0b0dc433e1b32ce43ba6883ac3ced226790f4560f57642cc",
+      "owner": "cache_lease_recovery",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a8ff3bff106bc87f284bcfb5126cdb49c2b51590f951fe927e7d3bb4601831d6.json",
+      "version": "20261019-cache-lease-r1"
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "0d2e68efc98b43bd0786ea7851b7905c3e5c5e22f812af46a9f8e4185d980a36",
+      "owner": "BB-01-btw-scope-diagnosis",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ab100d6691a0111a5436eeda33737319f6724ab6e508d341ba97f1cc62c37f75.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "2a4b313ffd28db811ff22a3cfd38e8d9bfc56b69c85dee901c51a36b98396bb7",
+      "owner": "instruction-library-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\2face6736c1bdcc769e75ba5ecfac3cc82c765c1c01c9fb8527078d3f4c9873f.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "9e9e5b9156e29ac99178a0859db56aae020eceed349adc4f6aae7ae48c4e830a",
+      "owner": "instruction-library-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8f8dcdc6d815a189af379556af3a2bf8c96d8e278ed932858c057c7656f9a15a.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "0490391df31e04258579ef46c2cac3bf9f905c1bd1b9b4aa75437c0efaf13845",
+      "owner": "instruction-library-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f098c3518078f248f34ce443e92f38840031256f07615fc1882a2bb62e533c01.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "2ba0d10bccbdb60e3d3c40eaea1d4339c615d7a51426c35f3ee6e751af5636ab",
+      "owner": "instruction-library-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d78b3f3357c17706324712b858a45b6e1b76789f916bb4f00632c0770e247cb2.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "1202f8f0a80e81f972895b7358fffa17834491036eca9e8bf8adf2f4c3a8936b",
+      "owner": "scripts/verify-instruction-library-render.mjs",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\121cb6b0650a76da38005401f78bb3dfe6662dc10d06dd75b825e3db62353129.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "7fa8dd017753cdb370762d34fe827f1eaef59680be4a11e3864ee160da9754f1",
+      "owner": "scripts/verify-instruction-library-render.mjs",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b5859daac36230c023d9769bc8089edf4a0d4244af37913aeffd53446796e720.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CM-01:host-35dac893",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "a3fee176ec310d29a9a0dcbef9207b11b8f8deaeb3225db8c9e9dd68226bede0",
+      "owner": "instruction-library-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\3111d7ce1649028e36028afe928aa75928800b1b6c8e64e59a2bb5bf80d7d83b.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 2,
+      "cleanup_status": "deferred",
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "kind": "run",
+      "members_total": 2,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "ce5fe8c30970e32819f1de3bf856e0e364a4091792edd1d1aede97627cce5178",
+      "owner": "/root/board-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5ca7486637602751f7fdbbf8c74cb4b0cbefc97aba89f0e9283833f87bbaea66.json",
+      "version": "ui-1792388395582-d1a343de"
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "e6ee6fdd10c061ab07c088af7e6b05eb1a1659062ac4e9ad2f3e382fa6594e26",
+      "owner": "/root/board-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\62b792b2956060da801b46f9fe7a5ec0647c0aaa624158871e862f7107822417.json",
+      "version": "ui-1792388395582-d1a343de"
+    },
+    {
+      "cached_live_members": 2,
+      "cleanup_status": "deferred",
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "kind": "run",
+      "members_total": 2,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "4a5318a87b1c052c2c8173267fa1b720ce6b162f3b250e6ab7e3a8f755881dfc",
+      "owner": "/root/board-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e8a3756fa8b6c25044b8e610d9079cb9cdab4d9105d92db77058c06d6677f7e7.json",
+      "version": "ui-1792389925582-cf185d66"
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "3aa62efd95eb12f95abc2db4218fe71c2d9bbcc7efbaa47b1b953aca32148742",
+      "owner": "/root/board-verification",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fcebd9274c78ac936ffaf1f8538063faf16ff339a0527871916a9206d33dc60a.json",
+      "version": "ui-1792389925582-cf185d66"
+    },
+    {
+      "cached_live_members": 3,
+      "cleanup_status": "deferred",
+      "id": "run:CX-01:shutdown-r1",
+      "kind": "run",
+      "members_total": 3,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "066a58833b6c1cdecb5e0e43bc2237d3511447c9c8859a688e803343e3d6803d",
+      "owner": "CX-01-azrael-auth-recovery",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f3c8bcd5240c4b578a834879b03a1ce19f82e2baaa33ac5adafd46b984c7ff4.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "200c8e7a71d34c13fe6d67f3f2ddb8f4134c7591b21658cde2782b76cb0005df",
+      "owner": "question-supersession",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fd4704d85209f3ff3cfbb6db3949ccb0fe5d6e830c21b408831394047217322b.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "b65b537a6b4d18db86cd4c7c1b7494efe3a14a528f1dabc0fec1910a67d8e140",
+      "owner": "/root/native_check_schedule-pilot",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8aaa0d51d491df3593dc97948c98eca58cd449f3d9360f7e57370ebcf8972bf8.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "c3e2ec55676a1e416d39f139a5cd7fe59a78da23985adead9dfc87d35c6a2cd9",
+      "owner": "/root/native_check_schedule-pilot",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\650194a655e2f20ec1304a34f78a063d57a40974a296754d01b87ec0afa1e0e7.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "run:DN-01:approved-log-retirement-20261024-r2",
+      "kind": "run",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "8bdc19bf237b23a984c9569984aeee051735b9a1b9d9f8ce0d56f6e570db3248",
+      "owner": "DN-01-log-retirement",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f84e11515c70315ba2ef79f05066af0806d3a6e5a3eb4c0c4a698a2f43273dd4.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "work:DH-01-project-storage-review:retention",
+      "kind": "work",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:/Users/felre/Desktop/pi-harness-init/artifacts/maintenance/lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "fca5a4c6fba99deb6a3c83c7d31fb3aad3cc4305e2e68e2043c42ee680b921f4",
+      "owner": "/root",
+      "provenance_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/maintenance/lifecycles/4e0d1111a076e6f5ab2161783793b4fdfcd0b833e80da02ff5643bc4b2afb6dd.json",
+      "version": null
+    },
+    {
+      "cached_live_members": 1,
+      "cleanup_status": "deferred",
+      "id": "work:engine-check-retirement-r1",
+      "kind": "work",
+      "members_total": 1,
+      "membership_complete": false,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9c4745b4a27d2988a140e6e17fabd20796997167509eabfde1aeae3b96a04f36.json",
+      "membership_source_format": null,
+      "membership_source_identity": "f02bdf844e55d77f37c8d7b0dc9922e2d2f01bbc9f3da53f9a0bc66de1c8dcda",
+      "owner": "root",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9c4745b4a27d2988a140e6e17fabd20796997167509eabfde1aeae3b96a04f36.json",
+      "version": null
+    }
+  ]
+}

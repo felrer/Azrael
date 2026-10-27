@@ -1,0 +1,70 @@
+{
+  "files_checked": 471,
+  "errors": [],
+  "registry_and_config_hits": [
+    {
+      "file": "artifacts\\maintenance\\manifest.json",
+      "children": [],
+      "root_reference": true
+    }
+  ],
+  "process_commandline_hits": [
+    {
+      "pid": 28232,
+      "name": "node.exe"
+    },
+    {
+      "pid": 68156,
+      "name": "node.exe"
+    },
+    {
+      "pid": 45416,
+      "name": "node.exe"
+    },
+    {
+      "pid": 38576,
+      "name": "node.exe"
+    },
+    {
+      "pid": 54320,
+      "name": "node.exe"
+    },
+    {
+      "pid": 51484,
+      "name": "node.exe"
+    }
+  ],
+  "active_child_process_references": [
+    {
+      "pid": 28232,
+      "name": "node.exe",
+      "child": ".tmp4tuHRu"
+    },
+    {
+      "pid": 68156,
+      "name": "node.exe",
+      "child": ".tmp4tuHRu"
+    },
+    {
+      "pid": 45416,
+      "name": "node.exe",
+      "child": ".tmphCit04"
+    },
+    {
+      "pid": 38576,
+      "name": "node.exe",
+      "child": ".tmphCit04"
+    },
+    {
+      "pid": 54320,
+      "name": "node.exe",
+      "child": ".tmpLk5peO"
+    },
+    {
+      "pid": 51484,
+      "name": "node.exe",
+      "child": ".tmpLk5peO"
+    }
+  ],
+  "registry_interpretation": "The manifest root hit is historical captured stdout mentioning azrael-sky-gate-GisfyK, not a live consumer reference to the selected ended-test groups."
+}

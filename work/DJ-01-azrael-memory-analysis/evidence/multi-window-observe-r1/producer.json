@@ -1,0 +1,30 @@
+{
+  "lifecycleId": "run:DJ-01:multi-window-observe-r1",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r1",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DJ-01-azrael-memory-analysis\\multi-window-observe.mjs"
+  ],
+  "exitCode": 0,
+  "producerStopped": true,
+  "children": [
+    {
+      "pid": 43852,
+      "closed": true
+    },
+    {
+      "pid": 69892,
+      "closed": true
+    },
+    {
+      "pid": 16312,
+      "closed": true
+    },
+    {
+      "pid": 44544,
+      "closed": true
+    }
+  ],
+  "state": "complete",
+  "membership_complete": true
+}

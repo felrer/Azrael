@@ -1,0 +1,72 @@
+﻿{
+    "checked_at":  "2026-10-24T15:13:25.8087662+09:00",
+    "escalation_result":  "Windows Start-Process reported The operation was canceled by the user",
+    "elevated_process_exit_code":  null,
+    "owner_started":  false,
+    "deletion_attempted":  false,
+    "deleted_bytes":  0,
+    "approved":  [
+                     {
+                         "path":  "C:\\Temp\\azrael-host-fixture-20260913-1005",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-host-fixture-20260913-1010",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-host-fixture-20260913-1020",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-host-fixture-20260913-1030",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-host-fixture-20260913-1040",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-account-check-0a349e33",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-account-check-1e5075cd",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-account-check-a9a14fd1",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-account-check-9b38cb81",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-host-bin-20260913-0953",
+                         "remaining":  true
+                     }
+                 ],
+    "excluded":  [
+                     {
+                         "path":  "C:\\Temp\\2024",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-account-check-c7496cdc",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-account-refusal-0ff94daf",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-live-diagnosis",
+                         "remaining":  true
+                     },
+                     {
+                         "path":  "C:\\Temp\\azrael-account-current-run.json",
+                         "remaining":  true
+                     }
+                 ]
+}

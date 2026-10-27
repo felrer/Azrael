@@ -1,0 +1,224 @@
+{
+  "register": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:DJ-01:multi-window-observe-r2",
+      "kind": "run",
+      "members": [
+        "99786d084af10860c2798a980f33674bc049838397accdf411c76f9bafdcb020"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "33749f04a1db6440a820f87b86eb58a6cfd5918344afa7e70752e2583754c91d",
+      "owner": "multi-window-memory-observation",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\82fb5c7c00df96adbd7b0d254df1a59e445f0e1742f29ebc24c5052491b9f4e2.json",
+      "registered_at_ms": 1792721546002,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "99786d084af10860c2798a980f33674bc049838397accdf411c76f9bafdcb020",
+        "identity": "dd4521a6a3d70807f3ad20cb40451ac00010d1d9e59c7da8c533173e0a225abf",
+        "kind": "run",
+        "lifecycle_group_id": "run:DJ-01:multi-window-observe-r2",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 1133028,
+        "measured_at_ms": 1792721545962,
+        "owner": "multi-window-memory-observation",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\82fb5c7c00df96adbd7b0d254df1a59e445f0e1742f29ebc24c5052491b9f4e2.json",
+        "references": [],
+        "registered_at_ms": 1792721545962,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "initialRegisterError": "request included operation; validation rejected before registration",
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:DJ-01:multi-window-observe-r2",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "33749f04a1db6440a820f87b86eb58a6cfd5918344afa7e70752e2583754c91d",
+        "owner": "multi-window-memory-observation",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\82fb5c7c00df96adbd7b0d254df1a59e445f0e1742f29ebc24c5052491b9f4e2.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "99786d084af10860c2798a980f33674bc049838397accdf411c76f9bafdcb020"
+        ],
+        "group_token": "b2d0a5b76f6d8902466fe7bf99860f551b2fe2d2e5ab695ae7da536ffc303d54",
+        "id": "99786d084af10860c2798a980f33674bc049838397accdf411c76f9bafdcb020",
+        "identity": "dd4521a6a3d70807f3ad20cb40451ac00010d1d9e59c7da8c533173e0a225abf",
+        "lifecycle_group_id": "run:DJ-01:multi-window-observe-r2",
+        "logical_bytes": 1133028,
+        "measured_at_ms": 1792721545962,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "33749f04a1db6440a820f87b86eb58a6cfd5918344afa7e70752e2583754c91d",
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2\\reports\\producer.json",
+              "evidence_sha256": "ef35627302ea672ba81f660ca0ad5ad1aff47cb532b17fc118c76725fe3ba63d",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "78f4dea0de36ccf37ab67c0536866509c16526c1f1870844866909fb43f0e60c"
+            },
+            "created_at": "2026-10-23T02:09:05.951Z",
+            "id": "run:DJ-01:multi-window-observe-r2",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "multi-window-memory-observation",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2\\reports\\producer.json",
+              "evidence_sha256": "ef35627302ea672ba81f660ca0ad5ad1aff47cb532b17fc118c76725fe3ba63d",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-23T02:11:30.464Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792721555305,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\multi-window-observe-r2",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              43,
+              36,
+              29,
+              0,
+              0,
+              0,
+              15,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "b564300781b619df65eed9d0cf3bc45622f134f077922b6b472b613132e7cfd9",
+        "verification": "registered"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DJ-01:multi-window-observe-r2",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-61336-169-1792721584872",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "99786d084af10860c2798a980f33674bc049838397accdf411c76f9bafdcb020",
+        "lifecycle_group_id": "run:DJ-01:multi-window-observe-r2",
+        "reason": "Owned stopped successful observation. Numeric evidence, process identities, producer receipt and source independently retained in work/DJ-01-azrael-memory-analysis/evidence/multi-window-observe-r2; no downstream consumers.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "b564300781b619df65eed9d0cf3bc45622f134f077922b6b472b613132e7cfd9"
+      }
+    ]
+  },
+  "finalize": {
+    "chunk_id": "ad036a",
+    "exit_code": 0,
+    "original_token_count": 70,
+    "output": "{\"id\":\"run:DJ-01:multi-window-observe-r2\",\"status\":\"finalized\",\"remaining\":[],\"references\":[],\"blockers\":[],\"registryPath\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\.m\\\\artifacts\\\\maintenance\\\\lifecycles\\\\82fb5c7c00df96adbd7b0d254df1a59e445f0e1742f29ebc24c5052491b9f4e2.json\"}\n",
+    "wall_time_seconds": 0.252535
+  },
+  "finalizeResult": {
+    "id": "run:DJ-01:multi-window-observe-r2",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\82fb5c7c00df96adbd7b0d254df1a59e445f0e1742f29ebc24c5052491b9f4e2.json"
+  }
+}

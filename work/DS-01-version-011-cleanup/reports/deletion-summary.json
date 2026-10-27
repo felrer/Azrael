@@ -1,0 +1,69 @@
+{
+  "status": "approved external profiles and connected build deletion completed; verification-output cleanup and task integration pending",
+  "logical_bytes_deleted": 20168314374,
+  "physical_bytes_reclaimed": null,
+  "deleted": [
+    {
+      "group": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r5",
+      "logical_bytes": 443274,
+      "remaining": false
+    },
+    {
+      "group": "work:window-use-u17a",
+      "logical_bytes": 4773551172,
+      "remaining": false
+    },
+    {
+      "group": "run:window-use-u17b-host6-r2",
+      "logical_bytes": 3082290827,
+      "remaining": false
+    },
+    {
+      "group": "ds01-retirement:version:u22c",
+      "logical_bytes": 898634463,
+      "remaining": false
+    },
+    {
+      "group": "ds01-retirement:u22c-independent-installation",
+      "logical_bytes": 9650,
+      "remaining": false
+    },
+    {
+      "group": "run:window-use-u18-isolated enclosing current profile",
+      "logical_bytes": 3606930455,
+      "remaining": false
+    },
+    {
+      "group": "cf01-viewer-u22c-version q fixture",
+      "logical_bytes": 2997330105,
+      "remaining": false
+    },
+    {
+      "group": "cf01-viewer-u22c-version remaining u22c payload",
+      "logical_bytes": 4809124428,
+      "remaining": false
+    }
+  ],
+  "retained": [],
+  "remaining_metadata": [
+    {
+      "project": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/u17a",
+      "reason": "Payload deleted before separate module project registration was checked. Registration retained; independently preserved complete original cache consumer index not established."
+    }
+  ],
+  "general_profile": {
+    "version": "2026.0.12",
+    "checkpoint_hashes_unchanged": 2,
+    "config_toml_hash_changed": true,
+    "config_change_attribution": "unestablished; no cleanup write to ordinary config; current contents retained"
+  },
+  "management_tool_source_changes": true,
+  "product_build_or_install": false,
+  "verification": {
+    "platform": "Windows x64",
+    "native_tests": 108,
+    "failed": 0,
+    "cargo_exit": 0
+  },
+  "accounting_correction": "Nested child was actually deleted, but its historical cached 843 bytes are excluded; enclosing full current registration measured unchanged 3606930455 bytes."
+}

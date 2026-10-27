@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "crateSha256": "edd4248a233039d8ce1fc9b04047ab52c2d27b09b75f17272fa08077c02545df",
+  "inputsSha256": "a5afdbde0fab5af2db51c83c26ca62e725e826c2cfd825d0feaf7732084c4e0d",
+  "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ds01n2\\bin\\maintenance_owner.exe",
+  "binarySha256": "59c47085e97d97e5cbeebb339b8dc91db49863db1916ead9f7ef47319587bbb3",
+  "cargoExitCode": 0,
+  "testsPassed": 108,
+  "testsFailed": 0,
+  "platform": "Windows x64",
+  "sourceMatches": true,
+  "producer": {
+    "status": "stopped",
+    "outcome": "success",
+    "exit_code": 0,
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ds01n2\\result.json",
+    "evidence_sha256": "32d1983791dde36d9989c331b4bc5a520c1751d5ff7e7971a031271149760496",
+    "reason": "Observed synchronous native verification terminal result"
+  },
+  "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ds01n2",
+  "retainedEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DS-01-version-011-cleanup\\reports\\native-evidence\\ds01n2",
+  "sourceSnapshotRetention": "Full snapshots and execution copy retired only after all owned native processes stop; selected crate source, workspace inputs and complete input manifest retained here.",
+  "featureManifestValidationExit": 0
+}

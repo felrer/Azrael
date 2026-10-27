@@ -354,6 +354,46 @@ test("changed-only walks cyclic CommonJS dependencies, resolves directories and 
   } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
+test("changed-only parses executable imports and resolves closed local expressions", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-closed-selection-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts"));
+    for (const name of ["leaf", "alternate", "unrelated"]) fs.writeFileSync(path.join(directory, `scripts/${name}.cjs`), "module.exports = {};");
+    fs.writeFileSync(path.join(directory, "scripts/test-owner.cjs"), [
+      "require('node:test'); const path = require('node:path');",
+      "const base = path.resolve(__dirname, '.'); const target = path.join(base, 'leaf.cjs');",
+      "require(target); require(require.resolve('./alternate.cjs'));",
+      "const packageEntry = require.resolve('typescript', { paths: [base] }); require(packageEntry);",
+    ].join("\n"));
+    fs.writeFileSync(path.join(directory, "scripts/test-other.cjs"), [
+      "require('node:test');",
+      "// require('./leaf.cjs'); import(variable);",
+      "const fixture = \"require('./leaf.cjs'); require(variable);\";",
+      "const template = `import('./alternate.cjs'); require(variable);`;",
+      "const pattern = /require(variable)/;",
+    ].join("\n"));
+    for (const input of ["leaf", "alternate"]) {
+      const result = select(parseArgs(["--changed-only", "--changed", `scripts/${input}.cjs`]), directory);
+      assert.deepEqual(result.files, ["scripts/test-owner.cjs"]);
+      assert.equal(result.coverageStatus, "selected-source-scope");
+      assert.ok(result.reasons.some(reason => reason.evidence?.includes("static-import")));
+    }
+    const unrelated = select(parseArgs(["--changed-only", "--changed", "scripts/unrelated.cjs"]), directory);
+    assert.deepEqual(unrelated.files, []);
+    assert.ok(!unrelated.separateChecks.some(reason => /computed/.test(reason)));
+    // Reassignment and shadowing invalidate a tempting closed-name proof.
+    fs.writeFileSync(path.join(directory, "scripts/test-owner.cjs"), "require('node:test'); let target = './leaf.cjs'; target = process.env.OWNER; require(target);");
+    const unknown = select(parseArgs(["--changed-only", "--changed", "scripts/unrelated.cjs"]), directory);
+    assert.deepEqual(unknown.files, ["scripts/test-owner.cjs"]);
+    assert.equal(unknown.coverageStatus, "requires-separate-checks");
+    assert.ok(unknown.reasons.some(reason => reason.evidence?.includes("conservative-fallback")));
+    fs.writeFileSync(path.join(directory, "scripts/test-owner.cjs"), "require('node:test'); const target = './leaf.cjs'; function load(target) { require(target); }");
+    const shadowed = select(parseArgs(["--changed-only", "--changed", "scripts/unrelated.cjs"]), directory);
+    assert.deepEqual(shadowed.files, ["scripts/test-owner.cjs"]);
+    assert.equal(shadowed.coverageStatus, "requires-separate-checks");
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
+});
+
 test("changed-only known dynamic owners remain bounded", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-dynamic-selection-"));
   try {
@@ -382,6 +422,28 @@ test("changed-only reports static imports and manifest module/data evidence sepa
       assert.ok(result.reasons.some(reason => reason.evidence?.includes(evidence)));
       assert.equal(result.coverageStatus, "selected-source-scope");
     }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
+});
+
+test("declared cache data keeps direct owners without executing its imports, including mixed roles", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-data-role-selection-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts"));
+    for (const name of ["data", "mixed", "static"]) fs.writeFileSync(path.join(directory, `scripts/test-${name}.cjs`),
+      `require('node:test'); ${name === "static" ? "require('./payload.js');" : ""}`);
+    fs.writeFileSync(path.join(directory, "scripts/payload.js"), "export { value } from './leaf.js';");
+    fs.writeFileSync(path.join(directory, "scripts/leaf.js"), "export const value = 1;");
+    fs.writeFileSync(path.join(directory, "scripts/azrael-feature-contracts.json"), JSON.stringify({ features: [
+      { area: "ui", owners: [], checks: [{ level: "source", args: ["scripts/test-data.cjs"], cacheInputs: { files: ["scripts/payload.js"] } }] },
+      { area: "ui", owners: ["scripts/payload.js"], checks: [{ level: "source", args: ["scripts/test-mixed.cjs"], cacheInputs: { files: ["scripts/payload.js"] } }] },
+      { area: "ui", owners: [], checks: [{ level: "source", args: ["scripts/test-static.cjs"], cacheInputs: { files: ["scripts/payload.js"] } }] },
+    ] }));
+    const direct = select(parseArgs(["--changed-only", "--changed", "scripts/payload.js"]), directory);
+    assert.deepEqual(direct.files, ["scripts/test-data.cjs", "scripts/test-mixed.cjs", "scripts/test-static.cjs"]);
+    assert.ok(direct.reasons.some(reason => reason.test === "scripts/test-data.cjs" && reason.evidence?.includes("manifest-data")));
+    const transitive = select(parseArgs(["--changed-only", "--changed", "scripts/leaf.js"]), directory);
+    assert.deepEqual(transitive.files, ["scripts/test-mixed.cjs", "scripts/test-static.cjs"]);
+    assert.equal(transitive.coverageStatus, "selected-source-scope");
   } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 

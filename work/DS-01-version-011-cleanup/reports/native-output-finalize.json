@@ -1,0 +1,18 @@
+[
+  {
+    "id": "run:DS-01-native-nested-retirement-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\00fa53c0c96426192e8e7b94ff32659b09ce06277466db28f6338e4e8f1774f8.json"
+  },
+  {
+    "id": "run:DS-01-native-nested-retirement-r2",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8138d41aae50f9a4f77889dd58eb8e7f3e2c1874c5c55b1ac5d41e95b5cc0da3.json"
+  }
+]

@@ -1,0 +1,631 @@
+[
+  {
+    "schema": 1,
+    "id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+    "kind": "run",
+    "owner": "record-retirement-provenance",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\inputs",
+        "role": "inputs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\temporary",
+        "role": "temporary",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\logs",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\reports",
+        "role": "reports",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\outputs",
+        "role": "outputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-provenance",
+        "reason": "Retain compact recording evidence until parent acceptance and cleanup",
+        "reference_id": "b67d83ff62537937ad50c8bf5f3478edf851794e4b3f55b5cf99e75bbc716310"
+      },
+      {
+        "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+        "reason": "Reused fully importer-validated original baseline input",
+        "reference_id": "fc0ac2ccc374ec6d5cc1b69ba1c92171f7e4e5480304d863dbc40a38ca9e096b"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:29:22.236Z",
+    "updated_at": "2026-10-24T06:33:59.429Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "success",
+      "exit_code": 0,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\reports\\producer.json",
+      "evidence_sha256": "ba4644aaf1379792d83ac9e1c33475b93d5733bb4e0da046a1b2dd39d93aabb7",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "2ad750f6372c1512d04756e4496a0cffcff8f224a63e309e12302e810193ef64",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\reports\\producer.json",
+      "evidence_sha256": "ba4644aaf1379792d83ac9e1c33475b93d5733bb4e0da046a1b2dd39d93aabb7",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-provenance:20261024T061836576Z-424136b4-424c-40b0-b821-d569027811e2",
+    "kind": "run",
+    "owner": "record-retirement-provenance",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T061836576Z-424136b4-424c-40b0-b821-d569027811e2",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\inputs",
+        "role": "inputs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\baseline",
+        "role": "temporary"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\logs",
+        "role": "logs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\reports",
+        "role": "reports"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\archive",
+        "role": "outputs"
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-provenance",
+        "reason": "Retain immutable baseline and recorder evidence until root acceptance and cleanup review",
+        "reference_id": "756f2b1a0805765f29fad12065792b6da642a9ba4f4427ab6b948e07da360a44"
+      },
+      {
+        "id": "run:dn01-root-provenance:20261024T061308823Z-fbfd9612-db8e-4204-8b3d-e8ee4ca71eff",
+        "reason": "Immutable raw archive input retained through supported provenance recording",
+        "reference_id": "37439aa330354ae7fb0fbf13a513b13de03262a5a52676a1ddb712423ccf61c5"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:18:42.882Z",
+    "updated_at": "2026-10-24T06:20:32.917Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\reports\\producer.json",
+      "evidence_sha256": "8ee35bc65728719a0a4e6749ee93586ce25a5a1b769a6eec1f88df5976509e34",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "a8a41febda02a85839268ea92f05f5b4a51e637a7ace6b132a6967b44444af2f",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-recovered\\reports\\producer.json",
+      "evidence_sha256": "8ee35bc65728719a0a4e6749ee93586ce25a5a1b769a6eec1f88df5976509e34",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-provenance:20261024T061114785Z-d2109092-1e50-4620-b326-b884f0815b59",
+    "kind": "run",
+    "owner": "record-retirement-provenance",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T061114785Z-d2109092-1e50-4620-b326-b884f0815b59",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\inputs",
+        "role": "inputs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\baseline",
+        "role": "temporary"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\logs",
+        "role": "logs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\reports",
+        "role": "reports"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\archive",
+        "role": "outputs"
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-provenance",
+        "reason": "Retain immutable baseline and recorder evidence until root acceptance and cleanup review",
+        "reference_id": "756f2b1a0805765f29fad12065792b6da642a9ba4f4427ab6b948e07da360a44"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:11:20.371Z",
+    "updated_at": "2026-10-24T06:11:34.929Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\reports\\producer.json",
+      "evidence_sha256": "75a1c5f5181d25c82087bbc5ba5d8a19f1d3a74599ef921e0d0efef69677990d",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "0d88b6451683285573dd6b4a3d411df328d8a62bc58c9d03270d8cf364e4fc75",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance\\reports\\producer.json",
+      "evidence_sha256": "75a1c5f5181d25c82087bbc5ba5d8a19f1d3a74599ef921e0d0efef69677990d",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-provenance:20261024T061308823Z-fbfd9612-db8e-4204-8b3d-e8ee4ca71eff",
+    "kind": "run",
+    "owner": "record-retirement-provenance",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T061308823Z-fbfd9612-db8e-4204-8b3d-e8ee4ca71eff",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\inputs",
+        "role": "inputs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\baseline",
+        "role": "temporary"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\logs",
+        "role": "logs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\reports",
+        "role": "reports"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\archive",
+        "role": "outputs"
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-provenance",
+        "reason": "Retain immutable baseline and recorder evidence until root acceptance and cleanup review",
+        "reference_id": "756f2b1a0805765f29fad12065792b6da642a9ba4f4427ab6b948e07da360a44"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:13:14.627Z",
+    "updated_at": "2026-10-24T06:13:30.513Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\reports\\producer.json",
+      "evidence_sha256": "5fe3dc419c4c1df9ae8a0a7e9b952acdd2803ea858d1c45aa655abb4bc0527d6",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "1def70967704d3665b4bbecf4e52b94aeb05129f6a89782971597852181316d0",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\reports\\producer.json",
+      "evidence_sha256": "5fe3dc419c4c1df9ae8a0a7e9b952acdd2803ea858d1c45aa655abb4bc0527d6",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+    "kind": "run",
+    "owner": "isolate-retirement-receipt",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\inputs",
+        "role": "inputs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\temporary",
+        "role": "temporary",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\reports",
+        "role": "reports",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\outputs",
+        "role": "outputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-commit",
+        "reason": "Private receipt and worktree retained until primary integration verification",
+        "reference_id": "5cf0974be992f74f254cf7ff3f724ff1b649d2bfe29e41f3a42c990bbe61f531"
+      },
+      {
+        "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+        "reason": "Original importer-validated baseline input",
+        "reference_id": "b5364818ebc7a90adcd4b1f2620edce38a6a965c629777dfa3fc5162bc234f99"
+      },
+      {
+        "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+        "reason": "Resume owned incomplete initial checkout without another source copy",
+        "reference_id": "940d0bd6d26e7c70179dd431a92d1fc70243f668329267e40c4f2c1d2e3731cc"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:43:38.833Z",
+    "updated_at": "2026-10-24T06:45:07.214Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\reports\\producer.json",
+      "evidence_sha256": "8553fe2e6152c2a00561ff4f588c62032a4cdb4df9f95ba1941463699b5ebdd8",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "5c95a2db9cf398fa2ae8f233840c2e8203e3e119dc40386b63c0dc32e7b1db36",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\reports\\producer.json",
+      "evidence_sha256": "8553fe2e6152c2a00561ff4f588c62032a4cdb4df9f95ba1941463699b5ebdd8",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+    "kind": "run",
+    "owner": "record-retirement-provenance",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\inputs",
+        "role": "inputs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+        "role": "temporary"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs",
+        "role": "logs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports",
+        "role": "reports"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\archive",
+        "role": "outputs"
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-provenance",
+        "reason": "Retain immutable baseline and recorder evidence until root acceptance and cleanup review",
+        "reference_id": "756f2b1a0805765f29fad12065792b6da642a9ba4f4427ab6b948e07da360a44"
+      },
+      {
+        "id": "run:dn01-root-provenance:20261024T061308823Z-fbfd9612-db8e-4204-8b3d-e8ee4ca71eff",
+        "reason": "Immutable raw archive input retained through supported provenance recording",
+        "reference_id": "37439aa330354ae7fb0fbf13a513b13de03262a5a52676a1ddb712423ccf61c5"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:21:16.952Z",
+    "updated_at": "2026-10-24T06:28:57.233Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+      "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+      "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees"
+    },
+    "close_receipt": {
+      "request_sha256": "6f597c61236b729fafce8e1c3cd1c2904b7384f729d35b5108fde50a3f527120",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\reports\\producer.json",
+      "evidence_sha256": "64aef731ca8dbeb0b2ca7a7340ac20ede99a4ee969bbb8b347c5eba3e3d374de",
+      "reason": "Controller native session22238 observed terminal exit1; synchronous children completed; persisted terminal report agrees"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-provenance:20261024T061435821Z-5baebe65-5262-4a72-98eb-50efb38b8d92",
+    "kind": "run",
+    "owner": "record-retirement-provenance",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T061435821Z-5baebe65-5262-4a72-98eb-50efb38b8d92",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-inventory\\inputs",
+        "role": "inputs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-inventory\\baseline",
+        "role": "temporary"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-inventory\\logs",
+        "role": "logs"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-inventory\\reports",
+        "role": "reports"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-inventory\\archive",
+        "role": "outputs"
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-provenance",
+        "reason": "Retain immutable baseline and recorder evidence until root acceptance and cleanup review",
+        "reference_id": "756f2b1a0805765f29fad12065792b6da642a9ba4f4427ab6b948e07da360a44"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:14:41.535Z",
+    "updated_at": "2026-10-24T06:15:27.724Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-inventory\\reports\\producer.json",
+      "evidence_sha256": "2637ac1f4d40537de02f4edb2be3ccecaa4d08d5afee36e65f8007f2bfd683e2",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "e5820d7de4db38b0bd24340f1d493f153ce94d46c91253ed640b8ef60ab0a909",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-inventory\\reports\\producer.json",
+      "evidence_sha256": "2637ac1f4d40537de02f4edb2be3ccecaa4d08d5afee36e65f8007f2bfd683e2",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+    "kind": "run",
+    "owner": "isolate-retirement-receipt",
+    "version": null,
+    "state": "failed",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\inputs",
+        "role": "inputs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\temporary",
+        "role": "temporary",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\logs",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\reports",
+        "role": "reports",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+        "role": "outputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-commit",
+        "reason": "Private receipt and worktree retained until primary integration verification",
+        "reference_id": "5cf0974be992f74f254cf7ff3f724ff1b649d2bfe29e41f3a42c990bbe61f531"
+      },
+      {
+        "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+        "reason": "Original importer-validated baseline input",
+        "reference_id": "b5364818ebc7a90adcd4b1f2620edce38a6a965c629777dfa3fc5162bc234f99"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:41:46.323Z",
+    "updated_at": "2026-10-24T06:41:49.875Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\reports\\producer.json",
+      "evidence_sha256": "0655ddc8fea77e7d14a04e7b9215ca2121aeff7a3b76360d0a85ddf70c5b0810",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "aaa4f574ea44d044dd87aa2f6073da2ce896f56dfc08eb1e6d0fb0458b80ce94",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\reports\\producer.json",
+      "evidence_sha256": "0655ddc8fea77e7d14a04e7b9215ca2121aeff7a3b76360d0a85ddf70c5b0810",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+    "kind": "run",
+    "owner": "isolate-retirement-receipt",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\inputs",
+        "role": "inputs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\temporary",
+        "role": "temporary",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports",
+        "role": "reports",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\outputs",
+        "role": "outputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "handoff:dn01-root-retirement-commit",
+        "reason": "Private receipt and worktree retained until primary integration verification",
+        "reference_id": "5cf0974be992f74f254cf7ff3f724ff1b649d2bfe29e41f3a42c990bbe61f531"
+      },
+      {
+        "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+        "reason": "Original importer-validated baseline input",
+        "reference_id": "b5364818ebc7a90adcd4b1f2620edce38a6a965c629777dfa3fc5162bc234f99"
+      },
+      {
+        "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+        "reason": "Resume owned incomplete initial checkout without another source copy",
+        "reference_id": "940d0bd6d26e7c70179dd431a92d1fc70243f668329267e40c4f2c1d2e3731cc"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-24T06:46:32.781Z",
+    "updated_at": "2026-10-24T06:50:10.096Z",
+    "producer": {
+      "status": "stopped",
+      "outcome": "success",
+      "exit_code": 0,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports\\producer.json",
+      "evidence_sha256": "18451814724ac1a177005b1a804d0c82a2d0d355edd060d36fd084ba995dfd0d",
+      "reason": "Owned producer and tracked children stopped"
+    },
+    "close_receipt": {
+      "request_sha256": "75e0a4512010e03f8c139e70c98e6da868da6c8d962a23ab7297b11eb02ca4f0",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports\\producer.json",
+      "evidence_sha256": "18451814724ac1a177005b1a804d0c82a2d0d355edd060d36fd084ba995dfd0d",
+      "reason": "Owned producer and tracked children stopped"
+    }
+  }
+]

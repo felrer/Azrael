@@ -1,0 +1,218 @@
+﻿[
+    {
+        "name":  "azrael-antigravity-0rxvuz",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-0rxvuz",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI(A;OICI;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  true,
+        "rules":  1,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-36yJGO",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-36yJGO",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-3wB8gd",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-3wB8gd",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-bXiAqt",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-bXiAqt",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-hPs6jY",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-hPs6jY",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-jplyrV",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-jplyrV",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-nUQdpd",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-nUQdpd",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-roIU77",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-roIU77",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-v3wKiA",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-v3wKiA",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-vdZMu2",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "azrael-antigravity-vdZMu2",
+        "suffix":  "codex/azrael/providers/opencodex",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:PAI",
+        "protected":  true,
+        "rules":  0,
+        "error":  null
+    },
+    {
+        "name":  "codex-core-tests01AKmV",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "codex-core-tests01BJQl",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "chatwidget-tests-06aU5J",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    },
+    {
+        "name":  "chatwidget-tests-0DkGl8",
+        "suffix":  "",
+        "owner":  "FELRER\\felre",
+        "sddl":  "O:S-1-5-21-1071625269-2044476512-1628566267-1001G:S-1-5-21-1071625269-2044476512-1628566267-1001D:AI(A;OICIID;0x1301bf;;;S-1-5-21-3748278978-4289696801-1304800402-2894987040)(A;OICIID;0x1200a9;;;S-1-5-21-1071625269-2044476512-1628566267-1002)(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIID;FA;;;S-1-5-21-1071625269-2044476512-1628566267-1001)",
+        "protected":  false,
+        "rules":  5,
+        "error":  null
+    }
+]

@@ -380,7 +380,6 @@ class InspectorTests(unittest.TestCase):
             "transport": {"error_stage": "adapter_parse"},
         })
         self.assertNotIn("SECRET", stdout)
-        self.assertNotIn("SECRET", stdout)
 
 
     def test_tool_invocation_evidence_is_bounded_and_correlated(self):

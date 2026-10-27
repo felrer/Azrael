@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "user_authorized": true,
+  "original_receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\independent-20261019-092440-296\\deployment.json",
+  "receipt_sha256": "625c23caef0a7b0c054218f9c5a9327f3210e176a3f2bd8a89d54280ededc59a",
+  "historical_hostInstalled": true,
+  "current_registration": [],
+  "registry": "C:\\Users\\felre\\av18\\artifacts\\f\\extensions\\extensions.json",
+  "uninstall_evidence": "external-uninstall-results.json",
+  "reason": "User retires complete external test profile, connected old build and all recovery/rollback metadata; historical receipt and extension registry backup preserved independently",
+  "generation_basis": "install-independent-vscode.ps1 original installation receipt; exact generated deployment directory",
+  "original_backup_recovery_cancelled": true
+}

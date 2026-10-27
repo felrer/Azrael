@@ -1,0 +1,17 @@
+[
+  {
+    "id": "run:window-use-u18-isolated",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\av18\\artifacts\\maintenance\\lifecycles\\b8ffd30baab41a13ffd23ea8fe483555d4fe1d5e461a7aff114b567ffd625842.json",
+    "retirement": {
+      "path": "C:\\Users\\felre\\av18\\artifacts\\maintenance\\evidence\\ds01-parent-retirement.json",
+      "sha256": "eed8f733ae86c1d9858c87a9f8756ef449ca0f7c92719a8e573ce1f4f0a35791",
+      "reason": "Original exact process tree terminal evidence and current stopped runtime preserved; user retires whole external test profile; verified native child and enclosing deletion both remaining=false; original unknown outcome retained",
+      "original_state": "pending",
+      "original_membership_complete": false
+    }
+  }
+]

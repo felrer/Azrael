@@ -1,0 +1,27 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "run:DT-01:lock-remediation-20261025-r1",
+    "kind": "run",
+    "owner": "DT-01-root",
+    "version": null,
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e732a84496417260b2b00460cd917286badc1dcc63867e73957bebef300213c0.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "72e21279d78c01ab2d7db9bb9637fce1714475456c7633d83d109d17379028e9",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DT-01-old-log-cleanup\\runs\\lock-remediation-20261025-r1",
+        "role": "run",
+        "lifecycle_role": "artifact",
+        "kind": "run",
+        "owner": "DT-01-root",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e732a84496417260b2b00460cd917286badc1dcc63867e73957bebef300213c0.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "register": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:DJ-01:inactive-cache-policy-r1",
+      "kind": "run",
+      "members": [
+        "a00e663c9fddb39b7a6d4c0c5047dafe53dc9cc223a002ba3184374563228c56"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "a8cee71bfb9b6afdce6210d14e46a99adfe2a76c1a505def970ebf972f6964d2",
+      "owner": "inactive-cache-policy-analysis",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\3bfb91b971ae446c06e334e071dadbec7dc0b9cbe2b6601bc364b0b3546b79e0.json",
+      "registered_at_ms": 1792722502547,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "a00e663c9fddb39b7a6d4c0c5047dafe53dc9cc223a002ba3184374563228c56",
+        "identity": "ff69685182fe9a6048bcd50b13bec1696c1f2e2051fdfe134cc5c9cc1ee442f0",
+        "kind": "run",
+        "lifecycle_group_id": "run:DJ-01:inactive-cache-policy-r1",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 2291,
+        "measured_at_ms": 1792722502498,
+        "owner": "inactive-cache-policy-analysis",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\3bfb91b971ae446c06e334e071dadbec7dc0b9cbe2b6601bc364b0b3546b79e0.json",
+        "references": [],
+        "registered_at_ms": 1792722502498,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:DJ-01:inactive-cache-policy-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "a8cee71bfb9b6afdce6210d14e46a99adfe2a76c1a505def970ebf972f6964d2",
+        "owner": "inactive-cache-policy-analysis",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\3bfb91b971ae446c06e334e071dadbec7dc0b9cbe2b6601bc364b0b3546b79e0.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "a00e663c9fddb39b7a6d4c0c5047dafe53dc9cc223a002ba3184374563228c56"
+        ],
+        "group_token": "0dfaab9eb4e73a117255967e65d8fb68990ff319ad4b26c215675b8417a3280d",
+        "id": "a00e663c9fddb39b7a6d4c0c5047dafe53dc9cc223a002ba3184374563228c56",
+        "identity": "ff69685182fe9a6048bcd50b13bec1696c1f2e2051fdfe134cc5c9cc1ee442f0",
+        "lifecycle_group_id": "run:DJ-01:inactive-cache-policy-r1",
+        "logical_bytes": 2291,
+        "measured_at_ms": 1792722502498,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "a8cee71bfb9b6afdce6210d14e46a99adfe2a76c1a505def970ebf972f6964d2",
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1\\reports\\producer.json",
+              "evidence_sha256": "092030b418da2ac36e277bfd8d05cd001989af43ee4cbeacbd344b8856d01068",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "13ea4d2b633966eeed1e31ac89a0bcb448c72e155d2ed12298b70fb73361b523"
+            },
+            "created_at": "2026-10-23T02:27:31.961Z",
+            "id": "run:DJ-01:inactive-cache-policy-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "inactive-cache-policy-analysis",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1\\reports\\producer.json",
+              "evidence_sha256": "092030b418da2ac36e277bfd8d05cd001989af43ee4cbeacbd344b8856d01068",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-23T02:27:32.023Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792722510197,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\tasks\\DJ-01\\runs\\inactive-cache-policy-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              127,
+              20,
+              28,
+              0,
+              0,
+              0,
+              37,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "63b5c69a1770cbf1315106947cc5d872f233b9136588ce6ce2de89e786bd3cbc",
+        "verification": "registered"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DJ-01:inactive-cache-policy-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-61336-173-1792722525054",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "a00e663c9fddb39b7a6d4c0c5047dafe53dc9cc223a002ba3184374563228c56",
+        "lifecycle_group_id": "run:DJ-01:inactive-cache-policy-r1",
+        "reason": "Seven extracted-method synthetic policy checks passed. Installed asset hash, results, producer receipt and reproduction source retained under work/evidence/inactive-cache-policy-r1; no downstream temporary consumer.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "63b5c69a1770cbf1315106947cc5d872f233b9136588ce6ce2de89e786bd3cbc"
+      }
+    ]
+  },
+  "finalize": {
+    "id": "run:DJ-01:inactive-cache-policy-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.m\\artifacts\\maintenance\\lifecycles\\3bfb91b971ae446c06e334e071dadbec7dc0b9cbe2b6601bc364b0b3546b79e0.json"
+  }
+}

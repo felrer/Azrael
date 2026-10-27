@@ -1,0 +1,301 @@
+{
+  "complete": true,
+  "at": "2026-10-26T00:42:44.057Z",
+  "versions": [
+    {
+      "name": "w11aa",
+      "logicalBytes": 3283875223,
+      "status": "deleted",
+      "producer": "finalized"
+    },
+    {
+      "name": "w11g",
+      "logicalBytes": 910821628,
+      "status": "deleted",
+      "producer": "finalized"
+    },
+    {
+      "name": "w11i",
+      "logicalBytes": 1873825837,
+      "status": "deleted",
+      "producer": "finalized"
+    },
+    {
+      "name": "w11m",
+      "logicalBytes": 3278071004,
+      "status": "deleted",
+      "producer": "finalized"
+    },
+    {
+      "name": "w11v",
+      "logicalBytes": 3284719741,
+      "status": "deleted",
+      "producer": "finalized"
+    },
+    {
+      "name": "w11w",
+      "logicalBytes": 3284811655,
+      "status": "deleted",
+      "producer": "finalized"
+    }
+  ],
+  "versionLogicalBytes": 15916125088,
+  "versionGiB": 14.82304659485817,
+  "physicalBytesReclaimed": null,
+  "versionPaths": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\vsix\\w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\deployments\\deploy-w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\verification-evidence\\deploy-w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\verification-evidence\\account-controls-w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\releases\\w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\vsix\\w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\deployments\\deploy-w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\logs\\w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\logs\\deploy-w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\logs\\verification-evidence\\deploy-w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\logs\\verification-evidence\\account-controls-w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\releases\\w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\vsix\\w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\deployments\\deploy-w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\logs\\w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\logs\\deploy-w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\logs\\verification-evidence\\deploy-w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\logs\\verification-evidence\\account-controls-w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\releases\\w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\vsix\\w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\deployments\\deploy-w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\logs\\w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\logs\\deploy-w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\logs\\verification-evidence\\deploy-w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\logs\\verification-evidence\\account-controls-w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\releases\\w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\vsix\\w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\deploy-w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\account-controls-w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\releases\\w11w",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\vsix\\w11w",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11w",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\w11w",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11w",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\deploy-w11w",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\account-controls-w11w",
+      "absent": true
+    }
+  ],
+  "producerAbsence": [
+    {
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13",
+      "id": "version:w11aa",
+      "absent": true
+    },
+    {
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a",
+      "id": "version:w11g",
+      "absent": true
+    },
+    {
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c",
+      "id": "version:w11i",
+      "absent": true
+    },
+    {
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e",
+      "id": "version:w11m",
+      "absent": true
+    },
+    {
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k",
+      "id": "version:w11v",
+      "absent": true
+    },
+    {
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k",
+      "id": "version:w11w",
+      "absent": true
+    }
+  ],
+  "ownedExecutionPaths": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11aa",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11g",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11i",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11m",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11v",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\w11w",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\failed-011-owner",
+      "absent": true
+    }
+  ],
+  "sourceParentsPreserved": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k",
+      "present": true
+    }
+  ],
+  "exclusion": "Only six confirmed 2026.0.11 groups selected. No 2026.0.12/2026.0.13 deletion, installation change or user-state mutation requested by this task.",
+  "retained": "Small independent original catalogs, failure metrics, original outcome and build evidence; new evidence groups retained until residual source/module consumer reconciliation; shared Cargo cache not collected"
+}

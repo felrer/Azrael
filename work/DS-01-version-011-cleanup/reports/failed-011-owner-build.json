@@ -1,0 +1,12 @@
+{
+  "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DT-01-old-log-cleanup\\runs\\lock-remediation-20261025-r1\\temporary\\native-source\\engine",
+  "sourceSha256": "68fd2d37abc80b2e3ec07ed41a25fa5846a0bd8129af2b83e43f022b4738afe0",
+  "inputsChecked": 30,
+  "reusedNativeTests": 120,
+  "buildExitCode": 0,
+  "signal": null,
+  "sourceUnchanged": true,
+  "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\failed-011-owner\\maintenance_owner.exe",
+  "binarySha256": "9e50802ce8638a06a08f152b71653e752aa259193001e01ee506ef32a216ebbc",
+  "ended": "2026-10-25T23:34:44.497Z"
+}

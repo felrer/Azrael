@@ -1,0 +1,31 @@
+{
+  "schema": 2,
+  "sourceKind": "imported-snapshot",
+  "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+  "importedInventorySha256": "06f071c557959d6d47f896210c63bd9b136f27bbb5915fd2d42105f7ed3c9abb",
+  "importedReceiptSha256": "217f35a178057b07ac00e37212f2cc2ca98ed316160bc9169718cd584fdcdc94",
+  "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+  "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "sourceSha256": "97c14c39c39351309f123e5b6b32f28f3eb2cdfb60ea6a887b8e44636babd2d5",
+  "fileCount": 9313,
+  "target": "x86_64-pc-windows-msvc",
+  "buildEnvironment": {
+    "RUSTFLAGS": "",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTC_WRAPPER": "",
+    "RUSTUP_TOOLCHAIN": "",
+    "V8_FROM_SOURCE": "",
+    "V8_FORCE_DEBUG": "",
+    "RUSTY_V8_ARCHIVE": "",
+    "RUSTY_V8_MIRROR": "",
+    "RUSTY_V8_SRC_BINDING_PATH": "",
+    "GN": "",
+    "GN_ARGS": "",
+    "EXTRA_GN_ARGS": "",
+    "NINJA": "",
+    "CLANG_BASE_PATH": "",
+    "PYTHON": "",
+    "LIBCLANG_PATH": ""
+  }
+}

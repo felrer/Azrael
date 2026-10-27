@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "id": "version:u22c",
+  "kind": "version",
+  "owner": "azrael-release",
+  "version": null,
+  "state": "pending",
+  "membership_complete": false,
+  "members": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\releases\\u22c",
+      "role": "release"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c",
+      "role": "build-logs"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\vsix\\u22c",
+      "role": "vsix"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\deploy-u22c",
+      "role": "deployment"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\deploy-u22c",
+      "role": "deploy-logs"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\verification-evidence\\deploy-u22c",
+      "role": "verification-evidence"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\verification-evidence\\account-controls-u22c",
+      "role": "account-evidence"
+    }
+  ],
+  "references": [],
+  "revision": 4,
+  "created_at": "2026-10-18T18:38:41.340Z",
+  "updated_at": "2026-10-25T12:37:00.716Z",
+  "release_receipt": {
+    "request_sha256": "ab783fa4dd56df0816eb1cdf074657cddcb16172aed2b24618dfe1e060881709",
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\maintenance\\evidence\\ds01-retirement.json",
+    "evidence_sha256": "6eecb3393480ad967ee1c1ab1edf31f524c6b253141fa7519d0434df92a04b34",
+    "reason": "User retires u22c build; stopped runtime and original consumer catalog independently preserved"
+  }
+}

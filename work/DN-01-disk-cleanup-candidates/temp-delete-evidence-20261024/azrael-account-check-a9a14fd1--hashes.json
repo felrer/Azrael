@@ -1,0 +1,12 @@
+{
+  "runId": "a9a14fd1",
+  "sourceEngine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\upstream\\codex\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\codex.exe",
+  "sourceEngineSha256": "D3FED9D4365A00F3B213F68104805C5FB273645E22F230E45C9813B795470940",
+  "copyEngine": "C:\\Temp\\azrael-account-check-a9a14fd1\\bin\\codex.exe",
+  "copyEngineSha256": "D3FED9D4365A00F3B213F68104805C5FB273645E22F230E45C9813B795470940",
+  "sourceBridge": "C:\\Users\\felre\\Desktop\\pi-harness-init\\upstream\\codex\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael-bridge.exe",
+  "sourceBridgeSha256": "E0147946046DD1F2D9FFDC79EEE00333F607CC5C821818C15809F3D8A83E9BCB",
+  "copyBridge": "C:\\Temp\\azrael-account-check-a9a14fd1\\bin\\azrael-bridge.exe",
+  "copyBridgeSha256": "E0147946046DD1F2D9FFDC79EEE00333F607CC5C821818C15809F3D8A83E9BCB",
+  "copyMatchesSource": true
+}

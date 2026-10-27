@@ -1,0 +1,416 @@
+[
+  {
+    "pid": 65532,
+    "creation": "134371950145214440",
+    "ppid": 7844,
+    "privateMiB": 350.75390625,
+    "deltaMiB": null,
+    "cpuDelta": null,
+    "new": true
+  },
+  {
+    "pid": 5232,
+    "creation": "134371949847014150",
+    "ppid": 61336,
+    "privateMiB": 20.97265625,
+    "deltaMiB": null,
+    "cpuDelta": null,
+    "new": true
+  },
+  {
+    "pid": 28476,
+    "creation": "134371936328573510",
+    "ppid": 45240,
+    "privateMiB": 69.28125,
+    "deltaMiB": 7.0625,
+    "cpuDelta": 0.078125,
+    "new": false
+  },
+  {
+    "pid": 25756,
+    "creation": "134371947627704290",
+    "ppid": 61336,
+    "privateMiB": 20.83203125,
+    "deltaMiB": 0.0703125,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 74644,
+    "creation": "134371671134975290",
+    "ppid": 61336,
+    "privateMiB": 20.70703125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 21176,
+    "creation": "134371675846129910",
+    "ppid": 61336,
+    "privateMiB": 21.015625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 58068,
+    "creation": "134371675882395160",
+    "ppid": 61336,
+    "privateMiB": 21.2734375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 57960,
+    "creation": "134371680452466070",
+    "ppid": 61336,
+    "privateMiB": 20.9921875,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 28336,
+    "creation": "134371680770750580",
+    "ppid": 40580,
+    "privateMiB": 216.46875,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 6656,
+    "creation": "134371680770844280",
+    "ppid": 40580,
+    "privateMiB": 21.2421875,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 74712,
+    "creation": "134371683296815800",
+    "ppid": 61336,
+    "privateMiB": 20.4375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 10860,
+    "creation": "134371685051513790",
+    "ppid": 61336,
+    "privateMiB": 20.72265625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 3900,
+    "creation": "134371695435710040",
+    "ppid": 61336,
+    "privateMiB": 20.66015625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 68148,
+    "creation": "134371703062944640",
+    "ppid": 61336,
+    "privateMiB": 21.4140625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 45832,
+    "creation": "134371713726436760",
+    "ppid": 61336,
+    "privateMiB": 21.4375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 18836,
+    "creation": "134371721071124700",
+    "ppid": 61336,
+    "privateMiB": 21.4296875,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 24180,
+    "creation": "134371739090998060",
+    "ppid": 61336,
+    "privateMiB": 21.20703125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 68452,
+    "creation": "134371744210026350",
+    "ppid": 61336,
+    "privateMiB": 21.2734375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 66124,
+    "creation": "134371757113059890",
+    "ppid": 61336,
+    "privateMiB": 20.65234375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 4320,
+    "creation": "134371775176570410",
+    "ppid": 61336,
+    "privateMiB": 20.80078125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 19500,
+    "creation": "134371793196340370",
+    "ppid": 61336,
+    "privateMiB": 21.078125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 36268,
+    "creation": "134371811309045890",
+    "ppid": 61336,
+    "privateMiB": 21.2109375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 72460,
+    "creation": "134371829383160790",
+    "ppid": 61336,
+    "privateMiB": 21.37109375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 10244,
+    "creation": "134371847619579210",
+    "ppid": 61336,
+    "privateMiB": 21.50390625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 14464,
+    "creation": "134371865659792730",
+    "ppid": 61336,
+    "privateMiB": 21.23828125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 2164,
+    "creation": "134371872307527930",
+    "ppid": 61336,
+    "privateMiB": 20.93359375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 19932,
+    "creation": "134371874340039100",
+    "ppid": 61336,
+    "privateMiB": 20.9765625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 46200,
+    "creation": "134371875085121280",
+    "ppid": 61336,
+    "privateMiB": 20.66015625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 47164,
+    "creation": "134371875128676730",
+    "ppid": 61336,
+    "privateMiB": 21.03515625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 12980,
+    "creation": "134371875272966570",
+    "ppid": 61336,
+    "privateMiB": 21.00390625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 66040,
+    "creation": "134371883662651730",
+    "ppid": 61336,
+    "privateMiB": 21.046875,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 49000,
+    "creation": "134371901779955370",
+    "ppid": 61336,
+    "privateMiB": 20.59375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 38556,
+    "creation": "134371919869876080",
+    "ppid": 61336,
+    "privateMiB": 20.55859375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 29456,
+    "creation": "134371920513037980",
+    "ppid": 61336,
+    "privateMiB": 20.73828125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 48132,
+    "creation": "134371923224402440",
+    "ppid": 61336,
+    "privateMiB": 20.92578125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 70336,
+    "creation": "134371926291961500",
+    "ppid": 61336,
+    "privateMiB": 20.7109375,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 66340,
+    "creation": "134371926325652970",
+    "ppid": 61336,
+    "privateMiB": 20.95703125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 35440,
+    "creation": "134371928604251720",
+    "ppid": 63400,
+    "privateMiB": 58.1796875,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 72480,
+    "creation": "134371928604330730",
+    "ppid": 63400,
+    "privateMiB": 19.50390625,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 11048,
+    "creation": "134371936328620180",
+    "ppid": 45240,
+    "privateMiB": 21.046875,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 65176,
+    "creation": "134371938655411640",
+    "ppid": 61336,
+    "privateMiB": 20.953125,
+    "deltaMiB": 0,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 20000,
+    "creation": "134371868408636880",
+    "ppid": 61336,
+    "privateMiB": 54.39453125,
+    "deltaMiB": -0.03515625,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 63772,
+    "creation": "134371948209439910",
+    "ppid": 61336,
+    "privateMiB": 21.1953125,
+    "deltaMiB": -0.03515625,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 24388,
+    "creation": "134371948221357460",
+    "ppid": 61336,
+    "privateMiB": 21.00390625,
+    "deltaMiB": -0.03515625,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 46336,
+    "creation": "134371948904899880",
+    "ppid": 7616,
+    "privateMiB": 21.94921875,
+    "deltaMiB": -0.03515625,
+    "cpuDelta": 0,
+    "new": false
+  },
+  {
+    "pid": 7616,
+    "creation": "134371948635873230",
+    "ppid": 37040,
+    "privateMiB": 61.6171875,
+    "deltaMiB": -0.0703125,
+    "cpuDelta": 0,
+    "new": false
+  }
+]

@@ -1,0 +1,59 @@
+[
+  {
+    "name": "worktree-add",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "worktree",
+      "add",
+      "--detach",
+      "--no-checkout",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+      "3dbcd525fa33e40949041fcbc916f5634c8a9d61"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\logs\\worktree-add.log"
+  },
+  {
+    "name": "sparse-engine",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+      "sparse-checkout",
+      "set",
+      "--cone",
+      "engine"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\logs\\sparse-engine.log"
+  },
+  {
+    "name": "checkout",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+      "checkout",
+      "3dbcd525fa33e40949041fcbc916f5634c8a9d61"
+    ],
+    "exitCode": 128,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\logs\\checkout.log"
+  }
+]

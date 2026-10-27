@@ -30,8 +30,10 @@ after(() => {
 function fixture(name) {
   const cwd = fs.mkdtempSync(path.join(root, name + "-"));
   ownedFixtures.push(cwd);
+  const env = { ...process.env, CARGO_TARGET_DIR: path.join(cwd, "target"), INSTA_PENDING_DIR: path.join(cwd, "pending") };
+  delete env.AZRAEL_CARGO_CACHE_PROJECT_ROOT;
   return { command: process.execPath, args: ["-e", "process.stdout.write('fake Cargo\\n')"], cwd,
-    env: { ...process.env, CARGO_TARGET_DIR: path.join(cwd, "target"), INSTA_PENDING_DIR: path.join(cwd, "pending") },
+    env,
     stdio: "pipe", encoding: "utf8" };
 }
 const leasePath = spec => path.join(spec.env.CARGO_TARGET_DIR, ".azrael-cargo-owner");
@@ -353,7 +355,7 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   const spec = fixture("default-lifecycle");
   const scripts = path.join(spec.cwd, "scripts");
   fs.mkdirSync(scripts);
-  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs", "maintenance-lock-owner.cjs"]) {
+  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs", "maintenance-lock-owner.cjs", "maintenance-lock-worker.cjs", "maintenance-owner-config.cjs"]) {
     fs.copyFileSync(path.join(__dirname, file), path.join(scripts, file));
   }
   const source = path.join(spec.cwd, "engine");
@@ -366,6 +368,7 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   const copiedVerification = require(path.join(scripts, "cargo-verification.cjs"));
   const copiedLifecycle = require(path.join(scripts, "artifact-lifecycle.cjs"));
   const env = { ...process.env, CARGO_TARGET_DIR: spec.env.CARGO_TARGET_DIR };
+  delete env.AZRAEL_CARGO_CACHE_PROJECT_ROOT;
   delete env.INSTA_PENDING_DIR;
   const command = copiedVerification.buildCargoTestCommand(source, ["test", "--lib", "filter"], { env });
   // The runner canonicalizes the junction; Windows case aliases must still

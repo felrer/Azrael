@@ -261,6 +261,38 @@ const path = require('node:path');
     fs.writeFileSync(receipt.checks[0].logPath, 'changed');
     await assert.rejects(bound.validate(), /evidence changed/);
   });
+  test('source handoff uses one receipt verifier per boundary and requires execution evidence', async () => {
+    const { root, manifest, config } = setup();
+    fs.writeFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), JSON.stringify(manifest));
+    const sourceConfig = { ...config, area: 'engine', checkPhase: 'source' };
+    const receipt = await gate.runPreservation(sourceConfig);
+    assert.equal(receipt.status, 'passed', receipt.error);
+    const reuseConfig = { ...sourceConfig, receiptPath: receipt.receiptPath };
+    const { bindSourcePreflight } = require('./source-preflight-reuse.cjs');
+    let verifications = 0;
+    const executionIdentity = gate.sourceExecutionIdentity;
+    const receiptVerifier = gate.verifyReceipt;
+    const verify = async config => { verifications++; return receiptVerifier(config); };
+    gate.verifyReceipt = verify;
+    gate.sourceExecutionIdentity = async () => { throw Error('Duplicate environment measurement'); };
+    try {
+      const bound = await bindSourcePreflight({ commands: [] }, reuseConfig, root);
+      assert.equal(verifications, 1);
+      await bound.validate();
+      assert.equal(verifications, 2, 'later boundary must still revalidate');
+      await assert.rejects(bindSourcePreflight({ commands: [] }, reuseConfig, root, async config => {
+        const verified = await verify(config);
+        delete verified.sourceExecution;
+        return verified;
+      }), /matching execution environment evidence/);
+    } finally { gate.sourceExecutionIdentity = executionIdentity; gate.verifyReceipt = receiptVerifier; }
+    const injected = await bindSourcePreflight({ commands: [] }, reuseConfig, root, config => receiptVerifier(config));
+    await injected.validate();
+    await assert.rejects(bindSourcePreflight({ commands: [] }, reuseConfig, root, async config => {
+      const verified = await receiptVerifier(config);
+      return { ...verified, sourceExecution: { ...verified.sourceExecution, environmentSha256: 'mismatched' } };
+    }), /matching execution environment evidence/);
+  });
   test('manual source receipt handoff requires explicit configuration and preserves its file', async () => {
     const { parseArgs, runSelection } = require('./test-project.cjs');
     const { root } = setup();

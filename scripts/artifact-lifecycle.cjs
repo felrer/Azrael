@@ -1,9 +1,10 @@
 "use strict";
 // Producer metadata only. Native maintenance owns review, registration and deletion.
 const fs = require("node:fs");
-const { acquire } = require("./maintenance-lock-owner.cjs");
+const maintenanceLocks = require("./maintenance-lock-owner.cjs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { isDeepStrictEqual } = require("node:util");
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
 const inside = (parent, child) => { const rel = path.relative(parent, child); return rel === "" || (!rel.startsWith(".." + path.sep) && rel !== ".." && !path.isAbsolute(rel)); };
 const overlap = (a, b) => inside(a, b) || inside(b, a);
@@ -38,6 +39,16 @@ function validate(root, record) {
   if (!Array.isArray(record.references) || record.references.some(ref => typeof ref.id !== "string" || !ref.id || typeof ref.reason !== "string" || !ref.reason.trim() || (ref.kind !== undefined && !referenceKinds.has(ref.kind)) || (ref.reference_id !== undefined && (typeof ref.reference_id !== "string" || !ref.reference_id)))) throw new Error("Invalid lifecycle references");
   if (new Set(record.references.map(referenceIdentity)).size !== record.references.length) throw new Error("Duplicate reference identity");
   record.references = record.references.map(reference => ({ ...reference, reference_id: referenceIdentity(reference) }));
+  for (const ref of record.references) {
+    if (ref.member_paths !== undefined && (!Array.isArray(ref.member_paths) || !ref.member_paths.length || new Set(ref.member_paths).size !== ref.member_paths.length)) throw new Error("Invalid scoped reference members");
+    for (const value of ref.member_paths || []) checked(root, value, true);
+    if (ref.target_revision !== undefined && (!Number.isSafeInteger(ref.target_revision) || ref.target_revision < 1)) throw new Error("Invalid reference revision");
+    if (ref.target_version !== undefined && (typeof ref.target_version !== "string" || !ref.target_version)) throw new Error("Invalid reference version");
+  }
+  if (record.ownership_scope !== undefined) {
+    if (record.ownership_scope !== "run-root" || record.kind !== "run" || !record.members.some(member => member.path === record.owned_root)) throw new Error("Invalid run-root ownership scope");
+    checked(root, record.owned_root, true);
+  }
   if (record.producer && (record.producer.status !== "stopped" || !["success", "failure", "unknown"].includes(record.producer.outcome) || !(record.producer.exit_code === null || Number.isInteger(record.producer.exit_code)) || typeof record.producer.reason !== "string" || !record.producer.reason.trim() || typeof record.producer.evidence_ref !== "string" || !/^[a-f0-9]{64}$/.test(record.producer.evidence_sha256 || ""))) throw new Error("Invalid lifecycle producer");
   return record;
 }
@@ -58,20 +69,32 @@ function projectMembers(members) {
       ...(members.some(child => inside(member.path, child.path) && child.protection_known === false) ? { protection_known: false } : {}) }))
     .sort((a, b) => Number(/log|report|evidence/.test(a.role)) - Number(/log|report|evidence/.test(b.role)));
 }
+const catalogLeases = new Map();
 function withCatalogLock(root, action) {
+  root = path.resolve(root);
+  if (catalogLeases.has(root)) return action();
   const directory = registry(root);
   fs.mkdirSync(directory, { recursive: true });
   const lock = checked(root, path.join(directory, "catalog.lock"));
-  const descriptor = acquire(lock, { operation: "lifecycle.catalog" });
-  try { return action(); } finally { descriptor.release(); }
+  const descriptor = maintenanceLocks.acquire(lock, { operation: "lifecycle.catalog" });
+  catalogLeases.set(root, descriptor);
+  try { return action(); } finally { catalogLeases.delete(root); descriptor.release(); }
 }
 const referenceKinds = new Set(["execution", "installation", "recovery", "evidence", "dependency"]);
-function referenceIdentity(reference) { return reference.reference_id || sha(JSON.stringify([reference.id, reference.reason, reference.kind ?? null])); }
+function referenceShape(reference) { return [reference.id, reference.reason, reference.kind ?? null, ...(reference.member_paths !== undefined || reference.target_revision !== undefined || reference.target_version !== undefined ? [reference.member_paths === undefined ? null : [...reference.member_paths].sort(), reference.target_revision ?? null, reference.target_version ?? null] : [])]; }
+function referenceIdentity(reference) { return reference.reference_id || sha(JSON.stringify(referenceShape(reference))); }
+function referenceMatches(reference, id, member) { return reference.id === id && (reference.member_paths === undefined || reference.member_paths.includes(member.path)); }
+function referenceBindingError(reference, target) {
+  if (reference.target_revision !== undefined && reference.target_revision !== target.revision || reference.target_version !== undefined && reference.target_version !== target.version) return "stale-target-binding";
+  if (reference.member_paths?.some(value => !projectMembers(target.members).some(member => member.path === value))) return "invalid-member-scope";
+  return null;
+}
 function cleanupReady(record) { return record.producer ? record.producer.status === "stopped" && record.producer.outcome !== "unknown" : record.state === "complete"; }
 function writeRecord(root, filename, record) {
-  const temporary = checked(root, filename + "." + crypto.randomUUID() + ".tmp");
-  fs.writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
-  fs.renameSync(temporary, filename);
+  const lease = catalogLeases.get(path.resolve(root));
+  if (!lease || filename !== registryPath(root, record.id)) throw new Error("Native catalog lease required for lifecycle write");
+  const raw = fs.existsSync(filename) ? fs.readFileSync(filename) : null;
+  lease.writeRecord(record, raw === null ? null : sha(raw));
 }
 function checkedEvidence(root, request) {
   if (typeof request.reason !== "string" || !request.reason.trim()) throw new Error("Nonblank reason required");
@@ -83,9 +106,7 @@ function checkedEvidence(root, request) {
 }
 function mutateLifecycle(root, id, request, operation, mutate) {
   return withCatalogLock(root, () => {
-    const filename = registryPath(root, id), lock = checked(root, filename + ".lock");
-    const descriptor = acquire(lock, { operation: "lifecycle.write" });
-    try {
+    const filename = registryPath(root, id);
       const record = validate(root, JSON.parse(fs.readFileSync(filename, "utf8")));
       if (record.custody_transfer && record.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
       if (record.custody_refinement && record.state === "pending") throw new Error("Pending custody refinement requires refine-custody retry");
@@ -105,7 +126,6 @@ function mutateLifecycle(root, id, request, operation, mutate) {
       validate(root, record);
       writeRecord(root, filename, record);
       return record;
-    } finally { descriptor.release(); }
   });
 }
 function closeLifecycle(root, id, request) {
@@ -137,11 +157,14 @@ function recordLifecycleUnlocked(root, request) {
   const incoming = validate(root, { ...request, schema: 1, references: request.references || [] });
   const filename = registryPath(root, incoming.id);
   fs.mkdirSync(path.dirname(filename), { recursive: true });
-  const lock = filename + ".lock";
-  checked(root, lock);
-  const descriptor = acquire(lock, { operation: "lifecycle.write" });
-  try {
     const previous = fs.existsSync(filename) ? validate(root, JSON.parse(fs.readFileSync(filename, "utf8"))) : null;
+    if (previous?.custody_snapshot && incoming.members.some(member => previous.custody_snapshot.containers.some(container => inside(member.path, container.path) || inside(container.path, member.path) && !previous.members.some(old => old.path === member.path && old.role === member.role)))) throw new Error("Frozen custody container cannot be reclaimed");
+    if (previous && (incoming.ownership_scope !== undefined && incoming.ownership_scope !== previous.ownership_scope || incoming.owned_root !== undefined && incoming.owned_root !== previous.owned_root)) throw new Error("Cannot change lifecycle ownership scope");
+    if (incoming.ownership_scope === "run-root" || previous?.ownership_scope === "run-root") {
+      const claims = catalog(root).filter(record => record.id !== incoming.id);
+      if (incoming.members.some(member => claims.some(record => record.members.some(old => overlap(old.path, member.path))))) throw new Error("Artifact destination already claimed by another lifecycle");
+    }
+    if (catalog(root).some(record => record.id !== incoming.id && record.ownership_scope === "run-root" && incoming.members.some(member => record.members.some(old => overlap(old.path, member.path))))) throw new Error("Artifact destination already claimed by reserved run");
     if (previous?.custody_transfer && previous.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
     if (previous?.custody_refinement && previous.state === "pending") throw new Error("Pending custody refinement requires refine-custody retry");
     if (previous?.custody_handoffs?.some(receipt => incoming.members.some(member => receipt.paths.some(transferred => overlap(transferred, member.path))))) throw new Error("Transferred custody cannot be reclaimed by ordinary record writes");
@@ -167,9 +190,12 @@ function recordLifecycleUnlocked(root, request) {
     for (const reference of incoming.references) {
       const normalized = { ...reference, reference_id: referenceIdentity(reference) };
       const old = references.find(old => referenceIdentity(old) === normalized.reference_id);
-      if (old && (old.id !== normalized.id || old.reason !== normalized.reason || old.kind !== normalized.kind)) throw new Error("Conflicting reference identity");
+      if (old && JSON.stringify(referenceShape(old)) !== JSON.stringify(referenceShape(normalized))) throw new Error("Conflicting reference identity");
       if (!old) {
         const target = catalog(root).find(record => record.id === reference.id);
+        if ((reference.member_paths !== undefined || reference.target_revision !== undefined || reference.target_version !== undefined) && !target) throw new Error("Scoped or pinned reference target missing");
+        if (target && (reference.target_revision !== undefined && reference.target_revision !== target.revision || reference.target_version !== undefined && reference.target_version !== target.version)) throw new Error("Reference target binding mismatch");
+        if (reference.member_paths?.some(value => !projectMembers(target.members).some(member => member.path === value))) throw new Error("Scoped reference member mismatch");
         if (target && cleanupReady(target) && target.membership_complete && !target.members.some(member => {
           try { fs.lstatSync(checked(root, member.path, true)); return true; }
           catch (error) { if (error.code === "ENOENT") return false; throw error; }
@@ -179,6 +205,8 @@ function recordLifecycleUnlocked(root, request) {
     }
     const result = { schema: 1, id: incoming.id, kind: incoming.kind, owner: incoming.owner, version: incoming.version ?? null,
       state: incoming.state, membership_complete: incoming.membership_complete, members, references,
+      ...(incoming.ownership_scope || previous?.ownership_scope ? { ownership_scope: incoming.ownership_scope ?? previous.ownership_scope, owned_root: incoming.owned_root ?? previous.owned_root } : {}),
+      ...(previous?.custody_snapshot ? { custody_snapshot: previous.custody_snapshot } : {}),
       ...(incoming.generation !== undefined || previous?.generation !== undefined ? { generation: incoming.generation ?? previous.generation } : {}),
       ...(!newGeneration && previous?.producer ? { producer: previous.producer } : {}),
       ...(!newGeneration && previous?.close_receipt ? { close_receipt: previous.close_receipt } : {}),
@@ -188,13 +216,53 @@ function recordLifecycleUnlocked(root, request) {
       ...(previous?.custody_refinement ? { custody_refinement: previous.custody_refinement } : {}),
       ...(previous?.custody_refinements ? { custody_refinements: previous.custody_refinements } : {}),
       revision: (previous?.revision || 0) + 1, created_at: previous?.created_at || new Date().toISOString(), updated_at: new Date().toISOString() };
-    const temporary = checked(root, filename + "." + crypto.randomUUID() + ".tmp");
-    fs.writeFileSync(temporary, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
-    fs.renameSync(temporary, filename);
+    writeRecord(root, filename, result);
     return result;
-  } finally { descriptor.release(); }
 }
 // A custody handoff adjudicates ownership; it makes no claim about historical execution success.
+function freezeCustody(root, id, request) {
+  return withCatalogLock(root, () => {
+    const filename = registryPath(root, id);
+    const record = catalog(root).find(record => record.id === id);
+    if (!record || record.owner !== request.owner || record.revision !== request.expected_revision) throw new Error("Exact custody owner and revision required");
+    if (record.state !== "retained" || record.membership_complete || record.producer || record.ownership_scope || record.custody_snapshot) throw new Error("Unresolved retained legacy custody required");
+    if (!Array.isArray(request.paths) || !request.paths.length || new Set(request.paths).size !== request.paths.length) throw new Error("Explicit unique custody containers required");
+    const evidence = checkedEvidence(root, request);
+    if (inside(registry(root), evidence.evidence_ref) || record.members.some(member => overlap(member.path, evidence.evidence_ref))) throw new Error("Custody evidence must survive outside source members and registry");
+    const containers = request.paths.map(value => {
+      const parent = checked(root, value, true);
+      if (inside(registry(root), evidence.evidence_ref) || overlap(parent, evidence.evidence_ref)) throw new Error("Custody evidence must survive outside selected containers and registry");
+      const member = record.members.find(member => member.path === parent && ["legacy-custody", "legacy-input"].includes(member.role) && member.generated === false && member.protection_known === false);
+      if (!member || !fs.lstatSync(parent).isDirectory()) throw new Error("Exact protected legacy container required");
+      const identity = custodyFileIdentity(parent);
+      const children = fs.readdirSync(parent).sort().map(name => {
+        const child = checked(root, path.join(parent, name), true);
+        return { path: child, identity: custodyFileIdentity(child) };
+      });
+      return { path: parent, identity, children, member };
+    });
+    if (catalog(root).some(consumer => consumer.references.some(ref => ref.id === id && ref.member_paths?.some(value => containers.some(container => container.path === value))))) throw new Error("Scoped consumer pins selected custody container");
+    if (containers.some(a => containers.some(b => a !== b && overlap(a.path, b.path)))) throw new Error("Overlapping custody containers");
+    const members = record.members.filter(member => !containers.some(container => container.path === member.path));
+    for (const container of containers) for (const child of container.children) members.push({ ...container.member, path: child.path });
+    if (!members.length) throw new Error("Empty custody inventory cannot be represented; no mutation performed");
+    // The receipt pins the current direct inventory, never future siblings.
+    for (const container of containers) {
+      verifyCustodyIdentity(container.path, container.identity);
+      const names = fs.readdirSync(container.path).sort().map(name => path.join(container.path, name));
+      if (JSON.stringify(names) !== JSON.stringify(container.children.map(child => child.path))) throw new Error("Custody container listing changed");
+      for (const child of container.children) verifyCustodyIdentity(checked(root, child.path, true), child.identity);
+      verifyCustodyIdentity(container.path, container.identity);
+      if (JSON.stringify(fs.readdirSync(container.path).sort().map(name => path.join(container.path, name))) !== JSON.stringify(names)) throw new Error("Custody container listing changed");
+    }
+    checkedEvidence(root, request);
+    record.members = members;
+    record.custody_snapshot = { ...evidence, source_revision: record.revision, paths: [...request.paths], containers: containers.map(({ member, ...container }) => container) };
+    record.revision++; record.updated_at = new Date().toISOString();
+    validate(root, record); writeRecord(root, filename, record);
+    return record;
+  });
+}
 function custodyInputs(root, sourceId, request, extraProofRoots = []) {
     root = path.resolve(root);
     const records = catalog(root), source = records.find(record => record.id === sourceId);
@@ -526,7 +594,37 @@ function relocateCustody(root, sourceId, request) {
     return { status: "relocated", source_id: sourceId, target_id: target.id, record: pending };
   });
 }
-function planCleanup(root, { paths = [], protectedPaths = [], reportPath } = {}) {
+function cleanupReservation(root, record, observers = []) {
+  // Native reservation IDs hash serde JSON strings; ledger record IDs hash raw IDs.
+  const filename = path.join(registry(root), "reservations", sha(JSON.stringify(record.id)) + ".json");
+  const mismatch = reason => { throw Object.assign(new Error(reason), { reservationReason: reason }); };
+  try {
+    checked(root, filename);
+    let stat;
+    try { stat = fs.lstatSync(filename); } catch (error) {
+      if (error.code === "ENOENT" && !observers.some(observer => observer.id === record.id)) return null;
+      throw error;
+    }
+    if (!stat.isFile() || stat.isSymbolicLink()) throw new Error("Invalid reservation file");
+    const raw = fs.readFileSync(filename), reservation = JSON.parse(raw);
+    if (!reservation || reservation.schema !== 1 || reservation.id !== record.id || reservation.status !== "active" || typeof reservation.token !== "string" || !reservation.token || !Array.isArray(reservation.members)) throw new Error("Invalid durable reservation");
+    const own = observers.filter(observer => observer && observer.id === record.id);
+    if (own.length === 1 && isDeepStrictEqual(own[0].fence, reservation)) {
+      const current = JSON.parse(fs.readFileSync(registryPath(root, record.id), "utf8"));
+      if (checked(root, reservation.source) !== registry(root)) mismatch("source-path-mismatch");
+      if (!reservation.source_owner || !isDeepStrictEqual(current, reservation.source_owner)) mismatch("source-owner-mismatch");
+      if (typeof reservation.source_fence !== "string" || !/^[a-f0-9]{64}$/.test(reservation.source_fence)) mismatch("source-fence-invalid");
+      const projected = projectMembers(record.members);
+      if (reservation.members.length !== projected.length || reservation.members.some(member => !projected.some(value => value.path === member.path && value.role === member.role && value.generated === member.generated && value.protection_known === member.protection_known))) mismatch("member-shape-mismatch");
+      if (!fs.readFileSync(filename).equals(raw)) throw new Error("Reservation changed during observation");
+      return null;
+    }
+    if (!fs.readFileSync(filename).equals(raw)) throw new Error("Reservation changed during observation");
+    return own.length ? "observer-fence-mismatch" : "active-cleanup-reservation";
+  } catch (error) { return error.reservationReason || "reservation-unreadable-or-invalid"; }
+}
+function planCleanup(root, { paths = [], protectedPaths = [], reportPath, reservations = [] } = {}) {
+  if (!Array.isArray(reservations)) throw new Error("Explicit reservation observer array required");
   const records = catalog(root);
   const candidates = paths.map(value => checked(root, value, true));
   const protectedList = protectedPaths.map(value => path.resolve(value));
@@ -540,13 +638,24 @@ function planCleanup(root, { paths = [], protectedPaths = [], reportPath } = {})
   }
   const groups = records.filter(record => selected.has(record.id)).map(record => {
     const blockers = [];
+    const reservation = cleanupReservation(root, record, reservations);
+    if (reservation) {
+      blockers.push("active-cleanup-reservation");
+      if (reservation !== "active-cleanup-reservation") blockers.push(`cleanup-reservation-detail:${reservation}`);
+    }
     if (!cleanupReady(record)) blockers.push(`lifecycle-state:${record.state}`);
     if (!record.membership_complete) blockers.push("incomplete-membership");
     if (record.members.some(member => member.generated === false)) blockers.push("unconfirmed-generated-ownership");
     if (record.members.some(member => member.protection_known === false)) blockers.push("unknown-member-protection");
     if (record.members.some(member => protectedList.some(protectedPath => overlap(member.path, protectedPath)))) blockers.push("protected-member");
     if (report && record.members.some(member => inside(member.path, report))) blockers.push("report-inside-member");
-    for (const other of records) if (other.references.some(ref => ref.id === record.id)) blockers.push(`active-reference:${other.id}`);
+    for (const other of records) {
+      if (other.references.some(ref => projectMembers(record.members).some(member => referenceMatches(ref, record.id, member)))) blockers.push(`active-reference:${other.id}`);
+      for (const ref of other.references.filter(ref => ref.id === record.id)) {
+        const error = referenceBindingError(ref, record);
+        if (error) blockers.push(`invalid-reference:${other.id}:${error}`);
+      }
+    }
     return { id: record.id, members: projectMembers(record.members), blockers, registered: true };
   });
   const globalBlockers = [];
@@ -566,10 +675,15 @@ function registerRequest(root, id) {
   const records = catalog(root);
   const record = records.find(value => value.id === id);
   if (!record) throw new Error("Unknown lifecycle id");
+  if (cleanupReservation(root, record)) throw new Error("Lifecycle group has active-cleanup-reservation");
+  for (const consumer of records) for (const reference of consumer.references.filter(reference => reference.id === id)) {
+    const error = referenceBindingError(reference, record);
+    if (error) throw new Error(`Invalid inbound reference ${consumer.id}: ${error}`);
+  }
   const provenance = registryPath(root, id);
   // Registry references describe a consumer's dependencies. Native item
   // references protect an item from its consumers, so project the inverse.
-  const inbound = records.flatMap(consumer => consumer.references.filter(reference => reference.id === id)
+  const inbound = member => records.flatMap(consumer => consumer.references.filter(reference => referenceMatches(reference, id, member))
     .map(reference => `${consumer.id}:${reference.reason}`));
   return { operation: "register", group: { id, kind: record.kind, owner: record.owner, version: record.version,
     membership_complete: cleanupReady(record) && record.membership_complete, provenance_ref: provenance,
@@ -579,14 +693,11 @@ function registerRequest(root, id) {
         : /(?:^|[-_\s])(?:reports?|evidence|verification)(?:$|[-_\s])/i.test(member.role) ? "evidence"
         : /(?:^|[-_\s])(?:snapshots?|inputs?)(?:$|[-_\s])/i.test(member.role) ? "snapshot" : "artifact",
       kind: member.role, owner: record.owner, generated: member.generated !== false, protection_known: member.protection_known === true,
-      references: inbound, provenance_ref: provenance })) } };
+      references: inbound(member), provenance_ref: provenance })) } };
 }
 function finalize(root, id, retirement) { return withCatalogLock(root, () => finalizeUnlocked(root, id, retirement)); }
 function finalizeUnlocked(root, id, retirement) {
   const filename = registryPath(root, id);
-  const lock = filename + ".lock";
-  const descriptor = acquire(checked(root, lock), { operation: "lifecycle.finalize" });
-  try {
     const records = catalog(root), record = records.find(value => value.id === id);
     if (!record) throw new Error("Unknown lifecycle id");
     const remaining = record.members.filter(member => {
@@ -611,10 +722,9 @@ function finalizeUnlocked(root, id, retirement) {
     if (remaining.length || references.length || blockers.length) return { id, status: "retained", remaining, references, blockers, registryPath: filename };
     if (retirementEvidence && sha(fs.readFileSync(checked(root, retirementEvidence.path))) !== retirementEvidence.sha256) throw new Error("Retirement evidence changed before finalization");
     // Metadata reconciliation follows verified absence, never a producer state label.
-    fs.unlinkSync(filename);
+    catalogLeases.get(path.resolve(root)).removeRecord(id, sha(fs.readFileSync(filename)));
     return { id, status: "finalized", remaining: [], references: [], blockers: [], registryPath: filename,
       ...(retirementEvidence ? { retirement: retirementEvidence } : {}) };
-  } finally { descriptor.release(); }
 }
 function main(argv = process.argv.slice(2)) {
   const action = argv.shift(), options = {}, members = [], references = [], paths = [], protectedPaths = [];
@@ -668,5 +778,5 @@ function main(argv = process.argv.slice(2)) {
   }
   throw new Error("Expected record, plan, register, catalog or finalize");
 }
-module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
+module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }

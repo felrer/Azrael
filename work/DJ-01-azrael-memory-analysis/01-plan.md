@@ -26,6 +26,132 @@ root 소유 변경은 `core/src/session/mcp_runtime.rs`, 기존 `core/tests/suit
 
 최종 commit 범위: 출처 기록과 commit checkout을 일치시키기 위해 기존 manifest 검사 정책(.github/scripts/verify_cargo_workspace_manifests.py)의 data-encoding 허용 두 줄을 함께 포함할지 별도로 질문했고, 사용자가 허용했다. 검토된 두 줄 외 추가 수정 없이 stage했으며, staged blob의 SHA256=a774049a6e3bb942173b37770b5fdb9da8fb3ef6f8deb131a4a55aac065b37d1이 SOURCE.json과 일치함을 확인했다. 기존 보류 사유는 해소됐다. 기존 test_approved_compile_scope_manifests_use_exact_exceptions도 실제1pass/exit0(테스트15.380초)으로 확인했다. 명령과 입력 SHA는 evidence/mcp-policy-verification.json에 기록하며, 읽기 전용으로 사용한 동시 작업의 테스트 파일은 commit에 포함하지 않는다. 다른 동시 작업 파일도 포함하지 않는다. 최종 diff --check는 원시 로그의 원래 공백을 제외한 source/document/evidence JSON 전체에서 exit0이다. 로그의 원시 출력은 수정하지 않았다.
 
+### 중복·불필요 보유 조사 결과
+
+범위: 사용자의 후속 요청에 따라 누수 추적에서 중복 표현·캐시·미사용 프로세스 보유 조사로 초점을 옮겼다. 누수가 없다고 확정한 것은 아니다. 기존 work와 읽기 전용 진단 권한을 유지했고 제품·사용자 설정·추론·설치는 변경하지 않았다. 대상은 실제 설치2026.0.11 UI와 frozen w11aa Windows x64 소스다. 공통 구조의 개선 후보지만 macOS/Linux 적용·절감량을 검증하지 않았다. context 생성/소유권은 기존 real_history_contract, native 이력 표현은 engine_memory가 읽기 전용으로 조사했고 root는 설치 UI·MCP를 조사하여 통합했다. 추가 빌드·프로필 복사·UI 입력은 없었다.
+
+| 대상 | 확인한 구조 | 판단과 권장 검증 |
+|---|---|---|
+| 비활성 UI 대화 | 일반 owner 대화는 기본3시간 또는 비활성 후보10개 초과 시 oldest부터 unsubscribe한다. active view/follower/보호 작업은 대상에서 빠진다. passive 비활성 이력을 즉시 비우는 경로도 있다. | 회수 누락으로 단정하지 않는다. 사용자 선호에 따라 약20분의 시간 기반 해제를 우선 검토한다. 바이트 상한은 우선 권장안에서 내린다.3시간은 모든 대화를 무조건 유지한다는 의미가 아니다. |
+| 화면 밖 이력 | 설치 UI에1000개 item 초과 시 보호 viewport 앞쪽을500개 수준까지 줄이는 기존 함수가 있다. canonical/paginated/anchor 지원, 하나의 history island, 진행 중 로딩/요청 등 조건과 readActiveHistoryEvictionEnabled===true가 필요하다. | 새 eviction 기능을 중복 구현하지 않는다. 실험 설정의 fallback은 false지만 실제 live flag는 미측정이다. 먼저 현재 경로·flag·보류 조건을 확인한다.1000/500은 일반 byte 상한이나 반드시 달성하는 개수 상한이 아니다. |
+| 전체 이력 API 응답 | thread/read(includeTurns=true)는 page들을 하나의 Vec<Turn>으로 모은다. resume는 excludeTurns=false이면 initialTurnsPage 요청과 별개로 full turns도 만들 수 있다. pending listener의 unbounded channel에는 여러 응답이 대기할 수 있다. | 별도 full-response 경로의 중복·transient 비용을 줄이는 후보. 기존 실측 page114MiB/full327~409MiB가 방향을 지지한다. 설치 UI는 useTailHydration=true이고 local resume의 excludeTurns=tail&&!cloud 경로가 이미 있으므로 매번 full-read한다는 주장은 하지 않는다. 실제 fallback/특수 caller 사용량을 계측한다. |
+| 프로젝트 context | 각 context가 ConfigManager/AuthManager/ThreadManager/ModelsManager/ModelCatalog와 일부 worker를 따로 만든다. 같은 context 안에서는 Arc를 공유한다. context 개별 retirement는 구현되지 않았다. | byte 기여량 미확정. 살아 있는 thread·예약·callback·재접속 경로를 보존한 lazy 생성/안전한 retirement와 계정·설정이 같은 불변 model/catalog 데이터의 공유를 검토한다. 컨텍스트 전체의 무조건 통합은 하지 않는다. |
+| MCP 프로세스 | root는 Eager, subagent는 LazyWhenCached 정책이다. 호환 connection 재사용·도구 catalog cache·binding Arc/Weak 재사용이 이미 있다. 이전 no-tool 실측10root/20MCP는 MCP 없는 경우보다298.3MiB 컸다. | 기존 lazy 기구를 root에서도 안전하게 활용할 범위를 검토한다. 상태 있는 REPL·권한·workspace·승인·nonce를 서로 공유하지 않는다. 재사용할 catalog가 없는 cold start와 selected plugin 예외도 보존한다. |
+| 보조 Webview | usageView/rootResumeView는 retainContextWhenHidden=true다. usage는 숨겨지면 polling을 멈추는 기존 처리도 있다. 대화 Webview 해제는 별도1시간 지연과 작업 보호 조건을 쓴다. | 숨은 renderer 보유의 추가 후보지만 RAM 기여량은 미귀속이다. 설정·예약 화면을 대화 화면과 함께 큰 원인으로 합산하지 않는다. |
+
+설치 UI의 근거: 주 asset `app-initial-7a199c66e670.js`는 manager asset `app-initial-97d3534ad35f.js`를 import한다. 후자의 character offsets4688488(TTL108e5/cap10),4690398(inactivity eligibility),4691702(passive history clear),4694995(candidate selection),4697144(unsubscribe 후 history clear),4673528(FCn viewport eviction),4675539(zCn viewport subscription),5025355(experiment callback)에서 확인했다. 주 asset offset813931은 useTailHydration=true, canonicalTurnHistory=true와 experiment3359351081.enabled fallback false를 제공한다. offsets는 해당 설치 asset hash와 함께 해석하며 파일 변경 후 재사용하지 않는다. 실제 플래그를 읽거나 바꾸지 않았다.
+
+판정에서 제외하거나 낮춘 중복 후보:
+
+- DB runtime `StateDbHandle=Arc<StateRuntime>`와 EnvironmentManager, 계정 backend identity/snapshot ordering은 context 간 이미 공유한다. 새 DB 전체가 창마다 RAM에 복제된다는 근거는 없다. ConfigManager fork와 계정 선택은 context별로 구분한다.
+- core model history는 `Arc<Vec<ResponseItemEnvelope>>`, resumed rollout은 `Arc<Vec<RolloutItem>>`다. Arc clone 자체는 본문 복제가 아니다. cold reconstruction에서 model context를 따로 만들 때 response item clone이 있고 API 응답이 끝날 때까지 rollout 표현이 함께 살아 있을 수 있지만, 이 경로가 전체 UI 대화 두 벌을 영구 유지하는 것은 아니다. model context는 compaction 이후 선택한 suffix일 수 있다.
+- app-server ThreadHistoryBuilder는 terminal turn 뒤 reset한다. TurnSummary의 final agent message clone은 남지만 전체 완료 이력을 계속 캐시하는 구조는 아니다. Guardian의 별도 history는 kind당128items/4MiB 한계가 있다.
+- MCP tool cache에는32entry/30분 정책과 Arc 공유가 있다. 다만 각 McpManager가 자체 cache를 생성하며 context 사이 자동 전역 공유까지 보장하지 않는다. binding cache는 Weak이므로 사용하지 않는 binding을 그 cache만으로 붙잡지 않는다. 별도 새 cache를 추가할 이유가 없다.
+- 최근5쌍 connector/bridge 합계 중앙값은 약92MiB다. 이들을 합치는 것만으로 공유 엔진 약4GiB를 설명하거나 큰 절감을 보장할 수 없다. rustc 및 새 generic Node 작업은 엔진 heap과 구분한다.
+
+native 증거 위치는 frozen `app-server/src/azrael_shared_server.rs:404,561,763`, `message_processor.rs:362`, `core/src/thread_manager.rs:447,477`, `rollout/src/state_db.rs:29`, `login/src/auth/manager.rs:3024`다. 이력 표현은 `core/src/state/session.rs:74`, `context_manager/history.rs:93,258,539`, `core/src/session/mod.rs:1696,1836`, `history/src/lib.rs:374`; app-server 이력 수명은 `thread_state.rs:97,205,373,557`, full/resume 응답은 `request_processors/thread_processor.rs:3007,3491,4268,4354,4725`, pending 응답 처리는 `request_processors/thread_lifecycle.rs:625`다. bounded Guardian은 `guardian-context/src/history.rs:8,59,131`이다. MCP 정책은 `core/src/session/mcp_runtime.rs:378`, cache/connection/binding은 `codex-mcp/src/{tool_catalog_cache.rs:33,connection_manager.rs:282,635,runtime.rs:437,484,binding.rs:32}`, manager cache 생성은 `core/src/mcp.rs:104,130`이다.
+
+검증: `check-inactive-cache-policy.mjs`는 설치 asset hash와 정확한 candidate-selection method를 추출해 fixture 입력으로7개 조건을 확인했다.10idle/1시간=0해제,11idle/1시간=oldest1,10idle/3시간 초과=10, active view/보호작업/follower=해제0, ephemeral side는 일반10개 cap에서 제외됨을 확인했다. source node --check exit0, 실제 fixture exit0, producerStopped=true/children[]다. 이는 선택 알고리즘의 조건 검증이며 실제 UI 상태·메모리 절감 검증은 아니다. helper는 synthetic protection 결과를 입력하므로 보호 판정 전체를 검증하지 않는다. 근거와 재현 source는 `evidence/inactive-cache-policy-r1/`에 보관했다. native register/review(blockers[])/delete(remaining=false)/finalize(remaining[]/references[]/blockers[])를 완료했으며 audit은 `evidence/inactive-cache-policy-cleanup.json`이다.
+
+추천 순서: (1) 비활성 UI/대화 구독의 시간 기반 해제를 약20분으로 맞추는 방안 검토, (2) root MCP eager-start와 반복 relay 프로세스 비용 축소, (3) context별 code-mode host provider 공유 후보 검증, (4) full-response/queued resume 중복 구성과 대형 command/MCP 결과 본문 lazy fetch, (5) context 생성/retirement 최적화. 기존 viewport eviction의 live 활성 여부·보호 사유는 계측 대상으로 유지한다. 실제 절감률은 변경 전후 동일 입력 비교가 필요하다. 기능·정책 변경의 채택과 구현은 이번 조사와 구분하며 아직 수행하지 않았다.
+
+### 시간 기반 해제와 실행 프로세스 공유의 후속 논의
+
+사용자는 개수·바이트 상한 추가보다, 화면에서 벗어난 일반 비활성 대화의 캐시를 기존 약1시간보다 짧은20분 정도에 해제하는 방안을 선호한다. `design-collaboration`을 적용하되 같은 work와 조사 권한을 이어간다. 이번 발언은 정책 설명과 후보 비교 요청으로 적용했으며 제품 수정·설치 권한으로 확대하지 않는다.
+
+설명의 정정/구분:1시간은 `scripts/webview-idle.cjs:35`의 숨겨진 Webview 전체 renderer 해제 지연이다.3시간/10개는 설치 manager asset의 비활성 history owner 구독 해제 정책이다. 일반 eligible owner가10개 이하면 TTL까지 보유될 수 있지만 active view·followers·작업 등 보호 조건이 별도 있고 passive 즉시 해제 경로도 있다. 따라서10개가 무조건3시간 보유되는 규칙은 아니다. candidate 계산은 `max(0, eligibleOrdinaryCount - cap)`를 해제 대상으로 선택하므로 cap을0으로 바꾸면 TTL을 기다리지 않고 모든 eligible ordinary owner를 바로 해제한다.20분 유예와 cap0 즉시 해제를 같은 정책으로 해석하면 안 된다. 이는 앞서 검증한 설치 method의 수식에서 도출했으며 cap0 별도 실행 테스트는 하지 않았다.
+
+권장안(미적용): '화면에서 벗어나고 작업 보호가 해제된 일반 대화는20분 유예 후 캐시/구독을 해제하고, 다시 열 때 이력과 draft/view state를 복원'을 기준으로 관련 타이머를 일관되게 조정한다.1시간 UI 타이머만 줄이고3시간 구독 타이머를 그대로 두면 양쪽 자원이 함께 회수된다고 보장할 수 없다. 반대로 구독만 해제해도 renderer/host cache가 즉시 비워진다고 보장할 수 없다. 장기 Running/Deferred 작업·승인·queue·draft/선택한 유지 플래그·기타 창의 실제 사용 보호는 보존한다. 전경 창이 아니라는 이유만으로 모든 열린 대화를 비활성으로 바꾸는 제안은 하지 않는다.20분 경과 후 native idle unload는 별도의 기존60초 지연을 추가할 수 있고 allocator 때문에 Private Bytes 전체가 즉시 초기값으로 돌아오는 보장도 없다. 정확한 두 계층 연결과 회수량은 구현 전후 검증 대상이다.
+
+실행 중복 후보의 추가 근거:
+
+1. Window Use relay: 이전2026-10-22T16:05:20Z 실측에서50개/1111.8MiB private였다(`process-summary.json`). 같은 snapshot의 실제 window backend는2개/13.2MiB였다. relay는 `scripts/window-control-mcp.cjs:142`에서 매 요청의 trusted thread ID로 세션의 pipe/nonce를 읽어 기존 backend에 중계한다. 따라서50개 relay를50개의 독립 화면 자동화 backend로 간주하면 안 된다. root eager start를 줄이는 것이 우선이며 relay 프로세스 공유도 후보이다. 다만 현재 stdio loop는 프로세스 input/output 한 쌍을 처리하므로 공유 시 요청 다중화·실패 격리·승인/취소/nonce/thread routing을 보존해야 한다. 현재50개가 전부 미사용이라는 증거는 없고 절감량도 미측정이다.
+2. code-mode host: frozen `core/src/thread_manager.rs:587`은 manager마다 새 `ProcessOwnedCodeModeSessionProvider::default()`를 만든다. `app-server/src/message_processor.rs:448,487`은 context마다 manager를 만들고 명시적 provider가 없으면 그 기본값을 유지한다. `code-mode/src/remote_session.rs:35,44,87,105`에서 provider는 OwnedCodeModeHost 하나를 소유하고 여러 독립 SessionInner(`:215,240`)가 그 host Arc를 공유한다. 따라서 기존 provider Arc를 엔진 범위에서 공유하는 구조적 후보가 있다. 최근 r2 마지막 표본에서 code-mode host5개는 모두 동일 엔진 PID61336의 직접 자식이고 private 합계197.87MiB였다.5개 세션을 하나로 합친다는 뜻이 아니며 session별 limits/state/delegate/cancellation을 유지해야 한다. 총197.87MiB가 전부 절감 가능한 프로세스 기본 비용이라는 뜻도 아니다. 공용 host의 오류 영향·설정 호환성·세션 격리 검증은 미실시다.
+3. REPL: 이전 같은 snapshot은50개/146.3MiB였고 최근 r2는37개/약106MiB였다. 변수·모듈·파일 핸들을 보유하는 실행 상태이므로 단순 전역 공유/임의 종료 대상이 아니다. 도구 사용 전 생성 지연과 실제 빈 인스턴스 수명은 최적화 후보다.
+4. 창별 connector/bridge5쌍은 약92MiB 수준이며 창·연결별 수명/계정 경계가 있다. 현재 근거로 동일 작업을 잘못 중복 실행하는 버그라고 부르지 않는다. 위 relay/code-mode provider 비용에 비해 우선순위를 낮춘다.
+
+이 후속 확인은 설치 source 및 기존 수치 근거를 읽기 전용으로 재사용했다. 새 프로세스 측정·UI 조작·빌드·제품 변경·임시 산출물 생성은 없었다.20분 정책과 process provider 공유는 제안 상태이며 실제 메모리 절감으로 보고하지 않는다.
+
+### 미사용 MCP 프로세스 축소 권장안
+
+사용자는 세션별 미사용 MCP 프로세스를 줄이는 방법을 요청했다. 이 단계는 설계 권고이며 제품 변경·빌드·설정 변경을 수행하지 않는다. 공통 엔진 동작의 개선 후보이고 현재 확인한 소스와 실측 환경은 Windows x64 w11aa다.
+
+우선순위는 기존 `LazyWhenCached`를 일반 root 대화에도 안전하게 적용하는 것이다. 유효하고 해당 세션에 허용된 도구 catalog는 모델에 제공하되, 해당 MCP의 실제 호출 전에는 세션별 프로세스를 생성하지 않는 것을 목표로 한다. frozen `core/src/session/mcp_runtime.rs:379`는 현재 subagent만 lazy/root는 eager로 분기한다. `codex-mcp/src/connection_manager.rs:635`는 기존 catalog에 허용된 model-visible 도구가 있고 selected plugin 예외에 해당하지 않을 때 startup trigger를 보류한다. 같은 파일`:133`의 client()가 trigger를 켠다. `connection_manager/required.rs:17`은 cached readiness가 허용되고 cached tools가 있으면 required 서버도 연결을 기다리지 않는다. `connection_manager.rs:176`은 Catalog readiness뿐 아니라 dormant startup도 허용하므로 required라는 이유만으로 항상 eager라고 단정하지 않는다. 대신 즉시 연결로 오류를 검출하던 시점이 바뀌는 서버는 시작 계약을 검토한다. 실제 도구 호출 이외에 client()를 요청하는 경로도 존재할 수 있으므로 정책 한 줄 변경만으로 모든 미사용 실행이 사라진다고 보장하지 않는다.
+
+캐시가 없거나 만료·설정·계정·workspace 변경으로 재사용할 수 없으면 도구 발견 연결이 필요하다. 발견용 초기화와 실제 세션 실행 상태를 구분하고 호환되는 발견 요청만 합친다. 현재 manager별 cache를 그대로 둔 채 전역 재사용이 된다고 가정하지 않는다. 원격 연결·resource/prompt·notification 등 도구 호출 밖의 기능이 필요한 서버와 selected plugin은 별도 시작 조건을 보존한다. catalog TTL은 실행 프로세스 종료 시각과 별도다.
+
+두 번째는 사용 후 회수다. 일반 비활성 대화20분 정책으로 구독을 해제하고, 다른 subscriber나 Running/Deferred/승인/작업이 없을 때 기존 native unload로 회수하는 경로를 우선 재사용한다. 기존 r9는 마지막 구독 해제 후90초 표본에서 loaded0/MCP0을 확인했지만 UI20분 정책을 연결한 실측은 아니다. 대화는 유지하면서 개별 MCP만 idle 종료하는 기능은 상태 복구가 가능한 서버부터 후속 검토한다. REPL 변수·핸들·진행 중 요청·notification 수신을 임의로 끊지 않는다. 별도 MCP idle 시간을 근거 없이20분으로 일괄 지정하지 않는다.
+
+세 번째는 Window Use처럼 기존 backend에 중계하는 relay의 프로세스 공유다. 단일 stdio loop를 바로 여러 대화가 공유할 수 없으므로 요청 다중화, thread/nonce/계정/workspace/승인/취소 경계, 오류 영향과 병목을 검증해야 한다. 상태 있는 REPL 실행 상태는 대화별로 유지한다. 이 구조 변경은 지연 실행보다 뒤에 둔다.
+
+검증 목표(미실행): 유효한 cache가 준비된10개 일반 대화에서 미사용 eligible MCP 자식이0개인지, 한 대화의 첫 호출만 해당 인스턴스를 시작하는지, 동시 첫 호출이 중복 spawn하지 않는지 확인한다. cold/expired cache·인증/설정 변경·required 오류·selected plugin·resource/notification 요구·REPL 상태·진행 중 호출·취소·재접속과 Windows 회귀를 포함한다. 동일 입력의 프로세스 수/Private Bytes/Working Set 및 첫 호출 지연을 전후 비교한다. 기존 no-tool10root/20MCP의298.3MiB 차이는 우선순위 근거이며 이 변경의 검증된 절감량은 아니다.
+
+### 구독 해제 후 서버 보유와 최신 Codex 문서의 차이
+
+구독 해제 응답은 즉시 전체 대화 runtime을 내렸다는 의미가 아니다. frozen w11aa `thread_lifecycle.rs:56`은 has_subscribers=false와 is_active=false가 모두 된 시각 중 나중 시각+delay를 unload 대상으로 계산한다. Running/Deferred는`:381`에서 다시 보호한다. `core/src/config/mod.rs:3972`의 thread_unload_delay_secs 기본값은60초다. 이는 설정 override가 없는 이 Azrael 빌드의 기본값이며 최신 Codex 전체의 보편값이 아니다. 기존 격리 r9는30초 시점loaded1/MCP2,90초시점loaded0/MCP0을 실측했다. 언로드 후에도 allocator·공유 context/cache 등으로 프로세스 Private Bytes 전부가 즉시 반납되는 것은 보장하지 않는다. 저장된 이력은 디스크에서 유지된다.
+
+2026-10-23 공식 OpenAI Docs를 조회했다. 현재 Codex App Server 문서 https://learn.chatgpt.com/docs/app-server 의 'Unsubscribe from a loaded thread'는 마지막 subscriber가 사라진 뒤 무구독·무활동30분을 보유하고 notLoaded/thread/closed를 내보낸다고 설명한다. 따라서 현재 문서의30분과 frozen Azrael의60초를 구분한다. 최신 Codex changelog에서 '12-hour'/'12 hours'는 확인하지 못했다. 다만 https://developers.openai.com/api/docs/changelog 의2026-10-20 항목과 https://developers.openai.com/api/docs/guides/prompt-caching 는12시간 prompt caching을 설명한다. 이는 OpenAI API 추론 인프라의 공유 prompt prefix 캐시이고 로컬 Azrael app-server의 대화 runtime RAM 수명과 다르다. 사용자가 기억한 변경 기록이 정확히 이 항목인지는 원문 없이 확정하지 않는다.12h는 최소 캐시 수명 옵션이며12시간 뒤 삭제를 보장하는 기한도 아니다.
+
+이번 확인은 source/기존 실측/공식 문서 비교만 수행했다. 설정·제품·실제 대화 구독에는 변경이 없다.
+
+### 다중 VS Code 창 후속 분석 — 2026-10-23
+
+사용자는 일반적으로 서로 다른 프로젝트·대화에서 작업하며, 현재 열린 Threads 창을 그대로 사용해도 된다고 명시했다. 새 프로필 실험과 달리 현재 사용자 창의 표시 상태 비교를 허용한 것으로 적용한다. 기존 작업 종료·새 추론·제품 설정 변경은 포함하지 않는다. 대상은 현재 Windows x64 세션의 `SufThreads - Visual Studio Code` 창이며 선택 시 최소화 상태였다. macOS/Linux 및 원격 UI는 이번 관측 범위가 아니다.
+
+이전 r16은 mock owner/connector가 각각2개지만 모든6개 이력 조회가 peer0을 통과했다. 따라서 바쁜 context 하나와 비어 있는 다른 owner의 비교이며, 서로 다른 실제 프로젝트 창의 부하 분산 실험으로 해석하지 않는다.
+
+읽기 전용 `multi-window-observe-r1`은 실제 exit0으로 완료했다. 공식 VS Code CLI의 status와10초 간격3회 CIM 표본을 사용했다. 자기 측정 프로세스·자식은 제외했고 제목·명령줄·대화 본문을 근거에 저장하지 않았다. VS Code1.143.0/commit2d0b7506a36c1d6db9a466440131a8e01eab2289에서 관측한 중앙값은 다음과 같다.
+
+| 역할 | 표본 내 개수 | Private MiB | Working Set MiB |
+|---|---:|---:|---:|
+| Azrael 공유 엔진 |1|3830.54|2840.50|
+| Azrael connector |4|47.29|186.06|
+| Azrael bridge |4|20.16|70.62|
+| VS Code workspace window |4|1019.01|762.89|
+| VS Code extension host |4|1114.46|710.43|
+| 이름 없는 window renderer |6|3397.41|3057.60|
+| 기타 Code 프로세스 |12|1224.60|845.86|
+| 기타 자식 프로세스 |160/166/169|1998.14|3099.79|
+
+이는 다른 작업이 실행 중인 관측이며1/2/4창 통제 비교가 아니다. 모든 Code renderer/extension host를 Azrael에 귀속하지 않는다. Private Bytes는 프로세스 전용 commit이고 물리 RAM 사용량과 다르며, Working Set 합계는 공유 페이지를 중복 계산할 수 있다. 이후 Window Use 목록에는 Code 창5개가 관측됐으므로 앞선4개 표본과 동일 상태라고 가정하지 않는다. 근거는 `evidence/multi-window-observe-r1/`이다. 해당 임시 run 그룹은 native register/review/delete/finalize를 완료했고 remaining[]/references[]/blockers[]다. 감사 근거는 `evidence/multi-window-cleanup.json`이다.
+
+frozen w11aa 소스 조사에서 확인된 후속 후보:
+
+- `azrael_shared_server.rs:404`의 create_context는 MessageProcessor를 만들고, `message_processor.rs:448`은 각 processor의 ThreadManager를 만든다. 서로 다른 프로젝트 owner가 엔진 프로세스 하나를 사용하더라도 내부 처리 컨텍스트와 manager까지 하나인 것은 아니다. 현재4개 connector의 실제 live context 매핑은 계측하지 않았다.
+- 공유 서버의 contexts map은 삽입 경로가 있으나 개별 제거 경로는 확인되지 않았다. 연결 종료는 connection 매핑과 subscriber를 정리하며 context는 유지한다. 어느 창이든 엔진을 유지하면 이전에 만든 context도 엔진 수명까지 남을 수 있다. context 안의 idle thread는 기존60초 정책으로 별도 unload할 수 있다. running/deferred 재접속 보존 계약이 있으므로 context를 무조건 제거하는 변경은 적절하지 않다. 이 소스 경로는 누적 보유 후보이며3.74GiB의 heap 소유 증거가 아니다.
+- 저장된 window-owners registry의 owner/context/thread binding 수는 과거 메타데이터를 포함한다. 이를 현재 live context나 loaded thread 수로 보고하지 않는다.
+- 설치 VS Code commit의 `mainThreadWebviewPanels.ts:298`은 webview visible을 해당 editor group의 activeEditor로 계산한다. Windows 전경 창 여부와 같지 않다. Azrael `scripts/webview-idle.cjs:47,104`는 view.visible이 false일 때 hidden timer를 사용하며 기본 지연은1시간이다. 따라서 다른 프로젝트 창으로 전환하거나 최소화하는 것만으로 idle 해제가 시작되지 않을 수 있다는 소스 기반 추론이다. 현재 창의 실제 visible 값과 메모리 변화는 미검증이다. 기본 소스: https://raw.githubusercontent.com/microsoft/vscode/2d0b7506a36c1d6db9a466440131a8e01eab2289/src/vs/workbench/api/browser/mainThreadWebviewPanels.ts
+
+현재 창 비교의 선행 조건: Window Use native stage2/app 허용과 최신 상태·관측. prepare_permissions는 `unclassified` 오류를 반환했고 UI 입력은 없었다. 새로 창을 선택한 뒤 request_stage는 `permission_pending`, actionExecuted=false를 반환했다(approvalRequestId `azrael-window-consent-fd70ff05-b80a-44e6-a9aa-a870ea2a9256`). 같은 pending 요청을 반복하지 않는다. 허용 이벤트 후 상태와 제공 stage2 guide를 다시 확인한다. Window Use의 Codex extension 자동화 금지와 기타 mandatory deny는 사용자 창 사용 허용과 별도로 준수한다.
+
+다음 검증은 기존 창의 표시 상태와 RAM 변화 사이의 관계를 좁히는 것이다. 현재 창 사용만으로 전체 창 수를 줄이거나 다른 사용자 작업을 중단하지 않는다. 다중 context의 live 수·loaded root·subscriber·unload 보류 이유·pending event bytes를 연결한 계측은 여전히 필요하며, 제품 계측/최적화 구현은 이번 분석 결과와 구분한다.
+
+권한 후속: 위 카드의 Accepted 이벤트를 받았으나, fresh request_stage는 `state_changed`, `pauseReason=user_stopped`, `recovery=user_resume`, `actionExecuted=false`를 반환했다. 승인 기록만으로 중지 상태를 덮어쓰지 않는다. 창 조작은 명시적 사용자 재개와 host 재검증 전까지 중지한다. 제어 입력·복원·재생된 동작은 없으며 표시 전환의 RAM 효과는 미검증 상태로 유지한다. 사용자의 잘못 전달한 메시지라는 후속 설명은 마지막 메시지에 적용했으며, 기존 분석 범위를 임의로 취소하거나 확대하지 않았다.
+
+### RAM 측정 재개 r2 — 실제 창5개,136초13표본
+
+사용자가 측정 계속을 명시한 뒤 request_stage를 재검증했지만 host는 계속 user_stopped/user_resume/actionExecuted=false를 반환했다. 창 조작을 우회하지 않고 기존 읽기 전용 sampler를 재사용했다. 원본 profile·대화·작업 프로세스는 변경하지 않았다. sampler만 새 run ID/표본 수/간격을 검증하는 환경변수를 지원하도록 바꾸고 CPU 누적 시간·핸들·스레드 수를 추가했다. source node --check exit0, 측정 실제 exit0, producerStopped=true, 모든14개 tracked child exit0/closed=true를 확인했다. 제품 변경과 빌드는 없다.
+
+측정 시각은2026-10-23 11:09:14~11:11:30 KST(02:09:14.290Z~02:11:30.371Z), 실제 구간136.081초다.5개 workspace/extension host,5개 connector/bridge, 공유 엔진1개가13표본 모두 유지됐다. 엔진 PID61336/creation134371670731746020은 전 표본과 이전 r1까지 일치했다.
+
+| 지표 | 시작 | 종료 | 관측 범위 |
+|---|---:|---:|---:|
+| 엔진 Private MiB |4059.09|4061.61|4057.80~4064.43|
+| 엔진 Working Set MiB |2615.25|2651.09|2614.02~2651.09|
+| 엔진 핸들 수 |2377|2362|2346~2387|
+| 엔진 스레드 수 |287|287|284~287|
+| 시스템 free MiB |8641.45|7352.71|7352.71~9392.81|
+
+엔진 private 변화는+2.52MiB(약0.062%)이며 이 짧은 구간에서 지속적 핸들/스레드 누적은 관측되지 않았다. 반면 CPU 누적은93.984초 증가했고 단일 코어 기준69.07%여서 유휴 상태로 취급하지 않는다. 이 결과로 장기 누수를 배제할 수 없다. r1 마지막3831.87MiB에서 r2 마지막4061.61MiB로 약229.73MiB 늘었지만 약51분 사이 창 수·부하·작업이 바뀌었으므로 창 하나의 비용이나 누수율로 환산하지 않는다.
+
+역할별 Private 중앙값: 공유 엔진4060.24MiB, connector67.50MiB, bridge24.83MiB, workspace window1183.64MiB, extension host1408.61MiB, 미귀속 renderer3444.39MiB, 기타 Code1406.52MiB, 기타 자식5274.25MiB다. Code 역할 합계를 Azrael 단독으로 귀속하지 않는다. 각 범주의 서로 다른 시점 중앙값을 모두 더해 특정 시점의 합계로 보고하지 않는다.
+
+기타 자식 중 rustc 합계는125~3191MiB로 변동했고 중앙값2379.96MiB였다. Node 합계는1292.39→1649.96MiB(+357.57MiB), 개수45→46이었다. PID·creation 비교에서 새 generic Node65532가 종료 표본350.75MiB를 사용했다. 부모 PowerShell7844→엔진61336으로 이어진다. 따라서 Node 합계 증가는 기존 단일 Node의 선형 누수 증거가 아니다. readonly 명령 형태 분류는 해당 Node를 Window Use/MCP/typescript/bundler/package manager로 식별하지 못했고 정확한 목적/대화 소유자는 미확정이다. 새 Window Use/MCP Node5232는20.97MiB였다. 측정기 자신과 그 자식은 합계에서 제외했다. 분류 때문에 대화 본문이나 전체 command line을 저장하지 않았다.
+
+이번 결과는 공유 엔진에 약4GiB의 높은 private commit이 유지된다는 점과, 시스템 RAM 변화에 컴파일러·새 작업·Code UI도 관여한다는 점을 분리한다. 엔진 보유량의 원인 후보인 context/thread/history/queue/allocator의 실제 바이트 귀속과, 창 숨김의 효과는 여전히 미검증이다. 우선 최적화 후보는 기존 full-history 경로·대형 항목의 lazy fetch, 안전한 context 수명 관리, MCP lazy start이며 절감량을 보장하지 않는다.
+
+근거는 `evidence/multi-window-observe-r2/{report,result,producer,analysis,node-deltas,node-role-check,manifest}.json`과 고정 sampler source다. native register/review(blockers[])/명시적 delete(remaining=false)/supported finalize(remaining[]/references[]/blockers[])를 완료했다. 임시 run1개/1항목 logical1,133,028bytes만 삭제했고 이는 디스크 크기다. audit은 `evidence/multi-window-observe-r2-cleanup.json`이다. 첫 register 호출은 금지된 operation 필드 때문에 실행 전 거부됐고 이를 제거한 지원 형식으로 성공했다. 첫 apply 준비 코드는 문자열 result를 객체로 취급해 tool 호출 전 실패했으며, JSON parse 후 현재 review token으로 적용했다. 실패를 측정 실패나 제품 실패로 혼동하지 않는다.
+
 실제 재시도 계약(2026-10-23): 작은 fixture r12/r13/r14는 실제 exit0이다. r14는 v3 checkpoint 뒤의 완전한 JSONL tail까지 보존하는 검증을 추가했다. 첫 실제 r11은 v3!==v5 assertion에서 snapshot/native 실행 전 exit1/stopped로 끝났다. v3는 미지원이 아니라 v5 lazy rebuild 대상이다. v5는 checkpoint prefix를 복사하고, 이전 버전은 캡처한 완전한 JSONL EOF까지 복사하며 기존 projection rows/version을 보존한다. 원본은 읽기 전용이다. 소스는 rebuild에서 전체 rollout byte vector와 projection-step vector를 보유함을 보여주며 그 peak는 실측으로 검증한다. 새 profile은 `.m/artifacts/p12`, lifecycle은 `run:DJ-01:real-history-r12`다. 추천 단독 A, 페이지 조회 누적 B, 전체 조회 누적 C의 세 backend 세대로 비교한다. 동일 snapshot은 한 번 만들며 임시 DB의 갱신은 다음 세대로 이어진다. 따라서 B의 stale-index 갱신 비용과 C의 갱신 후 조회 비용을 구분한다. 본문은 영구 근거로 보존하지 않는다.
 
 ### 실제 이력의 확인된 결과와 진행 범위

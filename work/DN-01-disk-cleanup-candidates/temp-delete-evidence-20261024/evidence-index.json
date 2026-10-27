@@ -1,0 +1,98 @@
+﻿[
+    {
+        "source":  "C:\\Temp\\azrael-host-fixture-20260913-1005\\host-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-host-fixture-20260913-1005--host-result.json",
+        "bytes":  146,
+        "sha256":  "44A675A1F9432ED6F14154040C52ECA20F14631030F829FA2E132AA44A5DBEE1"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-host-fixture-20260913-1010\\host-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-host-fixture-20260913-1010--host-result.json",
+        "bytes":  128,
+        "sha256":  "F39D6461083A7636FB467DF38BCFDFBB28EEB736B3ADA7FE2D12C575DC5689BB"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-host-fixture-20260913-1020\\host-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-host-fixture-20260913-1020--host-result.json",
+        "bytes":  128,
+        "sha256":  "F39D6461083A7636FB467DF38BCFDFBB28EEB736B3ADA7FE2D12C575DC5689BB"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-host-fixture-20260913-1030\\host-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-host-fixture-20260913-1030--host-result.json",
+        "bytes":  255,
+        "sha256":  "C25595F7D4824C51BBF725A39B12FB748122F62BA676D0038BE9AA415C70CB37"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-host-fixture-20260913-1040\\host-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-host-fixture-20260913-1040--host-result.json",
+        "bytes":  1046,
+        "sha256":  "6B34FCDE2E58908C3FEEDAF484BCC3D0D38CBC1BFCCAF025E1A7C6A401C2F9ED"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-0a349e33\\run-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-0a349e33--run-result.json",
+        "bytes":  77,
+        "sha256":  "88E1AC1F5AC6E6F6C5EBA9B3ABF62ACE4E62D6F7D8834F97E4186DEB549BAC8E"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-0a349e33\\hashes.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-0a349e33--hashes.json",
+        "bytes":  879,
+        "sha256":  "0529EB3B0A142B899C0C26F124A0C62B09FC95B10F94179BAFDE70E0D611C522"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-1e5075cd\\run-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-1e5075cd--run-result.json",
+        "bytes":  77,
+        "sha256":  "C0DC603589AA89691892F5A48ABA3700DE40A26CE03EAA7E0F6BC64A6247E651"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-1e5075cd\\hashes.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-1e5075cd--hashes.json",
+        "bytes":  879,
+        "sha256":  "AB915D400E35CB7443ED6220E6FF7C602C913C452CB61E790C390F39BE9C48B5"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-a9a14fd1\\run-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-a9a14fd1--run-result.json",
+        "bytes":  77,
+        "sha256":  "5DC1E2F981669E173CD55E5138B9C2B33573F2C7117E9E7AD5F97DEE70519EF3"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-a9a14fd1\\hashes.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-a9a14fd1--hashes.json",
+        "bytes":  879,
+        "sha256":  "4E7722A23192E1ADCD8654989B35C8276B61A2FEA7B17BE30A90BB458C623D04"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-9b38cb81\\run-result.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-9b38cb81--run-result.json",
+        "bytes":  77,
+        "sha256":  "03D794DF7E53C4D25A0C04443D82E83E29D41FC9945395ED2927846114FBAA2C"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-9b38cb81\\hashes.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-9b38cb81--hashes.json",
+        "bytes":  879,
+        "sha256":  "A2EDB31D735953B35220B3F7BFB046EB9CC62291761C06E833841830130336B2"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-account-check-9b38cb81\\state\\verification.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-account-check-9b38cb81--state--verification.json",
+        "bytes":  1166,
+        "sha256":  "ED04CB038BFE9BC0E515E338672390D95D98B45C0EDE5F5269E4948329E5D798"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-host-bin-20260913-0953\\pair-hashes.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-host-bin-20260913-0953--pair-hashes.json",
+        "bytes":  1238,
+        "sha256":  "D0F4203719C5A8340B294B3318000266A25C410D7D8D9218A16CD6D35E9B2EAC"
+    },
+    {
+        "source":  "C:\\Temp\\azrael-host-bin-20260913-0953\\host-pair-hashes-final.json",
+        "evidence":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\azrael-host-bin-20260913-0953--host-pair-hashes-final.json",
+        "bytes":  1530,
+        "sha256":  "3602687C64FB8E1875DDC385007229A7C9662C6185B364A03BAF2A8392383A23"
+    }
+]

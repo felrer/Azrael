@@ -1,0 +1,44 @@
+{
+  "name": "w11i",
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c",
+  "success": true,
+  "logicalBytes": 1873825837,
+  "blockers": [],
+  "results": [
+    {
+      "id": "3de4f256a0a21bbe34e5af2144e9ee2281eaafec106826184cf1eefdbd9602dc",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "40187db32b7ad06bba7460468c07adaff9c7d5d90acae6191d2af8eccc32274f",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "df5a11ff5c19799834f022f5a7c0215d0e8ee99fcc2738f78f1a0c1f2c17b4f3",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "1574681adc0098851491aafaeb3ac5f5200a913812b544f202785078c071d878",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "247db2f9d691905c9d939fb1a1558f4ad51863251857ed17620d4dcb80b5932b",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "cff0d75d9e421bb3d97e8f1f16377bfe49654b4dafb66c689940337eb425ad46",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "eeea9ad609c8bff5671dd5368c5501bc419c65a891c3985e6a44dfe31ad6bd06",
+      "status": "deleted",
+      "remaining": false
+    }
+  ]
+}

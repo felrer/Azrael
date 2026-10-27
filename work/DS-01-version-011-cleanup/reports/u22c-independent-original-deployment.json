@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "status": "installed-reload-required",
+  "generatedAt": "2026-10-19T00:24:40.3139609+00:00",
+  "releaseDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\releases\\u22c",
+  "packageDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\manual-u22c\\package",
+  "extensionsDir": "C:\\Users\\felre\\av18\\artifacts\\f\\extensions",
+  "userDataDir": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-user-data",
+  "workspacePath": "C:\\Users\\felre\\av18\\artifacts\\f\\workspace",
+  "stateRoot": "C:\\Users\\felre\\av18\\artifacts\\f\\s",
+  "sourceExtensionPath": null,
+  "preparedPackageVerification": {
+    "supplied": true,
+    "status": "verified",
+    "manifestPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\manual-u22c\\package\\independent-prepared.json"
+  },
+  "originalExtension": {
+    "before": {
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+      "sha256": "d43b75a85941024d3e9bba3cd4f601cf9aff6ef4e6122c225e6865db2b6fe7a5",
+      "fileCount": 19633,
+      "bytes": 1452150427
+    },
+    "after": {
+      "path": "C:\\Users\\felre\\av18\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+      "sha256": "d43b75a85941024d3e9bba3cd4f601cf9aff6ef4e6122c225e6865db2b6fe7a5",
+      "fileCount": 19633,
+      "bytes": 1452150427
+    },
+    "unchanged": true
+  },
+  "settings": {
+    "path": "C:\\Users\\felre\\av18\\artifacts\\f\\agent-user-data\\User\\settings.json",
+    "before": {
+      "exists": false,
+      "sha256": null
+    },
+    "after": {
+      "exists": false,
+      "sha256": null
+    },
+    "unchanged": true
+  },
+  "inventory": {
+    "before": [
+      "azrael-ex-local.azrael@2026.0.10",
+      "openai.chatgpt@26.1007.21434",
+      "openai.codex-audio@26.1007.21434"
+    ],
+    "unrelatedBefore": [
+      "openai.chatgpt@26.1007.21434",
+      "openai.codex-audio@26.1007.21434"
+    ],
+    "after": [
+      "azrael-ex-local.azrael@2026.0.10",
+      "openai.chatgpt@26.1007.21434",
+      "openai.codex-audio@26.1007.21434"
+    ],
+    "unrelatedUnchanged": true
+  },
+  "originalRegistryObjects": [
+    {
+      "identifier": {
+        "id": "openai.chatgpt",
+        "uuid": "90b52117-6fd1-4f1c-9e14-256bd6e21d79"
+      },
+      "version": "26.1007.21434",
+      "location": {
+        "$mid": 1,
+        "path": "/C:/Users/felre/av18/artifacts/f/extensions/openai.chatgpt-26.1007.21434-win32-x64",
+        "scheme": "file"
+      },
+      "relativeLocation": "openai.chatgpt-26.1007.21434-win32-x64",
+      "metadata": {
+        "installedTimestamp": 1791600781125,
+        "size": 1452151385,
+        "targetPlatform": "win32-x64",
+        "id": "90b52117-6fd1-4f1c-9e14-256bd6e21d79",
+        "publisherDisplayName": "OpenAI",
+        "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+        "isPreReleaseVersion": false
+      }
+    }
+  ],
+  "unrelatedRegistryObjects": [
+    {
+      "identifier": {
+        "id": "openai.chatgpt",
+        "uuid": "90b52117-6fd1-4f1c-9e14-256bd6e21d79"
+      },
+      "version": "26.1007.21434",
+      "location": {
+        "$mid": 1,
+        "path": "/C:/Users/felre/av18/artifacts/f/extensions/openai.chatgpt-26.1007.21434-win32-x64",
+        "scheme": "file"
+      },
+      "relativeLocation": "openai.chatgpt-26.1007.21434-win32-x64",
+      "metadata": {
+        "installedTimestamp": 1791600781125,
+        "size": 1452151385,
+        "targetPlatform": "win32-x64",
+        "id": "90b52117-6fd1-4f1c-9e14-256bd6e21d79",
+        "publisherDisplayName": "OpenAI",
+        "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+        "isPreReleaseVersion": false
+      }
+    },
+    {
+      "identifier": {
+        "id": "openai.codex-audio"
+      },
+      "version": "26.1007.21434",
+      "location": {
+        "$mid": 1,
+        "path": "/C:/Users/felre/av18/artifacts/f/extensions/openai.codex-audio-26.1007.21434",
+        "scheme": "file"
+      },
+      "relativeLocation": "openai.codex-audio-26.1007.21434",
+      "metadata": {
+        "installedTimestamp": 1791510040856,
+        "size": 4601829,
+        "targetPlatform": "undefined",
+        "id": "e35fa0f0-aaed-4821-9226-773b8fa21ae3",
+        "publisherDisplayName": "OpenAI",
+        "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+        "isPreReleaseVersion": false
+      }
+    }
+  ],
+  "previousOwnRegistryObjects": [
+    {
+      "identifier": {
+        "id": "azrael-ex-local.azrael"
+      },
+      "version": "2026.0.10",
+      "location": {
+        "$mid": 1,
+        "fsPath": "c:\\Users\\felre\\av18\\artifacts\\f\\extensions\\azrael-ex-local.azrael-2026.0.10",
+        "_sep": 1,
+        "external": "file:///c%3A/Users/felre/av18/artifacts/f/extensions/azrael-ex-local.azrael-2026.0.10",
+        "path": "/c:/Users/felre/av18/artifacts/f/extensions/azrael-ex-local.azrael-2026.0.10",
+        "scheme": "file"
+      },
+      "relativeLocation": "azrael-ex-local.azrael-2026.0.10",
+      "metadata": {
+        "isApplicationScoped": false,
+        "isMachineScoped": false,
+        "isBuiltin": false,
+        "installedTimestamp": 1792315562232,
+        "pinned": true,
+        "source": "vsix"
+      }
+    }
+  ],
+  "previousOwnExtensionDirectories": [],
+  "registryBackup": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\independent-20261019-092440-296\\extensions-before.json",
+  "extensionBackupSelection": {
+    "policy": "none",
+    "registered": [
+      {
+        "id": "azrael-ex-local.azrael",
+        "version": "2026.0.10",
+        "source": "C:\\Users\\felre\\av18\\artifacts\\f\\extensions\\azrael-ex-local.azrael-2026.0.10",
+        "name": "azrael-ex-local.azrael-2026.0.10"
+      }
+    ],
+    "skipped": [],
+    "reason": "extension-directory-backups-disabled"
+  },
+  "hostExtension": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\manual-u22c\\package\\stage-d141fa6f495a4e898ee1e2e455a986b8\\staging\\openai.chatgpt-26.1007.21434-win32-x64",
+  "devinExecutable": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\tools\\devin\\3000.10.21\\bin\\devin.exe",
+  "shortcutBackup": null,
+  "validationError": null,
+  "hostVersion": "2026.0.10",
+  "hostVsix": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\deployments\\manual-u22c\\package\\azrael-host.vsix",
+  "companionVsix": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\releases\\u22c\\azrael-ex.vsix",
+  "companionVsixRole": "integrated-account-ui-provenance-input",
+  "accountPayloadVersion": "0.4.0",
+  "hostInstalled": true,
+  "shortcutUpdated": false,
+  "reloadRequired": true,
+  "error": null,
+  "sessionProtocol": {
+    "status": "isolated-profile-skipped",
+    "receiptPath": null
+  },
+  "performance": {
+    "elapsedMs": 151018.9055,
+    "directoryHashes": [
+      {
+        "path": "C:\\Users\\felre\\av18\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+        "elapsedMs": 53288.2319
+      },
+      {
+        "path": "C:\\Users\\felre\\av18\\artifacts\\f\\extensions\\openai.chatgpt-26.1007.21434-win32-x64",
+        "elapsedMs": 9020.9438
+      }
+    ]
+  }
+}

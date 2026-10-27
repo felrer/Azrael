@@ -1,0 +1,146 @@
+[
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo-v2\\.leases\\516cf5eb75c9533d37da85e55947998cc235919704f503eadc7ed664bb614747\\owner.json",
+    "createdUtc": "2026-10-22T06:18:27.836Z",
+    "pid": 40656,
+    "liveProcess": null,
+    "acquisitionTime": "2026-10-22T06:18:27.835Z",
+    "coordinator": {
+      "pid": 40656,
+      "parentPid": 32084,
+      "processStartTime": "2026-10-22T05:27:04.604Z"
+    },
+    "runDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\engine-preservation\\preservation-H0R8RM",
+    "runExists": true,
+    "checkId": "engine.shared-engine.manual-resume",
+    "ownerKeys": [
+      "runDirectory",
+      "checkId",
+      "token",
+      "pid",
+      "acquisitionTime",
+      "coordinator"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\c6cdb9887fed7bf6a72da9a875b8683199e9385b9c27c056764d8580dc966649\\owner.json",
+    "createdUtc": "2026-10-17T09:20:11.938Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\b26cbd6723fbeb2f80ef8e4d1942f6ec03926fff7d2f8ac134b7113aac47cced\\owner.json",
+    "createdUtc": "2026-10-17T09:43:34.911Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\afacb99829eea1cd6fd928948c4ee6545c8105c3aaa8f6b158d40888415ba841\\owner.json",
+    "createdUtc": "2026-10-17T09:41:39.040Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\af60b14f60034874734f0ae812510321f28bcdc5906062f921264fae37f05209\\owner.json",
+    "createdUtc": "2026-10-17T08:37:33.089Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\8e7ee24ff7ef1decf851eaba390c59817cf8d125789ae364d0e420f2b687f944\\owner.json",
+    "createdUtc": "2026-10-17T08:37:54.036Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\84fd1d3052a2202dc53f24fa94283ba0a338946b9b2b7b7abd9fbc163a9308e3\\owner.json",
+    "createdUtc": "2026-10-17T08:27:06.611Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\8235559ad1900aa50d69d51f8ae4d8f84d221560cbcdc5390e32ee28865195e0\\owner.json",
+    "createdUtc": "2026-10-17T09:53:39.848Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\516cf5eb75c9533d37da85e55947998cc235919704f503eadc7ed664bb614747\\owner.json",
+    "createdUtc": "2026-10-17T09:09:05.014Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\437f62a5ce795f0a0952f7416fc467b69ddd8454b7fa35bb772ca45463168bdb\\owner.json",
+    "createdUtc": "2026-10-17T09:50:46.682Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\3532ed8989d4869efa289dc2a1984cb633d9c8a48b6dc9ab0bb491f2aa5029a8\\owner.json",
+    "createdUtc": "2026-10-17T08:28:38.565Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  },
+  {
+    "path": "artifacts\\cache\\verification-results\\cargo\\.leases\\32d831e6e5d64d77e76a5ab30275b6a834725c44a496a6b03f94640c25897796\\owner.json",
+    "createdUtc": "2026-10-17T08:25:31.483Z",
+    "pid": 52716,
+    "liveProcess": null,
+    "runExists": null,
+    "ownerKeys": [
+      "token",
+      "pid"
+    ]
+  }
+]

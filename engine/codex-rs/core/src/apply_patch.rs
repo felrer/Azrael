@@ -1,3 +1,5 @@
+use crate::exec_policy::DELETION_APPROVAL_REASON;
+use crate::exec_policy::deletion_approval_enabled;
 use crate::function_tool::FunctionCallError;
 use crate::safety::PatchPolicyMatcher;
 use crate::safety::SafetyCheck;
@@ -34,6 +36,24 @@ pub(crate) fn prepare_apply_patch(
     .map_err(|error| {
         FunctionCallError::RespondToModel(format!("failed to check patch permissions: {error}"))
     })? {
+        SafetyCheck::AutoApprove
+            if deletion_approval_enabled(
+                step_context.settings.approval_policy(),
+                turn_environment.permission_profile(),
+            ) && action
+                .changes()
+                .values()
+                .any(|change| matches!(change, ApplyPatchFileChange::Delete { .. })) =>
+        {
+            Ok(ApplyPatchRuntimeInvocation {
+                action,
+                auto_approved: false,
+                exec_approval_requirement: ExecApprovalRequirement::NeedsApproval {
+                    reason: Some(DELETION_APPROVAL_REASON.to_string()),
+                    proposed_execpolicy_amendment: None,
+                },
+            })
+        }
         SafetyCheck::AutoApprove => Ok(ApplyPatchRuntimeInvocation {
             action,
             auto_approved: true,

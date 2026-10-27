@@ -2,17 +2,37 @@ use serde::Deserialize;
 use serde_json::{Value, json};
 use std::collections::VecDeque;
 use std::io::{BufRead, BufReader, Read, Write};
+use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
 use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, ChildStdout, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
+use windows_sys::Win32::System::JobObjects::{
+    AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JobObjectExtendedLimitInformation,
+    SetInformationJobObject,
+};
 
 const STDERR_LIMIT: usize = 16 * 1024;
+const STARTUP_ACK: &[u8] = b"azrael-delete-contained-v1\n";
+
+fn gated_script(script: &str) -> String {
+    // EOF (including owner death before assignment) exits before Add-Type or
+    // any other trusted script setup can create work or descendants.
+    // Set encoding before the first read: changing InputEncoding afterward
+    // replaces Console.In and discards any prefetched deletion request bytes.
+    format!(
+        "[Console]::InputEncoding=[Text.UTF8Encoding]::new($false)\n\
+         [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\n\
+         if ([Console]::In.ReadLine() -cne 'azrael-delete-contained-v1') {{ exit 125 }}\n{script}"
+    )
+}
 
 /// One sequential shell owned by a single maintenance dispatch. Communication
 /// failures abandon this worker; a deletion is never sent a second time.
 pub(crate) struct Worker {
     child: Child,
+    job: Option<OwnedHandle>,
     stdin: Option<ChildStdin>,
     stdout: BufReader<ChildStdout>,
     stderr: Arc<Mutex<VecDeque<u8>>>,
@@ -34,19 +54,33 @@ impl Worker {
     }
 
     fn spawn(script: &str) -> Result<Self, String> {
+        let script = gated_script(script);
         let mut child = codex_utils_process::background_command("powershell.exe")
             .args([
                 "-NoLogo",
                 "-NoProfile",
                 "-NonInteractive",
                 "-Command",
-                script,
+                &script,
             ])
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
             .map_err(|e| format!("deletion worker spawn failed: {e}"))?;
+        // The private gate blocks all setup until assignment succeeds. The
+        // deletion protocol then independently waits for its first request.
+        let job = match contain_worker(&child) {
+            Ok(job) => job,
+            Err(error) => {
+                drop(child.stdin.take());
+                let killed = child.kill();
+                let waited = child.wait();
+                return Err(format!(
+                    "deletion worker containment failed: {error}; kill: {killed:?}; wait: {waited:?}"
+                ));
+            }
+        };
         // These handles are guaranteed by the three piped configurations above.
         let stdin = child.stdin.take().expect("piped deletion stdin");
         let stdout = BufReader::new(child.stdout.take().expect("piped deletion stdout"));
@@ -70,15 +104,22 @@ impl Worker {
                 }
             }
         });
-        Ok(Self {
+        let mut worker = Self {
             child,
+            job: Some(job),
             stdin: Some(stdin),
             stdout,
             stderr,
             drain: Some(drain),
             sequence: 0,
             stopped: false,
-        })
+        };
+        let stdin = worker.stdin.as_mut().expect("piped deletion stdin");
+        if let Err(error) = stdin.write_all(STARTUP_ACK).and_then(|()| stdin.flush()) {
+            worker.abort();
+            return Err(format!("deletion worker startup handshake failed: {error}"));
+        }
+        Ok(worker)
     }
 
     pub(crate) fn delete(
@@ -156,6 +197,8 @@ impl Worker {
             Ok(Some(_)) => {
                 self.stdin.take();
                 let _ = self.child.wait();
+                // Descendants may still own the stderr pipe after shell exit.
+                self.job.take();
                 self.stopped = true;
                 self.join_stderr();
             }
@@ -167,7 +210,9 @@ impl Worker {
     fn abort(&mut self) {
         if !self.stopped {
             self.stdin.take();
-            let _ = self.child.kill();
+            // Closing our non-inherited job handle kills the complete tree,
+            // including descendants that might otherwise keep pipes open.
+            self.job.take();
             let _ = self.child.wait();
             self.stopped = true;
         }
@@ -193,13 +238,44 @@ impl Worker {
 impl Drop for Worker {
     fn drop(&mut self) {
         if !self.stopped {
+            if std::thread::panicking() {
+                self.abort();
+                return;
+            }
             // EOF terminates the loop normally, after its last completed report.
             self.stdin.take();
             let _ = self.child.wait();
+            self.job.take();
             self.stopped = true;
         }
         self.join_stderr();
     }
+}
+
+fn contain_worker(child: &Child) -> Result<OwnedHandle, std::io::Error> {
+    // Null security attributes make the unnamed handle non-inheritable. Only
+    // this request owns it; process death also closes it without running Drop.
+    let job = unsafe { CreateJobObjectW(std::ptr::null(), std::ptr::null()) };
+    if job.is_null() {
+        return Err(std::io::Error::last_os_error());
+    }
+    let owned = unsafe { OwnedHandle::from_raw_handle(job) };
+    let mut limits: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = unsafe { std::mem::zeroed() };
+    // No breakaway flag: descendants must remain in this request's job.
+    limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    if unsafe {
+        SetInformationJobObject(
+            job,
+            JobObjectExtendedLimitInformation,
+            (&limits as *const JOBOBJECT_EXTENDED_LIMIT_INFORMATION).cast(),
+            std::mem::size_of_val(&limits) as u32,
+        )
+    } == 0
+        || unsafe { AssignProcessToJobObject(job, child.as_raw_handle()) } == 0
+    {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(owned)
 }
 
 fn validate_report(report: &Value) -> Result<(), String> {
@@ -231,8 +307,6 @@ fn validate_report(report: &Value) -> Result<(), String> {
 // fresh local state on every request, including failure and attribute audits.
 const SCRIPT: &str = r#"
 $ErrorActionPreference='Stop'
-[Console]::InputEncoding=[Text.UTF8Encoding]::new($false)
-[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 if($true) {
     # Reuse the non-following Windows identity boundary used by the producer
     # cleanup helper; pin the full FILE_ID_INFO and mount-point payload here.
@@ -455,6 +529,153 @@ mod tests {
 
     fn allow(_: &Path, _: AccessMode) -> Result<(), String> {
         Ok(())
+    }
+
+    #[test]
+    fn startup_eof_exits_before_script_evaluation() {
+        let output = codex_utils_process::background_command("powershell.exe")
+            .args([
+                "-NoLogo",
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                &gated_script("[Console]::Out.WriteLine('setup must not run'); exit 0"),
+            ])
+            .stdin(Stdio::null())
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(125));
+        assert!(output.stdout.is_empty());
+    }
+
+    // These fixtures start a descendant only after the same stdin handshake as
+    // the real script. There is no pre-assignment process creation in the shell.
+    const TREE_SCRIPT: &str = r#"
+$null=[Console]::In.ReadLine()
+$descendant=Start-Process -WindowStyle Hidden -PassThru powershell.exe -ArgumentList '-NoLogo','-NoProfile','-NonInteractive','-Command','Start-Sleep -Seconds 120'
+[Console]::Out.WriteLine($descendant.Id)
+[Console]::Out.Flush()
+$null=[Console]::In.ReadLine()
+"#;
+
+    fn tree_worker() -> (Worker, OwnedHandle, OwnedHandle) {
+        use windows_sys::Win32::System::Threading::{
+            OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_SYNCHRONIZE,
+        };
+
+        let mut worker = Worker::spawn(TREE_SCRIPT).unwrap();
+        writeln!(worker.stdin.as_mut().unwrap(), "start").unwrap();
+        worker.stdin.as_mut().unwrap().flush().unwrap();
+        let mut line = String::new();
+        worker.stdout.read_line(&mut line).unwrap();
+        let descendant: u32 = line.trim().parse().unwrap();
+        let open = |pid| {
+            let handle = unsafe {
+                OpenProcess(
+                    PROCESS_SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION,
+                    0,
+                    pid,
+                )
+            };
+            assert!(!handle.is_null(), "{}", std::io::Error::last_os_error());
+            unsafe { OwnedHandle::from_raw_handle(handle) }
+        };
+        let process = open(worker.process_id());
+        let descendant = open(descendant);
+        (worker, process, descendant)
+    }
+
+    fn assert_stopped(process: &OwnedHandle) {
+        use windows_sys::Win32::Foundation::WAIT_OBJECT_0;
+        use windows_sys::Win32::System::Threading::WaitForSingleObject;
+
+        assert_eq!(
+            unsafe { WaitForSingleObject(process.as_raw_handle(), 10_000) },
+            WAIT_OBJECT_0
+        );
+    }
+
+    #[test]
+    fn abort_and_graceful_drop_terminate_descendants() {
+        let (mut worker, process, descendant) = tree_worker();
+        worker.abort();
+        assert!(worker.is_stopped());
+        assert_stopped(&process);
+        assert_stopped(&descendant);
+
+        let (worker, process, descendant) = tree_worker();
+        drop(worker);
+        assert_stopped(&process);
+        assert_stopped(&descendant);
+    }
+
+    #[test]
+    fn parent_loss_worker_fixture() {
+        if std::env::var_os("AZRAEL_DELETE_PARENT_LOSS_FIXTURE").is_none() {
+            return;
+        }
+        let (worker, _process, descendant) = tree_worker();
+        // The harness parent's process handles pin these exact objects before
+        // it kills us, bypassing Rust Drop just as an actual owner crash does.
+        let descendant_pid = unsafe {
+            windows_sys::Win32::System::Threading::GetProcessId(descendant.as_raw_handle())
+        };
+        assert_ne!(descendant_pid, 0);
+        println!("WORKER_TREE:{},{}", worker.process_id(), descendant_pid);
+        std::io::stdout().flush().unwrap();
+        loop {
+            std::thread::park();
+        }
+    }
+
+    #[test]
+    fn parent_process_loss_terminates_worker_and_descendants() {
+        // Reuse the native test binary rather than introduce another executable.
+        // Keep the owner kill/wait guarded even if fixture assertions fail.
+        struct Parent(Child);
+        impl Drop for Parent {
+            fn drop(&mut self) {
+                let _ = self.0.kill();
+                let _ = self.0.wait();
+            }
+        }
+        let mut parent = Parent(
+            codex_utils_process::background_command(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "windows_delete::tests::parent_loss_worker_fixture",
+                    "--nocapture",
+                ])
+                .env("AZRAEL_DELETE_PARENT_LOSS_FIXTURE", "1")
+                .stdout(Stdio::piped())
+                .spawn()
+                .unwrap(),
+        );
+        let mut output = BufReader::new(parent.0.stdout.take().unwrap());
+        let mut line = String::new();
+        loop {
+            line.clear();
+            assert_ne!(output.read_line(&mut line).unwrap(), 0, "fixture exited");
+            if let Some((_, pids)) = line.trim().split_once("WORKER_TREE:") {
+                use windows_sys::Win32::System::Threading::{OpenProcess, PROCESS_SYNCHRONIZE};
+                let processes: Vec<OwnedHandle> = pids
+                    .split(',')
+                    .map(|pid| {
+                        let pid: u32 = pid.parse().unwrap();
+                        let handle = unsafe { OpenProcess(PROCESS_SYNCHRONIZE, 0, pid) };
+                        assert!(!handle.is_null(), "{}", std::io::Error::last_os_error());
+                        unsafe { OwnedHandle::from_raw_handle(handle) }
+                    })
+                    .collect();
+                assert_eq!(processes.len(), 2);
+                parent.0.kill().unwrap();
+                parent.0.wait().unwrap();
+                for process in &processes {
+                    assert_stopped(process);
+                }
+                break;
+            }
+        }
     }
 
     #[test]

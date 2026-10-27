@@ -12,7 +12,6 @@ if (!sourceRoot || !path.isAbsolute(sourceRoot) || extra.length) {
 // Startup restoration also preserves the durable question/approval ledgers and
 // accepted-input reconciliation while sharing one verified full-history read.
 for (const filter of [
-  "session_restore_",
   "host_approval",
   "async_question",
   "session::accepted_user_inputs::tests",

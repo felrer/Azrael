@@ -1,0 +1,78 @@
+﻿{
+    "Approved":  [
+                     {
+                         "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1005",
+                         "Exists":  true,
+                         "DirectChildren":  23
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1010",
+                         "Exists":  true,
+                         "DirectChildren":  23
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1020",
+                         "Exists":  true,
+                         "DirectChildren":  23
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1030",
+                         "Exists":  true,
+                         "DirectChildren":  23
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1040",
+                         "Exists":  true,
+                         "DirectChildren":  23
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-account-check-0a349e33",
+                         "Exists":  true,
+                         "DirectChildren":  6
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-account-check-1e5075cd",
+                         "Exists":  true,
+                         "DirectChildren":  6
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-account-check-a9a14fd1",
+                         "Exists":  true,
+                         "DirectChildren":  6
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-account-check-9b38cb81",
+                         "Exists":  true,
+                         "DirectChildren":  6
+                     },
+                     {
+                         "Path":  "C:\\Temp\\azrael-host-bin-20260913-0953",
+                         "Exists":  true,
+                         "DirectChildren":  6
+                     }
+                 ],
+    "ChildrenTotal":  145,
+    "DeletedDirectories":  0,
+    "Unselected":  [
+                       {
+                           "Name":  "2024",
+                           "Exists":  true
+                       },
+                       {
+                           "Name":  "azrael-account-check-c7496cdc",
+                           "Exists":  true
+                       },
+                       {
+                           "Name":  "azrael-account-refusal-0ff94daf",
+                           "Exists":  true
+                       },
+                       {
+                           "Name":  "azrael-live-diagnosis",
+                           "Exists":  true
+                       },
+                       {
+                           "Name":  "azrael-account-current-run.json",
+                           "Exists":  true
+                       }
+                   ]
+}

@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { planSourceTests, pinnedAssetMatrix, matrixTestName } = require("./source-test-policy.cjs");
+const { planSourceTests, pinnedAssetMatrix, matrixTestName, PINNED_UI_ROOT } = require("./source-test-policy.cjs");
 const files = ["scripts/test-asset-transform-cache.cjs", "scripts/test-feature-preservation-cache.cjs", "scripts/test-session-links.cjs", "scripts/test-project-selection.cjs", "scripts/test-unknown.cjs"];
 
 test("routine policy omits only registered expensive cases and the runner regression file", () => {
@@ -59,7 +59,7 @@ test("migration, preservation and selection owners retain their bounded candidat
 test("one or several closed injectors select exactly the union of their asset targets", () => {
   const { assets, rulePaths } = pinnedAssetMatrix();
   for (const rules of [["inject-composer-draft.cjs"], ["inject-provider-context.cjs"],
-    ["inject-composer-draft.cjs", "inject-instruction-settings.cjs"], ["inject-content-fonts.cjs"]]) {
+    ["inject-composer-draft.cjs", "inject-instruction-settings.cjs"], ["inject-content-fonts.cjs"], ["inject-deferred-turn.cjs"]]) {
     const result = planSourceTests({ files, changedPaths: rules.map(rule => `scripts\\${rule}`) });
     const skipped = new RegExp(result.skipPattern);
     const targets = new Set(rules.flatMap(rule => rulePaths[rule]));
@@ -73,20 +73,42 @@ test("one or several closed injectors select exactly the union of their asset ta
   }
 });
 
+test("known pinned asset edits select their exact targets and union with injector targets", () => {
+  const { assets, rulePaths } = pinnedAssetMatrix();
+  const first = assets[0], last = assets.at(-1);
+  for (const changedPaths of [[`${PINNED_UI_ROOT}/${first}`],
+    [`${PINNED_UI_ROOT}/${first}`, `${PINNED_UI_ROOT}/${last}`],
+    [`${PINNED_UI_ROOT}/${last}`, "scripts/inject-composer-draft.cjs"]]) {
+    const targets = new Set(changedPaths.flatMap(file => file.startsWith(`${PINNED_UI_ROOT}/`)
+      ? [file.slice(PINNED_UI_ROOT.length + 1)] : rulePaths[file.slice("scripts/".length)]));
+    const result = planSourceTests({ files, changedPaths: changedPaths.map(file => file.replaceAll("/", "\\")) });
+    const skipped = new RegExp(result.skipPattern);
+    for (const asset of assets) {
+      assert.equal(skipped.test(matrixTestName(asset)), !targets.has(asset), asset);
+      const omitted = result.omitted.find(item => item.test === matrixTestName(asset));
+      assert.equal(!!omitted, !targets.has(asset), asset);
+      if (omitted) assert.ok(omitted.reason);
+    }
+  }
+});
+
 test("unknown inputs, missing gates, helpers, owners and mixed inputs preserve the complete matrix", () => {
   const { assets } = pinnedAssetMatrix();
   for (const changedPaths of [["unmapped-source.js"], ["scripts/inject-future.cjs"],
-    ["scripts/inject-deferred-turn.cjs"],
     ["scripts/provider-context-labels.cjs"], ["scripts/asset-transform-cache.cjs"],
     ["scripts/source-test-policy.cjs"], [files[0]], ["scripts/namespace-azrael-host.cjs"],
     ["artifacts/upstream-ui/pin/webview/assets/app.js"],
+    [`${PINNED_UI_ROOT}/package.json`], [`${PINNED_UI_ROOT}/webview/assets/unknown.js`],
+    [`${PINNED_UI_ROOT}/${assets[0]}`, "scripts/asset-transform-cache.cjs"],
     ["scripts/inject-composer-draft.cjs", "scripts/unknown-helper.cjs"]]) {
     const result = planSourceTests({ files, changedPaths });
     const skipped = result.skipPattern ? new RegExp(result.skipPattern) : null;
     for (const asset of assets) assert.ok(!skipped?.test(matrixTestName(asset)), `${changedPaths}: ${asset}`);
     assert.ok(!result.omitted.some(item => item.file === files[0]));
   }
-  const exhaustive = planSourceTests({ files, changedPaths: ["scripts/inject-composer-draft.cjs"], exhaustive: true });
-  assert.equal(exhaustive.skipPattern, "");
-  assert.deepEqual(exhaustive.omitted, []);
+  for (const changedPaths of [["scripts/inject-composer-draft.cjs"], [`${PINNED_UI_ROOT}/${assets[0]}`]]) {
+    const exhaustive = planSourceTests({ files, changedPaths, exhaustive: true });
+    assert.equal(exhaustive.skipPattern, "");
+    assert.deepEqual(exhaustive.omitted, []);
+  }
 });

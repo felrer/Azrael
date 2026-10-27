@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "success": true,
+  "nativeExitCode": 0,
+  "results": [
+    {
+      "id": "03ba3bff5bc3b92bf2660c35051b5924eebeb370c64d460551f4eccdddc5723d",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "13c3c4339ffde4d4d1bd40ff9a2743b1721147e321599bc0e646ba1c79ae36ac",
+      "status": "deleted",
+      "remaining": false
+    }
+  ],
+  "bytes": 389748693,
+  "ended": "2026-10-25T14:45:58.954Z"
+}

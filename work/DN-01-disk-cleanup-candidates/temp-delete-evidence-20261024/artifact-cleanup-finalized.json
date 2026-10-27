@@ -1,0 +1,58 @@
+[
+  {
+    "id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\09256d0e60d8fa8edd2d2b62053c3e7b3973d8882313277f2ac7f4ed68f9c9c3.json"
+  },
+  {
+    "id": "run:DN-01-root-retirement:validation-20261024-2",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\92e9d2de401eb51eab46ed625c4ba6079c9aa09370d60a3076adc901ce41eeee.json"
+  },
+  {
+    "id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\95a59b40508d5a6b00bb97fca0e696f286e60d801081d5dcbae8e80e898d10a2.json"
+  },
+  {
+    "id": "run:DN-01-root-retirement:validation-20261024",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d556d1361e153875baac493f5643a9942517e41f8b4bafe6b8867f67a7a3ff19.json"
+  },
+  {
+    "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3ea1ff6e9c5f09e33798e0b56d3f6b5c2ee5907f7ea04eb329b4f8f6a8e111d.json"
+  },
+  {
+    "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e74127778bf39b424f0e1d49488a8c72c7d957a5a44b21ad52b109b7696d1990.json"
+  },
+  {
+    "id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f5352bacc766ee71ad00b60c1441422dec881cd1825b8a1bdad6224cf33f24a4.json"
+  }
+]

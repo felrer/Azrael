@@ -1,0 +1,528 @@
+[
+  {
+    "attempt_id": "attempt-23120-11-1792823267400",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-account-check-0a349e33",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "a195ad8fb6d2d33642876d58e7e077a61bb5a0a601b5d1d33e99e6f0ef29e292"
+  },
+  {
+    "attempt_id": "attempt-23120-14-1792823294753",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.idx"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+        },
+        {
+          "after": 16,
+          "before": 18,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git"
+        },
+        {
+          "after": 16,
+          "before": 18,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+        },
+        {
+          "after": 16,
+          "before": 18,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.rev"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.pack"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+        }
+      ],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-account-check-1e5075cd",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "c177c94f857ee7be4c454ae9c6315a2843dfae5ae4777be0ba4d99f3d5ddc19c"
+  },
+  {
+    "attempt_id": "attempt-23120-17-1792823444983",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-account-check-9b38cb81",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "09b33f305731fab1593572088eab4ba1de771ffc0906cb7e4bb95b94003e6cb2"
+  },
+  {
+    "attempt_id": "attempt-23120-20-1792823446935",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-account-check-a9a14fd1",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "92adcd7dca8437c7b14ef3f95cd4af45395056fb909cab9053fc0b90455ef787"
+  },
+  {
+    "attempt_id": "attempt-23120-23-1792823448855",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-bin-20260913-0953\\azrael-bridge.exe"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-bin-20260913-0953\\azrael-ex-0.1.0.vsix"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-bin-20260913-0953\\azrael-ex-0.1.0-kindfix.vsix"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-bin-20260913-0953\\codex.exe"
+        }
+      ],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-host-bin-20260913-0953",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "c89c282da4dc345352ab655c7d83e4cb039fcb21ac2f29c4b640379a76ce09ce"
+  },
+  {
+    "attempt_id": "attempt-23120-26-1792823458910",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+        },
+        {
+          "after": 16,
+          "before": 18,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git"
+        }
+      ],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-host-fixture-20260913-1005",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "47cfbb80fc6cc2eb73f348d253b79deb87b982306e005576f2af7a8fa68765ab"
+  },
+  {
+    "attempt_id": "attempt-23120-29-1792823547353",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+        },
+        {
+          "after": 16,
+          "before": 18,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+        }
+      ],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-host-fixture-20260913-1010",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "3fe7bd9604f7cc5e8a5dc3fecf12b2866cb0dbd12fcc222c3dfb6f3ecc76a4a0"
+  },
+  {
+    "attempt_id": "attempt-23120-32-1792823701351",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.rev"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.pack"
+        },
+        {
+          "after": 16,
+          "before": 18,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.idx"
+        }
+      ],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-host-fixture-20260913-1020",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "125d4b8815c49be8c40a58734104cb018669f36d087c7e28c66a66aa2251b26a"
+  },
+  {
+    "attempt_id": "attempt-23120-35-1792823851660",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.idx"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.rev"
+        },
+        {
+          "after": 32,
+          "before": 33,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.pack"
+        },
+        {
+          "after": 16,
+          "before": 18,
+          "path": "C:/Temp/azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git"
+        }
+      ],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleting",
+    "id": "temp-approved-azrael-host-fixture-20260913-1030",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "5af465c6245b915abc2fdab62dc601155f6a1bee12b33d25221fc5694df4d80c"
+  },
+  {
+    "attempt_id": "attempt-23120-38-1792823983419",
+    "decision": "delete",
+    "deletion": {
+      "attributes": [],
+      "error": null,
+      "physical_bytes_reclaimed": null,
+      "remaining": false,
+      "status": "deleted"
+    },
+    "group_status": "deleted",
+    "id": "temp-approved-azrael-host-fixture-20260913-1040",
+    "lifecycle_group_id": "legacy-temp-tests-20260913-approved10",
+    "reason": "User reauthorized UAC and exact ten obsolete test roots after fresh review and preserved evidence",
+    "remaining": false,
+    "retire_managed_roots": {
+      "evidence_ref": "artifacts/maintenance/evidence/dn01-approved10.json",
+      "ids": [
+        "temp-approved-azrael-account-check-0a349e33",
+        "temp-approved-azrael-account-check-1e5075cd",
+        "temp-approved-azrael-account-check-9b38cb81",
+        "temp-approved-azrael-account-check-a9a14fd1",
+        "temp-approved-azrael-host-bin-20260913-0953",
+        "temp-approved-azrael-host-fixture-20260913-1005",
+        "temp-approved-azrael-host-fixture-20260913-1010",
+        "temp-approved-azrael-host-fixture-20260913-1020",
+        "temp-approved-azrael-host-fixture-20260913-1030",
+        "temp-approved-azrael-host-fixture-20260913-1040"
+      ],
+      "owner": "DN-01-approved-temp-cleanup",
+      "reason": "User-approved retirement of ten obsolete 2026-09-13 generated test roots after preserved verification evidence"
+    },
+    "retirement_evidence_identity": "07128f18e77c4f3012bfbf496e28881a25be766d27ecf98463c4a851af623bdd",
+    "status": "deleted",
+    "token": "f2423ce37e504f5e381a7f845385209d779337258a72b44c9ac5e3e640304f6f"
+  }
+]

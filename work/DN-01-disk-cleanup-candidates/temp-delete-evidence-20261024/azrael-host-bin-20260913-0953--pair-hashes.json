@@ -1,0 +1,29 @@
+{
+  "sourcePairTimestamp": "2026-09-13 09:53 +09:00",
+  "files": [
+    {
+      "file": "codex.exe",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\upstream\\codex\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\codex.exe",
+      "sourceSha256": "D3FED9D4365A00F3B213F68104805C5FB273645E22F230E45C9813B795470940",
+      "copySha256": "D3FED9D4365A00F3B213F68104805C5FB273645E22F230E45C9813B795470940",
+      "matches": true,
+      "readOnly": true
+    },
+    {
+      "file": "azrael-bridge.exe",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\upstream\\codex\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael-bridge.exe",
+      "sourceSha256": "E0147946046DD1F2D9FFDC79EEE00333F607CC5C821818C15809F3D8A83E9BCB",
+      "copySha256": "E0147946046DD1F2D9FFDC79EEE00333F607CC5C821818C15809F3D8A83E9BCB",
+      "matches": true,
+      "readOnly": true
+    },
+    {
+      "file": "azrael-ex-0.1.0.vsix",
+      "source": "resolved AA artifact",
+      "sourceSha256": "58F9B20B632D2B021B8FF96A502C0FDB37FF935A38D44674A57DC36AA91DF290",
+      "copySha256": "58F9B20B632D2B021B8FF96A502C0FDB37FF935A38D44674A57DC36AA91DF290",
+      "matches": true,
+      "readOnly": true
+    }
+  ]
+}

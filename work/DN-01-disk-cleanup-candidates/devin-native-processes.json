@@ -1,0 +1,506 @@
+﻿[
+    {
+        "ProcessId":  52044,
+        "ParentProcessId":  63460,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792498031927)\/",
+        "ExecutablePath":  "C:\\Program Files\\Adobe\\Adobe Creative Cloud Experience\\libs\\node.exe",
+        "CommandLine":  "\"C:\\Program Files\\Adobe\\Adobe Creative Cloud Experience\\libs\\node.exe\" \"C:\\Program Files\\Adobe\\Adobe Creative Cloud Experience\\js\\main.js\""
+    },
+    {
+        "ProcessId":  6496,
+        "ParentProcessId":  58876,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792498042335)\/",
+        "ExecutablePath":  "C:\\Program Files\\Common Files\\Adobe\\Creative Cloud Libraries\\libs\\node.exe",
+        "CommandLine":  "\"C:\\Program Files\\Common Files\\Adobe\\Creative Cloud Libraries\\libs\\node.exe\" \"C:\\Program Files\\Common Files\\Adobe\\Creative Cloud Libraries\\js\\server.js\""
+    },
+    {
+        "ProcessId":  29276,
+        "ParentProcessId":  60012,
+        "Name":  "azrael.exe",
+        "CreationDate":  "\/Date(1792693471158)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "CommandLine":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled"
+    },
+    {
+        "ProcessId":  61336,
+        "ParentProcessId":  20692,
+        "Name":  "azrael.exe",
+        "CreationDate":  "\/Date(1792693473174)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "CommandLine":  "\"\\\\?\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe\" app-server --azrael-shared-windows --managed-daemon --azrael-engine-instance 0448eb893119b0a359de64cc3a893058605e055b47358fe28c5db8d1d9bebc2a --listen unix://C:\\Users\\felre\\.azrael-ex\\app-server-control\\0448eb893119b0a359de64cc.sock -c features.code_mode_host=true --session-source vscode --analytics-default-enabled"
+    },
+    {
+        "ProcessId":  21176,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792693984612)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  58068,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792693988239)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  36344,
+        "ParentProcessId":  34084,
+        "Name":  "azrael.exe",
+        "CreationDate":  "\/Date(1792694334324)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "CommandLine":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled"
+    },
+    {
+        "ProcessId":  3900,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792695943571)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  45832,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792697772643)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  68452,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792700821002)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  2164,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792713630752)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  29456,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792718451303)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  13532,
+        "ParentProcessId":  58228,
+        "Name":  "azrael.exe",
+        "CreationDate":  "\/Date(1792718989466)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "CommandLine":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled"
+    },
+    {
+        "ProcessId":  66340,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792719032565)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  63772,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792721220943)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  24388,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792721222135)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  72548,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792721670581)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  28232,
+        "ParentProcessId":  47596,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792721783665)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" --eval \"// Node\u0027s emulated realpath walks every ancestor. Windows may allow the target\n// while denying metadata on an ancestor (notably AppData). Keep normal Node\n// resolution, including symlink identity, and retry that failure using a handle\n// to the target. This grants no access and does not bypass reads or trust checks.\nconst fs = require(\\\"node:fs\\\");\nconst originalRealpathSync = fs.realpathSync;\nfs.realpathSync = Object.assign(\n  function realpathSync(path, options) {\n    try {\n      return originalRealpathSync(path, options);\n    } catch (error) {\n      if (\n        error?.syscall !== \\\"lstat\\\" ||\n        (error.code !== \\\"EPERM\\\" \u0026\u0026 error.code !== \\\"EACCES\\\")\n      ) {\n        throw error;\n      }\n      try {\n        return originalRealpathSync.native(path, options);\n      } catch {\n        throw error;\n      }\n    }\n  },\n  { native: originalRealpathSync.native },\n);\n\n// --eval leaves the script at argv[1]. Use Node\u0027s ordinary main-module loader\n// so argv, require.main, and relative imports keep their normal meaning.\nrequire(\\\"node:module\\\").runMain();\n\" --experimental-vm-modules C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\.tmp4tuHRu\\kernel.js --session-id e42fb882f94b4692a2c4ca07c009b43c --working-dir C:\\Users\\felre\\Desktop\\GrowKick"
+    },
+    {
+        "ProcessId":  68156,
+        "ParentProcessId":  47596,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792721783673)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" --eval \"// Node\u0027s emulated realpath walks every ancestor. Windows may allow the target\n// while denying metadata on an ancestor (notably AppData). Keep normal Node\n// resolution, including symlink identity, and retry that failure using a handle\n// to the target. This grants no access and does not bypass reads or trust checks.\nconst fs = require(\\\"node:fs\\\");\nconst originalRealpathSync = fs.realpathSync;\nfs.realpathSync = Object.assign(\n  function realpathSync(path, options) {\n    try {\n      return originalRealpathSync(path, options);\n    } catch (error) {\n      if (\n        error?.syscall !== \\\"lstat\\\" ||\n        (error.code !== \\\"EPERM\\\" \u0026\u0026 error.code !== \\\"EACCES\\\")\n      ) {\n        throw error;\n      }\n      try {\n        return originalRealpathSync.native(path, options);\n      } catch {\n        throw error;\n      }\n    }\n  },\n  { native: originalRealpathSync.native },\n);\n\n// --eval leaves the script at argv[1]. Use Node\u0027s ordinary main-module loader\n// so argv, require.main, and relative imports keep their normal meaning.\nrequire(\\\"node:module\\\").runMain();\n\" C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\.tmp4tuHRu\\trusted-worker.js C:\\Users\\felre\\Desktop\\GrowKick"
+    },
+    {
+        "ProcessId":  68688,
+        "ParentProcessId":  47596,
+        "Name":  "azrael.exe",
+        "CreationDate":  "\/Date(1792721784708)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe\" app-server --listen stdio://"
+    },
+    {
+        "ProcessId":  34420,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792725477702)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  13944,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792726146599)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  30484,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792728948147)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  71800,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792728948507)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  67184,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792728949249)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  19240,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792729439100)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  23300,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792729632308)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  47028,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792729632535)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  65320,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792733222690)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  12776,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792737048918)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  40124,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792737684698)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  64472,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792741743102)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  27920,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792744859707)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  31712,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792748004240)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  60368,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792755598740)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  45416,
+        "ParentProcessId":  58304,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792755739535)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" --eval \"// Node\u0027s emulated realpath walks every ancestor. Windows may allow the target\n// while denying metadata on an ancestor (notably AppData). Keep normal Node\n// resolution, including symlink identity, and retry that failure using a handle\n// to the target. This grants no access and does not bypass reads or trust checks.\nconst fs = require(\\\"node:fs\\\");\nconst originalRealpathSync = fs.realpathSync;\nfs.realpathSync = Object.assign(\n  function realpathSync(path, options) {\n    try {\n      return originalRealpathSync(path, options);\n    } catch (error) {\n      if (\n        error?.syscall !== \\\"lstat\\\" ||\n        (error.code !== \\\"EPERM\\\" \u0026\u0026 error.code !== \\\"EACCES\\\")\n      ) {\n        throw error;\n      }\n      try {\n        return originalRealpathSync.native(path, options);\n      } catch {\n        throw error;\n      }\n    }\n  },\n  { native: originalRealpathSync.native },\n);\n\n// --eval leaves the script at argv[1]. Use Node\u0027s ordinary main-module loader\n// so argv, require.main, and relative imports keep their normal meaning.\nrequire(\\\"node:module\\\").runMain();\n\" --experimental-vm-modules C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\.tmphCit04\\kernel.js --session-id 78c8ce2575f04f92897cce8d8ce568a1 --working-dir C:\\Users\\felre\\Desktop\\Life-All-In-One"
+    },
+    {
+        "ProcessId":  38576,
+        "ParentProcessId":  58304,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792755739544)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" --eval \"// Node\u0027s emulated realpath walks every ancestor. Windows may allow the target\n// while denying metadata on an ancestor (notably AppData). Keep normal Node\n// resolution, including symlink identity, and retry that failure using a handle\n// to the target. This grants no access and does not bypass reads or trust checks.\nconst fs = require(\\\"node:fs\\\");\nconst originalRealpathSync = fs.realpathSync;\nfs.realpathSync = Object.assign(\n  function realpathSync(path, options) {\n    try {\n      return originalRealpathSync(path, options);\n    } catch (error) {\n      if (\n        error?.syscall !== \\\"lstat\\\" ||\n        (error.code !== \\\"EPERM\\\" \u0026\u0026 error.code !== \\\"EACCES\\\")\n      ) {\n        throw error;\n      }\n      try {\n        return originalRealpathSync.native(path, options);\n      } catch {\n        throw error;\n      }\n    }\n  },\n  { native: originalRealpathSync.native },\n);\n\n// --eval leaves the script at argv[1]. Use Node\u0027s ordinary main-module loader\n// so argv, require.main, and relative imports keep their normal meaning.\nrequire(\\\"node:module\\\").runMain();\n\" C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\.tmphCit04\\trusted-worker.js C:\\Users\\felre\\Desktop\\Life-All-In-One"
+    },
+    {
+        "ProcessId":  68144,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792758998277)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  53692,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792761087528)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  50228,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792762295827)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  60576,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792765618393)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  64468,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792766309165)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  73332,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792768143968)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  53732,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792770206492)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  45512,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792778278582)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  71124,
+        "ParentProcessId":  45940,
+        "Name":  "azrael.exe",
+        "CreationDate":  "\/Date(1792780921860)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "CommandLine":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled"
+    },
+    {
+        "ProcessId":  44760,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792781311982)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  72596,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792781314667)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  12592,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792781709238)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  54320,
+        "ParentProcessId":  45240,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792784076756)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" --eval \"// Node\u0027s emulated realpath walks every ancestor. Windows may allow the target\n// while denying metadata on an ancestor (notably AppData). Keep normal Node\n// resolution, including symlink identity, and retry that failure using a handle\n// to the target. This grants no access and does not bypass reads or trust checks.\nconst fs = require(\\\"node:fs\\\");\nconst originalRealpathSync = fs.realpathSync;\nfs.realpathSync = Object.assign(\n  function realpathSync(path, options) {\n    try {\n      return originalRealpathSync(path, options);\n    } catch (error) {\n      if (\n        error?.syscall !== \\\"lstat\\\" ||\n        (error.code !== \\\"EPERM\\\" \u0026\u0026 error.code !== \\\"EACCES\\\")\n      ) {\n        throw error;\n      }\n      try {\n        return originalRealpathSync.native(path, options);\n      } catch {\n        throw error;\n      }\n    }\n  },\n  { native: originalRealpathSync.native },\n);\n\n// --eval leaves the script at argv[1]. Use Node\u0027s ordinary main-module loader\n// so argv, require.main, and relative imports keep their normal meaning.\nrequire(\\\"node:module\\\").runMain();\n\" --experimental-vm-modules C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\.tmpLk5peO\\kernel.js --session-id 34fa3a9dccbc44b5afd7631c22a9bda7 --working-dir C:\\Users\\felre\\Desktop\\pi-harness-init"
+    },
+    {
+        "ProcessId":  51484,
+        "ParentProcessId":  45240,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792784076764)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" --eval \"// Node\u0027s emulated realpath walks every ancestor. Windows may allow the target\n// while denying metadata on an ancestor (notably AppData). Keep normal Node\n// resolution, including symlink identity, and retry that failure using a handle\n// to the target. This grants no access and does not bypass reads or trust checks.\nconst fs = require(\\\"node:fs\\\");\nconst originalRealpathSync = fs.realpathSync;\nfs.realpathSync = Object.assign(\n  function realpathSync(path, options) {\n    try {\n      return originalRealpathSync(path, options);\n    } catch (error) {\n      if (\n        error?.syscall !== \\\"lstat\\\" ||\n        (error.code !== \\\"EPERM\\\" \u0026\u0026 error.code !== \\\"EACCES\\\")\n      ) {\n        throw error;\n      }\n      try {\n        return originalRealpathSync.native(path, options);\n      } catch {\n        throw error;\n      }\n    }\n  },\n  { native: originalRealpathSync.native },\n);\n\n// --eval leaves the script at argv[1]. Use Node\u0027s ordinary main-module loader\n// so argv, require.main, and relative imports keep their normal meaning.\nrequire(\\\"node:module\\\").runMain();\n\" C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\.tmpLk5peO\\trusted-worker.js C:\\Users\\felre\\Desktop\\pi-harness-init"
+    },
+    {
+        "ProcessId":  51388,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792803431613)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  39748,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792803558392)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  56704,
+        "ParentProcessId":  61336,
+        "Name":  "powershell.exe",
+        "CreationDate":  "\/Date(1792804746420)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -Command \"try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n\u0026 \u0027C:/Program Files/nodejs/node.exe\u0027 \u0027artifacts/tasks/DM-01-boundary-reform/runs/impl-r1/temporary/windows-build-controller-w13l.cjs\u0027\""
+    },
+    {
+        "ProcessId":  18644,
+        "ParentProcessId":  56704,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792804746638)\/",
+        "ExecutablePath":  "C:\\Program Files\\nodejs\\node.exe",
+        "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" artifacts/tasks/DM-01-boundary-reform/runs/impl-r1/temporary/windows-build-controller-w13l.cjs"
+    },
+    {
+        "ProcessId":  19844,
+        "ParentProcessId":  18644,
+        "Name":  "pwsh.exe",
+        "CreationDate":  "\/Date(1792804905276)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-committed-20261023-99afefb1\\runs\\deploy-r1\\powershell\\pwsh.exe",
+        "CommandLine":  "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/windows-committed-20261023-99afefb1/runs/deploy-r1/powershell/pwsh.exe -NoLogo -NoProfile -NonInteractive -File C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/DM-01-boundary-reform/runs/impl-r1/temporary/deploy-windows-w13l.ps1"
+    },
+    {
+        "ProcessId":  13348,
+        "ParentProcessId":  19844,
+        "Name":  "powershell.exe",
+        "CreationDate":  "\/Date(1792804905934)\/",
+        "ExecutablePath":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -Version 5.1 -s -NoLogo -NoProfile"
+    },
+    {
+        "ProcessId":  33500,
+        "ParentProcessId":  19844,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792805897721)\/",
+        "ExecutablePath":  "C:\\Program Files\\nodejs\\node.exe",
+        "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\c\\scripts\\feature-preservation.cjs run --config C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\c\\artifacts\\logs\\deploy-w13l-99afefb1\\engine-preservation-inputs.json"
+    },
+    {
+        "ProcessId":  64268,
+        "ParentProcessId":  55876,
+        "Name":  "pwsh.exe",
+        "CreationDate":  "\/Date(1792806755718)\/",
+        "ExecutablePath":  "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.7.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+        "CommandLine":  "C:\\Users\\felre\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.PowerShell_8wekyb3d8bbwe\\pwsh.exe -noexit -command \"try { . \\\"c:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\2d0b7506a3\\resources\\app\\out\\vs\\workbench\\contrib\\terminal\\common\\scripts\\shellIntegration.ps1\\\" } catch {}\""
+    },
+    {
+        "ProcessId":  39832,
+        "ParentProcessId":  1196,
+        "Name":  "azrael.exe",
+        "CreationDate":  "\/Date(1792806768255)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe",
+        "CommandLine":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled"
+    },
+    {
+        "ProcessId":  57856,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792806931817)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  42668,
+        "ParentProcessId":  61336,
+        "Name":  "node.exe",
+        "CreationDate":  "\/Date(1792806950006)\/",
+        "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe",
+        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\releases\\w11aa\\window-control\\window-control-mcp.cjs"
+    },
+    {
+        "ProcessId":  37248,
+        "ParentProcessId":  61336,
+        "Name":  "powershell.exe",
+        "CreationDate":  "\/Date(1792806990963)\/",
+        "ExecutablePath":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "\"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -Command \"try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\nGet-Command handle.exe,handle64.exe,openfiles.exe -ErrorAction SilentlyContinue | Select-Object Name,Source | ConvertTo-Json -Compress; Get-CimInstance Win32_Process | Where-Object { $_.Name -match \u0027^(bun|node|cargo|rustc|icacls|azrael|powershell|pwsh)(\\.exe)?$\u0027 } | Select-Object ProcessId,ParentProcessId,Name,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath work/DN-01-disk-cleanup-candidates/devin-native-processes.json -Encoding UTF8\""
+    }
+]

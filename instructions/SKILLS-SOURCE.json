@@ -54,11 +54,12 @@
         "size": 13170,
         "sha256": "877313fa06dbf4fe0b8d081986074b08cd0757867cd2810e6af63a6f82474c2b"
       },
-      "size": 11842,
-      "sha256": "a4b69393234ec2c3779986f3f3348f9ccc24c79c8324eed0bb5780093175aa82",
+      "size": 12235,
+      "sha256": "d19221bb64f57d1fb01a8ebbe2ef22230b3d00ca13f1330677240515f81b3b76",
       "adaptations": [
         "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
-        "Remove the three user-selected investigation-first and linked-choice routing sentences."
+        "Remove the three user-selected investigation-first and linked-choice routing sentences.",
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
       ]
     },
     {
@@ -93,13 +94,14 @@
         "size": 17375,
         "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 18098,
-      "sha256": "1ae16ef1f9917a9231d8b2311eb3e8500ebc943cc2e07cbb6b959a013d09e6e5",
+      "size": 19260,
+      "sha256": "a5c58ce5594ea02fe55b8bfe66b9143ae55e858da2905c61c57b35e15655da63",
       "adaptations": [
         "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
         "Select sufficient evidence before test generation; justify permanent coverage by distinct regression value and lifecycle costs while preserving mandatory checks, important contracts and cleanup/retention authority; active installed skill uses this maintained directory.",
-        "Delegate common test decisions to the approved testing skill; retain overall verification and cleanup ownership."
+        "Delegate common test decisions to the approved testing skill; retain overall verification and cleanup ownership.",
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
       ]
     },
     {
@@ -212,14 +214,15 @@
       "source": "implementation/references/build-inputs.md",
       "adaptations": [
         "Centralized cache reuse and completion reporting; allow lower-order version increments, retire unused older releases and rollback copies, and use related platform tests.",
-        "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy."
+        "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
       ],
       "original": {
         "size": 7937,
         "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
       },
-      "size": 9778,
-      "sha256": "40831af33b585fcea1af8d2b87f8f80f211cdeead320c39ed06357f89cf6480f"
+      "size": 10549,
+      "sha256": "91ea2b3f035fffe714a7def2fafa602b1f8c06de17b649a4cdd10f7aa9552857"
     },
     {
       "path": "skills/implementation/references/delegation.md",
@@ -268,8 +271,8 @@
     {
       "path": "skills/implementation/references/artifact-lifecycle.md",
       "source": "implementation/references/artifact-lifecycle.md",
-      "size": 12897,
-      "sha256": "b1d0a3657505107139b4e39d98b09ead39de6134b225bc0668eae6b3104b4073",
+      "size": 17169,
+      "sha256": "78b216de8b69dda02bc5e43d9ec2db4ea0e975651955340a959560a4994dcce9",
       "original": {
         "size": 4370,
         "sha256": "834485e7b1e853611b50da821109b8f171cd342b27e4438890aa9bb007fa3abe"
@@ -279,14 +282,15 @@
         "Clarified batching of ready independent cleanup groups with measured call overhead, preserved per-group decisions and completion-aware progress.",
         "Clarified creation-time ancestor/descendant claim checks, unique generation boundaries and verified migration without rewriting historical cleanup evidence.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
-        "Link shared-cache reuse to its build owner and retire unused recovery copies instead of protecting the immediately preceding version by default."
+        "Link shared-cache reuse to its build owner and retire unused recovery copies instead of protecting the immediately preceding version by default.",
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
       ]
     },
     {
       "path": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
       "source": "project-bootstrap/assets/playbooks/artifact-lifecycle.md",
-      "size": 20594,
-      "sha256": "13bed439a4642c5625807409253ebb305c4b456b419270e1d31c5e1a93870d49",
+      "size": 21242,
+      "sha256": "f17ee4ab7fde7d3a6881bd82531eba8011a62bb04e11d32c22cf1ef53f9fd01d",
       "original": {
         "size": 10430,
         "sha256": "6f05e9cb306732e7b74b7c064066de63da2776d19c2e5d161aa072bcf431c15a"
@@ -296,7 +300,8 @@
         "Clarified batching of ready independent cleanup groups with measured call overhead, preserved per-group decisions and completion-aware progress.",
         "Clarified creation-time ancestor/descendant claim checks, unique generation boundaries and verified migration without rewriting historical cleanup evidence.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
-        "Keep real installation ownership separate from test profiles and route unused release/recovery-copy retirement to project build lifecycle rules."
+        "Keep real installation ownership separate from test profiles and route unused release/recovery-copy retirement to project build lifecycle rules.",
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
       ]
     },
     {

@@ -1,0 +1,138 @@
+{
+  "checked_at": "2026-10-24T06:41:09.026Z",
+  "group_status": "deleted",
+  "deleted_count": 10,
+  "logical_bytes_before": 7753724175,
+  "logical_GiB_before": 7.221218361519277,
+  "approved": [
+    {
+      "path": "C:\\Temp\\azrael-host-fixture-20260913-1005",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-host-fixture-20260913-1010",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-host-fixture-20260913-1020",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-host-fixture-20260913-1030",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-host-fixture-20260913-1040",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-account-check-0a349e33",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-account-check-1e5075cd",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-account-check-a9a14fd1",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-account-check-9b38cb81",
+      "present": false
+    },
+    {
+      "path": "C:\\Temp\\azrael-host-bin-20260913-0953",
+      "present": false
+    }
+  ],
+  "retained": [
+    {
+      "path": "C:\\Temp\\2024",
+      "present": true,
+      "type": "directory"
+    },
+    {
+      "path": "C:\\Temp\\azrael-account-check-c7496cdc",
+      "present": true,
+      "type": "directory"
+    },
+    {
+      "path": "C:\\Temp\\azrael-account-refusal-0ff94daf",
+      "present": true,
+      "type": "directory"
+    },
+    {
+      "path": "C:\\Temp\\azrael-live-diagnosis",
+      "present": true,
+      "type": "directory"
+    },
+    {
+      "path": "C:\\Temp\\azrael-account-current-run.json",
+      "present": true,
+      "type": "file"
+    }
+  ],
+  "results": [
+    {
+      "id": "temp-approved-azrael-account-check-0a349e33",
+      "path": "C:/Temp/azrael-account-check-0a349e33",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-account-check-1e5075cd",
+      "path": "C:/Temp/azrael-account-check-1e5075cd",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-account-check-9b38cb81",
+      "path": "C:/Temp/azrael-account-check-9b38cb81",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-account-check-a9a14fd1",
+      "path": "C:/Temp/azrael-account-check-a9a14fd1",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-host-bin-20260913-0953",
+      "path": "C:/Temp/azrael-host-bin-20260913-0953",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-host-fixture-20260913-1005",
+      "path": "C:/Temp/azrael-host-fixture-20260913-1005",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-host-fixture-20260913-1010",
+      "path": "C:/Temp/azrael-host-fixture-20260913-1010",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-host-fixture-20260913-1020",
+      "path": "C:/Temp/azrael-host-fixture-20260913-1020",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-host-fixture-20260913-1030",
+      "path": "C:/Temp/azrael-host-fixture-20260913-1030",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "temp-approved-azrael-host-fixture-20260913-1040",
+      "path": "C:/Temp/azrael-host-fixture-20260913-1040",
+      "status": "deleted",
+      "remaining": false
+    }
+  ]
+}

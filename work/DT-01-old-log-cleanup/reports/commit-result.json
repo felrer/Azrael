@@ -1,0 +1,27 @@
+{
+  "commit": "e0c448a0dfaac4ccce2c1fc38d3aa9c803dad416",
+  "base": "e2ab0fa5ecb030bdcf9c2f796d909e9248d3d002",
+  "paths": [
+    "docs/architecture/project-maintenance.md",
+    "docs/ops/project-maintenance.md",
+    "engine/codex-rs/project-maintenance/Cargo.toml",
+    "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "engine/codex-rs/project-maintenance/src/lib.rs",
+    "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+    "engine/codex-rs/project-maintenance/src/registry.rs",
+    "engine/codex-rs/project-maintenance/src/storage.rs",
+    "engine/codex-rs/project-maintenance/tests/lock_recovery.rs",
+    "scripts/artifact-lifecycle.cjs",
+    "scripts/artifact-run.cjs",
+    "scripts/azrael-feature-contracts.json",
+    "scripts/deployment-workspace.cjs",
+    "scripts/maintenance-lock-owner.cjs",
+    "scripts/test-maintenance-lock-owner.cjs",
+    "work/DT-01-old-log-cleanup/01-plan.md",
+    "work/DT-01-old-log-cleanup/02-plan.md",
+    "work/DT-01-old-log-cleanup/03-plan.md",
+    "work/DT-01-old-log-cleanup/reports/remediation-decisions.json",
+    "work/DT-01-old-log-cleanup/reports/verification-summary.json"
+  ],
+  "cleanup": "Owned verification run retained because existing maintenance lock refused native registration; retry supported registration/review/apply after writer termination."
+}

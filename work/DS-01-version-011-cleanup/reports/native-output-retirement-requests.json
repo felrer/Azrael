@@ -1,0 +1,56 @@
+[
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:DS-01-native-nested-retirement-r1",
+      "kind": "run",
+      "owner": "DS-01-version-011-cleanup",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\00fa53c0c96426192e8e7b94ff32659b09ce06277466db28f6338e4e8f1774f8.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "13c3c4339ffde4d4d1bd40ff9a2743b1721147e321599bc0e646ba1c79ae36ac",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ds01n1",
+          "role": "verification",
+          "lifecycle_role": "evidence",
+          "kind": "verification",
+          "owner": "DS-01-version-011-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\00fa53c0c96426192e8e7b94ff32659b09ce06277466db28f6338e4e8f1774f8.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:DS-01-native-nested-retirement-r2",
+      "kind": "run",
+      "owner": "DS-01-version-011-cleanup",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8138d41aae50f9a4f77889dd58eb8e7f3e2c1874c5c55b1ac5d41e95b5cc0da3.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "03ba3bff5bc3b92bf2660c35051b5924eebeb370c64d460551f4eccdddc5723d",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ds01n2",
+          "role": "verification",
+          "lifecycle_role": "evidence",
+          "kind": "verification",
+          "owner": "DS-01-version-011-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8138d41aae50f9a4f77889dd58eb8e7f3e2c1874c5c55b1ac5d41e95b5cc0da3.json"
+        }
+      ]
+    }
+  }
+]

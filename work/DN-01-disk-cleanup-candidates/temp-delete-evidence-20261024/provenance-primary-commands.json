@@ -1,0 +1,67 @@
+[
+  {
+    "name": "stage-selected-source",
+    "executable": "git",
+    "args": [
+      "add",
+      "--",
+      "engine/codex-rs/project-maintenance/src/lib.rs",
+      "engine/codex-rs/project-maintenance/src/apply.rs",
+      "engine/codex-rs/project-maintenance/src/retirement.rs",
+      "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "engine/codex-rs/project-maintenance/tests/root_retirement.rs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\logs\\stage-selected-source.log"
+  },
+  {
+    "name": "record-local-changes",
+    "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+    "args": [
+      "-X",
+      "utf8",
+      "-B",
+      "scripts/record-engine-local-changes.py",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+      "--baseline",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+      "--baseline-receipt-sha256",
+      "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+      "--current-receipt-sha256",
+      "9abb36b88ed63b2045fcfae09a7e5387dd80fd83d543658dd7da32dfcb98c9fe",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/lib.rs",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/apply.rs",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/retirement.rs",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "--expected-path",
+      "codex-rs/project-maintenance/tests/root_retirement.rs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\logs\\record-local-changes.log"
+  },
+  {
+    "name": "snapshot-check",
+    "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+    "args": [
+      "-X",
+      "utf8",
+      "-B",
+      "scripts/engine-provenance.py",
+      "snapshot",
+      "--root",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+      "--file",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\reports\\engine-snapshot.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-provenance\\runs\\20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d\\logs\\snapshot-check.log"
+  }
+]

@@ -170,6 +170,25 @@ test("new Claude thread uses its catalog provider without parsing the model ID",
   chat.dispose();
 });
 
+test("Full access deletion approvals reach the user for commands and patches", async () => {
+  const wire = new MockServer();
+  const chat = new ChatSession(wire, "/project");
+  await chat.start();
+  await chat.newThread();
+  await chat.send("delete selected files");
+  for (const [id, method] of [["delete-command", "item/commandExecution/requestApproval"], ["delete-patch", "item/fileChange/requestApproval"]]) {
+    wire.emit("serverRequest", id, method, {
+      threadId: "new", turnId: "turn-1", itemId: id,
+      command: "Remove-Item file", reason: "File deletion requires user approval",
+    });
+    assert.equal(wire.replies.some(reply => reply.id === id), false);
+    assert.ok(chat.state.approvals.some(approval => approval.id === id));
+    chat.approve(id, "decline");
+    assert.deepEqual(wire.replies.at(-1), { id, result: { decision: "decline" } });
+  }
+  chat.dispose();
+});
+
 test("Full access readback is required before any provider can enqueue work", async () => {
   for (const modelId of ["catalog-1", "catalog-2", "catalog-3"]) {
     const wire = new MockServer();

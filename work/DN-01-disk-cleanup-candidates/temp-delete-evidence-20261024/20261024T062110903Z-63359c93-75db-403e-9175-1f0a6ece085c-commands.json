@@ -1,0 +1,50 @@
+[
+  {
+    "name": "extract",
+    "executable": "tar",
+    "args": [
+      "-xf",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-raw\\archive\\original-engine.tar",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+      "--exclude=codex-rs/core/src/session/root_resume_timing.rs",
+      "--exclude=codex-rs/vendor/bubblewrap/LICENSE"
+    ],
+    "status": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs\\extract.log"
+  },
+  {
+    "name": "baseline-check",
+    "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+    "args": [
+      "-X",
+      "utf8",
+      "-B",
+      "scripts/import-engine-source.py",
+      "--check",
+      "--snapshot-only",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline"
+    ],
+    "status": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs\\baseline-check.log"
+  },
+  {
+    "name": "stage-selected-source",
+    "executable": "git",
+    "args": [
+      "add",
+      "--",
+      "engine/codex-rs/project-maintenance/src/lib.rs",
+      "engine/codex-rs/project-maintenance/src/apply.rs",
+      "engine/codex-rs/project-maintenance/src/retirement.rs",
+      "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "engine/codex-rs/project-maintenance/tests/root_retirement.rs"
+    ],
+    "status": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\logs\\stage-selected-source.log"
+  }
+]

@@ -26,9 +26,29 @@ Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs
 
 ## 실행과 복구
 
+### 소유권과 잠금 경계
+
+상태: `current` (Windows x64 standalone·Node·PowerShell). [실행 작업](../../work/DW-01-build-preflight-timing/16-plan.md)이 구현·검증·설치 근거를 소유한다. Linux/macOS 실행 수용과 앱 내장 엔진 교체는 포함하지 않는다.
+
+- 새 producer는 생성 전에 고유 run 루트를 예약한다. 공유 상위 디렉터리는 소유 단위가 아니며, legacy custody는 명시적으로 고정한 구성만 보호한다. 미확정 기존 자료를 시간이나 이름만으로 새 작업에 인수하지 않는다.
+- producer ledger가 소유권과 참조의 기준이고 native inventory는 측정·결정의 파생 기록이다. producer 변경은 공통 native 쓰기 경계를 사용한다. 입력·버전·캐시 참조는 필요한 실제 대상에 한정하며 실행·설치·복구·증거의 독립 보호를 유지한다.
+- 실제 배타성은 OS handle 잠금이 소유한다. 남은 진단 파일의 존재와 프로세스 종료를 작업 성공으로 해석하지 않는다. 구형 sentinel은 지원되는 명시적 복구 없이 인수하지 않는다.
+- apply의 catalog 잠금은 예약·검증·commit에 한정한다. 물리 삭제 동안은 revision과 고유 fence에 묶인 그룹 예약을 유지한다. 새 참조·소유권·구성 변경을 포함한 모든 경로가 예약을 검증한다. 최초·변경 등록도 기존 범위와 incoming 범위를 먼저 예약한 뒤 전역 잠금 밖에서 내용을 측정한다. 설치된 실행기의 수용 상태는 운영 문서와 작업 기록에서 구별한다.
+- 취소는 항목 사이와 파괴적 작업 직전 확인한다. 실제 완료·미시도·미확인 상태와 durable intent를 유지하고 Windows worker를 요청 수명에 연결한다.
+
+삭제 처리량 개선은 이번 전환 범위가 아니다. archive는 기존 실패 처리의 임시 운영 수단이며 정식 관리 기능/API로 추가하지 않는다.
+
 ### 관리 잠금의 소유와 명시적 복구
 
-소스 구현 계약 (Windows x64 회귀 확인, Linux/macOS 실행 미확인): 관리·producer catalog·run claim의 create-new sentinel은 자동 만료하지 않는다. 신규 marker는 PID·작업·획득 시각·고유 token과 관측 가능한 process 시작 identity를 기록한다. 정상 해제는 자신이 획득한 파일 identity와 원래 내용을 다시 확인하며 교체된 파일을 지우지 않는다. OS 잠금용 `.coordination.lock` 및 module cache의 영속 lock 파일과 구별한다. 병렬 producer의 짧은 run claim 경합은 최대 5초 동안 기존 소유자의 정상 해제를 기다린다. 기본 sentinel 획득은 즉시 실패하며, 대기 만료·불명확한 marker·경로 변경은 기존 보호를 유지하고 자동 복구하지 않는다.
+관리·producer catalog·run claim은 schema 2 진단 파일과 OS handle 잠금을 사용한다. 정상 종료와 프로세스 소실은 OS 배타성만 해제하며 파일은 삭제하지 않는다. 남은 PID·시각은 진단 정보이며 점유나 작업 성공의 근거가 아니다. 획득·commit·해제는 열린 handle과 경로 identity를 재확인한다. 기존 schema 1·empty·미확정 sentinel은 자동 인수하지 않는다. `recover_lock`은 구형 marker의 명시적 폐기만 담당하고 새 OS 잠금 파일은 제거하지 않는다. run claim 경합의 최대 5초 대기와 불명확한 경계의 차단을 유지한다.
+
+물리 작업 전 catalog 트랜잭션 안에서 선택 그룹의 revision·owner·member·consumer 근거를 durable 예약과 고유 fence에 고정한다. 그룹별 OS lease는 작업 수명 동안 유지하며 새 참조·중첩 소유·구성 변경과 입력 준비를 차단한다. 관계없는 작업은 짧은 catalog/manifest 트랜잭션으로 진행할 수 있다. manifest 저장은 변경한 identity와 기준 revision을 비교해 병합하고, 같은 항목의 충돌을 거부한다. 각 intent와 실제 결과의 동기 저장 경계는 유지한다.
+
+producer 예약 완료 명령은 catalog 잠금 안에서 전체 예약을 먼저 검증한다. 각 terminal 영수증을 동기 저장한 뒤에는 해제할 ID의 OS lease·durable 예약·producer source fence만 새로 검증한다. 다른 예약 전체를 해제마다 반복 검증하지 않는다. 변경된 그룹과 미확인·불완전 outcome의 예약은 보존하며, 앞서 완료한 독립 그룹의 실제 결과는 유지한다.
+
+등록 예약은 기존·신규 항목 ID와 경로, 구성 증거, 변경 전후 producer source를 함께 보호한다. 측정 후 maintenance → 관련 catalog 순서로 잠금을 다시 얻고 변경 identity의 CAS 병합, 설정·루트 객체·source fence·참조를 재검증한 뒤 저장한다. 관계없는 변경은 보존하고 같은 범위의 변경은 거절한다. 정상 취소나 저장 전 검증 실패는 미저장 상태를 버리고 자기 예약만 해제한다. 저장·source fence가 불확실하면 durable 예약을 남겨 명시적으로 복구하며 성공으로 바꾸지 않는다. `refresh_group`은 내용 재측정 없는 기존 짧은 경로를 유지한다.
+
+예약 소유 프로세스가 사라져도 durable 예약과 미확인 intent는 남는다. `recover_reservation`은 정확한 예약 raw SHA·fence/token·원래 lease owner와 독립적인 전체 process-tree 종료 근거를 요구한다. 구형 PID 부재만으로 인수하지 않으며 pending manifest·변경된 source fence·확인 불가는 차단한다. Windows에서는 조회 가능한 프로세스 객체도 OS 종료 신호가 확인되면 PID 거부 조건만 해제한다. 실행 중·접근 거부·상태 불확실성은 차단하며 독립적인 종료 근거를 대체하지 않는다. 초기 쓰기 중 손상된 예약도 원래 stable lease metadata와 raw SHA를 고정한 별도 명시적 복구로만 해제한다. 복구는 작업 성공이나 exit code를 만들지 않는다.
 
 소유자 실행기의 `recover_lock`은 `maintenance`, `catalog`, `run_claim`의 정확한 제어 경로만 다룬다. 요청은 원래 marker의 raw SHA-256·token(구형 token 없음은 null), 독립 producer/process-tree 종료 확인, 이유, 보호된 관리 evidence 경계의 증거와 SHA-256·별도 영수증 경로를 명시한다. 살아 있는 owner PID 또는 관측 권한의 불확실성은 복구를 거부한다. PID 부재나 경과 시간은 종료 증거를 대체하지 않는다. 원래 실행 결과와 nullable exit는 변경하지 않는다.
 
@@ -56,6 +76,7 @@ Windows 삭제는 하나의 maintenance 요청에 속한 PowerShell worker를 �
 
 일반 삭제 범위는 선택한 프로젝트의 `project-maintenance.json`에 있는 `managed_roots`의 엄격한 하위 경로다. 이 범위에 들어가지 않는 대상은 `outside configured managed roots`, 관리 루트 자체인 대상은 `managed root itself is protected; select owned descendants`로 구별한다. 등록된 묶음도 같은 경계와 별도의 보호 참조·권한 검사를 따른다.
 
+Windows 삭제에 사용하는 내부 PowerShell은 공용 `background_command` 정책으로 콘솔을 생성하지 않는다. 표준 입출력, 프로세스 종료 관측, 삭제 전후 검사와 실패 시 보존 규칙은 그대로 적용한다. 이 정책은 Windows 프로세스 생성에만 적용하며 Unix 삭제 경로를 바꾸지 않는다.
 
 ### 중첩 소유 항목의 단계적 폐기
 
@@ -153,9 +174,9 @@ Windows 소유 정리 경로의 하드링크·테스트 junction 확장은 `scri
 
 실행 결과와 생산자 종료, 구성 완결은 독립 사실이다. producer record의 `producer`는 종료 상태·성공/실패/미확인 결과·실제 exit code와 종료 근거 identity를 보존한다. 소유자가 정확한 revision과 읽을 수 있는 근거를 제출한 `closeLifecycle`은 확인된 종료와 구성 완결을 기록하고 명시한 `execution` 참조만 해제한다. 종료된 실패도 `failed`를 유지한 채 정리 검토가 가능하다. 미확인 종료·결과와 남은 자식 작업은 보호하며 완료로 바꾸지 않는다. 새 run writer는 자신이 배타적으로 생성한 경로에만 generated/protection_known을 명시한다. 기존 미확정 자료를 종료했다는 이유로 소유 확인된 자료로 승격하지 않는다.
 
-참조의 종류는 `execution`, `installation`, `recovery`, `evidence`, `dependency`다. 종류 없는 기존 참조는 지속 의존성으로 남긴다. `releaseReferences`는 소비자 소유자·revision·선택한 reference ID·이유와 근거 identity를 검증하여 지정한 참조만 해제한다. 설치 교체·복구 종료·증거 인계는 새 보호를 먼저 확립하고 기존 보호를 해제한다. 파일 보존과 일시 참조 해제를 분리하며 소비자 묶음을 삭제해야만 참조를 풀 수 있는 제약을 없앤다. 종료·해제는 같은 요청의 재시도를 구분하고 다른 근거·소유자·generation의 재시도를 거부한다. 공유 Cargo 출력의 재사용은 알려진 종료 뒤 명시적인 새 generation으로만 시작한다.
+참조의 종류는 `execution`, `installation`, `recovery`, `evidence`, `dependency`다. 종류 없는 기존 참조는 지속 의존성으로 남긴다. `member_paths`는 실제 투영 member 루트에 대한 선택 범위이고 생략하면 기존 전체 그룹 보호다. 선택적인 `target_revision`·`target_version`은 대상 binding을 고정한다. 이후 불일치나 member 소실은 참조를 무시하는 근거가 아니며 보호·차단으로 남는다. 묶음 전체의 동일 fate 규칙도 유지한다. `releaseReferences`는 소비자 소유자·revision·선택한 reference ID·이유와 근거 identity를 검증하여 지정한 참조만 해제한다. 설치 교체·복구 종료·증거 인계는 새 보호를 먼저 확립하고 기존 보호를 해제한다. 파일 보존과 일시 참조 해제를 분리하며 소비자 묶음을 삭제해야만 참조를 풀 수 있는 제약을 없앤다. 종료·해제는 같은 요청의 재시도를 구분하고 다른 근거·소유자·generation의 재시도를 거부한다. 공유 Cargo 출력의 재사용은 알려진 종료 뒤 명시적인 새 generation으로만 시작한다.
 
-Node writer·참조 해제·finalize, PowerShell 정리, native 적용과 metadata refresh는 producer catalog의 `catalog.lock`을 배타적 생성하는 같은 프로토콜을 사용한다. 참조 추가와 삭제가 엇갈리지 않도록 최종 보호 확인부터 물리 삭제까지 잠금을 유지하고, 점유·중단 잠금은 우회하지 않는다. 직접 파일을 바꾸는 비협조 writer까지 잠금으로 막는다고 가정하지 않으며 기존 identity·내용·보호 재확인을 유지한다.
+Node writer·참조 해제·finalize의 실제 JSON commit은 standalone native lease의 CAS 쓰기 경계가 소유한다. producer ledger는 소유권의 기준이며 producer-backed native inventory는 측정·결정의 파생 기록이다. PowerShell 정리도 같은 owner의 그룹 예약을 사용하며 물리 삭제 중에는 catalog 잠금을 반환한다. 결과를 payload 밖의 증거에 동기 저장하고 정확한 fence와 실제 잔여를 검증한 뒤 예약을 해제한다. 모든 member의 부재와 참조 해제 후 기존 finalize로 ledger를 축약한다. 비협조적인 직접 파일 변경을 잠금으로 막는다고 가정하지 않으며 기존 identity·내용·보호 재확인을 유지한다.
 
 `project_inventory`의 `register`에 `refresh_group:{id}`를 전달하면 `producer_registry_v1` 그룹의 현재 보호 메타데이터만 조정한다. 등록 소유자·종류·버전·전체 투영 경로·role이 같아야 하며, 내용 identity·측정 시각·크기는 보존한다. 참조·보호 확인·구성 완결과 관련 source identity를 갱신하되 pending 의도와 보존 이유는 유지하고 명시된 비생성물을 생성물로 승격하지 않는다. 구성이나 소유 경계가 바뀌면 전체 재등록이 필요하다. 갱신 이후 새 검토 토큰으로 명시적인 삭제·보류 결정을 적용한다. 보호 해제·갱신은 삭제 승인이 아니다.
 

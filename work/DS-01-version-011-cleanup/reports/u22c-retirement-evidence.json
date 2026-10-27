@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "user_authorized": true,
+  "group_id": "cf01-viewer-u22c-version",
+  "owner": "CF-01-window-use-admin-setup",
+  "version": "2026.0.10+u22c",
+  "reason": "User retires old connected build and test fixtures; all evidenced external and internal consumers released through their owners",
+  "uninstall_evidence": "work/DS-01-version-011-cleanup/reports/external-uninstall-results.json",
+  "references_release": "work/DS-01-version-011-cleanup/reports/released-references.json",
+  "members": [
+    {
+      "id": "cf01-viewer-u22c-host-fixture",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q"
+    },
+    {
+      "id": "cf01-viewer-u22c-payload",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c"
+    }
+  ],
+  "consumers_released": true,
+  "external_installation_consumers_released": true,
+  "internal_cache_consumers_released": true,
+  "blocked_by_shared_module_project_registration": false,
+  "correction": "Original internal outcomes and historical installation receipt retained independently; exact cache project registration retired only after actual internal deletion and canonical finalization",
+  "cache_owner_inspection": "work/DS-01-version-011-cleanup/reports/u22c-module-project-inspection.json",
+  "internal_finalization": "u22c-internal-finalize.json",
+  "module_project_retirement": "u22c-module-retirement-result.json",
+  "module_project_verification": "module-project-retirement-verification.json",
+  "historical_installation_retirement": "u22c-deployment-retirement-apply.json"
+}

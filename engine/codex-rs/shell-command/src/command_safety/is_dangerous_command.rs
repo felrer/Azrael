@@ -33,6 +33,16 @@ pub enum DangerousCommandMatch {
 
 const MAX_DANGEROUS_COMMAND_WRAPPER_DEPTH: usize = 8;
 
+/// Existing Windows ShellExecute/browser restrictions must not be waived by a
+/// deletion elsewhere in the same opaque shell wrapper.
+pub fn has_non_deletion_dangerous_command(
+    command: &[String],
+    platform: DangerousCommandPlatform,
+) -> bool {
+    platform == DangerousCommandPlatform::Windows
+        && windows_dangerous_commands::is_dangerous_non_deletion_command_windows(command)
+}
+
 /// Returns the dangerous-command rule matched by an already-tokenized command.
 pub fn dangerous_command_match(command: &[String]) -> Option<DangerousCommandMatch> {
     dangerous_command_match_for_platform(command, DangerousCommandPlatform::host())

@@ -20,7 +20,7 @@ function New-Release([string]$Name) {
     Write-Json (Join-Path $path 'build-info.json') @{ product = 'azrael-ex'; packageVersion = '0.4.0'; sha256 = @{ 'engine/azrael.exe' = ('a' * 64) } }
     $associatedLog = Join-Path $fixture "artifacts/logs/$Name"
     Write-Json (Join-Path $associatedLog 'build-result.json') @{status='complete'}
-    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id "version:$Name" -Kind version -Owner 'fixture' -State complete -MembershipComplete $true -Members @{release=$path;logs=$associatedLog}
+    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id "version:$Name" -Kind version -Owner 'fixture' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{release=$path;logs=$associatedLog}
     $path
 }
 function Invoke-CoordinatedFixtureTests {
@@ -47,7 +47,7 @@ function Invoke-CoordinatedFixtureTests {
         Write-Json (Join-Path $path 'cache.json') @{schema=1;module='companion';key=$key}
         Write-Json (Join-Path $log 'build.json') @{status='complete'}
         $id = "run:module-cache:companion:$key"
-        $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id $id -Kind run -Owner module-build-cache -State complete -MembershipComplete $true -Members @{'cache-entry'=$path}
+        $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id $id -Kind run -Owner module-build-cache -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{'cache-entry'=$path}
         $entries[$name] = @{path=$path;log=$log;id=$id}
     }
     $runningPath = $entries.running.path
@@ -76,7 +76,7 @@ function Invoke-CoordinatedFixtureTests {
     Assert (@($preview.moduleCaches.candidates | Where-Object { $_.path -eq $entries.preview.path -and $_.status -eq 'selected' }).Count -eq 1 -and (Test-Path $entries.preview.log)) ("Eligible module cache/log preview was not selected without deletion: " + ($preview.moduleCaches | ConvertTo-Json -Depth 8 -Compress))
     $IncludeModuleCaches = $false; $Apply = $true
     $result = Invoke-LegacyReleaseCleanup
-    Assert (-not (Test-Path $old) -and (Test-Path $entries.old.path) -and (Test-Path $entries.old.log)) 'Default cleanup changed module caches.'
+    Assert (-not (Test-Path $old) -and (Test-Path $entries.old.path) -and (Test-Path $entries.old.log)) ('Default cleanup must remove the unreferenced release and preserve module caches: ' + ($result | ConvertTo-Json -Depth 12 -Compress))
     $old = New-Release old
     Add-FixtureReference 'version:old' $entries.old.id
     $IncludeModuleCaches = $true
@@ -169,7 +169,7 @@ try {
     Assert ((Test-Path -LiteralPath $unregistered) -and @($result.candidates | Where-Object { $_.path -eq $unregistered -and $_.reason -match 'lifecycle-membership-unreviewed' }).Count -eq 1) 'Unregistered owned body was deleted without complete lifecycle review.'
     $reportRelease = New-Release 'report-member'
     $reportMember = Join-Path $fixture 'artifacts/logs/legacy-release-cleanup/report-member'
-    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'version:report-member' -Kind version -Owner fixture -State complete -MembershipComplete $true -Members @{reportlog=$reportMember}
+    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'version:report-member' -Kind version -Owner fixture -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{reportlog=$reportMember}
     $ReportPath = Join-Path $reportMember 'cleanup.json'
     $result = Invoke-LegacyReleaseCleanup
     Assert ($result.status -eq 'blocked' -and (Test-Path -LiteralPath $reportRelease) -and -not (Test-Path -LiteralPath $ReportPath)) 'Report inside lifecycle candidate allowed mutation or recreated output.'
@@ -196,13 +196,9 @@ try {
     $changedRelease = New-Release 'consumer-arrived'
     $changedLog = Join-Path $fixture 'artifacts/logs/consumer-arrived'
     $result = Invoke-ArtifactLifecycleCleanup -ProjectRoot $fixture -Candidate $changedRelease -Apply $true -CheckMember {param($path)} -BeforeDelete {
-        $registry = Join-Path $fixture 'artifacts/maintenance/lifecycles'
-        $consumer = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'work:new-consumer' -Kind work -Owner fixture -State complete -MembershipComplete $true -Members @{evidence=(Join-Path $fixture 'artifacts/logs/consumer-evidence')}
-        $consumer.references = @(@{id='version:consumer-arrived';reason='fixture concurrent consumer'})
-        $consumerPath = Join-Path $registry (([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('work:new-consumer'))).ToLowerInvariant()) + '.json')
-        Write-Json $consumerPath $consumer
+        $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'work:new-consumer' -Kind work -Owner fixture -State complete -MembershipComplete $true -Members @{evidence=(Join-Path $fixture 'artifacts/logs/consumer-evidence')} -References @{'version:consumer-arrived'='fixture concurrent consumer'}
     }
-    Assert ((Test-Path -LiteralPath $changedRelease) -and (Test-Path -LiteralPath $changedLog) -and $result.status -eq 'partial' -and $result.reason -match 'Lifecycle changed before removal') 'Consumer added after preflight allowed group mutation.'
+    Assert ((Test-Path -LiteralPath $changedRelease) -and (Test-Path -LiteralPath $changedLog) -and $result.status -eq 'blocked' -and $result.reason -match 'Lifecycle changed before reservation') 'Consumer added after preflight must block reservation and preserve all members.'
     $linked = New-Release 'linked'
     $outside = Join-Path $fixture 'outside'
     New-Item -ItemType Directory -Path $outside -Force | Out-Null
@@ -266,7 +262,7 @@ try {
         $formerCompanionRejected = $true
     }
     Assert ($formerCompanionRejected -and (Test-Path -LiteralPath $formerCompanionVsix)) 'Former standalone companion VSIX was assumed owned or changed.'
-    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'version:owned-vsix' -Kind version -Owner fixture -State complete -MembershipComplete $true -Members @{vsix=$vsixRoot}
+    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'version:owned-vsix' -Kind version -Owner fixture -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{vsix=$vsixRoot}
     $result = Invoke-LegacyReleaseCleanup
     Assert (@($result.candidates | Where-Object { $_.path -eq $vsixRoot -and $_.status -eq 'deleted' -and $_.absent }).Count -eq 1) 'Owned VSIX not deleted with absence receipt.'
     $fresh = New-Release 'fresh-process'

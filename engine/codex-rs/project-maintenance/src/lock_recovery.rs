@@ -3,7 +3,7 @@ use crate::{AccessMode, Auth, Context, paths, string};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::fs::{self, File, OpenOptions};
-use std::io::{Read, Write};
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 
 const MAX_BYTES: u64 = 65_536;
@@ -13,7 +13,7 @@ fn digest(bytes: &[u8]) -> String {
 }
 
 #[cfg(unix)]
-fn identity(file: &File) -> Result<Vec<u64>, String> {
+pub(crate) fn identity(file: &File) -> Result<Vec<u64>, String> {
     use std::os::unix::fs::MetadataExt;
     let m = file.metadata().map_err(|e| e.to_string())?;
     if !m.is_file() || m.nlink() != 1 {
@@ -23,7 +23,7 @@ fn identity(file: &File) -> Result<Vec<u64>, String> {
 }
 
 #[cfg(windows)]
-fn identity(file: &File) -> Result<Vec<u64>, String> {
+pub(crate) fn identity(file: &File) -> Result<Vec<u64>, String> {
     use std::os::windows::io::AsRawHandle;
     use windows_sys::Win32::Storage::FileSystem::{
         FILE_ID_INFO, FILE_STANDARD_INFO, FileIdInfo, FileStandardInfo,
@@ -89,6 +89,7 @@ fn observe(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Observation, Stri
     }
     paths::check(root, path, auth)?;
     auth(path, AccessMode::Read)?;
+    final_plain_path(path)?;
     let current = File::open(path).map_err(|e| e.to_string())?;
     if identity(&current)? != id
         || current.metadata().map_err(|e| e.to_string())?.len() != bytes.len() as u64
@@ -99,45 +100,6 @@ fn observe(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Observation, Stri
         identity: id,
         bytes,
     })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn releasing_a_sentinel_preserves_a_replaced_file_and_changed_token() {
-        let root = tempfile::tempdir().unwrap();
-        let path = root.path().join("lock");
-        let allow = |_: &Path, _: AccessMode| Ok(());
-        let context = Context::new(&allow);
-        let sentinel = Sentinel::acquire(root.path(), &path, "test", &context).unwrap();
-        let metadata: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-        assert_eq!(metadata["schema"], 1);
-        assert_eq!(metadata["pid"], std::process::id());
-        fs::rename(&path, root.path().join("old")).unwrap();
-        // Even identical bytes in a different file must survive release.
-        fs::write(&path, serde_json::to_vec(&metadata).unwrap()).unwrap();
-        drop(sentinel);
-        assert!(path.exists());
-        fs::remove_file(&path).unwrap();
-        let sentinel = Sentinel::acquire(root.path(), &path, "test", &context).unwrap();
-        fs::write(&path, "changed token").unwrap();
-        drop(sentinel);
-        assert_eq!(fs::read_to_string(&path).unwrap(), "changed token");
-    }
-
-    #[test]
-    fn normal_release_and_create_new_contention_are_preserved() {
-        let root = tempfile::tempdir().unwrap();
-        let path = root.path().join("lock");
-        let allow = |_: &Path, _: AccessMode| Ok(());
-        let context = Context::new(&allow);
-        let sentinel = Sentinel::acquire(root.path(), &path, "test", &context).unwrap();
-        assert!(Sentinel::acquire(root.path(), &path, "test", &context).is_err());
-        drop(sentinel);
-        assert!(!path.exists());
-    }
 }
 
 fn unchanged(root: &Path, path: &Path, old: &Observation, auth: Auth<'_>) -> Result<(), String> {
@@ -253,6 +215,7 @@ fn recovery_guard(root: &Path, auth: Auth<'_>) -> Result<File, String> {
     Ok(file)
 }
 
+/// Persistent OS lease; metadata never proves operation completion.
 pub(crate) struct Sentinel<'a> {
     root: PathBuf,
     path: PathBuf,
@@ -260,7 +223,82 @@ pub(crate) struct Sentinel<'a> {
     _file: File,
     auth: Auth<'a>,
 }
-
+pub(crate) fn final_plain_path(path: &Path) -> Result<(), String> {
+    for ancestor in path.ancestors() {
+        let m = fs::symlink_metadata(ancestor).map_err(|e| e.to_string())?;
+        if m.file_type().is_symlink() {
+            return Err("lock link ancestor rejected".into());
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::MetadataExt;
+            if m.file_attributes() & 0x400 != 0 {
+                return Err("lock reparse ancestor rejected".into());
+            }
+        }
+        if ancestor != path && !m.is_dir() {
+            return Err("lock requires directory ancestors".into());
+        }
+    }
+    Ok(())
+}
+fn held_observation(
+    root: &Path,
+    path: &Path,
+    file: &File,
+    auth: Auth<'_>,
+) -> Result<Observation, String> {
+    paths::check(root, path, auth)?;
+    auth(path, AccessMode::Read)?;
+    final_plain_path(path)?;
+    let current = File::open(path).map_err(|e| e.to_string())?;
+    let id = identity(file)?;
+    if identity(&current)? != id {
+        return Err("lock identity changed".into());
+    }
+    let mut reader = file;
+    reader.seek(SeekFrom::Start(0)).map_err(|e| e.to_string())?;
+    let mut bytes = Vec::new();
+    reader
+        .take(MAX_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|e| e.to_string())?;
+    if bytes.len() as u64 > MAX_BYTES {
+        return Err("lock metadata exceeds bound".into());
+    }
+    if identity(&File::open(path).map_err(|e| e.to_string())?)? != id {
+        return Err("lock replaced".into());
+    }
+    Ok(Observation {
+        identity: id,
+        bytes,
+    })
+}
+fn os_metadata(bytes: &[u8]) -> bool {
+    serde_json::from_slice::<Value>(bytes).is_ok_and(|v| {
+        v["schema"] == 2
+            && v["pid"].as_u64().is_some()
+            && v["token"].as_str().is_some()
+            && v["operation"].as_str().is_some()
+            && v["acquired_at_ms"].as_u64().is_some()
+    })
+}
+pub(crate) fn check_available(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), String> {
+    if paths::checked_metadata(root, path, auth)?.is_none() {
+        return Ok(());
+    }
+    let original = observe(root, path, auth)?;
+    if !os_metadata(&original.bytes) {
+        return Err("legacy or unknown lock requires explicit recovery".into());
+    }
+    let file = File::open(path).map_err(|e| e.to_string())?;
+    file.try_lock_shared()
+        .map_err(|e| format!("OS lock busy: {e}"))?;
+    if identity(&file)? != original.identity {
+        return Err("lock identity changed".into());
+    }
+    unchanged(root, path, &original, auth)
+}
 impl<'a> Sentinel<'a> {
     pub(crate) fn acquire(
         root: &Path,
@@ -268,14 +306,47 @@ impl<'a> Sentinel<'a> {
         operation: &str,
         auth: Auth<'a>,
     ) -> Result<Self, String> {
+        if operation.is_empty()
+            || operation.len() > 120
+            || !operation
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b"_.:-".contains(&b))
+        {
+            return Err("bounded lock operation required".into());
+        }
         paths::check(root, path, auth)?;
         auth(
             path.parent().ok_or("missing lock parent")?,
             AccessMode::Write,
         )?;
         auth(path, AccessMode::Write)?;
-        let mut file = OpenOptions::new().read(true).write(true).create_new(true).open(path)
-            .map_err(|e| format!("exclusive sentinel unavailable (abandoned locks require explicit recovery): {e}"))?;
+        auth(path, AccessMode::Read)?;
+        let (mut file, created) = match OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .open(path)
+        {
+            Ok(file) => (file, true),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => (
+                OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(path)
+                    .map_err(|e| e.to_string())?,
+                false,
+            ),
+            Err(e) => return Err(e.to_string()),
+        };
+        file.try_lock().map_err(|e| format!("OS lock busy: {e}"))?;
+        let id = identity(&file)?;
+        let original = held_observation(root, path, &file, auth)?;
+        if original.identity != id {
+            return Err("lock identity changed during acquisition".into());
+        }
+        if !created && !os_metadata(&original.bytes) {
+            return Err("legacy or unknown lock requires explicit recovery".into());
+        }
         use std::hash::{BuildHasher, Hasher};
         use std::sync::atomic::{AtomicU64, Ordering};
         static NEXT: AtomicU64 = AtomicU64::new(0);
@@ -287,47 +358,83 @@ impl<'a> Sentinel<'a> {
             crate::now_ms()?,
             random.finish()
         );
-        let bytes = serde_json::to_vec(&json!({"schema":1,"pid":std::process::id(),"token":token,
+        let bytes = serde_json::to_vec(&json!({"schema":2,"pid":std::process::id(),"token":token,
             "acquired_at_ms":crate::now_ms()?,"operation":operation}))
         .map_err(|e| e.to_string())?;
+        if held_observation(root, path, &file, auth)?.bytes != original.bytes {
+            return Err("lock metadata changed".into());
+        }
+        file.seek(SeekFrom::Start(0)).map_err(|e| e.to_string())?;
+        file.set_len(0).map_err(|e| e.to_string())?;
         file.write_all(&bytes).map_err(|e| e.to_string())?;
         file.sync_all().map_err(|e| e.to_string())?;
-        Ok(Self {
+        let lease = Self {
             root: root.to_owned(),
             path: path.to_owned(),
             observed: Observation {
-                identity: identity(&file)?,
+                identity: id,
                 bytes,
             },
             _file: file,
             auth,
-        })
+        };
+        lease.verify()?;
+        Ok(lease)
+    }
+    pub(crate) fn verify(&self) -> Result<(), String> {
+        let current = held_observation(&self.root, &self.path, &self._file, self.auth)?;
+        if current.identity != self.observed.identity || current.bytes != self.observed.bytes {
+            return Err("lock owner changed".into());
+        }
+        Ok(())
+    }
+    pub(crate) fn owner(&self) -> Value {
+        serde_json::from_slice(&self.observed.bytes).expect("serialized metadata")
+    }
+    pub(crate) fn release(self) -> Result<(), String> {
+        self.verify()
     }
 }
-
 impl Drop for Sentinel<'_> {
     fn drop(&mut self) {
-        // Authorization precedes the final identity check: a callback may itself
-        // replace a pathname. A changed token or file identity is never removed.
-        if (self.auth)(self.path.parent().unwrap_or(&self.root), AccessMode::Write).is_ok()
-            && (self.auth)(&self.path, AccessMode::Write).is_ok()
-            && final_boundary(&self.root, &[(&self.path, &self.observed)], None, self.auth).is_ok()
-        {
-            let _ = fs::remove_file(&self.path);
-        }
+        // Always close; never unlink the inode on which another owner may wait.
+        let _ = self.verify();
     }
 }
 
 #[cfg(windows)]
-fn owner_absent(pid: u32) -> Result<(), String> {
-    use windows_sys::Win32::Foundation::{CloseHandle, ERROR_INVALID_PARAMETER};
-    use windows_sys::Win32::System::Threading::{OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION};
-    // A successfully opened PID is a veto even if it has just exited. Only the
-    // documented nonexistent-PID result clears this check; access denial fails.
-    let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid) };
+pub(crate) fn owner_absent(pid: u32) -> Result<(), String> {
+    use windows_sys::Win32::Foundation::{
+        CloseHandle, ERROR_INVALID_PARAMETER, WAIT_FAILED, WAIT_OBJECT_0, WAIT_TIMEOUT,
+    };
+    use windows_sys::Win32::System::Threading::{
+        OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_SYNCHRONIZE, WaitForSingleObject,
+    };
+    // A retained process handle can keep an exited PID queryable. A signaled
+    // process object clears only this veto; recovery still requires independent
+    // exact stopped-tree evidence and all ownership and mutation fences.
+    let handle = unsafe {
+        OpenProcess(
+            PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_SYNCHRONIZE,
+            0,
+            pid,
+        )
+    };
     if !handle.is_null() {
-        unsafe { CloseHandle(handle) };
-        return Err("live or queryable owner PID vetoes recovery".into());
+        let state = unsafe { WaitForSingleObject(handle, 0) };
+        let wait_error = std::io::Error::last_os_error();
+        if unsafe { CloseHandle(handle) } == 0 {
+            return Err(format!(
+                "owner PID handle close unknown: {}",
+                std::io::Error::last_os_error()
+            ));
+        }
+        return match state {
+            WAIT_OBJECT_0 => Ok(()),
+            WAIT_TIMEOUT => Err("live owner PID vetoes recovery".into()),
+            WAIT_FAILED => Err(format!("owner PID wait status unknown: {wait_error}")),
+            other => Err(format!("owner PID wait status unknown: {other}")),
+        };
     }
     let error = std::io::Error::last_os_error();
     if error.raw_os_error() == Some(ERROR_INVALID_PARAMETER as i32) && pid != 0 {
@@ -338,7 +445,7 @@ fn owner_absent(pid: u32) -> Result<(), String> {
 }
 
 #[cfg(unix)]
-fn owner_absent(pid: u32) -> Result<(), String> {
+pub(crate) fn owner_absent(pid: u32) -> Result<(), String> {
     unsafe extern "C" {
         fn kill(pid: i32, signal: i32) -> i32;
     }
@@ -513,4 +620,91 @@ fn recover(root: &Path, request: &Value, auth: Auth<'_>) -> Result<Value, String
         json!({"status":"recovered","lock_kind":request["lock_kind"],"receipt_ref":request["receipt_ref"],
         "receipt_sha256":digest(&receipt_observed.bytes)}),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[cfg(windows)]
+    #[test]
+    fn owner_veto_distinguishes_live_and_exited_process_with_retained_handle() {
+        use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
+        use std::process::Stdio;
+        use windows_sys::Win32::Foundation::WAIT_OBJECT_0;
+        use windows_sys::Win32::System::Threading::{
+            OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_SYNCHRONIZE,
+            WaitForSingleObject,
+        };
+
+        assert!(owner_absent(std::process::id()).is_err());
+        let mut child = codex_utils_process::background_command("cmd.exe")
+            .args(["/d", "/c", "set /p fixture_wait= & exit /b 0"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        let pid = child.id();
+        let handle = unsafe {
+            OpenProcess(
+                PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_SYNCHRONIZE,
+                0,
+                pid,
+            )
+        };
+        assert!(!handle.is_null());
+        let retained = unsafe { OwnedHandle::from_raw_handle(handle) };
+        assert!(owner_absent(pid).is_err());
+        drop(child.stdin.take());
+        assert!(child.wait().unwrap().success());
+        assert_eq!(
+            unsafe { WaitForSingleObject(retained.as_raw_handle(), 0) },
+            WAIT_OBJECT_0
+        );
+        // Keep this process object queryable while exercising the recovery veto.
+        owner_absent(pid).unwrap();
+        drop(retained);
+    }
+    #[test]
+    fn os_release_keeps_inode_and_legacy_markers_are_not_acquired() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("lock");
+        let allow = |_: &Path, _: AccessMode| Ok(());
+        let context = Context::new(&allow);
+        let lease = Sentinel::acquire(root.path(), &path, "test", &context).unwrap();
+        assert_eq!(lease.owner()["schema"], 2);
+        assert!(Sentinel::acquire(root.path(), &path, "contender", &context).is_err());
+        assert!(check_available(root.path(), &path, &context).is_err());
+        lease.release().unwrap();
+        assert!(path.exists());
+        check_available(root.path(), &path, &context).unwrap();
+        Sentinel::acquire(root.path(), &path, "again", &context)
+            .unwrap()
+            .release()
+            .unwrap();
+        for bytes in ["", "malformed", r#"{"schema":1}"#] {
+            fs::write(&path, bytes).unwrap();
+            assert!(Sentinel::acquire(root.path(), &path, "legacy", &context).is_err());
+            assert_eq!(fs::read_to_string(&path).unwrap(), bytes);
+        }
+    }
+    #[test]
+    fn recovery_never_unlinks_schema_two_os_lock_files() {
+        let metadata =
+            br#"{"schema":2,"pid":1,"operation":"test","token":"token","acquired_at_ms":1}"#;
+        assert!(owner(metadata).is_err());
+    }
+    #[test]
+    fn replaced_inode_is_preserved_on_release() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("lock");
+        let allow = |_: &Path, _: AccessMode| Ok(());
+        let context = Context::new(&allow);
+        let lease = Sentinel::acquire(root.path(), &path, "test", &context).unwrap();
+        let bytes = serde_json::to_vec(&lease.owner()).unwrap();
+        fs::rename(&path, root.path().join("old")).unwrap();
+        fs::write(&path, &bytes).unwrap();
+        assert!(lease.release().is_err());
+        assert_eq!(fs::read(&path).unwrap(), bytes);
+    }
 }

@@ -1,0 +1,58 @@
+[
+  {
+    "operation": "register",
+    "group": {
+      "id": "ds01-retirement:version:u22c",
+      "kind": "version",
+      "owner": "azrael-release",
+      "membership_complete": true,
+      "provenance_ref": "DS-01 explicit current retirement; original state unchanged",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\maintenance\\evidence\\ds01-retirement.json",
+      "members": [
+        {
+          "id": "ds01-azrael-release-0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\releases\\u22c",
+          "kind": "release",
+          "lifecycle_role": "artifact",
+          "owner": "azrael-release",
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "ds01-azrael-release-1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\logs\\u22c",
+          "kind": "build-logs",
+          "lifecycle_role": "log",
+          "owner": "azrael-release",
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "ds01-retirement:shared:cargo-pending:324ecfeca9ddf1b76193212ad5d944a28d18caa4767bd7e615f126e7e6e36ec0",
+      "kind": "work",
+      "owner": "cargo-target-owner",
+      "membership_complete": true,
+      "provenance_ref": "DS-01 explicit current retirement; original state unchanged",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\maintenance\\evidence\\ds01-retirement.json",
+      "members": [
+        {
+          "id": "ds01-cargo-target-owner-0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\verification\\cargo-pending\\324ecfeca9ddf1b76193212ad5d944a28d18caa4767bd7e615f126e7e6e36ec0",
+          "kind": "pending",
+          "lifecycle_role": "artifact",
+          "owner": "cargo-target-owner",
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    }
+  }
+]

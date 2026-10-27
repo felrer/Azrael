@@ -2656,6 +2656,9 @@ pub struct ConfigOverrides {
     /// permission overrides take precedence, and stale profile IDs fall back
     /// to the configured default.
     pub persisted_permission_profile_id: Option<String>,
+    /// Unnamed permissions from a thread-owned rollout snapshot. These are
+    /// fallback state: explicit overrides and current requirements take priority.
+    pub persisted_permission_profile: Option<PermissionProfile>,
     pub model_provider: Option<String>,
     pub service_tier: Option<Option<String>>,
     pub codex_self_exe: Option<PathBuf>,
@@ -3358,6 +3361,7 @@ impl Config {
             permission_profile,
             default_permissions: default_permissions_override,
             persisted_permission_profile_id,
+            persisted_permission_profile,
             model_provider,
             service_tier: service_tier_override,
             codex_self_exe,
@@ -3495,6 +3499,24 @@ impl Config {
             sandbox_mode,
         );
         let requirements_toml = config_layer_stack.requirements_toml();
+        let persisted_permission_profile = persisted_permission_profile.filter(|profile| {
+            sandbox_mode.is_none()
+                && permission_profile.is_none()
+                && default_permissions_override.is_none()
+                && persisted_permission_profile_id.is_none()
+                && requirements_toml.allowed_permission_profiles.is_none()
+                // Executor-owned enforcement and materialized grants are not portable
+                // thread defaults. Reject the original mode before preserving denials.
+                && !matches!(profile, PermissionProfile::External { .. })
+                && !profile.file_system_sandbox_policy().entries.iter().any(|entry| {
+                    entry.access.can_read()
+                        && matches!(entry.path, FileSystemPath::Path { .. } | FileSystemPath::GlobPattern { .. })
+                })
+                && permission_profile_catalog::permission_profile_satisfies_requirements(
+                    &config_layer_stack,
+                    profile,
+                )
+        });
         let persisted_permission_profile_id = if sandbox_mode.is_some()
             || permission_profile.is_some()
             || default_permissions_override.is_some()
@@ -3607,8 +3629,8 @@ impl Config {
         dedupe_absolute_paths(&mut workspace_roots);
         let (
             configured_network_proxy_config,
-            permission_profile,
-            file_system_sandbox_policy,
+            mut permission_profile,
+            mut file_system_sandbox_policy,
             mut active_permission_profile,
             mut profile_workspace_roots,
         ) = if let Some(permission_profile) = permission_profile {
@@ -3743,6 +3765,24 @@ impl Config {
                 Vec::new(),
             )
         };
+        if let Some(saved) = persisted_permission_profile {
+            let (mut saved_file_system, saved_network) = saved.to_runtime_permissions();
+            saved_file_system.preserve_deny_read_restrictions_from(&file_system_sandbox_policy);
+            let restored = PermissionProfile::from_runtime_permissions_with_enforcement(
+                saved.enforcement(),
+                &saved_file_system,
+                saved_network,
+            );
+            if permission_profile_catalog::permission_profile_satisfies_requirements(
+                &config_layer_stack,
+                &restored,
+            ) {
+                permission_profile = restored;
+                file_system_sandbox_policy = saved_file_system;
+                active_permission_profile = None;
+                profile_workspace_roots.clear();
+            }
+        }
         let prepared_network = PreparedNetworkConfig::from_inputs(NetworkConfigInputs {
             configured_proxy: configured_network_proxy_config,
             feature_enabled: enable_network_proxy,

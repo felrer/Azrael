@@ -1,0 +1,68 @@
+﻿[
+    {
+        "identifier":  {
+                           "id":  "openai.chatgpt",
+                           "uuid":  "90b52117-6fd1-4f1c-9e14-256bd6e21d79"
+                       },
+        "version":  "26.1007.21434",
+        "location":  {
+                         "$mid":  1,
+                         "path":  "/C:/Users/felre/av18/artifacts/f/extensions/openai.chatgpt-26.1007.21434-win32-x64",
+                         "scheme":  "file"
+                     },
+        "relativeLocation":  "openai.chatgpt-26.1007.21434-win32-x64",
+        "metadata":  {
+                         "installedTimestamp":  1791600781125,
+                         "size":  1452151385,
+                         "targetPlatform":  "win32-x64",
+                         "id":  "90b52117-6fd1-4f1c-9e14-256bd6e21d79",
+                         "publisherDisplayName":  "OpenAI",
+                         "publisherId":  "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+                         "isPreReleaseVersion":  false
+                     }
+    },
+    {
+        "identifier":  {
+                           "id":  "openai.codex-audio"
+                       },
+        "version":  "26.1007.21434",
+        "location":  {
+                         "$mid":  1,
+                         "path":  "/C:/Users/felre/av18/artifacts/f/extensions/openai.codex-audio-26.1007.21434",
+                         "scheme":  "file"
+                     },
+        "relativeLocation":  "openai.codex-audio-26.1007.21434",
+        "metadata":  {
+                         "installedTimestamp":  1791510040856,
+                         "size":  4601829,
+                         "targetPlatform":  "undefined",
+                         "id":  "e35fa0f0-aaed-4821-9226-773b8fa21ae3",
+                         "publisherDisplayName":  "OpenAI",
+                         "publisherId":  "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+                         "isPreReleaseVersion":  false
+                     }
+    },
+    {
+        "identifier":  {
+                           "id":  "azrael-ex-local.azrael"
+                       },
+        "version":  "2026.0.10",
+        "location":  {
+                         "$mid":  1,
+                         "fsPath":  "c:\\Users\\felre\\av18\\artifacts\\f\\extensions\\azrael-ex-local.azrael-2026.0.10",
+                         "_sep":  1,
+                         "external":  "file:///c%3A/Users/felre/av18/artifacts/f/extensions/azrael-ex-local.azrael-2026.0.10",
+                         "path":  "/c:/Users/felre/av18/artifacts/f/extensions/azrael-ex-local.azrael-2026.0.10",
+                         "scheme":  "file"
+                     },
+        "relativeLocation":  "azrael-ex-local.azrael-2026.0.10",
+        "metadata":  {
+                         "isApplicationScoped":  false,
+                         "isMachineScoped":  false,
+                         "isBuiltin":  false,
+                         "installedTimestamp":  1792369500398,
+                         "pinned":  true,
+                         "source":  "vsix"
+                     }
+    }
+]

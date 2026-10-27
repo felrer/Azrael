@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "error": "official extensionKind was 1, expected Workspace",
+  "loginPerformed": false,
+  "modelRequestPerformed": false
+}

@@ -1,0 +1,26 @@
+{
+  "commit": "b4e5f750",
+  "anchoredHead": "3dbcd525fa33e40949041fcbc916f5634c8a9d61",
+  "worktree": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+  "integratedSources": {
+    "codex-rs/project-maintenance/src/lib.rs": "be71263c5c2a70c73eefac9468edb66d3b819d527fdb04b96b8064f50dc5c931",
+    "codex-rs/project-maintenance/src/apply.rs": "11f43fa1aa4e972c340f98c03cab1b431bb6bd2a36f8f99a725442ca2dbb9d4c",
+    "codex-rs/project-maintenance/src/retirement.rs": "2046baa23a9583988341adba7476637d8beaacfc9bfa03bb43f184ab0207b9fa",
+    "codex-rs/project-maintenance/src/bin/maintenance_owner.rs": "b08e04f050b6ea2699efd1175a8466f11a21f001764276b125d8ad37282582fb",
+    "codex-rs/project-maintenance/tests/root_retirement.rs": "9ac619ec00d29255652d777919fac894830a7ee19bc5e1f78a71b69c2e71a0e4"
+  },
+  "integratedReceiptSha256": "217f35a178057b07ac00e37212f2cc2ca98ed316160bc9169718cd584fdcdc94",
+  "rawSqlVerifiedBeforeRestore": "c7e13191290a168326efcb2ceef52ae952970f4f8a2d2fd22a7b686225266174",
+  "ordinaryRestoredPaths": [
+    "engine/codex-rs/project-maintenance/src/lib.rs",
+    "engine/codex-rs/project-maintenance/src/apply.rs",
+    "engine/codex-rs/project-maintenance/src/retirement.rs",
+    "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "engine/codex-rs/project-maintenance/tests/root_retirement.rs",
+    "engine/SOURCE.json",
+    "project-maintenance.json",
+    "engine/codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql"
+  ],
+  "directoryAbsent": true,
+  "registrationAbsent": true
+}

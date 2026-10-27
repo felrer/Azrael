@@ -27,6 +27,23 @@
   ],
   "bundles": [
     {
+      "id": "deletion-approval-host",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-deletion-approval-host.cjs"],
+      "inputs": ["scripts/check-deletion-approval-host.cjs", "scripts/artifact-run.cjs", "scripts/artifact-lifecycle.cjs", "extensions/azrael-ex/src/chatSession.ts", "extensions/azrael-ex/test/chatSession.test.ts", "extensions/azrael-ex/tsconfig.json"]
+    },
+    {
+      "id": "deletion-approval-native",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-deletion-approval-native.cjs"],
+      "resource": "azrael-native-cargo-target",
+      "inputs": ["scripts/check-deletion-approval-native.cjs", "scripts/cargo-verification.cjs", "scripts/cargo-target-owner.cjs", "scripts/freeze-platform-inputs.cjs", "engine/codex-rs/shell-command", "engine/codex-rs/core/src/exec_policy.rs", "engine/codex-rs/core/src/exec_policy_tests.rs", "engine/codex-rs/core/src/tools/approvals.rs", "engine/codex-rs/core/src/tools/approvals_tests.rs", "engine/codex-rs/core/src/apply_patch.rs", "engine/codex-rs/core/src/apply_patch_tests.rs", "engine/codex-rs/Cargo.lock"]
+    },
+    {
       "id": "window-use-platform-availability",
       "kind": "test",
       "purpose": "retained",

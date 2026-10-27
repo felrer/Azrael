@@ -1,0 +1,56 @@
+[
+  {
+    "schema": 1,
+    "id": "version:window-use-u17b",
+    "kind": "version",
+    "owner": "DU-01-window-use-stages",
+    "version": "u17b",
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\window-use-u17b",
+        "role": "evidence"
+      }
+    ],
+    "references": [],
+    "release_receipt": {
+      "request_sha256": "3ff77c9ea144d2ce8974b586310a8e16a4beb07221a610c887515ffcf8c09f53",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DS-01-version-011-cleanup\\reports\\external-uninstall-results.json",
+      "evidence_sha256": "90da838b4882a8f0f3d052108b39062a9a682bc389331217511eea77f8e752b8",
+      "reason": "User authorized retirement of both external 2026.0.10 installations and linked builds, cancelling pending acceptance and rollback consumers. Both registrations removed with exit 0."
+    },
+    "revision": 5,
+    "created_at": "2026-10-17T15:51:49.526Z",
+    "updated_at": "2026-10-25T09:16:13.363Z"
+  },
+  {
+    "schema": 1,
+    "id": "cf01-viewer-deploy-u22c",
+    "kind": "version",
+    "owner": "CF-01-window-use-admin-setup",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c",
+        "role": "snapshot"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\q",
+        "role": "fixture"
+      }
+    ],
+    "references": [],
+    "revision": 3,
+    "created_at": "2026-10-18T18:23:26.350Z",
+    "updated_at": "2026-10-25T09:16:14.231Z",
+    "release_receipt": {
+      "request_sha256": "181f72e9d1d30a83a898439f23b2c93d572554ad6624dc79fb659a00a50f363f",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DS-01-version-011-cleanup\\reports\\external-uninstall-results.json",
+      "evidence_sha256": "90da838b4882a8f0f3d052108b39062a9a682bc389331217511eea77f8e752b8",
+      "reason": "User authorized retirement of both external 2026.0.10 installations and linked builds, cancelling pending acceptance and rollback consumers. Both registrations removed with exit 0."
+    }
+  }
+]

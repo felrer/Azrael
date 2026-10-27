@@ -1,0 +1,56 @@
+[
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:DS-01-native-output-cleanup",
+      "kind": "run",
+      "owner": "DS-01-version-011-cleanup",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4cde7eda29b516f54444a392c8040713a54e4d4f1ba77afa9fbcc5eeaa4dd66b.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "6ccc77a7e7c9ade2e4eff4c1d847123c8017732be714f329daa6128a7ee6a521",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\native-output-cleanup",
+          "role": "cleanup-execution",
+          "lifecycle_role": "artifact",
+          "kind": "cleanup-execution",
+          "owner": "DS-01-version-011-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4cde7eda29b516f54444a392c8040713a54e4d4f1ba77afa9fbcc5eeaa4dd66b.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:DS-01-u22c-final-cli",
+      "kind": "run",
+      "owner": "DS-01-version-011-cleanup",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\51b4197a0a2691098cdee8e5fa2d52ff12e9d43ce42644378207f2f9b18c42cb.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "4bc100b232b8677478fa281f2ad8a9be93890e8d204201c881c9e8eb5d315bff",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DS-01-version-011-cleanup\\runs\\u22c-final-cli",
+          "role": "retirement-execution",
+          "lifecycle_role": "artifact",
+          "kind": "retirement-execution",
+          "owner": "DS-01-version-011-cleanup",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\51b4197a0a2691098cdee8e5fa2d52ff12e9d43ce42644378207f2f9b18c42cb.json"
+        }
+      ]
+    }
+  }
+]

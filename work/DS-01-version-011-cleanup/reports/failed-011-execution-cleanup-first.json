@@ -1,0 +1,101 @@
+[
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13",
+    "id": "run:DS-01-retire-failed-011:w11aa",
+    "result": {
+      "aborted": false,
+      "groups": [
+        {
+          "id": "run:DS-01-retire-failed-011:w11aa",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-53448-17-1792972915997",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "23d092c2dd7816339d8e6c1f9e6aa802978596d9c0fdb5df1d3a11c41fde1ad2",
+          "lifecycle_group_id": "run:DS-01-retire-failed-011:w11aa",
+          "reason": "Completed one-off old deployment retirement execution; original failed metrics, catalog, reviewed requests and actual terminal outcomes retained independently in DS-01 work reports; no active consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "e5a2e7e6b86aeeda95434003f26466341f655c4358169a6607b7244b8f768d10"
+        }
+      ]
+    }
+  },
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a",
+    "id": "run:DS-01-retire-failed-011:w11g",
+    "result": {
+      "aborted": false,
+      "groups": [
+        {
+          "id": "run:DS-01-retire-failed-011:w11g",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-53448-15-1792972919856",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "4ecfb29b18b88f30878c61eb7fd5bb35668b6fb4381a9aafcf8ea6b39fef1df5",
+          "lifecycle_group_id": "run:DS-01-retire-failed-011:w11g",
+          "reason": "Completed one-off old deployment retirement execution; original failed metrics, catalog, reviewed requests and actual terminal outcomes retained independently in DS-01 work reports; no active consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "0993e90c21343f2b380afb8c251af6433ab90fb1b4d862dea3333f89f32386e8"
+        }
+      ]
+    }
+  },
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c",
+    "id": "run:DS-01-retire-failed-011:w11i",
+    "result": {
+      "aborted": false,
+      "groups": [
+        {
+          "id": "run:DS-01-retire-failed-011:w11i",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-53448-17-1792972923633",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "f6beb0a6e70db7b1983406302a25a2ba20e300cdc0cc971e10f34a1de94a3ede",
+          "lifecycle_group_id": "run:DS-01-retire-failed-011:w11i",
+          "reason": "Completed one-off old deployment retirement execution; original failed metrics, catalog, reviewed requests and actual terminal outcomes retained independently in DS-01 work reports; no active consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "806152b715f3a1f65e15503ee508dc08545d160fc765d3fcf514fd5497d2f1c7"
+        }
+      ]
+    }
+  }
+]

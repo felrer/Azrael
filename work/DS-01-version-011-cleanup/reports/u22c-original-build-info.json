@@ -1,0 +1,106 @@
+{
+  "product": "azrael-ex",
+  "packageVersion": "0.4.0",
+  "installationMode": "native-azrael-host",
+  "engineVersion": "0.162.0",
+  "officialExtensionVersion": null,
+  "engineBaseCommit": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+  "engineSourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\n10a\\engine",
+  "engineIncludesLocalChanges": true,
+  "engineProvenance": {
+    "source": {
+      "schema": 2,
+      "sourceKind": "imported-snapshot",
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "498096cedbb1fd71aef296c27ea87706e171956778fe46b550c56baedc162f5d",
+      "importedReceiptSha256": "7215945a03237cdfae38bef75181a8ef710b5a17ab1d218d3d3cde536a9fe02a",
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceSha256": "71d864412cab35a238c5dd7f0d64287b8c05098d15b727f06263fb65ece0faa5",
+      "fileCount": 9266,
+      "target": "x86_64-pc-windows-msvc",
+      "buildEnvironment": {
+        "RUSTFLAGS": "",
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "V8_FROM_SOURCE": "",
+        "V8_FORCE_DEBUG": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "EXTRA_GN_ARGS": "",
+        "NINJA": "",
+        "CLANG_BASE_PATH": "",
+        "PYTHON": "",
+        "LIBCLANG_PATH": ""
+      }
+    },
+    "binaries": {
+      "azrael.exe": "c10960a5383a6df3cebc61ca41914cb61f550f376f8c7e0c3b6d814cceab62a3",
+      "azrael-bridge.exe": "f88e6d79e0d4a5b59e33b41b57b9832573daf71608a8e3bd7495a295afc08eee",
+      "azrael-code-mode-host.exe": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+    },
+    "externalRuntimes": {
+      "codeModeHost": {
+        "kind": "external-import",
+        "sourcePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\n9h\\artifacts\\releases\\w09h-r2\\engine\\azrael-code-mode-host.exe",
+        "sha256": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41"
+      }
+    }
+  },
+  "generatedAt": "2026-10-19T03:42:27.3250662+09:00",
+  "sha256": {
+    "engine/azrael.exe": "C10960A5383A6DF3CEBC61CA41914CB61F550F376F8C7E0C3B6D814CCEAB62A3",
+    "engine/azrael-bridge.exe": "F88E6D79E0D4A5B59E33B41B57B9832573DAF71608A8E3BD7495A295AFC08EEE",
+    "engine/azrael-code-mode-host.exe": "EC91F7A04DCB1A36F0E2ED87885777BF78900C2EA3295E82621C5721FD5D9F41",
+    "azrael-ex.vsix": "246A07B0CBAF50D044702078493530D62C2090472A292FFAB61519625292B790",
+    "host/platform-runtime.cjs": "E8AFE9B36748F6F1BBFDF9E7D3DCF88DD57F7BCE1AEA360743C4B8430C7A780C",
+    "host/azrael-platforms.json": "914947781D7F0689F263A174CEA80F21999E15673955C779A4D8A0EEEDA9FFAC",
+    "host/window-control-host.cjs": "390CFCA3C11788FD8DCEFB4246C1F696CEF74163D8273EEDE17E110D4609BB0E",
+    "host/window-use-resources.cjs": "879E820832774A6F8E40E783E2A1C10E554885E5F8A71DD8C87522DA66FDDF3C",
+    "host/window-use-isolation.cjs": "B58B5AFD463CABD5ECA4077C9A5D2C9D58B0D092AF96C61958206DA627BAAFD0",
+    "host/window-desktop-authority.cjs": "C6C2B79DE97CF73E9732FCE7DF979D01863497D665E98F4F0EDFF7F5B83807A2",
+    "host/window-child-session.cjs": "151B407DBC1E755B7EB13F1CD6B9769E5C584AB79B59292922326AE1C48E0C65",
+    "host/window-control-backend.cjs": "868BD93CB94E38763700D888C52BBB1639899225BF2D406CA710FACF823E6483",
+    "host/window-control-policy.cjs": "7945F1EDB4AD0734CB2BD5FDD0571AAA1ED03A699815434556149917997AF733",
+    "host/window-control-errors.cjs": "26A48231E879E504B5E489E1EEFA7A9D2910E73E1F827FC3533278D998582BED",
+    "host/window-control-occupancy.cjs": "10D8A163DA3E6DC679ECA984C3BBCFBD1C0175723292400433577F1DDD1B538B",
+    "host/window-control-mcp.cjs": "125BC828E2A3453775A330D5E1CC7DD27B67B25C6C0F50C8434E12DC03A7A204",
+    "host/window-task-macros.cjs": "72CDC1A97C18F33E7DDD65CE84C295B6B379FA7BA515EECC9AFB064F90620FF2",
+    "host/window-control-runtime.cjs": "FFF75CAD2B9281CBFBCC1ED2904E89D020E5FF1DEABC447175BF095154044FD5",
+    "host/computer-use-runtime.cjs": "CE77A593C304DFE876FE7F1D23FD65C1CFC39273EF86853181E75C643DC099CE",
+    "host/computer-use-branding.cjs": "58CFC3BC024525B55142DCEBBA228F7B24BC15EE108FF2F1806107AA946AF656",
+    "host/use-control-settings.cjs": "D83D386002BE3E82C65B9F495EEB374AC5D2D30CA2AE9CD3614690ADFFCEA43B",
+    "host/window-use-approvals.cjs": "A32159E55BC70DB693C72E04025B1747B7DA53B3EECA8C35DD8566DCA2FF69B5",
+    "host/computer-use-approvals.cjs": "50FA24824D12E1146EF9ED0B517793AA9CF0D94DF7B8F8280F1EC7A25FC455B1",
+    "host/use-settings-host.cjs": "9E1FC2DC24E807B6AD9A4FEFA7BB0E3D8CD1ACE79CB18DA23342E5B21DE1E1B2",
+    "host/sky-control-policy.mjs": "39E6D46BCD16D504FCD67589812F1815CD14709DDE6C51B1A6B52CD2408B1401",
+    "host/sky-controlled-service.mjs": "2A300D6BBE8EB3DA2D672B0742A0B62F91979F0E5B54D099384C1303387E6B28",
+    "host/inject-sky-control-policy.cjs": "9A7031BA22CB72AD6FC11C2E8EBE046A45617CCA8CBE7673690413460F00F49B",
+    "window-control/manifest.json": "A71B7EA6ABC2DA264846BE9C11D2DC6D1DDFF0F69F004178DE1CDF19668219DA",
+    "computer-use/manifest.json": "49CA1942AAF6FC6A7DFF653E68D6115B80CD639524BE84C0C71F385146B120FE"
+  },
+  "officialBundleIncluded": false,
+  "moduleBuild": {
+    "engineReused": true,
+    "typeScriptPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01\\companion\\node_modules\\typescript\\lib\\typescript.js",
+    "modules": [
+      {
+        "reused": true,
+        "key": "72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+        "module": "companion"
+      },
+      {
+        "reused": true,
+        "key": "1aba2bb247560d117504c6039afe0226aa6b62f47e7bee1b3f2b3bbd34f9676e",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\1aba2bb247560d117504c6039afe0226aa6b62f47e7bee1b3f2b3bbd34f9676e",
+        "module": "providers"
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 //! Cohort contracts preserve logs/evidence until the corresponding version fate
 //! is fully reviewed, including partial physical deletion and metadata changes.
-use azrael_project_maintenance::{AccessMode, dispatch};
+use azrael_project_maintenance::{AccessMode, dispatch, dispatch_with_cancellation};
 use serde_json::{Value, json};
 use std::path::Path;
 use tempfile::TempDir;
@@ -32,6 +32,93 @@ fn reviews(root: &TempDir, id: &str) -> Value {
 }
 fn decisions(review: &Value, fate: &str) -> Vec<Value> {
     review["items"].as_array().unwrap().iter().map(|item|json!({"id":item["id"],"token":item["token"],"decision":fate,"reason":"version review completed","revisit_condition":"consumer completes"})).collect()
+}
+
+#[test]
+fn cancellation_preserves_completed_results_and_stops_before_physical_delete() {
+    use std::cell::Cell;
+    for after_completed in [false, true] {
+        let root = fixture();
+        call(
+            &root,
+            registration(
+                "version",
+                vec![
+                    create(&root, "artifact", "artifact"),
+                    create(&root, "log", "log"),
+                ],
+                true,
+            ),
+        );
+        let reviewed = reviews(&root, "version");
+        let manifest = root.path().join("artifacts/maintenance/manifest.json");
+        let cancelled = Cell::new(false);
+        let cancel = || {
+            if cancelled.get() {
+                return true;
+            }
+            let state: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+            let requested = state["decisions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|decision| {
+                    decision["id"] == "artifact"
+                        && decision["status"]
+                            == if after_completed {
+                                "deleted"
+                            } else {
+                                "pending"
+                            }
+                });
+            cancelled.set(requested);
+            requested
+        };
+        let result = dispatch_with_cancellation(
+            root.path(),
+            json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+            &allow,
+            &cancel,
+        )
+        .unwrap();
+        assert_eq!(result["aborted"], true);
+        assert_eq!(result["cancelled"], true);
+        assert_eq!(result["results"][0]["id"], "artifact");
+        if after_completed {
+            assert_eq!(result["results"][0]["status"], "deleted");
+            assert!(!root.path().join("generated/artifact").exists());
+            assert_eq!(result["groups"][0]["status"], "partial");
+        } else {
+            assert_eq!(result["results"][0]["status"], "cancelled");
+            assert_eq!(result["results"][0]["attempted"], false);
+            assert_eq!(result["results"][0]["remaining"], true);
+            assert!(root.path().join("generated/artifact").exists());
+        }
+        assert_eq!(result["results"][1]["id"], "log");
+        assert_eq!(result["results"][1]["status"], "cancelled");
+        assert_eq!(result["results"][1]["attempted"], false);
+        assert_eq!(result["results"][1]["remaining"], true);
+        assert!(root.path().join("generated/log").exists());
+        let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+        assert_eq!(durable["decisions"], result["results"]);
+        assert!(
+            durable["decisions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|decision| decision["status"] != "pending")
+        );
+        let reservations = root
+            .path()
+            .join("artifacts/maintenance/lifecycles/reservations");
+        assert!(!std::fs::read_dir(reservations).unwrap().any(|entry| {
+            entry
+                .unwrap()
+                .path()
+                .extension()
+                .is_some_and(|ext| ext == "json")
+        }));
+    }
 }
 
 #[test]
@@ -147,12 +234,6 @@ fn all_absent_members_complete_without_write_authorization_and_stay_reconciled()
         assert_eq!(outcome["remaining"], false);
         assert!(outcome["attempt_id"].is_null());
     }
-    assert!(
-        reviews(&root, "version")["items"]
-            .as_array()
-            .unwrap()
-            .is_empty()
-    );
     assert!(
         reviews(&root, "version")["items"]
             .as_array()
@@ -354,46 +435,39 @@ fn absent_member_updates_keep_unresolved_cleanup_intent_protected() {
                 .all(|item| item["status"] == "blocked")
         );
         assert!(root.path().join("generated/log").exists());
-        // Neither a blocked delete nor a defer decision resolves the original
-        // pending attempt. Fresh reviews and deletion retries remain protected.
+        // The unresolved earlier intent keeps the new durable reservation active.
+        // Neither fresh review nor a competing apply may bypass that protection.
         for fate in ["defer", "delete"] {
             let durable: Value =
                 serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
             assert_eq!(durable["items"]["artifact"]["cleanup_status"], "pending");
-            let fresh = reviews(&root, "version");
             assert!(
-                fresh["items"][0]["blockers"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .any(|reason| reason == "cleanup attempt pending recovery")
+                dispatch(
+                    root.path(),
+                    json!({"operation":"review","group_ids":["version"]}),
+                    &allow
+                )
+                .is_err()
             );
-            let retry = call(
-                &root,
-                json!({"operation":"apply","decisions":decisions(&fresh,fate)}),
-            );
-            let expected = if fate == "defer" {
-                "deferred"
-            } else {
-                "blocked"
-            };
             assert!(
-                retry["results"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .all(|item| item["status"] == expected)
+                dispatch(
+                    root.path(),
+                    json!({"operation":"apply","decisions":decisions(&reviewed,fate)}),
+                    &allow
+                )
+                .is_err()
             );
             assert!(root.path().join("generated/log").exists());
         }
         let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
         assert_eq!(durable["items"]["artifact"]["cleanup_status"], "pending");
         assert!(
-            reviews(&root, "version")["items"][0]["blockers"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|reason| reason == "cleanup attempt pending recovery")
+            dispatch(
+                root.path(),
+                json!({"operation":"review","group_ids":["version"]}),
+                &allow
+            )
+            .is_err()
         );
     }
 }

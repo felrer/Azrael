@@ -1,0 +1,33 @@
+{
+  "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e",
+  "id": "run:DS-01-retire-failed-011:w11m",
+  "result": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DS-01-retire-failed-011:w11m",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-53448-17-1792973868659",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "07265cb1dc63712f2e8fb4cab515099613e11f114839e102403139f3ec7c07ef",
+        "lifecycle_group_id": "run:DS-01-retire-failed-011:w11m",
+        "reason": "Finished one-off w11m retirement; all original failure metrics, requests and actual outcomes retained independently in work reports; no active consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "263ccada67befb7414c6796a1b207b8e66ff8048687be7ac8cfb155013aefcfd"
+      }
+    ]
+  }
+}

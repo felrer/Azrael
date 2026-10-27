@@ -1,0 +1,10 @@
+{
+  "owner": "DU-01-window-use-stages",
+  "expected_revision": 4,
+  "reference_ids": [
+    "d63565971f37894560a14281fd7ca0876809ef8c8e6b3a2b0e947dc228bfa0de"
+  ],
+  "reason": "User authorized retirement of both external 2026.0.10 installations and linked builds, cancelling pending acceptance and rollback consumers. Both registrations removed with exit 0.",
+  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DS-01-version-011-cleanup\\reports\\external-uninstall-results.json",
+  "evidence_sha256": "90da838b4882a8f0f3d052108b39062a9a682bc389331217511eea77f8e752b8"
+}

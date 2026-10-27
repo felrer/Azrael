@@ -1,0 +1,15 @@
+{
+  "lifecycleId": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DN-01-disk-cleanup-candidates\\temp-delete-evidence-20261024\\isolate-retirement-receipt.cjs"
+  ],
+  "exitCode": 1,
+  "signal": null,
+  "producerStopped": true,
+  "reason": "Owned producer and tracked children stopped",
+  "children": [],
+  "state": "failed",
+  "membership_complete": true
+}

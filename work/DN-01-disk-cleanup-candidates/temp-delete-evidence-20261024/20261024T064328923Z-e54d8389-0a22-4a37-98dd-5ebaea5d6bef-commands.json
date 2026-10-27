@@ -1,0 +1,116 @@
+[
+  {
+    "name": "private-head",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.longpaths=true",
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs\\private-head.log"
+  },
+  {
+    "name": "initialize-private-index",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.longpaths=true",
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+      "read-tree",
+      "3dbcd525fa33e40949041fcbc916f5634c8a9d61"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs\\initialize-private-index.log"
+  },
+  {
+    "name": "sparse-engine",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.longpaths=true",
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+      "sparse-checkout",
+      "reapply"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs\\sparse-engine.log"
+  },
+  {
+    "name": "checkout-engine",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.longpaths=true",
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+      "checkout",
+      "--",
+      "engine"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs\\checkout-engine.log"
+  },
+  {
+    "name": "head-check",
+    "executable": "git",
+    "args": [
+      "-c",
+      "core.longpaths=true",
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.symlinks=false",
+      "-C",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs\\head-check.log"
+  },
+  {
+    "name": "head-source-validate",
+    "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+    "args": [
+      "-X",
+      "utf8",
+      "-B",
+      "scripts/engine-provenance.py",
+      "snapshot",
+      "--root",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs\\engine",
+      "--file",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\reports\\head-snapshot.json"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef\\logs\\head-source-validate.log"
+  }
+]

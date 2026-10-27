@@ -18,7 +18,17 @@ pub fn is_dangerous_command_windows(command: &[String]) -> bool {
     is_direct_gui_launch(command)
 }
 
+pub(super) fn is_dangerous_non_deletion_command_windows(command: &[String]) -> bool {
+    is_dangerous_powershell_with_deletion(command, false)
+        || is_dangerous_cmd_with_deletion(command, false)
+        || is_direct_gui_launch(command)
+}
+
 fn is_dangerous_powershell(command: &[String]) -> bool {
+    is_dangerous_powershell_with_deletion(command, true)
+}
+
+fn is_dangerous_powershell_with_deletion(command: &[String], include_deletion: bool) -> bool {
     let Some((exe, rest)) = command.split_first() else {
         return false;
     };
@@ -32,10 +42,14 @@ fn is_dangerous_powershell(command: &[String]) -> bool {
         return false;
     };
 
-    is_dangerous_powershell_words(&parsed.tokens)
+    is_dangerous_powershell_words_with_deletion(&parsed.tokens, include_deletion)
 }
 
 pub(crate) fn is_dangerous_powershell_words(words: &[String]) -> bool {
+    is_dangerous_powershell_words_with_deletion(words, true)
+}
+
+fn is_dangerous_powershell_words_with_deletion(words: &[String], include_deletion: bool) -> bool {
     let tokens_lc: Vec<String> = words
         .iter()
         .map(|t| t.trim_matches('\'').trim_matches('"').to_ascii_lowercase())
@@ -84,10 +98,14 @@ pub(crate) fn is_dangerous_powershell_words(words: &[String]) -> bool {
     }
 
     // Check for force delete operations (e.g., Remove-Item -Force)
-    has_force_delete_cmdlet(&tokens_lc)
+    include_deletion && has_force_delete_cmdlet(&tokens_lc)
 }
 
 fn is_dangerous_cmd(command: &[String]) -> bool {
+    is_dangerous_cmd_with_deletion(command, true)
+}
+
+fn is_dangerous_cmd_with_deletion(command: &[String], include_deletion: bool) -> bool {
     let Some((exe, rest)) = command.split_first() else {
         return false;
     };
@@ -138,13 +156,15 @@ fn is_dangerous_cmd(command: &[String]) -> bool {
                 return true;
             }
             // Force delete: del /f, erase /f
-            if (cmd.eq_ignore_ascii_case("del") || cmd.eq_ignore_ascii_case("erase"))
+            if include_deletion
+                && (cmd.eq_ignore_ascii_case("del") || cmd.eq_ignore_ascii_case("erase"))
                 && has_force_flag_cmd(segment)
             {
                 return true;
             }
             // Recursive directory removal: rd /s /q, rmdir /s /q
-            if (cmd.eq_ignore_ascii_case("rd") || cmd.eq_ignore_ascii_case("rmdir"))
+            if include_deletion
+                && (cmd.eq_ignore_ascii_case("rd") || cmd.eq_ignore_ascii_case("rmdir"))
                 && has_recursive_flag_cmd(segment)
                 && has_quiet_flag_cmd(segment)
             {

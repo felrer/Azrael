@@ -1,0 +1,15 @@
+{
+  "exitCode": 0,
+  "results": [
+    {
+      "stage": "library",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "owner-build",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

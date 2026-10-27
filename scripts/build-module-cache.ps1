@@ -28,10 +28,82 @@ function Get-BuildCacheProjects($Cache,[switch]$RequireExisting) {
       $validated
     })
 }
+function Start-BuildCacheReservationInspection([string]$ProjectRoot,[string]$Directory) {
+    # Retain native group leases while immutable control bytes contribute to the digest.
+    $source=@'
+"use strict";
+const fs=require("node:fs"),path=require("node:path"),crypto=require("node:crypto"),assert=require("node:assert/strict");
+const {isDeepStrictEqual:equal}=require("node:util"),{acquire}=require(process.argv[1]);
+const root=path.resolve(process.argv[2]),directory=path.resolve(process.argv[3]);
+assert.equal(directory,path.join(root,"artifacts/maintenance/lifecycles/reservations"),"Exact reservation control directory required");
+const leases=[],observed=new Map();let observedBytes=0;
+const hash=bytes=>crypto.createHash("sha256").update(bytes).digest("hex"),hashValue=value=>hash(JSON.stringify(value));
+const text=value=>typeof value==="string"&&value.trim().length>0;
+const hex=value=>typeof value==="string"&&/^[a-f0-9]{64}$/.test(value);
+const canonical=value=>process.platform==="win32"?path.resolve(value).toLowerCase():path.resolve(value);
+function inside(base,target){const rel=path.relative(canonical(base),canonical(target));return rel===""||(!path.isAbsolute(rel)&&rel!==".."&&!rel.startsWith(".."+path.sep));}
+function keys(value,expected){assert(value&&typeof value==="object"&&!Array.isArray(value));assert(equal(Object.keys(value).sort(),expected.split(" ").sort()),"Unexpected receipt shape");}
+function plain(filename,kind){for(let current=filename;;current=path.dirname(current)){const stat=fs.lstatSync(current);assert(!stat.isSymbolicLink(),"Linked reservation control");assert(current===filename?(kind==="directory"?stat.isDirectory():stat.isFile()):stat.isDirectory(),"Nonplain reservation control");if(path.dirname(current)===current)break;}}
+function remember(filename,observation){const previous=observed.get(filename);if(previous){assert(previous.identity===observation.identity&&previous.bytes.equals(observation.bytes),"Receipt evidence changed between controls");return;}observedBytes+=observation.bytes.length;assert(observedBytes<=128*1024*1024,"Reservation inspection exceeds bounded 128 MiB evidence budget");observed.set(filename,observation);}
+function read(filename,max=64*1024*1024){plain(filename,"file");const descriptor=fs.openSync(filename,"r");try{const before=fs.fstatSync(descriptor,{bigint:true});assert(before.nlink===1n&&before.size<=BigInt(max),"Unbounded or multiply-linked reservation evidence");const chunks=[];let length=0;for(;;){const chunk=Buffer.allocUnsafe(Math.min(65536,max+1-length)),count=fs.readSync(descriptor,chunk,0,chunk.length,null);if(!count)break;length+=count;assert(length<=max,"Reservation evidence grew beyond bound");chunks.push(chunk.subarray(0,count));}const bytes=Buffer.concat(chunks,length),after=fs.lstatSync(filename,{bigint:true});assert(before.dev===after.dev&&before.ino===after.ino&&before.size===after.size,"Reservation evidence identity changed");plain(filename,"file");return{bytes,identity:before.dev+":"+before.ino};}finally{fs.closeSync(descriptor);}}
+function evidence(filename,sha){assert(text(filename)&&!filename.includes("\0")&&!filename.split(/[\\/]/).includes("..")&&hex(sha),"Missing or invalid receipt evidence identity");filename=path.resolve(root,filename);assert(inside(root,filename),"Receipt evidence escapes project");const observation=read(filename,16*1024*1024);assert.equal(hash(observation.bytes),sha,"Receipt evidence SHA mismatch");remember(filename,observation);return JSON.parse(observation.bytes.toString("utf8"));}
+function leaseOwner(owner){keys(owner,"schema pid token acquired_at_ms operation");assert(owner.schema===2&&Number.isSafeInteger(owner.pid)&&owner.pid>0&&Number.isSafeInteger(owner.acquired_at_ms)&&owner.acquired_at_ms>=0&&typeof owner.token==="string"&&new RegExp("^"+owner.pid+"-[0-9]+-[a-f0-9]{16}$").test(owner.token)&&/^[a-zA-Z0-9_.:-]{1,120}$/.test(owner.operation),"Invalid native lease owner");}
+function minimumReservation(value,id){assert(value&&value.schema===1&&value.id===id&&text(value.token)&&Array.isArray(value.members),"Invalid prior reservation");leaseOwner(value.lease_owner);assert.equal(value.token,value.lease_owner.token,"Reservation token differs from lease owner");}
+function terminal(value,prefix,tokenHash){
+ keys(value,"reservation terminal evidence");const reservation=value.reservation,outcome=value.terminal;
+ minimumReservation(reservation,reservation?.id);keys(reservation,"schema id token lease_owner manifest_revision group_scope members source source_fence source_owner status");
+ assert(text(reservation.id)&&reservation.status==="active"&&Number.isSafeInteger(reservation.manifest_revision)&&reservation.manifest_revision>=0&&reservation.members.length>0,"Invalid terminal reservation");
+ assert.equal(hashValue(reservation.id),prefix);assert.equal(hashValue(reservation.token),tokenHash);
+ const scope=reservation.group_scope;keys(scope,"id owner kind version members membership_source membership_source_identity");assert(scope.id===reservation.id&&text(scope.owner)&&["work","run","version"].includes(scope.kind)&&Array.isArray(scope.members),"Invalid terminal scope");
+ // Native PathBuf::join preserves the literal's slash spelling on Windows.
+ // Compare absolute path identity, while retaining exact fence and owner checks.
+ const sourcePath=value=>typeof value==="string"&&path.isAbsolute(value)&&!value.includes("\0")&&!value.split(/[\\/]/).includes("..");
+ assert(sourcePath(reservation.source)&&canonical(reservation.source)===canonical(path.join(root,"artifacts/maintenance/lifecycles")),"Invalid terminal producer source path");
+ assert(sourcePath(scope.membership_source)&&canonical(scope.membership_source)===canonical(reservation.source),"Invalid terminal scope source path");
+ assert(hex(reservation.source_fence)&&scope.membership_source_identity===reservation.source_fence,"Invalid terminal producer source identity");
+ assert(reservation.source_owner?.schema===1&&reservation.source_owner.id===reservation.id&&reservation.source_owner.owner===scope.owner&&reservation.source_owner.kind===scope.kind&&equal(reservation.source_owner.version??null,scope.version),"Invalid terminal producer source owner");
+ assert(outcome&&outcome.id===reservation.id&&["deleted","complete","partial","failed","blocked","cancelled","deferred"].includes(outcome.status)&&Array.isArray(outcome.members)&&outcome.members.length===reservation.members.length,"Unsettled terminal receipt");
+ const members=new Map();assert(scope.members.length===reservation.members.length,"Terminal scope membership differs");for(const member of reservation.members){assert(text(member.path)&&path.isAbsolute(member.path)&&inside(root,member.path)&&text(member.id)&&scope.members.includes(member.id)&&member.generated===true&&member.protection_known===true,"Invalid reserved member");const key=canonical(member.path);assert(!members.has(key),"Duplicate reserved member");members.set(key,member);}
+ const seen=new Set();for(const member of outcome.members){assert(text(member.path)&&path.isAbsolute(member.path)&&members.has(canonical(member.path))&&!seen.has(canonical(member.path))&&["deleted","failed","blocked","cancelled","deferred"].includes(member.status)&&typeof member.remaining==="boolean"&&(member.status!=="deleted"||!member.remaining),"Invalid terminal member outcome");seen.add(canonical(member.path));}
+ keys(value.evidence,"evidence_ref evidence_sha256");const proof=evidence(value.evidence.evidence_ref,value.evidence.evidence_sha256);assert(Array.isArray(proof.outcomes)&&proof.outcomes.some(item=>equal(item,outcome)),"Terminal proof differs from receipt");
+ const proofPath=path.resolve(root,value.evidence.evidence_ref);for(const member of reservation.members)assert(!inside(member.path,proofPath),"Terminal evidence overlaps payload");
+}
+function recovered(value,prefix,tokenHash){
+ keys(value,"id status prior_reservation malformed_publication lease_owner prior_bytes reservation_sha256 reason evidence_ref evidence_sha256 execution_outcome_changed pending_intents_changed");
+ assert(text(value.id)&&value.status==="reservation_recovered"&&typeof value.malformed_publication==="boolean"&&hex(value.reservation_sha256)&&text(value.reason)&&value.execution_outcome_changed===false&&value.pending_intents_changed===false,"Invalid recovered receipt");leaseOwner(value.lease_owner);assert.equal(hashValue(value.id),prefix);
+ let token;if(value.malformed_publication){assert(value.prior_reservation===null&&Array.isArray(value.prior_bytes)&&value.prior_bytes.every(byte=>Number.isInteger(byte)&&byte>=0&&byte<=255),"Invalid malformed recovery bytes");assert.equal(hash(Buffer.from(value.prior_bytes)),value.reservation_sha256);token=value.lease_owner.token;}else{minimumReservation(value.prior_reservation,value.id);assert(value.prior_bytes===null&&equal(value.prior_reservation.lease_owner,value.lease_owner),"Recovery owner mismatch");token=value.prior_reservation.token;}
+ assert.equal(hashValue(token),tokenHash);const proof=evidence(value.evidence_ref,value.evidence_sha256);assert(proof.id===value.id&&proof.producer_stopped_verified===true&&proof.process_tree_stopped_verified===true&&proof.reservation_sha256===value.reservation_sha256&&equal(proof.lease_owner,value.lease_owner),"Recovery proof differs from receipt");
+ for(const member of value.prior_reservation?.members||[])assert(text(member.path)&&!inside(member.path,path.resolve(root,value.evidence_ref)),"Recovery evidence overlaps payload");
+}
+function observe(){plain(directory,"directory");const names=fs.readdirSync(directory).sort();assert(names.length<=10000,"Too many reservation controls for bounded inspection");const locks=[],receipts=[];
+ for(const name of names){const filename=path.join(directory,name);plain(filename,"file");if(/^[a-f0-9]{64}\.json$/.test(name))throw Error("Active lifecycle reservation remains");if(/^[a-f0-9]{64}\.lock$/.test(name)){locks.push(filename);continue;}const match=/^([a-f0-9]{64})\.([a-f0-9]{64})\.(terminal|recovered)$/.exec(name);assert(match,"Unknown lifecycle reservation control");const observation=read(filename),value=JSON.parse(observation.bytes.toString("utf8"));(match[3]==="terminal"?terminal:recovered)(value,match[1],match[2]);remember(filename,observation);receipts.push(filename);assert(names.includes(match[1]+".lock"),"Receipt stable group lock missing");}
+ assert(locks.length<=128,"Reservation inspection exceeds bounded 128 native group leases");
+ for(const filename of locks){const before=read(filename,65536);leaseOwner(JSON.parse(before.bytes.toString("utf8")));leases.push(acquire(filename,{operation:"module-cache.inspect",waitMs:0}));const current=fs.lstatSync(filename,{bigint:true});assert.equal(current.dev+":"+current.ino,before.identity,"Stable group lock identity changed before native acquisition");}
+ return{names,locks,receipts};
+}
+let snapshot;
+function verify(){plain(directory,"directory");assert.deepEqual(fs.readdirSync(directory).sort(),snapshot.names,"Reservation controls changed during inspection");for(const [filename,before]of observed){const current=read(filename,filename.startsWith(directory+path.sep)?64*1024*1024:16*1024*1024);assert(current.identity===before.identity&&current.bytes.equals(before.bytes),"Immutable receipt or evidence changed during inspection");}}
+function release(){let failure;try{verify();}catch(error){failure=error;}for(const lease of leases.reverse())try{lease.release();}catch(error){failure||=error;}if(failure)throw failure;}
+try{snapshot=observe();verify();const ready=JSON.stringify({ok:true,ready:true,report:{receipts:snapshot.receipts,locks:snapshot.locks}})+"\n";assert(Buffer.byteLength(ready)<=64*1024*1024,"Reservation inspection report exceeds frame bound");process.stdout.write(ready);}
+catch(error){for(const lease of leases.reverse())try{lease.release();}catch{}process.stdout.write(JSON.stringify({ok:false,error:error.message})+"\n");process.exitCode=1;}
+if(snapshot){let buffer="";process.stdin.setEncoding("utf8");process.stdin.on("data",chunk=>{buffer+=chunk;if(Buffer.byteLength(buffer)>4096){process.stdin.destroy();process.exitCode=1;return;}const at=buffer.indexOf("\n");if(at<0)return;try{const command=JSON.parse(buffer.slice(0,at));assert(command.operation==="release"&&command.id===1,"Invalid inspection release");release();process.stdout.write(JSON.stringify({id:1,ok:true,result:{released:true}})+"\n");}catch(error){process.stdout.write(JSON.stringify({id:1,ok:false,error:error.message})+"\n");process.exitCode=1;}process.stdin.destroy();});}
+'@
+    $start=[Diagnostics.ProcessStartInfo]::new()
+    $start.FileName=(Get-Command node -CommandType Application|Select-Object -First 1).Source
+    foreach($argument in @('-e',$source,(Join-Path $PSScriptRoot 'maintenance-lock-owner.cjs'),[IO.Path]::GetFullPath($ProjectRoot),[IO.Path]::GetFullPath($Directory))){$start.ArgumentList.Add($argument)}
+    $start.UseShellExecute=$false;$start.CreateNoWindow=$true
+    $start.RedirectStandardInput=$true;$start.RedirectStandardOutput=$true;$start.RedirectStandardError=$true
+    $start.StandardInputEncoding=[Text.UTF8Encoding]::new($false);$start.StandardOutputEncoding=[Text.UTF8Encoding]::new($false)
+    $process=[Diagnostics.Process]::new();$process.StartInfo=$start;$null=$process.Start();$process.StandardInput.NewLine="`n"
+    $client=@{Process=$process;Sequence=0;Errors=$process.StandardError.ReadToEndAsync()}
+    try{$packet=Receive-ArtifactMaintenanceResponse $client;if($packet.ready -ne $true){throw 'Reservation inspection ready handshake missing'};$client.Report=$packet.report;return $client}
+    catch{$process.StandardInput.Close();$process.WaitForExit();$process.Dispose();throw}
+}
 function Get-BuildCacheProjectInspection($Cache,[string]$Project) {
     $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
     $project=Assert-BuildCachePath $Project $Cache.Owner
     $result=[ordered]@{project=$project;status='blocked';reason=$null;recoveryCondition=$null;registrySha256=(Get-BuildModuleFileHash $registry);catalogSha256=$null;groups=@()}
+    $catalogClient=$null;$reservationClient=$null
     try {
       if($project -notin @(Get-BuildCacheProjects $Cache)){throw 'Project is not registered'}
       if(-not(Test-Path -LiteralPath $project -PathType Container -ErrorAction Stop)){throw 'Missing registered cache project; inspect-legacy requires independently retained consumer evidence for retirement'}
@@ -41,17 +113,51 @@ function Get-BuildCacheProjectInspection($Cache,[string]$Project) {
         $result.recoveryCondition='Restore a genuine matching lifecycle catalog from original provenance, or recover a verified original consumer index through the canonical lifecycle owner; never fabricate an empty catalog.'
         return $result
       }
+      # The native owner validates the stable inode and acquires its OS lease;
+      # a schema-shaped file alone cannot establish that the catalog is idle.
+      $catalogClient=Start-ArtifactMaintenanceClient $project
       $records=@();$offset=0
       do {$page=Invoke-ArtifactLifecycleNode @('catalog','--project-root',$project,'--limit','200','--offset',"$offset");$records+=@($page.groups);$offset+=200}while($offset -lt $page.total)
       $result.groups=@($records)
-      # Include every directory entry: pending locks or unknown files cannot be
-      # mistaken for an empty catalog by the canonical JSON-record filter.
+      # Only the held stable lease metadata is mutable coordination state.
+      # Unknown control files and unresolved reservations remain protective.
       $items=@(Get-ChildItem -LiteralPath $catalog -Force -ErrorAction Stop)
-      foreach($item in $items){Assert-BuildCachePath $item.FullName $Cache.Owner|Out-Null;if($item.PSIsContainer -or $item.Name -notmatch '^[a-f0-9]{64}\.json$'){throw 'Unresolved lifecycle catalog entry or producer lock'}}
-      $result.catalogSha256=Get-BuildModuleKey @($catalog)
+      $semanticFiles=@();$semanticValues=@('module-catalog-v2')
+      foreach($item in $items){
+        Assert-BuildCachePath $item.FullName $Cache.Owner|Out-Null
+        if($item.Name -ceq 'catalog.lock' -and -not $item.PSIsContainer){continue}
+        if($item.Name -ceq 'reservations' -and $item.PSIsContainer){
+          $reservationClient=Start-BuildCacheReservationInspection $project $item.FullName
+          if(-not @($reservationClient.Report.locks).Count -and -not @($reservationClient.Report.receipts).Count){$semanticValues+='empty-reservations-directory'}
+          else{
+            $semanticValues+='settled-reservation-controls-v1'
+            foreach($lock in @($reservationClient.Report.locks)){$semanticValues+='reservation-lock:'+([IO.Path]::GetFileName($lock))}
+            $semanticFiles+=@($reservationClient.Report.receipts)
+          }
+          continue
+        }
+        if($item.PSIsContainer -or $item.Name -notmatch '^[a-f0-9]{64}\.json$'){throw 'Unresolved lifecycle catalog entry or producer lock'}
+        $semanticFiles+=,$item.FullName
+      }
+      $result.catalogSha256=Get-BuildModuleKey -Inputs @($semanticFiles|Sort-Object) -Values $semanticValues
       if($records.Count){throw 'Lifecycle groups remain; reconcile their actual members, references and producers through the canonical lifecycle owner first'}
       $result.status='ready-for-proof';$result.recoveryCondition='Supply independently verified producer closure and release of all consumers, installations and rollback references, pinned to this registry and catalog identity.'
     }catch{$result.reason=$_.Exception.Message;$result.recoveryCondition='Resolve the reported ownership, catalog, reference or path uncertainty and inspect again.'}
+    finally{
+      if($reservationClient){
+        try{$null=Send-ArtifactMaintenanceCommand $reservationClient @{operation='release'};$reservationClient.Process.StandardInput.Close();$reservationClient.Process.WaitForExit();if($reservationClient.Process.ExitCode -ne 0){throw 'Reservation inspection lease exit is unconfirmed'}}
+        catch{$result.status='blocked';$result.reason=$_.Exception.Message;$result.recoveryCondition='Resolve reservation control or lease uncertainty and inspect again.'}
+        finally{$reservationClient.Process.StandardInput.Close();$reservationClient.Process.WaitForExit();$reservationClient.Process.Dispose()}
+      }
+      if($catalogClient){
+        try{
+          $null=Send-ArtifactMaintenanceCommand $catalogClient @{operation='release'}
+          $catalogClient.Process.StandardInput.Close();$catalogClient.Process.WaitForExit()
+          if($catalogClient.Process.ExitCode -ne 0){throw 'Catalog inspection lease exit is unconfirmed'}
+        }catch{$result.status='blocked';$result.reason=$_.Exception.Message;$result.recoveryCondition='Resolve catalog lease termination and inspect again.'}
+        finally{$catalogClient.Process.StandardInput.Close();$catalogClient.Process.WaitForExit();$catalogClient.Process.Dispose()}
+      }
+    }
     $result
 }
 function Remove-BuildCacheProjectRegistration($Cache,[string]$Project,[string]$EvidencePath,[string]$EvidenceSha256,[switch]$Apply) {
@@ -265,6 +371,7 @@ function Get-BuildModuleLifecycleRecord($Cache,[string]$Module,[string]$Key,[str
     if(-not(Test-Path -LiteralPath $recordPath)){throw 'Unregistered legacy module cache; ownership and references require review'}
     $record=Get-Content -LiteralPath $recordPath -Raw|ConvertFrom-Json
     if($record.schema -ne 1 -or $record.id -cne $id -or $record.owner -cne 'module-build-cache' -or $record.kind -cne 'run' -or @($record.members).Count -ne 1 -or $record.members[0].role -cne 'cache-entry' -or $record.members[0].path -ine $Path){throw 'Unexpected module cache lifecycle ownership or membership'}
+    if($record.members[0].generated -ne $true -or $record.members[0].protection_known -ne $true){throw 'Unconfirmed module cache generated ownership or protection; legacy metadata requires review'}
     return $record
 }
 function Assert-BuildModuleConsumers($Cache,[string]$Id) {
@@ -324,7 +431,7 @@ function Remove-BuildModuleEntry($Cache,[string]$Module,[string]$Key,[string]$Pa
     # Selecting the same key for retry closes the diagnosed attempt. Other failed
     # or pending generations remain protected from background eviction.
     if($Retry -and $record.state -ne 'complete'){
-      $null=Register-ArtifactLifecycle -ProjectRoot $Cache.Owner -Id $record.id -Kind run -Owner 'module-build-cache' -State complete -MembershipComplete $true -Members @{'cache-entry'=$Path}
+      $null=Register-ArtifactLifecycle -ProjectRoot $Cache.Owner -Id $record.id -Kind run -Owner 'module-build-cache' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{'cache-entry'=$Path}
     }
     $remove={param($member) Remove-BuildModuleOwnedContents $Cache $member}
     Invoke-ArtifactLifecycleCleanup -ProjectRoot $Cache.Owner -CandidatePath $Path -ProtectedPaths $ProtectedPaths -Apply (-not $Preview) -CheckMember $check -RemoveMember $remove
@@ -355,7 +462,7 @@ function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][stri
         $removed=Remove-BuildModuleEntry $Cache $Module $key $path -Retry
         if($removed.status -ne 'deleted' -or (Test-Path -LiteralPath $path)){throw "Selected cache cannot be replaced: $($removed.reason)"}
       }
-      $null=Register-ArtifactLifecycle -ProjectRoot $Cache.Owner -Id $entry.LifecycleId -Kind run -Owner 'module-build-cache' -State pending -MembershipComplete $false -Members @{'cache-entry'=$path}
+      $null=Register-ArtifactLifecycle -ProjectRoot $Cache.Owner -Id $entry.LifecycleId -Kind run -Owner 'module-build-cache' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members @{'cache-entry'=$path}
       [IO.Directory]::CreateDirectory($entry.LogDirectory)|Out-Null
       @{schema=1;module=$Module;key=$key}|ConvertTo-Json|Set-Content (Join-Path $path 'owner.json') -Encoding utf8NoBOM
     }
@@ -380,6 +487,7 @@ function Get-BuildModuleCurrentKey($Entry) {
 }
 function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
     Get-BuildCacheProjects $Entry.Cache -RequireExisting|Out-Null
+    Get-BuildModuleLifecycleRecord $Entry.Cache $Entry.Module $Entry.Key $Entry.Path|Out-Null
     if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed during compilation; cache is not reusable.'}
     $files=@(foreach($output in $Outputs){
       $p=Assert-BuildCachePath (Join-Path $Entry.Path $output) $Entry.Path
@@ -393,7 +501,7 @@ function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
       @{schema=1;module=$Entry.Module;key=$Entry.Key;lastUsedUtc=[DateTime]::UtcNow.ToString('o');outputs=$Outputs;files=$files}|ConvertTo-Json -Depth 6|Set-Content $temporary -Encoding utf8NoBOM
       [IO.File]::Move($temporary,(Join-Path $Entry.Path 'cache.json'),$true)
     } finally {if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -ErrorAction Stop}}
-    $null=Register-ArtifactLifecycle -ProjectRoot $Entry.Cache.Owner -Id $Entry.LifecycleId -Kind run -Owner 'module-build-cache' -State complete -MembershipComplete $true -Members @{'cache-entry'=$Entry.Path}
+    $null=Register-ArtifactLifecycle -ProjectRoot $Entry.Cache.Owner -Id $Entry.LifecycleId -Kind run -Owner 'module-build-cache' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{'cache-entry'=$Entry.Path}
     $cache=$Entry.Cache
     if($cache -and -not $cache.SkipCleanup){
       try {

@@ -436,6 +436,8 @@ async fn output_collection_stays_bounded_across_repeated_drains() {
         output_closed: Arc::clone(&output_closed),
         output_closed_notify: Arc::clone(&output_closed_notify),
         cancellation_token: cancellation_token.clone(),
+        collection_finished: CancellationToken::new(),
+        drain_policy: OutputDrainPolicy::BoundedAfterExit,
     };
 
     let collect = UnifiedExecProcessManager::collect_output_until_deadline(
@@ -494,6 +496,8 @@ async fn output_collection_preserves_omissions_from_drained_buffer() {
         output_closed,
         output_closed_notify,
         cancellation_token,
+        collection_finished: CancellationToken::new(),
+        drain_policy: OutputDrainPolicy::BoundedAfterExit,
     };
 
     let collected = UnifiedExecProcessManager::collect_output_until_deadline(
@@ -577,7 +581,7 @@ async fn failed_initial_end_for_unstored_process_uses_fallback_output() {
     output_buffer.lock().await.push_chunk(b"PARTIAL_TRANSCRIPT");
 
     emit_failed_initial_exec_end_if_unstored(
-        /*process_started_alive*/ false,
+        /*process_stored*/ false,
         Some(codex_protocol::sandbox::SandboxType::WindowsMxc),
         &context,
         &request,
@@ -758,4 +762,88 @@ async fn pruning_does_not_evict_live_process_while_exited_process_is_finalizing(
         (pruned.map(|entry| entry.process_id), store.processes.len()),
         (None, MAX_UNIFIED_EXEC_PROCESSES)
     );
+}
+
+#[cfg(windows)]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn local_exec_server_returns_before_windows_inherited_output_closes() -> anyhow::Result<()> {
+    let gate_dir = tempfile::tempdir()?;
+    let gate_path = gate_dir.path().join("release-child");
+    let escaped_gate = gate_path.to_string_lossy().replace('\'', "''");
+    let child = format!(
+        "$deadline = [DateTime]::UtcNow.AddSeconds(20); while (!(Test-Path -LiteralPath '{escaped_gate}') -and [DateTime]::UtcNow -lt $deadline) {{ Start-Sleep -Milliseconds 20 }}"
+    );
+    let encoded_child = base64::Engine::encode(
+        &base64::engine::general_purpose::STANDARD,
+        child
+            .encode_utf16()
+            .flat_map(u16::to_le_bytes)
+            .collect::<Vec<_>>(),
+    );
+    let command = format!(
+        "Start-Process -FilePath powershell.exe -NoNewWindow -ArgumentList '-NoProfile','-NonInteractive','-EncodedCommand','{encoded_child}'; [Console]::Out.Write('foreground output'); exit 7"
+    );
+    let params = codex_exec_server::ExecParams {
+        process_id: "windows-inherited-output".into(),
+        metadata: None,
+        argv: vec![
+            "powershell.exe".into(),
+            "-NoProfile".into(),
+            "-NonInteractive".into(),
+            "-Command".into(),
+            command,
+        ],
+        cwd: codex_utils_absolute_path::AbsolutePathBuf::try_from(gate_dir.path().to_path_buf())?
+            .into(),
+        env_policy: None,
+        shell_snapshot: None,
+        env: std::env::vars().collect(),
+        tty: false,
+        pipe_stdin: false,
+        arg0: None,
+        sandbox: None,
+        enforce_managed_network: false,
+        managed_network: None,
+        network_proxy: None,
+    };
+    let environment = codex_exec_server::Environment::default_for_tests();
+    let started = environment.get_exec_backend().start(params).await?;
+    let process = super::super::process::UnifiedExecProcess::from_exec_server_started(
+        started,
+        OutputDrainPolicy::BoundedAfterExit,
+    )
+    .await?;
+    let collected = UnifiedExecProcessManager::collect_output_until_deadline(
+        process.output_handles(),
+        None,
+        Instant::now() + Duration::from_secs(10),
+    )
+    .await;
+    let inherited_output_still_open = !process
+        .output_handles()
+        .output_closed
+        .load(Ordering::Acquire);
+    // Release the descendant before assertions, including on a regression at the deadline.
+    std::fs::write(&gate_path, b"release")?;
+    tokio::time::timeout(Duration::from_secs(10), async {
+        while !process
+            .output_handles()
+            .output_closed
+            .load(Ordering::Acquire)
+        {
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+    })
+    .await?;
+    assert!(process.has_exited());
+    assert_eq!(process.exit_code(), Some(7));
+    assert!(
+        String::from_utf8_lossy(&collected.to_bytes_with_omission_marker())
+            .contains("foreground output")
+    );
+    assert!(
+        inherited_output_still_open,
+        "inherited output must still be open when foreground collection completes"
+    );
+    Ok(())
 }

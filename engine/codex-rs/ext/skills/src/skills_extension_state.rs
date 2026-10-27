@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use codex_exec_server::ExecutorCapabilityDiscoverySnapshot;
+use codex_extension_api::CatalogRefreshBackoff;
 use codex_mcp::McpResourceClient;
 use codex_mcp::McpResourceClientAuthKey;
 use codex_mcp::McpResourceServerCacheKey;
@@ -26,6 +27,7 @@ pub(crate) struct SkillsExtensionState {
     pub(crate) executor_cache: Vec<CachedExecutorCatalog>,
     pub(crate) executor_discovery_cache: Option<CachedExecutorDiscoveryCatalog>,
     pub(crate) cloud_cache: Option<Arc<CloudSkillGeneration>>,
+    pub(crate) cloud_retry: Option<CatalogRefreshBackoff>,
 }
 
 /// Keeps cloud metadata and contents within one published auth scope and Apps availability state.

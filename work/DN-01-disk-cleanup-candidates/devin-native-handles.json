@@ -1,0 +1,27 @@
+{
+  "seconds": 0.5481514930725098,
+  "process_snapshot": "devin-native-all-processes.json",
+  "system_handles": 243269,
+  "file_handles_checked": 3854,
+  "query_or_duplicate_failures": 56,
+  "selected_processes": 218,
+  "inaccessible_processes": [
+    {
+      "pid": 7300,
+      "name": "node.exe",
+      "error": 87
+    }
+  ],
+  "matches": [
+    {
+      "pid": 56452,
+      "name": "adb.exe",
+      "path": "\\\\?\\C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\adb.log"
+    },
+    {
+      "pid": 56452,
+      "name": "adb.exe",
+      "path": "\\\\?\\C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\adb.log"
+    }
+  ]
+}

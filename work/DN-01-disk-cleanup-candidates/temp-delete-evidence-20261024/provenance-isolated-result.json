@@ -1,0 +1,167 @@
+{
+  "lifecycleId": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+  "worktree": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+  "anchoredHead": "3dbcd525fa33e40949041fcbc916f5634c8a9d61",
+  "receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs\\engine\\SOURCE.json",
+  "receiptBefore": "40db24cf8ef9b5b982073670f0aafdfac814fea3b491b3356d0b5573395f2361",
+  "receiptAfter": "217f35a178057b07ac00e37212f2cc2ca98ed316160bc9169718cd584fdcdc94",
+  "daemonHeadSha256": "7f5ee948d541ecb2a67156edef9ed0bab8a0bc483a8abd342bdf7360b62a9c5e",
+  "sourceHashes": {
+    "codex-rs/project-maintenance/src/lib.rs": "be71263c5c2a70c73eefac9468edb66d3b819d527fdb04b96b8064f50dc5c931",
+    "codex-rs/project-maintenance/src/apply.rs": "11f43fa1aa4e972c340f98c03cab1b431bb6bd2a36f8f99a725442ca2dbb9d4c",
+    "codex-rs/project-maintenance/src/retirement.rs": "2046baa23a9583988341adba7476637d8beaacfc9bfa03bb43f184ab0207b9fa",
+    "codex-rs/project-maintenance/src/bin/maintenance_owner.rs": "b08e04f050b6ea2699efd1175a8466f11a21f001764276b125d8ad37282582fb",
+    "codex-rs/project-maintenance/tests/root_retirement.rs": "9ac619ec00d29255652d777919fac894830a7ee19bc5e1f78a71b69c2e71a0e4"
+  },
+  "commands": [
+    {
+      "name": "private-head",
+      "executable": "git",
+      "args": [
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "core.autocrlf=false",
+        "-c",
+        "core.symlinks=false",
+        "-C",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\private-head.log"
+    },
+    {
+      "name": "head-check",
+      "executable": "git",
+      "args": [
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "core.autocrlf=false",
+        "-c",
+        "core.symlinks=false",
+        "-C",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\head-check.log"
+    },
+    {
+      "name": "head-source-validate",
+      "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+      "args": [
+        "-X",
+        "utf8",
+        "-B",
+        "scripts/engine-provenance.py",
+        "snapshot",
+        "--root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs\\engine",
+        "--file",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports\\head-snapshot.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\head-source-validate.log"
+    },
+    {
+      "name": "stage-owned-five",
+      "executable": "git",
+      "args": [
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "core.autocrlf=false",
+        "-c",
+        "core.symlinks=false",
+        "-C",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+        "add",
+        "--",
+        "engine/codex-rs/project-maintenance/src/lib.rs",
+        "engine/codex-rs/project-maintenance/src/apply.rs",
+        "engine/codex-rs/project-maintenance/src/retirement.rs",
+        "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+        "engine/codex-rs/project-maintenance/tests/root_retirement.rs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\stage-owned-five.log"
+    },
+    {
+      "name": "record-isolated",
+      "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+      "args": [
+        "-X",
+        "utf8",
+        "-B",
+        "scripts/record-engine-local-changes.py",
+        "--destination",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs\\engine",
+        "--baseline",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\dn01-root-provenance-final\\baseline",
+        "--baseline-receipt-sha256",
+        "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+        "--current-receipt-sha256",
+        "40db24cf8ef9b5b982073670f0aafdfac814fea3b491b3356d0b5573395f2361",
+        "--expected-path",
+        "codex-rs/project-maintenance/src/lib.rs",
+        "--expected-path",
+        "codex-rs/project-maintenance/src/apply.rs",
+        "--expected-path",
+        "codex-rs/project-maintenance/src/retirement.rs",
+        "--expected-path",
+        "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+        "--expected-path",
+        "codex-rs/project-maintenance/tests/root_retirement.rs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\record-isolated.log"
+    },
+    {
+      "name": "isolated-snapshot",
+      "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python312/python.exe",
+      "args": [
+        "-X",
+        "utf8",
+        "-B",
+        "scripts/engine-provenance.py",
+        "snapshot",
+        "--root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs\\engine",
+        "--file",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\reports\\isolated-snapshot.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\isolated-snapshot.log"
+    },
+    {
+      "name": "final-primary-head",
+      "executable": "git",
+      "args": [
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "core.autocrlf=false",
+        "-c",
+        "core.symlinks=false",
+        "-C",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\final-primary-head.log"
+    }
+  ]
+}

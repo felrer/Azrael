@@ -45,6 +45,7 @@ test("closed path dependencies scope controls/instructions/composer; generic and
     ["inject-provider-context.cjs", [CONTEXT_ASSET, SETTINGS_ASSET]],
     ["inject-instruction-settings.cjs", ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS]],
     ["inject-composer-draft.cjs", [COMPOSER_DRAFT_ASSET]],
+    ["inject-deferred-turn.cjs", [require("./inject-deferred-turn.cjs").DEFERRED_HEADER_ASSET]],
     ["inject-ui-input-diagnostics.cjs", [COMPOSER_DRAFT_ASSET,
       "webview/assets/app-initial-97d3534ad35f.js", "webview/assets/app-initial-c014f9ee4429.js"]],
     ["ui-input-diagnostics-runtime.cjs", [COMPOSER_DRAFT_ASSET,
@@ -65,6 +66,20 @@ test("closed path dependencies scope controls/instructions/composer; generic and
   }
   const unknown = { ...rules, "future-generic.cjs": "2".repeat(64) };
   assert.equal(transformer.getAssetTransformRules(changedPath, unknown)["future-generic.cjs"], unknown["future-generic.cjs"]);
+});
+
+test("deferred edits invalidate a cached header no-op and retain unrelated assets", () => {
+  const header = require("./inject-deferred-turn.cjs").DEFERRED_HEADER_ASSET;
+  const cold = cache("deferred-header");
+  const expected = { text: noopSource, asset: null };
+  cold.run(header, noopSource, () => expected);
+  const unrelated = cold.run(changedPath, changedSource, () => transform(changedPath, changedSource));
+  cold.flush();
+  const edited = cache("deferred-header", changeRule("inject-deferred-turn.cjs"));
+  let recomputed = false;
+  assert.deepEqual(edited.run(header, noopSource, () => { recomputed = true; return expected; }), expected);
+  assert.ok(recomputed);
+  assert.deepEqual(edited.run(changedPath, changedSource, miss), unrelated);
 });
 
 test("font policy invalidates CSS and bootstrap; font resources invalidate CSS only", () => {
@@ -276,9 +291,9 @@ test("busy writer defers publication and deletion; completed cleanup preserves u
   assert.equal(fs.readFileSync(path.join(target, "keep.txt"), "utf8"), "linked content");
 });
 
-const { pinnedAssetMatrix, matrixTestName } = require("./source-test-policy.cjs");
+const { pinnedAssetMatrix, matrixTestName, PINNED_UI_ROOT } = require("./source-test-policy.cjs");
 for (const asset of pinnedAssetMatrix().assets) test(matrixTestName(asset), () => {
-  const original = path.join(artifacts, "upstream-ui/26.1007.21434");
+  const original = path.resolve(__dirname, "..", PINNED_UI_ROOT);
   const source = fs.readFileSync(path.join(original, asset), "utf8");
   const expected = transform(asset, source);
   const name = "pinned-" + sha(asset);
@@ -291,7 +306,7 @@ for (const asset of pinnedAssetMatrix().assets) test(matrixTestName(asset), () =
   assert.deepEqual(actual, expected, asset);
   assert.deepEqual(statistics, { hits: 1, misses: 1 });
   for (const rule of ["inject-provider-context.cjs", "inject-missing-image.cjs",
-    "inject-composer-draft.cjs", "inject-instruction-settings.cjs"]) {
+    "inject-composer-draft.cjs", "inject-instruction-settings.cjs", "inject-deferred-turn.cjs"]) {
     // Each fingerprint edit starts from the same baseline, independent of earlier edits.
     const editedName = `${name}-${rule}`;
     const baseline = cache(editedName);

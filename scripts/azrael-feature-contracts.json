@@ -2,6 +2,34 @@
   "schema": 1,
   "features": [
     {
+      "id": "runtime.deletion-approval",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/shell-command/src/command_safety/is_deletion_command.rs",
+        "engine/codex-rs/core/src/exec_policy.rs",
+        "engine/codex-rs/core/src/tools/approvals.rs",
+        "engine/codex-rs/core/src/apply_patch.rs",
+        "extensions/azrael-ex/src/chatSession.ts"
+      ],
+      "contract": "docs/architecture/auto-review.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "runtime.deletion-approval.host",
+          "executable": "node",
+          "args": ["scripts/check-deletion-approval-host.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "runtime.deletion-approval.native",
+          "executable": "node",
+          "args": ["scripts/check-deletion-approval-native.cjs", "{engineSourceRoot}"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        }
+      ]
+    },
+    {
       "id": "ui.question-withdrawal",
       "area": "ui",
       "owners": [
@@ -574,6 +602,7 @@
         "engine/codex-rs/protocol/src/protocol.rs",
         "engine/codex-rs/prompts/src/model_instructions.rs",
         "engine/codex-rs/prompts/src/model_instructions_tests.rs",
+        "engine/codex-rs/core/src/tools/mod.rs",
         "engine/codex-rs/core/src/tools/spec_plan_tests.rs",
         "engine/codex-rs/core/src/tools/router_tests.rs",
         "providers/opencodex/tests/harness-mapping.test.mjs",
@@ -3473,8 +3502,14 @@
         "engine/codex-rs/project-maintenance/src/planning.rs",
         "engine/codex-rs/project-maintenance/src/storage.rs",
         "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+        "engine/codex-rs/project-maintenance/src/lease.rs",
+        "engine/codex-rs/project-maintenance/src/reservations.rs",
+        "engine/codex-rs/project-maintenance/src/registration.rs",
         "engine/codex-rs/project-maintenance/tests/lock_recovery.rs",
         "scripts/maintenance-lock-owner.cjs",
+        "scripts/maintenance-lock-worker.cjs",
+        "scripts/maintenance-owner-config.cjs",
+        "scripts/maintenance-lock-client.cjs",
         "scripts/test-maintenance-lock-owner.cjs",
         "engine/codex-rs/project-maintenance/tests/contracts.rs",
         "engine/codex-rs/core/src/tools/handlers/project_maintenance.rs",
@@ -3487,6 +3522,8 @@
         "scripts/project-maintenance.cjs",
         "scripts/check-project-maintenance.cjs",
         "engine/codex-rs/project-maintenance/Cargo.toml",
+        "engine/codex-rs/utils/process/src/lib.rs",
+        "engine/codex-rs/utils/process/src/background_command_tests.rs",
         "engine/codex-rs/core/Cargo.toml",
         "engine/codex-rs/core/src/tools/handlers/mod.rs",
         "engine/codex-rs/core/src/session/world_state.rs",
@@ -3922,6 +3959,269 @@
             "{engineSourceRoot}",
             "--stage",
             "preserve-order"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.selected-upstream",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/models-manager/src/manager.rs",
+        "engine/codex-rs/models-manager/src/manager_tests.rs",
+        "engine/codex-rs/model-provider/src/combined_auth.rs",
+        "engine/codex-rs/model-provider/src/shared_state_tests.rs",
+        "engine/codex-rs/protocol/src/error.rs",
+        "engine/codex-rs/protocol/src/error_tests.rs",
+        "engine/codex-rs/core/tests/suite/remote_models.rs",
+        "engine/codex-rs/analytics/src/reducer.rs",
+        "engine/codex-rs/analytics/src/tests/suite/approvals_tests.rs",
+        "engine/codex-rs/analytics/src/tests/suite/reducer_ordering_tests.rs",
+        "engine/codex-rs/app-server/src/outgoing_message.rs",
+        "engine/codex-rs/code-mode/src/remote_session.rs",
+        "engine/codex-rs/code-mode/src/remote_session/delegate.rs",
+        "engine/codex-rs/core/Cargo.toml",
+        "engine/codex-rs/core/tests/code_mode_tracing.rs",
+        "engine/codex-rs/ext/extension-api/Cargo.toml",
+        "engine/codex-rs/ext/extension-api/src/catalog_refresh.rs",
+        "engine/codex-rs/ext/extension-api/src/contributors.rs",
+        "engine/codex-rs/ext/extension-api/src/contributors/turn_lifecycle.rs",
+        "engine/codex-rs/ext/extension-api/src/lib.rs",
+        "engine/codex-rs/ext/mcp/Cargo.toml",
+        "engine/codex-rs/ext/mcp/src/cloud_plugin.rs",
+        "engine/codex-rs/ext/mcp/src/cloud_plugin_tests.rs",
+        "engine/codex-rs/ext/mcp/src/plugin_contributor_state.rs",
+        "engine/codex-rs/ext/mcp/tests/plugin_mcp.rs",
+        "engine/codex-rs/ext/skills/Cargo.toml",
+        "engine/codex-rs/ext/skills/src/cloud_cache_tests.rs",
+        "engine/codex-rs/ext/skills/src/cloud_skill.rs",
+        "engine/codex-rs/ext/skills/src/skills_extension_state.rs",
+        "engine/codex-rs/ext/skills/src/state.rs",
+        "engine/codex-rs/core/src/session/mcp.rs",
+        "engine/codex-rs/core/src/session/turn_start_mcp_tests.rs",
+        "engine/codex-rs/core/tests/suite/skills_extension/cloud_lifecycle_tests.rs",
+        "engine/codex-rs/core/src/session/turn.rs",
+        "engine/codex-rs/core/src/session/tests.rs",
+        "engine/codex-rs/core/src/tasks/regular.rs",
+        "engine/codex-rs/core/src/context_manager/history.rs",
+        "engine/codex-rs/core/src/context_manager/history_tests.rs",
+        "scripts/check-selected-upstream-native.cjs",
+        "scripts/cargo-verification.cjs",
+        "engine/codex-rs/protocol/Cargo.toml",
+        "engine/codex-rs/app-server/src/bespoke_event_handling.rs",
+        "engine/codex-rs/app-server/src/request_processors/persisted_resume_settings.rs",
+        "engine/codex-rs/app-server/src/request_processors/persisted_resume_settings_tests.rs",
+        "engine/codex-rs/app-server/src/request_processors/thread_processor.rs",
+        "engine/codex-rs/app-server/src/request_processors/thread_processor_tests.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/rollout_compress_tests.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/thread_resume.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/thread_resume_network_tests.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/thread_revert.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/thread_settings_update.rs",
+        "engine/codex-rs/core/src/codex_thread.rs",
+        "engine/codex-rs/core/src/compact.rs",
+        "engine/codex-rs/core/src/config/config_tests.rs",
+        "engine/codex-rs/core/src/config/mod.rs",
+        "engine/codex-rs/core/src/config/permission_profile_catalog.rs",
+        "engine/codex-rs/core/src/mcp_tool_call/conversation_history.rs",
+        "engine/codex-rs/core/src/session/mod.rs",
+        "engine/codex-rs/core/src/session/session.rs",
+        "engine/codex-rs/core/src/session/step_settings.rs",
+        "engine/codex-rs/core/src/state/session.rs",
+        "engine/codex-rs/core/src/tools/handlers/current_time.rs",
+        "engine/codex-rs/core/src/tools/handlers/get_context_remaining.rs",
+        "engine/codex-rs/core/src/tools/handlers/list_available_plugins_to_install.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_v2/list_agents.rs",
+        "engine/codex-rs/core/src/unified_exec/mod_tests.rs",
+        "engine/codex-rs/core/src/unified_exec/oneshot.rs",
+        "engine/codex-rs/core/src/unified_exec/process.rs",
+        "engine/codex-rs/core/src/unified_exec/process_manager.rs",
+        "engine/codex-rs/core/src/unified_exec/process_manager_tests.rs",
+        "engine/codex-rs/core/src/unified_exec/process_tests.rs",
+        "engine/codex-rs/core/tests/suite/apply_patch_system_aliases.rs",
+        "engine/codex-rs/core/tests/suite/code_mode.rs",
+        "engine/codex-rs/core/tests/suite/compact.rs",
+        "engine/codex-rs/core/tests/suite/network_approval.rs",
+        "engine/codex-rs/core/tests/suite/shell_snapshot.rs",
+        "engine/codex-rs/core/tests/suite/skills_extension/cloud_skill_tests.rs",
+        "engine/codex-rs/core/tests/suite/skills_extension/yielded_skill_tests.rs",
+        "engine/codex-rs/core/tests/suite/unified_exec_process_events.rs",
+        "engine/codex-rs/exec/src/lib.rs",
+        "engine/codex-rs/ext/goal/src/tool.rs",
+        "engine/codex-rs/ext/memories/src/tools/list.rs",
+        "engine/codex-rs/ext/memories/src/tools/read.rs",
+        "engine/codex-rs/ext/memories/src/tools/search.rs",
+        "engine/codex-rs/ext/skills/src/tools/list.rs",
+        "engine/codex-rs/ext/skills/src/tools/read.rs",
+        "engine/codex-rs/features/src/lib.rs",
+        "engine/codex-rs/network-proxy/src/credential_broker.rs",
+        "engine/codex-rs/network-proxy/src/credential_broker/destination.rs",
+        "engine/codex-rs/network-proxy/src/credential_broker/providers.rs",
+        "engine/codex-rs/network-proxy/src/credential_broker/registry.rs",
+        "engine/codex-rs/network-proxy/src/credential_broker_tests.rs",
+        "engine/codex-rs/network-proxy/src/host_policy_tests.rs",
+        "engine/codex-rs/network-proxy/src/http_proxy.rs",
+        "engine/codex-rs/network-proxy/src/http_proxy/host_header_tests.rs",
+        "engine/codex-rs/network-proxy/src/mitm.rs",
+        "engine/codex-rs/network-proxy/src/mitm_tests.rs",
+        "engine/codex-rs/network-proxy/src/network_policy.rs",
+        "engine/codex-rs/network-proxy/src/proxy.rs",
+        "engine/codex-rs/network-proxy/src/runtime.rs",
+        "engine/codex-rs/protocol/src/permissions/local_aliases.rs",
+        "engine/codex-rs/protocol/src/permissions/local_aliases_tests.rs",
+        "engine/codex-rs/sandboxing/src/bwrap.rs",
+        "engine/codex-rs/sandboxing/src/bwrap_tests.rs",
+        "engine/codex-rs/sandboxing/src/seatbelt.rs",
+        "engine/codex-rs/sandboxing/src/seatbelt_network_tests.rs",
+        "engine/codex-rs/sandboxing/src/seatbelt_tests.rs",
+        "engine/codex-rs/thread-store/src/local/read_thread.rs",
+        "engine/codex-rs/tui/src/lib.rs",
+        "engine/codex-rs/tui/src/app/owned_transcript_input_tests.rs",
+        "engine/codex-rs/tui/src/chatwidget/realtime_tests/caption_replay.rs"
+      ],
+      "contract": "docs/architecture/azrael-runtime.md",
+      "checks": [
+        {
+          "id": "engine.selected-upstream.catalog-retention",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-retention"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.analytics-bound",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "analytics-bound"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.code-mode-trace",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "code-mode-trace", "{engineDirectory}"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.catalog-retention-integration",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-retention-integration"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.catalog-refresh",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-refresh"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.catalog-refresh-integration",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-refresh-integration"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.network",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "network"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.protocol",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "protocol"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.sandbox",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "sandbox"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.thread-store",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "thread-store"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.core-lib",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "core-lib"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.core-integration",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "core-integration",
+            "{engineDirectory}"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.app-server-lib",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "app-server-lib"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.app-server",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "app-server"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
+        },
+        {
+          "id": "engine.selected-upstream.tui",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "tui"
           ],
           "level": "native",
           "cargoPreflight": "selected-tests-v1"

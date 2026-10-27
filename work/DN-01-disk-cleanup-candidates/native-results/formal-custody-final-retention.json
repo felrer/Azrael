@@ -1,0 +1,321 @@
+{
+  "at": "2026-10-24T05:23:29.251Z",
+  "registration": [
+    {
+      "group": {
+        "cleanup_status": null,
+        "id": "run:DN-01:grouped-relocation-20261024-r4",
+        "kind": "run",
+        "members": [
+          "dc6bafcf01a6be2ca0a13a220e0d73807c917c476ff1300daa4b665451800715"
+        ],
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "85448edf82598630eb178a4eb69a251b3872c2bfb85fd07a2fed7466adeabceb",
+        "owner": "DN-01-grouped-relocation",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d415a42c82cd21d3128f96f2be8c4f2b2f0d2bfee12b44a6563af421d88b544a.json",
+        "registered_at_ms": 1792819294792,
+        "version": null
+      },
+      "items": [
+        {
+          "cache_schema": null,
+          "created_at_ms": null,
+          "generated": true,
+          "id": "dc6bafcf01a6be2ca0a13a220e0d73807c917c476ff1300daa4b665451800715",
+          "identity": "ab50b08aef2bc16960a3daad2467a1e44857b68ebb9ef2cf1593e792b7ddf5dc",
+          "kind": "run",
+          "lifecycle_group_id": "run:DN-01:grouped-relocation-20261024-r4",
+          "lifecycle_role": "artifact",
+          "logical_bytes": 138663824,
+          "measured_at_ms": 1792819270560,
+          "owner": "DN-01-grouped-relocation",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\grouped-relocation-20261024-r4",
+          "presence": "present",
+          "protection_known": true,
+          "provenance": null,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d415a42c82cd21d3128f96f2be8c4f2b2f0d2bfee12b44a6563af421d88b544a.json",
+          "references": [],
+          "registered_at_ms": 1792819270560,
+          "remaining": true,
+          "role": "run",
+          "source_path": null,
+          "tool": null,
+          "version": null
+        }
+      ]
+    },
+    {
+      "group": {
+        "cleanup_status": null,
+        "id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+        "kind": "run",
+        "members": [
+          "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4"
+        ],
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "a769fd243e00d76c5127b2bbb1ff265bf98087e98daf0c1f388ddc2095453ca0",
+        "owner": "artifact-lifecycle-checks",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\441f5c1913b6acd36766735d010534d3299917567672723055bf28139c541bdb.json",
+        "registered_at_ms": 1792819324916,
+        "version": null
+      },
+      "items": [
+        {
+          "cache_schema": null,
+          "created_at_ms": null,
+          "generated": true,
+          "id": "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4",
+          "identity": "7dbb7bbea07b7a618dc9efe82aa78f2086a002ccbbfd2b96e34c42fce5c27c51",
+          "kind": "run",
+          "lifecycle_group_id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+          "lifecycle_role": "artifact",
+          "logical_bytes": 9471651,
+          "measured_at_ms": 1792819303607,
+          "owner": "artifact-lifecycle-checks",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\080d3acc97d040d1a5b0cc7d92315698",
+          "presence": "present",
+          "protection_known": false,
+          "provenance": null,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\441f5c1913b6acd36766735d010534d3299917567672723055bf28139c541bdb.json",
+          "references": [],
+          "registered_at_ms": 1792819303607,
+          "remaining": true,
+          "role": "run",
+          "source_path": null,
+          "tool": null,
+          "version": null
+        }
+      ]
+    }
+  ],
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:DN-01:grouped-relocation-20261024-r4",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "85448edf82598630eb178a4eb69a251b3872c2bfb85fd07a2fed7466adeabceb",
+        "owner": "DN-01-grouped-relocation",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d415a42c82cd21d3128f96f2be8c4f2b2f0d2bfee12b44a6563af421d88b544a.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "a769fd243e00d76c5127b2bbb1ff265bf98087e98daf0c1f388ddc2095453ca0",
+        "owner": "artifact-lifecycle-checks",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\441f5c1913b6acd36766735d010534d3299917567672723055bf28139c541bdb.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [
+          "generation or usage protection unconfirmed",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4"
+        ],
+        "group_token": "f2f2e01a3e3f81ff74b3b58119be4e2a151edc26baf466999fde14a357357e39",
+        "id": "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4",
+        "identity": "7dbb7bbea07b7a618dc9efe82aa78f2086a002ccbbfd2b96e34c42fce5c27c51",
+        "lifecycle_group_id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+        "logical_bytes": 9471651,
+        "measured_at_ms": 1792819303607,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "a769fd243e00d76c5127b2bbb1ff265bf98087e98daf0c1f388ddc2095453ca0",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-24T04:40:01.185Z",
+            "id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+            "kind": "run",
+            "members": [
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\080d3acc97d040d1a5b0cc7d92315698",
+                "role": "run"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "artifact-lifecycle-checks",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-24T04:40:20.021Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792819341393,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\080d3acc97d040d1a5b0cc7d92315698",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              101,
+              159,
+              37,
+              0,
+              0,
+              0,
+              22,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "e356a5e8f70c3512369c491b3049d7d43e7e132354f5f6fb092af00e50e7d7c5",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "dc6bafcf01a6be2ca0a13a220e0d73807c917c476ff1300daa4b665451800715"
+        ],
+        "group_token": "15d8ec5336404f4dc8517739a001ff2bd221835f3352c7158840a0fc51cc66cd",
+        "id": "dc6bafcf01a6be2ca0a13a220e0d73807c917c476ff1300daa4b665451800715",
+        "identity": "ab50b08aef2bc16960a3daad2467a1e44857b68ebb9ef2cf1593e792b7ddf5dc",
+        "lifecycle_group_id": "run:DN-01:grouped-relocation-20261024-r4",
+        "logical_bytes": 138663824,
+        "measured_at_ms": 1792819270560,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "85448edf82598630eb178a4eb69a251b3872c2bfb85fd07a2fed7466adeabceb",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-24T04:39:43.270Z",
+            "id": "run:DN-01:grouped-relocation-20261024-r4",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\grouped-relocation-20261024-r4",
+                "protection_known": true,
+                "role": "run"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "DN-01-grouped-relocation",
+            "references": [],
+            "release_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\grouped-relocation-20261024-r4\\reports\\preparation-reference-release-evidence.json",
+              "evidence_sha256": "bd50ade025675a20cd834bf29fe8848cc8e7cca3a9e5e6a07d806f8829fb448f",
+              "reason": "Preparation inputs and mapping ready; actual migration writer now owns source lock/revision checks. No active installed/runtime execution reference is released.",
+              "request_sha256": "393e9859fbd91f3896ac8e1e9338babff75e33cad2e7c2172c52276d1e0a4ee2"
+            },
+            "revision": 3,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-24T05:18:13.497Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792819325394,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\grouped-relocation-20261024-r4",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              253,
+              144,
+              37,
+              0,
+              0,
+              0,
+              26,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "5a7de000825d2eb1e7c754fc7b648b7a48a101d7d6a0a00640b49cca7a47f54e",
+        "verification": "registered"
+      }
+    ]
+  },
+  "result": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DN-01:grouped-relocation-20261024-r4",
+        "status": "deferred"
+      },
+      {
+        "id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+        "status": "deferred"
+      }
+    ],
+    "results": [
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4",
+        "lifecycle_group_id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+        "reason": "Retain actual final acceptance evidence and independently verified source/config recovery archive; report writes are now complete and registered with current content measurements.",
+        "remaining": true,
+        "revisit_condition": "Retire or replace this acceptance/recovery contract, switch all evidence consumers to independently readable replacements, then review the exact group again.",
+        "status": "deferred",
+        "token": "e356a5e8f70c3512369c491b3049d7d43e7e132354f5f6fb092af00e50e7d7c5"
+      },
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "dc6bafcf01a6be2ca0a13a220e0d73807c917c476ff1300daa4b665451800715",
+        "lifecycle_group_id": "run:DN-01:grouped-relocation-20261024-r4",
+        "reason": "Retain actual final acceptance evidence and independently verified source/config recovery archive; report writes are now complete and registered with current content measurements.",
+        "remaining": true,
+        "revisit_condition": "Retire or replace this acceptance/recovery contract, switch all evidence consumers to independently readable replacements, then review the exact group again.",
+        "status": "deferred",
+        "token": "5a7de000825d2eb1e7c754fc7b648b7a48a101d7d6a0a00640b49cca7a47f54e"
+      }
+    ]
+  }
+}

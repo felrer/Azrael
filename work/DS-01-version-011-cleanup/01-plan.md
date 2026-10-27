@@ -1,6 +1,63 @@
-상태: 승인된 외부 테스트 프로필·연결 빌드의 실제 삭제 및 소유 기록 마감 완료. 확정 구버전 삭제량20,168,314,374 B(약18.78 GiB). 검증·실행 임시 산출물392,266,690 B도 별도 정리 완료. Windows native120개 통과. 작업 커밋 identity는 reports/task-commit.json에 기록하며 보호 근거가 남은 원래 전체 삭제 요청은 일부 보류다.
+상태: 2026-10-26 승인된2026.0.11 실패 배포본6개와 연결 로그·패키징의 실제 삭제 및 소유 기록 마감을 완료했다. 원래 묶음42개 항목은 기존 부재 항목까지 모두 정합했다. 추가 삭제량15,916,125,088 B(14.82 GiB, 논리 크기). 이번 실행·관리 도구 임시 폴더7개도 삭제·마감했다. 2026.0.12는 사용자 별도 작업으로 제외했고2026.0.13도 선택하지 않았다. source 부모·공유 cache·원래 잔여 보호 항목은 유지한다. 앞선 삭제량과 구별한 최종 증거는 reports/failed-011-final-verification.json에 있다.
 
 # 2026.0.11 이하 생성물 정리
+
+## 실패 배포 사본 추가 조사 — 2026-10-26
+
+요청: 실패한 배포 사본도 전부 삭제 대상에 넣고 조사한 뒤, 추가 승인에 따라2026.0.12를 제외한 확정 구버전 묶음을 삭제한다. Windows 로컬 조사를 거쳐 원래 owner의 참조·producer와 native inventory를 정합하고 실제 payload를 삭제했다. 제품 소스·설치·사용자 프로필은 변경하지 않았다. 별도 에이전트와 제품 빌드는 사용하지 않았다.
+
+### 확인 범위와 결과
+
+주 프로젝트 native inventory는763항목/380묶음, canonical lifecycle은564기록을 확인했다. `artifacts/`, `artifacts/build/`, `artifacts/workspaces/` 바로 아래의 프로젝트 설정을 가진 루트31개에서 release/deployment 메타데이터를 조사했다. 그중19루트에 release24개가 있고 원래 lifecycle이 failed인 실제 release15개를 확인했다. 원래 실행 결과·receipt와 current runtime을 함께 읽었으며 failed라는 표시를 미사용의 증거로 사용하지 않았다. 전 디스크 재귀 전수 조사가 아니다.
+
+| source project | 확정 실패 배포본 | 중단 패키징 stage 수 |
+| --- | --- | ---: |
+| artifacts/build/b13 | w11aa | 1 |
+| artifacts/build/v11a | w11g | 0 |
+| artifacts/build/v11c | w11i | 1 |
+| artifacts/build/v11e | w11m | 1 |
+| artifacts/build/v11k | w11v, w11w | 2 |
+
+이6개는 deployment-metrics.json의 실제 `-HostVersion 2026.0.11`과 failed 상태로 식별했다. build-info의 packageVersion0.4.0은 host 버전이 아니므로 분류 근거로 사용하지 않는다. release 디렉터리5,403,677,587 B와 별도 disjoint stage5개의7,590,442,076 B, 합계12,994,119,663 B(12.10 GiB)를 읽기 전용으로 측정했다. 해당 경로에서 링크0/열거 오류0이었다. 캐시·소스 snapshot·로그 크기는 제외했고 hardlink 및 파일 시스템 할당을 반영한 물리 회수량은 측정하지 않았다. 앞선 삭제량에 합산하지 않는다.
+
+최초 조사에서는 release6개가 native 미등록이고 원래 canonical version만 남아 있었다. 원래 소유자의 완전한 멤버·참조를 정합한 뒤 전체를 native 등록/review/apply로 처리했다. 실행 파일 경로/command line의 해당 source 루트 참조0과 원래 모든 launched stage의 completed 영수증을 함께 확인했으며 PID 부재만으로 producer 종료를 인정하지 않았다.
+
+### 정합한 참조와 잔여 보호
+
+- w11aa: 완료된 deployment-temporary의 정확한 execution 참조를 원래 owner/revision과 근거로 해제했다. source b13은 pending이고 다른 작업의 의존성·실행·입력 소비가 있으므로 source 전체는 유지했다.
+- w11w: `work:pending-install:w11w`의 dependency/handoff는 원래 no-install failure 영수증과 사용자의 구버전 폐기 승인을 근거로 해당 owner에서 취소·해제했다. 사용자의 별도2026.0.12 정리는 이 작업의 설치 변경 근거로 사용하지 않았다.
+- 확정 실패 배포본6개의 companion module outgoing dependency는 payload 전체 부재를 확인한 후 해당 version owner에서만 해제하고 version producer를 finalize했다. source 프로젝트 자체의 module cache 등록과 다른 소비자·공유 cache는 보존했다. 부모를 먼저 삭제해 u17a 같은 stale 프로젝트 등록을 추가하지 않았다.
+- source v11a/e는 r8/r9/r10의 pending/execution 관계, v11i/j/k는 r13/r14/r15/r19의 dependency/install 관계가 남아 있다. 실패 진단 후 폐기할 후보이며, 실패 자체는 영구 보존 이유가 아니다. 현재 결과와 필요한 최소 증거를 보존하고 원래 결과를 failure/unknown 그대로 유지하면서 producer close와 reference release를 별도로 수행한다.
+
+### 별도 분류와 권고 순서
+
+u18b도 실제 release와 failed 기록이 남아 있지만 이번 receipt 경로에서는 host 버전을 확정하지 못해 위6개/크기 합계에서 제외했다. 2026.0.12·2026.0.13의 실패 시도들도 발견했으며 기존 <=.11 삭제 범위를 자동 확대하지 않는다. 특히 일반 등록2026.0.12가 사용하는w13r은 lifecycle failed 표시인데도 현재 실제 프로세스가 실행 중이다. 최신 pending win251026-r14와 함께 보호한다. `%LOCALAPPDATA%/azrael-ex/releases`는 확인 시점 비어 있었다.
+
+권고는 확정 구버전6개의 release·전용 로그·패키징 stage를 먼저 원래 owner 단위로 정상 폐기한 뒤, source snapshot과 module/cache를 마지막 소비 해제 순서로 정리하는 것이다. 이때 설치 참조와 fresh native 검토를 다시 확인한다. source 부모 통삭제나 failed 상태만을 이용한 일괄 삭제를 하지 않는다. 사용자는2026.0.12 실패본을 별도로 정리 중이라 명시적으로 제외하고 나머지 삭제 시도를 승인했다. 이번 실행은 확정 구버전6개 묶음만 선택하며 source 부모와 공유 cache는 보존한다.
+
+### 추가 승인 실행 상태
+
+기존 complete failed metrics의 모든 launched stage completedUtc와 현재 source-root 프로세스 참조0을 함께 확인했다. 원래 catalog와 metrics를 독립적으로 보존했다. 기존 producer가 없던 version5개는 canonical close를 failure/exit null로 마감해 기록되지 않은 top-level exit를 만들지 않았다. w11w는 원래 failure/exit1을 그대로 재사용했다. 완료된 b13 temporary의 정확한 execution 참조와 사용자가 취소한w11w pending-install dependency만 supported release로 해제했다. 나머지 모듈 소비는 실제 payload 부재 이후 별도 해제한다.
+
+첫 primary MCP register6개는 모두 tree entry disappeared로 종료했고 등록·삭제0이었다. 현재 소스의 최초 부재 planned-output adoption 경로와 구별했다. 검증된 current crate SHA68fd2d37abc80b2e3ec07ed41a25fa5846a0bd8129af2b83e43f022b4738afe0과 이전 native120통과 입력30개가 정확히 일치한 DT frozen source를 재사용했다. source를 수정하지 않고 shared Cargo target을 정상 lease해 management_owner만 locked/offline 컴파일했다. 실제 build exit0,32.35초, source 전후 동일, binary SHA9e50802ce8638a06a08f152b71653e752aa259193001e01ee506ef32a216ebbc다. 제품 빌드·설치는 수행하지 않았다.
+
+실행 work completion7bbf8267-9799-4ded-843d-4b56012c340a와 helper session46004는 실제 성공/exit0으로 종료했다. 각 nested 프로젝트의 original complete source request로 native 등록·fresh review·정확한 전체 묶음 delete를 직렬 실행했고6개 모두 actual native exit0, aborted=false,7항목 전부 deleted/remaining=false를 확인했다. module outgoing release와 canonical finalize도 모두 완료했다. native 실행은2026-10-25 23:35UTC 무렵 시작해2026-10-26 00:39:19UTC 종료했다(약64분, 순차 실행). 중간에 별도 실행 owner가 생기거나 source를 바꾸지 않았고 payload 재시행은 없었다.
+
+| 이번 확정 삭제 묶음 | 실제 논리 크기 | 결과 |
+| --- | ---: | --- |
+| w11aa | 3,283,875,223 B | 7항목 deleted/remaining=false, finalize |
+| w11g | 910,821,628 B | 동일 |
+| w11i | 1,873,825,837 B | 동일 |
+| w11m | 3,278,071,004 B | 동일 |
+| w11v | 3,284,719,741 B | 동일 |
+| w11w | 3,284,811,655 B | 동일 |
+| 합계 | 15,916,125,088 B / 14.82 GiB | 전용 로그·실제 deployment 전체 포함, 물리 회수량 미측정 |
+
+조사 때12.10GiB는 release와 stage만 측정한 값이고, 실제 삭제14.82GiB는 version에 소속된 전용 로그 등까지 포함한 native 측정값이다. 두 수치를 합산하지 않는다. source 부모5개는 모두 존재하고 version 원래 producer6개는 source catalog에서 정상 finalize돼 없음을 확인했다. 원래 계획에 있던 미생성 항목도 최초 부재 adoption을 통해 명시적으로 정합했으며 파일 삭제 성공으로 꾸미지 않았다.
+
+이번 실행 로그6개와 management executable build1개의 작고 완결된 실행 폴더도 native 등록·fresh review/apply로 모두 deleted/remaining=false, canonical finalize를 확인했다. 실행 중인 management_owner 프로세스가 없음을 확인한 후 binary를 삭제했다. 원래 실패 metrics/catalog와 native 요청·응답·terminal, build 입력 동일성 증거는 work reports에 독립 보존했다. source 부모가 유지되는 동안 작은 retirement 근거 묶음도 보존하며, 해당 source/module 소비의 최종 정합 후 함께 재검토한다. 제품 소스 변경이 없는 운영 정리이므로 새 개발 커밋은 만들지 않았고 기존 다른 작업의 source/staged 변경을 그대로 유지했다.
+
+상세 근거: reports/failed-deployment-investigation.json(원래 상태·소비·stage·실제 stage exit), failed-distribution-sizes.json(개별 논리 크기), failed-deployment-process-check.json(현재 프로세스 검사). 조사 helper2개는 재현과 후속 정합에 필요한 작은 감사 자료로 유지한다.
 
 ## 목표·권한·보호 범위
 

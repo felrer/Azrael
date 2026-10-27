@@ -1,0 +1,114 @@
+[
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+    "args": [
+      "diff",
+      "--cached",
+      "--name-only",
+      "3dbcd525fa33e40949041fcbc916f5634c8a9d61"
+    ],
+    "exitCode": 0,
+    "stdout": "engine/codex-rs/project-maintenance/src/apply.rs\nengine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs\nengine/codex-rs/project-maintenance/src/lib.rs\nengine/codex-rs/project-maintenance/src/retirement.rs\nengine/codex-rs/project-maintenance/tests/root_retirement.rs\n",
+    "stderr": ""
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+    "args": [
+      "diff",
+      "--name-only"
+    ],
+    "exitCode": 0,
+    "stdout": "engine/SOURCE.json\nproject-maintenance.json\n",
+    "stderr": "warning: in the working copy of 'engine/codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql', LF will be replaced by CRLF the next time Git touches it\n"
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+    "args": [
+      "ls-files",
+      "--others",
+      "--exclude-standard"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+    "args": [
+      "restore",
+      "--source",
+      "3dbcd525fa33e40949041fcbc916f5634c8a9d61",
+      "--staged",
+      "--worktree",
+      "--",
+      "engine/codex-rs/project-maintenance/src/lib.rs",
+      "engine/codex-rs/project-maintenance/src/apply.rs",
+      "engine/codex-rs/project-maintenance/src/retirement.rs",
+      "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "engine/codex-rs/project-maintenance/tests/root_retirement.rs",
+      "engine/SOURCE.json",
+      "project-maintenance.json"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+    "args": [
+      "status",
+      "--porcelain",
+      "--untracked-files=all"
+    ],
+    "exitCode": 0,
+    "stdout": " M engine/codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql\n",
+    "stderr": ""
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+    "args": [
+      "restore",
+      "--source",
+      "3dbcd525fa33e40949041fcbc916f5634c8a9d61",
+      "--worktree",
+      "--",
+      "engine/codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs",
+    "args": [
+      "status",
+      "--porcelain",
+      "--untracked-files=all"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+    "args": [
+      "worktree",
+      "remove",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+    "args": [
+      "worktree",
+      "list",
+      "--porcelain"
+    ],
+    "exitCode": 0,
+    "stdout": "worktree C:/Users/felre/Desktop/pi-harness-init\nHEAD b4e5f7503c1c14bf6beb2369289037d4820b721a\nbranch refs/heads/master\n\n",
+    "stderr": ""
+  }
+]

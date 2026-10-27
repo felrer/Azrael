@@ -1,0 +1,177 @@
+﻿[
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-AVgNmk\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.idx",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.idx"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.pack",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.pack"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.rev",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-cIyIRN\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.rev"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-account-check-1e5075cd\\state\\.tmp\\plugins-clone-Dv43BY\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-bin-20260913-0953\\azrael-bridge.exe",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-bin-20260913-0953\\azrael-bridge.exe"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-bin-20260913-0953\\azrael-ex-0.1.0-kindfix.vsix",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-bin-20260913-0953\\azrael-ex-0.1.0-kindfix.vsix"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-bin-20260913-0953\\azrael-ex-0.1.0.vsix",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-bin-20260913-0953\\azrael-ex-0.1.0.vsix"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-bin-20260913-0953\\codex.exe",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-bin-20260913-0953\\codex.exe"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1005\\.tmp\\plugins-clone-MR24a1\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.idx"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.pack"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1010\\.tmp\\plugins-clone-5nPJkx\\.git\\objects\\pack\\pack-e76bb69436c278449dd0b68a88da75032a8a8a1e.rev"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.idx",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.idx"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.pack",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.pack"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.rev",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1020\\.tmp\\plugins-clone-ayLPQ2\\.git\\objects\\pack\\pack-c4200c1d31b2bcd6c53f34b87f1cb62159242ac8.rev"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.idx",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.idx"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.pack",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.pack"
+                  ]
+    },
+    {
+        "Path":  "C:\\Temp\\azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.rev",
+        "Attributes":  "ReadOnly, Archive",
+        "Links":  [
+                      "\\Temp\\azrael-host-fixture-20260913-1030\\.tmp\\plugins-clone-UJ5zLv\\.git\\objects\\pack\\pack-261a69b5d7241eac8754669e003876a7c848250d.rev"
+                  ]
+    }
+]

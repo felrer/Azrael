@@ -1,0 +1,19 @@
+{
+  "commit": "efa6b06a93ae09e03945da7d2023de47d94987b4",
+  "parent": "e0c448a0dfaac4ccce2c1fc38d3aa9c803dad416",
+  "paths": [
+    "docs/architecture/project-maintenance.md",
+    "docs/ops/project-maintenance.md",
+    "engine/codex-rs/project-maintenance/src/apply.rs",
+    "engine/codex-rs/project-maintenance/src/groups.rs",
+    "engine/codex-rs/project-maintenance/src/lib.rs",
+    "engine/codex-rs/project-maintenance/src/nested_retirement.rs",
+    "engine/codex-rs/project-maintenance/src/retirement.rs",
+    "engine/codex-rs/project-maintenance/tests/nested_retirement.rs",
+    "scripts/azrael-feature-contracts.json",
+    "work/DS-01-version-011-cleanup/01-plan.md"
+  ],
+  "unrelatedIndexPreserved": true,
+  "validation": "Windows native120 passed; exact current crate/input reuse verified",
+  "at": "2026-10-25T14:59:14.226Z"
+}

@@ -1,0 +1,24 @@
+﻿{
+    "schema":  1,
+    "root":  "C:/Users/felre/av18",
+    "owner":  "CF-01-window-use-admin-setup",
+    "id":  "run:window-use-u18-isolated",
+    "user_authorized_full_fixture_retirement":  true,
+    "original_lifecycle_state":  "pending",
+    "original_outcome":  "unknown",
+    "original_state_preserved":  true,
+    "verified_at_utc":  "2026-10-25T09:34:12.8282165Z",
+    "historical_fixture_tree_ended":  true,
+    "historical_child_session_absent":  true,
+    "original_tree_terminal_evidence":  "av18-original-tree-terminal.json",
+    "current_owned_process_matches":  0,
+    "process_scope":  "All current CIM executable and command-line identities for av18, fixture Code/helpers and linked u18-u22 runtime images; historical full tree termination receipt preserved",
+    "current_external_registration_absent":  true,
+    "generation_basis":  "owner.json explicitly planned absent isolated fixture artifacts/f; exact host six-stage check-result.json",
+    "references":  [
+
+                   ],
+    "members":  [
+                    "C:/Users/felre/av18/artifacts/f"
+                ]
+}

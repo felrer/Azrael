@@ -1,0 +1,18 @@
+[
+  {
+    "id": "run:DS-01-native-output-cleanup",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4cde7eda29b516f54444a392c8040713a54e4d4f1ba77afa9fbcc5eeaa4dd66b.json"
+  },
+  {
+    "id": "run:DS-01-u22c-final-cli",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\51b4197a0a2691098cdee8e5fa2d52ff12e9d43ce42644378207f2f9b18c42cb.json"
+  }
+]

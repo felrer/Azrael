@@ -1,0 +1,59 @@
+{
+  "results": [
+    {
+      "attempt_id": "attempt-73132-2-1792931953376",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "ds01-azrael-release-0",
+      "lifecycle_group_id": "ds01-retirement:version:u22c",
+      "reason": "User retires old u22c build; original consumer catalog and terminal evidence preserved independently; external and internal cache references released",
+      "remaining": false,
+      "status": "deleted",
+      "token": "436f43cf0151cae72da4cf7ea7df2fccc8a343df3ee462b926e9ce0e83e7ad2f"
+    },
+    {
+      "attempt_id": "attempt-73132-5-1792931971022",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "ds01-azrael-release-1",
+      "lifecycle_group_id": "ds01-retirement:version:u22c",
+      "reason": "User retires old u22c build; original consumer catalog and terminal evidence preserved independently; external and internal cache references released",
+      "remaining": false,
+      "status": "deleted",
+      "token": "75e134ffba570c2a22fb897839a2b0eb28ea5ee4eb9b039281620b51caf88a10"
+    },
+    {
+      "attempt_id": "attempt-73132-8-1792931974857",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "ds01-cargo-target-owner-0",
+      "lifecycle_group_id": "ds01-retirement:shared:cargo-pending:324ecfeca9ddf1b76193212ad5d944a28d18caa4767bd7e615f126e7e6e36ec0",
+      "reason": "User retires old u22c build; original consumer catalog and terminal evidence preserved independently; external and internal cache references released",
+      "remaining": false,
+      "status": "deleted",
+      "token": "2fb925bbdcbcceb1959a7b431e1edacfee7581dc6a87dceeae1e02c580684731"
+    }
+  ],
+  "aborted": false
+}

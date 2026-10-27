@@ -1,0 +1,2496 @@
+{
+  "at": "2026-10-25T23:27:43.898Z",
+  "scope": "Windows local metadata investigation; configured root and immediate project roots under artifacts/build/workspaces/artifacts; no deletion or payload hashing",
+  "rootsInspected": 31,
+  "results": [
+    {
+      "project": ".",
+      "releases": [
+        {
+          "path": "artifacts\\releases\\all_changes_20261007_r6",
+          "name": "all_changes_20261007_r6",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": null
+        }
+      ],
+      "deployments": [],
+      "sourceClaims": []
+    },
+    {
+      "project": "artifacts\\iy17b",
+      "releases": [
+        {
+          "path": "artifacts\\iy17b\\artifacts\\releases\\iy17b",
+          "name": "iy17b",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:iy17b",
+            "state": "complete",
+            "revision": 3,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\iy17b\\artifacts\\releases\\iy17b",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\iy17b\\artifacts\\logs\\iy17b",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\iy17b\\artifacts\\vsix\\iy17b",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\iy17b\\artifacts\\deployments\\deploy-iy17b",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\iy17b\\artifacts\\logs\\deploy-iy17b",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\iy17b\\artifacts\\logs\\verification-evidence\\deploy-iy17b",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\iy17b\\artifacts\\logs\\verification-evidence\\account-controls-iy17b",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\iy17b\\artifacts\\deployments\\deploy-iy17b",
+          "packageStages": [
+            "feature-preservation"
+          ]
+        },
+        {
+          "path": "artifacts\\iy17b\\artifacts\\deployments\\independent-20261017-100822-518",
+          "packageStages": []
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "work:instruction-yazl-frozen-b",
+          "state": "complete",
+          "revision": 2,
+          "producer": null,
+          "references": [],
+          "inbound": [
+            "version:instruction-external-iy17a"
+          ]
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\n10a",
+      "releases": [
+        {
+          "path": "artifacts\\n10a\\artifacts\\releases\\w10e",
+          "name": "w10e",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:w10e",
+            "state": "complete",
+            "revision": 4,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\n10a\\artifacts\\releases\\w10e",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\n10a\\artifacts\\logs\\w10e",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\n10a\\artifacts\\vsix\\w10e",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\n10a\\artifacts\\deployments\\deploy-w10e",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\n10a\\artifacts\\logs\\deploy-w10e",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\n10a\\artifacts\\logs\\verification-evidence\\deploy-w10e",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\n10a\\artifacts\\logs\\verification-evidence\\account-controls-w10e",
+                "role": "account-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\n10a\\artifacts\\deployments\\independent-20261017-202650-043",
+                "role": "installation-evidence",
+                "present": true
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\n10a\\artifacts\\deployments\\deploy-w10e",
+          "packageStages": [
+            "feature-preservation",
+            "stage-21c17069c4684c0ebcf774d75d905c58"
+          ]
+        },
+        {
+          "path": "artifacts\\n10a\\artifacts\\deployments\\independent-20261017-202650-043",
+          "packageStages": []
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "version:w10a",
+          "state": "complete",
+          "revision": 3,
+          "producer": null,
+          "references": [
+            {
+              "id": "work:BS-01-windows-build-install-10",
+              "reason": "Active requested Windows release build and installation",
+              "reference_id": "8dd96563d58148a82e579f49d11b69e1b8ede511c0d9f8a87a91cd57a632b701"
+            }
+          ],
+          "inbound": []
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\b13",
+      "releases": [
+        {
+          "path": "artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+          "name": "w11aa",
+          "hostVersions": [
+            "2026.0.11"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\deployment-metrics.json",
+            "status": "failed",
+            "error": "prepare failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\prepare.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa\\prepare.stdout.log.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "cargo-preparation-plan",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "changed-test-type-preparation",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": -1,
+                "terminated": true
+              },
+              {
+                "name": "prepare",
+                "exitCode": 1,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w11aa",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:4838f690eb5104a0e6108cec5a86af99e0992c8bf06b45653f9fd98cfbba0a67",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "fd80f58d98468975450e29b324cdfd0bd655c2fa23139c79bbb2996ec4d2baad"
+              }
+            ],
+            "inbound": [
+              "work:deployment-temporary:aef34d63ea4d0c7bcf2b397e3c656bba01245d170783d17cf30daaf8cd186808"
+            ],
+            "members": [
+              {
+                "path": "artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\b13\\artifacts\\logs\\w11aa",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\b13\\artifacts\\vsix\\w11aa",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\b13\\artifacts\\deployments\\deploy-w11aa",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\b13\\artifacts\\logs\\deploy-w11aa",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\b13\\artifacts\\logs\\verification-evidence\\deploy-w11aa",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\b13\\artifacts\\logs\\verification-evidence\\account-controls-w11aa",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\b13\\artifacts\\deployments\\deploy-w11aa",
+          "packageStages": [
+            "feature-preservation",
+            "stage-c5ad043ef02f4aac89fe0cc839659d07"
+          ]
+        },
+        {
+          "path": "artifacts\\build\\b13\\artifacts\\deployments\\independent-20261022-174425-091",
+          "packageStages": []
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "run:build-inputs:b13",
+          "state": "pending",
+          "revision": 1,
+          "producer": null,
+          "references": [],
+          "inbound": [
+            "work:b13-extension-dependencies-r2",
+            "run:DM-01-boundary-reform:impl-r1",
+            "work:b13-bun-tool-r3",
+            "work:b13-provider-dependencies-r3",
+            "run:CR-01:bridge-improvement-r1",
+            "work:b13-ui-test-dependencies-r4"
+          ]
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\u18a-r2",
+      "releases": [
+        {
+          "path": "artifacts\\build\\u18a-r2\\artifacts\\releases\\u18b",
+          "name": "u18b",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:u18b",
+            "state": "failed",
+            "revision": 3,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\releases\\u18b",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\u18b",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\vsix\\u18b",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\deployments\\deploy-u18b",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\deploy-u18b",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\verification-evidence\\deploy-u18b",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\verification-evidence\\account-controls-u18b",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        },
+        {
+          "path": "artifacts\\build\\u18a-r2\\artifacts\\releases\\u18c",
+          "name": "u18c",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:u18c",
+            "state": "complete",
+            "revision": 3,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\releases\\u18c",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\u18c",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\vsix\\u18c",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\deployments\\deploy-u18c",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\deploy-u18c",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\verification-evidence\\deploy-u18c",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u18a-r2\\artifacts\\logs\\verification-evidence\\account-controls-u18c",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\u18a-r2\\artifacts\\deployments\\manual-u18c",
+          "packageStages": [
+            "feature-preservation",
+            "stage-35c88890d7824cde96ff4caf138fca79"
+          ]
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "work:DM-01:preserved-nonlog-input-custody:20261024",
+          "state": "retained",
+          "revision": 1,
+          "producer": null,
+          "references": [],
+          "inbound": [
+            "run:DM-01-boundary-reform:impl-r1"
+          ]
+        },
+        {
+          "id": "work:BI-01-legacy-custody:20261019",
+          "state": "retained",
+          "revision": 9,
+          "producer": null,
+          "references": [],
+          "inbound": []
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\u19c",
+      "releases": [
+        {
+          "path": "artifacts\\build\\u19c\\artifacts\\releases\\u19c",
+          "name": "u19c",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:u19c",
+            "state": "complete",
+            "revision": 3,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\u19c\\artifacts\\releases\\u19c",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u19c\\artifacts\\logs\\u19c",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u19c\\artifacts\\vsix\\u19c",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u19c\\artifacts\\deployments\\deploy-u19c",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u19c\\artifacts\\logs\\deploy-u19c",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u19c\\artifacts\\logs\\verification-evidence\\deploy-u19c",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u19c\\artifacts\\logs\\verification-evidence\\account-controls-u19c",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\u19c\\artifacts\\deployments\\independent-20261018-110751-756",
+          "packageStages": []
+        },
+        {
+          "path": "artifacts\\build\\u19c\\artifacts\\deployments\\independent-20261018-110958-462",
+          "packageStages": []
+        },
+        {
+          "path": "artifacts\\build\\u19c\\artifacts\\deployments\\manual-u19c",
+          "packageStages": [
+            "feature-preservation",
+            "stage-08bfe8aa5ad941649620139a0d4eb4a1"
+          ]
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "work:DM-01:preserved-nonlog-input-custody:20261024",
+          "state": "retained",
+          "revision": 1,
+          "producer": null,
+          "references": [],
+          "inbound": [
+            "run:DM-01-boundary-reform:impl-r1"
+          ]
+        },
+        {
+          "id": "work:BI-01-legacy-custody:20261019",
+          "state": "retained",
+          "revision": 9,
+          "producer": null,
+          "references": [],
+          "inbound": []
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\u20a",
+      "releases": [
+        {
+          "path": "artifacts\\build\\u20a\\artifacts\\releases\\u20a",
+          "name": "u20a",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:u20a",
+            "state": "complete",
+            "revision": 3,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\u20a\\artifacts\\releases\\u20a",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u20a\\artifacts\\logs\\u20a",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u20a\\artifacts\\vsix\\u20a",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20a\\artifacts\\deployments\\deploy-u20a",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20a\\artifacts\\logs\\deploy-u20a",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20a\\artifacts\\logs\\verification-evidence\\deploy-u20a",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20a\\artifacts\\logs\\verification-evidence\\account-controls-u20a",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\u20a\\artifacts\\deployments\\manual-u20a",
+          "packageStages": [
+            "feature-preservation",
+            "stage-db86b4216f1540ad86543a92024f5d00"
+          ]
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "work:DM-01:preserved-nonlog-input-custody:20261024",
+          "state": "retained",
+          "revision": 1,
+          "producer": null,
+          "references": [],
+          "inbound": [
+            "run:DM-01-boundary-reform:impl-r1"
+          ]
+        },
+        {
+          "id": "work:BI-01-legacy-custody:20261019",
+          "state": "retained",
+          "revision": 9,
+          "producer": null,
+          "references": [],
+          "inbound": []
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\u20b",
+      "releases": [
+        {
+          "path": "artifacts\\build\\u20b\\artifacts\\releases\\u20b",
+          "name": "u20b",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:u20b",
+            "state": "complete",
+            "revision": 3,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\u20b\\artifacts\\releases\\u20b",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u20b\\artifacts\\logs\\u20b",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u20b\\artifacts\\vsix\\u20b",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20b\\artifacts\\deployments\\deploy-u20b",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20b\\artifacts\\logs\\deploy-u20b",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20b\\artifacts\\logs\\verification-evidence\\deploy-u20b",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u20b\\artifacts\\logs\\verification-evidence\\account-controls-u20b",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\u20b\\artifacts\\deployments\\manual-u20b",
+          "packageStages": [
+            "feature-preservation",
+            "stage-884ec47303d54b2fa176d2c55cdebb92"
+          ]
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "work:DM-01:preserved-nonlog-input-custody:20261024",
+          "state": "retained",
+          "revision": 1,
+          "producer": null,
+          "references": [],
+          "inbound": [
+            "run:DM-01-boundary-reform:impl-r1"
+          ]
+        },
+        {
+          "id": "work:BI-01-legacy-custody:20261019",
+          "state": "retained",
+          "revision": 9,
+          "producer": null,
+          "references": [],
+          "inbound": []
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\u21a",
+      "releases": [
+        {
+          "path": "artifacts\\build\\u21a\\artifacts\\releases\\u21a",
+          "name": "u21a",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:u21a",
+            "state": "pending",
+            "revision": 3,
+            "references": [
+              {
+                "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+                "reason": "companion-tool",
+                "reference_id": "5aac4ae7ad916146c8cbd855d3d943680a5ddf74225a880e47e80d0c9821bd82"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\u21a\\artifacts\\releases\\u21a",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u21a\\artifacts\\logs\\u21a",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\u21a\\artifacts\\vsix\\u21a",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u21a\\artifacts\\deployments\\deploy-u21a",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u21a\\artifacts\\logs\\deploy-u21a",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u21a\\artifacts\\logs\\verification-evidence\\deploy-u21a",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\u21a\\artifacts\\logs\\verification-evidence\\account-controls-u21a",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\u21a\\artifacts\\deployments\\independent-20261018-182544-880",
+          "packageStages": []
+        },
+        {
+          "path": "artifacts\\build\\u21a\\artifacts\\deployments\\manual-u21a",
+          "packageStages": [
+            "feature-preservation",
+            "stage-350fd0e3154d46c29166a939e3e18f6f"
+          ]
+        }
+      ],
+      "sourceClaims": []
+    },
+    {
+      "project": "artifacts\\build\\v11a",
+      "releases": [
+        {
+          "path": "artifacts\\build\\v11a\\artifacts\\releases\\w11g",
+          "name": "w11g",
+          "hostVersions": [
+            "2026.0.11"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\build\\v11a\\artifacts\\logs\\deploy-w11g\\deployment-metrics.json",
+            "status": "failed",
+            "error": "source-tests failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\logs\\deploy-w11g\\source-tests.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11a\\artifacts\\logs\\deploy-w11g\\source-tests.stdout.log.",
+            "stages": [
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": -1,
+                "terminated": true
+              },
+              {
+                "name": "prepare",
+                "exitCode": -1,
+                "terminated": true
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w11g",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:e39e5d7e898d712830b3358441630653ec439045043fc07f8c4a6c831c2b784e",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "745f704d6ef0113bebba54601458be0c67b8d05a387b33ff69fc841850ccb211"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\v11a\\artifacts\\releases\\w11g",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11a\\artifacts\\logs\\w11g",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11a\\artifacts\\vsix\\w11g",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11a\\artifacts\\deployments\\deploy-w11g",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11a\\artifacts\\logs\\deploy-w11g",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11a\\artifacts\\logs\\verification-evidence\\deploy-w11g",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11a\\artifacts\\logs\\verification-evidence\\account-controls-w11g",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [],
+      "sourceClaims": [
+        {
+          "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r1",
+          "state": "failed",
+          "revision": 2,
+          "producer": {
+            "status": "stopped",
+            "outcome": "failure",
+            "exit_code": 1,
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r3\\reports\\release-2026-0-11-r1-producer-terminal.json",
+            "evidence_sha256": "0349005296670dd654ab056357290abdeedc98f8ff159f7e9a54ed288ef16a9b",
+            "reason": "Observed terminal failed wrapper; all invocation-owned commands ended. Preserve failed/terminated diagnostics; remove only execution protection and references."
+          },
+          "references": [],
+          "inbound": [
+            "run:CR-01-build-legacy-cleanup:release-2026-0-11-r8",
+            "run:CR-01-build-legacy-cleanup:release-2026-0-11-r10",
+            "run:CR-01-build-legacy-cleanup:release-2026-0-11-r9"
+          ]
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\v11c",
+      "releases": [
+        {
+          "path": "artifacts\\build\\v11c\\artifacts\\releases\\w11i",
+          "name": "w11i",
+          "hostVersions": [
+            "2026.0.11"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\build\\v11c\\artifacts\\logs\\deploy-w11i\\deployment-metrics.json",
+            "status": "failed",
+            "error": "source-tests failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\logs\\deploy-w11i\\source-tests.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11c\\artifacts\\logs\\deploy-w11i\\source-tests.stdout.log.",
+            "stages": [
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": -1,
+                "terminated": true
+              },
+              {
+                "name": "prepare",
+                "exitCode": -1,
+                "terminated": true
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w11i",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:e39e5d7e898d712830b3358441630653ec439045043fc07f8c4a6c831c2b784e",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "745f704d6ef0113bebba54601458be0c67b8d05a387b33ff69fc841850ccb211"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\v11c\\artifacts\\releases\\w11i",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11c\\artifacts\\logs\\w11i",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11c\\artifacts\\vsix\\w11i",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11c\\artifacts\\deployments\\deploy-w11i",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11c\\artifacts\\logs\\deploy-w11i",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11c\\artifacts\\logs\\verification-evidence\\deploy-w11i",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11c\\artifacts\\logs\\verification-evidence\\account-controls-w11i",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\v11c\\artifacts\\deployments\\deploy-w11i",
+          "packageStages": [
+            "feature-preservation",
+            "stage-8bfa0169adbd468f8af5195d7ee1e086"
+          ]
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r3",
+          "state": "failed",
+          "revision": 4,
+          "producer": {
+            "status": "stopped",
+            "outcome": "failure",
+            "exit_code": 1,
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r5\\reports\\release-2026-0-11-r3-producer-terminal.json",
+            "evidence_sha256": "2a96c5ae7e3c09a0a9d9aa87da2134d202a55dd9de3f448e78b2cfd57ec28dd8",
+            "reason": "Wrapper terminal and owned CLI finally verified; release only completed execution protection"
+          },
+          "references": [],
+          "inbound": []
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\v11e",
+      "releases": [
+        {
+          "path": "artifacts\\build\\v11e\\artifacts\\releases\\w11m",
+          "name": "w11m",
+          "hostVersions": [
+            "2026.0.11"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\build\\v11e\\artifacts\\logs\\deploy-w11m\\deployment-metrics.json",
+            "status": "failed",
+            "error": "Independent stage barrier failed: engine-preservation=1; stdout=C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\logs\\deploy-w11m\\engine-preservation.stdout.log; stderr=C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11e\\artifacts\\logs\\deploy-w11m\\engine-preservation.stderr.log",
+            "stages": [
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w11m",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:e39e5d7e898d712830b3358441630653ec439045043fc07f8c4a6c831c2b784e",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "745f704d6ef0113bebba54601458be0c67b8d05a387b33ff69fc841850ccb211"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\v11e\\artifacts\\releases\\w11m",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11e\\artifacts\\logs\\w11m",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11e\\artifacts\\vsix\\w11m",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11e\\artifacts\\deployments\\deploy-w11m",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11e\\artifacts\\logs\\deploy-w11m",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11e\\artifacts\\logs\\verification-evidence\\deploy-w11m",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11e\\artifacts\\logs\\verification-evidence\\account-controls-w11m",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\v11e\\artifacts\\deployments\\deploy-w11m",
+          "packageStages": [
+            "feature-preservation",
+            "stage-732ab8a638324c25973c45dc740b77aa"
+          ]
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r8",
+          "state": "pending",
+          "revision": 4,
+          "producer": null,
+          "references": [
+            {
+              "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r1",
+              "kind": "execution",
+              "reason": "Lease repair and verified continuation uses immutable source, prior build receipts and terminal evidence",
+              "reference_id": "03eb9a339537d1581fed6924a30c1a6b95e1a8d709f9dab47e942547982d4756"
+            },
+            {
+              "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r6",
+              "kind": "execution",
+              "reason": "Lease repair and verified continuation uses immutable source, prior build receipts and terminal evidence",
+              "reference_id": "77b600145ae72dbc21fe48b4b32ff73bbd30759193c49a8eea3d88dfced3cae4"
+            },
+            {
+              "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r7",
+              "kind": "execution",
+              "reason": "Lease repair and verified continuation uses immutable source, prior build receipts and terminal evidence",
+              "reference_id": "4f97ad77197428c1d83441fb32e2f471d3ecd1076a6dbe749d210dac4fe04a43"
+            },
+            {
+              "id": "work:CR-01-build-legacy-cleanup:build-tool-caches",
+              "kind": "execution",
+              "reason": "Workspace fixture and tool cache consumer",
+              "reference_id": "3450d5bb150d336f7d89a5264eb7e450a50d9cacb9ae00e583369dc110883ee3"
+            },
+            {
+              "id": "work:CR-01-build-legacy-cleanup:workspace-cargo-cache",
+              "kind": "execution",
+              "reason": "Focused native verification consumer",
+              "reference_id": "ff65a9ff39c9a5eeb4611df40ca624f40e13a65736dfe3ac3dc2e29087481182"
+            }
+          ],
+          "inbound": [
+            "run:CR-01-build-legacy-cleanup:release-2026-0-11-r10",
+            "run:CR-01-build-legacy-cleanup:release-2026-0-11-r9"
+          ]
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\build\\v11k",
+      "releases": [
+        {
+          "path": "artifacts\\build\\v11k\\artifacts\\releases\\w11v",
+          "name": "w11v",
+          "hostVersions": [
+            "2026.0.11"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11v\\deployment-metrics.json",
+            "status": "failed",
+            "error": "engine-preservation failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11v\\engine-preservation.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11v\\engine-preservation.stdout.log.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "cargo-preparation-plan",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "changed-test-type-preparation",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w11v",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:e39e5d7e898d712830b3358441630653ec439045043fc07f8c4a6c831c2b784e",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "745f704d6ef0113bebba54601458be0c67b8d05a387b33ff69fc841850ccb211"
+              }
+            ],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\releases\\w11v",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\w11v",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\vsix\\w11v",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11v",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11v",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\deploy-w11v",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\account-controls-w11v",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        },
+        {
+          "path": "artifacts\\build\\v11k\\artifacts\\releases\\w11w",
+          "name": "w11w",
+          "hostVersions": [
+            "2026.0.11"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11w\\deployment-metrics.json",
+            "status": "failed",
+            "error": "Package feature preservation verification failed. See package-preservation.log.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "cargo-preparation-plan",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "changed-test-type-preparation",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "account-controls",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w11w",
+            "state": "failed",
+            "revision": 14,
+            "references": [
+              {
+                "id": "run:module-cache:companion:e39e5d7e898d712830b3358441630653ec439045043fc07f8c4a6c831c2b784e",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "745f704d6ef0113bebba54601458be0c67b8d05a387b33ff69fc841850ccb211"
+              }
+            ],
+            "inbound": [
+              "work:pending-install:w11w"
+            ],
+            "members": [
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\releases\\w11w",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\w11w",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\vsix\\w11w",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11w",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\deploy-w11w",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\deploy-w11w",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\build\\v11k\\artifacts\\logs\\verification-evidence\\account-controls-w11w",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11v",
+          "packageStages": [
+            "feature-preservation",
+            "stage-1501562f02b6481384a7375a5f0ed7d5"
+          ]
+        },
+        {
+          "path": "artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11w",
+          "packageStages": [
+            "feature-preservation",
+            "stage-d56393d91c574d2bb4130e0ffa5aa4be"
+          ]
+        }
+      ],
+      "sourceClaims": [
+        {
+          "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r16",
+          "state": "failed",
+          "revision": 12,
+          "producer": {
+            "status": "stopped",
+            "outcome": "failure",
+            "exit_code": 1,
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\release-2026-0-11-r19\\reports\\stopped-blocked-handoff.json",
+            "evidence_sha256": "8dba4b5f1e338e82d548fbd4b92eead1601b7be90660ea3090fcd4ed19a008ab",
+            "reason": "Actual host verification failure and independently stopped producers; retain current inputs for pending installation"
+          },
+          "references": [],
+          "inbound": [
+            "run:CR-01-build-legacy-cleanup:r19-install-final"
+          ]
+        }
+      ]
+    },
+    {
+      "project": "artifacts\\workspaces\\b",
+      "releases": [
+        {
+          "path": "artifacts\\workspaces\\b\\artifacts\\releases\\w13i-99afefb1",
+          "name": "w13i-99afefb1",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13i-99afefb1\\deployment-metrics.json",
+            "status": "failed",
+            "error": "build failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13i-99afefb1\\build.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13i-99afefb1\\build.stdout.log.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": -1,
+                "terminated": true
+              },
+              {
+                "name": "build",
+                "exitCode": 1,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w13i-99afefb1",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:b9209bf5abb2111967914a2a052273ea34e3d9ab82bbbfecc618a4107563078c",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "6e0e57dbec5f60e474ebcadd808e145f20946a5f412d406012b4f2239c9bb6f3"
+              }
+            ],
+            "inbound": [
+              "work:deployment-temporary:e33a1e07e8c7d430f89f3f5fb97226298ec405583466dda39c3e1e5cd0a03ffc"
+            ],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\releases\\w13i-99afefb1",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\w13i-99afefb1",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\vsix\\w13i-99afefb1",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\deployments\\deploy-w13i-99afefb1",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13i-99afefb1",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\verification-evidence\\deploy-w13i-99afefb1",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\verification-evidence\\account-controls-w13i-99afefb1",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        },
+        {
+          "path": "artifacts\\workspaces\\b\\artifacts\\releases\\w13j-99afefb1",
+          "name": "w13j-99afefb1",
+          "hostVersions": [
+            "2026.0.12"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13j-99afefb1\\deployment-metrics.json",
+            "status": "failed",
+            "error": "engine-preservation failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13j-99afefb1\\engine-preservation.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13j-99afefb1\\engine-preservation.stdout.log.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w13j-99afefb1",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:b9209bf5abb2111967914a2a052273ea34e3d9ab82bbbfecc618a4107563078c",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "6e0e57dbec5f60e474ebcadd808e145f20946a5f412d406012b4f2239c9bb6f3"
+              }
+            ],
+            "inbound": [
+              "work:deployment-temporary:e33a1e07e8c7d430f89f3f5fb97226298ec405583466dda39c3e1e5cd0a03ffc"
+            ],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\releases\\w13j-99afefb1",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\w13j-99afefb1",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\vsix\\w13j-99afefb1",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\deployments\\deploy-w13j-99afefb1",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\deploy-w13j-99afefb1",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\verification-evidence\\deploy-w13j-99afefb1",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\b\\artifacts\\logs\\verification-evidence\\account-controls-w13j-99afefb1",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\workspaces\\b\\artifacts\\deployments\\deploy-w13j-99afefb1",
+          "packageStages": [
+            "feature-preservation",
+            "stage-6000fc1bf79740a797829c04b559378d"
+          ]
+        }
+      ],
+      "sourceClaims": []
+    },
+    {
+      "project": "artifacts\\workspaces\\c",
+      "releases": [
+        {
+          "path": "artifacts\\workspaces\\c\\artifacts\\releases\\w13l-99afefb1",
+          "name": "w13l-99afefb1",
+          "hostVersions": [
+            "2026.0.12"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\c\\artifacts\\logs\\deploy-w13l-99afefb1\\deployment-metrics.json",
+            "status": "failed",
+            "error": "engine-preservation failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\c\\artifacts\\logs\\deploy-w13l-99afefb1\\engine-preservation.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\c\\artifacts\\logs\\deploy-w13l-99afefb1\\engine-preservation.stdout.log.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w13l-99afefb1",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:b9209bf5abb2111967914a2a052273ea34e3d9ab82bbbfecc618a4107563078c",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "6e0e57dbec5f60e474ebcadd808e145f20946a5f412d406012b4f2239c9bb6f3"
+              }
+            ],
+            "inbound": [
+              "run:continuation-w13l-r15:host",
+              "run:continuation-w13l-r18:host",
+              "run:continuation-w13l-r18:account",
+              "work:deployment-temporary:82896259cfa00dce7d5ae956339f7195b35d353cb94c99eba343413b0f3d3d4c",
+              "run:continuation-w13l-r19:host",
+              "run:continuation-w13l-r16:host",
+              "run:continuation-w13l-r17:host",
+              "run:continuation-w13l-r15:account",
+              "run:continuation-w13l-r17:account",
+              "run:continuation-w13l-r16:account"
+            ],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\c\\artifacts\\releases\\w13l-99afefb1",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\c\\artifacts\\logs\\w13l-99afefb1",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\c\\artifacts\\vsix\\w13l-99afefb1",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\c\\artifacts\\deployments\\deploy-w13l-99afefb1",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\c\\artifacts\\logs\\deploy-w13l-99afefb1",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\c\\artifacts\\logs\\verification-evidence\\deploy-w13l-99afefb1",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\c\\artifacts\\logs\\verification-evidence\\account-controls-w13l-99afefb1",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\workspaces\\c\\artifacts\\deployments\\deploy-w13l-99afefb1",
+          "packageStages": [
+            "feature-preservation",
+            "stage-0408e7bbe51d4065b5cd472b68e12cf5"
+          ]
+        }
+      ],
+      "sourceClaims": []
+    },
+    {
+      "project": "artifacts\\workspaces\\f",
+      "releases": [
+        {
+          "path": "artifacts\\workspaces\\f\\artifacts\\releases\\w13p-99afefb1",
+          "name": "w13p-99afefb1",
+          "hostVersions": [
+            "2026.0.12"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\f\\artifacts\\logs\\deploy-w13p-99afefb1\\deployment-metrics.json",
+            "status": "failed",
+            "error": "engine-preservation failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\f\\artifacts\\logs\\deploy-w13p-99afefb1\\engine-preservation.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\f\\artifacts\\logs\\deploy-w13p-99afefb1\\engine-preservation.stdout.log.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w13p-99afefb1",
+            "state": "failed",
+            "revision": 5,
+            "references": [
+              {
+                "id": "run:module-cache:companion:b9209bf5abb2111967914a2a052273ea34e3d9ab82bbbfecc618a4107563078c",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "6e0e57dbec5f60e474ebcadd808e145f20946a5f412d406012b4f2239c9bb6f3"
+              }
+            ],
+            "inbound": [
+              "work:deployment-temporary:673990d06eba104913a187f9db56c040ee792580fd25ba31ce99d910254e1f21"
+            ],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\f\\artifacts\\releases\\w13p-99afefb1",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\f\\artifacts\\logs\\w13p-99afefb1",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\f\\artifacts\\vsix\\w13p-99afefb1",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\f\\artifacts\\deployments\\deploy-w13p-99afefb1",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\f\\artifacts\\logs\\deploy-w13p-99afefb1",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\f\\artifacts\\logs\\verification-evidence\\deploy-w13p-99afefb1",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\f\\artifacts\\logs\\verification-evidence\\account-controls-w13p-99afefb1",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\workspaces\\f\\artifacts\\deployments\\deploy-w13p-99afefb1",
+          "packageStages": [
+            "feature-preservation",
+            "stage-6be8905f8ccd438f945e73b98d71b216"
+          ]
+        }
+      ],
+      "sourceClaims": []
+    },
+    {
+      "project": "artifacts\\workspaces\\h",
+      "releases": [
+        {
+          "path": "artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1",
+          "name": "w13r-99afefb1",
+          "hostVersions": [
+            "2026.0.12"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\h\\artifacts\\logs\\deploy-w13r-99afefb1\\deployment-metrics.json",
+            "status": "failed",
+            "error": "Account controls socket path exceeds the Windows AF_UNIX limit.",
+            "stages": [
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:w13r-99afefb1",
+            "state": "failed",
+            "revision": 6,
+            "references": [
+              {
+                "id": "run:module-cache:companion:b9209bf5abb2111967914a2a052273ea34e3d9ab82bbbfecc618a4107563078c",
+                "reason": "companion-tool",
+                "kind": "dependency",
+                "reference_id": "6e0e57dbec5f60e474ebcadd808e145f20946a5f412d406012b4f2239c9bb6f3"
+              }
+            ],
+            "inbound": [
+              "run:DM-01-boundary-reform:host-acceptance-t",
+              "run:DM-01-boundary-reform:account-controls-s",
+              "work:deployment-temporary:7ff2e847c372d99e4ea1ebbb63e045b1516a6604157089f2a1d04c1dd84c6fba",
+              "run:DM-01-boundary-reform:host-acceptance-s"
+            ],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\logs\\w13r-99afefb1",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\vsix\\w13r-99afefb1",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\deployments\\deploy-w13r-99afefb1",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\logs\\deploy-w13r-99afefb1",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\logs\\verification-evidence\\deploy-w13r-99afefb1",
+                "role": "verification-evidence",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\logs\\verification-evidence\\account-controls-w13r-99afefb1",
+                "role": "account-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\h\\artifacts\\deployments\\independent-20261025-043854-752",
+                "role": "installation",
+                "present": true
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\workspaces\\h\\artifacts\\deployments\\deploy-w13r-99afefb1",
+          "packageStages": [
+            "feature-preservation",
+            "stage-25ed9bcd7763426cb9daea96bead412e"
+          ]
+        },
+        {
+          "path": "artifacts\\workspaces\\h\\artifacts\\deployments\\independent-20261025-043854-752",
+          "packageStages": []
+        }
+      ],
+      "sourceClaims": []
+    },
+    {
+      "project": "artifacts\\workspaces\\k",
+      "releases": [
+        {
+          "path": "artifacts\\workspaces\\k\\artifacts\\releases\\win251026-407c7d43-r11",
+          "name": "win251026-407c7d43-r11",
+          "hostVersions": [
+            "2026.0.13"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\k\\artifacts\\logs\\deploy-win251026-407c7d43-r11\\deployment-metrics.json",
+            "status": "failed",
+            "error": "source-tests failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\k\\artifacts\\logs\\deploy-win251026-407c7d43-r11\\source-tests.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\k\\artifacts\\logs\\deploy-win251026-407c7d43-r11\\source-tests.stdout.log.",
+            "stages": [
+              {
+                "name": "source-fixtures",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 1,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": -1,
+                "terminated": true
+              },
+              {
+                "name": "prepare",
+                "exitCode": -1,
+                "terminated": true
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:win251026-407c7d43-r11",
+            "state": "failed",
+            "revision": 8,
+            "references": [],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\releases\\win251026-407c7d43-r11",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\win251026-407c7d43-r11",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\vsix\\win251026-407c7d43-r11",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\deployments\\deploy-win251026-407c7d43-r11",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\deploy-win251026-407c7d43-r11",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\verification-evidence\\deploy-win251026-407c7d43-r11",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\verification-evidence\\account-controls-win251026-407c7d43-r11",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        },
+        {
+          "path": "artifacts\\workspaces\\k\\artifacts\\releases\\win251026-407c7d43-r9",
+          "name": "win251026-407c7d43-r9",
+          "hostVersions": [],
+          "packageVersion": "0.4.0",
+          "metrics": null,
+          "lifecycle": {
+            "id": "version:win251026-407c7d43-r9",
+            "state": "failed",
+            "revision": 5,
+            "references": [],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\releases\\win251026-407c7d43-r9",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\win251026-407c7d43-r9",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\vsix\\win251026-407c7d43-r9",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\deployments\\deploy-win251026-407c7d43-r9",
+                "role": "deployment",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\deploy-win251026-407c7d43-r9",
+                "role": "deploy-logs",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\verification-evidence\\deploy-win251026-407c7d43-r9",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\k\\artifacts\\logs\\verification-evidence\\account-controls-win251026-407c7d43-r9",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\workspaces\\k\\artifacts\\deployments\\deploy-win251026-407c7d43-r11",
+          "packageStages": [
+            "feature-preservation",
+            "stage-0706c999ace64e459f9ecb0cf5e00669"
+          ]
+        }
+      ],
+      "sourceClaims": []
+    },
+    {
+      "project": "artifacts\\workspaces\\l",
+      "releases": [
+        {
+          "path": "artifacts\\workspaces\\l\\artifacts\\releases\\win251026-407c7d43-r12",
+          "name": "win251026-407c7d43-r12",
+          "hostVersions": [
+            "2026.0.13"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\l\\artifacts\\logs\\deploy-win251026-407c7d43-r12\\deployment-metrics.json",
+            "status": "failed",
+            "error": "prepare failed with exit code 1. See C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\l\\artifacts\\logs\\deploy-win251026-407c7d43-r12\\prepare.stderr.log and C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\l\\artifacts\\logs\\deploy-win251026-407c7d43-r12\\prepare.stdout.log.",
+            "stages": [
+              {
+                "name": "source-fixtures",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": -1,
+                "terminated": true
+              },
+              {
+                "name": "prepare",
+                "exitCode": 1,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:win251026-407c7d43-r12",
+            "state": "failed",
+            "revision": 5,
+            "references": [],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\releases\\win251026-407c7d43-r12",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\win251026-407c7d43-r12",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\vsix\\win251026-407c7d43-r12",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\deployments\\deploy-win251026-407c7d43-r12",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\deploy-win251026-407c7d43-r12",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\verification-evidence\\deploy-win251026-407c7d43-r12",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\verification-evidence\\account-controls-win251026-407c7d43-r12",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        },
+        {
+          "path": "artifacts\\workspaces\\l\\artifacts\\releases\\win251026-407c7d43-r14",
+          "name": "win251026-407c7d43-r14",
+          "hostVersions": [
+            "2026.0.13"
+          ],
+          "packageVersion": "0.4.0",
+          "metrics": {
+            "path": "artifacts\\workspaces\\l\\artifacts\\logs\\deploy-win251026-407c7d43-r14\\deployment-metrics.json",
+            "status": "running",
+            "stages": [
+              {
+                "name": "source-fixtures",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "environment-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "verification-dependencies",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-source-preflight",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "source-tests",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "build",
+                "exitCode": 0,
+                "terminated": false
+              },
+              {
+                "name": "engine-preservation",
+                "exitCode": null,
+                "terminated": false
+              },
+              {
+                "name": "prepare",
+                "exitCode": 0,
+                "terminated": false
+              }
+            ]
+          },
+          "lifecycle": {
+            "id": "version:win251026-407c7d43-r14",
+            "state": "pending",
+            "revision": 3,
+            "references": [],
+            "inbound": [],
+            "members": [
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\releases\\win251026-407c7d43-r14",
+                "role": "release",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\win251026-407c7d43-r14",
+                "role": "build-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\vsix\\win251026-407c7d43-r14",
+                "role": "vsix",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\deployments\\deploy-win251026-407c7d43-r14",
+                "role": "deployment",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\deploy-win251026-407c7d43-r14",
+                "role": "deploy-logs",
+                "present": true
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\verification-evidence\\deploy-win251026-407c7d43-r14",
+                "role": "verification-evidence",
+                "present": false
+              },
+              {
+                "path": "artifacts\\workspaces\\l\\artifacts\\logs\\verification-evidence\\account-controls-win251026-407c7d43-r14",
+                "role": "account-evidence",
+                "present": false
+              }
+            ]
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "path": "artifacts\\workspaces\\l\\artifacts\\deployments\\deploy-win251026-407c7d43-r12",
+          "packageStages": []
+        },
+        {
+          "path": "artifacts\\workspaces\\l\\artifacts\\deployments\\deploy-win251026-407c7d43-r14",
+          "packageStages": [
+            "feature-preservation",
+            "stage-6f56effed4fa42ab8e50fa0ba09b3768"
+          ]
+        }
+      ],
+      "sourceClaims": []
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,431 @@
+{
+  "aborted": false,
+  "groups": [
+    {
+      "id": "run:DN-01-root-retirement:validation-20261024",
+      "status": "deleted"
+    },
+    {
+      "id": "run:DN-01-root-retirement:validation-20261024-2",
+      "status": "deleted"
+    },
+    {
+      "id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "status": "deleted"
+    },
+    {
+      "id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+      "status": "deleted"
+    },
+    {
+      "id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+      "status": "deleted"
+    },
+    {
+      "id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+      "status": "deleted"
+    },
+    {
+      "id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+      "status": "deleted"
+    }
+  ],
+  "results": [
+    {
+      "attempt_id": "attempt-61336-2214-1792825447409",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "0428646a8d45847d4d74ef8443f1121c04fe556e2781c5f69c50d1723a6c3d8f",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "ba10750f3077209c097da2aa39825f42d844324d0e5516325d50b43b2005dc81"
+    },
+    {
+      "attempt_id": "attempt-61336-2217-1792825496567",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "4ce5c76ecf6fe057a0f185958d688ed9b26afb423988d9754828b863953535a8",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "1e8173b3004d6040a06b1574231d73e6a58614dd301df38a9fb9273a0ded2c8f"
+    },
+    {
+      "attempt_id": "attempt-61336-2220-1792825610387",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "4ff70ae8d617dfde676cfb572e73218f770cccaf15a8de9b7eaa97da3746daef",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "2755b6957b9474f0fe9a12aa7bd4257cc53ebe77e68f1628e9115325990adaae"
+    },
+    {
+      "attempt_id": "attempt-61336-2223-1792825642180",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "e92b80b35235db2b4d8c81583aedd63f752f175f8d180e0ae2d7395b6fd0aebd",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "75ca7f3f0f3953cfcec16c27c2ec336f03731948918b0a3e9d081292c2273675"
+    },
+    {
+      "attempt_id": "attempt-61336-2226-1792825674367",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "3e27253cd38b91dacf5d3d7cfd0743057bae4e29d71336782e9158831ea7115a",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "da78f6c6bbb90ef2f651fd94f51aacbff950b9cf14ddce3c3b778fc4a64a1ff9"
+    },
+    {
+      "attempt_id": "attempt-61336-2229-1792825706395",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "4c00ca0dcd4c4a4708d2bb5460b274796849d3f25ef02682886b2227ff4785c1",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062110903Z-63359c93-75db-403e-9175-1f0a6ece085c",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "14a8161daaa017f6eb5cf2a643ce59f1579c47d7ec72e40e835318b7520dcb5f"
+    },
+    {
+      "attempt_id": "attempt-61336-2232-1792825756279",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "1a5abd3b6417a4891b0068dfec44d03c8a31c9d2664c765be5095f8d539a4190",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "cfcc2e45f3b68da80c16ae309e40ef6602265f0a02161dc09687d05e629640a0"
+    },
+    {
+      "attempt_id": "attempt-61336-2235-1792825874490",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "64787c0de1fe31820cf62da6bdae89987b0fd50f9ab73bf440b5fc09f691283c",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "bde8d7d075faa4540cdaedf3b7f674619183d8d851b698bb31d0c7382d1b1200"
+    },
+    {
+      "attempt_id": "attempt-61336-2238-1792825906038",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "a3d25442991552b38b2e7afd8bd9c8691df64306bde3beb5b1c3edebe1cd1710",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "53a076bf3394a8a2f359afd53a7af276bd3aa9446a52adfc584a700bd8d463e6"
+    },
+    {
+      "attempt_id": "attempt-61336-2241-1792825937874",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "f413f567f95be0ad273711de12203e4bfd770cb29363c94831e94aefc7a10eb8",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "538ef797361f6356e13df9a6e57819c36570c13fd54025707562dd0f05eee11e"
+    },
+    {
+      "attempt_id": "attempt-61336-2244-1792825970211",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "43a1569040f04d91213eb53bed5d2429603ec81ee8eb9d42a956721814f51498",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "55a63b7d16b68c9eeb307244d8a5f210d89c8c5450ba82323b4c2742dac2fad5"
+    },
+    {
+      "attempt_id": "attempt-61336-2247-1792826001518",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "dee97fc7fe8ab4b8fe8fff7c8c7372a82e69ca7652e4b6157ba7f33bf5ed99c3",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "55147e7c302ecb84716fb2bc098178ec43fa9898830a3ac130e0dfa319329270"
+    },
+    {
+      "attempt_id": "attempt-61336-2250-1792826034382",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "1c7ebe2acb834061945c0ff151b771a20ac234af4c54de3956557b2a0a31e2b4",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "ef32923bc936bb067c5a67dd5b1c0bb24c1166860a5fa557b12c8b8bd832d620"
+    },
+    {
+      "attempt_id": "attempt-61336-2253-1792826066008",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "698358d7e3540e04c9da1adf03004128a0f9b205f8564a7e8e6f9ac30480afbf",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "1d3a0695be2ad5bf331d22e029e3a19dd543ed1bde81bf4d173de9412e0b74be"
+    },
+    {
+      "attempt_id": "attempt-61336-2256-1792826098228",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "dc6b4bd2176b5f93f881a9a6a4961b926e26677bbb16a2578d2f6f20c408da22",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "4fd8aef3e74c9c299a614f661c7a25c4379c112debd6170e8f9bb2131a7e43f5"
+    },
+    {
+      "attempt_id": "attempt-61336-2259-1792826132134",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "f5e9a25d17d80fd665ed10dba5f9c31562b62e46e5387077d56d5b5bdd0a7659",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "e9d45e2c0735a4b6092f5158107436c0835480e532133066cdc611fe8b370e6e"
+    },
+    {
+      "attempt_id": "attempt-61336-2262-1792826175310",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "e89bcf170d9314c47be9806e02e3704f57a985d73a4d77ecd05a5fce257b70b1",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "54f74d29e24aa0df85c6157834471627b123fc5c4149f4eb5b348724487185a6"
+    },
+    {
+      "attempt_id": "attempt-61336-2265-1792826206546",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "f05bac1d00ad9d41e10450069d6ba65ae6fb93e680ddbf993bea5a96660a0f5a",
+      "lifecycle_group_id": "run:DN-01-root-retirement:validation-20261024-2",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "51fab515bc892c42c5e29b393794cf7e60077744280a9189906fdc161ec1aed7"
+    },
+    {
+      "attempt_id": "attempt-61336-2268-1792826238559",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "2438ffa8a91dbb0ed01dfa15055b0a5576386452b80f0bf9089b7bf641674597",
+      "lifecycle_group_id": "run:dn01-root-receipt-isolation:20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "5ab0c291312c0f2e39ad60beb26597a08d7002f82775b383acc49134b4651f26"
+    },
+    {
+      "attempt_id": "attempt-61336-2271-1792826271511",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "6b15498cb07cb4ea6d5fb787978a186b2a0bcdef50fc320381de846af3d1ffee",
+      "lifecycle_group_id": "run:dn01-root-provenance:20261024T062916125Z-3aea08aa-c61a-484f-bb65-470b98d3c81d",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "9c3430127cc214647f7cec015682dcf26fb8ed4d4f5c053d3576419b8dfd80be"
+    },
+    {
+      "attempt_id": "attempt-61336-2274-1792826303576",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "6cf59eb3f7283770dc9b133684d274b2759f11cd5c576aee269eaf08a648ec44",
+      "lifecycle_group_id": "run:dn01-root-receipt-isolation:20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "f360644883f0a520cdbe5cb1bb5ea95a66aa9a78d392f614a75ef0ad7041ee54"
+    },
+    {
+      "attempt_id": "attempt-61336-2277-1792826335455",
+      "decision": "delete",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "af67f8290b543bb15ef41bcf204f00b501335ce7921cff855b0e424b9dc6a605",
+      "lifecycle_group_id": "run:dn01-root-receipt-isolation:20261024T064328923Z-e54d8389-0a22-4a37-98dd-5ebaea5d6bef",
+      "reason": "Approved Temp retirement and task commit complete; known stopped own verification/provenance outputs superseded by retained work evidence and committed source. No remaining consumers.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "1eebef51c97ab303bb4205dfe4e9597ed52d8656d8bb64371aba3c6c06ad9afc"
+    }
+  ]
+}

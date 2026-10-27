@@ -1,0 +1,48 @@
+﻿{
+    "checked_at":  "2026-10-24T15:00:39.9723833+09:00",
+    "process_references":  [
+
+                           ],
+    "approved_present":  [
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-host-fixture-20260913-1005"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-host-fixture-20260913-1010"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-host-fixture-20260913-1020"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-host-fixture-20260913-1030"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-host-fixture-20260913-1040"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-account-check-0a349e33"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-account-check-1e5075cd"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-account-check-a9a14fd1"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-account-check-9b38cb81"
+                             },
+                             {
+                                 "exists":  true,
+                                 "name":  "azrael-host-bin-20260913-0953"
+                             }
+                         ]
+}

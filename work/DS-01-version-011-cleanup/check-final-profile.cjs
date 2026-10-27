@@ -1,0 +1,10 @@
+"use strict";
+const fs=require("node:fs"),path=require("node:path"),crypto=require("node:crypto");
+const reports=path.join(__dirname,"reports");
+const prior=JSON.parse(fs.readFileSync(path.join(reports,"general-profile-after-av18.json"),"utf8"));
+const files=prior.files.map(f=>{const bytes=fs.readFileSync(f.path),stat=fs.statSync(f.path),hash=crypto.createHash("sha256").update(bytes).digest("hex").toUpperCase();return {path:f.path,before:f.before,after:hash,same:hash===f.before,sameAsPriorCheckpoint:hash===f.after,lastWriteUtc:stat.mtime.toISOString(),bytes:stat.size};});
+const extensions=JSON.parse(fs.readFileSync(files[0].path,"utf8"));
+const versions=extensions.filter(e=>/azrael/i.test(e.identifier?.id||"")).map(e=>e.version);
+const receipt={at:new Date().toISOString(),versions,files,configChangeAttribution:prior.configChangeAttribution};
+fs.writeFileSync(path.join(reports,"general-profile-final.json"),JSON.stringify(receipt,null,2));
+console.log(JSON.stringify({versions,files:files.map(f=>({path:f.path,same:f.same,sameAsPriorCheckpoint:f.sameAsPriorCheckpoint}))}));

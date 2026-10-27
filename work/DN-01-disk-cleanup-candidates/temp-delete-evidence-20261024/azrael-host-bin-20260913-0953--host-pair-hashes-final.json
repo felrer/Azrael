@@ -1,0 +1,32 @@
+{
+  "recordedUtc": "2026-09-13T01:18:03.3560018Z",
+  "pair": [
+    {
+      "file": "codex.exe",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\upstream\\codex\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\codex.exe",
+      "sourceTimestampUtc": "2026-09-13T00:53:39.3931573Z",
+      "sourceSha256": "D3FED9D4365A00F3B213F68104805C5FB273645E22F230E45C9813B795470940",
+      "immutableCopy": "C:\\Temp\\azrael-host-bin-20260913-0953\\codex.exe",
+      "copyTimestampUtc": "2026-09-13T00:53:39.3931573Z",
+      "copySha256": "D3FED9D4365A00F3B213F68104805C5FB273645E22F230E45C9813B795470940",
+      "match": true,
+      "readOnly": true
+    },
+    {
+      "file": "azrael-bridge.exe",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\upstream\\codex\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael-bridge.exe",
+      "sourceTimestampUtc": "2026-09-13T00:53:02.6455692Z",
+      "sourceSha256": "E0147946046DD1F2D9FFDC79EEE00333F607CC5C821818C15809F3D8A83E9BCB",
+      "immutableCopy": "C:\\Temp\\azrael-host-bin-20260913-0953\\azrael-bridge.exe",
+      "copyTimestampUtc": "2026-09-13T00:53:02.6455692Z",
+      "copySha256": "E0147946046DD1F2D9FFDC79EEE00333F607CC5C821818C15809F3D8A83E9BCB",
+      "match": true,
+      "readOnly": true
+    }
+  ],
+  "companionVsix": {
+    "path": "C:\\Temp\\azrael-host-bin-20260913-0953\\azrael-ex-0.1.0-kindfix.vsix",
+    "sha256": "95B9D1B8A8152FE8DA66D84210D11EDCDC2F1826BD10C02E8C810E55BF6E710D",
+    "readOnly": true
+  }
+}

@@ -102,6 +102,7 @@ pub(crate) struct SessionState {
     pub(crate) active_connector_selection: HashSet<String>,
     pub(crate) pending_session_start_sources: VecDeque<codex_hooks::SessionStartSource>,
     next_turn_is_first: bool,
+    initial_settings_pending: bool,
 }
 
 impl SessionState {
@@ -143,6 +144,7 @@ impl SessionState {
             active_connector_selection: HashSet::new(),
             pending_session_start_sources: VecDeque::new(),
             next_turn_is_first: true,
+            initial_settings_pending: true,
         }
     }
 
@@ -158,12 +160,23 @@ impl SessionState {
 
     pub(crate) fn set_next_turn_is_first(&mut self, value: bool) {
         self.next_turn_is_first = value;
+        self.initial_settings_pending = value;
     }
 
     pub(crate) fn take_next_turn_is_first(&mut self) -> bool {
         let is_first_turn = self.next_turn_is_first;
         self.next_turn_is_first = false;
         is_first_turn
+    }
+
+    pub(crate) fn initial_settings_pending(&self) -> bool {
+        self.initial_settings_pending
+    }
+
+    pub(crate) fn take_initial_settings_pending(&mut self) -> bool {
+        let pending = self.initial_settings_pending;
+        self.initial_settings_pending = false;
+        pending
     }
 
     pub(crate) fn clone_history(&self) -> ContextManager {
@@ -458,3 +471,23 @@ fn merge_rate_limit_fields(
 #[cfg(test)]
 #[path = "session_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod initial_settings_checkpoint_tests {
+    use super::SessionState;
+    use crate::session::tests::make_session_configuration_for_tests;
+
+    #[tokio::test]
+    async fn initial_settings_remain_pending_until_persistence_succeeds() {
+        let mut state = SessionState::new(make_session_configuration_for_tests().await);
+        assert!(state.take_next_turn_is_first());
+        // Preparing the first turn and inspecting a checkpoint do not consume it.
+        assert!(state.initial_settings_pending());
+        assert!(state.initial_settings_pending());
+        assert!(state.take_initial_settings_pending());
+        assert!(!state.initial_settings_pending());
+        assert!(!state.take_initial_settings_pending());
+        state.set_next_turn_is_first(false);
+        assert!(!state.initial_settings_pending());
+    }
+}

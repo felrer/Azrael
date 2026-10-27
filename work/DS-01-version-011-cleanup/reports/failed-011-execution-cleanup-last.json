@@ -1,0 +1,95 @@
+[
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k",
+    "ids": [
+      "run:DS-01-retire-failed-011:w11v",
+      "run:DS-01-retire-failed-011:w11w"
+    ],
+    "result": {
+      "aborted": false,
+      "groups": [
+        {
+          "id": "run:DS-01-retire-failed-011:w11v",
+          "status": "deleted"
+        },
+        {
+          "id": "run:DS-01-retire-failed-011:w11w",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-53448-50-1792975240116",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "9b913958f6da64d4873b7ef6ff5847feee9803f463ed04ed72e572fb4d69f9e9",
+          "lifecycle_group_id": "run:DS-01-retire-failed-011:w11v",
+          "reason": "All six old deployment retirement calls have terminal actual success; no native owner process remains; independent build provenance, original failures, complete consumer catalogs and native outcomes retained in DS-01 work reports",
+          "remaining": false,
+          "status": "deleted",
+          "token": "2c5fdfc1a65bb9f6e62b0218f262be129a99deda0e943596e8a3a6585cd54394"
+        },
+        {
+          "attempt_id": "attempt-53448-53-1792975243490",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "d456114d148d453aefd2fedfbe6c081e684cd65ba06f3e3e339378e97607b9f8",
+          "lifecycle_group_id": "run:DS-01-retire-failed-011:w11w",
+          "reason": "All six old deployment retirement calls have terminal actual success; no native owner process remains; independent build provenance, original failures, complete consumer catalogs and native outcomes retained in DS-01 work reports",
+          "remaining": false,
+          "status": "deleted",
+          "token": "f7fb5de29affe19c7f8c598b350e0e981c3f82d2b1535fe0d2cf26c22efbd929"
+        }
+      ]
+    }
+  },
+  {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+    "ids": [
+      "run:DS-01-failed-011-owner"
+    ],
+    "result": {
+      "aborted": false,
+      "groups": [
+        {
+          "id": "run:DS-01-failed-011-owner",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-53448-2694-1792975285170",
+          "decision": "delete",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "9d9238acd323b6e21fea29c903c0783d8898c77f20872adfd59a447143321712",
+          "lifecycle_group_id": "run:DS-01-failed-011-owner",
+          "reason": "All six old deployment retirement calls have terminal actual success; no native owner process remains; independent build provenance, original failures, complete consumer catalogs and native outcomes retained in DS-01 work reports",
+          "remaining": false,
+          "status": "deleted",
+          "token": "d847d1a2646287ed6ada9d8503fd0f25c2ef98c432cff56eb6b12b3d2fb05b93"
+        }
+      ]
+    }
+  }
+]

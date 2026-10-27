@@ -1,0 +1,7 @@
+﻿{
+    "project_id":  "azrael-legacy-temp-20260913",
+    "status":  "unregistered",
+    "project_files_changed":  false,
+    "operation":  "project_inventory unregister_project",
+    "reason":  "Approved ten payload roots verified absent; retire temporary project alias while preserving control evidence"
+}

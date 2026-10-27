@@ -1,0 +1,84 @@
+{
+  "receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064138272Z-944ca377-f899-4d7c-9e08-35512fd3df00\\outputs\\engine\\SOURCE.json",
+  "receiptSha256": "217f35a178057b07ac00e37212f2cc2ca98ed316160bc9169718cd584fdcdc94",
+  "anchoredHead": "3dbcd525fa33e40949041fcbc916f5634c8a9d61",
+  "inventoryDelta": [
+    "codex-rs/project-maintenance/src/apply.rs",
+    "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "codex-rs/project-maintenance/src/lib.rs",
+    "codex-rs/project-maintenance/src/retirement.rs",
+    "codex-rs/project-maintenance/tests/root_retirement.rs"
+  ],
+  "ownedFive": [
+    {
+      "path": "codex-rs/project-maintenance/src/apply.rs",
+      "private": "11f43fa1aa4e972c340f98c03cab1b431bb6bd2a36f8f99a725442ca2dbb9d4c",
+      "primary": "11f43fa1aa4e972c340f98c03cab1b431bb6bd2a36f8f99a725442ca2dbb9d4c",
+      "frozen": "11f43fa1aa4e972c340f98c03cab1b431bb6bd2a36f8f99a725442ca2dbb9d4c"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "private": "b08e04f050b6ea2699efd1175a8466f11a21f001764276b125d8ad37282582fb",
+      "primary": "b08e04f050b6ea2699efd1175a8466f11a21f001764276b125d8ad37282582fb",
+      "frozen": "b08e04f050b6ea2699efd1175a8466f11a21f001764276b125d8ad37282582fb"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/lib.rs",
+      "private": "be71263c5c2a70c73eefac9468edb66d3b819d527fdb04b96b8064f50dc5c931",
+      "primary": "be71263c5c2a70c73eefac9468edb66d3b819d527fdb04b96b8064f50dc5c931",
+      "frozen": "be71263c5c2a70c73eefac9468edb66d3b819d527fdb04b96b8064f50dc5c931"
+    },
+    {
+      "path": "codex-rs/project-maintenance/src/retirement.rs",
+      "private": "2046baa23a9583988341adba7476637d8beaacfc9bfa03bb43f184ab0207b9fa",
+      "primary": "2046baa23a9583988341adba7476637d8beaacfc9bfa03bb43f184ab0207b9fa",
+      "frozen": "2046baa23a9583988341adba7476637d8beaacfc9bfa03bb43f184ab0207b9fa"
+    },
+    {
+      "path": "codex-rs/project-maintenance/tests/root_retirement.rs",
+      "private": "9ac619ec00d29255652d777919fac894830a7ee19bc5e1f78a71b69c2e71a0e4",
+      "primary": "9ac619ec00d29255652d777919fac894830a7ee19bc5e1f78a71b69c2e71a0e4",
+      "frozen": "9ac619ec00d29255652d777919fac894830a7ee19bc5e1f78a71b69c2e71a0e4"
+    }
+  ],
+  "privateDaemonSha256": "7f5ee948d541ecb2a67156edef9ed0bab8a0bc483a8abd342bdf7360b62a9c5e",
+  "primarySourceSha256": "1a097f655316e16e4be0f7f5c93f28a84c5149512782ef44c827b6348d5e96fd",
+  "primaryDaemonSha256": "fa09ffa4c1caa17eda4c9f511eaeb863c6e07efca5ea9b0cc0158f07c505cb52",
+  "commands": [
+    {
+      "name": "private-head",
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\private-head.log"
+    },
+    {
+      "name": "head-check",
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\head-check.log"
+    },
+    {
+      "name": "head-source-validate",
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\head-source-validate.log"
+    },
+    {
+      "name": "stage-owned-five",
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\stage-owned-five.log"
+    },
+    {
+      "name": "record-isolated",
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\record-isolated.log"
+    },
+    {
+      "name": "isolated-snapshot",
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\isolated-snapshot.log"
+    },
+    {
+      "name": "final-primary-head",
+      "exitCode": 0,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dn01-root-receipt-isolation\\runs\\20261024T064623994Z-aab55685-e5a3-47e2-8372-69bfa0197981\\logs\\final-primary-head.log"
+    }
+  ]
+}

@@ -2273,6 +2273,102 @@ async fn dangerous_command_forbidden_in_external_sandbox_when_policy_matches() {
     .await;
 }
 
+#[tokio::test]
+async fn deletion_full_access_requires_user_without_changing_other_commands() {
+    for (platform, command) in [
+        (DangerousCommandPlatform::Posix, vec!["rm", "file"]),
+        (DangerousCommandPlatform::Posix, vec!["rm", "-rf", "dir"]),
+        (
+            DangerousCommandPlatform::Posix,
+            vec!["bash", "-lc", "echo ok; rm file"],
+        ),
+        (
+            DangerousCommandPlatform::Windows,
+            vec![
+                "powershell.exe",
+                "-Command",
+                "Remove-Item -LiteralPath $target -Recurse",
+            ],
+        ),
+        (
+            DangerousCommandPlatform::Windows,
+            vec!["cmd.exe", "/c", "del file"],
+        ),
+    ] {
+        for rule in [
+            None,
+            Some("prefix_rule(pattern=[\"rm\"], decision=\"allow\")"),
+        ] {
+            let command = vec_str(&command);
+            let requirement = ExecPolicyManager::new(policy_from_src(rule))
+                .create_exec_approval_requirement_for_command_platform(
+                    ExecApprovalRequest {
+                        command: &command,
+                        approval_policy: AskForApproval::Never,
+                        permission_profile: PermissionProfile::Disabled,
+                        environment_policy: None,
+                        windows_sandbox_level: WindowsSandboxLevel::Disabled,
+                        sandbox_permissions: SandboxPermissions::UseDefault,
+                        prefix_rule: Some(vec!["rm".to_string()]),
+                        allow_prefix_rules: AllowPrefixRules::Honor,
+                    },
+                    platform,
+                )
+                .await;
+            assert_eq!(
+                requirement,
+                ExecApprovalRequirement::NeedsApproval {
+                    reason: Some(DELETION_APPROVAL_REASON.to_string()),
+                    proposed_execpolicy_amendment: None,
+                }
+            );
+        }
+    }
+    for command in [
+        vec!["echo", "ok"],
+        vec!["git", "reset", "--hard"],
+        vec!["cargo", "test"],
+    ] {
+        let requirement = exec_approval_requirement_for_command(ExecApprovalRequirementScenario {
+            policy_src: None,
+            command: vec_str(&command),
+            approval_policy: AskForApproval::Never,
+            permission_profile: PermissionProfile::Disabled,
+            sandbox_permissions: SandboxPermissions::UseDefault,
+            prefix_rule: None,
+        })
+        .await;
+        assert!(matches!(requirement, ExecApprovalRequirement::Skip { .. }));
+    }
+}
+
+#[tokio::test]
+async fn deletion_full_access_preserves_forbidden_rules() {
+    let requirement = exec_approval_requirement_for_command(ExecApprovalRequirementScenario {
+        policy_src: Some("prefix_rule(pattern=[\"rm\"], decision=\"forbidden\")".to_string()),
+        command: vec_str(&["rm", "file"]),
+        approval_policy: AskForApproval::Never,
+        permission_profile: PermissionProfile::Disabled,
+        sandbox_permissions: SandboxPermissions::UseDefault,
+        prefix_rule: None,
+    })
+    .await;
+    assert!(matches!(
+        requirement,
+        ExecApprovalRequirement::Forbidden { .. }
+    ));
+    assert!(!deletion_approval_enabled(
+        AskForApproval::Never,
+        &PermissionProfile::read_only()
+    ));
+    assert!(!deletion_approval_enabled(
+        AskForApproval::Never,
+        &PermissionProfile::External {
+            network: NetworkSandboxPolicy::Enabled,
+        }
+    ));
+}
+
 struct ExecApprovalRequirementScenario {
     /// Source for the Starlark `.rules` file.
     policy_src: Option<String>,

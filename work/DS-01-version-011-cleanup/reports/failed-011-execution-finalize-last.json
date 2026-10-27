@@ -1,0 +1,26 @@
+[
+  {
+    "id": "run:DS-01-retire-failed-011:w11v",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles\\cfd9382278ab1730dced0db97ab7c8e4c5d90d6448ed2466b891a993c904d4ee.json"
+  },
+  {
+    "id": "run:DS-01-retire-failed-011:w11w",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\v11k\\artifacts\\maintenance\\lifecycles\\abbaebf9932544477dfaa1755ea0480b928af36f232695eb65fed3839fa2199b.json"
+  },
+  {
+    "id": "run:DS-01-failed-011-owner",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f35bb58c04b750960eb57172e53b8c51186e4c2e629ad081fb2133c97c1c3fba.json"
+  }
+]

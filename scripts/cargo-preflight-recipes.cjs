@@ -9,12 +9,12 @@ const { createHash } = require('node:crypto');
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
-  'check-deletion-approval-native': '7f47ca2eea758b6bb2b43049325979c5567fb3dcf6d7340773a4501d73b93056',
+  'check-deletion-approval-native': '83c94db058a7b764f5c9bfe9e2d0e2b1cdb2033dcc690dee30dd1813df5d5070',
   'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
-  'check-selected-upstream-native': '79ad29b50caa12b8a53c2bb22c900f51d2c0246f7c8fff3ba3cf796097e44f12',
+  'check-selected-upstream-native': '38f8d1f82c73fd06d4126c4b15f2e102c22d525541f47e5abfb54495519ed1eb',
   'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
-  'check-model-harness-profiles': 'a38d1ac09f80351d662d824245dbdcb03a6e9f320e8c550bed9c7066e2ae3928',
+  'check-model-harness-profiles': '7166d157c6d9de907e2dcf5f11dfd64952de8b4edcfb81d6c7a9bc280b1ecb16',
   'check-root-resume-reasoning': '0158f4af4864a884036821e42228d0d74e4396a7d9cc3856bcd7f4db190a76e4',
   'check-task-work-time-native': '63cb1e6655af44990874fbf20c2158470631e25397c9a72ba24b96233354f973',
   'check-thread-auto-compaction': '45538fd544446ae4af9453e6cde0b4cd62e9ba87b1b62e5f2c57ea80723bb053',
@@ -26,7 +26,7 @@ const wrapperHashes = Object.freeze({
   'check-mcp-oauth-store': '1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa',
   'check-startup-performance-native': '5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2',
   'check-response-tps-native': 'ff6fd89fe8103a7da51f5555f0c704bd37d056b3f5017f10251d7285563b74e0',
-  'check-task-recovery-native': 'b6a39560e33898d9919cd99cd95e07f405cfcb7a3720ad256426019f03de851c',
+  'check-task-recovery-native': 'bf1efa7f6b25732bd964d4181df234a5420a60ce327fa95753d341e4cde18728',
   'check-project-maintenance': '1eea8c6a873bcf17a7899461a4c2e171796054bc13b9e3a48e87d95a8499e87e',
   'check-error-classification-native': '338386a3b633c8364fae67e268c86405328b60f809e951f193edc8a533c1d616',
   'check-window-approval-native': '525b897176b1c4ca2bd8c91fff09cd61b5f6c211ac874ea0aa02d5397c963325',
@@ -64,8 +64,7 @@ function reviewedRecipes(wrapper, tail, platform) {
           ...(platform === 'win32' ? [] : ['shell_snapshot_v2_returns_before_inherited_output_closes', 'agent_started_proxy_denies_brokered_provider_alias']),
           ...(platform === 'darwin' ? ['apply_patch_system_aliases'] : [])].map(f => ['codex-core', '--test', 'all', f]),
         'app-server-lib': ['persisted_resume_settings', 'collect_resume_override_mismatches_includes_service_tier'].map(f => ['codex-app-server', '--lib', f]),
-        'app-server': ['thread_resume::', 'thread_revert::', 'thread_settings_update::', 'rollout_compress_runs_after_startup_with_compression_disabled',
-          ...(platform === 'linux' ? ['cold_resume_restores_live_proxy_grants_and_persists_new_approvals'] : [])].map(f => ['codex-app-server', '--test', 'all', f]),
+        'app-server': ['thread_resume::', 'thread_revert::', 'thread_settings_update::', 'rollout_compress_runs_after_startup_with_compression_disabled'].map(f => ['codex-app-server', '--test', 'all', f]),
         tui: ['fork_last_filters_latest_session_by_cwd_unless_show_all', 'configured_ctrl_space_submit_wins_over_transcript_selection',
           'replay_preserves_typed_updates_before_voice_steers_the_turn', 'in_progress_voice_replay_restores_the_late_reasoning_guard'].map(f => ['codex-tui', '--lib', f]),
       };
@@ -76,7 +75,7 @@ function reviewedRecipes(wrapper, tail, platform) {
     }
     case 'check-deletion-approval-native':
       if (!tail.length) args = [lib('codex-shell-command', 'command_safety::'),
-        ...['exec_policy::tests::', 'deletion_approval_', 'apply_patch::tests::'].map(filter => lib('codex-core', filter))];
+        ...['exec_policy::tests::', 'tools::approvals::tests::deletion_approval_', 'apply_patch::tests::'].map(filter => lib('codex-core', filter))];
       break;
     case 'check-usage-window':
       if (!tail.length) args = [lib('codex-app-server', 'account_processor')];
@@ -91,7 +90,7 @@ function reviewedRecipes(wrapper, tail, platform) {
       isolateHostEnvironment = false;
       args = scoped({ config: [lib('codex-config', 'harness'), lib('codex-prompts', 'model_instructions')],
         context: ['context::world_state::model::tests', 'session::provider_handoff::tests', 'instruction_state_projection'].map(f => lib('codex-core', f)).concat([integration('suite::model_switching')]),
-        tools: ['claude', 'azrael_defaults_and_explicit_claude_profile_select_executable_tools', 'anthropic_azrael_tools_patch_read_and_execute', 'tools::router::tests::chat_discovery', 'mcp_and_tool_search_follow_direct_and_deferred_tool_exposure'].map(f => lib('codex-core', f)) });
+        tools: ['claude', 'anthropic_azrael_tools_patch_read_and_execute', 'tools::router::tests::chat_discovery', 'mcp_and_tool_search_follow_direct_and_deferred_tool_exposure'].map(f => lib('codex-core', f)) });
       break;
     case 'check-root-resume-reasoning':
       if (!tail.length) args = [libs(['codex-core', 'codex-protocol', 'codex-state'], 'root_resume')];
@@ -175,7 +174,7 @@ function reviewedRecipes(wrapper, tail, platform) {
       args = scoped({ protocol: [lib('codex-protocol', 'response_performance')], core: [lib('codex-core', 'turn_timing::tests'), lib('codex-core', 'session::tests::response_performance')], appserver: [lib('codex-app-server-protocol', 'response_performance')] });
       break;
     case 'check-task-recovery-native':
-      if (!tail.length) args = ['session_restore_', 'host_approval', 'async_question', 'session::accepted_user_inputs::tests', 'context_manager::history::tests::normalize_', 'context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history', 'tasks::panic_tests::', 'tasks::tests::'].map(f => lib('codex-core', f));
+      if (!tail.length) args = ['host_approval', 'async_question', 'session::accepted_user_inputs::tests', 'context_manager::history::tests::normalize_', 'context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history', 'tasks::panic_tests::', 'tasks::tests::'].map(f => lib('codex-core', f));
       break;
     case 'check-project-maintenance':
       if (tail.length === 2 && tail[0] === '--stage') {

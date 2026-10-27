@@ -1,0 +1,18 @@
+{
+  "attempt_id": "attempt-73132-12-1792932249356",
+  "decision": "delete",
+  "deletion": {
+    "attributes": [],
+    "error": null,
+    "physical_bytes_reclaimed": null,
+    "remaining": false,
+    "status": "deleted"
+  },
+  "group_status": "deleted",
+  "id": "ds01-u22c-independent-receipt",
+  "lifecycle_group_id": "ds01-retirement:u22c-independent-installation",
+  "reason": "Historical 2026.0.10 external test installation unregistered; original receipt and recovery registry backup retained independently; user retires connected test installation metadata",
+  "remaining": false,
+  "status": "deleted",
+  "token": "80d4209d22c7c5ea20cd7cc1c39d0c2276a6cd36e269e24aafd10af14f724b23"
+}

@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "wrapperExit": 1,
+  "directTestExit": 1,
+  "originalSelectionExit": 0,
+  "reason": "Catalog close collision; direct native tests found required enclosing registration guard",
+  "directResults": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ds01n1\\direct-results.json",
+  "observed": "2026-10-25T12:40:33.544Z"
+}

@@ -1,0 +1,112 @@
+{
+  "at": "2026-10-25T23:28:00.169Z",
+  "note": "Read-only enumeration of previously unregistered failed 2026.0.11 release roots and disjoint interrupted package stages; logical bytes exclude symlinks, not physical reclaim or permission to delete; source snapshots/cache/logs excluded",
+  "results": [
+    {
+      "name": "w11aa",
+      "release": {
+        "path": "artifacts\\build\\b13\\artifacts\\releases\\w11aa",
+        "logicalBytes": 900900402,
+        "files": 522,
+        "links": [],
+        "errors": []
+      },
+      "stages": [
+        {
+          "path": "artifacts\\build\\b13\\artifacts\\deployments\\deploy-w11aa\\package\\stage-c5ad043ef02f4aac89fe0cc839659d07",
+          "logicalBytes": 1657023687,
+          "files": 20939,
+          "links": [],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "w11g",
+      "release": {
+        "path": "artifacts\\build\\v11a\\artifacts\\releases\\w11g",
+        "logicalBytes": 900554161,
+        "files": 522,
+        "links": [],
+        "errors": []
+      },
+      "stages": []
+    },
+    {
+      "name": "w11i",
+      "release": {
+        "path": "artifacts\\build\\v11c\\artifacts\\releases\\w11i",
+        "logicalBytes": 900554158,
+        "files": 522,
+        "links": [],
+        "errors": []
+      },
+      "stages": [
+        {
+          "path": "artifacts\\build\\v11c\\artifacts\\deployments\\deploy-w11i\\package\\stage-8bfa0169adbd468f8af5195d7ee1e086",
+          "logicalBytes": 962368661,
+          "files": 17275,
+          "links": [],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "w11m",
+      "release": {
+        "path": "artifacts\\build\\v11e\\artifacts\\releases\\w11m",
+        "logicalBytes": 900554158,
+        "files": 522,
+        "links": [],
+        "errors": []
+      },
+      "stages": [
+        {
+          "path": "artifacts\\build\\v11e\\artifacts\\deployments\\deploy-w11m\\package\\stage-732ab8a638324c25973c45dc740b77aa",
+          "logicalBytes": 1657016523,
+          "files": 20939,
+          "links": [],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "w11v",
+      "release": {
+        "path": "artifacts\\build\\v11k\\artifacts\\releases\\w11v",
+        "logicalBytes": 900557355,
+        "files": 522,
+        "links": [],
+        "errors": []
+      },
+      "stages": [
+        {
+          "path": "artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11v\\package\\stage-1501562f02b6481384a7375a5f0ed7d5",
+          "logicalBytes": 1657016615,
+          "files": 20939,
+          "links": [],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "w11w",
+      "release": {
+        "path": "artifacts\\build\\v11k\\artifacts\\releases\\w11w",
+        "logicalBytes": 900557353,
+        "files": 522,
+        "links": [],
+        "errors": []
+      },
+      "stages": [
+        {
+          "path": "artifacts\\build\\v11k\\artifacts\\deployments\\deploy-w11w\\package\\stage-d56393d91c574d2bb4130e0ffa5aa4be",
+          "logicalBytes": 1657016590,
+          "files": 20939,
+          "links": [],
+          "errors": []
+        }
+      ]
+    }
+  ]
+}

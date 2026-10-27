@@ -8,13 +8,14 @@ use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
-pub(crate) fn apply(
+pub(crate) fn apply<'a>(
     root: &Path,
     config: &Config,
     config_identity: &str,
     request: &Value,
-    store: &mut Store,
-    auth: Auth<'_>,
+    store: &mut Store<'a>,
+    auth: Auth<'a>,
+    catalog_locks: Vec<crate::registry::CatalogLock<'a>>,
 ) -> Result<Value, String> {
     let verification = Verification::requested(request)?;
     let choices = request["decisions"].as_array().ok_or("missing decisions")?;
@@ -171,6 +172,10 @@ pub(crate) fn apply(
         }
     }
     let mut ordered_groups = BTreeSet::new();
+    let mut reservations =
+        crate::reservations::ReservationSet::acquire(root, request, &store.state, auth)?;
+    drop(catalog_locks);
+    store.suspend()?;
     for choice in choices {
         let item = &store.state.items[string(choice, "id")?];
         if let Some(group_id) = groups::id(item) {
@@ -201,11 +206,19 @@ pub(crate) fn apply(
         .and_then(|nested| groups::id(&store.state.items[&nested.parent]).map(str::to_owned));
     let mut results = Vec::new();
     for choice in ordered {
+        reservations.verify(auth)?;
         let id = string(choice, "id")?;
         let item = store.state.items[id].clone();
         let path = Path::new(string(&item, "path")?);
         let group_id = groups::id(&item).map(str::to_owned);
         let mut outcome = choice.clone();
+        outcome["decision_id"] = json!(hash(&(
+            std::process::id(),
+            now_ms()?,
+            &id,
+            &store.state.revision,
+            &results
+        ))?);
         if auth.nested_retirement.borrow().is_some() {
             outcome["retire_nested_member"] =
                 serde_json::to_value(&*auth.nested_retirement.borrow())
@@ -227,7 +240,11 @@ pub(crate) fn apply(
             outcome["lifecycle_group_id"] = json!(group);
         }
         let mut destructive = false;
-        let entries = if let Some(reason) = group_id
+        let entries = if auth.cancelled() {
+            outcome["status"] = json!("cancelled");
+            outcome["attempted"] = json!(false);
+            None
+        } else if let Some(reason) = group_id
             .as_ref()
             .and_then(|group| stopped_groups.get(group))
         {
@@ -322,16 +339,22 @@ pub(crate) fn apply(
                         outcome["status"] = json!("blocked");
                         outcome["error"] = json!("authorized descendant set changed");
                     } else {
-                        match paths::delete_verified(root, path, &fresh, auth) {
-                            Ok(report) => {
-                                outcome["status"] = report["status"].clone();
-                                outcome["remaining"] = report["remaining"].clone();
-                                outcome["deletion"] = report;
-                            }
-                            Err(error) => {
-                                outcome["status"] = json!("failed");
-                                outcome["remaining"] = Value::Null;
-                                outcome["error"] = json!(error);
+                        reservations.verify(auth)?;
+                        if auth.cancelled() {
+                            outcome["status"] = json!("cancelled");
+                            outcome["attempted"] = json!(false);
+                        } else {
+                            match paths::delete_verified(root, path, &fresh, auth) {
+                                Ok(report) => {
+                                    outcome["status"] = report["status"].clone();
+                                    outcome["remaining"] = report["remaining"].clone();
+                                    outcome["deletion"] = report;
+                                }
+                                Err(error) => {
+                                    outcome["status"] = json!("failed");
+                                    outcome["remaining"] = Value::Null;
+                                    outcome["error"] = json!(error);
+                                }
                             }
                         }
                     }
@@ -408,7 +431,12 @@ pub(crate) fn apply(
         // observation or group state needs another commit; errors change the
         // outcome too and must never be discarded with this redundant write.
         if !destructive
-            || store.state.decisions[index] != outcome
+            || store
+                .state
+                .decisions
+                .iter()
+                .find(|decision| decision["decision_id"] == outcome["decision_id"])
+                != Some(&outcome)
             || group_id.as_ref().map(|id| &store.state.groups[id]) != persisted_group.as_ref()
         {
             record(&mut store.state, index, &outcome);
@@ -426,7 +454,10 @@ pub(crate) fn apply(
         .keys()
         .map(|id| json!({"id":id,"status":store.state.groups[id]["cleanup_status"]}))
         .collect::<Vec<_>>();
-    Ok(json!({"results":results,"groups":group_results,"aborted":false}))
+    let cancelled = results.iter().any(|result| result["status"] == "cancelled");
+    let _catalog_locks = crate::registry::lock_request(root, request, &store.state, auth)?;
+    reservations.release_terminal(&store.state, auth)?;
+    Ok(json!({"results":results,"groups":group_results,"aborted":cancelled,"cancelled":cancelled}))
 }
 
 fn group_outcome(
@@ -466,11 +497,15 @@ fn group_outcome(
     outcome["group_status"] = json!(status);
 }
 
-fn record(state: &mut State, index: usize, outcome: &Value) {
-    if index == state.decisions.len() {
-        state.decisions.push(outcome.clone());
-    } else {
+fn record(state: &mut State, _index: usize, outcome: &Value) {
+    if let Some(index) = state
+        .decisions
+        .iter()
+        .position(|decision| decision["decision_id"] == outcome["decision_id"])
+    {
         state.decisions[index] = outcome.clone();
+    } else {
+        state.decisions.push(outcome.clone());
     }
     if let Some(item) = outcome["id"]
         .as_str()
@@ -502,6 +537,7 @@ fn safe_entries(
     approved: Option<&[PathBuf]>,
     enclosing: Option<&groups::Batch>,
 ) -> Result<Vec<PathBuf>, String> {
+    crate::reservations::check_item(root, item, auth)?;
     let observe = || -> Result<Value, String> {
         if let Some(enclosing) = enclosing {
             enclosing.unchanged_controls(root, state, auth)?;

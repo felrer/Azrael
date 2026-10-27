@@ -1,0 +1,32 @@
+[
+  {
+    "id": "version:u22c",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\maintenance\\lifecycles\\77237468ae8a9a1f07264e399608abe8040b2423fb3e5eb1b5abcd36af3f90b4.json",
+    "retirement": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\maintenance\\evidence\\ds01-retirement.json",
+      "sha256": "6eecb3393480ad967ee1c1ab1edf31f524c6b253141fa7519d0434df92a04b34",
+      "reason": "Independent original consumer catalog, completed build/test evidence and current stopped runtime preserved; native deletion verified; original pending outcome unchanged",
+      "original_state": "pending",
+      "original_membership_complete": false
+    }
+  },
+  {
+    "id": "shared:cargo-pending:324ecfeca9ddf1b76193212ad5d944a28d18caa4767bd7e615f126e7e6e36ec0",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\maintenance\\lifecycles\\be151925733877a698477e7af1984ed6dddbad15b12cbc0c03d45d08ea3353eb.json",
+    "retirement": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\u22c\\artifacts\\maintenance\\evidence\\ds01-retirement.json",
+      "sha256": "6eecb3393480ad967ee1c1ab1edf31f524c6b253141fa7519d0434df92a04b34",
+      "reason": "Independent original consumer catalog, completed build/test evidence and current stopped runtime preserved; native deletion verified; original pending outcome unchanged",
+      "original_state": "complete",
+      "original_membership_complete": true
+    }
+  }
+]

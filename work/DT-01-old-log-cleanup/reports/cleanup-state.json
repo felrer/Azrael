@@ -1,0 +1,2218 @@
+{
+  "at": "2026-10-25",
+  "cutoffUtc": "2026-10-24T13:16:32Z",
+  "deletedFiles": 0,
+  "blocker": {
+    "lock": "artifacts/maintenance/maintenance.lock",
+    "pid": 73132,
+    "createdUtc": "2026-10-25T13:14:21Z",
+    "observedLive": true,
+    "attempts": [
+      "registration blocked by exclusive maintenance lock",
+      "refresh_group blocked by exclusive maintenance lock"
+    ],
+    "removalAttempted": false
+  },
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": "deferred",
+        "id": "ar01-parent-routing-evidence-20261019",
+        "kind": "work",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": null,
+        "membership_source_format": null,
+        "membership_source_identity": null,
+        "owner": "AR-01/03-parent-routing",
+        "provenance_ref": "work/AR-01-root-child-mail-analysis/03-plan.md",
+        "version": "20261019"
+      },
+      {
+        "cached_live_members": 3,
+        "cleanup_status": "deferred",
+        "id": "du01-postboot-20261016-r1",
+        "kind": "run",
+        "members_total": 3,
+        "membership_complete": true,
+        "membership_source": null,
+        "membership_source_format": null,
+        "membership_source_identity": null,
+        "owner": "DU-01-window-use-stages/root",
+        "provenance_ref": "artifacts/tasks/DU-01-window-use-stages/runs/20261016-postboot-investigation-r1/manifest.json",
+        "version": "20261016-r1"
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": "deferred",
+        "id": "run:CL-01-question-withdrawal:source-1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "ef1d407c8a82656645ad9bcfa024b6787f3ec38061a2355c2752b54d00f8df55",
+        "owner": "CL-01-question-withdrawal",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8e8d481b552c654dff1f5324f3b084dd2a5bc8c09485e91507fce4d8d96eba0b.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:ui-1792386502416-54118d51:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "6b2bd2ebf7e63216c2a17536030d542186f87ed5e33cd019660ac76a3195cef1",
+        "owner": "/root/catalog-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ce0d315d434ca8b3289ab5bc55f0da8ab4cdca5e5c816256787e6b0d23e2a588.json",
+        "version": "ui-1792386502416-54118d51"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": false,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "ce5fe8c30970e32819f1de3bf856e0e364a4091792edd1d1aede97627cce5178",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5ca7486637602751f7fdbbf8c74cb4b0cbefc97aba89f0e9283833f87bbaea66.json",
+        "version": "ui-1792388395582-d1a343de"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:ui-1792388453979-5e7b05a3:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "0c4569c3625cc3700f46a7d3172c16a459e0d01f057f3dbe02efcc1bd7ecec2b",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\890b2ed8892d626268614581f315c4e45c3516262fc6f0e2abb8f2ec47283bc9.json",
+        "version": "ui-1792388453979-5e7b05a3"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:ui-1792388685132-f2cce11a:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "f29e1bfadab090d263dbb33904fff5df21b5b668a6070f801e2f46ab8e4e46f7",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9453b52d887fd87a955c334fdae949137a0c7955d892b1a892d9118dd6f60f38.json",
+        "version": "ui-1792388685132-f2cce11a"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": false,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "4a5318a87b1c052c2c8173267fa1b720ce6b162f3b250e6ab7e3a8f755881dfc",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e8a3756fa8b6c25044b8e610d9079cb9cdab4d9105d92db77058c06d6677f7e7.json",
+        "version": "ui-1792389925582-cf185d66"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:ui-1792389952549-13bf1059:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "ae6829aaf9080e812325293c9b5fc40737d0e90fb7347ef15027318f37fb93a1",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\837831ef193cfcad6468deb8f4e15684e9e46785c1e58f5083997ddbbd8adfbe.json",
+        "version": "ui-1792389952549-13bf1059"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:unit-1792386245807-e568e0eb:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "65d19b7295295fdb7f8ce63baccbd0ff635a1b790ffb81be3c5ee5532bcd414d",
+        "owner": "/root/catalog-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6a50b9a993d4567ca48f8bff955f90d2e27a047f1d67bce01c99fdd0871b28dd.json",
+        "version": "unit-1792386245807-e568e0eb"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CN-01-catalog-modules:unit-1792388389368-8c1d01d6:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "3d66a0c25de7d7a00fa1a4f1e2aca0157d586ebf7702456eec3b5e6c4ba70c28",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\50e8a00ae75864ed564d7a20fcf3787c861d339a306938e1d399b5f546301309.json",
+        "version": "unit-1792388389368-8c1d01d6"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CO-01-design-preview-modules:ui-1792388015827-e21688e9:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "9d3ebb0ae8f580252507d5f26a2a4056f5c6d62f584a49af9f8afa11373918af",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b4511edf093cf4dce6012c687486c0d4bb373bc62510557b78d7711fdb9e0d27.json",
+        "version": "ui-1792388015827-e21688e9"
+      },
+      {
+        "cached_live_members": 2,
+        "cleanup_status": "deferred",
+        "id": "run:CO-01-design-preview-modules:unit-1792388012948-f16db1b1:evidence",
+        "kind": "run",
+        "members_total": 2,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "18694d6c4727265c24517936628abe40c309b9e5655ffd170643a2a03f6eb212",
+        "owner": "/root/board-verification",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\671a787d700e426d949b4374d8545db28b19e53b7897b0b9a33e1368464f2056.json",
+        "version": "unit-1792388012948-f16db1b1"
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": "deferred",
+        "id": "run:module-cache-management-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "8fb078f208782b1b904be810e206ef889ad295c9cfda2d75ac53ac1c41997a70",
+        "owner": "module-cache-tests",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9374e09d733ebb80809f28bcaa037b7d4d59de25b341d12902bb18c30bbdb475.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [
+          "lifecycle group membership is incomplete",
+          "producer owner membership is not complete"
+        ],
+        "group_member_ids": [
+          "0cdda5dcce85de0b0792c781e4be460a27c0801dda44a64a693de49ebae9d068",
+          "7a84aaf689442a17334539eebc028b94d5e6c1772a2b4a7d060997f758c73558"
+        ],
+        "group_token": "400a148d99de168d8aabce05450f84dbdd2ea483e4090af1dfc6a692ec73e092",
+        "id": "0cdda5dcce85de0b0792c781e4be460a27c0801dda44a64a693de49ebae9d068",
+        "identity": "8a7d01e7e495e7219c4bdde756dcc39220bf9c290c4741ee006a763cedb2ab70",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+        "logical_bytes": 602,
+        "measured_at_ms": 1792390194284,
+        "membership_source_observation": {
+          "blockers": [
+            "producer owner membership is not complete"
+          ],
+          "identity": "4a5318a87b1c052c2c8173267fa1b720ce6b162f3b250e6ab7e3a8f755881dfc",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T06:05:26.588Z",
+            "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-19T06:05:27.931Z",
+            "version": "ui-1792389925582-cf185d66"
+          },
+          "references": [],
+          "settled": false,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934299786,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              81,
+              71,
+              188,
+              0,
+              0,
+              0,
+              6,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "c283651a3373b759d26efee3d7e8a40ab4828ec54411269b56ce4f1e6c72831f",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "27c7d592aab897d01db506859af355f295d2f500a8b4cd5cb4d12d11febbb3f2",
+          "afef3ab108b0bc9770a272b20aec663e01bd9c0d234f30300f773b078a92a32d"
+        ],
+        "group_token": "a4c2179c39d34c95db7147acf15fe3a702f4e47d5e5f7642c17bcf140313500e",
+        "id": "27c7d592aab897d01db506859af355f295d2f500a8b4cd5cb4d12d11febbb3f2",
+        "identity": "5d023cac9bd0b702bece22c11b2b2a5a496f97fc247e8369558b4080339bbb4f",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:unit-1792388389368-8c1d01d6:evidence",
+        "logical_bytes": 1662,
+        "measured_at_ms": 1792390054281,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "3d66a0c25de7d7a00fa1a4f1e2aca0157d586ebf7702456eec3b5e6c4ba70c28",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:39:50.483Z",
+            "id": "run:CN-01-catalog-modules:unit-1792388389368-8c1d01d6:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:39:52.092Z",
+            "version": "unit-1792388389368-8c1d01d6"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934360183,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              9,
+              243,
+              186,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "ef49127aaf94e60409fb65b94d6535b3959df5d0c27a0df4dbb038c888ffd8f2",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "3e2717618a0287a4f8b579b4f47b870d843c9f92bf8fa5b202e9936adde80f46",
+          "ca460f01a8504e94133fbd90d6c5440d2c639f1f943088bf8154daf700fd808a"
+        ],
+        "group_token": "fa057ad1d1444a98e9b724f68286c7afa559fbde360d770b6d6f3706a89e0dd4",
+        "id": "3e2717618a0287a4f8b579b4f47b870d843c9f92bf8fa5b202e9936adde80f46",
+        "identity": "86bd34de5c906f92d89a72e11549449ae80bbce5e8879d82666b53aa4969dcb0",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792389952549-13bf1059:evidence",
+        "logical_bytes": 86,
+        "measured_at_ms": 1792390110365,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "ae6829aaf9080e812325293c9b5fc40737d0e90fb7347ef15027318f37fb93a1",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T06:05:53.519Z",
+            "id": "run:CN-01-catalog-modules:ui-1792389952549-13bf1059:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T06:05:57.404Z",
+            "version": "ui-1792389952549-13bf1059"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934319002,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              172,
+              72,
+              188,
+              0,
+              0,
+              0,
+              9,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "39af0c842b57dfdca2ba70ab5825e4c2d6b6bd2734365197a5b0a9e35cde5316",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "4f70c3ccd72d0372f849fb02d5a723ccab2705f541e48db83554dc7706282199",
+          "bdde5e2ea2e40aaa3f21a53041e2bc7611e760c5b42882f7cb510c274f12fa57"
+        ],
+        "group_token": "bac4fe03e1581878f3232a2a06ca7121d5b6760d7d3e8e2631213d0544cd63f8",
+        "id": "4f70c3ccd72d0372f849fb02d5a723ccab2705f541e48db83554dc7706282199",
+        "identity": "5be1311f9449048bd3aee3d1d50d6aac69f0dca625010b56153f66bd00d9f9c6",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792386502416-54118d51:evidence",
+        "logical_bytes": 87,
+        "measured_at_ms": 1792390181963,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "6b2bd2ebf7e63216c2a17536030d542186f87ed5e33cd019660ac76a3195cef1",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:08:22.951Z",
+            "id": "run:CN-01-catalog-modules:ui-1792386502416-54118d51:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/catalog-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:08:25.810Z",
+            "version": "ui-1792386502416-54118d51"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934223316,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              77,
+              182,
+              185,
+              0,
+              0,
+              0,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "36bed3e98bc1997ab44264b4757b4c4acea41f85fd6775aa1bca686bfdb2d8a0",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "53665fd6124e17d06c9a3defc33f2a67fc051e11393362d0eff31590454d081e",
+          "6fc9d33c004130c08dc80063e00a82657db16ea1b18638f8c7bdd7d145df2e09"
+        ],
+        "group_token": "f63d96c6c1693e3764ddc27213cf68ff41d8ad5a23b9d5cdbf60bb283e8e370b",
+        "id": "53665fd6124e17d06c9a3defc33f2a67fc051e11393362d0eff31590454d081e",
+        "identity": "059809c1d9f0b34b1a32a56cab7488a290e14e9a9c068958e859c9192c4cbb93",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792388685132-f2cce11a:evidence",
+        "logical_bytes": 382839,
+        "measured_at_ms": 1792390136271,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "f29e1bfadab090d263dbb33904fff5df21b5b668a6070f801e2f46ab8e4e46f7",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:44:45.775Z",
+            "id": "run:CN-01-catalog-modules:ui-1792388685132-f2cce11a:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:44:49.053Z",
+            "version": "ui-1792388685132-f2cce11a"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934280704,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              120,
+              119,
+              187,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "e0b3a6883ac9191d2d2f0a04cc01a7834b5fbc88a098795a14d12af91b28df01",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "58c57aaf638ab56e49b7a19be849d39243453ad8acddd813b415c2bd8f1c9538",
+          "abd070bfee08f4a8b8320ca1f5a16c3d3c3f2bedbefc538cdb113b1210279c51"
+        ],
+        "group_token": "c4025de929f4069d29fb0394c08ef6f328911bbc9a699489c3a5bcc246b601bb",
+        "id": "58c57aaf638ab56e49b7a19be849d39243453ad8acddd813b415c2bd8f1c9538",
+        "identity": "120888ef7d42b98a9132d4088da408068785dfa9f28ebdbe73f5f30493322e39",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:unit-1792386245807-e568e0eb:evidence",
+        "logical_bytes": 1618,
+        "measured_at_ms": 1792390095848,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "65d19b7295295fdb7f8ce63baccbd0ff635a1b790ffb81be3c5ee5532bcd414d",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:04:06.672Z",
+            "id": "run:CN-01-catalog-modules:unit-1792386245807-e568e0eb:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/catalog-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:04:08.168Z",
+            "version": "unit-1792386245807-e568e0eb"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934340363,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              92,
+              179,
+              185,
+              0,
+              0,
+              0,
+              5,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "d92735712f6a692dcda9eb5f620027b1bff6bc6af00db487b7e34a355472fdcd",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "53665fd6124e17d06c9a3defc33f2a67fc051e11393362d0eff31590454d081e",
+          "6fc9d33c004130c08dc80063e00a82657db16ea1b18638f8c7bdd7d145df2e09"
+        ],
+        "group_token": "f63d96c6c1693e3764ddc27213cf68ff41d8ad5a23b9d5cdbf60bb283e8e370b",
+        "id": "6fc9d33c004130c08dc80063e00a82657db16ea1b18638f8c7bdd7d145df2e09",
+        "identity": "5032610015d46cf731daaf137c0fc8df5ace8edc99f12cc0bc6492687f9610fa",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792388685132-f2cce11a:evidence",
+        "logical_bytes": 87,
+        "measured_at_ms": 1792390136196,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "f29e1bfadab090d263dbb33904fff5df21b5b668a6070f801e2f46ab8e4e46f7",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:44:45.775Z",
+            "id": "run:CN-01-catalog-modules:ui-1792388685132-f2cce11a:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:44:49.053Z",
+            "version": "ui-1792388685132-f2cce11a"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934280732,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388685132-f2cce11a\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              119,
+              119,
+              187,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "7f81f71f45c0539a033d56401be160a397adc52699c3a0ee58b05a4a87cdeb79",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "lifecycle group membership is incomplete",
+          "producer owner membership is not complete"
+        ],
+        "group_member_ids": [
+          "0cdda5dcce85de0b0792c781e4be460a27c0801dda44a64a693de49ebae9d068",
+          "7a84aaf689442a17334539eebc028b94d5e6c1772a2b4a7d060997f758c73558"
+        ],
+        "group_token": "400a148d99de168d8aabce05450f84dbdd2ea483e4090af1dfc6a692ec73e092",
+        "id": "7a84aaf689442a17334539eebc028b94d5e6c1772a2b4a7d060997f758c73558",
+        "identity": "68ec0921b8357c7131c0dc87655203fc710d5852833fbac0c39a7bc5b769bec5",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+        "logical_bytes": 263323,
+        "measured_at_ms": 1792390194333,
+        "membership_source_observation": {
+          "blockers": [
+            "producer owner membership is not complete"
+          ],
+          "identity": "4a5318a87b1c052c2c8173267fa1b720ce6b162f3b250e6ab7e3a8f755881dfc",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T06:05:26.588Z",
+            "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-19T06:05:27.931Z",
+            "version": "ui-1792389925582-cf185d66"
+          },
+          "references": [],
+          "settled": false,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934299816,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              82,
+              71,
+              188,
+              0,
+              0,
+              0,
+              6,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "45e7efebc41f7990edb2312c6427d5e008796bcdab7a6f832410968dc6029b02",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "7b4b7554e09560ec1d1294e885172bd267d7996c339c8f04f4ee7bb35a36a0f0",
+          "88edf1843035d04d8f23818c168d58e8e109e656581acc554e980bb0f38e1aa7"
+        ],
+        "group_token": "2ef6a66071fa20d230dd2f6d42fda6d6a6206f106505eed7a9f145ad7876ea63",
+        "id": "7b4b7554e09560ec1d1294e885172bd267d7996c339c8f04f4ee7bb35a36a0f0",
+        "identity": "d1d40e1b61a4c7621a13ce2e397bd7bb646a6764df06d6a47cae6e23173f0ce6",
+        "lifecycle_group_id": "run:CO-01-design-preview-modules:unit-1792388012948-f16db1b1:evidence",
+        "logical_bytes": 3273,
+        "measured_at_ms": 1792388072788,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "18694d6c4727265c24517936628abe40c309b9e5655ffd170643a2a03f6eb212",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:33:33.665Z",
+            "id": "run:CO-01-design-preview-modules:unit-1792388012948-f16db1b1:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:33:34.731Z",
+            "version": "unit-1792388012948-f16db1b1"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934399511,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              202,
+              86,
+              186,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "67f8adf45bfff9b27bb85c23289aa975f9683bd4ce46d8f5791ca1b56ccab450",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "generation or usage protection unconfirmed",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "7fc02538569fa839dfc4f735dab38b8c92c4790910c7d1eb67beffea882a5308"
+        ],
+        "group_token": "6f5ea0abc2c3362eda105267d85b467c1fbf243f7da0ecc62c62f30e0caa03e9",
+        "id": "7fc02538569fa839dfc4f735dab38b8c92c4790910c7d1eb67beffea882a5308",
+        "identity": "975c28f07e932a6a8bd39d56b596a89a9627d41a0c9c64e6fc18547f282ea1f6",
+        "lifecycle_group_id": "run:module-cache-management-r1",
+        "logical_bytes": 3673,
+        "measured_at_ms": 1792412894583,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "8fb078f208782b1b904be810e206ef889ad295c9cfda2d75ac53ac1c41997a70",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T12:19:21.323Z",
+            "id": "run:module-cache-management-r1",
+            "kind": "run",
+            "members": [
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-module-cache-management-r1",
+                "role": "logs"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "module-cache-tests",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T12:24:43.499Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934418299,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-module-cache-management-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              110,
+              18,
+              17,
+              0,
+              0,
+              0,
+              34,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "9b9ac6b96d99f76797b41cb200f53e5b6d58ab1dc7ac6c72fc3f2f3817ddc5b8",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "82c7d2ec3c739d120b360b174d598f180cc0ffb6dad2a690f49d39499bce893a",
+          "a2ea2b8860ed63a6f02d9a9c5be35df57822f364af916d74b34789e91ba04d06"
+        ],
+        "group_token": "e19322032cb2f734e28608a7aa9280654d68546e518b9b1812823185dac3cd8f",
+        "id": "82c7d2ec3c739d120b360b174d598f180cc0ffb6dad2a690f49d39499bce893a",
+        "identity": "2f62a096cfa2bd5c23e04caba1bff18eeb77de7e0d3e29c8feed1ed97aab7cbb",
+        "lifecycle_group_id": "run:CO-01-design-preview-modules:ui-1792388015827-e21688e9:evidence",
+        "logical_bytes": 25,
+        "measured_at_ms": 1792388101874,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "9d3ebb0ae8f580252507d5f26a2a4056f5c6d62f584a49af9f8afa11373918af",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:33:36.802Z",
+            "id": "run:CO-01-design-preview-modules:ui-1792388015827-e21688e9:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:33:41.932Z",
+            "version": "ui-1792388015827-e21688e9"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934379680,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              237,
+              87,
+              186,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "0807402a4178d237703284edb3f3e46bc1aba7091321778275686541166c3007",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "7b4b7554e09560ec1d1294e885172bd267d7996c339c8f04f4ee7bb35a36a0f0",
+          "88edf1843035d04d8f23818c168d58e8e109e656581acc554e980bb0f38e1aa7"
+        ],
+        "group_token": "2ef6a66071fa20d230dd2f6d42fda6d6a6206f106505eed7a9f145ad7876ea63",
+        "id": "88edf1843035d04d8f23818c168d58e8e109e656581acc554e980bb0f38e1aa7",
+        "identity": "c24e901b0b64678c9813c6325056a852058c7777e3ee9c2c7a3039eb5ea31157",
+        "lifecycle_group_id": "run:CO-01-design-preview-modules:unit-1792388012948-f16db1b1:evidence",
+        "logical_bytes": 1878,
+        "measured_at_ms": 1792388072809,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "18694d6c4727265c24517936628abe40c309b9e5655ffd170643a2a03f6eb212",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:33:33.665Z",
+            "id": "run:CO-01-design-preview-modules:unit-1792388012948-f16db1b1:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:33:34.731Z",
+            "version": "unit-1792388012948-f16db1b1"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934399540,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\unit-1792388012948-f16db1b1\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              203,
+              86,
+              186,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "f8cbe2ad63c67c71dae331413698c113cda143840dcc0f4b1a72c8c901cbe1c0",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "generation or usage protection unconfirmed",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "a25d09e7ac6abb9bda85b02a317b8e9cb311770bd8802d8cec50915764d7f51f"
+        ],
+        "group_token": "710335966c177441f7aa081ebcc24f7dce19a8949882ed8ca1ac924410f6d5e1",
+        "id": "a25d09e7ac6abb9bda85b02a317b8e9cb311770bd8802d8cec50915764d7f51f",
+        "identity": "767832e411f267b05d0b38fc2d5eba17448743c1ebddf30993123546bdafeef1",
+        "lifecycle_group_id": "run:CL-01-question-withdrawal:source-1",
+        "logical_bytes": 1779584,
+        "measured_at_ms": 1792339553569,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "ef1d407c8a82656645ad9bcfa024b6787f3ec38061a2355c2752b54d00f8df55",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-18T15:39:17.366Z",
+            "id": "run:CL-01-question-withdrawal:source-1",
+            "kind": "run",
+            "members": [
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\question-withdrawal\\source-1",
+                "role": "logs"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "CL-01-question-withdrawal",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-18T16:05:46.590Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934198495,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\question-withdrawal\\source-1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              96,
+              58,
+              176,
+              0,
+              0,
+              0,
+              25,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "860733e6634486554beba3b4c979a16759e36b5527170f424ee6d3cff733230e",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "82c7d2ec3c739d120b360b174d598f180cc0ffb6dad2a690f49d39499bce893a",
+          "a2ea2b8860ed63a6f02d9a9c5be35df57822f364af916d74b34789e91ba04d06"
+        ],
+        "group_token": "e19322032cb2f734e28608a7aa9280654d68546e518b9b1812823185dac3cd8f",
+        "id": "a2ea2b8860ed63a6f02d9a9c5be35df57822f364af916d74b34789e91ba04d06",
+        "identity": "b8bc89454d48d2488329cc4989483f196e4cc171c0a3c32ab39978a9dfb099ef",
+        "lifecycle_group_id": "run:CO-01-design-preview-modules:ui-1792388015827-e21688e9:evidence",
+        "logical_bytes": 458105,
+        "measured_at_ms": 1792388101975,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "9d3ebb0ae8f580252507d5f26a2a4056f5c6d62f584a49af9f8afa11373918af",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:33:36.802Z",
+            "id": "run:CO-01-design-preview-modules:ui-1792388015827-e21688e9:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:33:41.932Z",
+            "version": "ui-1792388015827-e21688e9"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934379708,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CO-01-design-preview-modules\\runs\\ui-1792388015827-e21688e9\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              238,
+              87,
+              186,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "6c75684a20df1b8defff5a22c25e87e97a546c690a7ebedbed96e93131af5633",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "58c57aaf638ab56e49b7a19be849d39243453ad8acddd813b415c2bd8f1c9538",
+          "abd070bfee08f4a8b8320ca1f5a16c3d3c3f2bedbefc538cdb113b1210279c51"
+        ],
+        "group_token": "c4025de929f4069d29fb0394c08ef6f328911bbc9a699489c3a5bcc246b601bb",
+        "id": "abd070bfee08f4a8b8320ca1f5a16c3d3c3f2bedbefc538cdb113b1210279c51",
+        "identity": "77d0982912393b12b2e90da304d5aacdccf91ea744f13868e5a19e38bd85aba1",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:unit-1792386245807-e568e0eb:evidence",
+        "logical_bytes": 2697,
+        "measured_at_ms": 1792390095828,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "65d19b7295295fdb7f8ce63baccbd0ff635a1b790ffb81be3c5ee5532bcd414d",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:04:06.672Z",
+            "id": "run:CN-01-catalog-modules:unit-1792386245807-e568e0eb:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/catalog-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:04:08.168Z",
+            "version": "unit-1792386245807-e568e0eb"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934340394,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792386245807-e568e0eb\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              91,
+              179,
+              185,
+              0,
+              0,
+              0,
+              5,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "a6b6cf315ffe37d602c25f5e2d0c6b93f28484a3ab0739e11ec43f28473ba8c9",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "lifecycle group membership is incomplete",
+          "producer owner membership is not complete"
+        ],
+        "group_member_ids": [
+          "ad07ecd044fe288480c4481992bd865a94e2c4e672c5a6e0795b1998c65084e2",
+          "dc17393fccaf5a1b2cbf28a978e6f6abf8b1cf552e2ed67746cb4c707780bf6d"
+        ],
+        "group_token": "c4d2381811538ab98e8b69cac09808ee48b3e17a6edef4c4e29e9f10dce6cad8",
+        "id": "ad07ecd044fe288480c4481992bd865a94e2c4e672c5a6e0795b1998c65084e2",
+        "identity": "8c26ce53c48f98b01a54c8175c5b609b2bfc51755d25321566c8d98b751d5bb5",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+        "logical_bytes": 409046,
+        "measured_at_ms": 1792390066358,
+        "membership_source_observation": {
+          "blockers": [
+            "producer owner membership is not complete"
+          ],
+          "identity": "ce5fe8c30970e32819f1de3bf856e0e364a4091792edd1d1aede97627cce5178",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:39:56.289Z",
+            "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-19T05:40:06.879Z",
+            "version": "ui-1792388395582-d1a343de"
+          },
+          "references": [],
+          "settled": false,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934242428,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              171,
+              244,
+              186,
+              0,
+              0,
+              0,
+              15,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "5b6ad7ec24220ae2bec2f941e3c7711811d19946cd662fbf636f3ef189d9e069",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "27c7d592aab897d01db506859af355f295d2f500a8b4cd5cb4d12d11febbb3f2",
+          "afef3ab108b0bc9770a272b20aec663e01bd9c0d234f30300f773b078a92a32d"
+        ],
+        "group_token": "a4c2179c39d34c95db7147acf15fe3a702f4e47d5e5f7642c17bcf140313500e",
+        "id": "afef3ab108b0bc9770a272b20aec663e01bd9c0d234f30300f773b078a92a32d",
+        "identity": "eae6a0f3fc47b126e06b678693e36e659cd6edfacb487a54b0ddd73168710507",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:unit-1792388389368-8c1d01d6:evidence",
+        "logical_bytes": 2801,
+        "measured_at_ms": 1792390054263,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "3d66a0c25de7d7a00fa1a4f1e2aca0157d586ebf7702456eec3b5e6c4ba70c28",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:39:50.483Z",
+            "id": "run:CN-01-catalog-modules:unit-1792388389368-8c1d01d6:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:39:52.092Z",
+            "version": "unit-1792388389368-8c1d01d6"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934360214,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\unit-1792388389368-8c1d01d6\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              8,
+              243,
+              186,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "ee8f5c0bd069d0f6200682975da98fa3932510113359f1c89b22ab784b2054f1",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "references active or unknown",
+          "lifecycle membership source is read-only control evidence",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "ar01-parent-routing-evidence-20261019-files"
+        ],
+        "group_token": "cc216fe4301796e0552c2aa1d209a4c1d3724eca22541fa36ac69249b987b2f2",
+        "id": "ar01-parent-routing-evidence-20261019-files",
+        "identity": "b0a24d6f493b955c42fea687884a9a20c92f191d9f612cae8672ea880f8ab5ce",
+        "lifecycle_group_id": "ar01-parent-routing-evidence-20261019",
+        "logical_bytes": 1950791,
+        "measured_at_ms": 1792412868703,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1792934198365,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\parent-request-routing-20261019",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              238,
+              199,
+              193,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "afe5d7223a5949de1c3ce66f47b4b72cd505a160ea0ac1ddef3858dabd514577",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "4f70c3ccd72d0372f849fb02d5a723ccab2705f541e48db83554dc7706282199",
+          "bdde5e2ea2e40aaa3f21a53041e2bc7611e760c5b42882f7cb510c274f12fa57"
+        ],
+        "group_token": "bac4fe03e1581878f3232a2a06ca7121d5b6760d7d3e8e2631213d0544cd63f8",
+        "id": "bdde5e2ea2e40aaa3f21a53041e2bc7611e760c5b42882f7cb510c274f12fa57",
+        "identity": "e79dd08c187068d598c8771fbc289ed89ddc72442e07a81d85207b62db71065a",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792386502416-54118d51:evidence",
+        "logical_bytes": 292731,
+        "measured_at_ms": 1792390182031,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "6b2bd2ebf7e63216c2a17536030d542186f87ed5e33cd019660ac76a3195cef1",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:08:22.951Z",
+            "id": "run:CN-01-catalog-modules:ui-1792386502416-54118d51:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/catalog-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:08:25.810Z",
+            "version": "ui-1792386502416-54118d51"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934223344,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792386502416-54118d51\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              78,
+              182,
+              185,
+              0,
+              0,
+              0,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "a18ab6d8eac257d8cc84725976ab712994dd4240bb6a5eea6b42d102fd3e7af2",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "3e2717618a0287a4f8b579b4f47b870d843c9f92bf8fa5b202e9936adde80f46",
+          "ca460f01a8504e94133fbd90d6c5440d2c639f1f943088bf8154daf700fd808a"
+        ],
+        "group_token": "fa057ad1d1444a98e9b724f68286c7afa559fbde360d770b6d6f3706a89e0dd4",
+        "id": "ca460f01a8504e94133fbd90d6c5440d2c639f1f943088bf8154daf700fd808a",
+        "identity": "2f02b98585ad5925db298a960b9f8dc1abb116daa540b4081ac2739ee60d0c20",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792389952549-13bf1059:evidence",
+        "logical_bytes": 545956,
+        "measured_at_ms": 1792390110435,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "ae6829aaf9080e812325293c9b5fc40737d0e90fb7347ef15027318f37fb93a1",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T06:05:53.519Z",
+            "id": "run:CN-01-catalog-modules:ui-1792389952549-13bf1059:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T06:05:57.404Z",
+            "version": "ui-1792389952549-13bf1059"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934319031,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389952549-13bf1059\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              173,
+              72,
+              188,
+              0,
+              0,
+              0,
+              8,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "73ba769c61c7fb90d1aa6101df842aff5724c4ebce3d6d8ce8da65c0647be7a5",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "cb02899e98937fe878c6ecb20d477f5496adce810c2a38dca357cc83ae001d7c",
+          "ce053e28890f8db06867678494c26c0bc927dd87b6f4d13e8f24f98eb38570d5"
+        ],
+        "group_token": "56478a8ea9e1ea42ec953ade6a8f57210b27f42ddfa6182e5196696d69cf33af",
+        "id": "cb02899e98937fe878c6ecb20d477f5496adce810c2a38dca357cc83ae001d7c",
+        "identity": "fa0faf5c1820ac45a53f5f11e899878c6da366f39fb4adadd7651b113f1f809c",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792388453979-5e7b05a3:evidence",
+        "logical_bytes": 87,
+        "measured_at_ms": 1792390123818,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "0c4569c3625cc3700f46a7d3172c16a459e0d01f057f3dbe02efcc1bd7ecec2b",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:40:54.872Z",
+            "id": "run:CN-01-catalog-modules:ui-1792388453979-5e7b05a3:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:41:00.559Z",
+            "version": "ui-1792388453979-5e7b05a3"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934261602,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              114,
+              6,
+              187,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "6c204b9773db8e6b98e34ffe5a7d74b60e46abe4b229112f8ab6ad3fd428185d",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "cb02899e98937fe878c6ecb20d477f5496adce810c2a38dca357cc83ae001d7c",
+          "ce053e28890f8db06867678494c26c0bc927dd87b6f4d13e8f24f98eb38570d5"
+        ],
+        "group_token": "56478a8ea9e1ea42ec953ade6a8f57210b27f42ddfa6182e5196696d69cf33af",
+        "id": "ce053e28890f8db06867678494c26c0bc927dd87b6f4d13e8f24f98eb38570d5",
+        "identity": "872ec5f87abe17230aae2c7e0063637e0e52432b355abd5d515025679e13ed69",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792388453979-5e7b05a3:evidence",
+        "logical_bytes": 382897,
+        "measured_at_ms": 1792390123896,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "0c4569c3625cc3700f46a7d3172c16a459e0d01f057f3dbe02efcc1bd7ecec2b",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:40:54.872Z",
+            "id": "run:CN-01-catalog-modules:ui-1792388453979-5e7b05a3:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-19T05:41:00.559Z",
+            "version": "ui-1792388453979-5e7b05a3"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934261631,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388453979-5e7b05a3\\reports",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              116,
+              6,
+              187,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "ef5d60c4bfc7354722e25f02f240ce3b0edcf8bff272955f36d1730f8fb8ad8e",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "lifecycle group membership is incomplete",
+          "producer owner membership is not complete"
+        ],
+        "group_member_ids": [
+          "ad07ecd044fe288480c4481992bd865a94e2c4e672c5a6e0795b1998c65084e2",
+          "dc17393fccaf5a1b2cbf28a978e6f6abf8b1cf552e2ed67746cb4c707780bf6d"
+        ],
+        "group_token": "c4d2381811538ab98e8b69cac09808ee48b3e17a6edef4c4e29e9f10dce6cad8",
+        "id": "dc17393fccaf5a1b2cbf28a978e6f6abf8b1cf552e2ed67746cb4c707780bf6d",
+        "identity": "218b8382eb338917fa7588ebaf215cfb3a27d21fe52261cd0479958a2a5fa3cb",
+        "lifecycle_group_id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+        "logical_bytes": 3701,
+        "measured_at_ms": 1792390066293,
+        "membership_source_observation": {
+          "blockers": [
+            "producer owner membership is not complete"
+          ],
+          "identity": "ce5fe8c30970e32819f1de3bf856e0e364a4091792edd1d1aede97627cce5178",
+          "membership_matches": true,
+          "owner": {
+            "created_at": "2026-10-19T05:39:56.289Z",
+            "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports",
+                "protection_known": true,
+                "role": "reports"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root/board-verification",
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-19T05:40:06.879Z",
+            "version": "ui-1792388395582-d1a343de"
+          },
+          "references": [],
+          "settled": false,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1792934242459,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              170,
+              244,
+              186,
+              0,
+              0,
+              0,
+              15,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "abc682e7cd4b0669205be827b655fb3aa0e040c0e956b4d6003c4e4d62902967",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "references active or unknown",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "du01-postboot-20261016-cleanup",
+          "du01-postboot-20261016-inspection",
+          "du01-postboot-20261016-run"
+        ],
+        "group_token": "7494d26e8b4f7ee4ba90e746b34cb76650b46a39fc299a79f95d20e012f212a2",
+        "id": "du01-postboot-20261016-cleanup",
+        "identity": "1d5c0662aed3026b6f205bd1db783b2ef4c7e6f5e65ad540dc81faa00e09a35c",
+        "lifecycle_group_id": "du01-postboot-20261016-r1",
+        "logical_bytes": 556,
+        "measured_at_ms": 1792159379208,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1792934198395,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\window-use-stages\\rdp-postboot-20261016-cleanup-r1.json",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              223,
+              223,
+              38,
+              0,
+              0,
+              0,
+              11,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "7caff993bf0b95ff395583b68a099d85b5c6505fd0fb871aaef8ef9cda9cb741",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "references active or unknown",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "du01-postboot-20261016-cleanup",
+          "du01-postboot-20261016-inspection",
+          "du01-postboot-20261016-run"
+        ],
+        "group_token": "7494d26e8b4f7ee4ba90e746b34cb76650b46a39fc299a79f95d20e012f212a2",
+        "id": "du01-postboot-20261016-inspection",
+        "identity": "f684bd45e7517f60c24634f74b87c1f7a34ef6743371c8bea3111626f21e2ac1",
+        "lifecycle_group_id": "du01-postboot-20261016-r1",
+        "logical_bytes": 298,
+        "measured_at_ms": 1792159379193,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1792934198428,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\window-use-stages\\rdp-postboot-20261016-inspection-r1.json",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              211,
+              237,
+              23,
+              0,
+              0,
+              0,
+              15,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "02c223758ff8184f05533a24c685b4f84c88ca2b0643d3787fd04ed9db52f302",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "references active or unknown",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "du01-postboot-20261016-cleanup",
+          "du01-postboot-20261016-inspection",
+          "du01-postboot-20261016-run"
+        ],
+        "group_token": "7494d26e8b4f7ee4ba90e746b34cb76650b46a39fc299a79f95d20e012f212a2",
+        "id": "du01-postboot-20261016-run",
+        "identity": "7cf96668e7e03792a600c6ad6cdb96368fc4ab99a97b134fd3614e5d6418ebd3",
+        "lifecycle_group_id": "du01-postboot-20261016-r1",
+        "logical_bytes": 30344,
+        "measured_at_ms": 1792159379181,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1792934198458,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261016-postboot-investigation-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              62,
+              227,
+              38,
+              0,
+              0,
+              0,
+              13,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "070404c71325a4b094530f1b1cb068e28ee19aaa7eae42ff3326287805f13361",
+        "verification": "registered"
+      }
+    ]
+  },
+  "metadataChange": {
+    "group": "run:module-cache-management-r1",
+    "producerRevisionBefore": 2,
+    "producerRevisionAfter": 3,
+    "nativeRefreshed": false,
+    "reason": "Existing complete log-only producer plus actual six original log files and independently retained exit=0 regression summaries establish generated ownership and current protection."
+  }
+}
