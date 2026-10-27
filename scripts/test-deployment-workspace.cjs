@@ -134,6 +134,13 @@ async function main() {
   const engineDestination = path.join(engineCase.projectRoot, "engine");
   const importer = spawnSync(pythonExecutable, ["-B", path.join(__dirname, "import-engine-source.py"), "--source", engineSource, "--destination", engineDestination, "--allow-source-advance"], { encoding: "utf8", windowsHide: true });
   assert.equal(importer.status, 0, importer.error?.message || importer.stderr || "Imported fixture creation failed");
+  const unexpectedEngineSource = path.join(engineDestination, "unrecorded.txt");
+  fs.writeFileSync(unexpectedEngineSource, "unrecorded engine input");
+  await assert.rejects(prepareDeploymentWorkspace({ ...engineCase.options, engineSourceRoot: engineDestination, pythonExecutable }), /Destination coverage differs/);
+  assert(!fs.existsSync(engineCase.options.inputRoot), "invalid engine must not create immutable inputs");
+  assert(!fs.existsSync(engineCase.options.workingRoot), "invalid engine must not create a working copy");
+  fs.unlinkSync(unexpectedEngineSource);
+  checks.push("invalid imported inventory rejected before deployment copies");
   const engineContext = await prepareDeploymentWorkspace({ ...engineCase.options, engineSourceRoot: engineDestination, pythonExecutable });
   assert.equal((await verifyDeploymentWorkspace(engineContext)).status, "verified");
   fs.mkdirSync(path.join(engineContext.workingRoot, "engine/codex-rs/target"), { recursive: true });

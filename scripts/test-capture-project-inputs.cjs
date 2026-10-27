@@ -6,7 +6,8 @@ const { spawnSync } = require("node:child_process");
 const { captureProject: capture, parents } = require("./capture-project-inputs.cjs");
 const { snapshotProject } = require("./deployment-input-snapshot.cjs");
 
-const fixtureRoot = path.resolve(__dirname, "../artifacts/verification/deployment-optimization", `capture-${Date.now()}-${process.pid} spaces 한글`);
+if (process.argv[2]) assert(path.isAbsolute(process.argv[2]), "absolute owned fixture root required");
+const fixtureRoot = process.argv[2] || path.resolve(__dirname, "../artifacts/verification/deployment-optimization", `capture-${Date.now()}-${process.pid} spaces 한글`);
 fs.mkdirSync(fixtureRoot, { recursive: true });
 let passed = 0;
 let suiteRoot = fixtureRoot, smallFileMaxBytes = 128 * 1024;
@@ -16,10 +17,10 @@ function git(root, ...args) {
   assert.equal(result.status, 0, result.error?.message || result.stderr);
   return result.stdout.trim();
 }
-function repository(name) {
+function repository(name, objectFormat = "sha1") {
   const root = path.join(suiteRoot, name);
   fs.mkdirSync(root);
-  git(root, "init", "--quiet");
+  git(root, "init", "--quiet", `--object-format=${objectFormat}`);
   fs.writeFileSync(path.join(root, ".gitignore"), "ignored/\n");
   fs.mkdirSync(path.join(root, "dir"));
   fs.writeFileSync(path.join(root, "dir/input.txt"), "alpha\n");
@@ -102,6 +103,35 @@ async function main() {
     }
     fs.chmodSync(path.join(root, "dir/input.txt"), 0o666);
     fs.chmodSync(path.join(destination, "dir/input.txt"), 0o666);
+  });
+  await test("existing blobs are reused and new duplicate blobs preserve raw bytes", async () => {
+    for (const format of ["sha1", "sha256"]) {
+      const root = repository(`objects-${format}`, format), destination = clone(root, `objects-${format}-frozen`);
+      const dirty = Buffer.from([0, 255, 13, 10, 0]);
+      fs.writeFileSync(path.join(root, "dir/input.txt"), dirty);
+      fs.writeFileSync(path.join(root, "duplicate.bin"), dirty);
+      fs.writeFileSync(path.join(root, "empty.bin"), "");
+      const result = await captureProject(root, destination);
+      assert(result.gitIo.reusedFileCount > 0);
+      assert(result.gitIo.writtenObjectCount > 0);
+      for (const name of ["dir/input.txt", "duplicate.bin", "empty.bin", ".gitignore"]) {
+        const oid = git(destination, "rev-parse", `:${name}`);
+        assert.equal(oid, git(root, "hash-object", "--no-filters", name));
+        const read = spawnSync("git", ["-C", destination, "cat-file", "blob", oid]);
+        assert.equal(read.status, 0, read.stderr.toString());
+        assert.deepEqual(read.stdout, fs.readFileSync(path.join(root, name)));
+      }
+      assert.equal(result.sha256, (await snapshotProject(root)).sha256);
+    }
+  });
+  await test("mutation during Git blob import rejects the result and closes its importer", async () => {
+    for (const boundary of [1, 2]) {
+      const root = repository(`import-change-${boundary}`), destination = clone(root, `import-change-${boundary}-frozen`);
+      fs.writeFileSync(path.join(root, "new.bin"), Buffer.alloc(128 * 1024 + 1, 0xa5));
+      const target = path.join(destination, "new.bin");
+      await interceptOpen(target, async call => { if (call === boundary) fs.appendFileSync(target, "changed"); },
+        () => assert.rejects(captureProject(root, destination, { concurrency: 1 }), /Frozen project aggregate differs/));
+    }
   });
   await test("physical root resolves once per parent inspection", async () => {
     const root = repository("parents");

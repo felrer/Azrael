@@ -46,7 +46,7 @@ function prepareGit(source, destination, snapshot, separateControl) {
     const head = git(tree.root, "rev-parse", "HEAD");
     if (!/^[a-f0-9]{40,64}$/.test(head)) throw Error("Exact source HEAD required");
     git(target, "fetch", "--quiet", "--depth=1", "--no-tags", tree.root, head);
-    git(target, "reset", "--mixed", head);
+    git(target, "reset", "--mixed", "--no-refresh", head);
   }
 }
 function rootIdentity(root) {
@@ -63,6 +63,7 @@ function engineSnapshot(project, engine, pythonExecutable) {
 }
 async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = projectRoot, inputRoot, workingRoot, owner, runLifecycleId, reportPath, engineSourceRoot, projectOverrides = [], pythonExecutable = process.platform === "win32" ? "python" : "python3" }) {
   const started = performance.now();
+  const timings = {};
   projectRoot = fs.realpathSync(projectRoot);
   artifactProjectRoot = fs.realpathSync(artifactProjectRoot);
   inputRoot = checked(artifactProjectRoot, inputRoot); workingRoot = checked(artifactProjectRoot, workingRoot); reportPath = checked(artifactProjectRoot, reportPath);
@@ -78,7 +79,9 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
   if (fs.existsSync(reportPath)) throw Error("Fresh deployment report required");
   for (const root of [inputRoot, workingRoot]) if (records.some(record => record.members.some(member => overlaps(root, member.path)))) throw Error("Deployment root already claimed");
   exactRepository(projectRoot);
+  const sourceSnapshotStarted = performance.now();
   const source = await snapshotProject(projectRoot);
+  timings.sourceSnapshotMs = performance.now() - sourceSnapshotStarted;
   if (!Array.isArray(projectOverrides)) throw Error("Explicit project override array required");
   const overridePaths = new Set();
   const overrides = projectOverrides.map(override => {
@@ -108,6 +111,11 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
     if (topLevels.has("engine") && !embeddedEngine) throw Error("Imported engine conflicts with selected project source");
     if ([inputRoot, workingRoot].some(root => overlaps(root, engineSourceRoot))) throw Error("Engine source overlaps deployment roots");
     if (fs.existsSync(path.join(engineSourceRoot, ".git")) || !fs.existsSync(path.join(engineSourceRoot, "SOURCE.json"))) throw Error("Imported SOURCE.json engine without Git metadata required");
+    // Reject an invalid imported inventory before claiming/copying two full trees.
+    // The frozen and working copies are still independently checked below.
+    const enginePreflightStarted = performance.now();
+    engineSnapshot(projectRoot, engineSourceRoot, pythonExecutable);
+    timings.enginePreflightMs = performance.now() - enginePreflightStarted;
     topLevels.add("engine");
   }
   const suffix = crypto.createHash("sha256").update(inputRoot).digest("hex").slice(0, 24);
@@ -145,7 +153,10 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
     const repository = git(path.dirname(destination), "rev-parse", "--show-toplevel");
     git(repository, "add", "--force", "--", path.relative(repository, destination));
   }
-  const immutableProject = await snapshotProject(immutableProjectRoot);
+  const immutableSnapshotStarted = performance.now();
+  // captureProject already independently hashes its complete frozen output.
+  const immutableProject = overrides.length ? await snapshotProject(immutableProjectRoot) : project.frozenSnapshot;
+  timings.immutableSnapshotMs = performance.now() - immutableSnapshotStarted;
   const workingGitStarted = performance.now();
   prepareGit(immutableProjectRoot, workingRoot, immutableProject, path.join(workingRoot, "control"));
   // Source selection excludes only independently audited imported engine/control data.
@@ -154,23 +165,33 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
   fs.appendFileSync(excludePath, "\n/control/\n" + (engineSourceRoot && !embeddedEngine ? "/engine/\n" : ""));
   const workingGitPreparationMs = performance.now() - workingGitStarted;
   const workingProject = await captureProject(immutableProjectRoot, workingRoot);
+  if (workingProject.sha256 !== immutableProject.sha256) throw Error("Working project differs from immutable inputs");
+  timings.immutableCaptureMs = project.elapsedMs;
+  timings.workingCaptureMs = workingProject.elapsedMs;
+  timings.workingCapturePhasesMs = workingProject.phasesMs;
+  timings.workingGitIo = workingProject.gitIo;
   let engine;
   const immutableEngineRoot = engineSourceRoot ? path.join(embeddedEngine ? immutableProjectRoot : inputRoot, "engine") : null;
   const workingEngineRoot = engineSourceRoot ? path.join(workingRoot, "engine") : null;
   if (engineSourceRoot) {
+    const engineFreezeStarted = performance.now();
     const before = engineSnapshot(immutableProjectRoot, engineSourceRoot, pythonExecutable);
     if (!embeddedEngine) copyTree(engineSourceRoot, immutableEngineRoot);
     engine = engineSnapshot(immutableProjectRoot, immutableEngineRoot, pythonExecutable);
     if (JSON.stringify(before) !== JSON.stringify(engine) || JSON.stringify(before) !== JSON.stringify(engineSnapshot(immutableProjectRoot, engineSourceRoot, pythonExecutable))) throw Error("Engine changed while freezing source");
     if (!embeddedEngine) copyTree(immutableEngineRoot, workingEngineRoot);
     if (JSON.stringify(engine) !== JSON.stringify(engineSnapshot(immutableProjectRoot, workingEngineRoot, pythonExecutable))) throw Error("Working engine differs from immutable inputs");
+    timings.engineFreezeMs = performance.now() - engineFreezeStarted;
   }
+  const inventoryStarted = performance.now();
+  const immutableInventory = inventoryTree(inputRoot);
+  timings.immutableInventoryMs = performance.now() - inventoryStarted;
   const manifest = { schema: 1, projectRoot, artifactProjectRoot, inputRoot, immutableProjectRoot, workingRoot, owner, runLifecycleId, inputLifecycleId, workingLifecycleId, pythonExecutable,
     project, baselineProjectSha256: project.sha256, projectOverrides: overrides, projectSha256: immutableProject.sha256, workingProjectSha256: workingProject.sha256, engine: engine ?? null, embeddedEngine, immutableEngineRoot, workingEngineRoot,
-    immutableInventory: inventoryTree(inputRoot), rootIdentities: { input: rootIdentity(inputRoot), working: rootIdentity(workingRoot) },
+    immutableInventory, rootIdentities: { input: rootIdentity(inputRoot), working: rootIdentity(workingRoot) },
     retainedControlEvidence: { path: path.join(workingRoot, ".git"), text: fs.readFileSync(path.join(workingRoot, ".git"), "utf8"), sha256: hash(path.join(workingRoot, ".git")),
       reason: "Lifecycle member guards exclude .git; retain this small structural gitfile until a supported control-file retirement owner exists" },
-    timings: { immutableGitPreparationMs, workingGitPreparationMs, preparationMs: performance.now() - started } };
+    timings: { ...timings, immutableGitPreparationMs, workingGitPreparationMs, preparationMs: performance.now() - started } };
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
   fs.writeFileSync(reportPath, JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
   const manifestSha256 = hash(reportPath);
