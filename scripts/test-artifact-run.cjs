@@ -5,7 +5,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const { createHash } = require("node:crypto");
 const { beginArtifactRun, finishArtifactRun, trackArtifactChild } = require("./artifact-run.cjs");
-const { catalog, recordLifecycle } = require("./artifact-lifecycle.cjs");
+const { catalog, recordLifecycle, closeLifecycle } = require("./artifact-lifecycle.cjs");
 // Caller owns and registers this fresh test directory before invocation.
 const fixture = process.argv[2];
 assert(fixture && path.isAbsolute(fixture), "fresh absolute fixture required");
@@ -61,6 +61,53 @@ const proof = run => {
   fs.writeFileSync(evidence_ref, JSON.stringify({ fixture: "controller proof", stopped: true }));
   return { producer_stopped_verified: true, evidence_ref, evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence_ref)).digest("hex"), reason: "Controller verified owned process tree stopped" };
 };
+const producerReports = run => Object.fromEntries(fs.readdirSync(run.reports)
+  .filter(name => /^producer(?:-[a-f0-9]{64})?\.json$/.test(name)).sort()
+  .map(name => [name, fs.readFileSync(path.join(run.reports, name), "utf8")]));
+const stale = start("stale-handle");
+finishArtifactRun(stale, { exitCode: null, producerStopped: false });
+const staleReports = producerReports(stale);
+const staleRevision = stale.record.revision;
+const externalUpdate = recordLifecycle(project, { ...stale.record, expected_revision: staleRevision,
+  references: [...stale.record.references, { id: "external-consumer", kind: "dependency", reason: "Concurrent lifecycle update" }] });
+assert(externalUpdate.revision > staleRevision);
+assert.throws(() => finishArtifactRun(stale, { exitCode: 0, producerStopped: true }), /[Ss]tale|revision/);
+assert.deepEqual(producerReports(stale), staleReports);
+assert.equal(stale.record.revision, staleRevision);
+assert.deepEqual(catalog(project).find(record => record.id === stale.lifecycleId), externalUpdate);
+process.removeListener("exit", stale.onExit);
+const externallyClosed = start("externally-closed");
+const externalBytes = JSON.stringify({ lifecycleId: externallyClosed.lifecycleId, exitCode: 9, state: "failed", reason: "External controller observed failure" }) + "\n";
+const externalSha = createHash("sha256").update(externalBytes).digest("hex");
+const externalEvidence = path.join(externallyClosed.reports, `producer-${externalSha}.json`);
+fs.writeFileSync(externalEvidence, externalBytes);
+fs.writeFileSync(path.join(externallyClosed.reports, "producer.json"), externalBytes);
+const externalCommitted = closeLifecycle(project, externallyClosed.lifecycleId, { owner: externallyClosed.owner,
+  expected_revision: externallyClosed.record.revision, producer_stopped_verified: true, outcome: "failure", exit_code: 9,
+  reason: "External controller observed failure", evidence_ref: externalEvidence, evidence_sha256: externalSha });
+const committedReports = producerReports(externallyClosed);
+assert.throws(() => finishArtifactRun(externallyClosed, { exitCode: 0, producerStopped: true }), /[Ss]tale|revision/);
+assert.deepEqual(producerReports(externallyClosed), committedReports);
+assert.deepEqual(catalog(project).find(record => record.id === externallyClosed.lifecycleId), externalCommitted);
+process.removeListener("exit", externallyClosed.onExit);
+checks.push("untracked lifecycle updates and external producer commits reject stale finishes before report mutation");
+const pendingProof = start("pending-proof", { requireStopEvidence: true });
+assert.equal(finishArtifactRun(pendingProof, { exitCode: null, producerStopped: false }).state, "pending");
+const priorReports = producerReports(pendingProof);
+const priorSha = createHash("sha256").update(priorReports["producer.json"]).digest("hex");
+assert.equal(priorReports[`producer-${priorSha}.json`], priorReports["producer.json"]);
+assert.equal(finishArtifactRun(pendingProof, { exitCode: 0, producerStopped: true, stopEvidence: proof(pendingProof) }).state, "complete");
+const finalReports = producerReports(pendingProof);
+for (const [name, bytes] of Object.entries(priorReports)) if (name !== "producer.json") assert.equal(finalReports[name], bytes);
+const finalRecord = catalog(project).find(record => record.id === pendingProof.lifecycleId);
+const finalBytes = fs.readFileSync(finalRecord.producer.evidence_ref);
+assert.equal(createHash("sha256").update(finalBytes).digest("hex"), finalRecord.producer.evidence_sha256);
+assert.equal(path.basename(finalRecord.producer.evidence_ref), `producer-${finalRecord.producer.evidence_sha256}.json`);
+assert.equal(finalBytes.toString("utf8"), finalReports["producer.json"]);
+assert.equal(JSON.parse(finalBytes).exitCode, 0);
+assert.deepEqual(finishArtifactRun(pendingProof, { exitCode: 7, producerStopped: true, reason: "Repeated observation cannot replace committed proof" }), finalRecord);
+assert.deepEqual(producerReports(pendingProof), finalReports);
+checks.push("pending observation retains immutable proof after proven finish; committed SHA binds bytes and repeated finish cannot mutate reports");
 for (const [id, exitCode, expected, cancellation] of [
   ["strict-success", 0, "complete", undefined],
   ["strict-failure", 7, "failed", undefined],

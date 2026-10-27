@@ -5,7 +5,31 @@ const { acquire } = require("./maintenance-lock-owner.cjs");
 const path = require("node:path");
 const { randomUUID, createHash } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
+const { isDeepStrictEqual } = require("node:util");
 const roles = ["inputs", "temporary", "logs", "reports", "outputs"];
+const activeRuns = new Map();
+const runKey = (root, id) => fs.realpathSync(root) + "\0" + id;
+function currentRun(run) {
+  const current = lifecycle.catalog(run.projectRoot).find(record => record.id === run.lifecycleId);
+  if (!current || current.revision !== run.record.revision) throw Error("Stale lifecycle revision");
+  if (current.owner !== run.owner || current.kind !== "run" || current.owned_root !== run.runRoot ||
+      !isDeepStrictEqual(current, JSON.parse(JSON.stringify(run.record)))) throw Error("Artifact run identity changed");
+  return current;
+}
+function addArtifactRunReferences(projectRoot, lifecycleId, { owner, expected_revision, references }) {
+  return lifecycle.withCatalogLock(projectRoot, () => {
+    const record = lifecycle.catalog(projectRoot).find(value => value.id === lifecycleId);
+    if (!record || record.owner !== owner || record.kind !== "run" || record.state !== "pending" || record.producer) throw Error("Active caller run with exact owner required");
+    if (record.revision !== expected_revision) throw Error("Stale lifecycle revision");
+    if (!Array.isArray(references) || !references.length) throw Error("Explicit caller references required");
+    const run = activeRuns.get(runKey(projectRoot, lifecycleId));
+    if (run) currentRun(run);
+    const updated = lifecycle.recordLifecycle(projectRoot, { ...record, expected_revision, references: [...record.references, ...references] });
+    // Publish the durable revision to its live wrapper before preparation can throw.
+    if (run) run.record = updated;
+    return updated;
+  });
+}
 const inside = (parent, child) => { const rel = path.relative(parent, child); return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel)); };
 function safeId(value) {
   if (typeof value !== "string" || !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,159}$/.test(value) || /[. ]$/.test(value) || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(value)) throw Error("Invalid artifact run ID");
@@ -54,6 +78,7 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
     if (existingClaims.some(record => record.members.some(old => inside(old.path, member.path) || inside(member.path, old.path)))) throw Error(`Artifact destination already claimed: ${member.path}`);
   }
   run.record = lifecycle.recordLifecycle(projectRoot, { id: run.lifecycleId, kind: "run", owner, ownership_scope: "run-root", owned_root: runRoot, state: "pending", membership_complete: false, members, references, expected_revision: 0 });
+  activeRuns.set(runKey(projectRoot, run.lifecycleId), run);
   // Install before directory creation so partial preparation failures are reconciled too.
   run.onExit = exitCode => {
     try { finishArtifactRun(run, { exitCode, producerStopped: run.producerStopped && [...run.children].every(child => child.artifactClosed) }); }
@@ -88,16 +113,43 @@ function finishArtifactRun(run, { exitCode, signal = null, producerStopped, reas
   const success = exitCode === 0 && stopped;
   const knownOutcome = Number.isInteger(exitCode) || signal !== null;
   const state = success ? "complete" : stopped && knownOutcome ? "failed" : "pending";
-  const evidence = fs.existsSync(run.reports) ? path.join(run.reports, "producer.json") : path.join(run.projectRoot, "artifacts/maintenance/lifecycle-evidence", createHash("sha256").update(run.lifecycleId).digest("hex") + ".json");
-  fs.mkdirSync(path.dirname(evidence), { recursive: true });
-  if (verifiedStop && path.resolve(verifiedStop.evidence_ref) === path.resolve(evidence)) throw Error("Stop evidence cannot be overwritten by producer report");
-  fs.writeFileSync(evidence, JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode: Number.isInteger(exitCode) ? exitCode : null, signal, producerStopped: stopped, reason, ...(cancellation === undefined ? {} : { cancellation }), ...(verifiedStop ? { stopEvidence: verifiedStop } : {}), children: [...run.children].map(child => ({ pid: child.pid ?? null, closed: child.artifactClosed })), state, membership_complete: stopped && knownOutcome }, null, 2) + "\n");
-  run.record = stopped ? lifecycle.closeLifecycle(run.projectRoot, run.lifecycleId, { owner: run.owner, expected_revision: run.record.revision,
-    producer_stopped_verified: true, outcome: knownOutcome ? (success ? "success" : "failure") : "unknown", exit_code: Number.isInteger(exitCode) ? exitCode : null,
-    reason, evidence_ref: evidence, evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence)).digest("hex") })
-    : lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: false, expected_revision: run.record.revision });
-  process.removeListener("exit", run.onExit);
-  return run.record;
+  return lifecycle.withCatalogLock(run.projectRoot, () => {
+    currentRun(run); // Reject stale or replaced ownership before touching any report.
+    const view = fs.existsSync(run.reports) ? path.join(run.reports, "producer.json") : path.join(run.projectRoot, "artifacts/maintenance/lifecycle-evidence", createHash("sha256").update(run.lifecycleId).digest("hex") + ".json");
+    const bytes = Buffer.from(JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode: Number.isInteger(exitCode) ? exitCode : null, signal, producerStopped: stopped, reason, ...(cancellation === undefined ? {} : { cancellation }), ...(verifiedStop ? { stopEvidence: verifiedStop } : {}), children: [...run.children].map(child => ({ pid: child.pid ?? null, closed: child.artifactClosed })), state, membership_complete: stopped && knownOutcome }, null, 2) + "\n");
+    const digest = data => createHash("sha256").update(data).digest("hex");
+    const immutablePath = data => view.slice(0, -5) + "-" + digest(data) + ".json";
+    const evidence = immutablePath(bytes);
+    if (verifiedStop && [view, evidence].some(file => path.resolve(verifiedStop.evidence_ref) === path.resolve(file))) throw Error("Stop evidence cannot be overwritten by producer report");
+    // Check the complete report path, including the control fallback, before I/O.
+    let ancestor = path.parse(view).root;
+    for (const part of view.slice(ancestor.length).split(path.sep)) {
+      ancestor = path.join(ancestor, part);
+      try { if (fs.lstatSync(ancestor).isSymbolicLink()) throw Error("Linked producer report path"); } catch (error) { if (error.code !== "ENOENT") throw error; }
+    }
+    fs.mkdirSync(path.dirname(view), { recursive: true });
+    function preserve(data) {
+      const file = immutablePath(data);
+      let fd;
+      try { fd = fs.openSync(file, "wx"); }
+      catch (error) {
+        if (error.code !== "EEXIST") throw error;
+        if (fs.lstatSync(file).isSymbolicLink() || !fs.readFileSync(file).equals(data)) throw Error("Immutable producer report changed");
+        return;
+      }
+      try { fs.writeFileSync(fd, data); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+    }
+    if (fs.existsSync(view)) preserve(fs.readFileSync(view));
+    preserve(bytes);
+    fs.writeFileSync(view, bytes); // Query view only; committed evidence is immutable.
+    run.record = stopped ? lifecycle.closeLifecycle(run.projectRoot, run.lifecycleId, { owner: run.owner, expected_revision: run.record.revision,
+      producer_stopped_verified: true, outcome: knownOutcome ? (success ? "success" : "failure") : "unknown", exit_code: Number.isInteger(exitCode) ? exitCode : null,
+      reason, evidence_ref: evidence, evidence_sha256: digest(bytes) })
+      : lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: false, expected_revision: run.record.revision });
+    process.removeListener("exit", run.onExit);
+    if (run.record.producer) activeRuns.delete(runKey(run.projectRoot, run.lifecycleId));
+    return run.record;
+  });
 }
 async function confirmOwnedBrowserExit(child,profilePath,spawn){
  if(!child)return {confirmed:true,exitCode:null,signalCode:null,processIds:[]};
@@ -134,4 +186,4 @@ async function confirmOwnedBrowserExit(child,profilePath,spawn){
  return result;
 }
 
-module.exports = { beginArtifactRun, finishArtifactRun, trackArtifactChild, confirmOwnedBrowserExit };
+module.exports = { beginArtifactRun, addArtifactRunReferences, finishArtifactRun, trackArtifactChild, confirmOwnedBrowserExit };

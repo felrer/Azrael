@@ -8,6 +8,7 @@ const { captureProject } = require("./capture-project-inputs.cjs");
 const { snapshotProject } = require("./deployment-input-snapshot.cjs");
 const { copyTree, inventoryTree, hash } = require("./freeze-platform-inputs.cjs");
 const lifecycle = require("./artifact-lifecycle.cjs");
+const { addArtifactRunReferences } = require("./artifact-run.cjs");
 const inside = (root, file) => { const rel = path.relative(root, file); return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel)); };
 const overlaps = (a, b) => inside(a, b) || inside(b, a);
 function checked(root, value) {
@@ -136,7 +137,7 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
     workingRecord = lifecycle.recordLifecycle(artifactProjectRoot, { id: workingLifecycleId, kind: "run", owner, state: "pending", membership_complete: false,
       members: [...topLevels].sort().map(top => member(path.join(workingRoot, top), "working-source")),
       references: [{ id: inputLifecycleId, member_paths: [inputRoot], kind: "dependency", reason: "Working source consumes immutable deployment inputs" }], expected_revision: 0 });
-    runRecord = lifecycle.recordLifecycle(artifactProjectRoot, { ...runRecord, expected_revision: runRecord.revision, references: [...runRecord.references,
+    runRecord = addArtifactRunReferences(artifactProjectRoot, runLifecycleId, { owner, expected_revision: runRecord.revision, references: [
       { id: inputLifecycleId, member_paths: [inputRoot], kind: "execution", reason: "Deployment controller consumes immutable inputs" },
       { id: workingLifecycleId, member_paths: lifecycle.projectMembers(workingRecord.members).map(member => member.path), kind: "execution", reason: "Deployment controller consumes working source" }] });
   } finally { claim.release(); }

@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const { createHash } = require("node:crypto");
-const { beginArtifactRun } = require("./artifact-run.cjs");
+const { beginArtifactRun, finishArtifactRun } = require("./artifact-run.cjs");
 const { catalog, recordLifecycle } = require("./artifact-lifecycle.cjs");
 const { prepareDeploymentWorkspace, verifyDeploymentWorkspace } = require("./deployment-workspace.cjs");
 const fixture = process.argv[2];
@@ -16,7 +16,7 @@ function git(root, ...args) {
   assert.equal(result.status, 0, result.stderr);
   return result.stdout.trim();
 }
-function setup(name) {
+function setup(name, references = []) {
   const projectRoot = path.join(fixture, name);
   fs.mkdirSync(projectRoot);
   git(projectRoot, "init", "--quiet");
@@ -29,12 +29,19 @@ function setup(name) {
   git(projectRoot, "add", "."); git(projectRoot, "commit", "--quiet", "-m", "source fixture");
   fs.unlinkSync(path.join(projectRoot, "deleted.txt"));
   fs.writeFileSync(path.join(projectRoot, "untracked.txt"), "selected untracked source");
-  const run = beginArtifactRun(projectRoot, { owner: "deployment-workspace-test", workId: "workspace", runId: "controller", requireStopEvidence: true });
+  const run = beginArtifactRun(projectRoot, { owner: "deployment-workspace-test", workId: "workspace", runId: "controller", requireStopEvidence: true, references });
   // Fixture records remain pending under the caller-owned retained test boundary.
   process.removeListener("exit", run.onExit);
   const options = { projectRoot, inputRoot: path.join(projectRoot, "artifacts/inputs/input"), workingRoot: path.join(projectRoot, "artifacts/workspaces/work"),
     reportPath: path.join(run.reports, "inputs.json"), owner: run.owner, runLifecycleId: run.lifecycleId };
   return { projectRoot, run, options };
+}
+function stopProof(run) {
+  const evidence_ref = path.join(run.reports, "tree-stopped.json");
+  fs.writeFileSync(evidence_ref, JSON.stringify({ fixture: "in-process deployment controller", stopped: true }));
+  return { producer_stopped_verified: true, evidence_ref,
+    evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence_ref)).digest("hex"),
+    reason: "In-process preparation settled with no outstanding owned children" };
 }
 async function main() {
   const checks = [];
@@ -63,7 +70,8 @@ async function main() {
     { source: overrideSource, destinationRelative: ".git/config", sha256: overrideHash },
     { source: overrideSource, destinationRelative: "scripts/file", sha256: "0".repeat(64) }
   ]) await assert.rejects(prepareDeploymentWorkspace({ ...paths.options, projectOverrides: [override] }), /override/i);
-  const normal = setup("normal");
+  const callerDependency = { id: "fixture-runtime", kind: "dependency", reason: "Controller prerequisite remains in use" };
+  const normal = setup("normal", [callerDependency]);
   const nested = path.join(normal.projectRoot, "vendor"); fs.mkdirSync(nested);
   git(nested, "init", "--quiet"); git(nested, "config", "user.email", "workspace@example.invalid"); git(nested, "config", "user.name", "Workspace Fixture");
   fs.writeFileSync(path.join(nested, "nested.txt"), "nested selected source");
@@ -93,6 +101,8 @@ async function main() {
   assert.deepEqual(context.runRecord.references.find(ref => ref.id === context.workingLifecycleId).member_paths,
     require("./artifact-lifecycle.cjs").projectMembers(context.workingRecord.members).map(member => member.path));
   assert(context.runRecord.references.every(ref => ref.target_revision === undefined && ref.target_version === undefined));
+  assert.equal(normal.run.record.revision, context.runRecord.revision);
+  assert.deepEqual(normal.run.record.references, context.runRecord.references);
   assert(!context.workingRecord.members.some(member => member.path === context.workingRoot || member.path === path.join(context.workingRoot, "artifacts")));
   const output = path.join(context.workingRoot, "artifacts/version");
   recordLifecycle(normal.projectRoot, { id: "separate-version", kind: "version", owner: "producer", state: "pending", membership_complete: false,
@@ -105,6 +115,45 @@ async function main() {
   fs.writeFileSync(path.join(normal.projectRoot, "untracked.txt"), "later checkout change is excluded");
   assert.equal((await verifyDeploymentWorkspace(context)).status, "verified");
   checks.push("tracked/untracked/deleted/nested snapshot, explicit override hashes and new top-level ownership, independent working source, generated artifacts separately owned, later checkout edits excluded");
+  const workingDependency = context.workingRecord.references.find(ref => ref.id === context.inputLifecycleId);
+  const completed = finishArtifactRun(normal.run, { exitCode: 0, producerStopped: true, stopEvidence: stopProof(normal.run) });
+  assert.equal(completed.state, "complete");
+  assert.equal(completed.producer.exit_code, 0);
+  assert(completed.references.every(ref => ref.kind !== "execution"));
+  assert.equal(completed.references.find(ref => ref.id === callerDependency.id).reason, callerDependency.reason);
+  assert.deepEqual(catalog(normal.projectRoot).find(record => record.id === context.workingLifecycleId).references.find(ref => ref.id === context.inputLifecycleId), workingDependency);
+  assert.equal(fs.readFileSync(path.join(context.immutableProjectRoot, "untracked.txt"), "utf8"), "selected untracked source");
+  checks.push("prepared and verified source finishes through synchronized caller revision; scoped execution references released and working input dependency preserved");
+  const preparationFailure = setup("preparation-failure");
+  const initialRevision = preparationFailure.run.record.revision;
+  const mkdir = fs.mkdirSync;
+  let boundaryReached = false;
+  fs.mkdirSync = function (destination, ...args) {
+    if (path.resolve(destination) === path.join(preparationFailure.options.inputRoot, "project")) {
+      boundaryReached = true;
+      throw Error("Intentional immutable Git preparation failure");
+    }
+    return mkdir.call(fs, destination, ...args);
+  };
+  try { await assert.rejects(prepareDeploymentWorkspace(preparationFailure.options), /Intentional immutable Git preparation failure/); }
+  finally { fs.mkdirSync = mkdir; }
+  assert.equal(boundaryReached, true);
+  const updatedCaller = catalog(preparationFailure.projectRoot).find(record => record.id === preparationFailure.run.lifecycleId);
+  assert(updatedCaller.revision > initialRevision);
+  assert.equal(preparationFailure.run.record.revision, updatedCaller.revision);
+  const claimedInputs = updatedCaller.references.filter(ref => ref.kind === "execution");
+  assert(claimedInputs.some(ref => ref.member_paths.includes(preparationFailure.options.inputRoot)));
+  assert(claimedInputs.some(ref => ref.member_paths.some(member => member.startsWith(preparationFailure.options.workingRoot + path.sep))));
+  const failure = finishArtifactRun(preparationFailure.run, { exitCode: 7, producerStopped: true,
+    stopEvidence: stopProof(preparationFailure.run), reason: "Immutable Git preparation failed" });
+  assert.equal(failure.state, "failed");
+  assert.equal(failure.producer.outcome, "failure");
+  assert.equal(failure.producer.exit_code, 7);
+  assert.equal(failure.membership_complete, true);
+  assert(failure.references.every(ref => ref.kind !== "execution"));
+  assert.equal(JSON.parse(fs.readFileSync(failure.producer.evidence_ref, "utf8")).exitCode, 7);
+  assert.equal(catalog(preparationFailure.projectRoot).find(record => record.id === claimedInputs.find(ref => ref.member_paths.includes(preparationFailure.options.inputRoot)).id).state, "pending");
+  checks.push("preparation failure after durable caller reference update closes actual nonzero failure with synchronized revision while incomplete inputs remain pending");
   const sentinelPath = path.join(context.workingRoot, ".git");
   const sentinelText = fs.readFileSync(sentinelPath, "utf8");
   fs.appendFileSync(sentinelPath, "changed control evidence\n");
