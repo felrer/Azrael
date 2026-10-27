@@ -4,6 +4,18 @@
 
 ## 레거시 참조의 현재 유효성 검증
 
+### 고정 소스 준비 래퍼 revision 동기화
+
+상태: 현재 checkout의 구현·Windows x64 검증·임시 자료 정리 완료. 사용자는 2026-10-28 조사에서 권장한 공통 갱신 경로·종료 근거 보호·통합 회귀를 승인했다. `freeze-a`는 준비/검증 완료 뒤 caller reference 갱신으로 revision 1→2가 됐으나 래퍼가 1로 close하여 실패했다. 기존 실패/exit 1과 고정 입력은 변경하지 않는다. 공통 Node 동작이며 다른 OS 실행은 구분한다. 제품 빌드·설치·고정 소스 재생성은 범위 밖이다.
+
+root는 artifact-run/deployment-workspace 및 owning architecture/ops, 실행·정리를 소유한다. 독립 테스트 담당자는 기존 두 behavioral suite만 확장한다. 참조 추가 함수는 저장 성공 직후 같은 프로세스의 정확한 작업 handle도 갱신한다. 종료는 catalog lease 안에서 현재 기록과 handle의 revision/identity를 확인하며 최신 기록을 무조건 채택하지 않는다. 관측 보고는 내용 기반 불변 파일로 보존하고 producer는 그 SHA에 묶는다. 기존 `producer.json` 조회 경로는 관측 view로 유지한다. 준비 성공·참조 추가 뒤 중간 실패·진짜 stale 변경·기존 종료 근거 보존·pending 이후 종료를 검증한다. 역할별·scope 참조와 unknown 보호를 유지한다.
+
+독립 수용·종료·정리 근거는 `artifacts/maintenance/evidence/run-revision-20261028-*.json`의 관리 owner `DW-run-revision-20261028`에 귀속한다. 검증 fixture·로그는 충돌 확인 후 `artifacts/tasks/run-revision-20261028-a/`로 사전 선언한다. source/writer의 영향 검사와 실제 Windows catalog/CAS 경계를 확인한 뒤 최소 독립 결과만 남기고 최적화 owner로 disposable root를 정리·부재 확인한다. 현재 EB-01의 활성 실행·고정 사본·캐시는 수정하지 않는다.
+
+검증: Windows x64, Node 26.7.0, 기존 소유자에 execution 참조로 연결한 PowerShell 및 Python으로 source/writers 선택 7개 명령이 모두 실제 exit 0을 기록했고 관련 입력 SHA도 유지됐다. artifact-run 20.267초, 실제 준비 통합 45.203초, check writer 2.133초, renderer writer 32.936초, instruction release ownership 4.003초, lifecycle/build-platform 98.215초(170 pass, Unix 실행 mode 1 skip), platform packaging 24.879초다. 준비 성공과 갱신 뒤 예외의 실패 종료, 실제 stale update·외부 종료 거절, 과거 불변 근거와 committed SHA 보존을 확인했다. 기존 두 suite의 새 사례는 반복되는 revision/증거 계약의 회귀 보호이므로 유지한다. 독립 수용 근거는 `run-revision-20261028-acceptance.json`이다. 최초 close는 공용 OS catalog 잠금 점유로 쓰기 전에 거절됐고, 점유 해제 뒤 같은 revision으로 정상 close하여 실행 참조를 해제했다. 점유된 잠금의 제거·우회는 수행하지 않았다.
+
+정리: 최초 native 등록은 측정 후 catalog 재획득 실패(exit 1)로 registration 예약을 남겼다. 정확한 leaf native PID 86100의 실제 종료 코드, 자식 부재와 변경 없는 OS 잠금 제외 probe를 결합해 지원 `recover_reservation`으로 자기 예약만 복구했다(exit 0, 기존 실행 결과·pending intent 불변). 첫 등록 이후 관리 출력이 disposable 로그를 바꾼 문제는 payload를 고정하고 이후 출력을 control 범위로 옮겨 전체 재등록했다. 이후 일시적인 source 잠금 실패를 stale 입력으로 간주해 guard를 우회하지 않았다. 최종 등록·fresh registered review·apply는 모두 exit 0, blocker 0, `deleted/remaining:false`다. 11,369,657바이트의 임시 root와 자기 active 예약 부재를 확인했고 producer finalize도 완료했다. 삭제 apply 108.474초, 마지막 등록 구간은 정상 점유 대기·15회 순차 시도 포함 173.471초였다. 검증 전체를 재실행하거나 제품을 빌드하지 않았다. 최소 독립 acceptance·예약 복구 proof·cleanup 근거 3개만 같은 evidence prefix에 유지하며 raw fixture·사본·로그·요청 파일은 정리했다. 관리 owner는 위와 같으며 기존 EB-01 자료와 고정 입력은 그대로다. 다음 작업은 현재 checkout의 공통 helper를 사용하고, 이전 frozen workspace·설치 앱에 소급 적용하지 않는다.
+
 ### 종료·소유권 해소와 추가 이관 실행
 
 사용자는 남은 소유권·종료 확인 문제를 해결하고 정리 가능한 파일을 archive로 이동하도록 승인했으며, 이어 변경·삭제 권한과 보관·관찰 기록을 별도로 관리하는 방향을 확정했다. 경로 중복을 일괄 차단하는 제안은 철회했다. 실제 생성자의 신규 소유권 충돌과 정당한 관찰 범위의 겹침을 구분하고, 미분류 보관 기록은 삭제 권한 없는 observation으로 명시 전환한다. 사용·복구가 미확정인 경로는 기존 native consumer-reference 프로토콜의 scoped hold로 보호한다. 같은 catalog/OS lease/예약 fence를 유지해 보호 기록을 물리적으로 분산하지 않으며, 현재 standalone의 보호 검사를 우회하지 않는다. 생성자 record/결과/구성은 그대로 두고 명확한 근거와 소비자 제외 확인으로 만족한 hold만 해제한다. 새로운 archive 제품 API, 강제 삭제, 활성 설치/진행 중 EB-01 작업의 취소나 보호 해제는 범위 밖이다. 공통 Node 의미를 유지하고 실제 검증은 Windows x64이며 다른 OS 실기를 주장하지 않는다.
