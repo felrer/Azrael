@@ -155,6 +155,155 @@ test("custody rejects proof inside unselected source custody", t => {
   assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
 });
 
+function refinementFixture(t) {
+  const f = fixture(t), parent = f.at("legacy-logs"), selected = path.join(parent, "generated"), remaining = path.join(parent, "unknown");
+  fs.mkdirSync(selected, { recursive: true }); fs.mkdirSync(remaining);
+  fs.writeFileSync(path.join(selected, "output.log"), "verified historical generated output");
+  fs.writeFileSync(path.join(remaining, "user.txt"), "unclassified content");
+  const sources = ["legacy-custody", "legacy-input"].map((role, index) => f.record(`ancestor-${index}`, [], {
+    state: "retained", membership_complete: false,
+    members: [{ path: parent, role, generated: false, protection_known: false }, { path: f.at(`other-${index}`), role: "input", generated: false, protection_known: false }]
+  }));
+  const proof = f.at("producer-proof.json"); fs.writeFileSync(proof, JSON.stringify({ outcome: "failure", exit_code: 1 }));
+  const digest = file => require("node:crypto").createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+  const request = { sources: sources.map(({ id, owner, revision }) => ({ id, owner, expected_revision: revision })), parent, paths: [selected],
+    target: { id: "refined-generated", kind: "work", owner: "authorized-cleanup" }, reason: "Authorized exact historical child refinement", evidence_ref: f.at("refinement-proof.json") };
+  const document = { schema: 1, action: "refine-custody", sources: request.sources, parent, target_id: request.target.id, user_authorized: true,
+    entries: [{ path: selected, generated: true, protection_known: true, consumers_released: true, producer_stopped_verified: true,
+      generation_basis: "Pinned external historical producer receipt", producer_evidence: [{ path: proof, sha256: digest(proof) }] }] };
+  const seal = () => { fs.writeFileSync(request.evidence_ref, JSON.stringify(document)); request.evidence_sha256 = digest(request.evidence_ref); };
+  seal();
+  return { ...f, parent, selected, remaining, sources, proof, digest, request, document, seal, refine: () => lifecycle.refineCustody(f.root, request) };
+}
+
+test("custody ancestor refinement preserves both historical owners and unselected uncertainty through CLI", t => {
+  const f = refinementFixture(t), requestFile = f.at("refinement-request.json");
+  fs.writeFileSync(requestFile, JSON.stringify(f.request));
+  const result = lifecycle.main(["refine-custody", "--project-root", f.root, "--request-file", requestFile]);
+  assert.equal(result.status, "refined");
+  assert.equal(result.record.state, "complete"); assert.equal(result.record.membership_complete, true);
+  assert.equal(result.record.producer, undefined);
+  assert.deepEqual(result.record.members.map(member => member.path), [f.selected]);
+  assert.ok(result.record.members.every(member => member.generated === true && member.protection_known === true));
+  for (const original of f.sources) {
+    const source = lifecycle.catalog(f.root).find(item => item.id === original.id);
+    assert.equal(source.state, original.state); assert.equal(source.membership_complete, false); assert.equal(source.producer, undefined);
+    assert.deepEqual(source.members.find(member => member.path === original.members[1].path), original.members[1]);
+    const remainder = source.members.find(member => member.path === f.remaining);
+    assert.equal(remainder.role, original.members[0].role); assert.equal(remainder.generated, false); assert.equal(remainder.protection_known, false);
+    assert.equal(source.members.some(member => member.path === f.parent || member.path === f.selected), false);
+    assert.throws(() => f.record(source.id, [], { ...source, members: [{ ...remainder, generated: true }] }), /Cannot promote/);
+    assert.throws(() => f.record(source.id, [], { ...source, members: [original.members[0]] }), /cannot be reclaimed/);
+  }
+  assert.equal(fs.readFileSync(path.join(f.remaining, "user.txt"), "utf8"), "unclassified content");
+  assert.equal(fs.readFileSync(path.join(f.selected, "output.log"), "utf8"), "verified historical generated output");
+  assert.equal(f.refine().record.revision, result.record.revision);
+});
+
+test("custody ancestor refinement rejects invalid proof, claims and boundaries without registry writes", async t => {
+  const cases = {
+    stale: f => { f.request.sources[0].expected_revision++; f.seal(); },
+    wrongOwner: f => { f.request.sources[0].owner = "not-owner"; f.seal(); },
+    missingAuthorization: f => { f.document.user_authorized = false; f.seal(); },
+    unknownGeneration: f => { f.document.entries[0].generated = false; f.seal(); },
+    changedProof: f => { fs.writeFileSync(f.proof, "changed"); },
+    evidenceDigest: f => { f.request.evidence_sha256 = "0".repeat(64); },
+    proofInsideSelected: f => { const file = path.join(f.selected, "output.log"); f.document.entries[0].producer_evidence = [{ path: file, sha256: f.digest(file) }]; f.seal(); },
+    nestedSelection: f => { f.request.paths = [path.join(f.selected, "output.log")]; f.document.entries[0].path = f.request.paths[0]; f.seal(); },
+    missingChild: f => { f.request.paths = [path.join(f.parent, "missing")]; f.document.entries[0].path = f.request.paths[0]; f.seal(); },
+    thirdOwner: f => { f.record("third-owner", [], { members: [{ path: f.selected, role: "output" }] }); },
+    incomingReference: f => { f.record("reader", [["reader", "output"]], { references: [{ id: f.sources[0].id, reason: "still reads" }] }); },
+    outgoingReference: f => { f.record(f.sources[0].id, [], { ...f.sources[0], references: [{ id: "dependency", reason: "unreleased" }] }); },
+    linkedDescendant: f => { fs.symlinkSync(f.remaining, path.join(f.selected, "linked"), process.platform === "win32" ? "junction" : "dir"); }
+  };
+  for (const [name, change] of Object.entries(cases)) await t.test(name, t => {
+    const f = refinementFixture(t);
+    try { change(f); } catch (error) { if (name === "linkedDescendant" && ["EPERM", "EACCES", "ENOTSUP"].includes(error.code)) { t.skip(`Links unavailable: ${error.code}`); return; } throw error; }
+    const before = lifecycle.catalog(f.root).map(record => [record.id, fs.readFileSync(lifecycle.registryPath(f.root, record.id), "utf8")]);
+    assert.throws(f.refine);
+    assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+    for (const [id, contents] of before) assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, id), "utf8"), contents);
+  });
+});
+
+test("custody refinement permits only pinned consumer exclusions and preserves every dependency", async t => {
+  const changes = {
+    exact: () => {},
+    staleRevision: (f, consumer) => { f.record(consumer.id, [], { ...consumer }); },
+    wrongOwner: f => { f.request.consumer_exclusions[0].owner = "wrong-owner"; f.seal(); },
+    wrongReference: f => { f.request.consumer_exclusions[0].reference_ids = ["unmatched-reference"]; f.seal(); },
+    wrongPaths: f => { f.request.consumer_exclusions[0].paths = [f.remaining]; f.seal(); },
+    changedProof: f => { fs.writeFileSync(f.request.consumer_exclusions[0].evidence_ref, "changed exclusion evidence"); },
+    unacknowledgedReader: f => { f.record("new-source-reader", [["new-reader", "output"]], { references: [{ id: f.sources[0].id, reason: "new consumer" }] }); },
+    targetReader: f => { f.record("target-reader", [["target-reader", "output"]], { references: [{ id: f.request.target.id, reason: "target consumer must always block" }] }); }
+  };
+  for (const [name, change] of Object.entries(changes)) await t.test(name, t => {
+    const f = refinementFixture(t), consumer = f.record("historical-reader", [["historical-reader", "output"]], {
+      references: [{ id: f.sources[0].id, reason: "historical input dependency", kind: "dependency" }, { id: "unrelated-input", reason: "independent dependency", kind: "dependency" }]
+    });
+    const evidence = f.at("consumer-exclusion.json"); fs.writeFileSync(evidence, JSON.stringify({ selected_children_are_not_historical_inputs: true }));
+    f.request.consumer_exclusions = [{ id: consumer.id, owner: consumer.owner, expected_revision: consumer.revision,
+      reference_ids: consumer.references.filter(reference => reference.id === f.sources[0].id).map(reference => reference.reference_id),
+      paths: [f.selected], reason: "Pinned historical input evidence excludes these exact newly generated children", evidence_ref: evidence, evidence_sha256: f.digest(evidence) }];
+    f.document.consumer_exclusions = f.request.consumer_exclusions; f.seal(); change(f, consumer);
+    const before = lifecycle.catalog(f.root).map(record => [record.id, fs.readFileSync(lifecycle.registryPath(f.root, record.id), "utf8")]);
+    if (name !== "exact") {
+      assert.throws(f.refine);
+      assert.equal(fs.existsSync(lifecycle.registryPath(f.root, f.request.target.id)), false);
+      for (const [id, contents] of before) assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, id), "utf8"), contents);
+      return;
+    }
+    assert.equal(f.refine().status, "refined");
+    assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, consumer.id), "utf8"), before.find(([id]) => id === consumer.id)[1]);
+    assert.deepEqual(lifecycle.catalog(f.root).find(record => record.id === consumer.id).references, consumer.references);
+    assert.ok(lifecycle.registerRequest(f.root, f.sources[0].id).group.members.every(member => member.references.length > 0));
+    assert.equal(f.refine().status, "refined");
+  });
+});
+
+test("custody ancestor refinement interruptions remain protected, resume exactly and never resurrect retired payload", async t => {
+  for (const stage of [1, 2, 3, 4]) await t.test(`publication ${stage}`, t => {
+    const f = refinementFixture(t), original = fs.renameSync; let count = 0;
+    fs.renameSync = (...args) => { if (++count === stage) throw new Error("injected refinement publication interruption"); return original(...args); };
+    try { assert.throws(f.refine, /injected/); } finally { fs.renameSync = original; }
+    const pending = lifecycle.catalog(f.root).find(item => item.id === f.request.target.id);
+    if (pending) {
+      assert.equal(pending.state, "pending"); assert.equal(pending.membership_complete, false);
+      assert.ok(lifecycle.planCleanup(f.root, { paths: [f.selected] }).groups.find(group => group.id === pending.id).blockers.length);
+      assert.throws(() => lifecycle.recordLifecycle(f.root, { ...pending, state: "complete", membership_complete: true }), /Pending custody/);
+      assert.throws(() => lifecycle.closeLifecycle(f.root, pending.id, {}), /Pending custody/);
+      for (const source of lifecycle.catalog(f.root).filter(item => f.sources.some(original => original.id === item.id))) {
+        if (!source.members.some(member => member.path === f.parent)) assert.throws(() => f.record(source.id, [], { ...source, members: [f.sources.find(original => original.id === source.id).members[0]] }), /cannot be reclaimed/);
+      }
+    }
+    const result = f.refine(); assert.equal(result.record.state, "complete");
+    assert.equal(f.refine().record.revision, result.record.revision);
+    fs.unlinkSync(path.join(f.selected, "output.log")); fs.rmdirSync(f.selected);
+    assert.equal(lifecycle.finalize(f.root, result.record.id).status, "finalized");
+    assert.equal(f.refine().status, "already-retired");
+    assert.equal(fs.existsSync(lifecycle.registryPath(f.root, result.record.id)), false);
+    assert.equal(fs.existsSync(f.selected), false);
+  });
+  const retryChanges = {
+    newChild: f => { fs.mkdirSync(path.join(f.parent, "arrived-after-claim")); },
+    changedProof: f => { fs.writeFileSync(f.proof, "new producer evidence"); },
+    newReader: f => { f.record("new-reader", [["reader", "output"]], { references: [{ id: f.request.target.id, reason: "new active consumer" }] }); },
+    replacedChild: f => { fs.renameSync(f.selected, f.at("saved-child")); fs.mkdirSync(f.selected); fs.writeFileSync(path.join(f.selected, "output.log"), "replacement"); },
+    replacedParent: f => { fs.renameSync(f.parent, f.at("saved-parent")); fs.mkdirSync(f.parent); fs.mkdirSync(f.selected); fs.mkdirSync(f.remaining); },
+    newOverlap: f => { f.record("late-owner", [], { members: [{ path: path.join(f.selected, "output.log"), role: "output" }] }); }
+  };
+  for (const [name, change] of Object.entries(retryChanges)) await t.test(`pending retry rejects ${name}`, t => {
+    const f = refinementFixture(t), original = fs.renameSync; let count = 0;
+    fs.renameSync = (...args) => { if (++count === 2) throw new Error("injected refinement source interruption"); return original(...args); };
+    try { assert.throws(f.refine, /injected/); } finally { fs.renameSync = original; }
+    change(f);
+    const before = lifecycle.catalog(f.root).map(record => [record.id, fs.readFileSync(lifecycle.registryPath(f.root, record.id), "utf8")]);
+    assert.throws(f.refine);
+    assert.equal(lifecycle.catalog(f.root).find(item => item.id === f.request.target.id).state, "pending");
+    for (const [id, contents] of before) assert.equal(fs.readFileSync(lifecycle.registryPath(f.root, id), "utf8"), contents);
+  });
+});
+
 function relocationFixture(t) {
   const f = custodyFixture(t), second = f.at("logs/second"), destination = f.at("logs/migrated-batch");
   fs.mkdirSync(second); fs.writeFileSync(path.join(second, "result.log"), "historical failed output");
