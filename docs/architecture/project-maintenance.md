@@ -22,6 +22,8 @@ Azrael은 프로젝트가 가진 테스트·빌드 명령을 등록된 묶음으
 
 Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs/`, `reports/`에 fixture·출력·요약을 함께 둔다. `ChangedOnly`는 검사 선택에만 영향을 주며 과거 작업 로그를 출력 루트로 재사용하지 않는다. 생성 전 pending, 실제 검사 종료 후 complete 또는 failed 상태를 기록한다. 이는 모의 검사 producer의 종료 상태이며 실제 앱 배포의 성공을 뜻하지 않는다.
 
+배포 입력 준비는 `deployment-workspace.cjs`와 `capture-project-inputs.cjs`가 소유한다. 선택한 파일은 읽기 전후의 파일·부모 identity와 물리 경계를 확인하고 독점 생성으로 별도 사본에 기록한다. 같은 읽기에서 계산한 Git blob ID로 기존 객체를 조회하며 없는 객체만 저장한다. 최종 독립 전체 내용 해시, 초기화된 중첩 저장소·삭제 파일·모드와 imported engine 출처 검사는 유지한다. `test-capture-project-inputs.cjs`의 실제 사본·교체·junction·Git 객체 검사와 `test-deployment-workspace.cjs`의 입력 고정·소유·변조 검사가 이 경계를 보호한다. 반복 빌드의 세부 계약은 [빌드 playbook](../playbooks/build.md#반복-빌드검증의-입력과-캐시)이 소유한다. 실제 검증 환경은 Windows x64/Node 26.7이며 다른 OS의 네이티브 검증을 대신하지 않는다.
+
 ## 실행과 복구
 
 ### 관리 잠금의 소유와 명시적 복구
