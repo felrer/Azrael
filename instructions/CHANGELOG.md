@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the approved `testing` core skill and active installation route. Replace repeated test policy in implementation, shared behavior, delegation examples and project playbooks with references; preserve project gates and build/artifact owners.
+
 - Select verification before generating tests, allow zero new tests when existing evidence suffices, and justify permanent coverage by its distinct regression value and full maintenance cost. Keep required checks, important contracts and existing artifact cleanup/retention rules.
 
 - Add optional internal visualization and ktcloud instruction components. Keep

@@ -16,7 +16,7 @@ SOURCE_URL = "https://github.com/felrer/codex-efficient-subagents"
 IGNORED_DIRS = {".git", "__pycache__", "node_modules"}
 COMPILED = {".pyc", ".pyo"}
 OPTIONAL_SKILLS = {"internal-visualization", "ktcloud-ai-nexus"}
-ACTIVE_SKILLS = ["design-collaboration", "design-documentation", "development-workflow", "implementation", "internal-visualization", "ktcloud-ai-nexus", "project-bootstrap"]
+ACTIVE_SKILLS = ["design-collaboration", "design-documentation", "development-workflow", "implementation", "internal-visualization", "ktcloud-ai-nexus", "project-bootstrap", "testing"]
 LICENSE = """MIT License
 
 Copyright (c) 2026 felrer

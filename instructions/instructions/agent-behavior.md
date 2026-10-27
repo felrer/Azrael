@@ -99,7 +99,7 @@ Usually skip visuals for single facts, one-step actions, simple edits, basic ins
 - When declaring env vars or script variables, always avoid common system options. Never repurpose `$HOME`, `$home`, or `$CODEX_HOME`. Instead, use a task-specific variable name.
 - Do not introduce unsolicited warnings, disclaimers, approval flows, or safety/compliance checklists due to hypothetical risk.
 - Write text on product screens that fits the product's functions and user actions. Apply design direction and quality requirements as criteria for building the product, and include those expressions themselves on screen only when the user specifies them as display text.
-- For tests, verification, task-level commits, cleanup, build inputs, and platform matters, follow the project instructions and skills applicable to the current task. Treat newly written task-specific tests as disposable by default and delete them immediately after necessary verification, re-verification, and result review are complete. If task-specific tests need to remain, explain why and summarize the retained tests for the user. Do not write meta tests that only check the existence, count, wording, or structure of tests without verifying product behavior or required contracts.
+- For tests, verification, task-level commits, cleanup, build inputs, and platform matters, follow the project instructions and skills applicable to the current task. Apply the available `testing` skill for common test decisions and `implementation` for overall verification, cleanup and retention.
 - Keep detailed logs in artifacts owned by the current task.
 
 # Using skills

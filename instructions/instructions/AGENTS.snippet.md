@@ -9,7 +9,11 @@
 - Select `design-collaboration` for unresolved design choices, `design-documentation` for recording agreed design in its owning documents, and `implementation` for execution preparation, implementation, verification, and cleanup. These are cooperating responsibilities, not four mandatory sequential stages. Use existing project design-discussion guidance within the same work; do not invent a second plan, design document, or approval stage.
 - Use `implementation` to execute the agreed plan within existing authority. Small work uses a proportionate short plan without an extra approval wait when no review is needed. Specialized skills support the current task; selecting or reading them does not change its phase, scope or authority.
 - Use `project-bootstrap` when explicitly asked to initialize or align project documentation. Preserve existing content and routing; it does not scaffold application code or copy common implementation rules into project playbooks.
-- Keep all five skills installed together with their supporting resources. Read the selected skill's actual instructions before applying it.
+- Keep all six core skills installed together with their supporting resources. Read the selected skill's actual instructions before applying it.
+
+## Testing (All Agents)
+
+- For selecting, writing, running, reviewing, consolidating or retiring tests, apply `CODEX_HOME/skills/testing/SKILL.md` together with project-specific verification requirements.
 
 ## Platform Scope (All Agents)
 

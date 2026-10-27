@@ -93,12 +93,13 @@
         "size": 17375,
         "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 22744,
-      "sha256": "b6bac2851eeefc6d286b2e8676d4d1acec4ac70946eb00357658babf4cacf8ee",
+      "size": 18098,
+      "sha256": "1ae16ef1f9917a9231d8b2311eb3e8500ebc943cc2e07cbb6b959a013d09e6e5",
       "adaptations": [
         "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
-        "Select sufficient evidence before test generation; justify permanent coverage by distinct regression value and lifecycle costs while preserving mandatory checks, important contracts and cleanup/retention authority; active installed skill uses this maintained directory."
+        "Select sufficient evidence before test generation; justify permanent coverage by distinct regression value and lifecycle costs while preserving mandatory checks, important contracts and cleanup/retention authority; active installed skill uses this maintained directory.",
+        "Delegate common test decisions to the approved testing skill; retain overall verification and cleanup ownership."
       ]
     },
     {
@@ -119,9 +120,11 @@
         "size": 1791,
         "sha256": "5075ef9e6a7068722c350df494db2fda8fe7e06bdfa484a72505940eb307229e"
       },
-      "size": 1791,
-      "sha256": "5075ef9e6a7068722c350df494db2fda8fe7e06bdfa484a72505940eb307229e",
-      "adaptations": []
+      "size": 1964,
+      "sha256": "2c8d75cd7972302ab738a711b83783cc89b2d2ef918f00df6694ee503d0f00e9",
+      "adaptations": [
+        "Route common test decisions to the testing skill without copying its policy into bootstrapped projects."
+      ]
     },
     {
       "path": "skills/project-bootstrap/assets/project-template/docs/architecture/README.md",
@@ -163,9 +166,11 @@
         "size": 3414,
         "sha256": "b052ee014a66a472d77b38478f64bda9034914b4c1c782ced8dd9c6ee6ccfe0c"
       },
-      "size": 3414,
-      "sha256": "b052ee014a66a472d77b38478f64bda9034914b4c1c782ced8dd9c6ee6ccfe0c",
-      "adaptations": []
+      "size": 3492,
+      "sha256": "5d5b535955262e5937e612e92b10014fca7ac7455ffaac80aef4dfde66cc81e1",
+      "adaptations": [
+        "Route common test decisions to the testing skill without copying its policy into bootstrapped projects."
+      ]
     },
     {
       "path": "skills/project-bootstrap/assets/project-template/docs/README.md",
@@ -196,9 +201,11 @@
         "size": 10154,
         "sha256": "22e2de15c8557c2d14750380ff033d1bf7d186305bb0c5b42119107b22bba57e"
       },
-      "size": 10154,
-      "sha256": "22e2de15c8557c2d14750380ff033d1bf7d186305bb0c5b42119107b22bba57e",
-      "adaptations": []
+      "size": 10281,
+      "sha256": "8328b90cff2590675d028308f69da199c6e7184b90cfcb15537bb2330fbef69c",
+      "adaptations": [
+        "Route common test decisions to the testing skill without copying its policy into bootstrapped projects."
+      ]
     },
     {
       "path": "skills/implementation/references/build-inputs.md",
@@ -773,6 +780,19 @@
       "sha256": "7844befe50f6bf7724b16b3b8318362b0db284d876da5a3381ea61872ba933a8",
       "adaptations": [
         "Separate loaded code from private state and personal profile; remove Vault authority; preserve operational guards; normalize PowerShell UTF-8 BOM where required."
+      ]
+    },
+    {
+      "path": "skills/testing/SKILL.md",
+      "source": "testing/SKILL.md",
+      "original": {
+        "size": 6943,
+        "sha256": "3371f09183ce7abb3c14583a1b76c0805006798d23ed12c05965e783bb57314a"
+      },
+      "size": 6943,
+      "sha256": "3371f09183ce7abb3c14583a1b76c0805006798d23ed12c05965e783bb57314a",
+      "adaptations": [
+        "User-approved Azrael-authored testing skill promoted unchanged from work/DZ-01-lean-testing-guidance/testing/SKILL.md at commit 1b853c63."
       ]
     }
   ],

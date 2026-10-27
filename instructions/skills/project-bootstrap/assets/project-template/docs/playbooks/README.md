@@ -18,7 +18,7 @@ Improve guidance from demonstrated needs. Promote reusable lessons to common sou
 
 Common work-entry instructions identify intent and authority, then choose `design-collaboration` for linked choices requiring iterative discussion or `development-workflow` to write a plan with questions and recommendations. `design-documentation` records enduring agreed design and `implementation` executes the resulting plan within existing authority. Small work uses short plans without unnecessary approval waits. Reuse one work record across transitions and preserve existing features using architecture together with code, tests and observed behavior; review unapproved design deviations or feature reductions before affected implementation.
 
-Common implementation rules belong to the installed `implementation` skill; do not import a duplicate Work body. Preserve and register existing project-specific Work or design-discussion guidance as local constraints.
+Common implementation rules belong to the installed `implementation` skill, and common test decisions belong to the installed `testing` skill; do not import duplicate Work or testing bodies. Preserve and register existing project-specific Work or design-discussion guidance as local constraints.
 
 ## Project Playbook Registration
 
