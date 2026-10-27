@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Select verification before generating tests, allow zero new tests when existing evidence suffices, and justify permanent coverage by its distinct regression value and full maintenance cost. Keep required checks, important contracts and existing artifact cleanup/retention rules.
+
 - Add optional internal visualization and ktcloud instruction components. Keep
   personal SSH instructions and cloud session records in the ignored, non-release
   `.private/` area; separate loaded skill code from private operational state.

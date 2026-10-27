@@ -93,11 +93,12 @@
         "size": 17375,
         "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 20613,
-      "sha256": "1ed68dac892ba0990a9396d2b10a76c9e017b0ad1c7e9cb6b6d1bf26ccd197c0",
+      "size": 22744,
+      "sha256": "b6bac2851eeefc6d286b2e8676d4d1acec4ac70946eb00357658babf4cacf8ee",
       "adaptations": [
         "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
-        "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy."
+        "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
+        "Select sufficient evidence before test generation; justify permanent coverage by distinct regression value and lifecycle costs while preserving mandatory checks, important contracts and cleanup/retention authority; active installed skill uses this maintained directory."
       ]
     },
     {
