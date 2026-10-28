@@ -94,14 +94,15 @@
         "size": 17375,
         "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 19260,
-      "sha256": "a5c58ce5594ea02fe55b8bfe66b9143ae55e858da2905c61c57b35e15655da63",
+      "size": 18554,
+      "sha256": "f2dd6369e86ccefac2db2806c29e9a44df598d0038aaf717ea690f48a3a36fac",
       "adaptations": [
         "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
         "Select sufficient evidence before test generation; justify permanent coverage by distinct regression value and lifecycle costs while preserving mandatory checks, important contracts and cleanup/retention authority; active installed skill uses this maintained directory.",
         "Delegate common test decisions to the approved testing skill; retain overall verification and cleanup ownership.",
-        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance.",
+        "Remove automatic archive fallback; use existing owner-based deletion and investigate failures while preserving protection and explicit retention approval; active installed skill resolves to this maintained source."
       ]
     },
     {
@@ -215,14 +216,15 @@
       "adaptations": [
         "Centralized cache reuse and completion reporting; allow lower-order version increments, retire unused older releases and rollback copies, and use related platform tests.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
-        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance.",
+        "Remove automatic archive fallback; use existing owner-based deletion and investigate failures while preserving protection and explicit retention approval; active installed skill resolves to this maintained source."
       ],
       "original": {
         "size": 7937,
         "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
       },
-      "size": 10549,
-      "sha256": "91ea2b3f035fffe714a7def2fafa602b1f8c06de17b649a4cdd10f7aa9552857"
+      "size": 10582,
+      "sha256": "6064ab431ae6acef4a66b26a027fbc207ba3d6145097c59629f0134339060a95"
     },
     {
       "path": "skills/implementation/references/delegation.md",
@@ -271,8 +273,8 @@
     {
       "path": "skills/implementation/references/artifact-lifecycle.md",
       "source": "implementation/references/artifact-lifecycle.md",
-      "size": 17169,
-      "sha256": "78b216de8b69dda02bc5e43d9ec2db4ea0e975651955340a959560a4994dcce9",
+      "size": 17045,
+      "sha256": "3a53a980a431081ef3bc134b5a1318ea98b6da08f4b9de5fe1d5924f061245b1",
       "original": {
         "size": 4370,
         "sha256": "834485e7b1e853611b50da821109b8f171cd342b27e4438890aa9bb007fa3abe"
@@ -283,14 +285,15 @@
         "Clarified creation-time ancestor/descendant claim checks, unique generation boundaries and verified migration without rewriting historical cleanup evidence.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
         "Link shared-cache reuse to its build owner and retire unused recovery copies instead of protecting the immediately preceding version by default.",
-        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance.",
+        "Remove automatic archive fallback; use existing owner-based deletion and investigate failures while preserving protection and explicit retention approval; active installed skill resolves to this maintained source."
       ]
     },
     {
       "path": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
       "source": "project-bootstrap/assets/playbooks/artifact-lifecycle.md",
-      "size": 21242,
-      "sha256": "f17ee4ab7fde7d3a6881bd82531eba8011a62bb04e11d32c22cf1ef53f9fd01d",
+      "size": 20997,
+      "sha256": "0fa64e6105860722fc370c6609e4cd3795a20035c9bd54174ed380d992017e1b",
       "original": {
         "size": 10430,
         "sha256": "6f05e9cb306732e7b74b7c064066de63da2776d19c2e5d161aa072bcf431c15a"
@@ -301,7 +304,8 @@
         "Clarified creation-time ancestor/descendant claim checks, unique generation boundaries and verified migration without rewriting historical cleanup evidence.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
         "Keep real installation ownership separate from test profiles and route unused release/recovery-copy retirement to project build lifecycle rules.",
-        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance."
+        "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance.",
+        "Remove automatic archive fallback; use existing owner-based deletion and investigate failures while preserving protection and explicit retention approval; active installed skill resolves to this maintained source."
       ]
     },
     {
