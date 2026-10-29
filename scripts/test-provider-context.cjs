@@ -8,7 +8,45 @@ const transformed=injection.injectProviderContext(source,injection.CONTEXT_ASSET
 const ts=require(require.resolve("typescript",{paths:[path.resolve(__dirname,"../extensions/azrael-ex")]}));
 function declaration(text,name){const Cst=ts.createSourceFile("fixture.js",text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),found=[];function visit(n){if(ts.isFunctionDeclaration(n)&&n.name?.text===name)found.push(n.getText(Cst));ts.forEachChild(n,visit)}visit(Cst);return found[0]}
 const jsx=(type,props)=>({type,props});
-function gaugeHarness(){const manager={getConversation:()=>({latestThreadSettings:{autoCompactionEnabled:true}})},context={gw(){},vsi(){},_A(){},l4n(){},r4n:"native-switch",hA:{},nA:{},Px:()=>manager,Ou:()=>({get:atom=>atom===context.nA?manager:"local"}),$:{},mw:"native-button",wd:()=>({useState:()=>[0,()=>{}],useRef:v=>({current:v}),useEffect(){},useMemo:fn=>fn()}),y7:{jsx,jsxs:jsx},QSa:{c:n=>Array(n).fill(Symbol.for("react.memo_cache_sentinel"))},st:()=>({locale:"en",formatMessage:(_,{percent})=>"Context usage: "+percent+"%",formatNumber:x=>String(x)}),q:"message",ZSa:()=>{},wr:"number",d5n:"donut",FT:"tooltip",Symbol};
+test("mode averages use the engine user layer, persist off and recover after failures",async()=>{
+ let stored,failRead=false,failWrite=false;
+ const calls=[];
+ const client={async sendRequest(method,params){
+  calls.push({method,params});
+  if(method==='config/value/write'){
+   if(failWrite)throw Error('write rejected');
+   stored=params.value;return {status:'okOverridden'};
+  }
+  if(failRead)throw Error('read rejected');
+  return {config:{desktop:{azraelModeAveragesEnabled:!stored}},layers:[{name:{type:'user'},config:{desktop:{azraelModeAveragesEnabled:stored}}},{name:{type:'project'},config:{desktop:{azraelModeAveragesEnabled:!stored}}}]};
+ }};
+ const store=injection.createModeAveragesStore(client);let notices=0;
+ const unsubscribe=store.subscribe(()=>notices++);
+ assert.equal(store.getSnapshot().enabled,true);await store.refresh();
+ assert.equal(store.getSnapshot().enabled,true);assert.equal(store.getSnapshot().loading,false);
+ await store.setEnabled(false);assert.equal(store.getSnapshot().enabled,false);
+ assert.deepEqual(calls.find(c=>c.method==='config/value/write').params,{keyPath:'desktop.azraelModeAveragesEnabled',value:false,mergeStrategy:'replace',filePath:null,expectedVersion:null,reloadUserConfig:true});
+ const restarted=injection.createModeAveragesStore(client);await restarted.refresh();assert.equal(restarted.getSnapshot().enabled,false);
+ failWrite=true;await store.setEnabled(true);assert.equal(store.getSnapshot().enabled,false);assert.match(store.getSnapshot().error,/write rejected/);
+ failWrite=false;await store.setEnabled(true);assert.equal(store.getSnapshot().enabled,true);assert.equal(store.getSnapshot().error,null);
+ failRead=true;await store.refresh();assert.equal(store.getSnapshot().enabled,true);assert.match(store.getSnapshot().error,/read rejected/);
+ failRead=false;await store.refresh();assert.equal(store.getSnapshot().error,null);
+ stored='invalid';await store.refresh();assert.match(store.getSnapshot().error,/Invalid/);
+ assert.ok(notices>0);unsubscribe();
+ const missing=injection.createModeAveragesStore({sendRequest:async()=>({layers:[]})});await missing.refresh();assert.match(missing.getSnapshot().error,/unavailable/);
+});
+test("mode averages drain an in-flight refresh before saving and block duplicate writes",async()=>{
+ let stored=true,release,writes=0,hold=false;
+ const client={async sendRequest(method,params){
+  if(method==='config/value/write'){writes++;stored=params.value;return {}};
+  const value=stored;if(hold){hold=false;await new Promise(r=>release=r)}
+  return {layers:[{name:{type:'user'},config:{desktop:{azraelModeAveragesEnabled:value}}}]};
+ }};
+ const store=injection.createModeAveragesStore(client);await store.refresh();
+ hold=true;const refresh=store.refresh(),save=store.setEnabled(false);await store.setEnabled(true);
+ assert.equal(writes,0);release();await Promise.all([refresh,save]);assert.equal(writes,1);assert.equal(store.getSnapshot().enabled,false);
+});
+function gaugeHarness(){const manager={getConversation:()=>({latestThreadSettings:{autoCompactionEnabled:true}})},context={gw(){},vsi(){},_A(){},l4n(){},r4n:"native-switch",hA:{},nA:{},Px:()=>manager,Ou:()=>({get:atom=>atom===context.nA?manager:"local"}),$:{},mw:"native-button",wd:()=>({useState:()=>[0,()=>{}],useRef:v=>({current:v}),useEffect(){},useMemo:fn=>fn(),useSyncExternalStore:(_subscribe,get)=>get()}),y7:{jsx,jsxs:jsx},QSa:{c:n=>Array(n).fill(Symbol.for("react.memo_cache_sentinel"))},st:()=>({locale:"en",formatMessage:(_,{percent})=>"Context usage: "+percent+"%",formatNumber:x=>String(x)}),q:"message",ZSa:()=>{},wr:"number",d5n:"donut",FT:"tooltip",Symbol};
   pm.createContext(context);pm.runInContext(declaration(transformed,"__azraelNativeContextUsage")+declaration(transformed,"__azraelNativeContextGauge")+"\n"+transformed.slice(transformed.lastIndexOf("function policyDescription"),transformed.lastIndexOf("/*azrael-provider-context")),context);return context}
 const policy=(input,status="confirmed",inclusive=false)=>({providerId:"openai",modelId:"m",contextWindow:400000,autoCompactBaseTokens:200000,safeContextWindow:380000,autoCompactTokenLimit:361000,autoCompactSource:"default",inputTokens:input,inputTokensEstimated:true,pricing:{status,inputTokenThreshold:272000,inclusive,sourceUrl:"https://example.com/pricing"}});
 test("current response performance forwards measured totals and replaces them on next turn",()=>{

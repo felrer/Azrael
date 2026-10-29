@@ -66,6 +66,54 @@ function legacyResponsePerformanceGraph(jsx, performance, ko) {
     ]})
   ]});
 }
+// The engine's user layer owns this preference; project/profile overrides do not.
+function createModeAveragesStore(client) {
+  let state = {enabled:true,loading:true,saving:false,error:null}, reading = null;
+  const listeners = new Set();
+  const publish = next => { state = next; for (const listener of listeners) listener(); };
+  const readValue = result => {
+    const users = result?.layers?.filter(layer=>layer.name?.type === "user");
+    if (users?.length !== 1 || users[0].disabledReason) throw Error("User UI settings unavailable");
+    const value = users[0].config?.desktop?.azraelModeAveragesEnabled;
+    if (value != null && typeof value !== "boolean") throw Error("Invalid mode averages preference");
+    return value ?? true;
+  };
+  const read = () => client.sendRequest("config/read", {includeLayers:true,cwd:null}).then(readValue);
+  return {
+    getSnapshot:()=>state,
+    subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener)},
+    refresh() {
+      if (state.saving) return Promise.resolve();
+      if (reading) return reading;
+      reading = read().then(enabled=>publish({...state,enabled,loading:false,error:null}),error=>publish({...state,loading:false,error:String(error.message??error)})).finally(()=>{reading=null});
+      return reading;
+    },
+    async setEnabled(enabled) {
+      if (state.loading || state.saving || typeof enabled !== "boolean") return;
+      publish({...state,saving:true,error:null});
+      try {
+        // Drain an earlier refresh before writing so it cannot undo this save.
+        await reading;
+        await client.sendRequest("config/value/write", {keyPath:"desktop.azraelModeAveragesEnabled",value:enabled,mergeStrategy:"replace",filePath:null,expectedVersion:null,reloadUserConfig:true});
+        const confirmed = await read();
+        if (confirmed !== enabled) throw Error("Mode averages preference was not saved");
+        publish({enabled:confirmed,loading:false,saving:false,error:null});
+      } catch (error) { publish({...state,saving:false,error:String(error.message??error)}); }
+    }
+  };
+}
+function useModeAverages(React, client, conversationId, stores) {
+  let store = stores.get(client);
+  if (!store) { store = createModeAveragesStore(client); stores.set(client,store); }
+  const state = React.useSyncExternalStore(store.subscribe,store.getSnapshot,store.getSnapshot);
+  React.useEffect(()=>{
+    const refresh = ()=>{store.refresh()};
+    refresh();
+    globalThis.addEventListener?.("focus",refresh);
+    return ()=>globalThis.removeEventListener?.("focus",refresh);
+  },[store,conversationId]);
+  return {...state,setEnabled:enabled=>store.setEnabled(enabled)};
+}
 function responsePerformanceGraph(jsx, p, ko, options = {}) {
   if (p?.startedAtUnixMs == null && p?.observedAtUnixMs == null) return legacyResponsePerformanceGraph(jsx,p,ko);
   const minuteMs=60000,windowMs=40*minuteMs,end=p?.observedAtUnixMs,start=end-windowMs;
@@ -111,8 +159,9 @@ function responsePerformanceGraph(jsx, p, ko, options = {}) {
       ...(options.averages?means.map(m=>jsx("line",{key:"average-"+m.mode,"data-mode-average":m.mode,"data-tps":m.rate,x1:24,x2:264,y1:y(m.rate),y2:y(m.rate),stroke:color(m.mode),strokeDasharray:"5 3"})):[]),...shapes,
       jsx("g",{"data-tps-timestamps":true,fontSize:10,fill:"currentColor",textAnchor:"middle",style:{fontVariantNumeric:"tabular-nums"},children:timestamps.map(b=>jsx("text",{key:b.id,"data-turn-timestamp":b.id,"data-timestamp-row":b.row,x:b.position,y:94+b.row*16,children:clock(b.time)}))})]}),
     jsx("div",{style:{display:"flex",gap:8,flexWrap:"wrap",fontSize:11},children:[...modes,"unknown"].filter(mode=>mode!=="unknown"||points.some(s=>s.mode===null)).map(mode=>jsx("span",{key:mode,style:{color:color(mode)},children:names[mode]}))}),
-    options.Switch?jsx("div",{className:"flex items-center justify-between gap-4","data-tps-average-toggle":true,children:[jsx("span",{className:"text-sm",children:averageLabel}),jsx(options.Switch,{ariaLabel:averageLabel,checked:options.averages===true,onChange:options.onAveragesChange})]}):null,
-    options.averages?jsx("div",{"data-tps-average-labels":true,style:{display:"flex",gap:8,flexWrap:"wrap",fontSize:11},children:means.map(m=>jsx("span",{key:m.mode,style:{color:color(m.mode)},children:names[m.mode]+": "+format(m.rate)+" "+unit}))}):null
+    options.Switch?jsx("div",{className:"flex items-center justify-between gap-4","data-tps-average-toggle":true,children:[jsx("span",{className:"text-sm",children:averageLabel}),jsx(options.Switch,{ariaLabel:averageLabel,checked:options.averages===true,disabled:options.averagesBusy===true,onChange:options.onAveragesChange})]}):null,
+    options.averages?jsx("div",{"data-tps-average-labels":true,style:{display:"flex",gap:8,flexWrap:"wrap",fontSize:11},children:means.map(m=>jsx("span",{key:m.mode,style:{color:color(m.mode)},children:names[m.mode]+": "+format(m.rate)+" "+unit}))}):null,
+    options.averagesError?jsx("span",{role:"alert",className:"text-xs text-token-description-foreground",children:ko?"모드별 평균 설정을 불러오거나 저장하지 못했습니다.":"Could not read or save mode averages setting."}):null
   ]});
 }
 function decorateGauge(jsx, node, policy, ko, action = null, performance = undefined, graph = responsePerformanceGraph(jsx,performance,ko)) {
@@ -350,7 +399,7 @@ function injectProviderContextControls(text, asset) {
     text=once(text,"(XSa,{contextUsage:y})", "(XSa,{contextUsage:y,conversationId:h})");
     text=once(text,"t[22]=y,t[23]=H,t[24]=W)", "t[22]=y,t[23]=H,t[24]=W,t[41]=h)");
     if (!/r4n as l9[,}]/.test(text) || !/l4n as d9[,}]/.test(text)) throw Error("Pinned native auto-compaction switch changed");
-    text += `\n${policyDescription.toString()}\n${gaugeProgress.toString()}\n${responsePerformanceDescription.toString()}\n${legacyResponsePerformanceGraph.toString()}\n${responsePerformanceGraph.toString()}\n${decorateGauge.toString()}\n${useThreadAutoCompaction.toString()}\n${renderThreadAutoCompaction.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null;return {...usage,percent:gaugeProgress(policy,usage.percent).percent,contextPolicy:policy,responsePerformance:e?.responsePerformance}}\nfunction XSa(e){gw();_A();l4n();const ko=st().locale?.startsWith('ko'),[averageState,setAverageState]=wd().useState(()=>({id:e.conversationId,enabled:false})),averages=averageState?.id===e.conversationId&&averageState?.enabled===true,graph=wd().useMemo(()=>responsePerformanceGraph(y7.jsx,e.contextUsage.responsePerformance,ko,{averages,Switch:r4n,onAveragesChange:enabled=>setAverageState({id:e.conversationId,enabled})}),[e.contextUsage.responsePerformance,ko,averages,e.conversationId]),store=Ou($),manager=e.conversationId==null?null:store.get(nA,store.get(hA,e.conversationId)),state=useThreadAutoCompaction(wd(),manager,e.conversationId,(method,params)=>Px(store,store.get(hA,e.conversationId)).sendRequest(method,params)),policy=e.contextUsage.contextPolicy?{...e.contextUsage.contextPolicy,autoCompactionEnabled:state.enabled}:null,usage={...e.contextUsage,contextPolicy:policy,percent:gaugeProgress(policy,e.contextUsage.percent).percent},manual=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id)),action=y7.jsx('div',{className:'flex flex-col gap-3',children:[renderThreadAutoCompaction(y7.jsx,r4n,mw,state,e.conversationId,ko),manual]});return decorateGauge(y7.jsx,__azraelNativeContextGauge({...e,contextUsage:usage}),policy,ko,action,e.contextUsage.responsePerformance,graph)}\n`;
+    text += `\n${policyDescription.toString()}\n${gaugeProgress.toString()}\n${responsePerformanceDescription.toString()}\n${legacyResponsePerformanceGraph.toString()}\n${responsePerformanceGraph.toString()}\n${createModeAveragesStore.toString()}\n${useModeAverages.toString()}\nconst __azraelModeAveragesStores=new WeakMap();\n${decorateGauge.toString()}\n${useThreadAutoCompaction.toString()}\n${renderThreadAutoCompaction.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null;return {...usage,percent:gaugeProgress(policy,usage.percent).percent,contextPolicy:policy,responsePerformance:e?.responsePerformance}}\nfunction XSa(e){gw();_A();l4n();const ko=st().locale?.startsWith('ko'),store=Ou($),averageClient=Px(store,store.get(hA,e.conversationId)),averageState=useModeAverages(wd(),averageClient,e.conversationId,__azraelModeAveragesStores),averages=averageState.enabled,graph=wd().useMemo(()=>responsePerformanceGraph(y7.jsx,e.contextUsage.responsePerformance,ko,{averages,Switch:r4n,onAveragesChange:averageState.setEnabled,averagesBusy:averageState.loading||averageState.saving,averagesError:averageState.error}),[e.contextUsage.responsePerformance,ko,averages,e.conversationId,averageClient,averageState.loading,averageState.saving,averageState.error]),manager=e.conversationId==null?null:store.get(nA,store.get(hA,e.conversationId)),state=useThreadAutoCompaction(wd(),manager,e.conversationId,(method,params)=>Px(store,store.get(hA,e.conversationId)).sendRequest(method,params)),policy=e.contextUsage.contextPolicy?{...e.contextUsage.contextPolicy,autoCompactionEnabled:state.enabled}:null,usage={...e.contextUsage,contextPolicy:policy,percent:gaugeProgress(policy,e.contextUsage.percent).percent},manual=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id)),action=y7.jsx('div',{className:'flex flex-col gap-3',children:[renderThreadAutoCompaction(y7.jsx,r4n,mw,state,e.conversationId,ko),manual]});return decorateGauge(y7.jsx,__azraelNativeContextGauge({...e,contextUsage:usage}),policy,ko,action,e.contextUsage.responsePerformance,graph)}\n`;
     count++;
   } else if (asset === SETTINGS_ASSET) {
     // Include host identity in the parent cache even when hidden instructions leave s null.
@@ -366,4 +415,4 @@ function injectProviderContextControls(text, asset) {
 function injectProviderContext(text, asset) {
   return runProviderContext(text, asset, injectProviderContextControls);
 }
-module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,gaugeProgress,responsePerformanceDescription,responsePerformanceGraph,decorateGauge,useThreadAutoCompaction,renderThreadAutoCompaction,renderCompactionAction,savePolicy,compactionPreview,renderSettings};
+module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,gaugeProgress,responsePerformanceDescription,responsePerformanceGraph,decorateGauge,createModeAveragesStore,useModeAverages,useThreadAutoCompaction,renderThreadAutoCompaction,renderCompactionAction,savePolicy,compactionPreview,renderSettings};
