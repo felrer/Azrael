@@ -1,0 +1,201 @@
+{
+  "status": "partial-cleanup-with-user-approved-retention",
+  "sourceCommit": "dbf2a89b4a7871f7e1f9fd598631d9102bc9339a",
+  "registration": {
+    "groups": 5,
+    "allExitCodes": 0
+  },
+  "registrationReservationRecovery": [
+    {
+      "id": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+      "exitCode": 0,
+      "status": "reservation_recovered",
+      "evidenceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ER-01-mode-averages-global\\reservation-stop-0.json",
+      "executionOutcomeChanged": false
+    },
+    {
+      "id": "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+      "exitCode": 0,
+      "status": "reservation_recovered",
+      "evidenceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ER-01-mode-averages-global\\reservation-stop-1.json",
+      "executionOutcomeChanged": false
+    }
+  ],
+  "review": {
+    "verification": "registered",
+    "allFiveUnblocked": true,
+    "items": [
+      {
+        "id": "1ed8fbdb36b50ff24ab8ec6a0abd4e1475d83ae471a8191648218ac3ccee35c1",
+        "group": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+        "token": "2342fe67b6d9e1ae3a92f176799c35a596d7e596c66c941242be3826899ed011",
+        "blockers": [],
+        "references": [],
+        "membershipMatches": true
+      },
+      {
+        "id": "5d45f7edeead11a7f9d755f220354bb12e8e66ffbc5e7f083d86260508a99e70",
+        "group": "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+        "token": "e0e2f953a91213f91e2a5c2a007fe9b4adafbf4227ceccff46b832bbea805e37",
+        "blockers": [],
+        "references": [],
+        "membershipMatches": true
+      },
+      {
+        "id": "989122f9b31bbe5da6ba2c71ff65bf791eb6333775d45c999c43406abd9f090d",
+        "group": "run:verify-provider-context-render:20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-provider-context-render\\runs\\20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+        "token": "a302340abbaf6c43af69c45dae5a5191fb2a0956a214d8a8c5a0f7cb5ea3c562",
+        "blockers": [],
+        "references": [],
+        "membershipMatches": true
+      },
+      {
+        "id": "a0595d58e68740ad596b510e13f6a06a5237a6c1d69227464e5db3f7e7091da9",
+        "group": "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+        "token": "d0fa7c72584b16e4b4ac94a4df127bcbacda40828dd45adbd939d7298d97496c",
+        "blockers": [],
+        "references": [],
+        "membershipMatches": true
+      },
+      {
+        "id": "ffba2913d145feebca53b704aa05a4aefca068399ca426e2f082c622f7a0283e",
+        "group": "run:mode-averages-native:20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\mode-averages-native\\runs\\20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+        "token": "9d72a4ee6821ad0e016c8031de5e8a91b4272440ef3aaf2f0ffa3325eace50bc",
+        "blockers": [],
+        "references": [],
+        "membershipMatches": true
+      }
+    ]
+  },
+  "apply": {
+    "exitCode": 1,
+    "pid": 46952,
+    "response": null,
+    "error": "{\"error\":\"다른 프로세스가 파일의 한 부분을 잠갔으므로, 프로세스가 해당 파일을 액세스할 수 없습니다. (os error 33)\"}\n"
+  },
+  "actualPaths": [
+    {
+      "id": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+      "present": false,
+      "bytes": 0,
+      "files": 0
+    },
+    {
+      "id": "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+      "present": true,
+      "bytes": 57497443,
+      "files": 515
+    },
+    {
+      "id": "run:mode-averages-native:20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\mode-averages-native\\runs\\20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+      "present": true,
+      "bytes": 1287568,
+      "files": 74
+    },
+    {
+      "id": "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+      "present": false,
+      "bytes": 0,
+      "files": 0
+    },
+    {
+      "id": "run:verify-provider-context-render:20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-provider-context-render\\runs\\20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+      "present": true,
+      "bytes": 55364377,
+      "files": 289
+    }
+  ],
+  "remainingBytes": 114149388,
+  "remainingGroups": 3,
+  "absentGroups": 2,
+  "reservations": [
+    {
+      "id": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+      "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\7f1ddc40a3f0531807d7950d1b3d3bb1779c064d972acd71ccd7e2a765ca740c.json",
+      "sha256": "b659eb501b87bef717d5fb1136cd74b9d7a790e448aa6edbbacded22fb295195",
+      "owner": {
+        "acquired_at_ms": 1793291994035,
+        "operation": "group_reservation",
+        "pid": 46952,
+        "schema": 2,
+        "token": "46952-1793291994035-48d0c9b6dc7dda2c"
+      },
+      "token": "46952-1793291994035-48d0c9b6dc7dda2c"
+    },
+    {
+      "id": "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+      "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\e2ff643704ab98dc8ececf1cb6b3d6e7363a5f6a61935f11305f7f2c460880bb.json",
+      "sha256": "410b45331f2f3ea2699f09be537cb67e6ce03e27319d241ded4b63fe6ee6c227",
+      "owner": {
+        "acquired_at_ms": 1793292002766,
+        "operation": "group_reservation",
+        "pid": 46952,
+        "schema": 2,
+        "token": "46952-1793292002766-e00caf7b601041f2"
+      },
+      "token": "46952-1793292002766-e00caf7b601041f2"
+    },
+    {
+      "id": "run:mode-averages-native:20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+      "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\9b7ab3403fac4e180107337b822f954a0d49a1513bf725f301974e084cb0886f.json",
+      "sha256": "81b3c9e70bd82d223e952ac3c9491ccc747f6b5d474514de69bed1c141a708e2",
+      "owner": {
+        "acquired_at_ms": 1793291987344,
+        "operation": "group_reservation",
+        "pid": 46952,
+        "schema": 2,
+        "token": "46952-1793291987344-300aa0dbea82deb1"
+      },
+      "token": "46952-1793291987344-300aa0dbea82deb1"
+    },
+    {
+      "id": "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+      "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\c3bdc69c91fb3e73df7f2f045d33682199428991a53111affa8c3d941d53493b.json",
+      "sha256": "4c3ed47899ceb42ac49d3fab87bf02b321c14ce8a60d36dab6e0a001a66d5be5",
+      "owner": {
+        "acquired_at_ms": 1793292010295,
+        "operation": "group_reservation",
+        "pid": 46952,
+        "schema": 2,
+        "token": "46952-1793292010295-f70b02e8f8b428cb"
+      },
+      "token": "46952-1793292010295-f70b02e8f8b428cb"
+    },
+    {
+      "id": "run:verify-provider-context-render:20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+      "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\61379d639dd8c0feb292b1f324aac2dd8e721202981a8e8dd84623c825690df7.json",
+      "sha256": "5d62ecb765d05c5ab01248ea36b25648617cca2ae65c336431e24efb7a7c3fc2",
+      "owner": {
+        "acquired_at_ms": 1793292019393,
+        "operation": "group_reservation",
+        "pid": 46952,
+        "schema": 2,
+        "token": "46952-1793292019393-474412581cd4f8ab"
+      },
+      "token": "46952-1793292019393-474412581cd4f8ab"
+    }
+  ],
+  "stopEvidence": {
+    "nativePid": 46952,
+    "observedNativeExit": 1,
+    "processQuery": "Fresh Win32_Process query for PID 46952 and ParentProcessId 46952 returned no processes; other unrelated native owner was active.",
+    "treeBoundary": "The native Windows deletion worker is contained by a non-inherited kill-on-close Job. The normal Worker Drop closes stdin, waits for the worker, releases the Job and joins stderr; actual native return was observed. Payload presence was checked only after terminal return.",
+    "limitation": "The native error did not identify the locked file. No handle/handle64 inspector is installed; unrelated EQ-01 native owner concurrently held maintenance work. Exact lock target/cause remains unverified."
+  },
+  "retention": {
+    "authorization": "Existing explicit user approval of original five groups (~218 MiB); remaining three are the same paths and a narrower scope (~109 MiB).",
+    "purpose": "Preserve protected fixtures and pending native removal/recovery evidence after failed ordinary owner cleanup.",
+    "releaseCondition": "After conflicting maintenance activity releases locks, verify exact stopped apply owner and worker tree, recover exact five reservations through supported owner, preserve pending intents/failed outcome, fresh review/reconcile absent two and safely delete remaining three. Do not force deletion or manually edit registry."
+  },
+  "registryFinalized": false
+}

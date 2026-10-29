@@ -1,15 +1,14 @@
 {
-  "status": "user-approved-retention",
+  "status": "user-approved-retention-after-partial-owner-cleanup",
   "purpose": "Stopped isolated verification fixtures, browser profiles, engine state and raw results",
-  "bytes": 228615429,
+  "bytes": 114149388,
   "groups": [
-    "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
     "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
     "run:mode-averages-native:20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
-    "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
     "run:verify-provider-context-render:20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0"
   ],
   "approval": "User selected ?? ??? ???? ???? for these five groups (~218 MiB).",
-  "releaseCondition": "After separate EC-01 batch ends, verify exact stopped reservation owners, recover through supported owner, recheck protection and delete through fresh owner review/apply; never bypass live locks or failed guards.",
-  "normalOperationConfirmationRequired": false
+  "releaseCondition": "After conflicting maintenance activity releases locks, verify exact stopped apply owner and worker tree, recover exact five reservations through supported owner, preserve pending intents/failed outcome, fresh review/reconcile absent two and safely delete remaining three. Do not force deletion or manually edit registry.",
+  "normalOperationConfirmationRequired": false,
+  "cleanupEvidence": "cleanup.json"
 }

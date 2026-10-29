@@ -1,0 +1,24 @@
+{
+  "id": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+  "reservation_sha256": "531c0fac5d06fbae894fb9088aabebab93f939983f4374d88d18771864b49f15",
+  "lease_owner": {
+    "acquired_at_ms": 1793289246951,
+    "operation": "group_reservation",
+    "pid": 21424,
+    "schema": 2,
+    "token": "21424-1793289246951-fe4460e2c2f08ae3"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "terminalExecution": {
+    "exitCode": 1,
+    "error": "OS lock busy: artifacts/maintenance/maintenance.lock (maintenance)",
+    "kind": "Observed synchronous native registrar terminal return; second invocation also reported pid 16752"
+  },
+  "treeEvidence": "Both selected operations were native standalone group registration, whose path performs reservation, filesystem measurements and catalog publication without launching external children. Observed terminal native failure is corroborated by the exact durable reservation owner and a fresh Win32_Process query for both owner PIDs and children returning none. This is not inferred solely from PID absence.",
+  "supportedOwner": {
+    "executable": "artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+    "sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26"
+  },
+  "recoveryScope": "Release only the exact registration reservation; preserve failed test outcomes and pending intents."
+}
