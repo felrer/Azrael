@@ -146,6 +146,13 @@ try {
         $config.windowControl.directory = Relative-File $runtimeDirectory $config.windowControl.directory
         $config.windowControl.executable = Relative-File $runtimeDirectory $config.windowControl.executable
         $config.windowControl.mcpScript = Relative-File $runtimeDirectory $config.windowControl.mcpScript
+        if ($config.windowControl.PSObject.Properties['childSession']) {
+            foreach ($key in @('executable', 'probeScript', 'logoffScript')) {
+                if ($config.windowControl.childSession.PSObject.Properties[$key]) {
+                    $config.windowControl.childSession.$key = Relative-File $runtimeDirectory $config.windowControl.childSession.$key
+                }
+            }
+        }
         foreach ($owner in @('computerUse', 'windowControl')) {
             if ((Get-Hash (Join-Path $config.$owner.directory 'manifest.json')) -cne $config.$owner.manifestSha256.ToLowerInvariant()) { throw "Installed manifest integrity mismatch: $owner" }
         }

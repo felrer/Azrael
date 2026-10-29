@@ -1752,6 +1752,8 @@
         "scripts/use-settings-host.cjs",
         "scripts/window-control-runtime.cjs",
         "scripts/prepare-ordinary-vscode.ps1",
+        "scripts/package-app-release.py",
+        "scripts/install-app-release.ps1",
         "instructions/computer-use-selected-window.md",
         "instructions/window-use/stage-3.md",
         "instructions/window-use/common.md",
