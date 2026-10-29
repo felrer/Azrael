@@ -1,0 +1,20 @@
+{
+  "id": "work:EQ-01-protection-timing:single-32m",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "703e455af43a30d2ba81b8c147a3bc4649f5027a1b102d1efa0c2886dee81660",
+  "lease_owner": {
+    "acquired_at_ms": 1793286387128,
+    "operation": "group_reservation",
+    "pid": 23688,
+    "schema": 2,
+    "token": "23688-1793286387128-c94f7f5f1efa1393"
+  },
+  "terminal": {
+    "session": 15365,
+    "exit_code": 1,
+    "error": "OS lock busy catalog",
+    "basis": "Observed synchronous native exit 1 and parent script exit 1"
+  },
+  "stop_basis": "Exact own synchronous maintenance_owner registration returned exit 1; path launches no subprocesses. Independent Windows process snapshot finds zero owner/child entries; native recovery must additionally acquire all OS leases."
+}

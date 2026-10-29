@@ -1,0 +1,16 @@
+{
+  "id": "work:EQ-01-protection-timing:single-32m",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "c843d47365aaa5a5871f5c95de6c07c1db79addfd321e07c6bbfe04a39759cf1",
+  "lease_owner": {
+    "acquired_at_ms": 1793286847182,
+    "operation": "group_reservation",
+    "pid": 31696,
+    "schema": 2,
+    "token": "31696-1793286847182-edd8c27264c91f24"
+  },
+  "observed_exit_code": 1,
+  "observed_terminal_session": 46151,
+  "terminal_basis": "Exact synchronous native apply pid 31696 returned status 1 (Windows os error 33); parent script returned status 1. Native apply performs filesystem operations without subprocess launches. Independent process snapshot for pid and children returned zero. All fixture roots were independently observed present and manifest.pending absent."
+}

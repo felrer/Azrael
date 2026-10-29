@@ -1,0 +1,18 @@
+{
+  "id": "work:EQ-01-protection-timing:single-32m",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "4931013ba1b3f27bd2d38d9962f39df7ea8fc454311349285c1d8a9ec239daea",
+  "lease_owner": {
+    "acquired_at_ms": 1793286203187,
+    "operation": "group_reservation",
+    "pid": 28912,
+    "schema": 2,
+    "token": "28912-1793286203187-4cb888a65f83896f"
+  },
+  "observed_exit_code": 1,
+  "observed_terminal_session": 72095,
+  "terminal_basis": "Synchronous spawnSync of the exact maintenance_owner register request returned status 1 (OS lock busy); its parent script also returned status 1. Registration/reservation execution performs no child launches (no Command/spawn calls in registration.rs, reservations.rs, or maintenance_owner.rs).",
+  "independent_process_snapshot": "Win32_Process query ProcessId=28912 OR ParentProcessId=28912 returned no rows after terminal observation; absence is supplemental to synchronous terminal and non-spawning path evidence.",
+  "request_sha256": "2c0e8bd6833e6563511df5dd6b57279e892f6c238ac84c39aa3a6c07c7b4f40f"
+}

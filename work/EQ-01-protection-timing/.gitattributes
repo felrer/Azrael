@@ -1,0 +1,2 @@
+# Recovery receipts bind these files by their exact byte hashes.
+*.json -text

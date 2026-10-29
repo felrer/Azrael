@@ -1,0 +1,19 @@
+{
+  "id": "work:EQ-01-protection-timing:single-32m",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "846f04820217624438c378f5c67149296d58ba6cdb7893c9d36aa9324a17e4a5",
+  "lease_owner": {
+    "acquired_at_ms": 1793286513722,
+    "operation": "group_reservation",
+    "pid": 35868,
+    "schema": 2,
+    "token": "35868-1793286513722-05f5450428ee403f"
+  },
+  "terminal": {
+    "pid": 35868,
+    "exit_code": 1,
+    "error": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+  },
+  "stop_basis": "Exact own synchronous maintenance_owner registration returned exit 1; path launches no subprocesses. Independent Windows process snapshot finds zero owner/child entries; native recovery must additionally acquire all OS leases."
+}
