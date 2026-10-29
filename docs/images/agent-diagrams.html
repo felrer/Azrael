@@ -41,6 +41,9 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 .connector { fill: none; stroke: #a1aaa4; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .accent-line { fill: none; stroke: #7e9e89; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .rule { stroke: #e0e4e1; stroke-width: 1.2; }
+.inactive-card { fill: #fafbfa; stroke: #e7ebe8; stroke-width: 1.5; }
+.inactive-text { fill: #aeb6b0; }
+.inactive-connector { fill: none; stroke: #d5dcd7; stroke-width: 1.5; stroke-dasharray: 5 5; stroke-linecap: round; stroke-linejoin: round; }
 </style>
 </head>
 <body>
@@ -48,8 +51,8 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 <header><h1>Azrael · Agent diagrams</h1><p>역할 분담과 대기·재개 · Roles, waiting and resuming</p><nav aria-label="Language"><a href="#agent-roles-ko-heading">한국어</a><a href="#agent-roles-en-heading">English</a></nav></header>
 <section lang="ko" aria-labelledby="agent-roles-ko-heading"><h2 id="agent-roles-ko-heading">root와 subagent의 역할 분담</h2><div class="figure-scroll" tabindex="0" aria-label="root와 subagent의 역할 분담"><svg xmlns="http://www.w3.org/2000/svg" id="agent-roles-ko" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="agent-roles-ko-title agent-roles-ko-desc" lang="ko">
 <title id="agent-roles-ko-title">root와 subagent의 역할 분담</title>
-<desc id="agent-roles-ko-desc">사용자와 root가 설계를 논의합니다. root는 조사·구현 subagent에 위임하고 결과를 받습니다. architecture는 세션을 잇는 공통 설계입니다. lead는 추후 추가됩니다.</desc>
-<defs><marker id="agent-roles-ko-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#9ca69f"/></marker></defs>
+<desc id="agent-roles-ko-desc">사용자와 root가 설계를 논의합니다. root는 조사·구현 subagent에 위임하고 결과를 받습니다. architecture는 세션을 잇는 공통 설계입니다. lead는 연한 회색의 비활성 노드로 표시되며 추후 추가됩니다.</desc>
+<defs><marker id="agent-roles-ko-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#9ca69f"/></marker><marker id="agent-roles-ko-inactive-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#d5dcd7"/></marker></defs>
 <rect width="1120" height="640" rx="20" class="canvas"/>
 <path d="M 398 104 V 168" class="connector" marker-end="url(#agent-roles-ko-arrow)" marker-start="url(#agent-roles-ko-arrow)"/>
 <path d="M 748 257 H 816" class="connector" marker-end="url(#agent-roles-ko-arrow)" marker-start="url(#agent-roles-ko-arrow)"/>
@@ -60,9 +63,7 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 <text x="720" y="72" class="body" text-anchor="end">목표와 요구사항</text>
 <text x="420" y="144" class="small" >논의 · 합의</text>
 <rect x="48" y="168" width="700" height="178" rx="18" class="root-card"/>
-<text x="78" y="207" class="eyebrow mono" >root</text>
-<rect x="572" y="187" width="148" height="32" rx="16" class="tag"/>
-<text x="646" y="209" class="tag-text" text-anchor="middle">시간 효율</text>
+<text x="78" y="207" class="eyebrow" >root · 시간 효율</text>
 <text x="78" y="259" class="heading" >설계 논의와 작업 스케줄링</text>
 <text x="78" y="300" class="body" >의존관계 정리 · 작업 배정 · 결과 통합</text>
 <rect x="326" y="392" width="144" height="30" rx="15" class="canvas"/>
@@ -82,9 +83,14 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 <line x1="844" y1="340" x2="1044" y2="340" class="rule"/>
 <text x="844" y="385" class="body" >세션이 바뀌어도</text>
 <text x="844" y="418" class="body" >이어지는 설계 기준</text>
-<rect x="48" y="598" width="104" height="26" rx="13" class="row"/>
-<text x="100" y="617" class="eyebrow" text-anchor="middle">추후 추가</text>
-<text x="168" y="618" class="small" >lead · 사용자와의 설계 논의 전담</text>
+<g aria-label="비활성 · 추후 추가">
+<path d="M 748 64 H 816" class="inactive-connector" marker-end="url(#agent-roles-ko-inactive-arrow)"/>
+<path d="M 944 136 V 152 H 782 V 224 H 748" class="inactive-connector" marker-end="url(#agent-roles-ko-inactive-arrow)"/>
+<rect x="816" y="24" width="256" height="112" rx="18" class="inactive-card"/>
+<text x="844" y="53" class="eyebrow inactive-text">lead</text>
+<text x="844" y="87" class="label inactive-text">설계 논의 전담</text>
+<text x="844" y="116" class="small inactive-text">비활성 · 추후 추가</text>
+</g>
 </svg></div></section>
 <section lang="ko" aria-labelledby="agent-resume-ko-heading"><h2 id="agent-resume-ko-heading">defer_root의 대기와 재개</h2><div class="figure-scroll" tabindex="0" aria-label="defer_root의 대기와 재개"><svg xmlns="http://www.w3.org/2000/svg" id="agent-resume-ko" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="agent-resume-ko-title agent-resume-ko-desc" lang="ko">
 <title id="agent-resume-ko-title">defer_root의 대기와 재개</title>
@@ -125,8 +131,8 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 </svg></div></section>
 <section lang="en" aria-labelledby="agent-roles-en-heading"><h2 id="agent-roles-en-heading">How root and subagents divide the work</h2><div class="figure-scroll" tabindex="0" aria-label="How root and subagents divide the work"><svg xmlns="http://www.w3.org/2000/svg" id="agent-roles-en" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="agent-roles-en-title agent-roles-en-desc" lang="en">
 <title id="agent-roles-en-title">How root and subagents divide the work</title>
-<desc id="agent-roles-en-desc">The user and root discuss design. Root assigns bounded research and implementation to subagents and receives their results. Architecture carries shared design across sessions. A dedicated lead is planned.</desc>
-<defs><marker id="agent-roles-en-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#9ca69f"/></marker></defs>
+<desc id="agent-roles-en-desc">The user and root discuss design. Root assigns bounded research and implementation to subagents and receives their results. Architecture carries shared design across sessions. The pale-gray lead node is inactive and planned for a later addition.</desc>
+<defs><marker id="agent-roles-en-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#9ca69f"/></marker><marker id="agent-roles-en-inactive-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#d5dcd7"/></marker></defs>
 <rect width="1120" height="640" rx="20" class="canvas"/>
 <path d="M 398 104 V 168" class="connector" marker-end="url(#agent-roles-en-arrow)" marker-start="url(#agent-roles-en-arrow)"/>
 <path d="M 748 257 H 816" class="connector" marker-end="url(#agent-roles-en-arrow)" marker-start="url(#agent-roles-en-arrow)"/>
@@ -137,9 +143,7 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 <text x="720" y="72" class="body" text-anchor="end">Goals &amp; requirements</text>
 <text x="420" y="144" class="small" >Discuss · Agree</text>
 <rect x="48" y="168" width="700" height="178" rx="18" class="root-card"/>
-<text x="78" y="207" class="eyebrow mono" >root</text>
-<rect x="572" y="187" width="148" height="32" rx="16" class="tag"/>
-<text x="646" y="209" class="tag-text" text-anchor="middle">Time efficiency</text>
+<text x="78" y="207" class="eyebrow" >root · Time efficiency</text>
 <text x="78" y="259" class="heading" >Design &amp; scheduling</text>
 <text x="78" y="300" class="body" >Dependencies · Assignment · Integration</text>
 <rect x="326" y="392" width="144" height="30" rx="15" class="canvas"/>
@@ -159,9 +163,14 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 <line x1="844" y1="340" x2="1044" y2="340" class="rule"/>
 <text x="844" y="385" class="body" >A shared reference</text>
 <text x="844" y="418" class="body" >across sessions</text>
-<rect x="48" y="598" width="104" height="26" rx="13" class="row"/>
-<text x="100" y="617" class="eyebrow" text-anchor="middle">PLANNED</text>
-<text x="168" y="618" class="small" >lead · Dedicated design discussion with the user</text>
+<g aria-label="Inactive · Coming later">
+<path d="M 748 64 H 816" class="inactive-connector" marker-end="url(#agent-roles-en-inactive-arrow)"/>
+<path d="M 944 136 V 152 H 782 V 224 H 748" class="inactive-connector" marker-end="url(#agent-roles-en-inactive-arrow)"/>
+<rect x="816" y="24" width="256" height="112" rx="18" class="inactive-card"/>
+<text x="844" y="53" class="eyebrow inactive-text">lead</text>
+<text x="844" y="87" class="label inactive-text">Design discussion</text>
+<text x="844" y="116" class="small inactive-text">Inactive · Coming later</text>
+</g>
 </svg></div></section>
 <section lang="en" aria-labelledby="agent-resume-en-heading"><h2 id="agent-resume-en-heading">How defer_root waits and resumes</h2><div class="figure-scroll" tabindex="0" aria-label="How defer_root waits and resumes"><svg xmlns="http://www.w3.org/2000/svg" id="agent-resume-en" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="agent-resume-en-title agent-resume-en-desc" lang="en">
 <title id="agent-resume-en-title">How defer_root waits and resumes</title>

@@ -19,6 +19,9 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 .connector { fill: none; stroke: #a1aaa4; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .accent-line { fill: none; stroke: #7e9e89; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .rule { stroke: #e0e4e1; stroke-width: 1.2; }
+.inactive-card { fill: #fafbfa; stroke: #e7ebe8; stroke-width: 1.5; }
+.inactive-text { fill: #aeb6b0; }
+.inactive-connector { fill: none; stroke: #d5dcd7; stroke-width: 1.5; stroke-dasharray: 5 5; stroke-linecap: round; stroke-linejoin: round; }
 </style>
 <title id="agent-resume-ko-title">defer_root의 대기와 재개</title>
 <desc id="agent-resume-ko-desc">root는 작업을 배정한 뒤 defer_root로 기다립니다. 선택한 subagent와 외부 작업의 work_completion 결과가 모두 종료 상태가 되거나, 예약 시각·직접 재개·결정 요청에 의해 재개합니다. 재개 후 실제 결과를 확인합니다.</desc>
