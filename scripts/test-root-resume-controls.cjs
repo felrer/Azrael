@@ -85,3 +85,113 @@ test("embedded management refreshes a lost revision race without retrying mutati
   const count = messages.length; dispose(); service.emit("rootResume"); await Promise.resolve(); assert.equal(messages.length, count);
   view.dispose();
 });
+
+test("inline reconnect is explicit and deduplicated without submitting a resume", () => {
+  const sent = []; let receive;
+  const store = createRootResumeStore({ subscribe: (_type, cb) => { receive = cb; return () => {}; }, dispatchMessage: (_type, value) => sent.push(value) }, "client");
+  receive({ clientId: "client", available: false, reservations: [], error: "connection" });
+  store.reconnect(); store.reconnect();
+  assert.equal(sent.filter(r => r.action === "reconnect").length, 1);
+  assert.equal(store.getSnapshot().reconnecting, true);
+  store.resume({ id: "r", revision: 1, state: "waiting" });
+  assert.equal(sent.filter(r => r.action === "resume").length, 0);
+  receive({ clientId: "client", available: true, reservations: [], error: null });
+  assert.equal(store.getSnapshot().reconnecting, false);
+  store.dispose();
+});
+
+test("embedded reconnect shares one connection and clears all connection errors after refresh", async () => {
+  const service = new EventEmitter(); service.rootResumeAvailable = false;
+  let release; let connects = 0; const requests = [];
+  service.connect = async () => { connects++; await new Promise(resolve => { release = resolve; }); service.rootResumeAvailable = true; service.emit("rootResumeConnection", true); };
+  service.rootResume = async request => {
+    requests.push(request.action);
+    if (!service.rootResumeAvailable) throw Error("The engine connection has not been verified.");
+    service.rootResumeReservations = []; service.emit("rootResume", []); return { reservations: [] };
+  };
+  const states = [[], []]; const views = states.map(messages => ({ postMessage: async message => { messages.push(message); return true; } }));
+  const view = new RootResumeView(service);
+  try {
+    for (const webview of views) await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "client", action: "subscribe" });
+    assert.match(states[0].at(-1).error, /재개 관리 연결/);
+    const first = view.handleEmbedded(views[0], { type: "azrael-root-resume", clientId: "client", action: "reconnect" });
+    const second = view.handleEmbedded(views[1], { type: "azrael-root-resume", clientId: "client", action: "reconnect" });
+    await Promise.resolve(); assert.equal(connects, 1); release(); await Promise.all([first, second]);
+    for (const messages of states) { assert.equal(messages.at(-1).available, true); assert.equal(messages.at(-1).error, null); assert.equal(messages.at(-1).reconnecting, false); }
+    assert.deepEqual(requests, ["list", "list", "list"]);
+  } finally { view.dispose(); }
+});
+
+test("automatic reconnect refresh clears connection errors but preserves action errors", async () => {
+  const service = new EventEmitter(); service.rootResumeAvailable = true;
+  service.rootResume = async request => {
+    if (!service.rootResumeAvailable) throw Error("bridge disconnected");
+    if (request.action === "resume") throw Error("revision changed");
+    service.emit("rootResume", []); return { reservations: [] };
+  };
+  const messages = []; const webview = { postMessage: async message => { messages.push(message); return true; } }; const view = new RootResumeView(service);
+  try {
+    await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "subscribe" });
+    await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "resume", reservationId: "r", revision: 1 });
+    service.rootResumeAvailable = false; service.emit("rootResumeConnection", false);
+    service.rootResumeAvailable = true; service.emit("rootResumeConnection", true);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.match(messages.at(-1).error, /revision changed/);
+    service.rootResumeAvailable = false; service.emit("rootResumeConnection", false);
+    await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "list" });
+    service.rootResumeAvailable = true; service.emit("rootResumeConnection", true);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(messages.at(-1).error, null);
+  } finally { view.dispose(); }
+});
+
+test("late failure from an earlier connection cannot replace recovered embedded state", async () => {
+  const service = new EventEmitter(); service.rootResumeAvailable = true; let rejectOld;
+  service.rootResume = () => new Promise((_resolve, reject) => { rejectOld = reject; });
+  const messages = []; const webview = { postMessage: async message => { messages.push(message); return true; } }; const view = new RootResumeView(service);
+  try {
+    const old = view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "subscribe" });
+    await new Promise(resolve => setImmediate(resolve));
+    service.emit("rootResumeConnection", false);
+    service.rootResume = async () => { service.emit("rootResume", []); return { reservations: [] }; };
+    service.emit("rootResumeConnection", true);
+    await new Promise(resolve => setImmediate(resolve));
+    rejectOld(Error("old connection failed")); await old;
+    assert.equal(messages.at(-1).available, true); assert.equal(messages.at(-1).error, null);
+  } finally { view.dispose(); }
+});
+
+test("failed explicit reconnect remains retryable without forgetting engine identity", async () => {
+  const service = new EventEmitter(); service.rootResumeAvailable = false; let attempts = 0;
+  service.connect = async () => {
+    if (++attempts === 1) throw Error("Reconnected bridge belongs to a different engine instance.");
+    service.rootResumeAvailable = true; service.emit("rootResumeConnection", true);
+  };
+  service.rootResume = async () => {
+    if (!service.rootResumeAvailable) throw Error("bridge disconnected");
+    service.emit("rootResume", []); return { reservations: [] };
+  };
+  const messages = []; const webview = { postMessage: async message => { messages.push(message); return true; } }; const view = new RootResumeView(service);
+  try {
+    await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "subscribe" });
+    await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "reconnect" });
+    assert.equal(messages.at(-1).reconnecting, false); assert.equal(messages.at(-1).available, false);
+    assert.match(messages.at(-1).error, /different engine instance/);
+    await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "reconnect" });
+    assert.equal(attempts, 2); assert.equal(messages.at(-1).error, null);
+  } finally { view.dispose(); }
+});
+
+test("reconnect from another surface cannot replace a connection during a resume mutation", async () => {
+  const service = new EventEmitter(); service.rootResumeAvailable = true; let finish; let connects = 0;
+  service.connect = async () => { connects++; };
+  service.rootResume = async request => { if (request.action === "resume") await new Promise(resolve => { finish = resolve; }); return { reservations: [] }; };
+  const webviews = [0, 1].map(() => ({ postMessage: async () => true })); const view = new RootResumeView(service);
+  try {
+    for (const webview of webviews) await view.handleEmbedded(webview, { type: "azrael-root-resume", clientId: "c", action: "subscribe" });
+    const mutation = view.handleEmbedded(webviews[0], { type: "azrael-root-resume", clientId: "c", action: "resume", reservationId: "r", revision: 1 });
+    await new Promise(resolve => setImmediate(resolve));
+    await view.handleEmbedded(webviews[1], { type: "azrael-root-resume", clientId: "c", action: "reconnect" });
+    assert.equal(connects, 0); finish(); await mutation;
+  } finally { view.dispose(); }
+});

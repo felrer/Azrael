@@ -38,6 +38,8 @@ export class AccountService extends EventEmitter {
   private retryReject: ((error: Error) => void) | undefined;
   state: AccountState | undefined;
   rootResumeReservations: RootResumeReservation[] | undefined;
+  private rootResumeRequestRevision = 0;
+  private rootResumeAppliedRevision = 0;
   error: string | undefined;
 
   constructor(private readonly options: AccountServiceOptions) { super(); }
@@ -95,9 +97,15 @@ export class AccountService extends EventEmitter {
 
   async rootResume(params: RootResumeParams): Promise<RootResumeResponse> {
     if (!this.transport || !this.transportVerified || !this.instanceId) throw new Error("The engine connection has not been verified.");
-    const response = parseRootResumeResponse(await this.transport.request(ROOT_RESUME_METHOD, params));
-    this.rootResumeReservations = response.reservations;
-    this.emit("rootResume", response.reservations);
+    const transport = this.transport;
+    const revision = ++this.rootResumeRequestRevision;
+    const response = parseRootResumeResponse(await transport.request(ROOT_RESUME_METHOD, params));
+    if (this.transport !== transport || !this.transportVerified) throw new Error("The management connection changed during reservation refresh.");
+    if (revision > this.rootResumeAppliedRevision) {
+      this.rootResumeAppliedRevision = revision;
+      this.rootResumeReservations = response.reservations;
+      this.emit("rootResume", response.reservations);
+    }
     return response;
   }
 
@@ -203,6 +211,7 @@ export class AccountService extends EventEmitter {
       } else if (method === ROOT_RESUME_UPDATED_METHOD) {
         try {
           const response = parseRootResumeResponse(params);
+          this.rootResumeAppliedRevision = ++this.rootResumeRequestRevision;
           this.rootResumeReservations = response.reservations;
           this.emit("rootResume", response.reservations);
         } catch { /* Invalid notifications never alter verified state. */ }

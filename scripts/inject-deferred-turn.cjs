@@ -18,7 +18,7 @@ const recoveryHelpers = require("./root-resume-wait.cjs");
 // The management API owns selected agent tasks and optimistic revisions. Do not
 // infer wake conditions from live child state or allocate new photo assignments.
 function createRootResumeStore(bridge, clientId) {
-  let state = { reservations: [], pending: null, error: null, available: false };
+  let state = { reservations: [], pending: null, error: null, available: false, reconnecting: false, connectionError: false };
   const listeners = new Set();
   let timer;
   const publish = next => { state = next; for (const listener of listeners) listener(); };
@@ -26,18 +26,23 @@ function createRootResumeStore(bridge, clientId) {
     if (message.clientId !== clientId || !Array.isArray(message.reservations)) return;
     clearTimeout(timer);
     publish({ reservations: message.reservations, available: message.available === true,
-      pending: message.pending ?? null, error: message.error ?? null });
+      pending: message.pending ?? null, error: message.error ?? null, reconnecting: message.reconnecting === true, connectionError: message.connectionError === true });
   };
   const unsubscribe = bridge.subscribe("azrael-root-resume-state", receive);
   const send = request => {
     try { bridge.dispatchMessage("azrael-root-resume", { clientId, ...request }); }
-    catch (error) { publish({ ...state, pending: null, error: String(error.message ?? error) }); }
+    catch (error) { publish({ ...state, pending: null, reconnecting: false, error: String(error.message ?? error) }); }
   };
   send({ action: "subscribe" });
   return { getSnapshot: () => state, subscribe: listener => { listeners.add(listener); return () => listeners.delete(listener); },
     refresh: () => send({ action: "list" }),
+    reconnect: () => {
+      if (state.reconnecting || state.pending) return;
+      publish({ ...state, reconnecting: true });
+      send({ action: "reconnect" });
+    },
     resume: reservation => {
-      if (state.pending || !state.available || reservation.state !== "waiting") return;
+      if (state.pending || state.reconnecting || !state.available || reservation.state !== "waiting") return;
       publish({ ...state, pending: reservation.id, error: null });
       timer = setTimeout(() => { publish({ ...state, pending: null, error: "재개 응답을 받지 못했습니다. 다시 눌러 상태를 확인해 주세요." }); send({ action: "list" }); }, 10000);
       send({ action: "resume", reservationId: reservation.id, revision: reservation.revision });
@@ -67,7 +72,9 @@ function AzraelRootResumeControls({ wait, elapsedMs, className }) {
       tasks.length > 0 && (0, E7.jsx)("span", { className: "flex shrink-0 items-center", "aria-label": "응답을 기다리는 subagent", children: tasks.map((task, index) =>
         (0, E7.jsx)("span", { title: task.agentPath, style: { marginLeft: index ? -8 : 0, position: "relative", zIndex: tasks.length - index, width: 24, height: 24 }, children:
           (0, E7.jsx)(VSi, { seed: task.threadId, className: "size-6 rounded-full border-2 border-default", style: { width: 24, height: 24 }, "aria-label": task.agentPath }) }, task.threadId + ":" + task.turnId)) }),
-      (active || busy) && (0, E7.jsx)("span", { className: "ml-auto shrink-0", children: (0, E7.jsx)(Ou, { color: "secondary", size: "default", disabled: busy || !!state.pending || !state.available || !reservation || reservation.revision < wait.revision,
+      active && (!state.available || state.connectionError || state.reconnecting) && (0, E7.jsx)(Ou, { color: "secondary", size: "default", disabled: state.reconnecting || !!state.pending,
+        onClick: () => azraelRootResumeStore.reconnect(), children: state.reconnecting ? "재접속 중…" : "관리 연결 재접속" }),
+      (active || busy) && (0, E7.jsx)("span", { className: "ml-auto shrink-0", children: (0, E7.jsx)(Ou, { color: "secondary", size: "default", disabled: busy || !!state.pending || state.reconnecting || !state.available || !reservation || reservation.revision < wait.revision,
         onClick: () => azraelRootResumeStore.resume(reservation), children: busy ? "재개 중…" : "재개" }) }) ] }),
     active && state.error && (0, E7.jsx)("span", { role: "alert", className: "text-sm text-danger", children: state.error }) ] });
 }

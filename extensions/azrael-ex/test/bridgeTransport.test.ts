@@ -3,7 +3,7 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import test from "node:test";
-import { BridgeTransport } from "../src/bridgeTransport";
+import { BridgeError, BridgeTransport } from "../src/bridgeTransport";
 
 test("a bridge exit rejects an in-flight request instead of replaying it", async () => {
   const fixture = path.join(__dirname, "bridge-fixture.js");
@@ -19,18 +19,26 @@ test("requests fail immediately while disconnected", async () => {
 });
 
 test("invalid bridge output terminates the child and emits one disconnect", async () => {
+  const events: import("../src/bridgeTransport").BridgeDiagnostic[] = [];
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-bridge-test-"));
   const pidFile = path.join(directory, "pid");
   const fixture = path.join(__dirname, "bridge-fixture.js");
-  const transport = new BridgeTransport({ executable: process.execPath, socket: fixture, env: { ...process.env, FIXTURE_MODE: "invalid", FIXTURE_PID_FILE: pidFile } });
+  const transport = new BridgeTransport({ executable: process.execPath, socket: fixture, env: { ...process.env, FIXTURE_MODE: "invalid", FIXTURE_PID_FILE: pidFile }, onDiagnostic: event => events.push(event) });
   let disconnects = 0;
   transport.on("disconnect", () => disconnects++);
   try {
     await transport.start();
-    await assert.rejects(transport.request("azrael/account", { action: "list" }), /invalid JSON/);
+    await assert.rejects(transport.request("azrael/account", { action: "list" }), (error: unknown) => {
+      assert.ok(error instanceof BridgeError);
+      assert.equal(error.protocolReason, "invalid_json");
+      return true;
+    });
     const pid = Number(fs.readFileSync(pidFile, "utf8"));
     await waitUntil(() => !isAlive(pid));
     assert.equal(disconnects, 1);
+    assert.equal(events.length, 1);
+    assert.equal(events[0].protocolReason, "invalid_json");
+    assert.doesNotMatch(JSON.stringify(events), /credential|private\.invalid|arbitrary\/private-method/);
   } finally {
     transport.dispose();
     fs.rmSync(directory, { recursive: true });
@@ -59,7 +67,13 @@ async function waitUntil(predicate: () => boolean): Promise<void> {
   assert.fail("child process remained alive");
 }
 
-for (const mode of ["native-error", "unsafe-error"]) {
+for (const [mode, protocolReason] of [
+  ["native-error", undefined],
+  ["unsafe-error", "invalid_native_error"],
+  ["native-protocol-error", "native_bridge_error"],
+  ["invalid-message", "invalid_message"],
+  ["invalid-connected", "invalid_connected"],
+] as const) {
   test(`${mode} keeps only safe structured native fields before exit`, async () => {
     const events: import("../src/bridgeTransport").BridgeDiagnostic[] = [];
     const transport = new BridgeTransport({ executable: process.execPath, socket: path.join(__dirname, "bridge-fixture.js"), env: { ...process.env, FIXTURE_MODE: mode }, attempt: 3, onDiagnostic: event => events.push(event) });
@@ -68,16 +82,40 @@ for (const mode of ["native-error", "unsafe-error"]) {
         const failure = error as import("../src/bridgeTransport").BridgeError;
         assert.equal(failure.code, mode === "native-error" ? "permission_denied" : "protocol_error");
         assert.equal(failure.retryable, false);
+        assert.equal(failure.protocolReason, protocolReason);
         return true;
       });
       assert.equal(events.length, 1);
       assert.equal(events[0].attempt, 3);
       assert.equal(typeof events[0].childPid, "number");
       assert.ok(events[0].elapsedMs >= 0);
-      assert.ok(!JSON.stringify(events).includes("credential"));
+      assert.equal(events[0].protocolReason, protocolReason);
+      assert.equal(Object.hasOwn(events[0], "protocolReason"), protocolReason !== undefined);
+      assert.doesNotMatch(JSON.stringify(events), /credential|private\.invalid|arbitrary\/private-method/);
     } finally { transport.dispose(); }
   });
 }
+
+test("request encoding failures record a safe reason without marking an unsent mutation uncertain", async () => {
+  const events: import("../src/bridgeTransport").BridgeDiagnostic[] = [];
+  const transport = new BridgeTransport({ executable: process.execPath, socket: path.join(__dirname, "bridge-fixture.js"), env: { ...process.env, FIXTURE_MODE: "hang" }, onDiagnostic: event => events.push(event) });
+  try {
+    await transport.start();
+    const secret = "credential https://private.invalid/token arbitrary/private-method";
+    const params = { action: "remove", toJSON() { throw new Error(secret); } };
+    await assert.rejects(transport.request("azrael/account", params), (error: unknown) => {
+      assert.ok(error instanceof BridgeError);
+      assert.equal(error.code, "protocol_error");
+      assert.equal(error.retryable, false);
+      assert.equal(error.protocolReason, "request_encoding");
+      assert.doesNotMatch(error.message, /uncertain|credential|private\.invalid/);
+      return true;
+    });
+    assert.equal(events.length, 1);
+    assert.equal(events[0].protocolReason, "request_encoding");
+    assert.doesNotMatch(JSON.stringify(events), /credential|private\.invalid|arbitrary\/private-method|azrael\/account|remove/);
+  } finally { transport.dispose(); }
+});
 
 test("a root resume mutation and parallel read get distinct failures on timeout", async () => {
   const transport = new BridgeTransport({ executable: process.execPath, socket: path.join(__dirname, "bridge-fixture.js"), env: { ...process.env, FIXTURE_MODE: "hang" } });
