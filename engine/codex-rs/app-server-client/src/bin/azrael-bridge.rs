@@ -12,7 +12,9 @@ use serde_json::Value;
 use serde_json::json;
 use std::io;
 use std::path::PathBuf;
+use tokio::io::AsyncBufRead;
 use tokio::io::AsyncBufReadExt;
+use tokio::io::AsyncWrite;
 use tokio::io::AsyncWriteExt;
 use tokio::io::BufReader;
 use tokio::task::JoinSet;
@@ -107,7 +109,7 @@ async fn run_connection(socket_path: AbsolutePathBuf, phase: &mut FailurePhase) 
         opt_out_notification_methods: Vec::new(),
         channel_capacity: 32,
     };
-    let mut client = if let Some(context) = std::env::var_os("AZRAEL_EX_WINDOW_CONTEXT") {
+    let client = if let Some(context) = std::env::var_os("AZRAEL_EX_WINDOW_CONTEXT") {
         let mut registration: Value = serde_json::from_str(&context.to_string_lossy())?;
         registration
             .as_object_mut()
@@ -127,14 +129,28 @@ async fn run_connection(socket_path: AbsolutePathBuf, phase: &mut FailurePhase) 
         )
         .await??
     };
+    run_session(
+        client,
+        BufReader::new(tokio::io::stdin()),
+        tokio::io::stdout(),
+        phase,
+    )
+    .await
+}
+
+async fn run_session(
+    mut client: RemoteAppServerClient,
+    input: impl AsyncBufRead + Unpin,
+    mut stdout: impl AsyncWrite + Unpin,
+    phase: &mut FailurePhase,
+) -> io::Result<()> {
     *phase = FailurePhase::Protocol;
-    let mut stdout = tokio::io::stdout();
     let ready = json!({"method":"azrael/connected","params":{
         "codexHome":client.codex_home(), "serverVersion":client.server_version()
     }});
     stdout.write_all(format!("{ready}\n").as_bytes()).await?;
     stdout.flush().await?;
-    let mut lines = BufReader::new(tokio::io::stdin()).lines();
+    let mut lines = input.lines();
     let mut pending = JoinSet::new();
     loop {
         tokio::select! {
@@ -186,7 +202,9 @@ async fn run_connection(socket_path: AbsolutePathBuf, phase: &mut FailurePhase) 
                         }
                     }
                     Some(AppServerEvent::ServerRequest(_)) => {
-                        return Err(io::Error::new(io::ErrorKind::InvalidData, "unexpected server request on management bridge"));
+                        // The restricted companion does not own interactive requests.
+                        // The UI/token owner answers them; even rejecting here would
+                        // race that owner. Typed requests must not end management RPCs.
                     }
                     Some(AppServerEvent::Lagged { .. }) => {
                         *phase = FailurePhase::Stream;
@@ -211,6 +229,191 @@ async fn run_connection(socket_path: AbsolutePathBuf, phase: &mut FailurePhase) 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::SinkExt;
+    use futures::StreamExt;
+    use tokio::net::TcpListener;
+    use tokio::net::TcpStream;
+    use tokio_tungstenite::WebSocketStream;
+    use tokio_tungstenite::accept_async;
+    use tokio_tungstenite::tungstenite::Message;
+
+    async fn terminal_read_frame(socket: &mut WebSocketStream<TcpStream>) -> Option<Value> {
+        while let Some(frame) = socket.next().await {
+            match frame.expect("fixture websocket frame") {
+                Message::Text(text) => return Some(serde_json::from_str(&text).unwrap()),
+                Message::Close(_) => return None,
+                _ => {}
+            }
+        }
+        None
+    }
+
+    async fn terminal_send_frame(socket: &mut WebSocketStream<TcpStream>, value: Value) {
+        socket
+            .send(Message::Text(value.to_string().into()))
+            .await
+            .unwrap();
+    }
+
+    // Real remote parsing and event delivery feed the same loop used by stdio.
+    // The fixture permits only initialize/initialized and account/read outbound
+    // frames: any approval, token, or rejection response fails the server task.
+    async fn terminal_remote_fixture() -> (RemoteAppServerClient, tokio::task::JoinHandle<usize>) {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.unwrap();
+            let mut socket = accept_async(stream).await.unwrap();
+            let initialize = terminal_read_frame(&mut socket).await.unwrap();
+            assert_eq!(initialize["method"], "initialize");
+            terminal_send_frame(&mut socket, json!({"id":initialize["id"],"result":{
+                "userAgent":"bridge-fixture/1.0.0 (Test OS; x86_64) rust", "codexHome":"/fixture"
+            }})).await;
+            assert_eq!(
+                terminal_read_frame(&mut socket).await.unwrap()["method"],
+                "initialized"
+            );
+            let mut rounds = 0;
+            while let Some(request) = terminal_read_frame(&mut socket).await {
+                assert_eq!(
+                    request["method"], "account/read",
+                    "companion must never answer or reject a server request"
+                );
+                assert!(request.get("result").is_none() && request.get("error").is_none());
+                for (offset, method, params) in [
+                    (
+                        0,
+                        "account/chatgptAuthTokens/refresh",
+                        json!({"reason":"unauthorized","previousAccountId":"fixture-account"}),
+                    ),
+                    (
+                        1,
+                        "item/commandExecution/requestApproval",
+                        json!({"threadId":"fixture-thread","turnId":"fixture-turn","itemId":"fixture-item","startedAtMs":1}),
+                    ),
+                ] {
+                    let event =
+                        json!({"id":1000 + rounds * 2 + offset,"method":method,"params":params});
+                    // Establish that these are normal typed requests, not malformed input.
+                    let _: codex_app_server_protocol::ServerRequest =
+                        serde_json::from_value(event.clone()).unwrap();
+                    terminal_send_frame(&mut socket, event).await;
+                }
+                // A forwarded notification is an event-stream barrier: the bridge
+                // must consume both preceding requests before forwarding this.
+                terminal_send_frame(
+                    &mut socket,
+                    json!({"method":"account/updated","params":{"authMode":null,"planType":null}}),
+                )
+                .await;
+                terminal_send_frame(&mut socket, json!({"id":request["id"],"result":{"account":null,"requiresOpenaiAuth":false}})).await;
+                rounds += 1;
+            }
+            rounds
+        });
+        let client = RemoteAppServerClient::connect(RemoteAppServerConnectArgs {
+            endpoint: RemoteAppServerEndpoint::WebSocket {
+                websocket_url: format!("ws://{address}"),
+                auth_token: None,
+            },
+            client_name: "bridge-fixture".into(),
+            client_version: "0.0.0-test".into(),
+            experimental_api: true,
+            mcp_server_openai_form_elicitation: false,
+            opt_out_notification_methods: Vec::new(),
+            channel_capacity: 32,
+        })
+        .await
+        .unwrap();
+        (client, server)
+    }
+
+    #[tokio::test]
+    async fn terminal_server_requests_preserve_management_without_answering() {
+        tokio::time::timeout(Duration::from_secs(10), async {
+            let (client, server) = terminal_remote_fixture().await;
+            let (input, mut host_input) = tokio::io::duplex(4096);
+            let (output, host_output) = tokio::io::duplex(4096);
+            let session = tokio::spawn(async move {
+                let mut phase = FailurePhase::Connect;
+                run_session(client, BufReader::new(input), output, &mut phase).await
+            });
+            let mut lines = BufReader::new(host_output).lines();
+            let ready: Value =
+                serde_json::from_str(&lines.next_line().await.unwrap().unwrap()).unwrap();
+            assert_eq!(ready["method"], "azrael/connected");
+            for id in 1..=3 {
+                host_input
+                    .write_all(
+                        format!(
+                            "{}\n",
+                            json!({"id":id,"method":"account/read","params":{"refreshToken":false}})
+                        )
+                        .as_bytes(),
+                    )
+                    .await
+                    .unwrap();
+                let mut observed = Vec::new();
+                for _ in 0..2 {
+                    observed.push(
+                        serde_json::from_str::<Value>(&lines.next_line().await.unwrap().unwrap())
+                            .unwrap(),
+                    );
+                }
+                assert!(observed.contains(
+                    &json!({"id":id,"result":{"account":null,"requiresOpenaiAuth":false}})
+                ));
+                assert!(
+                    observed
+                        .iter()
+                        .any(|message| message["method"] == "account/updated")
+                );
+            }
+            host_input.shutdown().await.unwrap();
+            session.await.unwrap().unwrap();
+            assert!(lines.next_line().await.unwrap().is_none());
+            assert_eq!(server.await.unwrap(), 3);
+        })
+        .await
+        .expect("management session must remain live across repeated server requests");
+    }
+
+    #[tokio::test]
+    async fn terminal_malformed_stdin_still_fails_closed() {
+        tokio::time::timeout(Duration::from_secs(10), async {
+            let (client, server) = terminal_remote_fixture().await;
+            let (input, mut host_input) = tokio::io::duplex(4096);
+            let (output, host_output) = tokio::io::duplex(4096);
+            let session = tokio::spawn(async move {
+                let mut phase = FailurePhase::Connect;
+                let error = run_session(client, BufReader::new(input), output, &mut phase)
+                    .await
+                    .unwrap_err();
+                assert_eq!(error.kind(), io::ErrorKind::InvalidData);
+                assert_eq!(
+                    failure_notice(phase, &error)["params"],
+                    json!({"schema":1,"phase":"protocol","code":"protocol_error","retryable":false})
+                );
+            });
+            let mut lines = BufReader::new(host_output).lines();
+            assert!(
+                lines
+                    .next_line()
+                    .await
+                    .unwrap()
+                    .unwrap()
+                    .contains("azrael/connected")
+            );
+            host_input.write_all(b"{malformed\n").await.unwrap();
+            session.await.unwrap();
+            assert!(lines.next_line().await.unwrap().is_none());
+            // The session has already failed; no fixture server is needed afterward.
+            server.abort();
+            let _ = server.await;
+        })
+        .await
+        .expect("malformed stdin must terminate promptly");
+    }
 
     #[test]
     fn terminal_failure_classification() {

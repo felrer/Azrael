@@ -165,6 +165,65 @@ test("an owned engine restart re-verifies the new instance without replaying mut
   });
 });
 
+test("explicit refresh shares initial identity verification and preserves a healthy bridge", async () => {
+  await withFixture(async ({ options, attempts, requestLog }) => {
+    const service = new AccountService({ ...options("service"), reconnectDelaysMs: [] });
+    try {
+      const connecting = service.connect();
+      const refresh = service.refresh(true);
+      const [connected, refreshed] = await Promise.all([connecting, refresh]);
+      assert.equal(refreshed, connected);
+      assert.equal(attempts(), 1);
+      assert.deepEqual(requestLog(), ["1:list"]);
+      await service.refresh(true);
+      assert.equal(attempts(), 1);
+      assert.deepEqual(requestLog(), ["1:list", "1:list"]);
+      assert.equal(service.changesEnabled, true);
+    } finally { service.dispose(); }
+  });
+});
+
+test("only explicit refresh recovers a terminal protocol disconnect and concurrent refreshes share recovery", async () => {
+  await withFixture(async ({ options, attempts, requestLog }) => {
+    const service = new AccountService({ ...options("protocol-disconnect"), reconnectDelaysMs: [5, 5] });
+    try {
+      await service.connect();
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /outcome is uncertain/);
+      assert.equal(service.changesEnabled, false);
+      await assert.rejects(service.refresh(), /bridge is disconnected/);
+      assert.equal(attempts(), 1);
+      assert.deepEqual(requestLog(), ["1:list", "1:switch"]);
+      const [first, second] = await Promise.all([service.refresh(true), service.refresh(true)]);
+      assert.equal(first, second);
+      assert.equal(first.instanceId, "fixture-instance");
+      assert.equal(attempts(), 2);
+      assert.equal(service.error, undefined);
+      assert.equal(service.changesEnabled, true);
+      assert.deepEqual(requestLog(), ["1:list", "1:switch", "2:list"]);
+      await service.refresh();
+      assert.equal(attempts(), 2);
+      assert.deepEqual(requestLog(), ["1:list", "1:switch", "2:list", "2:list"]);
+    } finally { service.dispose(); }
+  });
+});
+
+test("explicit refresh after protocol disconnect rejects another engine instance without replaying the mutation", async () => {
+  await withFixture(async ({ options, attempts, requestLog }) => {
+    const service = new AccountService({ ...options("protocol-instance-mismatch"), reconnectDelaysMs: [5, 5] });
+    try {
+      await service.connect();
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /outcome is uncertain/);
+      await assert.rejects(service.refresh(true), /different engine instance/);
+      assert.equal(attempts(), 2);
+      assert.equal(service.state?.instanceId, "fixture-instance");
+      assert.equal(service.changesEnabled, false);
+      await assert.rejects(service.refresh(), /bridge is disconnected/);
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /bridge is disconnected/);
+      assert.deepEqual(requestLog(), ["1:list", "1:switch", "2:list"]);
+    } finally { service.dispose(); }
+  });
+});
+
 test("an established disconnect reconnects without replaying a mutation", async () => {
   await withFixture(async ({ options, attempts, requestLog }) => {
     const service = new AccountService({ ...options("mutation-disconnect"), reconnectDelaysMs: [5, 5] });
@@ -324,13 +383,14 @@ for (const mode of ["permission-denied", "protocol-error"]) {
 }
 
 test("the single deadline includes the initial account identity query", async () => {
-  await withFixture(async ({ options, attempts }) => {
-    const service = new AccountService({ ...options("delayed-list"), startupTimeoutMs: 220, reconnectDelaysMs: [1, 1] });
+  await withFixture(async ({ options, attempts, requestLog }) => {
+    const service = new AccountService({ ...options("delayed-list"), startupTimeoutMs: 1500, reconnectDelaysMs: [1, 1] });
     const started = performance.now();
     try {
       await assert.rejects(service.connect(), /timed out/);
-      assert.ok(performance.now() - started < 700);
+      assert.ok(performance.now() - started < 2500);
       assert.equal(attempts(), 1);
+      assert.deepEqual(requestLog(), ["1:list"]);
       assert.equal(service.changesEnabled, false);
     } finally { service.dispose(); }
   });

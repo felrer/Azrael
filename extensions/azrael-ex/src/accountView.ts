@@ -32,7 +32,7 @@ export class AccountView implements vscode.Disposable {
     this.status.show();
   }
 
-  async refreshAll(): Promise<void> { await this.service.refresh(); }
+  async refreshAll(): Promise<void> { await this.service.refresh(true); }
 
   async quickPick(): Promise<void> {
     const state = this.service.state ?? await this.service.refresh();

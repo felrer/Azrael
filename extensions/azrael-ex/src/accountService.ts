@@ -83,7 +83,10 @@ export class AccountService extends EventEmitter {
     return { ...response, state: this.acceptState(response.state, !automatic || accountStateChanged(this.state, response.state)) };
   }
 
-  async refresh(): Promise<AccountState> { return (await this.call({ action: "list" })).state; }
+  async refresh(reconnect = false): Promise<AccountState> {
+    if (reconnect && (!this.transport || !this.transportVerified)) return this.connect();
+    return (await this.call({ action: "list" })).state;
+  }
 
   async projectUsage(year: number): Promise<ProjectUsageSnapshot> {
     validateProjectUsageYear(year);
