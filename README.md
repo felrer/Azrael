@@ -12,11 +12,14 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 ## Contents
 
 - [Highlights](#highlights)
-- [How agents collaborate](#how-agents-collaborate)
-- [Scheduled root resume](#scheduled-root-resume)
-- [Built for the person at the keyboard](#built-for-the-person-at-the-keyboard)
-- [Window Use](#window-use-work-alongside-the-agent)
-- [Session flags](#session-flags)
+- [Agent efficiency](#agent-efficiency)
+  - [Documentation](#documentation-that-connects-sessions)
+  - [Custom skills](#custom-skills-from-discussion-to-delivery)
+  - [Roles and communication](#root-for-time-subagents-for-tokens)
+  - [Waiting and resuming](#waiting-without-repeated-checks-defer_root)
+- [Reducing cognitive load](#reducing-cognitive-load)
+  - [Window Use](#window-use-work-alongside-the-agent)
+  - [Session flags](#session-flags)
 - [Platform support](#platform-support)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -38,27 +41,68 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 
 UI screenshots in this README are captured from Azrael's production components with the project's development renderers. Every account, conversation, quota and model catalog in them is **synthetic** — no personal account or session was opened. The collaboration and Window Use pictures are explanatory illustrations. See [image sources and reproduction](docs/images/README.md).
 
-## How agents collaborate
+## Agent efficiency
 
-Azrael ships native coordination guidance for the **root agent**, maintained with the engine instead of copied into each project's `AGENTS.md`, so every project starts from the same collaboration rules.
+Documents carry context across sessions. Instructions shape how work gets done. The root is designed to reduce overall completion time; subagents focus on keeping each assignment's token use low.
 
-The two sides are tuned for different costs, and they reinforce each other:
+### Documentation that connects sessions
 
-- **Subagents keep tokens low.** A fresh child starts from a compact handoff of decisions and exact paths without the parent's history, works only the files it was assigned, and returns evidence instead of a transcript.
-- **The root keeps the clock short.** It starts the work on the critical path first, runs independent assignments in parallel, continues its own work that does not depend on pending results, and stops only at real dependency boundaries.
+`docs/` gives successive model sessions a shared design to work from. Four categories keep the next piece of context within reach.
 
-Small worker contexts plus tight root scheduling mean the same result arrives sooner and costs fewer tokens.
+| Category | Role |
+| --- | --- |
+| [`architecture/`](docs/architecture/README.md) | Maintains the system's overall structure, behavior, boundaries and design intent, separating code references and change history. |
+| [`maps/`](docs/maps/README.md) | Narrows the search by connecting relevant documents and implementation entry points. |
+| [`ops/`](docs/ops/README.md) | Records repeatable procedures for development, execution, deployment and recovery. |
+| [`playbooks/`](docs/playbooks/README.md) | Holds model instructions that users can review and maintain: project-specific decisions, verification and completion criteria. |
 
-| | Root agent | Subagent (worker) |
+The default playbooks address recurring gaps observed while working with models.
+
+- [`work.md`](docs/playbooks/work.md) — Carries scope and authority through execution, verification and completion.
+- [`app-logging.md`](docs/playbooks/app-logging.md) — Defines logging that makes execution flow and failure causes traceable.
+- [`artifact-lifecycle.md`](docs/playbooks/artifact-lifecycle.md) — Defines ownership, retention and deletion so temporary files and backups are accounted for through cleanup.
+
+### Custom skills, from discussion to delivery
+
+Reusable working methods are packaged as skills and applied alongside project playbooks. Discussion and implementation share one work record and the same agreed scope.
+
+| Skill | Focus |
+| --- | --- |
+| [`project-bootstrap`](instructions/skills/project-bootstrap/SKILL.md) | Sets up documentation and default playbooks, or aligns an existing project's entry points and guidance. |
+| [`design-collaboration`](instructions/skills/design-collaboration/SKILL.md) | Develops connected design decisions with the user, explaining options, recommendations and their impact. |
+| [`design-documentation`](instructions/skills/design-documentation/SKILL.md) | Incorporates agreements into the current design in `architecture/`, preserving structure, behavior and contracts separately from discussion history. |
+| [`development-workflow`](instructions/skills/development-workflow/SKILL.md) | Connects findings, necessary decisions, execution order and verification criteria in one work plan. |
+| [`implementation`](instructions/skills/implementation/SKILL.md) | Checks existing solutions first, then carries authorized changes through verification and cleanup. |
+| [`testing`](instructions/skills/testing/SKILL.md) | Selects the minimum sufficient evidence for the changed contract and retains tests with lasting value. |
+
+### Root for time, subagents for tokens
+
+The root discusses design with the user, schedules work around dependencies and integrates results. Subagents focus on compact handoffs and bounded assignments.
+
+```mermaid
+flowchart TB
+    U["User"] <--> R["root<br/>Design discussion · Scheduling · Integration"]
+    R <--> A["architecture/<br/>Agreed design"]
+    R <-->|"Assign · Report"| S1["subagent<br/>Bounded research"]
+    R <-->|"Assign · Report"| S2["subagent<br/>Bounded implementation · Verification"]
+```
+
+A dedicated **lead** for design discussions with the user is planned for a later addition. The root currently carries that responsibility too.
+
+Native root coordination guidance combines with shared instructions, project rules and role-specific skills to define each role's decisions.
+
+| | Root | Subagent |
 | --- | --- | --- |
-| **Owns** | Requirements, scope, shared interfaces, write-set assignment, execution order, integration and final acceptance | One assigned outcome and the files it was given |
-| **Receives** | The user's request and project guidance | A handoff: *Objective, Scope, Constraints, References, Done when, Return format* |
-| **May delegate** | Yes | No — children cannot re-delegate |
-| **Reports** | To the user, only after every success criterion and cleanup is met | Actual scope, exit codes, log paths and anything left unverified |
+| **Instructions** | Shared and project rules + root-only coordination guidance + applicable skills | Shared and project rules + role-specific guidance + a compact root handoff |
+| **Decision scope** | Requirements, shared contracts, assignments, execution order, integration and final acceptance | One assigned outcome and explicit file or read boundaries |
+| **Execution** | Starts work that determines total completion time first, runs independent work in parallel and waits at dependency boundaries | Starts from the objective, scope, constraints, references, completion criteria and return format instead of the parent's full history; does not re-delegate |
+| **Evidence** | Checks completion criteria, verification and cleanup before the final report to the user | Reports actual scope, exit codes, log paths and anything left unverified |
 
-### Three ways a subagent talks to the root
+Supported models from other providers and user-registered APIs can also run as subagents. Each subagent has its own thread and account binding.
 
-When the root delegates, it also decides how results should come back: batched for later, or answered right away. A subagent then uses the channel that matches the urgency of what it has to say.
+#### Three ways a subagent talks to the root
+
+Routine updates batch related evidence. Decisions blocking the next action are requested immediately. Three channels keep those purposes distinct.
 
 | Channel | When the subagent uses it | Effect on the root | Why it is efficient |
 | --- | --- | --- | --- |
@@ -66,47 +110,45 @@ When the root delegates, it also decides how results should come back: batched f
 | **Decision request** (`request_parent`) | A decision or coordination from its immediate parent is needed now | Wakes a parked root, or joins the running root's next safe boundary. The root answers with `resolved`, `cancelled` or `deferred`. | The child keeps doing independent work and pauses only the blocked action until the answer arrives through `await_parent_response`. |
 | **Final report** | The assignment has ended in success, failure or a partial result | A terminal state. A root waiting on this child with `all_terminal` resumes. | One complete report with scope, exit codes, logs and unverified items replaces repeated status checks. |
 
-A request is saved before delivery and reused on identical retries, so it is never lost or duplicated, and the root must handle every pending request before it waits again — a child that needs an answer can never be left waiting on a parent that is waiting on it. Sessions without the structured request tools fall back to messages and a partial final report naming the decision needed.
-
-Supported models from other providers — including user-registered API models and Devin models — can also run as subagents, each with its own thread and account binding.
+The root handles decision requests before waiting again. Subagents continue independent work while awaiting an answer. Sessions without structured request tools use messages and a partial final report identifying the decision needed.
 
 Details: [root coordination](docs/architecture/root-coordination.md), [parent decision requests](docs/architecture/root-resume.md#parent-decision-requests), [instruction library](instructions/README.md).
 
-## Scheduled root resume
+### Waiting without repeated checks: `defer_root`
 
-### Waiting without spending: `defer_root`
+Repeated model requests to check a build or render consume tokens. The root-only tool **`azrael_agents.defer_root`** registers a resume condition, then stops model calls.
 
-The expensive part of supervising long work is usually not the work but the waiting. A root that keeps asking "is the build done yet?" pays for a full model request — the whole conversation re-sent — every time, and almost every answer is "not yet".
+- **Select.** Use `wake_on.agent_paths` for subagents and `wake_on.work_ids` for external jobs. `condition: all_terminal` requires every selected target to reach a terminal state.
+- **Wait.** The root parks after finishing independent work. Inference and status, file and log polling stop; assigned work continues.
+- **Resume.** The engine resumes the root once when all targets terminate or the scheduled time arrives. `resume_after_ms` or UTC `resume_at` sets a fallback within 12 hours. Ordinary progress messages do not wake the root.
 
-Azrael replaces that loop with a root-only tool, **`azrael_agents.defer_root`**:
+#### Completion flags for external jobs
 
-- The root names what it is waiting for — `wake_on.agent_paths` (subagents) and/or `wake_on.work_ids` (external jobs) with `condition: all_terminal` — plus a fallback deadline (`resume_after_ms` up to 12 hours, or a UTC `resume_at`).
-- The reservation is persisted, then the root **parks**: no inference, no status calls, no file or log polling. Subagents keep running untouched.
-- The engine wakes the root **once**, when every selected target has reached a terminal state (success, failure or cancellation) or the deadline arrives, whichever is first. Ordinary progress messages are saved but do not wake it.
+Builds, renders and tests register through **`azrael_agents.work_completion`**. The root selects the `workId` returned by `action: create`; a recorded terminal result joins the same resume flow.
 
-### External jobs: the completion flag
+- For managed `exec_command`, pass `work_id`. The executor records the terminal result.
+- For a separate producer, arrange for it to publish the actual result to the returned `signalPath`. The runtime checks this completion flag.
 
-Builds, renders and test suites are not subagents, so Azrael gives them their own completion flag, **`azrael_agents.work_completion`**:
+```mermaid
+flowchart TB
+    R["root · Assign work"] --> S["subagent"]
+    R --> W["External job<br/>Build · Render · Test"]
+    R --> D["defer_root<br/>Root parked · No model calls"]
+    S -->|"Terminates"| C{"All selected targets terminal"}
+    W -->|"Record completion flag<br/>work_completion"| C
+    D -.->|"wake_on"| C
+    C -->|"all_terminal"| A["Root resumes<br/>Inspect · Integrate · Verify"]
+    D -->|"Scheduled time · Resume now"| A
+    S -.->|"Decision request · request_parent"| A
+```
 
-1. The root calls `work_completion` with `action: create` and gets back a `workId` and a thread-owned `signalPath`.
-2. It starts the job so that the job publishes its real outcome to that path when it ends — for example with the bundled helper:
+Terminal states include success, failure and cancellation. The root checks actual results after resuming. A timer or manual resume does not establish completion; `unknown` means observation was lost and needs investigation.
 
-   ```sh
-   node scripts/complete-work.cjs --signal-path <signalPath> --state succeeded --exit-code 0 --summary "render finished"
-   ```
-
-3. It defers with `wake_on.work_ids: [workId]`. While parked, the **host** checks the signal file about once a second — no model call is involved.
-4. On resume the root reads the recorded state before anything that depends on it. Terminal results are immutable, and a timer or manual resume never counts as completion.
-
-![Root plans, assigns subagents and external jobs, defers, parks and resumes once](docs/images/agent-collaboration.svg)
-
-Example: the root starts an eight-minute video render, hands a subagent the release notes, finishes its own independent edits, and then defers on both. Nothing is spent while the render runs; the root wakes once, checks the output and integrates.
-
-Pending reservations appear on the **Root resume reservations** page (`루트 재개 예약`) with the reason, local resume time and the children being waited on, along with resume-now and cancel actions. The chat shows the waited-on subagents' avatars next to a native resume action, and the turn timer freezes at the defer boundary. Cancelling a reservation never cancels the subagents or the external job.
+The **Root resume reservations** page offers inspection, resume-now and cancel actions. Cancelling a reservation does not stop subagents or external jobs.
 
 Details: [root resume scheduling](docs/architecture/root-resume.md).
 
-## Built for the person at the keyboard
+## Reducing cognitive load
 
 ### Many accounts, one page
 
@@ -146,7 +188,7 @@ Compaction keeps a bounded summary, not every original detail. Combined with rel
 
 Details: [accounts](docs/architecture/accounts.md), [managed providers](docs/architecture/managed-providers.md), [custom API models](docs/architecture/custom-api-models.md), [context policy](docs/architecture/context-policy.md), [queued compaction](docs/architecture/queued-compaction.md), [reload recovery](docs/architecture/reload-recovery.md).
 
-## Window Use: work alongside the agent
+### Window Use: work alongside the agent
 
 Classic whole-desktop control moves your cursor, types into whatever has focus and needs the screen to itself, so you stop working while the agent works. **Window Use** is Azrael's desktop feature built around the opposite idea: the agent works on **one window it selected**, sees that window's own content even when it is covered, and acts through the app's accessibility interface so your cursor, keyboard and clipboard stay yours.
 
@@ -173,7 +215,7 @@ How a working session looks:
 
 Details: [Window Use](docs/architecture/window-use.md), [desktop backend (Computer Use)](docs/architecture/computer-use.md).
 
-## Session flags
+### Session flags
 
 Long-running projects produce many conversations. Hover a row in **Chats** and click the flag before its timestamp to mark it; flagged rows show a **filled red flag** at all times, including the new-chat screen's recent-chat preview. Enable **Flagged only** inside the history menu's chat-type dropdown to show marked chats plus the current chat within the current filters and search. The current chat stays visible even without a flag. Click a flag again to clear it. Flagging never opens, closes or archives anything, works from the keyboard, and is stored per host and conversation.
 

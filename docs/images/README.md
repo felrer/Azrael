@@ -5,8 +5,9 @@ production Azrael UI with synthetic fixture inputs. Native components, icons,
 layout and pinned app styles render directly; no hand-drawn application shell is
 added. Provider headers embed [official original brand assets](../architecture/provider-brand-assets.md),
 preserving their shape, colors and proportions. The pinned upstream UI is
-`26.1007.21434`. The three SVGs are explanatory
-illustrations, not application screenshots. Window Use uses the original
+`26.1007.21434`. Agent collaboration and resume flows are localized Mermaid
+diagrams embedded in each README. SVG assets are explanatory illustrations,
+not application screenshots. Window Use uses the original
 illustration of a selected target behind a person’s foreground workspace.
 
 | Image | Production source and capture tool | Synthetic boundary |
