@@ -12,14 +12,17 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 ## Contents
 
 - [Highlights](#highlights)
-- [Agent efficiency](#agent-efficiency)
-  - [Documentation](#documentation-that-connects-sessions)
-  - [Custom skills](#custom-skills-from-discussion-to-delivery)
-  - [Roles and communication](#root-for-time-subagents-for-tokens)
-  - [Waiting and resuming](#waiting-without-repeated-checks-defer_root)
-- [Reducing cognitive load](#reducing-cognitive-load)
-  - [Window Use](#window-use-work-alongside-the-agent)
-  - [Session flags](#session-flags)
+- [1. Agent efficiency](#1-agent-efficiency)
+  - [a. Documentation](#a-documentation-that-connects-sessions)
+  - [b. Custom skills](#b-custom-skills-from-discussion-to-delivery)
+  - [c. Roles and communication](#c-root-for-time-subagents-for-tokens)
+  - [d. Waiting and resuming](#d-waiting-without-repeated-checks-defer_root)
+- [2. Reducing cognitive load](#2-reducing-cognitive-load)
+  - [a. Accounts](#a-many-accounts-one-page)
+  - [b. Models](#b-any-model-mid-conversation)
+  - [c. Context compaction](#c-context-compaction-that-waits-its-turn)
+  - [d. Window Use](#d-window-use-work-alongside-the-agent)
+  - [e. Session flags](#e-session-flags)
 - [Platform support](#platform-support)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -41,11 +44,11 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 
 UI screenshots in this README are captured from Azrael's production components with the project's development renderers. Every account, conversation, quota and model catalog in them is **synthetic** — no personal account or session was opened. The collaboration and Window Use pictures are explanatory illustrations. See [image sources and reproduction](docs/images/README.md).
 
-## Agent efficiency
+## 1. Agent efficiency
 
 Documents carry context across sessions. Instructions shape how work gets done. The root is designed to reduce overall completion time; subagents focus on keeping each assignment's token use low.
 
-### Documentation that connects sessions
+### a. Documentation that connects sessions
 
 `docs/` gives successive model sessions a shared design to work from. Four categories keep the next piece of context within reach.
 
@@ -62,7 +65,7 @@ The default playbooks address recurring gaps observed while working with models.
 - [`app-logging.md`](docs/playbooks/app-logging.md) — Defines logging that makes execution flow and failure causes traceable.
 - [`artifact-lifecycle.md`](docs/playbooks/artifact-lifecycle.md) — Defines ownership, retention and deletion so temporary files and backups are accounted for through cleanup.
 
-### Custom skills, from discussion to delivery
+### b. Custom skills, from discussion to delivery
 
 Reusable working methods are packaged as skills and applied alongside project playbooks. Discussion and implementation share one work record and the same agreed scope.
 
@@ -75,7 +78,7 @@ Reusable working methods are packaged as skills and applied alongside project pl
 | [`implementation`](instructions/skills/implementation/SKILL.md) | Checks existing solutions first, then carries authorized changes through verification and cleanup. |
 | [`testing`](instructions/skills/testing/SKILL.md) | Selects the minimum sufficient evidence for the changed contract and retains tests with lasting value. |
 
-### Root for time, subagents for tokens
+### c. Root for time, subagents for tokens
 
 The root discusses design with the user, schedules work around dependencies and integrates results. Subagents focus on compact handoffs and bounded assignments.
 
@@ -108,7 +111,7 @@ The root handles decision requests before waiting again. Subagents continue inde
 
 Details: [root coordination](docs/architecture/root-coordination.md), [parent decision requests](docs/architecture/root-resume.md#parent-decision-requests), [instruction library](instructions/README.md).
 
-### Waiting without repeated checks: `defer_root`
+### d. Waiting without repeated checks: `defer_root`
 
 Repeated model requests to check a build or render consume tokens. The root-only tool **`azrael_agents.defer_root`** registers a resume condition, then stops model calls.
 
@@ -131,9 +134,9 @@ The **Root resume reservations** page offers inspection, resume-now and cancel a
 
 Details: [root resume scheduling](docs/architecture/root-resume.md).
 
-## Reducing cognitive load
+## 2. Reducing cognitive load
 
-### Many accounts, one page
+### a. Many accounts, one page
 
 Open **Accounts and usage** (`계정 및 사용량`) from the profile menu. Every provider's accounts are listed in one place, grouped under the provider's logo, each with a remaining-quota gauge, its reset time and a badge on the active one.
 
@@ -147,7 +150,7 @@ Open **Accounts and usage** (`계정 및 사용량`) from the profile menu. Ever
 
 Credentials stay out of Webviews and logs, and a running request is never silently redirected to another account.
 
-### Any model, mid-conversation
+### b. Any model, mid-conversation
 
 The model picker groups models by provider, with a count per section, and one search box matches display names and model IDs across all of them.
 
@@ -157,7 +160,7 @@ Supported sources: native **OpenAI** and **Devin**, managed **Anthropic** (subsc
 
 A model change applies at the next turn boundary; the running turn keeps its provider, model and account. When the conversation crosses providers, the previous model writes a bounded plain-text handoff summary that becomes a compaction checkpoint, so the next model starts with context and without the other provider's encrypted reasoning. The same picker sets the model a subagent runs on.
 
-### Context compaction that waits its turn
+### c. Context compaction that waits its turn
 
 The context gauge shows usage against both the automatic-compaction threshold and the model's full capacity. Click **Compact context** in its card — or type `/compact` — and the request joins the conversation queue instead of interrupting the current turn.
 
@@ -171,7 +174,7 @@ Compaction keeps a bounded summary, not every original detail. Combined with rel
 
 Details: [accounts](docs/architecture/accounts.md), [managed providers](docs/architecture/managed-providers.md), [custom API models](docs/architecture/custom-api-models.md), [context policy](docs/architecture/context-policy.md), [queued compaction](docs/architecture/queued-compaction.md), [reload recovery](docs/architecture/reload-recovery.md).
 
-### Window Use: work alongside the agent
+### d. Window Use: work alongside the agent
 
 Classic whole-desktop control moves your cursor, types into whatever has focus and needs the screen to itself, so you stop working while the agent works. **Window Use** is Azrael's desktop feature built around the opposite idea: the agent works on **one window it selected**, sees that window's own content even when it is covered, and acts through the app's accessibility interface so your cursor, keyboard and clipboard stay yours.
 
@@ -198,7 +201,7 @@ How a working session looks:
 
 Details: [Window Use](docs/architecture/window-use.md), [desktop backend (Computer Use)](docs/architecture/computer-use.md).
 
-### Session flags
+### e. Session flags
 
 Long-running projects produce many conversations. Hover a row in **Chats** and click the flag before its timestamp to mark it; flagged rows show a **filled red flag** at all times, including the new-chat screen's recent-chat preview. Enable **Flagged only** inside the history menu's chat-type dropdown to show marked chats plus the current chat within the current filters and search. The current chat stays visible even without a flag. Click a flag again to clear it. Flagging never opens, closes or archives anything, works from the keyboard, and is stored per host and conversation.
 
