@@ -17,6 +17,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
   - [b. Custom skills](#b-custom-skills-from-discussion-to-delivery)
   - [c. Roles and communication](#c-root-for-time-subagents-for-tokens)
   - [d. Waiting and resuming](#d-waiting-without-repeated-checks-defer_root)
+  - [e. Artifact groups and locks](#e-artifact-groups-and-locks)
 - [2. Reducing cognitive load](#2-reducing-cognitive-load)
   - [a. Accounts](#a-many-accounts-one-page)
   - [b. Models](#b-any-model-mid-conversation)
@@ -133,6 +134,20 @@ Terminal states include success, failure and cancellation. The root checks actua
 The **Root resume reservations** page offers inspection, resume-now and cancel actions. Cancelling a reservation does not stop subagents or external jobs.
 
 Details: [root resume scheduling](docs/architecture/root-resume.md).
+
+### e. Artifact groups and locks
+
+*Assumes `maintenance_owner` is integrated into Azrael.*
+
+Azrael groups registered outputs, logs and backups by work, run, version or shared cache, recording their owners, members and consumer references. Agents can assess an assignment's complete output set as one unit.
+
+- **Group protection.** If any member is in use or protected, deletion of the whole group is blocked. Cleanup checks membership and references before applying a decision, then records the actual deletion results.
+- **Coordinated access.** OS locks and group reservations coordinate creation, registration and cleanup. Shared management locks are held briefly; group reservations protect long operations while unrelated work continues.
+- **Reusable verification evidence.** Recorded measurements are reused while current ownership, references, protection and membership are checked. Reported changes update the records, with full content verification when needed to reduce repeated scans.
+
+The model selects what to clean up. Azrael's built-in management tools carry ownership checks through review, application and result recording.
+
+Details: [artifact management design](docs/architecture/project-maintenance.md), [management operations](docs/ops/project-maintenance.md).
 
 ## 2. Reducing cognitive load
 
