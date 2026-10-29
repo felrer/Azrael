@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" id="agent-resume-en" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="agent-resume-en-title agent-resume-en-desc" lang="en">
+<style>
+text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
+.canvas { fill: #ffffff; }
+.card { fill: #ffffff; stroke: #e1e4e2; stroke-width: 1.5; }
+.root-card { fill: #f7f8f7; stroke: #daddda; stroke-width: 1.5; }
+.context-card { fill: #f7f8f7; stroke: #e1e4e2; stroke-width: 1.5; }
+.accent-card { fill: #edf5f0; stroke: #c9dfd0; stroke-width: 1.5; }
+.row { fill: #f7f8f7; }
+.tag { fill: #e8f0eb; }
+.eyebrow { fill: #737975; font-size: 15px; font-weight: 600; letter-spacing: 1px; }
+.heading { fill: #202622; font-size: 27px; font-weight: 600; letter-spacing: -.5px; }
+.label { fill: #202622; font-size: 23px; font-weight: 600; letter-spacing: -.3px; }
+.body { fill: #646c66; font-size: 20px; }
+.small { fill: #6c746e; font-size: 18px; }
+.tag-text { fill: #3c6750; font-size: 16px; font-weight: 600; }
+.mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+.connector { fill: none; stroke: #a1aaa4; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.accent-line { fill: none; stroke: #7e9e89; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.rule { stroke: #e0e4e1; stroke-width: 1.2; }
+</style>
+<title id="agent-resume-en-title">How defer_root waits and resumes</title>
+<desc id="agent-resume-en-desc">Root assigns work, then parks with defer_root. It resumes when selected subagents and external work_completion records are all terminal, at the scheduled time, on manual resume or for a decision request. Actual results are checked after resuming.</desc>
+<defs><marker id="agent-resume-en-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#9ca69f"/></marker></defs>
+<rect width="1120" height="640" rx="20" class="canvas"/>
+<path d="M 328 98 H 392" class="connector" marker-end="url(#agent-resume-en-arrow)"/>
+<path d="M 552 156 V 224" class="connector" marker-end="url(#agent-resume-en-arrow)"/>
+<path d="M 1072 390 H 1096 V 98 H 1072" class="accent-line" marker-end="url(#agent-resume-en-arrow)"/>
+<rect x="48" y="40" width="280" height="116" rx="18" class="card"/>
+<text x="76" y="72" class="eyebrow mono" >root</text>
+<text x="76" y="110" class="heading" >Assign work</text>
+<text x="76" y="139" class="small" >Finish independent work</text>
+<rect x="392" y="40" width="320" height="116" rx="18" class="root-card"/>
+<text x="420" y="72" class="eyebrow mono" >root</text>
+<text x="420" y="110" class="heading mono" >defer_root</text>
+<text x="420" y="139" class="small" >Wait without model calls</text>
+<rect x="784" y="40" width="288" height="116" rx="18" class="accent-card"/>
+<text x="812" y="72" class="eyebrow mono" >root</text>
+<text x="812" y="110" class="heading" >Root resumes</text>
+<text x="812" y="139" class="small" >Inspect · Integrate · Verify</text>
+<rect x="48" y="224" width="1024" height="324" rx="18" class="card"/>
+<text x="76" y="261" class="body" >Resume when any condition is met</text>
+<rect x="76" y="282" width="968" height="112" rx="12" class="row"/>
+<text x="104" y="315" class="label" >All selected work terminates</text>
+<text x="104" y="346" class="small" >Subagents terminate + external jobs record completion</text>
+<text x="104" y="376" class="small mono" >External job → work_completion</text>
+<rect x="842" y="316" width="174" height="36" rx="18" class="tag"/>
+<text x="929" y="340" class="tag-text mono" text-anchor="middle">all_terminal</text>
+<rect x="76" y="406" width="968" height="56" rx="12" class="row"/>
+<text x="104" y="442" class="label" >Scheduled time · Resume now</text>
+<text x="1016" y="441" class="small" text-anchor="end">Time / User</text>
+<rect x="76" y="474" width="968" height="56" rx="12" class="row"/>
+<text x="104" y="510" class="label" >A subagent requests a decision</text>
+<text x="1016" y="509" class="small mono" text-anchor="end">request_parent</text>
+<circle cx="57" cy="592" r="5" fill="#8aa493"/>
+<text x="76" y="599" class="small" >Resuming does not establish success. Check the actual terminal results.</text>
+</svg>

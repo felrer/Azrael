@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" id="agent-roles-en" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="agent-roles-en-title agent-roles-en-desc" lang="en">
+<style>
+text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
+.canvas { fill: #ffffff; }
+.card { fill: #ffffff; stroke: #e1e4e2; stroke-width: 1.5; }
+.root-card { fill: #f7f8f7; stroke: #daddda; stroke-width: 1.5; }
+.context-card { fill: #f7f8f7; stroke: #e1e4e2; stroke-width: 1.5; }
+.accent-card { fill: #edf5f0; stroke: #c9dfd0; stroke-width: 1.5; }
+.row { fill: #f7f8f7; }
+.tag { fill: #e8f0eb; }
+.eyebrow { fill: #737975; font-size: 15px; font-weight: 600; letter-spacing: 1px; }
+.heading { fill: #202622; font-size: 27px; font-weight: 600; letter-spacing: -.5px; }
+.label { fill: #202622; font-size: 23px; font-weight: 600; letter-spacing: -.3px; }
+.body { fill: #646c66; font-size: 20px; }
+.small { fill: #6c746e; font-size: 18px; }
+.tag-text { fill: #3c6750; font-size: 16px; font-weight: 600; }
+.mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+.connector { fill: none; stroke: #a1aaa4; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.accent-line { fill: none; stroke: #7e9e89; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.rule { stroke: #e0e4e1; stroke-width: 1.2; }
+</style>
+<title id="agent-roles-en-title">How root and subagents divide the work</title>
+<desc id="agent-roles-en-desc">The user and root discuss design. Root assigns bounded research and implementation to subagents and receives their results. Architecture carries shared design across sessions. A dedicated lead is planned.</desc>
+<defs><marker id="agent-roles-en-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 Z" fill="#9ca69f"/></marker></defs>
+<rect width="1120" height="640" rx="20" class="canvas"/>
+<path d="M 398 104 V 168" class="connector" marker-end="url(#agent-roles-en-arrow)" marker-start="url(#agent-roles-en-arrow)"/>
+<path d="M 748 257 H 816" class="connector" marker-end="url(#agent-roles-en-arrow)" marker-start="url(#agent-roles-en-arrow)"/>
+<path d="M 398 346 V 382 H 214 V 432" class="connector" marker-end="url(#agent-roles-en-arrow)" marker-start="url(#agent-roles-en-arrow)"/>
+<path d="M 398 382 H 582 V 432" class="connector" marker-end="url(#agent-roles-en-arrow)"/>
+<rect x="48" y="24" width="700" height="80" rx="18" class="card"/>
+<text x="78" y="73" class="label" >User</text>
+<text x="720" y="72" class="body" text-anchor="end">Goals &amp; requirements</text>
+<text x="420" y="144" class="small" >Discuss · Agree</text>
+<rect x="48" y="168" width="700" height="178" rx="18" class="root-card"/>
+<text x="78" y="207" class="eyebrow mono" >root</text>
+<rect x="572" y="187" width="148" height="32" rx="16" class="tag"/>
+<text x="646" y="209" class="tag-text" text-anchor="middle">Time efficiency</text>
+<text x="78" y="259" class="heading" >Design &amp; scheduling</text>
+<text x="78" y="300" class="body" >Dependencies · Assignment · Integration</text>
+<rect x="326" y="392" width="144" height="30" rx="15" class="canvas"/>
+<text x="398" y="413" class="small" text-anchor="middle">Assign · Report</text>
+<rect x="48" y="432" width="332" height="140" rx="18" class="card"/>
+<text x="76" y="466" class="eyebrow" >subagent · Token efficiency</text>
+<text x="76" y="511" class="label" >Focused research</text>
+<text x="76" y="548" class="small" >A concise evidence handoff</text>
+<rect x="416" y="432" width="332" height="140" rx="18" class="card"/>
+<text x="444" y="466" class="eyebrow" >subagent · Token efficiency</text>
+<text x="444" y="511" class="label" >Build &amp; verify</text>
+<text x="444" y="548" class="small" >One bounded assignment</text>
+<rect x="816" y="168" width="256" height="404" rx="18" class="context-card"/>
+<text x="844" y="209" class="eyebrow" >SHARED CONTEXT</text>
+<text x="844" y="268" class="label mono" >architecture/</text>
+<text x="844" y="306" class="body" >Agreed design</text>
+<line x1="844" y1="340" x2="1044" y2="340" class="rule"/>
+<text x="844" y="385" class="body" >A shared reference</text>
+<text x="844" y="418" class="body" >across sessions</text>
+<rect x="48" y="598" width="104" height="26" rx="13" class="row"/>
+<text x="100" y="617" class="eyebrow" text-anchor="middle">PLANNED</text>
+<text x="168" y="618" class="small" >lead · Dedicated design discussion with the user</text>
+</svg>
