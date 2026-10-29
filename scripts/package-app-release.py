@@ -194,6 +194,15 @@ def main():
             raise ValueError(f"Host {key} manifest does not match selected build")
         portable[key] = {"directory": owner, "manifestSha256": expected}
     portable["windowControl"].update(executable="window-control/azrael-window-control.exe", mcpScript="window-control/window-control-mcp.cjs")
+    child_session = json.loads(files["runtime/window-control/manifest.json"]).get("childSession")
+    if child_session:
+        portable["windowControl"]["childSession"] = {
+            "executable": "window-control/" + child_session["executable"],
+            "sha256": child_session["sha256"],
+            "probeScript": "window-control/" + child_session["probeScript"],
+        }
+        if child_session.get("logoffCleanupVersion") == 1:
+            portable["windowControl"]["childSession"]["logoffScript"] = "window-control/request-window-child-logoff.ps1"
     host[runtime_key] = encoded(portable)
     files["host-template.vsix"] = zip_bytes(host)
     files["install.ps1"] = safe_file(root, "scripts/install-app-release.ps1").read_bytes()
