@@ -1,0 +1,340 @@
+{
+  "settingsRender": {
+    "scope": "Production model compaction settings with pinned React/Card/Row/Button/CSS, synthetic host in light/dark/narrow. No build or model requests.",
+    "checks": [
+      "loading state",
+      "exact600K default",
+      "untouched token default persists empty model entry",
+      "percentage slider sync",
+      "percentage token preview",
+      "slider percentage sync",
+      "exact model save keeps sibling/provider settings",
+      "small model capacity boundary/default",
+      "safe cap",
+      "failed save keeps draft",
+      "keyboard reset restores exact600K",
+      "Opus one-million sixty percent exact600K",
+      "light native button geometry",
+      "dark native button geometry",
+      "distinct theme button backgrounds",
+      "Korean labels",
+      "narrow model selector readable",
+      "narrow page no overflow",
+      "OpenAI baseline258400",
+      "subscription default gpt-6.1-sol",
+      "untouched subscription default stays exact gpt-6.1-sol",
+      "subscription default gpt-5.2-codex",
+      "untouched subscription default stays exact gpt-5.2-codex",
+      "subscription default codex-mini-latest",
+      "untouched subscription default stays exact codex-mini-latest",
+      "subscription default subscription-limited",
+      "untouched subscription default stays exact subscription-limited",
+      "subscription model custom setting",
+      "subscription reset exact300K",
+      "empty model list visible",
+      "no browser exceptions"
+    ],
+    "light": {
+      "foreground": "rgb(26, 28, 31)",
+      "buttonBackground": "oklab(0.22559 -0.00131416 -0.00642684 / 0.05)",
+      "buttonHeight": 24
+    },
+    "dark": {
+      "foreground": "rgb(223, 223, 223)",
+      "buttonBackground": "oklab(0.903646 0.0000412762 0.0000180602 / 0.05)",
+      "buttonHeight": 24
+    },
+    "events": [
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"anthropic\".models.\"managed/anthropic/large\"",
+              "value": {},
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"anthropic\".models.\"managed/anthropic/large\"",
+              "value": {
+                "percentage": 75
+              },
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"anthropic\".models.\"managed/anthropic/large\"",
+              "value": {
+                "percentage": 500
+              },
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"anthropic\".models.\"managed/anthropic/large\"",
+              "value": {
+                "percentage": 500
+              },
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"anthropic\".models.\"managed/anthropic/large\"",
+              "value": {},
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"openai\".models.\"gpt-6.1-sol\"",
+              "value": {},
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"openai\".models.\"gpt-5.2-codex\"",
+              "value": {},
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"openai\".models.\"codex-mini-latest\"",
+              "value": {},
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"openai\".models.\"subscription-limited\"",
+              "value": {},
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"openai\".models.\"gpt-6.1-sol\"",
+              "value": {
+                "percentage": 45
+              },
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/batchWrite",
+        "params": {
+          "edits": [
+            {
+              "keyPath": "provider_auto_compact.\"openai\".models.\"gpt-6.1-sol\"",
+              "value": {},
+              "mergeStrategy": "replace"
+            }
+          ],
+          "filePath": null,
+          "expectedVersion": null,
+          "reloadUserConfig": true
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      },
+      {
+        "method": "config/read",
+        "params": {
+          "includeLayers": true,
+          "cwd": null
+        }
+      }
+    ],
+    "outcome": "passed",
+    "browserExit": {
+      "confirmed": true,
+      "exitCode": 0,
+      "signalCode": null,
+      "processInspectionExitCode": 0,
+      "processIds": []
+    },
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-provider-context-render\\runs\\20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+    "lifecycleId": "run:verify-provider-context-render:20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+    "fixtureRemoved": false,
+    "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+    "exitCode": 0
+  },
+  "namespaceOwner": {
+    "tests": 7,
+    "pass": 7,
+    "exitCode": 0,
+    "fixtureAbsenceVerified": true
+  },
+  "groups": [
+    "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+    "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+    "run:mode-averages-native:20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+    "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+    "run:verify-provider-context-render:20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0"
+  ]
+}

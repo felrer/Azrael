@@ -1,0 +1,808 @@
+{
+  "scope": "Windows x64 source, pinned native React/CSS, isolated installed engine RPC. No product build or installation.",
+  "source": {
+    "tests": 25,
+    "pass": 25,
+    "exitCode": 0,
+    "durationMs": 67171.0144,
+    "command": "node --test scripts/test-provider-context.cjs",
+    "relatedModelPicker": {
+      "tests": 36,
+      "pass": 36,
+      "exitCode": 0,
+      "scope": "unchanged cases in earlier combined run; combined run initially failed two provider-context cases, subsequently fixed and all 25 passed"
+    },
+    "managedAttempt": {
+      "runId": "run-24748-4153-1793288802590807800",
+      "exitCode": 124,
+      "reason": "10 second command limit; direct execution used"
+    }
+  },
+  "runs": [
+    {
+      "id": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+      "summary": {
+        "scope": "Production transformed context hover card, native gauge/button/React/CSS in light/dark; synthetic host/localization. No build or model requests.",
+        "checks": [],
+        "outcome": "failed",
+        "error": "Error: Wait failed: window.fixtureReady && !!document.querySelector('[data-azrael-pricing-boundary]'); {\"errors\":[\"Uncaught TypeError: wd is not a function\"],\"body\":\"\"}\n    at wait (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-context-compaction-render.mjs:67:137)\n    at async file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-context-compaction-render.mjs:71:2",
+        "exceptions": [
+          {
+            "exceptionId": 1,
+            "text": "Uncaught",
+            "lineNumber": 713,
+            "columnNumber": 20,
+            "scriptId": "6",
+            "url": "http://127.0.0.1:1643/assets/app-initial-7a199c66e670.js",
+            "stackTrace": {
+              "callFrames": [
+                {
+                  "functionName": "",
+                  "scriptId": "6",
+                  "url": "http://127.0.0.1:1643/assets/app-initial-7a199c66e670.js",
+                  "lineNumber": 713,
+                  "columnNumber": 20
+                }
+              ]
+            },
+            "exception": {
+              "type": "object",
+              "subtype": "error",
+              "className": "TypeError",
+              "description": "TypeError: wd is not a function\n    at http://127.0.0.1:1643/assets/app-initial-7a199c66e670.js:714:21",
+              "objectId": "7117774071016034025.2.1",
+              "preview": {
+                "type": "object",
+                "subtype": "error",
+                "description": "TypeError: wd is not a function\n    at http://127.0.0.1:1643/assets/app-initial-7a199c66e670.js:714:21",
+                "overflow": false,
+                "properties": [
+                  {
+                    "name": "stack",
+                    "type": "string",
+                    "value": "TypeError: wd is not a function\n    at http://127.….1:1643/assets/app-initial-7a199c66e670.js:714:21"
+                  },
+                  {
+                    "name": "message",
+                    "type": "string",
+                    "value": "wd is not a function"
+                  }
+                ]
+              }
+            },
+            "executionContextId": 2
+          }
+        ],
+        "browserExit": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+        "lifecycleId": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+        "fixtureRemoved": false,
+        "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+        "exitCode": 1
+      }
+    },
+    {
+      "id": "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+      "summary": {
+        "scope": "Production transformed context hover card, native gauge/button/React/CSS in light/dark; synthetic host/localization. No build or model requests.",
+        "checks": [
+          "light auto-compaction donut and tooltip agree",
+          "light measured TPS visible and accessible",
+          "light TPS partial",
+          "light TPS reset",
+          "light TPS missing",
+          "light TPS invalid",
+          "light estimated graph points and tool gap",
+          "light localized zero single-point and truncated graph",
+          "light invalid minute samples hide graph",
+          "light history retained while current mean waits",
+          "light requests and mode changes are never joined",
+          "light local HH:mm timestamps below plot",
+          "light average toggle defaults on",
+          "light weighted mode averages and neutral unknown",
+          "light themed orange darker and purple brighter",
+          "light mode brightness gap within tolerance",
+          "light server actual mode overrides requested ultrafast",
+          "light legacy requested modes remain neutral without named averages",
+          "light native average switch keyboard toggle",
+          "light average off survives conversation/project change",
+          "light average off survives gauge remount",
+          "light failed average save retains off",
+          "light focus reads another engine client change",
+          "light TPS tooltip fits 1000",
+          "light graph fits 1000",
+          "light timestamps centered on request boundaries 1000",
+          "light TPS tooltip fits 474",
+          "light graph fits 474",
+          "light timestamps centered on request boundaries 474",
+          "light TPS tooltip fits 360",
+          "light graph fits 360",
+          "light timestamps centered on request boundaries 360",
+          "light close request timestamps stay readable at 360px",
+          "light close request timestamps retain boundary alignment"
+        ],
+        "lightModeColors": {
+          "standard": {
+            "color": "rgb(51, 156, 255)",
+            "rgb": [
+              51,
+              156,
+              255
+            ],
+            "luminance": 0.31700741216775763
+          },
+          "fast": {
+            "color": "color(srgb 0.841961 0.316667 0.0260784)",
+            "rgb": [
+              215,
+              81,
+              7
+            ],
+            "luminance": 0.20347272372072486
+          },
+          "ultrafast": {
+            "color": "color(srgb 0.593922 0.344314 0.970196)",
+            "rgb": [
+              151,
+              88,
+              247
+            ],
+            "luminance": 0.20274156764156792
+          },
+          "baseFast": {
+            "color": "rgb(226, 85, 7)",
+            "rgb": [
+              226,
+              85,
+              7
+            ],
+            "luminance": 0.2268109040698259
+          },
+          "baseUltrafast": {
+            "color": "rgb(146, 79, 247)",
+            "rgb": [
+              146,
+              79,
+              247
+            ],
+            "luminance": 0.1841835701505175
+          }
+        },
+        "lightTimestampAlignment1000": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "lightTimestampAlignment474": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "lightTimestampAlignment360": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "lightCloseTimestamps": [
+          {
+            "text": "12:39",
+            "row": "0",
+            "rect": {
+              "x": 278.08441162109375,
+              "y": 436.95831298828125,
+              "width": 24.706573486328125,
+              "height": 14,
+              "top": 436.95831298828125,
+              "right": 302.7909851074219,
+              "bottom": 450.95831298828125,
+              "left": 278.08441162109375
+            }
+          },
+          {
+            "text": "12:39",
+            "row": "1",
+            "rect": {
+              "x": 278.18646240234375,
+              "y": 453.2916564941406,
+              "width": 24.70660400390625,
+              "height": 14,
+              "top": 453.2916564941406,
+              "right": 302.89306640625,
+              "bottom": 467.2916564941406,
+              "left": 278.18646240234375
+            }
+          },
+          {
+            "text": "12:39",
+            "row": "2",
+            "rect": {
+              "x": 278.2885437011719,
+              "y": 469.625,
+              "width": 24.70660400390625,
+              "height": 14,
+              "top": 469.625,
+              "right": 302.9951477050781,
+              "bottom": 483.625,
+              "left": 278.2885437011719
+            }
+          },
+          {
+            "text": "12:40",
+            "row": "3",
+            "rect": {
+              "x": 278.390625,
+              "y": 485.95831298828125,
+              "width": 24.706573486328125,
+              "height": 14,
+              "top": 485.95831298828125,
+              "right": 303.0971984863281,
+              "bottom": 499.95831298828125,
+              "left": 278.390625
+            }
+          }
+        ],
+        "outcome": "failed",
+        "error": "Error: Wait failed: document.querySelector('[data-tps-average-toggle] [role=switch]')?.getAttribute('aria-checked')==='false'; {\"errors\":[],\"body\":\"image.png\\nUsage\\nAuto-compaction basis\\n247,263 / 600,000 tokens (41.2%) · estimated\\nFull capacity basis\\n247,263 / 1,000,000 tokens (24.7%) · estimated\\nCurrent response average TPS\\nWaiting for measurement\\nTPS by minute · estimated\\nRecent 40 minutes\\n1.0 tokens/s\\n12:39\\n12:39\\n12:39\\n12:40\\nStandard\\nFast\\nUltrafast\\nMode averages\\nModel\\nopenai / gpt-6-astra\\nPricing reference\\nLong-context pricing threshold: 272,000 tokens exceeded\\nOfficial documentation ↗\\nAuto-compaction\\nApplies to this chat. New chats start enabled.\\nCompact context\"}\n    at wait (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-context-compaction-render.mjs:67:137)\n    at async file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-context-compaction-render.mjs:147:85",
+        "exceptions": [],
+        "browserExit": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+        "lifecycleId": "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+        "fixtureRemoved": false,
+        "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+        "exitCode": 1
+      }
+    },
+    {
+      "id": "run:mode-averages-native:20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\mode-averages-native\\runs\\20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+      "summary": {
+        "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1\\engine\\azrael.exe",
+        "checks": [
+          "real engine missing default on and persisted off",
+          "engine restart restores off and accepts on"
+        ],
+        "exits": [
+          {
+            "code": 0,
+            "signal": null
+          },
+          {
+            "code": 0,
+            "signal": null
+          }
+        ],
+        "exitCode": 0
+      }
+    },
+    {
+      "id": "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+      "summary": {
+        "scope": "Production transformed context hover card, native gauge/button/React/CSS in light/dark; synthetic host/localization. No build or model requests.",
+        "checks": [
+          "light auto-compaction donut and tooltip agree",
+          "light measured TPS visible and accessible",
+          "light TPS partial",
+          "light TPS reset",
+          "light TPS missing",
+          "light TPS invalid",
+          "light estimated graph points and tool gap",
+          "light localized zero single-point and truncated graph",
+          "light invalid minute samples hide graph",
+          "light history retained while current mean waits",
+          "light requests and mode changes are never joined",
+          "light local HH:mm timestamps below plot",
+          "light average toggle defaults on",
+          "light weighted mode averages and neutral unknown",
+          "light themed orange darker and purple brighter",
+          "light mode brightness gap within tolerance",
+          "light server actual mode overrides requested ultrafast",
+          "light legacy requested modes remain neutral without named averages",
+          "light native average switch keyboard toggle",
+          "light average off survives conversation/project change",
+          "light average off survives gauge remount",
+          "light failed average save retains off",
+          "light focus reads another engine client change",
+          "light TPS tooltip fits 1000",
+          "light graph fits 1000",
+          "light timestamps centered on request boundaries 1000",
+          "light TPS tooltip fits 474",
+          "light graph fits 474",
+          "light timestamps centered on request boundaries 474",
+          "light TPS tooltip fits 360",
+          "light graph fits 360",
+          "light timestamps centered on request boundaries 360",
+          "light close request timestamps stay readable at 360px",
+          "light close request timestamps retain boundary alignment",
+          "light different conversation retains shared averages on",
+          "light native button geometry and non-submit type",
+          "light native switch geometry",
+          "light confirmed switch instantly resets gauge to additional capacity",
+          "light keyboard switch restores first lap",
+          "light switch pending duplicate guard",
+          "light stale save cannot change selected thread",
+          "light failed save preserves confirmed switch",
+          "light new thread defaults enabled",
+          "light failed initial read disables switch",
+          "light failed read retry confirms setting",
+          "light visible pending status",
+          "light duplicate guard",
+          "light error and retry affordance",
+          "light draft attachments and no submit",
+          "dark auto-compaction donut and tooltip agree",
+          "dark measured TPS visible and accessible",
+          "dark TPS partial",
+          "dark TPS reset",
+          "dark TPS missing",
+          "dark TPS invalid",
+          "dark estimated graph points and tool gap",
+          "dark localized zero single-point and truncated graph",
+          "dark invalid minute samples hide graph",
+          "dark history retained while current mean waits",
+          "dark requests and mode changes are never joined",
+          "dark local HH:mm timestamps below plot",
+          "dark average toggle defaults on",
+          "dark weighted mode averages and neutral unknown",
+          "dark themed orange darker and purple brighter",
+          "dark mode brightness gap within tolerance",
+          "dark server actual mode overrides requested ultrafast",
+          "dark legacy requested modes remain neutral without named averages",
+          "dark native average switch keyboard toggle",
+          "dark average off survives conversation/project change",
+          "dark average off survives gauge remount",
+          "dark failed average save retains off",
+          "dark focus reads another engine client change",
+          "dark TPS tooltip fits 1000",
+          "dark graph fits 1000",
+          "dark timestamps centered on request boundaries 1000",
+          "dark TPS tooltip fits 474",
+          "dark graph fits 474",
+          "dark timestamps centered on request boundaries 474",
+          "dark TPS tooltip fits 360",
+          "dark graph fits 360",
+          "dark timestamps centered on request boundaries 360",
+          "dark close request timestamps stay readable at 360px",
+          "dark close request timestamps retain boundary alignment",
+          "dark different conversation retains shared averages on",
+          "dark native button geometry and non-submit type",
+          "dark native switch geometry",
+          "dark confirmed switch instantly resets gauge to additional capacity",
+          "dark keyboard switch restores first lap",
+          "dark switch pending duplicate guard",
+          "dark stale save cannot change selected thread",
+          "dark failed save preserves confirmed switch",
+          "dark new thread defaults enabled",
+          "dark failed initial read disables switch",
+          "dark failed read retry confirms setting",
+          "dark visible pending status",
+          "dark duplicate guard",
+          "dark error and retry affordance",
+          "dark draft attachments and no submit",
+          "missing ID disabled localized control",
+          "ID-only RPC",
+          "no browser exceptions"
+        ],
+        "lightModeColors": {
+          "standard": {
+            "color": "rgb(51, 156, 255)",
+            "rgb": [
+              51,
+              156,
+              255
+            ],
+            "luminance": 0.31700741216775763
+          },
+          "fast": {
+            "color": "color(srgb 0.841961 0.316667 0.0260784)",
+            "rgb": [
+              215,
+              81,
+              7
+            ],
+            "luminance": 0.20347272372072486
+          },
+          "ultrafast": {
+            "color": "color(srgb 0.593922 0.344314 0.970196)",
+            "rgb": [
+              151,
+              88,
+              247
+            ],
+            "luminance": 0.20274156764156792
+          },
+          "baseFast": {
+            "color": "rgb(226, 85, 7)",
+            "rgb": [
+              226,
+              85,
+              7
+            ],
+            "luminance": 0.2268109040698259
+          },
+          "baseUltrafast": {
+            "color": "rgb(146, 79, 247)",
+            "rgb": [
+              146,
+              79,
+              247
+            ],
+            "luminance": 0.1841835701505175
+          }
+        },
+        "lightTimestampAlignment1000": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "lightTimestampAlignment474": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "lightTimestampAlignment360": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "lightCloseTimestamps": [
+          {
+            "text": "12:39",
+            "row": "0",
+            "rect": {
+              "x": 278.08441162109375,
+              "y": 436.95831298828125,
+              "width": 24.706573486328125,
+              "height": 14,
+              "top": 436.95831298828125,
+              "right": 302.7909851074219,
+              "bottom": 450.95831298828125,
+              "left": 278.08441162109375
+            }
+          },
+          {
+            "text": "12:39",
+            "row": "1",
+            "rect": {
+              "x": 278.18646240234375,
+              "y": 453.2916564941406,
+              "width": 24.70660400390625,
+              "height": 14,
+              "top": 453.2916564941406,
+              "right": 302.89306640625,
+              "bottom": 467.2916564941406,
+              "left": 278.18646240234375
+            }
+          },
+          {
+            "text": "12:39",
+            "row": "2",
+            "rect": {
+              "x": 278.2885437011719,
+              "y": 469.625,
+              "width": 24.70660400390625,
+              "height": 14,
+              "top": 469.625,
+              "right": 302.9951477050781,
+              "bottom": 483.625,
+              "left": 278.2885437011719
+            }
+          },
+          {
+            "text": "12:40",
+            "row": "3",
+            "rect": {
+              "x": 278.390625,
+              "y": 485.95831298828125,
+              "width": 24.706573486328125,
+              "height": 14,
+              "top": 485.95831298828125,
+              "right": 303.0971984863281,
+              "bottom": 499.95831298828125,
+              "left": 278.390625
+            }
+          }
+        ],
+        "light": {
+          "idle": {
+            "text": "Compact context",
+            "disabled": false,
+            "type": "button",
+            "width": 294,
+            "height": 24,
+            "color": "rgb(255, 255, 255)",
+            "background": "oklab(0.999994 0.0000455678 0.0000200868 / 0.05)"
+          }
+        },
+        "darkModeColors": {
+          "standard": {
+            "color": "rgb(51, 156, 255)",
+            "rgb": [
+              51,
+              156,
+              255
+            ],
+            "luminance": 0.31700741216775763
+          },
+          "fast": {
+            "color": "color(srgb 0.935098 0.394902 0.126667)",
+            "rgb": [
+              238,
+              101,
+              32
+            ],
+            "luminance": 0.27588788212379856
+          },
+          "ultrafast": {
+            "color": "color(srgb 0.69451 0.508235 0.977647)",
+            "rgb": [
+              177,
+              130,
+              249
+            ],
+            "luminance": 0.3215192821836978
+          },
+          "baseFast": {
+            "color": "rgb(251, 106, 34)",
+            "rgb": [
+              251,
+              106,
+              34
+            ],
+            "luminance": 0.309327911041036
+          },
+          "baseUltrafast": {
+            "color": "rgb(173, 123, 249)",
+            "rgb": [
+              173,
+              123,
+              249
+            ],
+            "luminance": 0.2988970753637265
+          }
+        },
+        "darkTimestampAlignment1000": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "darkTimestampAlignment474": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "darkTimestampAlignment360": [
+          {
+            "id": "prior",
+            "center": 241.74392700195312,
+            "lineX": 241.5,
+            "error": 0.243927001953125
+          },
+          {
+            "id": "waiting",
+            "center": 290.74391174316406,
+            "lineX": 290.5,
+            "error": 0.2439117431640625
+          }
+        ],
+        "darkCloseTimestamps": [
+          {
+            "text": "12:39",
+            "row": "0",
+            "rect": {
+              "x": 278.08441162109375,
+              "y": 436.95831298828125,
+              "width": 24.706573486328125,
+              "height": 14,
+              "top": 436.95831298828125,
+              "right": 302.7909851074219,
+              "bottom": 450.95831298828125,
+              "left": 278.08441162109375
+            }
+          },
+          {
+            "text": "12:39",
+            "row": "1",
+            "rect": {
+              "x": 278.18646240234375,
+              "y": 453.2916564941406,
+              "width": 24.70660400390625,
+              "height": 14,
+              "top": 453.2916564941406,
+              "right": 302.89306640625,
+              "bottom": 467.2916564941406,
+              "left": 278.18646240234375
+            }
+          },
+          {
+            "text": "12:39",
+            "row": "2",
+            "rect": {
+              "x": 278.2885437011719,
+              "y": 469.625,
+              "width": 24.70660400390625,
+              "height": 14,
+              "top": 469.625,
+              "right": 302.9951477050781,
+              "bottom": 483.625,
+              "left": 278.2885437011719
+            }
+          },
+          {
+            "text": "12:40",
+            "row": "3",
+            "rect": {
+              "x": 278.390625,
+              "y": 485.95831298828125,
+              "width": 24.706573486328125,
+              "height": 14,
+              "top": 485.95831298828125,
+              "right": 303.0971984863281,
+              "bottom": 499.95831298828125,
+              "left": 278.390625
+            }
+          }
+        ],
+        "dark": {
+          "idle": {
+            "text": "Compact context",
+            "disabled": false,
+            "type": "button",
+            "width": 294,
+            "height": 24,
+            "color": "rgb(223, 223, 223)",
+            "background": "oklab(0.903646 0.0000412762 0.0000180602 / 0.05)"
+          }
+        },
+        "events": [
+          {
+            "args": [
+              "chat-light"
+            ],
+            "host": "local"
+          },
+          {
+            "args": [
+              "chat-light"
+            ],
+            "host": "local"
+          },
+          {
+            "args": [
+              "chat-light"
+            ],
+            "host": "local"
+          },
+          {
+            "args": [
+              "chat-dark"
+            ],
+            "host": "local"
+          },
+          {
+            "args": [
+              "chat-dark"
+            ],
+            "host": "local"
+          },
+          {
+            "args": [
+              "chat-dark"
+            ],
+            "host": "local"
+          }
+        ],
+        "browserErrors": [],
+        "outcome": "passed",
+        "browserExit": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-context-compaction-render\\runs\\20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+        "lifecycleId": "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+        "fixtureRemoved": false,
+        "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+        "exitCode": 0
+      }
+    }
+  ],
+  "visualInspection": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "width": 474,
+    "result": "native switch on, weighted labels and dashed lines visible; no overflow"
+  },
+  "cleanup": {
+    "status": "pending"
+  }
+}
