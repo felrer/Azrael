@@ -1,0 +1,32 @@
+{
+  "hashes": [
+    {
+      "path": "current.json",
+      "sha256": "0fd601344c10d9e08f9b634085553f3e69f286ebba8f2cd4792b87d39f8dab2b"
+    },
+    {
+      "path": "installations/20260913-142015-990/installation.json",
+      "sha256": "2f070e1b533926f431c97ef21091b78ecb0bf5bb2eb87fa95a48f4714b146afb"
+    },
+    {
+      "path": "installations/20260913-142015-990/previous-azrael-shortcut.lnk",
+      "sha256": "7f05275c670bcac032d4569669d9dd2a8fba12a870475379002c9b826952349f"
+    },
+    {
+      "path": "installations/20260913-142015-990/extensions/extensions.json",
+      "sha256": "41ba51f797e05cd4b1788c18743f50a1b760d1701824df68aa3d4eabd6a85cb3"
+    },
+    {
+      "path": "installations/20260913-142824-614/installation.json",
+      "sha256": "31159c36a0b3d9da32e25f9362ad91cc44396f204b23a4c9542073a5f26d6df4"
+    },
+    {
+      "path": "installations/20260913-142824-614/previous-azrael-shortcut.lnk",
+      "sha256": "6005f665544a5a24aec25eed2b51166d51dbc8ba6d4be642833346d52bc6ca08"
+    },
+    {
+      "path": "installations/20260913-142824-614/extensions/extensions.json",
+      "sha256": "9da458aa091c00f6befef10c697d89bbdde4c61b4d91b6d64623fe8d029a7e86"
+    }
+  ]
+}

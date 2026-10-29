@@ -1,0 +1,25 @@
+{
+  "boundary": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode",
+  "roots": [
+    {
+      "path": "C:\\Users\\felre\\Desktop",
+      "recursive": false
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu",
+      "recursive": true
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch",
+      "recursive": true
+    },
+    {
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu",
+      "recursive": true
+    }
+  ],
+  "checked": 197,
+  "matches": [],
+  "errors": [],
+  "method": "Literal shortcut/script bytes, no target resolution; desktop direct files only"
+}

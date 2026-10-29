@@ -1,0 +1,138 @@
+{
+  "completedAt": "2026-10-29T06:11:11.221Z",
+  "nativeExitCodes": {
+    "register": 0,
+    "review": 0,
+    "apply": 0
+  },
+  "deletedLogicalBytes": 2125672432,
+  "physicalBytesReclaimed": null,
+  "absent": [
+    {
+      "id": "eo01-generated-0",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\installations\\20260913-142015-990\\staging",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-1",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\installations\\20260913-142824-614\\staging",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-10",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\logs",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-2",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\Cache",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-3",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\CachedConfigurations",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-4",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\CachedData",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-5",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\CachedProfilesData",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-6",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\Code Cache",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-7",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\DawnGraphiteCache",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-8",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\DawnWebGPUCache",
+      "absent": true
+    },
+    {
+      "id": "eo01-generated-9",
+      "path": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\user-data\\GPUCache",
+      "absent": true
+    }
+  ],
+  "preserved": [
+    {
+      "path": "current.json",
+      "unchanged": true
+    },
+    {
+      "path": "user-data/User",
+      "unchanged": true
+    },
+    {
+      "path": "user-data/Backups",
+      "unchanged": true
+    },
+    {
+      "path": "user-data/Local Storage",
+      "unchanged": true
+    },
+    {
+      "path": "user-data/Session Storage",
+      "unchanged": true
+    },
+    {
+      "path": "user-data/Network",
+      "unchanged": true
+    },
+    {
+      "path": "user-data/blob_storage",
+      "unchanged": true
+    }
+  ],
+  "installationPreserved": [
+    {
+      "path": "current.json",
+      "unchanged": true
+    },
+    {
+      "path": "installations/20260913-142015-990/installation.json",
+      "unchanged": true
+    },
+    {
+      "path": "installations/20260913-142015-990/previous-azrael-shortcut.lnk",
+      "unchanged": true
+    },
+    {
+      "path": "installations/20260913-142015-990/extensions/extensions.json",
+      "unchanged": true
+    },
+    {
+      "path": "installations/20260913-142824-614/installation.json",
+      "unchanged": true
+    },
+    {
+      "path": "installations/20260913-142824-614/previous-azrael-shortcut.lnk",
+      "unchanged": true
+    },
+    {
+      "path": "installations/20260913-142824-614/extensions/extensions.json",
+      "unchanged": true
+    }
+  ],
+  "temporaryRequestAbsent": true,
+  "remainingInstallationExtensionsBytes": 2238430848,
+  "limitations": [
+    "Physical disk allocation delta not measured",
+    "No app launch or live account check; data preservation verified with hashes",
+    "Shortcut search covers desktop direct files, start menus and Quick Launch"
+  ],
+  "persistentManagement": [
+    "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\project-maintenance.json",
+    "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode\\artifacts\\maintenance"
+  ]
+}

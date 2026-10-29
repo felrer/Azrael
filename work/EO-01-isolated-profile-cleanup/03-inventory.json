@@ -1,0 +1,175 @@
+{
+  "root": "C:\\Users\\felre\\AppData\\Local\\azrael-ex\\vscode",
+  "time": "2026-10-29T06:00:20.875Z",
+  "rows": [
+    {
+      "path": "current.json",
+      "files": 1,
+      "bytes": 150
+    },
+    {
+      "path": "installations\\20260913-142015-990",
+      "files": 16543,
+      "bytes": 2170369953
+    },
+    {
+      "path": "installations\\20260913-142824-614",
+      "files": 16543,
+      "bytes": 2170371467
+    },
+    {
+      "path": "user-data\\agent-host",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "path": "user-data\\Backups",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "path": "user-data\\blob_storage",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "path": "user-data\\Cache",
+      "files": 7,
+      "bytes": 6099336
+    },
+    {
+      "path": "user-data\\CachedConfigurations",
+      "files": 1,
+      "bytes": 290
+    },
+    {
+      "path": "user-data\\CachedData",
+      "files": 14,
+      "bytes": 13187007
+    },
+    {
+      "path": "user-data\\CachedProfilesData",
+      "files": 2,
+      "bytes": 1272315
+    },
+    {
+      "path": "user-data\\Code Cache",
+      "files": 5,
+      "bytes": 5868
+    },
+    {
+      "path": "user-data\\Crashpad",
+      "files": 2,
+      "bytes": 40
+    },
+    {
+      "path": "user-data\\DawnGraphiteCache",
+      "files": 5,
+      "bytes": 557424
+    },
+    {
+      "path": "user-data\\DawnWebGPUCache",
+      "files": 5,
+      "bytes": 557424
+    },
+    {
+      "path": "user-data\\DIPS",
+      "files": 1,
+      "bytes": 36864
+    },
+    {
+      "path": "user-data\\GPUCache",
+      "files": 5,
+      "bytes": 1642864
+    },
+    {
+      "path": "user-data\\languagepacks.json",
+      "files": 1,
+      "bytes": 2
+    },
+    {
+      "path": "user-data\\Local State",
+      "files": 1,
+      "bytes": 490
+    },
+    {
+      "path": "user-data\\Local Storage",
+      "files": 5,
+      "bytes": 538
+    },
+    {
+      "path": "user-data\\logs",
+      "files": 28,
+      "bytes": 43792
+    },
+    {
+      "path": "user-data\\machineid",
+      "files": 1,
+      "bytes": 36
+    },
+    {
+      "path": "user-data\\Network",
+      "files": 7,
+      "bytes": 58317
+    },
+    {
+      "path": "user-data\\Preferences",
+      "files": 1,
+      "bytes": 57
+    },
+    {
+      "path": "user-data\\Session Storage",
+      "files": 5,
+      "bytes": 375
+    },
+    {
+      "path": "user-data\\Shared Dictionary",
+      "files": 4,
+      "bytes": 45128
+    },
+    {
+      "path": "user-data\\User",
+      "files": 19,
+      "bytes": 503037
+    }
+  ],
+  "errors": [],
+  "links": [],
+  "preserved": [
+    {
+      "path": "current.json",
+      "files": 1,
+      "sha256": "f583c36a17d915a7ab4bc2668c42beb0aa85f4d35531b834d1e2cd89a9697baf"
+    },
+    {
+      "path": "user-data/User",
+      "files": 19,
+      "sha256": "10bb22f2954bfaa5bd6c1df2b2eb0a06d655688dc5fe84acf65d25185bace357"
+    },
+    {
+      "path": "user-data/Backups",
+      "files": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "user-data/Local Storage",
+      "files": 5,
+      "sha256": "76be39e88114388e38923f89d9f43b64a4d4270ead8596e7b05bd14bd81991e6"
+    },
+    {
+      "path": "user-data/Session Storage",
+      "files": 5,
+      "sha256": "33a1878d14b9e98dfaa3eacb3d2ee4268cfd763d3e5419b9d876bb497efc6428"
+    },
+    {
+      "path": "user-data/Network",
+      "files": 7,
+      "sha256": "a71d2e76ee92e0b44ac84b9c584047c60561ad01477b50ad0332b7432e79ad2d"
+    },
+    {
+      "path": "user-data/blob_storage",
+      "files": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "exitCode": 0,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "eo01-isolated-profile-disposable",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-48252-1-1793254039500",
+        "decision": "delete",
+        "decision_id": "1ea6199963557992eb013c8d4b7a77f223d6199b81f3e19e78ad5b74d017dd9e",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-0",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "eedf7271a0748191c091d3553c4a4d575f97bc7c23da9b1fd061828b46369520"
+      },
+      {
+        "attempt_id": "attempt-48252-3-1793254139634",
+        "decision": "delete",
+        "decision_id": "fd21272484170b2dca58a7069d08575e2fef649758f66d0ed25dd585168aea3b",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-1",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "33c67893f2224cc38821925085ce46d63b134ed2031ed3c34752e98adb18bdfe"
+      },
+      {
+        "attempt_id": "attempt-48252-5-1793254252371",
+        "decision": "delete",
+        "decision_id": "5cde7cdfe24dd62a84d691088a1caf19e3ebb7d4130f2dab858d3a283699dc8d",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-10",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "4dad24978d4d577dc10918008331f6dd2c926412681d535323c93dbc1a3aff2a"
+      },
+      {
+        "attempt_id": "attempt-48252-7-1793254253300",
+        "decision": "delete",
+        "decision_id": "99b96ee5570bcf4701b0fb27ea9b0c2f39422b37b1634a1d7fbe0d46783e1ff1",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-2",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "7b953a41f2ce4466a2e7a811c072802ec76756540727f8eff6761ce20bad1bb9"
+      },
+      {
+        "attempt_id": "attempt-48252-9-1793254253677",
+        "decision": "delete",
+        "decision_id": "04decd8b0617da807f71f05a73f06ed8b68b4e1a87344bb4ab4f6a0a163cbe0f",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-3",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "beb8f683014da3ff622d606c580d0f7a398c0f717000e7c67c4ad02c0b9a97a2"
+      },
+      {
+        "attempt_id": "attempt-48252-11-1793254253955",
+        "decision": "delete",
+        "decision_id": "4fb0bc5382520564313ed1891c4002f211dfe118b20537052d3c928a69c8f156",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-4",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "263be171087a2c804cb1bd59918b739dd56a5326386bb9e37c4ab88e972c4539"
+      },
+      {
+        "attempt_id": "attempt-48252-13-1793254254671",
+        "decision": "delete",
+        "decision_id": "c67279e478da06de701b24d47120916a1dadda4391305b9406dd28d8308253e4",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-5",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "ab5d029e9f18bd30cbaf69d54e67937a64284a2b9f6fbba75d9e6961941c2005"
+      },
+      {
+        "attempt_id": "attempt-48252-15-1793254255098",
+        "decision": "delete",
+        "decision_id": "cd7db8745e82c520f349a1ce19983409d3cff0c5a63f5bbda5555070808532cc",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-6",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "569e1797788586323dce1e31f2df64998eb0ddf84a62cb98646223cfd4e5d99e"
+      },
+      {
+        "attempt_id": "attempt-48252-17-1793254255540",
+        "decision": "delete",
+        "decision_id": "469bbb5e3ce719b4cc65fc2ce32c88a16b27b0730d19945a61b7a0a336646fff",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-7",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "19cc3f1d989344387baf290bb3a16332d11551508722dca605d5d83dba979c1c"
+      },
+      {
+        "attempt_id": "attempt-48252-19-1793254255830",
+        "decision": "delete",
+        "decision_id": "50b42c697042ba9cc23433d2ab3fd262cfecd879a61b9ffc5dbe5e2166841037",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "eo01-generated-8",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "8ee595b32bcc98bdb03c4b8c6748a550998852f54b6ae5d3867fba0c6b69ae20"
+      },
+      {
+        "attempt_id": "attempt-48252-21-1793254256096",
+        "decision": "delete",
+        "decision_id": "1723b3089cb08f62e7cdf49abb85605d66bafdb97819ec8f486b5d860b828c8a",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "eo01-generated-9",
+        "lifecycle_group_id": "eo01-isolated-profile-disposable",
+        "reason": "Completed installation staging or reproducible cache/log; current extensions, recovery shortcuts and user state are protected; no live profile process.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "1f8f68a84bf47b3ce0f127ce877879dc1b31ef937b9290d700c9f30bd20cf48d"
+      }
+    ]
+  },
+  "stderr": ""
+}
