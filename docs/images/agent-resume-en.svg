@@ -19,6 +19,9 @@ text { font-family: Inter, "Segoe UI", "Malgun Gothic", Arial, sans-serif; }
 .connector { fill: none; stroke: #a1aaa4; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .accent-line { fill: none; stroke: #7e9e89; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .rule { stroke: #e0e4e1; stroke-width: 1.2; }
+.inactive-card { fill: #fafbfa; stroke: #e7ebe8; stroke-width: 1.5; }
+.inactive-text { fill: #aeb6b0; }
+.inactive-connector { fill: none; stroke: #d5dcd7; stroke-width: 1.5; stroke-dasharray: 5 5; stroke-linecap: round; stroke-linejoin: round; }
 </style>
 <title id="agent-resume-en-title">How defer_root waits and resumes</title>
 <desc id="agent-resume-en-desc">Root assigns work, then parks with defer_root. It resumes when selected subagents and external work_completion records are all terminal, at the scheduled time, on manual resume or for a decision request. Actual results are checked after resuming.</desc>
