@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "wrapperExitCode": 1,
+  "observedTerminal": true,
+  "reason": "synchronous Node child returned1 after cargo launch ENOENT; parent managed session85690 observed exit1; no native cargo producer started; target owner returned not-started and released",
+  "summary": {
+    "schema": 1,
+    "startedAt": "2026-10-29T02:27:15.224Z",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native\\runs\\20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+    "lifecycleId": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+    "scope": "Windows x64 native management bridge; isolated loopback and duplex, no live account access",
+    "inputIdentity": "a5696e44df9dea60ae0ed082423b8dd176af1576d8ff08ce76d1848de7b9df08",
+    "exitCode": 1,
+    "signal": null,
+    "producerStopped": true,
+    "checks": {
+      "startedAt": "2026-10-29T02:29:34.697Z",
+      "checks": [
+        {
+          "name": "baseline-unexpected-request-reproduction",
+          "sourceIdentity": "166afc76537169033b054923ca0af48f59178b270b4ccd710a6ce32a87a46995",
+          "exitCode": null,
+          "signal": null,
+          "error": "spawnSync cargo ENOENT",
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "codex-app-server-client",
+                  "--no-default-features",
+                  "--bin",
+                  "azrael-bridge",
+                  "--locked",
+                  "--offline",
+                  "--tests",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T02:29:50.897Z",
+                "durationMs": 35796,
+                "exitCode": null,
+                "signal": null
+              }
+            ]
+          },
+          "testResult": [],
+          "failedBaseline": false
+        }
+      ]
+    },
+    "completedAt": "2026-10-29T02:31:03.510Z"
+  }
+}

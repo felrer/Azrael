@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+  "lease_owner": {
+    "acquired_at_ms": 1793244402537,
+    "operation": "group_reservation",
+    "pid": 60520,
+    "schema": 2,
+    "token": "60520-1793244402537-e01aba54cbcf6d16"
+  },
+  "reservation_sha256": "75e03d5d513660d37ef1590ea9aaee8ef73dc3a6d07d9a2077782348f7eda556",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": "Owned synchronous native register returned actual exit1 with OS lock busy; captured child PID matches exact fence. This operation launches no external subprocess tree. No test result changes."
+}

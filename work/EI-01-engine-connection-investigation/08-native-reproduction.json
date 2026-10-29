@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "wrapperExitCode": 1,
+  "observedTerminal": true,
+  "reason": "Root exec29338 observed parent exit1; synchronous Node child returned1, baseline cargo test observed101 and fixed cargo check observed0; both native trees ended; final metadata failed on catalog lock without a running producer",
+  "summary": {
+    "schema": 1,
+    "startedAt": "2026-10-29T02:36:03.131Z",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native\\runs\\20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+    "lifecycleId": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+    "scope": "Windows x64 native management bridge; isolated loopback and duplex, no live account access",
+    "inputIdentity": "c101510ac757bee7c2b0c39b8532757bb57537582505788e35efd3d82f223491",
+    "cargoVersion": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+    "exitCode": 1,
+    "signal": null,
+    "producerStopped": true,
+    "checks": {
+      "startedAt": "2026-10-29T02:37:53.465Z",
+      "checks": [
+        {
+          "name": "baseline-unexpected-request-reproduction",
+          "sourceIdentity": "dec1fa5a2e00d19b997693db174d5f9e28b2164db06b357c2bfb46538135f6fe",
+          "exitCode": 101,
+          "signal": null,
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "codex-app-server-client",
+                  "--no-default-features",
+                  "--bin",
+                  "azrael-bridge",
+                  "--locked",
+                  "--offline",
+                  "--tests",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T02:38:09.452Z",
+                "durationMs": 489727,
+                "exitCode": 0,
+                "signal": null
+              },
+              {
+                "phase": "selection",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-app-server-client",
+                  "--no-default-features",
+                  "--bin",
+                  "azrael-bridge",
+                  "terminal_server_requests_preserve_management_without_answering",
+                  "--locked",
+                  "--offline",
+                  "--",
+                  "--test-threads=1",
+                  "--list",
+                  "--format=terse"
+                ],
+                "startedUtc": "2026-10-29T02:46:19.180Z",
+                "durationMs": 291213,
+                "exitCode": 0,
+                "signal": null,
+                "selectedTests": 1
+              },
+              {
+                "phase": "execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-app-server-client",
+                  "--no-default-features",
+                  "--bin",
+                  "azrael-bridge",
+                  "terminal_server_requests_preserve_management_without_answering",
+                  "--locked",
+                  "--offline",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-29T02:51:10.393Z",
+                "durationMs": 46842,
+                "exitCode": 101,
+                "signal": null
+              }
+            ]
+          },
+          "testResult": [
+            "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.01s"
+          ],
+          "failedBaseline": true
+        },
+        {
+          "name": "native-management-bridge",
+          "sourceIdentity": "c101510ac757bee7c2b0c39b8532757bb57537582505788e35efd3d82f223491",
+          "exitCode": 1,
+          "signal": null,
+          "error": "Cargo ownership finalization failed",
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "codex-app-server-client",
+                  "--no-default-features",
+                  "--bin",
+                  "azrael-bridge",
+                  "--locked",
+                  "--offline",
+                  "--tests",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T02:52:13.024Z",
+                "durationMs": 28900,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "testResult": [],
+          "failedBaseline": false
+        }
+      ]
+    },
+    "completedAt": "2026-10-29T02:52:50.462Z"
+  }
+}

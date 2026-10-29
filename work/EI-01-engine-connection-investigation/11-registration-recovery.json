@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+  "lease_owner": {
+    "acquired_at_ms": 1793242939453,
+    "operation": "group_reservation",
+    "pid": 26764,
+    "schema": 2,
+    "token": "26764-1793242939453-17062320051669a7"
+  },
+  "reservation_sha256": "50ab58c2bfd51ecbe113fb9bbe0312a2cb1065a7e005304df9af3a6d6ea4d169",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": "Exact native registration26764 returned exit1 synchronously with catalog-lock error in exec31477; enclosing Node ended1, native register launches no subprocess tree; no mere PID absence inference and no test outcome changes"
+}

@@ -46,6 +46,58 @@ test("visible accounts refresh every two minutes without queuing an endless refr
   }
 });
 
+test("explicit disconnected refresh verifies the bridge before management reads while other refreshes stay parallel", async () => {
+  const moduleApi = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
+  const originalLoad = moduleApi._load;
+  moduleApi._load = function (request, parent, isMain) {
+    if (request === "vscode") return { window: { showErrorMessage() {} } };
+    return originalLoad.call(this, request, parent, isMain);
+  };
+  try {
+    delete require.cache[require.resolve("../src/usageView")];
+    const { UsageView } = require("../src/usageView") as typeof import("../src/usageView");
+    for (const [force, verified] of [[true, false], [false, false], [true, true]] as const) {
+      const calls: string[] = [];
+      let release!: () => void;
+      const gate = new Promise<void>(resolve => { release = resolve; });
+      const service = Object.assign(new EventEmitter(), {
+        rootResumeAvailable: verified as boolean,
+        async refresh(reconnect: boolean) {
+          calls.push("openai");
+          assert.equal(reconnect, force);
+          await gate;
+          if (reconnect) service.rootResumeAvailable = true;
+          return { profiles: [] };
+        },
+        async devin() { calls.push("devin"); return { loggedIn: false }; },
+        async projectUsage() { calls.push("project"); return {}; },
+      });
+      let windowError: string | undefined = "previous connection error";
+      const windows = Object.assign(new EventEmitter(), {
+        async refresh() { calls.push("windows"); windowError = service.rootResumeAvailable ? undefined : "unverified"; },
+      });
+      const usage = { dueResetProfiles: () => [] };
+      const devin = { error: undefined, dispose() {} };
+      const providers = { enabled: true, async refresh() { calls.push("providers"); return { providers: [] }; }, dispose() {} };
+      const api = { async refresh() { calls.push("api"); }, backend: { dispose() {} } };
+      const view = new UsageView(service as never, usage as never, devin as never, providers as never, undefined, undefined, windows as never, undefined, api as never);
+      const internal = view as unknown as { panel: unknown; render(): void; refresh(force: boolean): Promise<void> };
+      internal.panel = { visible: true, dispose() {} };
+      internal.render = () => undefined;
+      const pending = internal.refresh(force);
+      try {
+        assert.deepEqual(calls, force && !verified ? ["openai"] : ["openai", "devin", "providers", "project", "windows", "api"]);
+      } finally {
+        release();
+        await pending;
+        view.dispose();
+      }
+      assert.deepEqual(calls, ["openai", "devin", "providers", "project", "windows", "api"]);
+      assert.equal(windowError, force || verified ? undefined : "unverified");
+    }
+  } finally { moduleApi._load = originalLoad; }
+});
+
 test("provider view ignores key-mode helper data and only offers browser OAuth", async () => {
   const moduleApi = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const originalLoad = moduleApi._load;

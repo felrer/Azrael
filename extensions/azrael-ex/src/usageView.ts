@@ -189,7 +189,10 @@ export class UsageView implements vscode.Disposable {
     this.refreshing = true;
     this.render();
     try {
-      await Promise.allSettled([this.refreshOpenAI(force), this.refreshDevin(), this.refreshProviders(force), this.refreshProjectUsage(), this.usageWindows?.refresh(), this.api?.refresh()]);
+      const reconnecting = force && !this.service.rootResumeAvailable;
+      const openAI = this.refreshOpenAI(force);
+      if (reconnecting) await openAI;
+      await Promise.allSettled([openAI, this.refreshDevin(), this.refreshProviders(force), this.refreshProjectUsage(), this.usageWindows?.refresh(), this.api?.refresh()]);
     } finally {
       this.refreshing = false;
       this.render();
@@ -203,7 +206,7 @@ export class UsageView implements vscode.Disposable {
 
   private async refreshOpenAI(force: boolean): Promise<void> {
     try {
-      const state = await this.service.refresh();
+      const state = await this.service.refresh(force);
       const identities = state.profiles.map(profile => ({ profileId: profile.id, workspaceAccountId: profile.workspaceAccountId }));
       const due = this.usage.dueResetProfiles(identities);
       await Promise.all(identities.map(identity => this.usage.refresh(

@@ -1,0 +1,636 @@
+{
+  "schema": 1,
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "verification": "registered",
+  "startedAt": "2026-10-29T03:26:28.374Z",
+  "groupIds": [
+    "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+    "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+    "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+    "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+    "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+    "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543"
+  ],
+  "registrations": [
+    {
+      "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+      "status": "already-registered"
+    },
+    {
+      "id": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+      "status": "already-registered"
+    },
+    {
+      "id": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "exitCode": 0,
+      "resultKeys": [
+        "group",
+        "items"
+      ],
+      "completedAt": "2026-10-29T03:31:14.979Z"
+    },
+    {
+      "id": "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "exitCode": 0,
+      "resultKeys": [
+        "group",
+        "items"
+      ],
+      "completedAt": "2026-10-29T03:32:55.791Z"
+    },
+    {
+      "id": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "exitCode": 0,
+      "resultKeys": [
+        "group",
+        "items"
+      ],
+      "completedAt": "2026-10-29T03:37:11.448Z"
+    },
+    {
+      "id": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "exitCode": 0,
+      "resultKeys": [
+        "group",
+        "items"
+      ],
+      "completedAt": "2026-10-29T03:39:54.841Z"
+    }
+  ],
+  "previousAttempts": [
+    {
+      "startedAt": "2026-10-29T03:02:09.417Z",
+      "inventory": {
+        "groupsTotal": 572,
+        "existing": []
+      },
+      "registrations": [],
+      "error": "native register failed 1: {\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n",
+      "reservationRecoveryProof": "11-registration-recovery.json"
+    },
+    {
+      "startedAt": "2026-10-29T03:06:12.978Z",
+      "inventory": {
+        "groupsTotal": 572,
+        "existing": []
+      },
+      "registrations": [
+        {
+          "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+          "exitCode": 0,
+          "resultKeys": [
+            "group",
+            "items"
+          ],
+          "completedAt": "2026-10-29T03:08:11.391Z"
+        }
+      ],
+      "error": "native register failed 1: {\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance)\"}\n",
+      "reservationRecoveryProof": "12-registration-recovery.json",
+      "competingCleanupExitObserved": true
+    },
+    {
+      "startedAt": "2026-10-29T03:17:12.834Z",
+      "inventory": {
+        "groupsTotal": 576,
+        "existing": [
+          "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df"
+        ]
+      },
+      "registrations": [
+        {
+          "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+          "status": "already-registered"
+        },
+        {
+          "id": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+          "exitCode": 0,
+          "resultKeys": [
+            "group",
+            "items"
+          ],
+          "completedAt": "2026-10-29T03:19:51.319Z"
+        }
+      ],
+      "error": "native register failed 1: {\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance)\"}\n",
+      "noRemainingReservation": true
+    },
+    {
+      "startedAt": "2026-10-29T03:23:02.957Z",
+      "inventory": {
+        "groupsTotal": 577,
+        "existing": [
+          "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+          "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f"
+        ]
+      },
+      "registrations": [
+        {
+          "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+          "status": "already-registered"
+        },
+        {
+          "id": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+          "status": "already-registered"
+        }
+      ],
+      "error": "bounded contention retry exhausted for recover_reservation",
+      "noRemainingReservation": true,
+      "contention": [
+        {
+          "operation": "register",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 55552,
+          "exitCode": 1,
+          "at": "2026-10-29T03:23:39.580Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 58088,
+          "exitCode": 1,
+          "at": "2026-10-29T03:23:39.631Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 40016,
+          "exitCode": 1,
+          "at": "2026-10-29T03:23:44.689Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 54036,
+          "exitCode": 1,
+          "at": "2026-10-29T03:23:49.883Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 12156,
+          "exitCode": 1,
+          "at": "2026-10-29T03:23:54.979Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 48476,
+          "exitCode": 1,
+          "at": "2026-10-29T03:24:00.427Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 7956,
+          "exitCode": 1,
+          "at": "2026-10-29T03:24:05.472Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 28152,
+          "exitCode": 1,
+          "at": "2026-10-29T03:24:10.515Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        },
+        {
+          "operation": "recover_reservation",
+          "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+          "pid": 27804,
+          "exitCode": 1,
+          "at": "2026-10-29T03:24:15.583Z",
+          "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}\n"
+        }
+      ]
+    }
+  ],
+  "contention": [
+    {
+      "operation": "register",
+      "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "pid": 60520,
+      "exitCode": 1,
+      "at": "2026-10-29T03:27:10.547Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n",
+      "recoveryEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EI-01-engine-connection-investigation\\13-registration-recovery-60520-1793244430548.json"
+    },
+    {
+      "operation": "register",
+      "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "pid": 51732,
+      "exitCode": 1,
+      "at": "2026-10-29T03:28:09.320Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "pid": 57636,
+      "exitCode": 1,
+      "at": "2026-10-29T03:28:09.392Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n",
+      "recoveryEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EI-01-engine-connection-investigation\\13-registration-recovery-51732-1793244489321.json"
+    },
+    {
+      "operation": "register",
+      "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "pid": 40456,
+      "exitCode": 1,
+      "at": "2026-10-29T03:29:09.786Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "pid": 60304,
+      "exitCode": 1,
+      "at": "2026-10-29T03:29:09.855Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "pid": 5636,
+      "exitCode": 1,
+      "at": "2026-10-29T03:29:14.934Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n",
+      "recoveryEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EI-01-engine-connection-investigation\\13-registration-recovery-40456-1793244549787.json"
+    },
+    {
+      "operation": "register",
+      "group": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "pid": 57432,
+      "exitCode": 1,
+      "at": "2026-10-29T03:33:29.475Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "pid": 50916,
+      "exitCode": 1,
+      "at": "2026-10-29T03:33:29.632Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "pid": 34020,
+      "exitCode": 1,
+      "at": "2026-10-29T03:33:34.707Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "pid": 60964,
+      "exitCode": 1,
+      "at": "2026-10-29T03:33:39.779Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n",
+      "recoveryEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EI-01-engine-connection-investigation\\13-registration-recovery-57432-1793244809476.json"
+    },
+    {
+      "operation": "register",
+      "group": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "pid": 53608,
+      "exitCode": 1,
+      "at": "2026-10-29T03:37:50.833Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "pid": 8012,
+      "exitCode": 1,
+      "at": "2026-10-29T03:37:50.893Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n"
+    },
+    {
+      "operation": "recover_reservation",
+      "group": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "pid": 57896,
+      "exitCode": 1,
+      "at": "2026-10-29T03:37:55.964Z",
+      "detail": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/lifecycles\\\\catalog.lock (reservation_recovery)\"}\n",
+      "recoveryEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EI-01-engine-connection-investigation\\13-registration-recovery-53608-1793245070834.json"
+    }
+  ],
+  "inventory": {
+    "groupsTotal": 577,
+    "existing": [
+      "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+      "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f"
+    ]
+  },
+  "reviewedAt": "2026-10-29T03:40:27.528Z",
+  "groups": [
+    {
+      "id": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "membership_complete": true,
+      "owner": "work/EI-01-engine-connection-investigation/01-plan.md"
+    },
+    {
+      "id": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+      "membership_complete": true,
+      "owner": "work/EI-01-engine-connection-investigation/01-plan.md"
+    },
+    {
+      "id": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "membership_complete": true,
+      "owner": "work/EI-01-engine-connection-investigation/01-plan.md"
+    },
+    {
+      "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+      "membership_complete": true,
+      "owner": "scripts/check-management-recovery.cjs"
+    },
+    {
+      "id": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "membership_complete": true,
+      "owner": "scripts/check-management-recovery.cjs"
+    },
+    {
+      "id": "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "membership_complete": true,
+      "owner": "scripts/check-management-recovery.cjs"
+    }
+  ],
+  "items": [
+    {
+      "id": "0dda7c4da8037b1cc874b73886620b7f52e8315d1e1556062b2930ded88a4ddc",
+      "token": "7cfa357d88443ab617523a2cca3945d6c4c04e126b14bab8533ccd98862545f9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native-green\\runs\\20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "group": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "logical_bytes": 16627,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "source_blockers": [],
+      "membership_matches": true,
+      "source_status": "measured",
+      "source_identity": "67a7804f59af4aa4e9a59a918c26cd6d4096c72d4fa97e14bd012ec72a15ccdd",
+      "references": []
+    },
+    {
+      "id": "27663fa92210dac22c34ff6cfbfa49ae24726fa3dce368f0776004f374b0cced",
+      "token": "ebee9d69213c661b2df389dfe77193fb4abb0f4135059d483243cc224c4b9f53",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "group": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "logical_bytes": 16081,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "source_blockers": [],
+      "membership_matches": true,
+      "source_status": "measured",
+      "source_identity": "4408d5020519b7c6541debcd62790def9a28a111343071d77b94fd882deeaca2",
+      "references": []
+    },
+    {
+      "id": "abaa4846d6c3ba8140fec3969758c7e9672f191d2b43a84cca1b16e71e8cfe67",
+      "token": "0ee772b0cd990793a377993d09d4b96a6c26822c7e5edaad5d4f107e06b4fabe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native\\runs\\20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "group": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "logical_bytes": 102799836,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "source_blockers": [],
+      "membership_matches": true,
+      "source_status": "measured",
+      "source_identity": "6aad6b2469174340888b86f649cae61bde68dc06b060f3c94876988932a152dd",
+      "references": []
+    },
+    {
+      "id": "bc17b4b409bb1d5fd42e5b66f3966cf28e864072d7823392fe839d1598b368a9",
+      "token": "8ae95fd6db7eccb9ba7bdeb51ab771fd86cc3cbc1a6f2e932fb43383ec25217e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native\\runs\\20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+      "group": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+      "logical_bytes": 102767837,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "source_blockers": [],
+      "membership_matches": true,
+      "source_status": "measured",
+      "source_identity": "3dcbd91f5e0ef69e33d73a50bfe258d77620ec05d32fc209be9d125010981f46",
+      "references": []
+    },
+    {
+      "id": "c0a89025b98847d4f938a31f1840174ce2176adb9d219e01749793c293871aff",
+      "token": "61999bf00218ca7d642553330f76b84f607ff557fd8b8880f510087b39594a5d",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+      "group": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+      "logical_bytes": 6351,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "source_blockers": [],
+      "membership_matches": true,
+      "source_status": "measured",
+      "source_identity": "8b02115537933513dcd9d9d4075b72dca3c1753bf75a34a7b7ab6dfe2bc42f61",
+      "references": []
+    },
+    {
+      "id": "e9ddfaf75b42ec15992f3f22ed813babbe8d6ec91f8ff363d88856c2fea8168f",
+      "token": "6cc0e7724ff5d3bae252bf3b79dea403460a947318aa24a8da720eeb390fa5ec",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "group": "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "logical_bytes": 8049,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "source_blockers": [],
+      "membership_matches": true,
+      "source_status": "measured",
+      "source_identity": "fb2e9e37cdd6200a9634ad92b7a1786a2c31b4e2f1745b361f47c6fa7f3fa3e0",
+      "references": []
+    }
+  ],
+  "logicalBytes": 205614781,
+  "controlAbsent": true,
+  "status": "cleanup-complete",
+  "modelDecisions": [
+    {
+      "id": "0dda7c4da8037b1cc874b73886620b7f52e8315d1e1556062b2930ded88a4ddc",
+      "token": "7cfa357d88443ab617523a2cca3945d6c4c04e126b14bab8533ccd98862545f9",
+      "decision": "delete",
+      "reason": "Exact stopped task verification bundle; no protection or consumers; complete membership matches. Required independent verification and failure/recovery summaries are preserved in EI-01 work documents."
+    },
+    {
+      "id": "27663fa92210dac22c34ff6cfbfa49ae24726fa3dce368f0776004f374b0cced",
+      "token": "ebee9d69213c661b2df389dfe77193fb4abb0f4135059d483243cc224c4b9f53",
+      "decision": "delete",
+      "reason": "Exact stopped task verification bundle; no protection or consumers; complete membership matches. Required independent verification and failure/recovery summaries are preserved in EI-01 work documents."
+    },
+    {
+      "id": "abaa4846d6c3ba8140fec3969758c7e9672f191d2b43a84cca1b16e71e8cfe67",
+      "token": "0ee772b0cd990793a377993d09d4b96a6c26822c7e5edaad5d4f107e06b4fabe",
+      "decision": "delete",
+      "reason": "Exact stopped task verification bundle; no protection or consumers; complete membership matches. Required independent verification and failure/recovery summaries are preserved in EI-01 work documents."
+    },
+    {
+      "id": "bc17b4b409bb1d5fd42e5b66f3966cf28e864072d7823392fe839d1598b368a9",
+      "token": "8ae95fd6db7eccb9ba7bdeb51ab771fd86cc3cbc1a6f2e932fb43383ec25217e",
+      "decision": "delete",
+      "reason": "Exact stopped task verification bundle; no protection or consumers; complete membership matches. Required independent verification and failure/recovery summaries are preserved in EI-01 work documents."
+    },
+    {
+      "id": "c0a89025b98847d4f938a31f1840174ce2176adb9d219e01749793c293871aff",
+      "token": "61999bf00218ca7d642553330f76b84f607ff557fd8b8880f510087b39594a5d",
+      "decision": "delete",
+      "reason": "Exact stopped task verification bundle; no protection or consumers; complete membership matches. Required independent verification and failure/recovery summaries are preserved in EI-01 work documents."
+    },
+    {
+      "id": "e9ddfaf75b42ec15992f3f22ed813babbe8d6ec91f8ff363d88856c2fea8168f",
+      "token": "6cc0e7724ff5d3bae252bf3b79dea403460a947318aa24a8da720eeb390fa5ec",
+      "decision": "delete",
+      "reason": "Exact stopped task verification bundle; no protection or consumers; complete membership matches. Required independent verification and failure/recovery summaries are preserved in EI-01 work documents."
+    }
+  ],
+  "applyStartedAt": "2026-10-29T03:41:39.839Z",
+  "applyExitCode": 0,
+  "applySignal": null,
+  "applyResult": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+        "status": "deleted"
+      },
+      {
+        "id": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+        "status": "deleted"
+      },
+      {
+        "id": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+        "status": "deleted"
+      },
+      {
+        "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+        "status": "deleted"
+      },
+      {
+        "id": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+        "status": "deleted"
+      },
+      {
+        "id": "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "id": "0dda7c4da8037b1cc874b73886620b7f52e8315d1e1556062b2930ded88a4ddc",
+        "status": "deleted",
+        "remaining": false,
+        "group_status": "deleted",
+        "decision_id": "8ce26de9542ef4559445aeb8065189a42205d5adb5068b3d7afeafa75f43aeff",
+        "attempt_id": "attempt-49660-4030-1793245500467"
+      },
+      {
+        "id": "27663fa92210dac22c34ff6cfbfa49ae24726fa3dce368f0776004f374b0cced",
+        "status": "deleted",
+        "remaining": false,
+        "group_status": "deleted",
+        "decision_id": "7188bc6b39a90c3f02e799a876d1a27542ae7d9f3e1b5e96ccc1713009a40960",
+        "attempt_id": "attempt-49660-4032-1793245587303"
+      },
+      {
+        "id": "abaa4846d6c3ba8140fec3969758c7e9672f191d2b43a84cca1b16e71e8cfe67",
+        "status": "deleted",
+        "remaining": false,
+        "group_status": "deleted",
+        "decision_id": "366c0fb29b13473633c5582361ed597b0d5d0ef2b359238e6e830f11e1d9d1bf",
+        "attempt_id": "attempt-49660-4034-1793245666370"
+      },
+      {
+        "id": "bc17b4b409bb1d5fd42e5b66f3966cf28e864072d7823392fe839d1598b368a9",
+        "status": "deleted",
+        "remaining": false,
+        "group_status": "deleted",
+        "decision_id": "e91d524c873d8ad588061d8e81872183df7e19d2c1bdf407f1db1bf0afacea1f",
+        "attempt_id": "attempt-49660-4036-1793245927936"
+      },
+      {
+        "id": "c0a89025b98847d4f938a31f1840174ce2176adb9d219e01749793c293871aff",
+        "status": "deleted",
+        "remaining": false,
+        "group_status": "deleted",
+        "decision_id": "5ce7ccc0bf66211dcc6cfd83f3115fdef51c86b226b42f8c6279418728a56ce6",
+        "attempt_id": "attempt-49660-4038-1793246177609"
+      },
+      {
+        "id": "e9ddfaf75b42ec15992f3f22ed813babbe8d6ec91f8ff363d88856c2fea8168f",
+        "status": "deleted",
+        "remaining": false,
+        "group_status": "deleted",
+        "decision_id": "479e062968c08ffff883a65485fa21c75afe02bda62143f84e3e47b91c022d8e",
+        "attempt_id": "attempt-49660-4040-1793246246933"
+      }
+    ]
+  },
+  "appliedAt": "2026-10-29T03:58:44.341Z",
+  "remaining": [],
+  "finalized": [
+    {
+      "id": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8e8e8501af5cd7b80cae189017c20639f526c852cc6a55e1a57ea2f691599636.json"
+    },
+    {
+      "id": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9a9178293d00d5a2d0cc1927755b3199ff5c87e9d613db9e99e645ee5fad23ec.json"
+    },
+    {
+      "id": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\974868e241a82f9e07dc752d2e5068608f364644b0a849a984c94609335afe20.json"
+    },
+    {
+      "id": "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b866b10b74e86f391b8c8e2a6efc15bbfa4b04b640b4a62eb650696a115e2a87.json"
+    },
+    {
+      "id": "run:account-bridge-native:20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1643802f2c8734993ffa38d29aad6938c0897a47ba8fec30a9246dae02707b70.json"
+    },
+    {
+      "id": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a1b8ef6ca86b0afa7674e1c8dcf9d9e492ae73c5e94f8f8bf7b5b6446b2c102e.json"
+    }
+  ],
+  "finalizedAt": "2026-10-29T04:00:09.092Z",
+  "verifiedAbsent": true
+}

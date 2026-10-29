@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+  "lease_owner": {
+    "acquired_at_ms": 1793245038734,
+    "operation": "group_reservation",
+    "pid": 53608,
+    "schema": 2,
+    "token": "53608-1793245038734-0d3c21f613c923be"
+  },
+  "reservation_sha256": "7625d6525c19783097f8f4ff1a2b84411a21c69542b56499aa12df4fcd1cc21a",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": "Owned synchronous native register returned actual exit1 with OS lock busy; captured child PID matches exact fence. This operation launches no external subprocess tree. No test result changes."
+}

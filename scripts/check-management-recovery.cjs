@@ -31,6 +31,15 @@ async function main() {
       compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true},fileName:filename
     }).outputText;
     require.extensions['.ts'] = (module, filename) => module._compile(compile(filename), filename);
+    // Source modules keep the packaged dist/src -> media relative import.
+    // Load the unchanged media asset from its source location for this noEmit run.
+    const moduleApi = require('node:module'), originalLoad = moduleApi._load;
+    moduleApi._load = function(request, parent, isMain) {
+      if (request.startsWith('../../media/') && path.dirname(parent?.filename || '') === path.join(extension,'src')) {
+        request = path.join(extension,'media',request.slice('../../media/'.length));
+      }
+      return originalLoad.call(this, request, parent, isMain);
+    };
     const nativeSpawn = cp.spawn;
     cp.spawn = (command, args, options) => {
       if (command === process.execPath && args?.length === 1 &&
@@ -42,6 +51,8 @@ async function main() {
     };
     require(path.join(extension,'test/accountService.test.ts'));
     require(path.join(extension,'test/bridgeTransport.test.ts'));
+    require(path.join(extension,'test/usageViewRefresh.test.ts'));
+    require(path.join(extension,'test/usageWindowService.test.ts'));
     require(path.join(root,'scripts/test-root-resume-controls.cjs'));
   `;
   const logPath = path.join(run.logs, "tests.log");

@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "host": {
+    "scope": "Windows host TypeScript typecheck and actual child bridge fixtures; no installed host or native engine execution",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+    "lifecycleId": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+    "typecheck": {
+      "diagnostics": 0,
+      "exitCode": 0
+    },
+    "tests": {
+      "exitCode": 0,
+      "signal": null,
+      "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df\\logs\\tests.log",
+      "count": 47
+    },
+    "exitCode": 0
+  },
+  "producer": {
+    "lifecycleId": "run:management-recovery:20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T022243281Z-f74110eb-9fdf-44f6-86d6-b6591ba331df",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-management-recovery.cjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [
+      {
+        "pid": 43348,
+        "closed": true
+      }
+    ],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "infrastructure": [
+    {
+      "scope": "host rerun after refresh sequencing integration",
+      "exitCode": 1,
+      "reason": "artifact-run.claim OS lock wait exhausted after 5000ms; no test process or owned run started",
+      "result": "not a test pass; retry pending after contention ends"
+    }
+  ],
+  "failedHostIntegration": {
+    "summary": {
+      "scope": "Windows host TypeScript typecheck and actual child bridge fixtures; no installed host or native engine execution",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "lifecycleId": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "typecheck": {
+        "diagnostics": 0,
+        "exitCode": 0
+      },
+      "tests": {
+        "exitCode": 1,
+        "signal": null,
+        "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636\\logs\\tests.log"
+      },
+      "error": "Management recovery tests failed; see tests.log",
+      "exitCode": 1
+    },
+    "producer": {
+      "lifecycleId": "run:management-recovery:20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023328274Z-731f8a52-a52d-4b55-bbc7-2e4e16e4b636",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-management-recovery.cjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [
+        {
+          "pid": 30736,
+          "closed": true
+        }
+      ],
+      "state": "failed",
+      "membership_complete": true
+    },
+    "testCount": 65,
+    "passed": 60,
+    "failed": 5,
+    "causes": [
+      "in-memory source loader did not resolve packaged media relative import (4 failures)",
+      "220ms startup budget expired before subprocess started under load; adjusted fixture delay and deadline while asserting actual list dispatch and timeout before response"
+    ]
+  },
+  "finalHost": {
+    "summary": {
+      "scope": "Windows host TypeScript typecheck and actual child bridge fixtures; no installed host or native engine execution",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "lifecycleId": "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "typecheck": {
+        "diagnostics": 0,
+        "exitCode": 0
+      },
+      "tests": {
+        "exitCode": 0,
+        "signal": null,
+        "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62\\logs\\tests.log",
+        "count": 65
+      },
+      "exitCode": 0
+    },
+    "producer": {
+      "lifecycleId": "run:management-recovery:20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T023649350Z-5b9846f1-d910-465b-b8ad-38a96e83ae62",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-management-recovery.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [
+        {
+          "pid": 25724,
+          "closed": true
+        }
+      ],
+      "state": "complete",
+      "membership_complete": true
+    }
+  }
+}

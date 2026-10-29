@@ -400,6 +400,8 @@
         "engine/codex-rs/app-server-client/src/bin/azrael-bridge.rs",
         "extensions/azrael-ex/src/bridgeTransport.ts",
         "extensions/azrael-ex/src/accountService.ts",
+        "extensions/azrael-ex/src/accountView.ts",
+        "extensions/azrael-ex/src/usageView.ts",
         "extensions/azrael-ex/test/bridgeTransport.test.ts",
         "extensions/azrael-ex/test/accountService.test.ts",
         "extensions/azrael-ex/test/bridge-fixture.ts",

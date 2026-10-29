@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "summary": {
+    "schema": 1,
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native-green\\runs\\20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+    "lifecycleId": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+    "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native\\runs\\20261029T023523819Z-614edef9-5bad-452e-983f-b86f2e997ece\\inputs\\engine",
+    "startedAt": "2026-10-29T02:56:53.795Z",
+    "sourceIdentity": "c101510ac757bee7c2b0c39b8532757bb57537582505788e35efd3d82f223491",
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "testResults": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s"
+    ],
+    "inputUnchanged": true,
+    "wrapperExitCode": 0,
+    "completedAt": "2026-10-29T02:59:35.721Z"
+  },
+  "producer": {
+    "lifecycleId": "run:account-bridge-native-green:20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\account-bridge-native-green\\runs\\20261029T025642374Z-dc55c26b-01f9-40ad-9f44-c242d64bb543",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "phases": [
+    {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-app-server-client",
+            "--no-default-features",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-29T02:57:03.610Z",
+          "durationMs": 26288,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "codex-app-server-client",
+            "--no-default-features",
+            "--lib",
+            "remote::tests::",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-29T02:57:29.898Z",
+          "durationMs": 34744,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 1
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "codex-app-server-client",
+            "--no-default-features",
+            "--lib",
+            "remote::tests::",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-29T02:58:04.642Z",
+          "durationMs": 13538,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-app-server-client",
+            "--no-default-features",
+            "--bin",
+            "azrael-bridge",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-29T02:58:18.183Z",
+          "durationMs": 14889,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "codex-app-server-client",
+            "--no-default-features",
+            "--bin",
+            "azrael-bridge",
+            "terminal_",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-29T02:58:33.072Z",
+          "durationMs": 36953,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 5
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "codex-app-server-client",
+            "--no-default-features",
+            "--bin",
+            "azrael-bridge",
+            "terminal_",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-29T02:59:10.025Z",
+          "durationMs": 16340,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    }
+  ]
+}

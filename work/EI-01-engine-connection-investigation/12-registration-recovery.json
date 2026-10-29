@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "run:account-bridge-native:20261029T022655647Z-f6158323-b6f9-4b42-a598-e8199b160f3f",
+  "lease_owner": {
+    "acquired_at_ms": 1793243300339,
+    "operation": "group_reservation",
+    "pid": 53284,
+    "schema": 2,
+    "token": "53284-1793243300339-b0a1884acc3fc987"
+  },
+  "reservation_sha256": "9183f3fbd579483c6dcc0f25772bcba62cef7f3c9e62cef3512b4cfabfbb8765",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": "Second owned native registration in exec48148 returned exit1 synchronously with maintenance-lock error; enclosing Node ended1; initial inspection had no reservation for this exact group; native register creates no subprocess tree; this releases its failed registration only"
+}
