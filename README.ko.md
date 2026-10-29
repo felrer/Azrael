@@ -79,13 +79,7 @@ Azrael은 하나의 통합 확장으로 실행됩니다. 계정·대화·설정�
 
 root는 사용자와 설계를 논의하고, 의존관계에 따라 작업을 배정하며, 결과를 통합합니다. subagent는 짧은 인계와 명확한 작업 범위에 집중합니다.
 
-```mermaid
-flowchart TB
-    U["사용자"] <--> R["root<br/>설계 논의 · 작업 스케줄링 · 통합"]
-    R <--> A["architecture/<br/>합의된 설계"]
-    R <-->|"위임 · 보고"| S1["subagent<br/>범위가 정해진 조사"]
-    R <-->|"위임 · 보고"| S2["subagent<br/>범위가 정해진 구현 · 검증"]
-```
+![root와 subagent의 역할 분담 및 공통 설계](docs/images/agent-roles-ko.svg)
 
 사용자와의 설계 논의를 전담하는 **lead**는 추후 추가할 예정입니다. 현재는 root가 이 역할을 함께 맡습니다.
 
@@ -129,18 +123,7 @@ root는 다시 대기하기 전에 결정 요청을 처리합니다. subagent는
 - 관리형 `exec_command`에는 `work_id`를 전달합니다. 실행기가 종료 결과를 기록합니다.
 - 별도 실행기는 반환된 `signalPath`에 실제 종료 결과를 게시하도록 연결합니다. 이 완료 플래그를 확인하는 일은 런타임이 맡습니다.
 
-```mermaid
-flowchart TB
-    R["root · 작업 배정"] --> S["subagent"]
-    R --> W["외부 작업<br/>빌드 · 렌더링 · 테스트"]
-    R --> D["defer_root<br/>root 대기 · 모델 호출 없음"]
-    S -->|"종료"| C{"선택한 대상 모두 종료"}
-    W -->|"종료 플래그 기록<br/>work_completion"| C
-    D -.->|"wake_on"| C
-    C -->|"all_terminal"| A["root 재개<br/>결과 확인 · 통합 · 검증"]
-    D -->|"예약 시각 도달 · 직접 재개"| A
-    S -.->|"결정 요청 · request_parent"| A
-```
+![종료 플래그·예약 시각·결정 요청에 따른 root의 대기와 재개](docs/images/agent-resume-ko.svg)
 
 종료에는 성공·실패·취소가 모두 포함됩니다. root는 재개 후 실제 결과를 확인합니다. 예약 시각 도달이나 직접 재개는 작업 완료를 뜻하지 않으며, 종료 관찰을 놓친 `unknown`도 별도 확인이 필요합니다.
 

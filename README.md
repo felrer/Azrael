@@ -79,13 +79,7 @@ Reusable working methods are packaged as skills and applied alongside project pl
 
 The root discusses design with the user, schedules work around dependencies and integrates results. Subagents focus on compact handoffs and bounded assignments.
 
-```mermaid
-flowchart TB
-    U["User"] <--> R["root<br/>Design discussion · Scheduling · Integration"]
-    R <--> A["architecture/<br/>Agreed design"]
-    R <-->|"Assign · Report"| S1["subagent<br/>Bounded research"]
-    R <-->|"Assign · Report"| S2["subagent<br/>Bounded implementation · Verification"]
-```
+![Root and subagent roles with shared architecture](docs/images/agent-roles-en.svg)
 
 A dedicated **lead** for design discussions with the user is planned for a later addition. The root currently carries that responsibility too.
 
@@ -129,18 +123,7 @@ Builds, renders and tests register through **`azrael_agents.work_completion`**. 
 - For managed `exec_command`, pass `work_id`. The executor records the terminal result.
 - For a separate producer, arrange for it to publish the actual result to the returned `signalPath`. The runtime checks this completion flag.
 
-```mermaid
-flowchart TB
-    R["root · Assign work"] --> S["subagent"]
-    R --> W["External job<br/>Build · Render · Test"]
-    R --> D["defer_root<br/>Root parked · No model calls"]
-    S -->|"Terminates"| C{"All selected targets terminal"}
-    W -->|"Record completion flag<br/>work_completion"| C
-    D -.->|"wake_on"| C
-    C -->|"all_terminal"| A["Root resumes<br/>Inspect · Integrate · Verify"]
-    D -->|"Scheduled time · Resume now"| A
-    S -.->|"Decision request · request_parent"| A
-```
+![Root waiting and resuming through completion flags, scheduled time and decision requests](docs/images/agent-resume-en.svg)
 
 Terminal states include success, failure and cancellation. The root checks actual results after resuming. A timer or manual resume does not establish completion; `unknown` means observation was lost and needs investigation.
 

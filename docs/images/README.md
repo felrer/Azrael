@@ -5,8 +5,8 @@ production Azrael UI with synthetic fixture inputs. Native components, icons,
 layout and pinned app styles render directly; no hand-drawn application shell is
 added. Provider headers embed [official original brand assets](../architecture/provider-brand-assets.md),
 preserving their shape, colors and proportions. The pinned upstream UI is
-`26.1007.21434`. Agent collaboration and resume flows are localized Mermaid
-diagrams embedded in each README. SVG assets are explanatory illustrations,
+`26.1007.21434`. Agent collaboration and resume flows are localized SVGs exported
+from the standalone [HTML source](agent-diagrams.html). SVG assets are explanatory illustrations,
 not application screenshots. Window Use uses the original
 illustration of a selected target behind a person’s foreground workspace.
 
@@ -24,6 +24,24 @@ intended workflow; native desktop execution and physical input isolation require
 their separate acceptance checks.
 
 ## Reproduce
+
+### Agent diagrams
+
+Edit `agent-diagrams.html`, then run:
+
+```sh
+node scripts/export-readme-agent-diagrams.cjs
+node scripts/export-readme-agent-diagrams.cjs --check
+```
+
+The HTML owns the layout, shared styles and Korean/English labels. The exporter
+copies the four inline SVGs with their styles into `agent-roles-{ko,en}.svg` and
+`agent-resume-{ko,en}.svg`. No renderer, external font or network dependency is
+needed for export. Open the HTML to review the layout; `--check` verifies that
+the README images match the source. These are explanatory diagrams, not product
+screenshots or performance measurements.
+
+### UI screenshots
 
 Run the named renderer from the repository root with the pinned UI assets,
 compiled account module and installed renderer dependencies. These tools use
