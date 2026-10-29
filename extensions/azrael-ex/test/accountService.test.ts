@@ -243,6 +243,42 @@ async function waitUntil(predicate: () => boolean): Promise<void> {
   assert.fail("condition was not reached");
 }
 
+test("reservation snapshots from an earlier connection cannot replace recovered state", async () => {
+  const service = new AccountService({ executable: "unused", socket: "unused", codexHome: "unused", expectedServerVersion: "unused", env: {} });
+  let resolveOld!: (value: unknown) => void;
+  const old = { request: () => new Promise(resolve => { resolveOld = resolve; }), dispose() {} };
+  const fresh = { request: async () => ({ reservations: [] }), dispose() {} };
+  Object.assign(service, { transport: old, transportVerified: true, instanceId: "fixture" });
+  try {
+    const pending = service.rootResume({ action: "list" });
+    Object.assign(service, { transport: fresh });
+    await service.rootResume({ action: "list" });
+    resolveOld({ reservations: [] });
+    await assert.rejects(pending, /connection changed/);
+    assert.deepEqual(service.rootResumeReservations, []);
+  } finally { service.dispose(); }
+});
+
+test("out-of-order reservation reads preserve the latest successful snapshot", async () => {
+  const service = new AccountService({ executable: "unused", socket: "unused", codexHome: "unused", expectedServerVersion: "unused", env: {} });
+  const replies: Array<(value: unknown) => void> = [];
+  const transport = { request: () => new Promise(resolve => { replies.push(resolve); }), dispose() {} };
+  Object.assign(service, { transport, transportVerified: true, instanceId: "fixture" });
+  const reservation = {
+    id: "stale", rootThreadId: "root", originatingTurnId: "turn", rootTurnId: "turn", callId: "call", resumeTurnId: "resume",
+    resumeAtMs: 10, createdAtMs: 1, updatedAtMs: 1, revision: 1, state: "waiting", agentTasks: [], reason: "fixture", wakeReason: null, lastError: null
+  };
+  let updates = 0; service.on("rootResume", () => updates++);
+  try {
+    const older = service.rootResume({ action: "list" });
+    const newer = service.rootResume({ action: "list" });
+    replies[1]({ reservations: [] }); await newer;
+    replies[0]({ reservations: [reservation] }); await older;
+    assert.deepEqual(service.rootResumeReservations, []);
+    assert.equal(updates, 1);
+  } finally { service.dispose(); }
+});
+
 test("engine readiness gates bridge spawn inside the startup deadline", async () => {
   await withFixture(async ({ options, attempts }) => {
     let ready!: () => void;

@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "run:management-recovery:20261029T010656370Z-1db7ff81-89be-4071-bdb1-3cb661cee5fb",
+  "lease_owner": {
+    "acquired_at_ms": 1793236674627,
+    "operation": "group_reservation",
+    "pid": 28412,
+    "schema": 2,
+    "token": "28412-1793236674627-e5537230c41046ac"
+  },
+  "reservation_sha256": "105860fb66bdb93f888140dc297c0d94a7e96bae45069d02932035761e70a680",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": "Owned native registration in exec session 79059 returned nonzero synchronously with catalog-lock error; enclosing node exited 1, no native subprocess tree was launched by registration; exact durable owner is bound here. This releases only its failed registration reservation and changes no test outcome."
+}

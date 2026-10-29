@@ -8,7 +8,11 @@ import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {runInNewContext} from 'node:vm';
+import {EventEmitter} from 'node:events';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const renderScope=process.env.AZRAEL_DEFERRED_RENDER_SCOPE??'full';
+assert.ok(['full','branch','management'].includes(renderScope));
 const artifactRun=beginArtifactRun(root,{workId:'verify-deferred-turn-render',owner:'scripts/verify-deferred-turn-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(root,process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...((process.env.AZRAEL_RENDER_LOG_ROOT || process.env.AZRAEL_DEFERRED_RENDER_LOG_DIR) ? {logs:resolve(root,(process.env.AZRAEL_RENDER_LOG_ROOT || process.env.AZRAEL_DEFERRED_RENDER_LOG_DIR))} : {})}});
 const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
 const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
@@ -51,12 +55,20 @@ let fixtureStoreReady=false;
 window.fixtureCondition='agents';
 const fixtureReservations=()=>[{id:'r1',revision:1,state:'waiting',completionTasks:fixtureCondition==='agents'?[]:['work-1'],agentTasks:fixtureCondition==='work'?[]:[{threadId:'child-a',turnId:'a1',agentPath:'/root/first'},{threadId:'child-b',turnId:'b1',agentPath:'/root/second'}]}];
 window.fixtureResumeRequests=[];window.fixtureResumeFailure=false;
+window.fixtureReconnectRequests=[];window.fixtureConnection=null;
 let fixtureResumeReceive;
 azraelRootResumeStore=createRootResumeStore({subscribe:(_type,receive)=>{fixtureResumeReceive=receive;return()=>{}},dispatchMessage:(_type,request)=>{
  if(request.action==='unsubscribe')return;
+ if(request.action==='reconnect'){fixtureReconnectRequests.push(request);fixtureConnection={...fixtureConnection,reconnecting:true};fixtureResumeReceive({clientId:'fixture',reservations:fixtureReservations(),...fixtureConnection});return}
  if(request.action==='resume'){fixtureResumeRequests.push(request);window.fixtureCompleteManualResume=()=>fixtureResumeReceive({clientId:'fixture',available:true,reservations:fixtureReservations().map(r=>({...r,state:fixtureResumeFailure?'waiting':'resumed',revision:fixtureResumeFailure?2:3})),error:fixtureResumeFailure?'예약 revision이 변경되었습니다. 다시 확인해 주세요.':null});return}
- queueMicrotask(()=>fixtureResumeReceive({clientId:'fixture',available:true,reservations:fixtureReservations()}));
+ queueMicrotask(()=>fixtureResumeReceive({clientId:'fixture',available:true,reservations:fixtureReservations(),...fixtureConnection}));
 }},'fixture');
+window.fixtureDisconnect=()=>{fixtureConnection={available:false,connectionError:true,error:'관리 연결이 끊겼습니다. 재접속해 주세요.',reconnecting:false};fixtureResumeReceive({clientId:'fixture',reservations:fixtureReservations(),...fixtureConnection})};
+window.fixtureCompleteReconnect=success=>{fixtureConnection=success?{available:true,connectionError:false,error:null,reconnecting:false}:{available:false,connectionError:true,error:'관리 연결 재접속에 실패했습니다. 다시 시도해 주세요.',reconnecting:false};fixtureResumeReceive({clientId:'fixture',reservations:fixtureReservations().map(r=>({...r,revision:success?4:1})),...fixtureConnection})};
+window.fixtureReconnectButton=()=>[...document.querySelectorAll('[data-azrael-root-resume] button')].find(b=>b.textContent.includes('재접속'));
+window.fixtureResumeButton=()=>[...document.querySelectorAll('[data-azrael-root-resume] button')].find(b=>b.textContent==='재개');
+window.fixtureResumeSnapshot=()=>azraelRootResumeStore.getSnapshot();
+window.fixtureRepeatReconnect=()=>azraelRootResumeStore.reconnect();
 window.fixtureSetCondition=kind=>{window.fixtureCondition=kind;azraelRootResumeStore.refresh()};
 const fixturePhoto='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24" fill="#747cc5"/><circle cx="12" cy="9" r="5" fill="#f5d4bc"/><path d="M3 24a9 9 0 0118 0" fill="#394271"/></svg>');
 azraelDesignStore={subscribe:()=>()=>{},getSnapshot:()=>fixtureDesignSnapshot,dispose:()=>{}};
@@ -85,16 +97,31 @@ window.fixtureReload=()=>{setTurns(fixtureHistory({threadId:'thread-live',permis
 function Fixture(){if(!fixtureStoreReady){rC();fixtureInitializeReducer();Gm();a3e({},()=>{});fixtureStoreReady=true}Gzi();const [,update]=Wzi.useState(0);window.fixtureRerender=()=>update(n=>n+1);const projected=(fixtureState.old?fixtureActivity(fixtureState.old).items:[]).filter(item=>item.type==='worked-for');return E7.jsxs('div',{children:[E7.jsx('div',{'data-fixture-old':'',children:projected.map((item,i)=>fixtureBranchScope(E7.jsx(fixtureDivider,item,i),fixtureBranchEnabled?()=>fixtureBranchCalls.push(fixtureState.old.turnId):undefined))},document.documentElement.dataset.theme),fixtureState.current&&E7.jsx('div',{'data-fixture-new':'',children:fixtureActivity(fixtureState.current).items.filter(item=>item.type==='worked-for').map((item,i)=>E7.jsx(fixtureDivider,item,i))})]})}
 export {Fixture};`;
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${mainName}';const $=$At();window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
+let management;
+if(renderScope==='management'){
+ const load=async(name,imports)=>{const exports={};runInNewContext(ts.transpileModule(await readFile(join(root,'extensions/azrael-ex/src',name+'.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require:id=>{assert.ok(id in imports,'Fixture import '+id);return imports[id]},setInterval,clearInterval});return exports};
+ const protocol=await load('rootResumeProtocol',{'./protocol':{isRecord:value=>!!value&&typeof value==='object'&&!Array.isArray(value)}});
+ let markup,receive,complete;const requests=[],messages=[];
+ const panel={visible:true,reveal(){},onDidChangeViewState(){},onDidDispose(){},dispose(){},webview:{onDidReceiveMessage(fn){receive=fn},set html(value){markup=value}}};
+ const {RootResumeView}=await load('rootResumeView',{'./rootResumeProtocol':protocol,vscode:{ViewColumn:{Active:1},window:{createWebviewPanel:()=>panel,showErrorMessage(){},showWarningMessage:async()=>undefined}}});
+ const service=new EventEmitter();service.rootResumeAvailable=false;service.rootResumeReservations=[{id:'management-r1',rootThreadId:'root-fixture',revision:1,state:'waiting',resumeAtMs:Date.now()+60000,reason:'관리 연결 재접속 검증',agentTasks:[],completionTasks:[],lastError:null}];
+ service.rootResume=async request=>{requests.push(request);if(!service.rootResumeAvailable)throw Error('management disconnected');return {reservations:service.rootResumeReservations}};
+ service.connect=()=>new Promise((resolve,reject)=>{complete=success=>{if(success){service.rootResumeAvailable=true;service.rootResumeReservations[0].revision=4;service.emit('rootResumeConnection',true);resolve()}else reject(Error('management connection failed'))}});
+ const view=new RootResumeView(service);view.show();
+ management={view,service,requests,messages,html:()=>markup,receive:message=>{messages.push(message);receive(message)},complete:success=>complete(success),reset:()=>{service.rootResumeAvailable=false;service.emit('rootResumeConnection',false);requests.length=0;messages.length=0}};
+}
 const server=createServer(async(req,res)=>{try{
+ if(req.url==='/management-message'){let body='';for await(const chunk of req)body+=chunk;management.receive(JSON.parse(body));await new Promise(r=>setImmediate(r));res.end('ok');return}
+ if(req.url==='/management'){const source=management.html(),nonce=source.match(/<script nonce="([^"]+)"/)[1];res.setHeader('Content-Type','text/html; charset=utf-8');res.end(source.replace("default-src 'none';","default-src 'none'; connect-src 'self';").replace('<body>',`<body><script nonce="${nonce}">window.fixtureErrors=[];globalThis.acquireVsCodeApi=()=>({postMessage(m){window.messageDone=fetch('/management-message',{method:'POST',body:JSON.stringify(m)})}});addEventListener('error',e=>fixtureErrors.push(e.message));</script>`));return}
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
  if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;if(pathname===join(assets,reducerName))source=reducer+reducerAdapter;if(pathname===join(assets,turnName))source=branchTurn;if(pathname===join(assets,threadName))source=thread+threadAdapter;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
  res.statusCode=404;res.end();
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
-const summary={sourceSha256:createHash('sha256').update(await readFile(join(root,'scripts/root-resume-wait.cjs'))).digest('hex'),scope:"Actual transformed module-bound notifications and native imported converter -> synthetic host store -> native fp/Yo/BS/Cyt projection, history mapper, snapshot merge and React clock/divider with native CSS in light/dark. Synthetic host/localization and advanced clock; no installed app or release build.",checks:[]},pending=new Map(),exceptions=[];
-const renderScope=process.env.AZRAEL_DEFERRED_RENDER_SCOPE??'full';
-assert.ok(['full','branch'].includes(renderScope));summary.renderScope=renderScope;
+const summary={sourceSha256:createHash('sha256').update(await readFile(join(root,'scripts/root-resume-wait.cjs'))).digest('hex'),scope:"Actual transformed module-bound notifications and native imported converter -> synthetic host store -> native fp/Yo/BS/Cyt projection, history mapper, snapshot merge and React clock/divider with native CSS in light/dark. Management reconnect uses a fixture host bridge with controlled pending/failure/success responses; real host transport is outside this renderer check. Synthetic host/localization and advanced clock; no installed app or release build.",checks:[]},pending=new Map(),exceptions=[];
+summary.renderScope=renderScope;
+if(management)summary.scope='Windows Chrome CDP rendering of transpiled production RootResumeView HTML, nonce script and CSS with fixture VS Code/account EventEmitter service. Controlled connect pending/failure/success; actual host transport, installed app and other OS excluded.';
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new',"--no-first-run",'--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -106,10 +133,36 @@ try{
  const check=(name,value)=>{assert.ok(value,name);summary.checks.push(name)};
  session=(await send('Target.attachToTarget',{targetId:(await send('Target.createTarget',{url:'about:blank'},null)).targetId,flatten:true},null)).sessionId;
  await send('Page.enable');await send('Runtime.enable');await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/`});
+ const screenshot=async name=>writeFile(join(logs,name+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ if(management){
+  for(const theme of ['light','dark']){
+   const foreground=theme==='light'?'#202020':'#ececec',background=theme==='light'?'#ffffff':'#181818';
+   const palette={'--vscode-font-family':'Arial, sans-serif','--vscode-editor-font-family':'Consolas, monospace','--vscode-foreground':foreground,'--vscode-descriptionForeground':theme==='light'?'#666666':'#aaaaaa','--vscode-panel-border':theme==='light'?'#dedede':'#444444','--vscode-badge-background':theme==='light'?'#ececec':'#333333','--vscode-badge-foreground':foreground,'--vscode-button-background':'#0969da','--vscode-button-foreground':'#ffffff','--vscode-button-hoverBackground':'#0858bb','--vscode-button-secondaryBackground':theme==='light'?'#ececec':'#333333','--vscode-button-secondaryForeground':foreground,'--vscode-button-secondaryHoverBackground':theme==='light'?'#dedede':'#444444','--vscode-errorForeground':theme==='light'?'#b42318':'#ff8080','--vscode-charts-blue':theme==='light'?'#0969da':'#75b4ff'};
+   const reload=async()=>{await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/management`});await wait("!!document.querySelector('[data-action=resume]')");await evaluate(`(()=>{for(const [key,value] of Object.entries(${JSON.stringify(palette)}))document.documentElement.style.setProperty(key,value);document.body.style.background=${JSON.stringify(background)};})()`)};
+   management.reset();await reload();
+   check(theme+' management disconnected shows error and blocks resume',await evaluate("!document.querySelector('[data-action=reconnect]').disabled&&document.querySelector('[data-action=resume]').disabled&&!!document.querySelector('[role=alert]')"));
+   check(theme+' management theme colors applied',await evaluate(`getComputedStyle(document.body).color==='${theme==='light'?'rgb(32, 32, 32)':'rgb(236, 236, 236)'}'&&getComputedStyle(document.querySelector('[data-action=reconnect]')).backgroundColor==='${theme==='light'?'rgb(236, 236, 236)':'rgb(51, 51, 51)'}'`));
+   await screenshot(theme+'-management-disconnected');
+   const point=await evaluate("(()=>{const r=document.querySelector('[data-action=reconnect]').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2}})()");
+   await send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...point});await send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});
+   await evaluate('messageDone');await reload();
+   check(theme+' management original nonce click posts reconnect only',management.messages.length===1&&management.messages[0].action==='reconnect'&&!management.requests.some(r=>r.action==='resume'));
+   check(theme+' management pending disables reconnect and resume',await evaluate("document.querySelector('[data-action=reconnect]').disabled&&document.querySelector('[data-action=reconnect]').textContent==='재접속 중…'&&document.querySelector('[data-action=resume]').disabled"));
+   await screenshot(theme+'-management-pending');management.complete(false);await new Promise(r=>setImmediate(r));await reload();
+   check(theme+' management failed reconnect permits retry',await evaluate("!document.querySelector('[data-action=reconnect]').disabled&&document.querySelector('[data-action=resume]').disabled&&!!document.querySelector('[role=alert]')"));
+   await send('Emulation.setDeviceMetricsOverride',{width:360,height:740,deviceScaleFactor:1,mobile:false});await screenshot(theme+'-management-narrow-failed');
+   check(theme+' management narrow page has no overflow',await evaluate('document.documentElement.scrollWidth<=360'));
+   await evaluate("document.querySelector('[data-action=reconnect]').focus()");await send('Page.bringToFront');
+   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await evaluate('messageDone');
+   check(theme+' management keyboard retries reconnect without resume',management.messages.length===2&&management.messages.every(m=>m.action==='reconnect')&&!management.requests.some(r=>r.action==='resume'));
+   management.complete(true);await new Promise(r=>setImmediate(r));await reload();
+   check(theme+' management reconnect success clears error and restores latest resume',await evaluate("!document.querySelector('[data-action=reconnect]')&&!document.querySelector('[role=alert]')&&!document.querySelector('[data-action=resume]').disabled&&document.querySelector('[data-action=resume]').dataset.revision==='4'"));
+   await screenshot(theme+'-management-narrow-success');await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});
+  }
+ }else{
  await wait("window.fixtureReady && !!document.querySelector('[data-fixture-old] span')");
  const oldText=()=>evaluate("document.querySelector('[data-fixture-old]').innerText");
  const advance=async ms=>{await evaluate('fixtureNow+='+ms);await new Promise(r=>setTimeout(r,1100))};
- const screenshot=async name=>writeFile(join(logs,name+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
  if(renderScope==='full'){
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureNow=20000;fixtureReset();fixtureRerender()`);
@@ -192,6 +245,40 @@ try{
 
  }
  check('native themes change label color',summary.light.style.color!==summary.dark.style.color);
+ for(const theme of ['light','dark']){
+  await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureConnection=null;fixtureBranchEnabled=false;fixtureCondition='agents';fixtureNow=20000;fixtureReset();fixtureDefer();fixtureRerender()`);
+  await wait('!!fixtureResumeButton()&&!fixtureResumeButton().disabled');
+  await evaluate('fixtureResumeRequests=[];fixtureReconnectRequests=[];fixtureDisconnect()');
+  await wait('!!fixtureReconnectButton()&&fixtureResumeButton().disabled');
+  check(theme+' disconnected management state offers native reconnect and blocks resume',await evaluate("fixtureReconnectButton().textContent==='관리 연결 재접속'&&!fixtureReconnectButton().disabled&&!!document.querySelector('[data-azrael-root-resume] [role=alert]')&&fixtureReconnectButton().getBoundingClientRect().height>=22"));
+  await screenshot(theme+'-reconnect-disconnected');
+  const reconnectPoint=await evaluate('(()=>{const r=fixtureReconnectButton().getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2}})()');
+  await send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...reconnectPoint});
+  await send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...reconnectPoint});
+  await wait("fixtureReconnectButton()?.textContent==='재접속 중…'");
+  await evaluate('fixtureReconnectButton().click();fixtureResumeButton().click();fixtureRepeatReconnect()');
+  check(theme+' reconnect pending blocks duplicate and never sends resume',await evaluate("fixtureReconnectRequests.length===1&&fixtureReconnectRequests[0].action==='reconnect'&&fixtureResumeRequests.length===0&&fixtureReconnectButton().disabled&&fixtureResumeButton().disabled&&fixtureResumeSnapshot().reconnecting"));
+  await screenshot(theme+'-reconnect-pending');
+  await evaluate('fixtureCompleteReconnect(false)');
+  await wait('!!fixtureReconnectButton()&&!fixtureReconnectButton().disabled');
+  check(theme+' failed management reconnect permits retry with error',await evaluate("fixtureResumeButton().disabled&&document.querySelector('[data-azrael-root-resume] [role=alert]').textContent.includes('재접속에 실패')&&fixtureResumeRequests.length===0"));
+  await send('Emulation.setDeviceMetricsOverride',{width:360,height:740,deviceScaleFactor:1,mobile:false});
+  await screenshot(theme+'-reconnect-narrow-failed');
+  check(theme+' narrow disconnected reconnect has no overflow',await evaluate("(()=>{const e=document.querySelector('[data-azrael-root-resume]'),r=e.getBoundingClientRect();return document.documentElement.scrollWidth<=360&&r.left>=0&&r.right<=360&&[...e.querySelectorAll('button,img,[role=alert]')].every(n=>{const b=n.getBoundingClientRect();return b.left>=r.left&&b.right<=r.right+1})})()"));
+  await evaluate('fixtureReconnectButton().focus()');await send('Page.bringToFront');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await wait('fixtureReconnectRequests.length===2');
+  check(theme+' keyboard reconnect retry leaves resume unsent',await evaluate('fixtureResumeRequests.length===0&&fixtureReconnectButton().disabled&&fixtureResumeButton().disabled'));
+  await screenshot(theme+'-reconnect-narrow-pending');
+  await evaluate('fixtureCompleteReconnect(true)');
+  await wait('!fixtureReconnectButton()&&!!fixtureResumeButton()&&!fixtureResumeButton().disabled');
+  check(theme+' successful reconnect clears error and enables latest reservation',await evaluate("!document.querySelector('[data-azrael-root-resume] [role=alert]')&&fixtureResumeSnapshot().reservations[0].revision===4&&fixtureResumeRequests.length===0&&document.documentElement.scrollWidth<=360"));
+  await screenshot(theme+'-reconnect-narrow-success');
+  await evaluate('fixtureResumeButton().click()');await wait('fixtureResumeRequests.length===1');
+  check(theme+' resume after reconnect uses refreshed reservation revision',await evaluate("fixtureResumeRequests[0].reservationId==='r1'&&fixtureResumeRequests[0].revision===4"));
+  await evaluate('fixtureCompleteManualResume();fixtureConnection=null');
+  await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});
+ }
  }
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureNow=20000;fixtureReset();fixtureDefer();fixtureBranchEnabled=true;fixtureRerender()`);
@@ -224,9 +311,12 @@ try{
   await wait("!document.querySelector('.azrael-resume-branch')");
   check(theme+' unavailable native callback hides branch',await evaluate("!document.querySelector('.azrael-resume-branch')"));
  }
- check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
+ await evaluate('reactRoot.unmount()');
+ }
+ check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);summary.outcome='passed';await send('Browser.close',{},null).catch(()=>{});
 }catch(e){summary.outcome='failed';summary.error=String(e.stack||e);summary.exceptions=exceptions;process.exitCode=1}
 finally{
+ management?.view.dispose();
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
   summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);

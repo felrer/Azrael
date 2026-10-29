@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "scope": "Actual RootResumeView HTML/CSS/nonce script with controlled EventEmitter service in Chrome; Windows source verification only",
+  "runRoot": "artifacts/tasks/verify-deferred-turn-render/runs/20261029T011819035Z-acca6719-66df-4b97-b11d-a6243a48bdb6",
+  "exitCode": 0,
+  "checks": [
+    "light management disconnected shows error and blocks resume",
+    "light management theme colors applied",
+    "light management original nonce click posts reconnect only",
+    "light management pending disables reconnect and resume",
+    "light management failed reconnect permits retry",
+    "light management narrow page has no overflow",
+    "light management keyboard retries reconnect without resume",
+    "light management reconnect success clears error and restores latest resume",
+    "dark management disconnected shows error and blocks resume",
+    "dark management theme colors applied",
+    "dark management original nonce click posts reconnect only",
+    "dark management pending disables reconnect and resume",
+    "dark management failed reconnect permits retry",
+    "dark management narrow page has no overflow",
+    "dark management keyboard retries reconnect without resume",
+    "dark management reconnect success clears error and restores latest resume",
+    "no browser exceptions"
+  ],
+  "browserExit": {
+    "confirmed": true,
+    "exitCode": 0,
+    "signalCode": null,
+    "processInspectionExitCode": 0,
+    "processIds": []
+  },
+  "producer": {
+    "lifecycleId": "run:verify-deferred-turn-render:20261029T011819035Z-acca6719-66df-4b97-b11d-a6243a48bdb6",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-deferred-turn-render\\runs\\20261029T011819035Z-acca6719-66df-4b97-b11d-a6243a48bdb6",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\verify-deferred-turn-render.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [
+      {
+        "pid": 44756,
+        "closed": true
+      },
+      {
+        "pid": 48864,
+        "closed": true
+      }
+    ],
+    "state": "complete",
+    "membership_complete": true
+  }
+}

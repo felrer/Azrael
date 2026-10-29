@@ -2377,6 +2377,11 @@
       "id": "ui.deferred-turn",
       "area": "ui",
       "owners": [
+        "extensions/azrael-ex/src/accountService.ts",
+        "extensions/azrael-ex/src/bridgeTransport.ts",
+        "extensions/azrael-ex/src/rootResumeView.ts",
+        "scripts/check-management-recovery.cjs",
+        "scripts/test-root-resume-controls.cjs",
         "scripts/inject-deferred-turn.cjs",
         "scripts/verify-deferred-turn-render.mjs",
         "scripts/verify-team-ui-render.mjs",
@@ -2390,6 +2395,12 @@
       ],
       "contract": "docs/architecture/root-resume.md",
       "checks": [
+        {
+          "id": "ui.deferred-turn.management-recovery",
+          "executable": "node",
+          "args": ["scripts/check-management-recovery.cjs"],
+          "level": "source"
+        },
         {
           "id": "ui.deferred-turn.behavior",
           "executable": "node",

@@ -76,6 +76,8 @@ The popup and sidebar rows consume the same native list state. Its pending-resum
 
 The integrated extension shows pending reservations, local resume times, selected child conditions, reason and blocked conditions on the **루트 재개 예약** page (`azrael.rootResume`), with resume-now and cancel actions. The page remains available through the command palette; the account profile menu does not expose it. Countdowns and refreshes use engine events and ordinary UI timers, never model requests. The management bridge exposes the bounded `azrael/rootResume` list/resume/cancel contract; mutations carry reservation ID and revision.
 
+Disconnected management surfaces expose **관리 연결 재접속** through the existing host connection service, followed by a reservation list refresh. This action does not resume or cancel a reservation and cannot replace a connection during an in-flight management mutation. Restored connections clear connection errors across embedded wait rows; action errors remain visible. Late responses cannot replace the recovered reservation snapshot. Management connectivity and the engine's scheduled execution are separate observations. The [management recovery contract](accounts.md#management-connection-recovery) owns identity, retry, uncertain-outcome and safe diagnostic boundaries. Preservation check: `ui.deferred-turn.management-recovery`; installed release acceptance remains separate.
+
 ### Waiting agents and manual resume
 
 Status: `current` in source — native Windows light/dark rendering and resume interactions verified at normal and 360px widths; packaging, installation and other platform acceptance remain separate.

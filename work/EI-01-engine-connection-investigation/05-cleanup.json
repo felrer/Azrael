@@ -1,0 +1,242 @@
+{
+  "schema": 1,
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "verification": "registered",
+  "reviewedAt": "2026-10-29T01:34:33.285Z",
+  "groups": [
+    {
+      "id": "run:management-recovery:20261029T010605730Z-97cdae09-dc69-4f6f-9137-eee6abe95aca",
+      "owner": "scripts/check-management-recovery.cjs",
+      "membership_complete": true
+    },
+    {
+      "id": "run:management-recovery:20261029T010656370Z-1db7ff81-89be-4071-bdb1-3cb661cee5fb",
+      "owner": "scripts/check-management-recovery.cjs",
+      "membership_complete": true
+    },
+    {
+      "id": "run:management-recovery:20261029T010949211Z-8de12337-6d0b-45b1-b439-cee2b4892d3e",
+      "owner": "scripts/check-management-recovery.cjs",
+      "membership_complete": true
+    },
+    {
+      "id": "run:management-recovery:20261029T011313556Z-eea37ff5-6c2c-4e4c-a9f3-6bbc7fbcd6c8",
+      "owner": "scripts/check-management-recovery.cjs",
+      "membership_complete": true
+    },
+    {
+      "id": "run:verify-deferred-turn-render:20261029T010614647Z-28a1d92b-d6d9-4ced-8c2d-ca987749626e",
+      "owner": "scripts/verify-deferred-turn-render.mjs",
+      "membership_complete": true
+    },
+    {
+      "id": "run:verify-deferred-turn-render:20261029T010759848Z-a0a35f80-6a2a-4c1d-8538-3ab72f74ebc5",
+      "owner": "scripts/verify-deferred-turn-render.mjs",
+      "membership_complete": true
+    },
+    {
+      "id": "run:verify-deferred-turn-render:20261029T011819035Z-acca6719-66df-4b97-b11d-a6243a48bdb6",
+      "owner": "scripts/verify-deferred-turn-render.mjs",
+      "membership_complete": true
+    }
+  ],
+  "items": [
+    {
+      "id": "2ac6d939a8f1ca1d5db933f1619a867d98c8884b623e99575eb9067b667245fb",
+      "token": "6e54dfd18d9f244d65a87ba90b2041edc0f73671a1a751d6bc7ac9db161717c4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T010656370Z-1db7ff81-89be-4071-bdb1-3cb661cee5fb",
+      "group": "run:management-recovery:20261029T010656370Z-1db7ff81-89be-4071-bdb1-3cb661cee5fb",
+      "logical_bytes": 4467,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "membership_matches": true,
+      "source_blockers": [],
+      "references": []
+    },
+    {
+      "id": "7001053713294b4778335fbe1d9fc4ccc3ad33f942f9ce18c30b87bba3441beb",
+      "token": "aca2424bafe50034318547875c74fb11b3bc3736e5126043051d2abee1094dc9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T010949211Z-8de12337-6d0b-45b1-b439-cee2b4892d3e",
+      "group": "run:management-recovery:20261029T010949211Z-8de12337-6d0b-45b1-b439-cee2b4892d3e",
+      "logical_bytes": 5908,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "membership_matches": true,
+      "source_blockers": [],
+      "references": []
+    },
+    {
+      "id": "810ccd8689d78900566ff9997cbfd8581ddba9104f25a4197df782cf35b24146",
+      "token": "4ab45bd6b0856f86f72252ad6362c6ccfc98ebaf49c99e51b5585a9130ccf696",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-deferred-turn-render\\runs\\20261029T010759848Z-a0a35f80-6a2a-4c1d-8538-3ab72f74ebc5",
+      "group": "run:verify-deferred-turn-render:20261029T010759848Z-a0a35f80-6a2a-4c1d-8538-3ab72f74ebc5",
+      "logical_bytes": 99390735,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "membership_matches": true,
+      "source_blockers": [],
+      "references": []
+    },
+    {
+      "id": "a30772a1408c9836a5d7c61addc04c8603dd63699de3bf5b35925d0a6bd05896",
+      "token": "4b874f9ef59687bf81ba34c30f58dcecaecf8b05c2a50053a33bd0e0382a06a9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T010605730Z-97cdae09-dc69-4f6f-9137-eee6abe95aca",
+      "group": "run:management-recovery:20261029T010605730Z-97cdae09-dc69-4f6f-9137-eee6abe95aca",
+      "logical_bytes": 116835,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "membership_matches": true,
+      "source_blockers": [],
+      "references": []
+    },
+    {
+      "id": "b6945d92b7e6c6e6c60d1dacf53a4596c51e364656c69cb7e0c7cec51e590088",
+      "token": "19106a45b2fb7ecf84228801842d10a4b556903fb9bd5815a0e7c9bd448fa068",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-deferred-turn-render\\runs\\20261029T011819035Z-acca6719-66df-4b97-b11d-a6243a48bdb6",
+      "group": "run:verify-deferred-turn-render:20261029T011819035Z-acca6719-66df-4b97-b11d-a6243a48bdb6",
+      "logical_bytes": 35356983,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "membership_matches": true,
+      "source_blockers": [],
+      "references": []
+    },
+    {
+      "id": "c13fb9f06151338d202b84e6e97dde7e6f9deaeb6454022ba3e4403bb15bd68b",
+      "token": "1d10b1479a3640fa053c452cb45aab849890480fba136a5411481fe31884c1f8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-deferred-turn-render\\runs\\20261029T010614647Z-28a1d92b-d6d9-4ced-8c2d-ca987749626e",
+      "group": "run:verify-deferred-turn-render:20261029T010614647Z-28a1d92b-d6d9-4ced-8c2d-ca987749626e",
+      "logical_bytes": 99192924,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "membership_matches": true,
+      "source_blockers": [],
+      "references": []
+    },
+    {
+      "id": "e095b814c882ce16b53390ff8d41e5e0595a7dc8af8921aee07343d558ce3d09",
+      "token": "b8c3477eb634e89b0f8169b36b12440d470e91a5dfb06f61290bf11a12b6ffe3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\management-recovery\\runs\\20261029T011313556Z-eea37ff5-6c2c-4e4c-a9f3-6bbc7fbcd6c8",
+      "group": "run:management-recovery:20261029T011313556Z-eea37ff5-6c2c-4e4c-a9f3-6bbc7fbcd6c8",
+      "logical_bytes": 6003,
+      "blockers": [],
+      "presence": "present",
+      "observation_error": null,
+      "membership_matches": true,
+      "source_blockers": [],
+      "references": []
+    }
+  ],
+  "cleanup": "payload-removed",
+  "appliedAt": "2026-10-29T01:43:47.517Z",
+  "applyResult": {
+    "aborted": false,
+    "cancelled": false,
+    "results": [
+      {
+        "id": "2ac6d939a8f1ca1d5db933f1619a867d98c8884b623e99575eb9067b667245fb",
+        "status": "deleted",
+        "remaining": false
+      },
+      {
+        "id": "7001053713294b4778335fbe1d9fc4ccc3ad33f942f9ce18c30b87bba3441beb",
+        "status": "deleted",
+        "remaining": false
+      },
+      {
+        "id": "810ccd8689d78900566ff9997cbfd8581ddba9104f25a4197df782cf35b24146",
+        "status": "deleted",
+        "remaining": false
+      },
+      {
+        "id": "a30772a1408c9836a5d7c61addc04c8603dd63699de3bf5b35925d0a6bd05896",
+        "status": "deleted",
+        "remaining": false
+      },
+      {
+        "id": "b6945d92b7e6c6e6c60d1dacf53a4596c51e364656c69cb7e0c7cec51e590088",
+        "status": "deleted",
+        "remaining": false
+      },
+      {
+        "id": "c13fb9f06151338d202b84e6e97dde7e6f9deaeb6454022ba3e4403bb15bd68b",
+        "status": "deleted",
+        "remaining": false
+      },
+      {
+        "id": "e095b814c882ce16b53390ff8d41e5e0595a7dc8af8921aee07343d558ce3d09",
+        "status": "deleted",
+        "remaining": false
+      }
+    ]
+  },
+  "remaining": [],
+  "logicalBytesSelected": 234073855,
+  "finalized": [
+    {
+      "id": "run:management-recovery:20261029T010605730Z-97cdae09-dc69-4f6f-9137-eee6abe95aca",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\052a9505ccdb29ae35482f9f9d46f0c944476f2694c9b7e1e3a0cded679dbf6d.json"
+    },
+    {
+      "id": "run:management-recovery:20261029T010656370Z-1db7ff81-89be-4071-bdb1-3cb661cee5fb",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\cef3f789474a6fe4470dfd9f996e0e8986709413846db3a71e06e472b2842def.json"
+    },
+    {
+      "id": "run:management-recovery:20261029T010949211Z-8de12337-6d0b-45b1-b439-cee2b4892d3e",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ad5376f9d25c2e89dfcc5b7825e8439c521f2fcd75ed4fbf1c9e633b07554396.json"
+    },
+    {
+      "id": "run:management-recovery:20261029T011313556Z-eea37ff5-6c2c-4e4c-a9f3-6bbc7fbcd6c8",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\057a2f75f509d310ab67089c3d98c2e8d202cb25ca24f9218bcb933aae757809.json"
+    },
+    {
+      "id": "run:verify-deferred-turn-render:20261029T010614647Z-28a1d92b-d6d9-4ced-8c2d-ca987749626e",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ae4c0ec35af81aacdb46e18922411b612ac86bd7d66ed6cbb8557bca6d5265d1.json"
+    },
+    {
+      "id": "run:verify-deferred-turn-render:20261029T010759848Z-a0a35f80-6a2a-4c1d-8538-3ab72f74ebc5",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\388fabb0b0a3942e1cda61e387995c17714313f825be91aab20ac830bf25e38e.json"
+    },
+    {
+      "id": "run:verify-deferred-turn-render:20261029T011819035Z-acca6719-66df-4b97-b11d-a6243a48bdb6",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\90bfb45b169d73fa245975ceafd4ccdcf7e24fd854b68b1443bc6f814be4dc24.json"
+    }
+  ],
+  "verifiedAbsent": true,
+  "controlAbsent": true,
+  "finalizedAt": "2026-10-29T01:45:23.650Z"
+}
