@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Select, write, run, review, consolidate and retire tests using minimum sufficient evidence and ongoing contract value. Use for test decisions during implementation or authorized maintenance of existing test suites.
+description: Select, write, run, review, consolidate and retire tests using minimum sufficient evidence and prevention of your recurring work mistakes. Use for test decisions during implementation or authorized maintenance of existing test suites.
 ---
 
 # Testing
@@ -13,19 +13,26 @@ description: Select, write, run, review, consolidate and retire tests using mini
 
 ## Select The Minimum Sufficient Evidence
 
-- Name the changed contract, a meaningful failure and the boundary and conditions where it must be detected. Separate proof of the current fix from ongoing regression protection. Inspect existing checks before generating tests; reuse sufficient tests unchanged. Zero new test files, cases or assertions is a valid outcome.
+- Name the changed contract and the boundary and conditions needed to verify this change. Separate proof of the current fix from the reason to retain a test. Inspect existing checks before generating tests; reuse sufficient tests unchanged. Zero new test files, cases or assertions is a valid outcome.
 
-- Choose the smallest checks that cover the claim, plus required project gates. Select by behavior and risk rather than a fixed test pyramid. Manual verification, static analysis or a disposable probe may suffice for a bounded claim; they do not replace needed recurring detection of rare or critical faults.
+- Choose the smallest checks that cover the claim, plus required project gates. Manual verification, static analysis or a disposable probe may suffice. For ordinary product defects, prioritize a fast build and the user's real-use feedback after minimal verification of the change, rather than accumulating broad automated coverage. Do not report real-use verification as complete before it happens.
 
 - Prefer the actual entry point, backend or persistence boundary when that is the risk, in an authorized environment; production access is not required. If real execution is unavailable, report the gap. Do not construct a large mock suite as substitute proof of an unexercised integration.
 
-- Test count, coverage percentage and test-to-product size ratios are diagnostic signals, not creation, retention or deletion quotas. Preserve already-required thresholds and checks. Critical authorization, financial, concurrency, migration, protocol, packaging and platform risks may justify proactive protection without a prior incident.
+- Test count, coverage percentage and test-to-product size ratios are diagnostic signals, not creation, retention or deletion quotas. Preserve already-required thresholds and checks unless their owning requirements are explicitly changed within the agreed scope. Severity or a risk category alone is not a reason to add or retain a test.
 
 ## Admit And Write Durable Tests
 
-- Add a retained test only for an identified gap with distinct recurring defect-detection value that justifies execution, diagnosis, review and maintenance costs. First consider extending an existing case. State the reason briefly in the existing work record or change description; require no admission form or additional approval ritual.
+- The primary purpose of tests you retain is to prevent omissions or incorrect changes you may repeat in future work. An important feature or an error found this time is not, by itself, a reason for a permanent test. Ask: **After fixing this code, what could I do in a later task that would recreate this mistake?** "It might break someday" and "regression protection" are not sufficient answers.
 
-- A bug fix does not automatically need a new test file, and a successful one-off probe does not automatically become a permanent test. Retain a probe only when it meets the same ongoing-value criterion. Follow implementation's cleanup and retention rules for disposable material.
+- Distinguish these cases by what remains after the fix:
+  - **A step you must repeat during future work:** build inputs, packaged files, registrations, configuration forwarding or related callers can be missed again when you edit them. If the workflow leaves a concrete opportunity for you to repeat the omission, retain a small direct check. Do not add another test if the existing build or tooling already detects it.
+  - **An implementation or design error removed by the fix:** correct the condition, calculation, state transition or responsibility boundary and verify the change. If the corrected structure leaves no concrete recurrence path, do not retain a permanent test.
+  - **A corrected implementation you could break again through a specific later edit:** for example, simplifying away a compatibility branch or required exception. Identify that edit and retain only the smallest check that detects it. The label "implementation error" alone does not settle retention.
+
+- For a retained test, name your concrete recurring mistake and weigh its prevention against execution, diagnosis, review and maintenance costs. First consider an existing check or extending an existing case. State the reason briefly in the existing work record or change description; require no admission form or additional approval ritual.
+
+- A bug fix does not automatically need a new test file, and a successful one-off probe does not automatically become a permanent test. Retain a probe only when it meets the same recurring-mistake criterion. Follow implementation's cleanup and retention rules for disposable material.
 
 - Derive expected results from the agreed contract, independently of the implementation being checked. Assert observable behavior at the relevant boundary. Avoid self-comparisons, mock echoes and checks of source wording, internal call sequences, snapshots or inventory counts unless those details are themselves a required contract.
 
@@ -43,11 +50,11 @@ description: Select, write, run, review, consolidate and retire tests using mini
 
 ## Maintain, Consolidate And Retire
 
-- Judge existing tests by the current contract and distinct protection relative to lifecycle cost. Keep, consolidate, rewrite or relocate, retire an obsolete contract, remove redundant or non-protective tests, or defer an uncertain decision. A name, age, recent failure or similar coverage does not settle that decision.
+- Apply the same recurring-mistake criterion to existing and new tests. Within authorized test-maintenance scope, remove tests that do not meet it after any needed one-off verification, or move their verification to real use. Do not retain a test merely because it exists, once found a meaningful bug or protects an important feature. Keep required gates unless their owner explicitly changes them; resolve concrete uncertainty about consumers or requirements rather than assuming all tests need permanent retention.
 
-- For claimed redundancy, name the surviving check and establish equivalent defect detection at the required inputs, boundary and execution conditions. Consolidation must preserve meaningful cases, assertions, isolation and diagnosis. A one-time successful run is insufficient evidence of equivalent recurring protection.
+- When claiming redundancy or equivalent protection, name the surviving check and establish equivalent detection at the required inputs, boundary and execution conditions. Preserve cases needed to catch the identified recurring mistake. When deliberately reducing automated coverage under the agreed criteria, report that reduction and the chosen verification method; do not require an equivalent automated replacement or call real-use feedback equivalent recurring protection.
 
-- Retire a contract only when its removal or replacement is within agreed scope and callers, compatibility, recovery and mandatory checks no longer require it. Do not restore obsolete behavior merely for an old test or delete a valid contract to silence a failure. Preserve uncertain protection and state the evidence or owner decision needed to reconsider it.
+- Distinguish removing a test or changing verification from retiring the product contract. A feature may remain while its automated test is removed under these criteria. Retire the product contract only when its removal or replacement is within agreed scope and callers, compatibility, recovery and mandatory checks no longer require it. Do not restore obsolete behavior merely for an old test or delete a valid contract to silence a failure.
 
 - Remove test-only helpers, fixtures and registrations only after checking their actual consumers. Verify that surviving checks remain connected and execute meaningful cases. Maintained test source follows source-change authority; disposable run outputs follow their artifact owners. Do not treat retained source as generated cleanup material.
 
