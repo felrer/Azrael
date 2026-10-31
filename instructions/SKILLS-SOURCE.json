@@ -800,10 +800,11 @@
         "size": 6943,
         "sha256": "3371f09183ce7abb3c14583a1b76c0805006798d23ed12c05965e783bb57314a"
       },
-      "size": 6943,
-      "sha256": "3371f09183ce7abb3c14583a1b76c0805006798d23ed12c05965e783bb57314a",
+      "size": 8852,
+      "sha256": "528ef1a74dbf18a8bbfc292121a9c119994672b1ea5952746825f9df47c4ed5e",
       "adaptations": [
-        "User-approved Azrael-authored testing skill promoted unchanged from work/DZ-01-lean-testing-guidance/testing/SKILL.md at commit 1b853c63."
+        "User-approved Azrael-authored testing skill promoted unchanged from work/DZ-01-lean-testing-guidance/testing/SKILL.md at commit 1b853c63.",
+        "User-approved recurring-work-mistake retention criteria; distinguish one-off correction from repeatable omissions and concrete recurrence paths."
       ]
     }
   ],
