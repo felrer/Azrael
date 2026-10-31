@@ -27,11 +27,11 @@ const wrapperHashes = Object.freeze({
   'check-startup-performance-native': '5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2',
   'check-response-tps-native': 'ff6fd89fe8103a7da51f5555f0c704bd37d056b3f5017f10251d7285563b74e0',
   'check-task-recovery-native': 'bf1efa7f6b25732bd964d4181df234a5420a60ce327fa95753d341e4cde18728',
-  'check-project-maintenance': '1eea8c6a873bcf17a7899461a4c2e171796054bc13b9e3a48e87d95a8499e87e',
+  'check-project-maintenance': '79877d89003169e5e5744e3fb8f87b80a6332ff953a0aeccb2c59a5e72d94492',
   'check-error-classification-native': '338386a3b633c8364fae67e268c86405328b60f809e951f193edc8a533c1d616',
   'check-window-approval-native': '525b897176b1c4ca2bd8c91fff09cd61b5f6c211ac874ea0aa02d5397c963325',
 });
-const finish = args => ['test', ...args, '--locked', '--offline', '--', '--test-threads=1'];
+const finish = (args, threads = 1) => ['test', ...args, '--locked', '--offline', '--', `--test-threads=${threads}`];
 const lib = (crate, filter) => finish(['-p', crate, '--lib', filter]);
 const libs = (crates, filter) => finish([...crates.flatMap(crate => ['-p', crate]), '--lib', filter]);
 const integration = filter => finish(['-p', 'codex-core', '--test', 'all', '--features', 'codex-core/integration-tests', filter]);
@@ -178,7 +178,7 @@ function reviewedRecipes(wrapper, tail, platform) {
       break;
     case 'check-project-maintenance':
       if (tail.length === 2 && tail[0] === '--stage') {
-        const stages = { library: [finish(['-p', 'azrael-project-maintenance'])], prompts: [lib('codex-prompts', 'project_maintenance')], core: [lib('codex-core', 'project_maintenance')] };
+        const stages = { library: [finish(['-p', 'azrael-project-maintenance'], 4)], prompts: [lib('codex-prompts', 'project_maintenance')], core: [lib('codex-core', 'project_maintenance')] };
         args = Object.hasOwn(stages, tail[1]) ? stages[tail[1]] : undefined;
       }
       break;

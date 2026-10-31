@@ -86,6 +86,8 @@ Set `reuseNativeChecks: false` in the preservation configuration to force native
 
 ### Pipeline verification and retry
 
+The maintenance library stage runs its complete isolated-fixture suite with four libtest threads. Maintenance core/prompts stages retain one thread; test selection, success criteria and managed Cargo ownership remain unchanged.
+
 Apply the common [build-input and retry rules](../../instructions/skills/implementation/references/build-inputs.md). The sequence below is the target consumer ordering; current automation and gaps follow it. Cache reuse is automatic by default: owners compute validity. Before heavy execution, the existing report records each component/check's reuse, rebuild or rerun outcome, with the prior receipt or concrete input, environment or key difference on a miss. Select affected checks plus mandatory acceptance by default; unknown impact broadens coverage. Keep compatible physical paths, caches and environment stable across retries; a new run identifier alone does not require relocating source or recompiling unchanged components.
 
 | Consumer boundary | Required decision and evidence |

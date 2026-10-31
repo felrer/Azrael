@@ -77,7 +77,15 @@ test('bridge, integration, package-wide library and parent-request arguments sta
   assert.deepEqual(context.at(-1).args, ['test', '-p', 'codex-core', '--test', 'all', '--features', 'codex-core/integration-tests', 'suite::model_switching', '--locked', '--offline', '--', '--test-threads=1']);
   assert.equal(context.at(-1).isolateHostEnvironment, false);
   assert.deepEqual(recipesForCheck(config, check('check-project-maintenance', ['--stage', 'library'])).cargoPreparations[0].args,
-    ['test', '-p', 'azrael-project-maintenance', '--locked', '--offline', '--', '--test-threads=1']);
+    ['test', '-p', 'azrael-project-maintenance', '--locked', '--offline', '--', '--test-threads=4']);
+  const maintenance = require('./check-project-maintenance.cjs');
+  const actualSource = path.join(projectRoot, 'engine');
+  assert.deepEqual(maintenance.commands([actualSource, '--stage', 'library']).args,
+    ['test', '-p', 'azrael-project-maintenance', '--locked', '--offline', '--', '--test-threads=4']);
+  for (const stage of ['prompts', 'core']) {
+    assert.deepEqual(maintenance.commands([actualSource, '--stage', stage]).args,
+      ['test', '-p', stage === 'core' ? 'codex-core' : 'codex-prompts', '--lib', 'project_maintenance', '--locked', '--offline', '--', '--test-threads=1']);
+  }
   const parent = recipesForCheck(config, check('check-parent-requests')).cargoPreparations[0];
   assert.deepEqual(parent.args.slice(-5), ['--', '--test-threads=1', '--nocapture', 'parent_request', 'parent_response_wait']);
   assert.equal(parent.args.filter(x => x === '-p').length, 5);

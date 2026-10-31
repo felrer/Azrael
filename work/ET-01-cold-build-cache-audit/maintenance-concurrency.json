@@ -1,0 +1,2379 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "Full maintenance library test concurrency only; no product build/repack/install",
+  "platform": {
+    "os": "win32",
+    "arch": "x64"
+  },
+  "checkId": "tool.project-maintenance.library",
+  "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\engine",
+  "sourceIdentity": {
+    "sha256": "810b44b44ab12d15369a147ba6be8b1568221452f36e534e2f3739984ce77771",
+    "files": 9344
+  },
+  "comparison": {
+    "startedUtc": "2026-10-31T02:05:42.891Z",
+    "finishedUtc": "2026-10-31T02:14:46.338Z",
+    "reportSha256": "f67354516a245dc0609564997d26a4b0c4b5f1727835c34d3fed8ea45cf094c9",
+    "attempts": [
+      {
+        "threads": 1,
+        "startedUtc": "2026-10-31T02:05:50.954Z",
+        "exitCode": 0,
+        "pid": 50656,
+        "signal": null,
+        "finishedUtc": "2026-10-31T02:12:38.904Z",
+        "result": {
+          "status": 0,
+          "signal": null,
+          "error": null,
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 71,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 0,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 6,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 35,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 11,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 28,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 22,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 5,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 5,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 24,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 8,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 0,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                }
+              ],
+              "passed": 227,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0,
+              "executed": 227
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-31T02:05:51.016Z",
+                "durationMs": 407868,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "testResults": [
+            {
+              "name": "abandoned_lock_is_never_removed",
+              "status": "ok"
+            },
+            {
+              "name": "absence_changes_invalidate_old_group_tokens",
+              "status": "ok"
+            },
+            {
+              "name": "absent_adoption_still_requires_ancestor_authorization",
+              "status": "ok"
+            },
+            {
+              "name": "absent_member_is_reviewed_and_reconciled_before_remaining_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "absent_member_updates_keep_unresolved_cleanup_intent_protected",
+              "status": "ok"
+            },
+            {
+              "name": "additional_live_member_and_write_denial_preserve_nested_payload",
+              "status": "ok"
+            },
+            {
+              "name": "all_absent_members_complete_without_write_authorization_and_stay_reconciled",
+              "status": "ok"
+            },
+            {
+              "name": "all_hardlink_names_inside_one_root_allow_owned_normalization",
+              "status": "ok"
+            },
+            {
+              "name": "ancestor_reference_and_stale_ancestor_token_block_child",
+              "status": "ok"
+            },
+            {
+              "name": "apply_observes_membership_once_per_preflight_and_pre_intent_boundary",
+              "status": "ok"
+            },
+            {
+              "name": "apply::diagnostic_tests::stale_diagnostics_hash_components_without_exporting_owner_payload",
+              "status": "ok"
+            },
+            {
+              "name": "approved_authorization_is_not_repeated_after_durable_intent",
+              "status": "ok"
+            },
+            {
+              "name": "artifact_log_evidence_share_expanded_review_and_delete_fate",
+              "status": "ok"
+            },
+            {
+              "name": "authorization_mutating_a_cached_sibling_with_restored_mtime_blocks_group",
+              "status": "ok"
+            },
+            {
+              "name": "backup_requires_fresh_registered_retained_recovery_copy",
+              "status": "ok"
+            },
+            {
+              "name": "blank_legacy_recovery_reference_cannot_confirm_retention",
+              "status": "ok"
+            },
+            {
+              "name": "cancellation_preserves_completed_results_and_stops_before_physical_delete",
+              "status": "ok"
+            },
+            {
+              "name": "cancelled_registration_releases_its_scope_without_committing",
+              "status": "ok"
+            },
+            {
+              "name": "canonical_evidence_remains_protected_and_tampering_blocks_later_cleanup",
+              "status": "ok"
+            },
+            {
+              "name": "catalog_contention_blocks_mutation_and_apply_reserves_group_between_transactions",
+              "status": "ok"
+            },
+            {
+              "name": "changed_or_denied_final_observation_is_persisted_after_destructive_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "child_only_retirement_preserves_parent_and_requires_new_outer_measurement",
+              "status": "ok"
+            },
+            {
+              "name": "complete_membership_preserves_present_and_freshly_absent_paths",
+              "status": "ok"
+            },
+            {
+              "name": "completed_recovery_requires_explicit_verified_reason_and_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "completed_unknown_producer_allows_retry_without_fabricating_success",
+              "status": "ok"
+            },
+            {
+              "name": "confirmed_generated_readonly_hidden_deleted_and_audited",
+              "status": "ok"
+            },
+            {
+              "name": "consolidates_cross_owner_claims_without_touching_bytes_and_preserves_history_for_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "cross_member_hardlink_normalization_remains_conservatively_blocked",
+              "status": "ok"
+            },
+            {
+              "name": "denied_missing_member_stays_unknown_and_protects_the_whole_group",
+              "status": "ok"
+            },
+            {
+              "name": "denied_read_receipt_write_or_target_delete_preserves_target",
+              "status": "ok"
+            },
+            {
+              "name": "denies_nested_write_before_any_mutation",
+              "status": "ok"
+            },
+            {
+              "name": "dependencies_exact_semantic_dedup_and_phase_boundaries",
+              "status": "ok"
+            },
+            {
+              "name": "descriptor_evidence_selection_and_fates_are_bound",
+              "status": "ok"
+            },
+            {
+              "name": "destructive_receipt_survives_later_observation_and_save_denial",
+              "status": "ok"
+            },
+            {
+              "name": "direct_registration_cannot_strip_or_spoof_group_membership",
+              "status": "ok"
+            },
+            {
+              "name": "dispatch_busy_is_structured_without_implicit_retry",
+              "status": "ok"
+            },
+            {
+              "name": "durable_unknown_failed_and_interrupted_receipts",
+              "status": "ok"
+            },
+            {
+              "name": "enclosing_membership_evidence_change_during_authorization_blocks_child",
+              "status": "ok"
+            },
+            {
+              "name": "exact_hash_token_evidence_and_attestation_are_required",
+              "status": "ok"
+            },
+            {
+              "name": "exclusive_recovery_guard_refuses_overlapping_attempts_and_is_retained",
+              "status": "ok"
+            },
+            {
+              "name": "execution_revalidates_inputs_and_preserves_observed_exit_independently",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_compaction_reclaims_only_valid_unreferenced_state_blobs",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_junction_registration_review_and_removal_never_read_target_payload",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_partition_preserves_reads_updates_cleanup_and_old_owner_refusal",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_verified_producer_recovery_preserves_unknown_outcome",
+              "status": "ok"
+            },
+            {
+              "name": "extended_literal_nested_paths_delete_and_audit_only_attribute_changes",
+              "status": "ok"
+            },
+            {
+              "name": "external_shared_readonly_files_block_before_any_attributes_change_and_preserve_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "failed_group_registration_is_atomic_and_paths_must_be_disjoint",
+              "status": "ok"
+            },
+            {
+              "name": "failed_ordinary_refresh_discard_retains_truthful_attempt_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "first_adoption_keeps_absent_member_and_reconciles_without_deletion_attempt",
+              "status": "ok"
+            },
+            {
+              "name": "full_and_omitted_missing_member_updates_preserve_history_and_group_ownership",
+              "status": "ok"
+            },
+            {
+              "name": "grouped_delete_preflight_allows_unrelated_metadata_commit",
+              "status": "ok"
+            },
+            {
+              "name": "hardlinked_evidence_and_existing_receipts_are_refused",
+              "status": "ok"
+            },
+            {
+              "name": "immediate_commit_busy_retains_reservation_when_abort_cannot_reacquire",
+              "status": "ok"
+            },
+            {
+              "name": "incoming_consumers_protect_even_when_added_between_projection_and_register",
+              "status": "ok"
+            },
+            {
+              "name": "incomplete_or_protected_member_blocks_delete_but_all_defer_preserves",
+              "status": "ok"
+            },
+            {
+              "name": "independent_reviewed_items_apply_in_one_batch",
+              "status": "ok"
+            },
+            {
+              "name": "intent_save_failure_preserves_target_manifest_and_pending_file",
+              "status": "ok"
+            },
+            {
+              "name": "invalid_missing_or_denied_owner_still_blocks_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "invalid_retirement_descriptors_and_selection_fail_before_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "inventory_and_run_status_paginate_bounded_snapshots",
+              "status": "ok"
+            },
+            {
+              "name": "kind_boundary_empty_selection_and_conflicting_results",
+              "status": "ok"
+            },
+            {
+              "name": "last_authorization_cannot_replace_previously_checked_evidence_or_create_pending",
+              "status": "ok"
+            },
+            {
+              "name": "lease_record_publication_and_removal_invalidate_held_catalog_snapshot",
+              "status": "ok"
+            },
+            {
+              "name": "legacy_empty_and_pid_only_catalog_and_claim_remain_explicitly_recoverable",
+              "status": "ok"
+            },
+            {
+              "name": "lifecycle_explicit_defer_and_delete",
+              "status": "ok"
+            },
+            {
+              "name": "linked_root_is_never_retired",
+              "status": "ok"
+            },
+            {
+              "name": "live_owner_is_a_veto_despite_attestation",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::busy_contract_tests::immediate_busy_and_explicit_wait_keep_structured_diagnostics",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::busy_contract_tests::wait_policy_is_explicit_bounded_and_integral",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::final_recovery_boundary_reads_metadata_through_the_locked_owner_handle",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::lock_wait_distinguishes_typed_contention_and_stops_before_expired_retry",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::os_release_keeps_inode_and_legacy_markers_are_not_acquired",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::owner_veto_distinguishes_live_and_exited_process_with_retained_handle",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::recovery_never_unlinks_schema_two_os_lock_files",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::replaced_inode_is_preserved_on_release",
+              "status": "ok"
+            },
+            {
+              "name": "malformed_batch_prevalidation_prevents_all_target_mutations",
+              "status": "ok"
+            },
+            {
+              "name": "malformed_or_missing_config_invalidates_without_losing_receipts",
+              "status": "ok"
+            },
+            {
+              "name": "malformed_producer_evidence_is_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "managed_boundary_blockers_distinguish_root_from_outside",
+              "status": "ok"
+            },
+            {
+              "name": "membership_change_invalidates_old_tokens_and_live_members_cannot_drop",
+              "status": "ok"
+            },
+            {
+              "name": "membership_directory_change_requires_fresh_full_registration",
+              "status": "ok"
+            },
+            {
+              "name": "missing_or_denied_membership_source_blocks_delete_and_control_source_is_protected",
+              "status": "ok"
+            },
+            {
+              "name": "missing_or_mixed_group_decisions_never_mutate_any_member",
+              "status": "ok"
+            },
+            {
+              "name": "native_delete_failure_is_failed_and_audited",
+              "status": "ok"
+            },
+            {
+              "name": "new_records_during_observation_distinguish_consumers_from_unrelated_work",
+              "status": "ok"
+            },
+            {
+              "name": "newly_inserted_unapproved_junction_blocks_apply_before_any_group_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "ordinary_root_guard_and_explicit_exact_retirement_preserve_other_root_and_history",
+              "status": "ok"
+            },
+            {
+              "name": "other_record_errors_do_not_prevent_owner_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "owner_cli_allows_inventory_but_refuses_execution_relative_and_external_requests",
+              "status": "ok"
+            },
+            {
+              "name": "owner_coverage_metadata_and_completeness_must_match",
+              "status": "ok"
+            },
+            {
+              "name": "ownership_group_completeness_overlap_and_source_guards_remain",
+              "status": "ok"
+            },
+            {
+              "name": "partial_failure_retains_logs_and_independent_items_can_continue",
+              "status": "ok"
+            },
+            {
+              "name": "partition_refuses_missing_attestation_drift_pending_and_unknown_reservations",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_refresh_discard_preserves_index_and_numeric_recovery_revisions",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_refresh_discard_refuses_corrupt_blobs_and_late_blob_or_marker_replacement",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_refresh_discard_refuses_mixed_unknown_and_broader_pending_state",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_snapshot_refuses_corrupt_blob_without_changing_committed_index",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::bucket_membership_cannot_hide_additional_records",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::collection_rebinds_committed_index_and_pending_after_authorizer_callbacks",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::corruption_missing_references_and_denied_cleanup_fail_before_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::failed_owner_creation_removes_only_the_new_empty_directory",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::hardlinked_records_are_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::prepare_and_incremental_collection_do_not_inspect_unrelated_namespace_entries",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::references_reject_paths_and_wrong_formats",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::roundtrip_reuses_records_and_collection_preserves_current_state",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::thousand_record_state_has_bounded_live_buckets_and_rewrites_only_one_bucket",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::unowned_directories_and_unknown_entries_are_preserved",
+              "status": "ok"
+            },
+            {
+              "name": "passive_deferred_claims_migrate_and_preserve_the_prior_decision_audit",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::cache_hit_still_authorizes_and_detects_callback_rewrite",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::open_writer_falls_back_to_full_hashing",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::persistent_reader_restored_mtime_rewrites_rehash_current_content",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::same_size_restored_mtime_and_replacement_invalidate_content",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::small_files_hash_each_time_without_populating_cache",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::unchanged_content_reuses_only_supported_proofs_and_new_operation_hashes_again",
+              "status": "ok"
+            },
+            {
+              "name": "paths::missing_approved_descendant_stops_before_attribute_changes",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_junction_metadata_accepts_1024_entries_and_rejects_excess",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::absent_paths_still_require_ancestor_authorization",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::ancestor_attribute_lookup_is_bounded_to_plain_local_paths",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::ancestor_replacement_in_authorization_is_rechecked_before_descendants",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::detects_registered_root_replacement",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::fresh_ancestor_attributes_preserve_normal_missing_and_authorization_order",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::observes_only_root_and_stays_stable_after_content_edits",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::rejects_leaf_links_and_link_ancestors",
+              "status": "ok"
+            },
+            {
+              "name": "pending_intent_survives_result_persistence_failure",
+              "status": "ok"
+            },
+            {
+              "name": "pending_manifest_and_evidence_escape_are_refused",
+              "status": "ok"
+            },
+            {
+              "name": "permission_denial_remains_truthful_and_does_not_delete",
+              "status": "ok"
+            },
+            {
+              "name": "pre_intent_mutations_block_and_intent_mutations_use_approved_entries",
+              "status": "ok"
+            },
+            {
+              "name": "producer_fence_change_before_intent_preserves_payload_and_reservation",
+              "status": "ok"
+            },
+            {
+              "name": "protected_components_inside_selected_project_remain_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "protection_references_backup_original_and_roots",
+              "status": "ok"
+            },
+            {
+              "name": "protection_references_pending_and_unresolved_runs_remain_blockers",
+              "status": "ok"
+            },
+            {
+              "name": "read_operations_never_require_writes_or_create_state",
+              "status": "ok"
+            },
+            {
+              "name": "reappearance_blocks_fresh_review_and_stale_apply_in_both_modes",
+              "status": "ok"
+            },
+            {
+              "name": "reconciled_absent_member_reappearing_during_batch_retains_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_accepts_absent_prior_revisions_but_rejects_null_and_mixed_presence",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_bounds_evidence_and_never_overwrites_receipts",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_preserves_authoritative_bytes_failures_and_pending_intents",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_authorization_denials_and_callback_sibling_replacements",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_corruption_revision_errors_and_noop",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_occupied_os_locks_and_preserves_lock_inodes",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_stale_hashes_wrong_group_live_pid_and_missing_attestation",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_rejects_every_broader_transaction_and_inconsistent_membership",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_os_lock_timeout_preserves_manifest_and_identifies_lock",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_preserves_explicit_unknown_ownership_and_pending_producer",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_rejects_changed_identity_membership_and_roles",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_releases_consumers_without_payload_measurement",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_waits_for_os_locks_without_holding_partial_transactions",
+              "status": "ok"
+            },
+            {
+              "name": "registered_apply_reads_each_descendant_only_for_single_safe_enumeration",
+              "status": "ok"
+            },
+            {
+              "name": "registered_backup_does_not_silently_measure_replacement",
+              "status": "ok"
+            },
+            {
+              "name": "registered_default_reviews_cached_measurements_without_descendant_reads",
+              "status": "ok"
+            },
+            {
+              "name": "registered_descendants_and_ancestors_preserve_protection",
+              "status": "ok"
+            },
+            {
+              "name": "registered_original_source_and_child_run_protect_parent",
+              "status": "ok"
+            },
+            {
+              "name": "registration_preintent_failure_releases_only_its_known_reservation",
+              "status": "ok"
+            },
+            {
+              "name": "registration_reacquires_maintenance_after_measurement",
+              "status": "ok"
+            },
+            {
+              "name": "registration_reference_contract_matches_explicit_decisions",
+              "status": "ok"
+            },
+            {
+              "name": "registration_rejects_changed_producer_fence_without_publishing_partial_state",
+              "status": "ok"
+            },
+            {
+              "name": "registration_releases_global_locks_but_fences_scope_and_merges_unrelated_work",
+              "status": "ok"
+            },
+            {
+              "name": "registration_returns_partial_maintenance_while_retrying_catalog",
+              "status": "ok"
+            },
+            {
+              "name": "registration_source_switch_locks_both_original_and_incoming_catalogs_at_commit",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::cache_hit_member_callback_cannot_hide_changed_record_bytes",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::failed_locked_observation_is_not_admitted_as_snapshot",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::locked_snapshots_reuse_catalog_io_but_recheck_each_selected_owner_and_source",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::record_mutation_during_read_is_not_an_omission",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::same_bytes_reuse_parsing_but_replay_ordered_checks_and_permission_denials",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::scoped_references_project_only_selected_member_and_stale_pins_protect_group",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::unavailable_record_is_not_cached_as_a_held_snapshot_omission",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::unrelated_payload_permissions_are_not_catalog_requirements",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::warm_catalog_still_detects_new_consumer_between_observation_passes",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::changed_or_self_contained_evidence_cannot_authorize_cleanup",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::changed_receipt_identity_members_and_producer_are_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::receipt_enables_only_cleanup_preserves_unknown_and_current_consumer_protection",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::warm_catalog_rechecks_proofs_permissions_and_independent_single_link_files",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_escape_foreign_paths_and_denied_reads",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_protection_references_unknown_controls_and_incomplete_membership",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_stale_apply_and_missing_owner_or_group_without_metadata_changes",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_unselected_and_nested_overlap_and_changed_membership_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "removes_exact_modern_lock_after_preserving_independent_receipt_and_run_state",
+              "status": "ok"
+            },
+            {
+              "name": "replaced_registered_root_invalidates_review",
+              "status": "ok"
+            },
+            {
+              "name": "replaced_target_and_drifting_evidence_survive_recovery",
+              "status": "ok"
+            },
+            {
+              "name": "replacement_or_retarget_blocks_fresh_review_and_preserves_group_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "required_owner_catalog_structure_and_unknown_format_still_fail_closed",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::interrupted_reservation_blocks_new_consumers_and_overlapping_owners",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::later_producer_fence_change_preserves_only_the_affected_unreleased_group",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::nested_pair_acquisition_does_not_exempt_catalog_writer_claims",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::owning_context_revalidates_producer_fence_before_reusing_reservation",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::preintent_abort_releases_exact_unchanged_owner_and_retains_uncertainty",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::producer_release_keeps_unknown_and_incomplete_groups_while_releasing_terminal_peers",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::producer_release_rechecks_current_owner_guards_after_terminal_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::recovered_producer_reservation_rechecks_guards_and_preserves_unknown_removal",
+              "status": "ok"
+            },
+            {
+              "name": "reserved_apply_merges_unrelated_registration_and_deferred_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "retained_registered_child_protects_the_entire_group",
+              "status": "ok"
+            },
+            {
+              "name": "retirement_tokens_bind_descriptor_evidence_and_operation_mode",
+              "status": "ok"
+            },
+            {
+              "name": "root_retirement_ignores_only_freshly_absent_terminal_claims",
+              "status": "ok"
+            },
+            {
+              "name": "shared_files_without_attribute_changes_allow_ordinary_name_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "stale_decision_and_cached_inventory",
+              "status": "ok"
+            },
+            {
+              "name": "standalone_cli_migrates_then_ordinary_cli_deletes",
+              "status": "ok"
+            },
+            {
+              "name": "stopped_failure_is_settled_and_unknown_remains_protected",
+              "status": "ok"
+            },
+            {
+              "name": "storage::transaction_tests::concurrent_unrelated_registration_and_receipts_survive_intent_completion",
+              "status": "ok"
+            },
+            {
+              "name": "storage::transaction_tests::overlapping_owner_or_receipt_changes_are_conflicts",
+              "status": "ok"
+            },
+            {
+              "name": "storage::transaction_tests::suspended_save_waits_for_transaction_acquisition_without_replaying_commit",
+              "status": "ok"
+            },
+            {
+              "name": "timestamps_and_policy_only_produce_review_candidates",
+              "status": "ok"
+            },
+            {
+              "name": "timing::tests::disabled_timing_and_failed_output_do_not_affect_the_caller",
+              "status": "ok"
+            },
+            {
+              "name": "timing::tests::phase_preserves_owned_results_and_invokes_operation_once",
+              "status": "ok"
+            },
+            {
+              "name": "timing::tests::timing_record_preserves_structured_context_without_environment_mutation",
+              "status": "ok"
+            },
+            {
+              "name": "unchanged_final_observation_keeps_durable_group_receipt_without_another_write",
+              "status": "ok"
+            },
+            {
+              "name": "undeclared_junctions_and_root_or_ancestor_exceptions_remain_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "unfinished_producer_and_actual_exit_facts_cannot_conflict",
+              "status": "ok"
+            },
+            {
+              "name": "ungrouped_parent_cannot_bypass_a_descendant_lifecycle_group",
+              "status": "ok"
+            },
+            {
+              "name": "unknown_format_never_loads_as_an_empty_legacy_state",
+              "status": "ok"
+            },
+            {
+              "name": "unproven_absence_is_rejected_without_partial_registration",
+              "status": "ok"
+            },
+            {
+              "name": "unreadable_or_unknown_catalog_record_cannot_be_silently_omitted",
+              "status": "ok"
+            },
+            {
+              "name": "unrelated_valid_records_do_not_change_tokens_or_prevent_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "unresolved_producer_excludes_duplicate_plans_and_shared_resources",
+              "status": "ok"
+            },
+            {
+              "name": "unresolved_reservation_and_denied_write_permission_leave_metadata_unchanged",
+              "status": "ok"
+            },
+            {
+              "name": "valid_inbound_consumer_among_corrupt_records_still_protects_owner",
+              "status": "ok"
+            },
+            {
+              "name": "verification_modes_are_validated_and_bound_to_tokens",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::abort_and_graceful_drop_terminate_descendants",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::abrupt_exit_returns_unknown_without_retry_and_discards_worker",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::complete_report_survives_worker_exit_and_later_item_gets_new_worker",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::dropping_worker_closes_eof_and_terminates_exact_process",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::failed_request_does_not_leak_audit_or_failure_into_next_root",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::parent_loss_worker_fixture",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::parent_process_loss_terminates_worker_and_descendants",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::startup_eof_exits_before_script_evaluation",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::unreviewed_descendant_stops_before_attributes_and_next_request_is_fresh",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::verified_deletions_reuse_child_with_independent_reports",
+              "status": "ok"
+            }
+          ],
+          "libtestDurationSeconds": 339.78,
+          "summaryCount": 15
+        },
+        "sourceSha256": "810b44b44ab12d15369a147ba6be8b1568221452f36e534e2f3739984ce77771"
+      },
+      {
+        "threads": 4,
+        "startedUtc": "2026-10-31T02:12:46.971Z",
+        "exitCode": 0,
+        "pid": 52968,
+        "signal": null,
+        "finishedUtc": "2026-10-31T02:14:39.442Z",
+        "result": {
+          "status": 0,
+          "signal": null,
+          "error": null,
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=4"
+          ],
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 71,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 0,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 6,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 35,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 11,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 28,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 22,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 5,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 5,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 24,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 8,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                },
+                {
+                  "status": "ok",
+                  "passed": 0,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 0
+                }
+              ],
+              "passed": 227,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0,
+              "executed": 227
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=4"
+                ],
+                "startedUtc": "2026-10-31T02:12:47.025Z",
+                "durationMs": 112398,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "testResults": [
+            {
+              "name": "abandoned_lock_is_never_removed",
+              "status": "ok"
+            },
+            {
+              "name": "absence_changes_invalidate_old_group_tokens",
+              "status": "ok"
+            },
+            {
+              "name": "absent_adoption_still_requires_ancestor_authorization",
+              "status": "ok"
+            },
+            {
+              "name": "absent_member_is_reviewed_and_reconciled_before_remaining_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "absent_member_updates_keep_unresolved_cleanup_intent_protected",
+              "status": "ok"
+            },
+            {
+              "name": "additional_live_member_and_write_denial_preserve_nested_payload",
+              "status": "ok"
+            },
+            {
+              "name": "all_absent_members_complete_without_write_authorization_and_stay_reconciled",
+              "status": "ok"
+            },
+            {
+              "name": "all_hardlink_names_inside_one_root_allow_owned_normalization",
+              "status": "ok"
+            },
+            {
+              "name": "ancestor_reference_and_stale_ancestor_token_block_child",
+              "status": "ok"
+            },
+            {
+              "name": "apply_observes_membership_once_per_preflight_and_pre_intent_boundary",
+              "status": "ok"
+            },
+            {
+              "name": "apply::diagnostic_tests::stale_diagnostics_hash_components_without_exporting_owner_payload",
+              "status": "ok"
+            },
+            {
+              "name": "approved_authorization_is_not_repeated_after_durable_intent",
+              "status": "ok"
+            },
+            {
+              "name": "artifact_log_evidence_share_expanded_review_and_delete_fate",
+              "status": "ok"
+            },
+            {
+              "name": "authorization_mutating_a_cached_sibling_with_restored_mtime_blocks_group",
+              "status": "ok"
+            },
+            {
+              "name": "backup_requires_fresh_registered_retained_recovery_copy",
+              "status": "ok"
+            },
+            {
+              "name": "blank_legacy_recovery_reference_cannot_confirm_retention",
+              "status": "ok"
+            },
+            {
+              "name": "cancellation_preserves_completed_results_and_stops_before_physical_delete",
+              "status": "ok"
+            },
+            {
+              "name": "cancelled_registration_releases_its_scope_without_committing",
+              "status": "ok"
+            },
+            {
+              "name": "canonical_evidence_remains_protected_and_tampering_blocks_later_cleanup",
+              "status": "ok"
+            },
+            {
+              "name": "catalog_contention_blocks_mutation_and_apply_reserves_group_between_transactions",
+              "status": "ok"
+            },
+            {
+              "name": "changed_or_denied_final_observation_is_persisted_after_destructive_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "child_only_retirement_preserves_parent_and_requires_new_outer_measurement",
+              "status": "ok"
+            },
+            {
+              "name": "complete_membership_preserves_present_and_freshly_absent_paths",
+              "status": "ok"
+            },
+            {
+              "name": "completed_recovery_requires_explicit_verified_reason_and_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "completed_unknown_producer_allows_retry_without_fabricating_success",
+              "status": "ok"
+            },
+            {
+              "name": "confirmed_generated_readonly_hidden_deleted_and_audited",
+              "status": "ok"
+            },
+            {
+              "name": "consolidates_cross_owner_claims_without_touching_bytes_and_preserves_history_for_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "cross_member_hardlink_normalization_remains_conservatively_blocked",
+              "status": "ok"
+            },
+            {
+              "name": "denied_missing_member_stays_unknown_and_protects_the_whole_group",
+              "status": "ok"
+            },
+            {
+              "name": "denied_read_receipt_write_or_target_delete_preserves_target",
+              "status": "ok"
+            },
+            {
+              "name": "denies_nested_write_before_any_mutation",
+              "status": "ok"
+            },
+            {
+              "name": "dependencies_exact_semantic_dedup_and_phase_boundaries",
+              "status": "ok"
+            },
+            {
+              "name": "descriptor_evidence_selection_and_fates_are_bound",
+              "status": "ok"
+            },
+            {
+              "name": "destructive_receipt_survives_later_observation_and_save_denial",
+              "status": "ok"
+            },
+            {
+              "name": "direct_registration_cannot_strip_or_spoof_group_membership",
+              "status": "ok"
+            },
+            {
+              "name": "dispatch_busy_is_structured_without_implicit_retry",
+              "status": "ok"
+            },
+            {
+              "name": "durable_unknown_failed_and_interrupted_receipts",
+              "status": "ok"
+            },
+            {
+              "name": "enclosing_membership_evidence_change_during_authorization_blocks_child",
+              "status": "ok"
+            },
+            {
+              "name": "exact_hash_token_evidence_and_attestation_are_required",
+              "status": "ok"
+            },
+            {
+              "name": "exclusive_recovery_guard_refuses_overlapping_attempts_and_is_retained",
+              "status": "ok"
+            },
+            {
+              "name": "execution_revalidates_inputs_and_preserves_observed_exit_independently",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_compaction_reclaims_only_valid_unreferenced_state_blobs",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_junction_registration_review_and_removal_never_read_target_payload",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_partition_preserves_reads_updates_cleanup_and_old_owner_refusal",
+              "status": "ok"
+            },
+            {
+              "name": "explicit_verified_producer_recovery_preserves_unknown_outcome",
+              "status": "ok"
+            },
+            {
+              "name": "extended_literal_nested_paths_delete_and_audit_only_attribute_changes",
+              "status": "ok"
+            },
+            {
+              "name": "external_shared_readonly_files_block_before_any_attributes_change_and_preserve_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "failed_group_registration_is_atomic_and_paths_must_be_disjoint",
+              "status": "ok"
+            },
+            {
+              "name": "failed_ordinary_refresh_discard_retains_truthful_attempt_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "first_adoption_keeps_absent_member_and_reconciles_without_deletion_attempt",
+              "status": "ok"
+            },
+            {
+              "name": "full_and_omitted_missing_member_updates_preserve_history_and_group_ownership",
+              "status": "ok"
+            },
+            {
+              "name": "grouped_delete_preflight_allows_unrelated_metadata_commit",
+              "status": "ok"
+            },
+            {
+              "name": "hardlinked_evidence_and_existing_receipts_are_refused",
+              "status": "ok"
+            },
+            {
+              "name": "immediate_commit_busy_retains_reservation_when_abort_cannot_reacquire",
+              "status": "ok"
+            },
+            {
+              "name": "incoming_consumers_protect_even_when_added_between_projection_and_register",
+              "status": "ok"
+            },
+            {
+              "name": "incomplete_or_protected_member_blocks_delete_but_all_defer_preserves",
+              "status": "ok"
+            },
+            {
+              "name": "independent_reviewed_items_apply_in_one_batch",
+              "status": "ok"
+            },
+            {
+              "name": "intent_save_failure_preserves_target_manifest_and_pending_file",
+              "status": "ok"
+            },
+            {
+              "name": "invalid_missing_or_denied_owner_still_blocks_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "invalid_retirement_descriptors_and_selection_fail_before_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "inventory_and_run_status_paginate_bounded_snapshots",
+              "status": "ok"
+            },
+            {
+              "name": "kind_boundary_empty_selection_and_conflicting_results",
+              "status": "ok"
+            },
+            {
+              "name": "last_authorization_cannot_replace_previously_checked_evidence_or_create_pending",
+              "status": "ok"
+            },
+            {
+              "name": "lease_record_publication_and_removal_invalidate_held_catalog_snapshot",
+              "status": "ok"
+            },
+            {
+              "name": "legacy_empty_and_pid_only_catalog_and_claim_remain_explicitly_recoverable",
+              "status": "ok"
+            },
+            {
+              "name": "lifecycle_explicit_defer_and_delete",
+              "status": "ok"
+            },
+            {
+              "name": "linked_root_is_never_retired",
+              "status": "ok"
+            },
+            {
+              "name": "live_owner_is_a_veto_despite_attestation",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::busy_contract_tests::immediate_busy_and_explicit_wait_keep_structured_diagnostics",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::busy_contract_tests::wait_policy_is_explicit_bounded_and_integral",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::final_recovery_boundary_reads_metadata_through_the_locked_owner_handle",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::lock_wait_distinguishes_typed_contention_and_stops_before_expired_retry",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::os_release_keeps_inode_and_legacy_markers_are_not_acquired",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::owner_veto_distinguishes_live_and_exited_process_with_retained_handle",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::recovery_never_unlinks_schema_two_os_lock_files",
+              "status": "ok"
+            },
+            {
+              "name": "lock_recovery::tests::replaced_inode_is_preserved_on_release",
+              "status": "ok"
+            },
+            {
+              "name": "malformed_batch_prevalidation_prevents_all_target_mutations",
+              "status": "ok"
+            },
+            {
+              "name": "malformed_or_missing_config_invalidates_without_losing_receipts",
+              "status": "ok"
+            },
+            {
+              "name": "malformed_producer_evidence_is_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "managed_boundary_blockers_distinguish_root_from_outside",
+              "status": "ok"
+            },
+            {
+              "name": "membership_change_invalidates_old_tokens_and_live_members_cannot_drop",
+              "status": "ok"
+            },
+            {
+              "name": "membership_directory_change_requires_fresh_full_registration",
+              "status": "ok"
+            },
+            {
+              "name": "missing_or_denied_membership_source_blocks_delete_and_control_source_is_protected",
+              "status": "ok"
+            },
+            {
+              "name": "missing_or_mixed_group_decisions_never_mutate_any_member",
+              "status": "ok"
+            },
+            {
+              "name": "native_delete_failure_is_failed_and_audited",
+              "status": "ok"
+            },
+            {
+              "name": "new_records_during_observation_distinguish_consumers_from_unrelated_work",
+              "status": "ok"
+            },
+            {
+              "name": "newly_inserted_unapproved_junction_blocks_apply_before_any_group_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "ordinary_root_guard_and_explicit_exact_retirement_preserve_other_root_and_history",
+              "status": "ok"
+            },
+            {
+              "name": "other_record_errors_do_not_prevent_owner_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "owner_cli_allows_inventory_but_refuses_execution_relative_and_external_requests",
+              "status": "ok"
+            },
+            {
+              "name": "owner_coverage_metadata_and_completeness_must_match",
+              "status": "ok"
+            },
+            {
+              "name": "ownership_group_completeness_overlap_and_source_guards_remain",
+              "status": "ok"
+            },
+            {
+              "name": "partial_failure_retains_logs_and_independent_items_can_continue",
+              "status": "ok"
+            },
+            {
+              "name": "partition_refuses_missing_attestation_drift_pending_and_unknown_reservations",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_refresh_discard_preserves_index_and_numeric_recovery_revisions",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_refresh_discard_refuses_corrupt_blobs_and_late_blob_or_marker_replacement",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_refresh_discard_refuses_mixed_unknown_and_broader_pending_state",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_snapshot_refuses_corrupt_blob_without_changing_committed_index",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::bucket_membership_cannot_hide_additional_records",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::collection_rebinds_committed_index_and_pending_after_authorizer_callbacks",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::corruption_missing_references_and_denied_cleanup_fail_before_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::failed_owner_creation_removes_only_the_new_empty_directory",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::hardlinked_records_are_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::prepare_and_incremental_collection_do_not_inspect_unrelated_namespace_entries",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::references_reject_paths_and_wrong_formats",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::roundtrip_reuses_records_and_collection_preserves_current_state",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::thousand_record_state_has_bounded_live_buckets_and_rewrites_only_one_bucket",
+              "status": "ok"
+            },
+            {
+              "name": "partitioned_storage::tests::unowned_directories_and_unknown_entries_are_preserved",
+              "status": "ok"
+            },
+            {
+              "name": "passive_deferred_claims_migrate_and_preserve_the_prior_decision_audit",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::cache_hit_still_authorizes_and_detects_callback_rewrite",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::open_writer_falls_back_to_full_hashing",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::persistent_reader_restored_mtime_rewrites_rehash_current_content",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::same_size_restored_mtime_and_replacement_invalidate_content",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::small_files_hash_each_time_without_populating_cache",
+              "status": "ok"
+            },
+            {
+              "name": "paths::content_cache_tests::unchanged_content_reuses_only_supported_proofs_and_new_operation_hashes_again",
+              "status": "ok"
+            },
+            {
+              "name": "paths::missing_approved_descendant_stops_before_attribute_changes",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_junction_metadata_accepts_1024_entries_and_rejects_excess",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::absent_paths_still_require_ancestor_authorization",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::ancestor_attribute_lookup_is_bounded_to_plain_local_paths",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::ancestor_replacement_in_authorization_is_rechecked_before_descendants",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::detects_registered_root_replacement",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::fresh_ancestor_attributes_preserve_normal_missing_and_authorization_order",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::observes_only_root_and_stays_stable_after_content_edits",
+              "status": "ok"
+            },
+            {
+              "name": "paths::registered_observation_tests::rejects_leaf_links_and_link_ancestors",
+              "status": "ok"
+            },
+            {
+              "name": "pending_intent_survives_result_persistence_failure",
+              "status": "ok"
+            },
+            {
+              "name": "pending_manifest_and_evidence_escape_are_refused",
+              "status": "ok"
+            },
+            {
+              "name": "permission_denial_remains_truthful_and_does_not_delete",
+              "status": "ok"
+            },
+            {
+              "name": "pre_intent_mutations_block_and_intent_mutations_use_approved_entries",
+              "status": "ok"
+            },
+            {
+              "name": "producer_fence_change_before_intent_preserves_payload_and_reservation",
+              "status": "ok"
+            },
+            {
+              "name": "protected_components_inside_selected_project_remain_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "protection_references_backup_original_and_roots",
+              "status": "ok"
+            },
+            {
+              "name": "protection_references_pending_and_unresolved_runs_remain_blockers",
+              "status": "ok"
+            },
+            {
+              "name": "read_operations_never_require_writes_or_create_state",
+              "status": "ok"
+            },
+            {
+              "name": "reappearance_blocks_fresh_review_and_stale_apply_in_both_modes",
+              "status": "ok"
+            },
+            {
+              "name": "reconciled_absent_member_reappearing_during_batch_retains_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_accepts_absent_prior_revisions_but_rejects_null_and_mixed_presence",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_bounds_evidence_and_never_overwrites_receipts",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_preserves_authoritative_bytes_failures_and_pending_intents",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_authorization_denials_and_callback_sibling_replacements",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_corruption_revision_errors_and_noop",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_occupied_os_locks_and_preserves_lock_inodes",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_refuses_stale_hashes_wrong_group_live_pid_and_missing_attestation",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_discard_rejects_every_broader_transaction_and_inconsistent_membership",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_os_lock_timeout_preserves_manifest_and_identifies_lock",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_preserves_explicit_unknown_ownership_and_pending_producer",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_rejects_changed_identity_membership_and_roles",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_releases_consumers_without_payload_measurement",
+              "status": "ok"
+            },
+            {
+              "name": "refresh_waits_for_os_locks_without_holding_partial_transactions",
+              "status": "ok"
+            },
+            {
+              "name": "registered_apply_reads_each_descendant_only_for_single_safe_enumeration",
+              "status": "ok"
+            },
+            {
+              "name": "registered_backup_does_not_silently_measure_replacement",
+              "status": "ok"
+            },
+            {
+              "name": "registered_default_reviews_cached_measurements_without_descendant_reads",
+              "status": "ok"
+            },
+            {
+              "name": "registered_descendants_and_ancestors_preserve_protection",
+              "status": "ok"
+            },
+            {
+              "name": "registered_original_source_and_child_run_protect_parent",
+              "status": "ok"
+            },
+            {
+              "name": "registration_preintent_failure_releases_only_its_known_reservation",
+              "status": "ok"
+            },
+            {
+              "name": "registration_reacquires_maintenance_after_measurement",
+              "status": "ok"
+            },
+            {
+              "name": "registration_reference_contract_matches_explicit_decisions",
+              "status": "ok"
+            },
+            {
+              "name": "registration_rejects_changed_producer_fence_without_publishing_partial_state",
+              "status": "ok"
+            },
+            {
+              "name": "registration_releases_global_locks_but_fences_scope_and_merges_unrelated_work",
+              "status": "ok"
+            },
+            {
+              "name": "registration_returns_partial_maintenance_while_retrying_catalog",
+              "status": "ok"
+            },
+            {
+              "name": "registration_source_switch_locks_both_original_and_incoming_catalogs_at_commit",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::cache_hit_member_callback_cannot_hide_changed_record_bytes",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::failed_locked_observation_is_not_admitted_as_snapshot",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::locked_snapshots_reuse_catalog_io_but_recheck_each_selected_owner_and_source",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::record_mutation_during_read_is_not_an_omission",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::same_bytes_reuse_parsing_but_replay_ordered_checks_and_permission_denials",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::scoped_references_project_only_selected_member_and_stale_pins_protect_group",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::unavailable_record_is_not_cached_as_a_held_snapshot_omission",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::unrelated_payload_permissions_are_not_catalog_requirements",
+              "status": "ok"
+            },
+            {
+              "name": "registry::catalog_tests::warm_catalog_still_detects_new_consumer_between_observation_passes",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::changed_or_self_contained_evidence_cannot_authorize_cleanup",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::changed_receipt_identity_members_and_producer_are_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::receipt_enables_only_cleanup_preserves_unknown_and_current_consumer_protection",
+              "status": "ok"
+            },
+            {
+              "name": "registry::cleanup_recovery_tests::warm_catalog_rechecks_proofs_permissions_and_independent_single_link_files",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_escape_foreign_paths_and_denied_reads",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_protection_references_unknown_controls_and_incomplete_membership",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_stale_apply_and_missing_owner_or_group_without_metadata_changes",
+              "status": "ok"
+            },
+            {
+              "name": "rejects_unselected_and_nested_overlap_and_changed_membership_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "removes_exact_modern_lock_after_preserving_independent_receipt_and_run_state",
+              "status": "ok"
+            },
+            {
+              "name": "replaced_registered_root_invalidates_review",
+              "status": "ok"
+            },
+            {
+              "name": "replaced_target_and_drifting_evidence_survive_recovery",
+              "status": "ok"
+            },
+            {
+              "name": "replacement_or_retarget_blocks_fresh_review_and_preserves_group_evidence",
+              "status": "ok"
+            },
+            {
+              "name": "required_owner_catalog_structure_and_unknown_format_still_fail_closed",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::interrupted_reservation_blocks_new_consumers_and_overlapping_owners",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::later_producer_fence_change_preserves_only_the_affected_unreleased_group",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::nested_pair_acquisition_does_not_exempt_catalog_writer_claims",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::owning_context_revalidates_producer_fence_before_reusing_reservation",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::preintent_abort_releases_exact_unchanged_owner_and_retains_uncertainty",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::producer_release_keeps_unknown_and_incomplete_groups_while_releasing_terminal_peers",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::producer_release_rechecks_current_owner_guards_after_terminal_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "reservations::tests::recovered_producer_reservation_rechecks_guards_and_preserves_unknown_removal",
+              "status": "ok"
+            },
+            {
+              "name": "reserved_apply_merges_unrelated_registration_and_deferred_receipt",
+              "status": "ok"
+            },
+            {
+              "name": "retained_registered_child_protects_the_entire_group",
+              "status": "ok"
+            },
+            {
+              "name": "retirement_tokens_bind_descriptor_evidence_and_operation_mode",
+              "status": "ok"
+            },
+            {
+              "name": "root_retirement_ignores_only_freshly_absent_terminal_claims",
+              "status": "ok"
+            },
+            {
+              "name": "shared_files_without_attribute_changes_allow_ordinary_name_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "stale_decision_and_cached_inventory",
+              "status": "ok"
+            },
+            {
+              "name": "standalone_cli_migrates_then_ordinary_cli_deletes",
+              "status": "ok"
+            },
+            {
+              "name": "stopped_failure_is_settled_and_unknown_remains_protected",
+              "status": "ok"
+            },
+            {
+              "name": "storage::transaction_tests::concurrent_unrelated_registration_and_receipts_survive_intent_completion",
+              "status": "ok"
+            },
+            {
+              "name": "storage::transaction_tests::overlapping_owner_or_receipt_changes_are_conflicts",
+              "status": "ok"
+            },
+            {
+              "name": "storage::transaction_tests::suspended_save_waits_for_transaction_acquisition_without_replaying_commit",
+              "status": "ok"
+            },
+            {
+              "name": "timestamps_and_policy_only_produce_review_candidates",
+              "status": "ok"
+            },
+            {
+              "name": "timing::tests::disabled_timing_and_failed_output_do_not_affect_the_caller",
+              "status": "ok"
+            },
+            {
+              "name": "timing::tests::phase_preserves_owned_results_and_invokes_operation_once",
+              "status": "ok"
+            },
+            {
+              "name": "timing::tests::timing_record_preserves_structured_context_without_environment_mutation",
+              "status": "ok"
+            },
+            {
+              "name": "unchanged_final_observation_keeps_durable_group_receipt_without_another_write",
+              "status": "ok"
+            },
+            {
+              "name": "undeclared_junctions_and_root_or_ancestor_exceptions_remain_rejected",
+              "status": "ok"
+            },
+            {
+              "name": "unfinished_producer_and_actual_exit_facts_cannot_conflict",
+              "status": "ok"
+            },
+            {
+              "name": "ungrouped_parent_cannot_bypass_a_descendant_lifecycle_group",
+              "status": "ok"
+            },
+            {
+              "name": "unknown_format_never_loads_as_an_empty_legacy_state",
+              "status": "ok"
+            },
+            {
+              "name": "unproven_absence_is_rejected_without_partial_registration",
+              "status": "ok"
+            },
+            {
+              "name": "unreadable_or_unknown_catalog_record_cannot_be_silently_omitted",
+              "status": "ok"
+            },
+            {
+              "name": "unrelated_valid_records_do_not_change_tokens_or_prevent_deletion",
+              "status": "ok"
+            },
+            {
+              "name": "unresolved_producer_excludes_duplicate_plans_and_shared_resources",
+              "status": "ok"
+            },
+            {
+              "name": "unresolved_reservation_and_denied_write_permission_leave_metadata_unchanged",
+              "status": "ok"
+            },
+            {
+              "name": "valid_inbound_consumer_among_corrupt_records_still_protects_owner",
+              "status": "ok"
+            },
+            {
+              "name": "verification_modes_are_validated_and_bound_to_tokens",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::abort_and_graceful_drop_terminate_descendants",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::abrupt_exit_returns_unknown_without_retry_and_discards_worker",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::complete_report_survives_worker_exit_and_later_item_gets_new_worker",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::dropping_worker_closes_eof_and_terminates_exact_process",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::failed_request_does_not_leak_audit_or_failure_into_next_root",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::parent_loss_worker_fixture",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::parent_process_loss_terminates_worker_and_descendants",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::startup_eof_exits_before_script_evaluation",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::unreviewed_descendant_stops_before_attributes_and_next_request_is_fresh",
+              "status": "ok"
+            },
+            {
+              "name": "windows_delete::tests::verified_deletions_reuse_child_with_independent_reports",
+              "status": "ok"
+            }
+          ],
+          "libtestDurationSeconds": 108.86000000000001,
+          "summaryCount": 15
+        },
+        "sourceSha256": "810b44b44ab12d15369a147ba6be8b1568221452f36e534e2f3739984ce77771"
+      }
+    ],
+    "libtestSpeedup": 3.121256659930185,
+    "savedLibtestSeconds": 230.91999999999996,
+    "measurement": "Sum of libtest runtime summaries; first cold Cargo compilation is excluded from the speedup"
+  },
+  "appliedPolicy": {
+    "libraryThreads": 4,
+    "coreThreads": 1,
+    "promptsThreads": 1,
+    "inputs": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-project-maintenance.cjs",
+        "sha256": "79877d89003169e5e5744e3fb8f87b80a6332ff953a0aeccb2c59a5e72d94492"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-preflight-recipes.cjs",
+        "sha256": "b266621f8a534d6eb9447c74bdeaf5ae8a15aa871dbdd161ad194b21022be966"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-preflight-recipes.cjs",
+        "sha256": "b6146ff919fa1d5b5d728604ab88cdbf0fc6f67a44b2130783fdb07adaf21fd4"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification.cjs",
+        "sha256": "693c71ca462a95b430d5b5effa7cf70620c38361c364328c28d9b72ccdcbe7c1"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification.cjs",
+        "sha256": "e7308f5425e962c6413175d3a2b92643c6b3f29b562752f17fc2bafc5c317994"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\feature-preservation.cjs",
+        "sha256": "42e31ef7da2ac0f453bf9de61132cdacecb8c9a8b4c29efa743ca85d42261aaf"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-pipeline-preservation.cjs",
+        "sha256": "996ce5ed3b5fef83b35aef9d1f220d4c692e01041fc65ce7b333101c94e9aaee"
+      }
+    ],
+    "unit": {
+      "schema": 1,
+      "status": "passed",
+      "controllerPid": 42948,
+      "startedUtc": "2026-10-31T02:16:00.934Z",
+      "inputs": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-project-maintenance.cjs",
+          "sha256": "79877d89003169e5e5744e3fb8f87b80a6332ff953a0aeccb2c59a5e72d94492"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-preflight-recipes.cjs",
+          "sha256": "b266621f8a534d6eb9447c74bdeaf5ae8a15aa871dbdd161ad194b21022be966"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-preflight-recipes.cjs",
+          "sha256": "b6146ff919fa1d5b5d728604ab88cdbf0fc6f67a44b2130783fdb07adaf21fd4"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification.cjs",
+          "sha256": "693c71ca462a95b430d5b5effa7cf70620c38361c364328c28d9b72ccdcbe7c1"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification.cjs",
+          "sha256": "e7308f5425e962c6413175d3a2b92643c6b3f29b562752f17fc2bafc5c317994"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\feature-preservation.cjs",
+          "sha256": "42e31ef7da2ac0f453bf9de61132cdacecb8c9a8b4c29efa743ca85d42261aaf"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-pipeline-preservation.cjs",
+          "sha256": "996ce5ed3b5fef83b35aef9d1f220d4c692e01041fc65ce7b333101c94e9aaee"
+        }
+      ],
+      "runId": "run:ET-01-cold-build-cache-audit:maintenance-concurrency-policy-20261031a",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\maintenance-concurrency-policy-20261031a",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "scripts/test-cargo-preflight-recipes.cjs",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-pipeline-preservation.cjs"
+      ],
+      "childPid": 21024,
+      "exitCode": 0,
+      "signal": null,
+      "counts": {
+        "tests": 81,
+        "pass": 81,
+        "fail": 0,
+        "skipped": 0
+      },
+      "finishedUtc": "2026-10-31T02:16:22.757Z"
+    },
+    "reportSha256": "61a73d20d239cf04c8a369fb1a438c9ffb23ff381735800bf1cf173f9ed5f87f"
+  },
+  "failedPreparation": {
+    "status": "failed",
+    "controllerPid": 39988,
+    "attempts": [
+      {
+        "threads": 1,
+        "startedUtc": "2026-10-31T02:04:55.954Z",
+        "exitCode": 1,
+        "pid": 27328,
+        "signal": null,
+        "finishedUtc": "2026-10-31T02:04:56.067Z"
+      }
+    ],
+    "error": "Error: Actual maintenance test execution failed at threads=1\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\measure-maintenance-test-concurrency.cjs:33:63)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\measure-maintenance-test-concurrency.cjs:40:33",
+    "closeError": "Error: Stale lifecycle revision\n    at currentRun (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-run.cjs:14:67)\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-run.cjs:117:5\n    at Object.withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:138:16)\n    at Object.finishArtifactRun (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-run.cjs:116:20)\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\measure-maintenance-test-concurrency.cjs:48:146\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "terminalProof": {
+      "schema": 1,
+      "controller": {
+        "pid": 39988,
+        "workId": "3423d664-bb48-408b-854f-15e3862dd6e2",
+        "observedExitCode": 1
+      },
+      "child": {
+        "threads": 1,
+        "startedUtc": "2026-10-31T02:04:55.954Z",
+        "exitCode": 1,
+        "pid": 27328,
+        "signal": null,
+        "finishedUtc": "2026-10-31T02:04:56.067Z"
+      },
+      "producer_stopped_verified": true,
+      "process_tree_stopped_verified": true,
+      "stopBasis": "Executor observed outer actual exit1; tracked Node child actual exit1 at module parse before imports/evaluation, so no Cargo/native producer was launched. This uses observed terminal outcomes and parse failure, not PID absence.",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\maintenance-concurrency-20261031a\\reports\\comparison.json",
+        "sha256": "cf871f0231081780135a2528178e6633efc0bc5c550e0551dfd9b60accfc6c8b"
+      },
+      "stderr": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\maintenance-concurrency-20261031a\\logs\\threads-1.controller.stderr.log",
+        "sha256": "520250e5dfc4ec0c5c59c15b89033648c3544ab1cb525fa90f64ccfc0c1052cd"
+      }
+    },
+    "cargoStarted": false,
+    "reportSha256": "cf871f0231081780135a2528178e6633efc0bc5c550e0551dfd9b60accfc6c8b"
+  },
+  "oldGOwner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\.azrael-cargo-owner\\owner.json",
+    "sha256": "47853b3822bae7dd4b662175e1fef51f589c0946e783dabfa2a820e3bbae7817"
+  },
+  "productBuildExecuted": false,
+  "oldGTargetTouched": false,
+  "validationRuns": [
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+      "id": "run:ET-01-cold-build-cache-audit:maintenance-concurrency-20261031a",
+      "memberPaths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\maintenance-concurrency-20261031a",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\np1"
+      ]
+    },
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+      "id": "run:ET-01-cold-build-cache-audit:maintenance-concurrency-20261031b",
+      "memberPaths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\maintenance-concurrency-20261031b",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\np2"
+      ]
+    },
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "id": "run:ET-01-cold-build-cache-audit:maintenance-concurrency-policy-20261031a",
+      "memberPaths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\maintenance-concurrency-policy-20261031a"
+      ]
+    }
+  ],
+  "finishedUtc": "2026-10-31T02:17:19.831Z"
+}
