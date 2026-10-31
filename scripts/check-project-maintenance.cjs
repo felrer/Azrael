@@ -16,7 +16,7 @@ function commands(argv) {
   const packages = { library: "azrael-project-maintenance", prompts: "codex-prompts", core: "codex-core" };
   const args = ["test", "-p", packages[stage]];
   if (stage !== "library") args.push("--lib", "project_maintenance");
-  args.push("--locked", "--offline", "--", "--test-threads=1");
+  args.push("--locked", "--offline", "--", stage === "library" ? "--test-threads=4" : "--test-threads=1");
   return { sourceRoot, args };
 }
 
