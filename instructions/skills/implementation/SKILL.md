@@ -91,6 +91,8 @@ Before working, check architecture status and relevant behavior, constraints, an
 
 Check separately that the targeted failure is fixed and that existing features, constraints, and authority are preserved. Apply the [testing skill](../testing/SKILL.md) for common test selection, admission, assertions, execution evidence, consolidation and retirement. Project guidance owns mandatory checks and concrete commands; section 8 owns disposable artifact cleanup and retention approval.
 
+- Verifying that the current change works and preserves existing behavior is separate from retaining that verification as a permanent test. Perform the verification needed for this task, then apply testing's retention criteria. Needing a check once does not justify keeping it permanently.
+
 - Verify the assigned scope and report shared-resource constraints or needed scope changes to root.
 - For document, UI, data and experimental changes, use the relevant project verification guidance. Do not generalize beyond the verified scope or arbitrarily lower success criteria because verification fails.
 - Keep this task's verification evidence in the existing work record and repeatable procedures in operational documents. Update only status labels in design documents, linking evidence when needed; do not accumulate per-run results, hashes or dates there.

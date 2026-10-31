@@ -12,11 +12,13 @@ The testing skill owns common [scope and authority](../../instructions/skills/te
 
 ## Apply The Decision
 
-1. Apply testing's maintenance criteria to the affected cases and record the decision and surviving protection in the existing work record or change description. A review-only task reports findings; source edits use the task's existing execution authority.
+1. Apply testing's retention criteria and record the keep, consolidate or remove decision in the existing work record or change description. For retention, name the concrete mistake you could repeat. For removal, state whether the fix removed its cause or verification moves to a one-off check or real use. Do not require a replacement automated check for every removed test. A review-only task reports findings; source edits use the task's existing execution authority.
 2. Update the affected source, fixture/helper consumers, runner registrations and preservation mappings together through their actual owners. Follow [feature maintenance](../architecture/README.md#feature-maintenance) for an agreed contract change, including its mandatory checks.
 3. Use supported writers for registered bundle and reference changes under [project maintenance operations](../ops/project-maintenance.md). Generated-output deletion also follows [Build and reinstall](build.md); ordinary source edits do not require a product build.
 
 ## Verify And Close
+
+- After removal, verify that surviving tests remain registered and executable, and check actual consumers of shared fixtures and helpers. Recreating the removed automated coverage elsewhere is not a condition of completing test cleanup. Changes to mandatory checks follow [Work preservation](work.md#feature-changes-and-upgrade-preservation).
 
 - Select concrete source, engine and integration checks through [Work](work.md#feature-changes-and-upgrade-preservation), [source test operations](../ops/development.md#source-test-scope) and [Build preflight](build.md#build-preflight-and-artifact-dependencies). Apply testing's execution and reuse criteria to their results. Keep the existing Cargo prerequisite helper and bundle contract.
 - Select required target and Windows regression checks through the [multi-platform contract](../architecture/multi-platform.md#installation-update-and-verification). Use the exact-package and host stages in Build when the task includes their acceptance; source maintenance alone does not select a distribution build or installation.
