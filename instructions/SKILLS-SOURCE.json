@@ -94,15 +94,16 @@
         "size": 17375,
         "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 18554,
-      "sha256": "f2dd6369e86ccefac2db2806c29e9a44df598d0038aaf717ea690f48a3a36fac",
+      "size": 18845,
+      "sha256": "dd0a86a4dad921065e9980a96c9a9e7f7a83241d82c1d99ba4fe08b58d247055",
       "adaptations": [
         "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy.",
         "Select sufficient evidence before test generation; justify permanent coverage by distinct regression value and lifecycle costs while preserving mandatory checks, important contracts and cleanup/retention authority; active installed skill uses this maintained directory.",
         "Delegate common test decisions to the approved testing skill; retain overall verification and cleanup ownership.",
         "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance.",
-        "Remove automatic archive fallback; use existing owner-based deletion and investigate failures while preserving protection and explicit retention approval; active installed skill resolves to this maintained source."
+        "Remove automatic archive fallback; use existing owner-based deletion and investigate failures while preserving protection and explicit retention approval; active installed skill resolves to this maintained source.",
+        "Separate current-change verification from permanent test retention; defer retention to the testing skill."
       ]
     },
     {

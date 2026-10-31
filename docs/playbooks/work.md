@@ -55,7 +55,8 @@ When handling generated inputs, logs, reports, backups and version evidence, als
   Check implemented portions and contracts agreed to be retained section by section;
   do not exclude existing implementations from preservation merely because the overall design is `target` or `partial`.
   Distinguish unimplemented goals and drafts from implementation requirements.
-- For deletion, reduced scope or exclusion of preservation items or checks, confirm the corresponding design change and approval evidence in the existing task.
+- For removal or reduction of product behavior or supported scope, confirm the corresponding design change and approval evidence in the existing task. When product behavior remains unchanged and only automated tests are reduced, apply the [testing skill](../../instructions/skills/testing/SKILL.md) and the current task's source-change authority. Do not require a separate design change or renewed approval for each test removal already within authorized test-maintenance scope.
+- When changing a mandatory check, update its owning requirement and preservation inventory together within the agreed scope. Existing mandatory status does not settle permanent retention, but general test-retention criteria do not automatically waive that requirement.
   Record evidence in the work record for comparisons without automated checks. Do not complete acceptance of the update candidate until missing, failed or unverified items
   are resolved or addressed through an explicitly decided scope change.
 - Perform verification authorized for this task and record results and unverified scope. Distinguish completion of source changes from update candidate acceptance;
