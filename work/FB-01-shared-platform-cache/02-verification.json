@@ -1,0 +1,73 @@
+{
+  "status": "passed-with-platform-exclusion",
+  "verifiedPlatform": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v26.7.0"
+  },
+  "verification": [
+    {
+      "scope": "retention, owner, native build planning, Linux host preparation, pinned transform/cache fixtures",
+      "command": "node --test --test-reporter=spec scripts/test-asset-transform-cache-retention.cjs scripts/test-namespace-cache-owner.cjs scripts/test-build-platform.cjs scripts/test-linux-host-preparation.cjs scripts/test-asset-transform-cache.cjs",
+      "exitCode": 0,
+      "tests": 76,
+      "pass": 75,
+      "skipped": 1,
+      "skipReason": "Unix executable-mode check on Windows",
+      "durationMs": 116275.2176
+    },
+    {
+      "scope": "retention and owner after failed-deletion retry correction",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "skipped": 0,
+      "durationMs": 1888.1209
+    },
+    {
+      "scope": "final real pinned owner fixtures and storage diagnostics",
+      "exitCode": 0,
+      "tests": 7,
+      "pass": 7,
+      "skipped": 0,
+      "durationMs": 1249.1534
+    },
+    {
+      "scope": "final JavaScript syntax and feature manifest validation",
+      "exitCode": 0
+    }
+  ],
+  "sample": {
+    "description": "Two real pinned assets; all scope names exercised on Windows, not actual Linux/Mac execution",
+    "coldMs": 223.0657,
+    "linuxScopeWarmMs": 14.4118,
+    "macScopeWarmMs": 17.8914,
+    "coldProducers": 2,
+    "warmProducers": 0,
+    "sharedPayloads": 2,
+    "payloadBytes": 295287,
+    "scopeManifests": 3
+  },
+  "cleanup": {
+    "testOwnerCleanupCompleted": true,
+    "remainingMatchingCacheRetentionFixtures": 0,
+    "remainingMatchingCacheScopeFixtures": 0,
+    "remainingMatchingNamespaceOwnerFixtures": 0,
+    "legacyCachesDeleted": false
+  },
+  "limits": [
+    "No full build, packaging, installation or native Rust checks",
+    "No Linux/macOS native execution",
+    "No full-build speed or disk saving measurement",
+    "No remote cache synchronization; native caches remain separated"
+  ],
+  "inputs": {
+    "scripts/asset-transform-cache.cjs": "68f34a43c88e3041f6662a32cfa3d525a66d8a786eb6538716928c8f13f68ddb",
+    "scripts/namespace-azrael-host.cjs": "82fab40f73e5094a29eabf550ff08855977e6d94dbb83f703d699554b4cb2b98",
+    "scripts/prepare-platform-host.cjs": "4118db6edf1ef16b4730dbf721785102f5f3bff74b627cf4dfff4ca336aae82f",
+    "scripts/build-platform.cjs": "cf729277b17d1a8d994c94c6fd429dcab90ce440e80c79b6c9d899f89cf0cc6d",
+    "scripts/test-asset-transform-cache-retention.cjs": "7e8a22074750f2fe11c357323043ed70375de617f1c57afe390d7c81b11173be",
+    "scripts/test-namespace-cache-owner.cjs": "2921acf78b4f667461b78e613826a8a7ae3657f2d44cf35aec4e4c875886355b",
+    "scripts/test-build-platform.cjs": "3e9448a61a5c536232dc9fcb2c69ad4c1cc65f305c3a4de5ecb495c5494cbc5b"
+  }
+}

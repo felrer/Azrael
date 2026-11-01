@@ -94,6 +94,11 @@ function stageDesktopRuntimes(release, root, selected) {
   }
   return config;
 }
+function namespaceCacheOptions(options, typescript) {
+  const cacheProjectRoot=shared.inspectPath(shared.absolute(options["cache-project-root"] || path.resolve(__dirname,"..")));
+  return {typescriptSha256:shared.sha(fs.readFileSync(typescript)),
+    cacheDirectory:path.join(cacheProjectRoot,"artifacts/cache/namespace"),cacheProjectRoot};
+}
 async function prepare(options) {
   const release=shared.inspectPath(shared.absolute(options.release)), ui=shared.inspectPath(shared.absolute(options["ui-root"])), account=shared.inspectPath(shared.absolute(options["account-ui-root"])), output=shared.inspectPath(shared.absolute(options.output));
   for (const input of [ui,account]) shared.disjoint(input,output);
@@ -108,6 +113,7 @@ async function prepare(options) {
   const accountManifest=shared.json(shared.fileAt(account,"package.json"));
   if(accountManifest.main!=="./dist/src/extension.js" || !/^0\.(?:[3-9]|\d{2,})\./.test(accountManifest.version)) throw new Error("Integrated account UI 0.3.0 or newer required.");
   const typescript=require.resolve("typescript/lib/typescript.js",{paths:[account,path.join(__dirname,"../extensions/azrael-ex")]}), vsce=require.resolve("@vscode/vsce/vsce",{paths:[account,path.join(__dirname,"../extensions/azrael-ex")]});
+  const cacheOptions=namespaceCacheOptions(options,typescript);
   const root=path.join(output,"host"); fs.mkdirSync(output,{recursive:true}); fs.cpSync(ui,root,{recursive:true,dereference:false}); brandHost(root);
   const rgTarget=path.join(root,"bin",toolDirectory,platform.executableName("rg",selected)); fs.mkdirSync(path.dirname(rgTarget),{recursive:true}); fs.writeFileSync(rgTarget,rgBytes); if(selected.os!=="win32") fs.chmodSync(rgTarget,0o755);
   fs.cpSync(account,path.join(root,"account-ui"),{recursive:true,dereference:false,filter:file=>!path.relative(account,file).split(path.sep).some(part=>part===".git" || part===".env" || part===".bin")});
@@ -135,7 +141,7 @@ async function prepare(options) {
   require("./shared-engine-host.cjs").validateSharedRuntime(config);
   fs.writeFileSync(path.join(root,"out/azrael-runtime.json"),shared.encode(config));
   const linuxSupervision=prepareLinuxSupervision(root,require(typescript),selected);
-  await require("./namespace-azrael-host.cjs").transformExtension(root,require(typescript),options["host-version"],{typescriptSha256:shared.sha(fs.readFileSync(typescript))});
+  await require("./namespace-azrael-host.cjs").transformExtension(root,require(typescript),options["host-version"],cacheOptions);
   let signing=selected.os==="darwin" ? require("./macos-signing.cjs").ensureMacSignatures(root) : null;
   if(signing) {
     for(const tool of companionNativeTools) tool.sha256=shared.sha(fs.readFileSync(path.join(root,tool.path)));
@@ -153,7 +159,7 @@ async function prepare(options) {
   }
   stable(ui,uiSnapshot); stable(account,accountSnapshot); shared.verifyBuild(release);
   if(shared.sha(fs.readFileSync(rgInput))!==rgSha256) throw new Error("Ripgrep source changed.");
-  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,...(linuxSupervision ? {linuxSupervision} : {}),...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
+  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,cache:{projectRoot:cacheOptions.cacheProjectRoot,directory:cacheOptions.cacheDirectory},...(linuxSupervision ? {linuxSupervision} : {}),...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
 }
-module.exports={prepare,stageDesktopRuntimes,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning,prepareLinuxSupervision};
+module.exports={prepare,stageDesktopRuntimes,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning,prepareLinuxSupervision,namespaceCacheOptions};
 if(require.main===module) prepare(shared.args(process.argv.slice(2))).then(result=>console.log(JSON.stringify(result))).catch(error=>{console.error(error.message);process.exitCode=1;});
