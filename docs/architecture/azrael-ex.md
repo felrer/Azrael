@@ -102,6 +102,18 @@ Generated packages, releases, logs and fixtures live under the Git-ignored proje
 
 ## Storage and host runtime
 
+### Persistent UI atoms
+
+Status: `partial` — source implementation uses the host's built-in Node SQLite; installed migration and normal-operation acceptance require a matching package and reloaded windows. Feature `host.persisted-atoms` owns preservation checks.
+
+`scripts/persisted-atoms.cjs` stores UI atoms as individual JSON rows in `globalStorageUri/atoms-v1/persisted-atoms.sqlite`. MCP tool caches, prompt history, drafts and preferences retain their existing keys and JSON shapes. Small preference writes do not rewrite the MCP cache or other unchanged rows. Other extension Memento entries retain their existing owner and storage.
+
+Before native activation, one transaction imports the existing `persisted-atom-state` and commits a schema marker. Only a successful import permits removal of the legacy Memento entry. A failed legacy removal preserves both copies and retries removal at the next activation without importing stale data again. The marker survives reset, so old legacy snapshots cannot resurrect reset atoms. Migration failure preserves the source and stops activation; database corruption is reported rather than silently resetting user state. All old windows must reload with the matching host; mixed-version concurrent writers are not a supported migration mode.
+
+Atom updates are collected for 10ms and applied in arrival order in a SQLite transaction. Every returned save promise waits for commit; a failed batch rolls back and rejects its callers. Equal values cause no row write; direct-value no-ops also skip UI notification. Conditional record no-ops still return authoritative state to reconcile optimistic views. Record updates retain the pinned native merge and nullish legacy fallback semantics; SQLite serializes transactions across windows. Reads flush pending local updates, reset shares the ordered queue, and deactivation drains accepted updates. Busy admission retries asynchronously for at most five seconds instead of blocking the host on a lock. SQLite WAL and full synchronization own durable commit and crash recovery. Pending, unacknowledged changes can be lost on forced termination, as with other asynchronous saves.
+
+The pinned host transform preserves project draft filtering, normal atom messages and reset notifications. Entry snapshots are read lazily for listeners, avoiding construction of the entire state on each small save. `Azrael State` emits cumulative numeric transaction/update/skip/byte/failure/duration counters at most once per minute while saving, plus shutdown; atom values, prompts and cache contents are excluded. Actual process crash causes remain outside this storage contract.
+
 ### Local session links
 
 Status: `partial` — source transforms, migration ownership and external URL translation are verified without a build; installed UI and OS click dispatch require a matching package and user protocol registration.

@@ -20,6 +20,7 @@ const { injectMissingImage, ASSETS: MISSING_IMAGE_ASSETS } = require("./inject-m
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
 const { injectProjectDrafts } = require("./inject-project-drafts.cjs");
+const { injectPersistedAtoms } = require("./inject-persisted-atoms.cjs");
 const { injectUiInputDiagnostics } = require("./inject-ui-input-diagnostics.cjs");
 const { IMAGE_SKETCH_ASSETS, injectImageSketch } = require("./inject-image-sketch.cjs");
 const { UI_CLEANUP_ASSETS, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
@@ -357,7 +358,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(studentDesign.text, filename, ts) :
     isRecentThreadListAsset ? markRecentThreadListRequest(studentDesign.text, filename, ts) :
       { text: studentDesign.text, count: 0 };
-  const projectDrafts = isHostBundle ? injectProjectDrafts(filtered.text) : { text: filtered.text, count: 0 };
+  const persistedAtoms = isHostBundle ? injectPersistedAtoms(filtered.text) : { text: filtered.text, count: 0 };
+  const projectDrafts = isHostBundle ? injectProjectDrafts(persistedAtoms.text) : { text: persistedAtoms.text, count: 0 };
   const fetchResponse = isHostBundle ? injectFetchResponse(projectDrafts.text) : { text: projectDrafts.text, count: 0 };
   const recovered = isHostBundle ? injectRecovery(fetchResponse.text, filename, ts) : { text: fetchResponse.text, count: 0 };
   const deferred = isHostBundle ? injectDeferredHostNotification(recovered.text) : relativePath === DEFERRED_NOTIFICATION_ASSET ? injectDeferredRendererNotification(recovered.text) : relativePath === DEFERRED_REDUCER_ASSET ? injectDeferredTurn(recovered.text) :
@@ -435,6 +437,7 @@ function transformAsset(source, relativePath, filename, ts) {
       recoveryEdits: recovered.count,
       fetchResponseEdits: fetchResponse.count,
       projectDraftEdits: projectDrafts.count,
+      persistedAtomEdits: persistedAtoms.count,
       deferredTurnEdits: deferred.count,
       workSegmentFoldingEdits: workSegmentFolding.count,
       parentRequestActivityEdits: parentRequestActivity.count,
@@ -497,6 +500,7 @@ function transformAsset(source, relativePath, filename, ts) {
 
 function getTransformRules() {
   const transformSources = [
+    "inject-persisted-atoms.cjs", "persisted-atoms.cjs",
     "inject-window-control.cjs", "window-control-host.cjs", "window-use-async-approvals.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "inject-work-segment-folding.cjs", "inject-parent-request-activity.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
@@ -550,6 +554,8 @@ const ASSET_RULE_PATHS = {
   "inject-local-file-drop.cjs": [DROP_ASSET, COMPOSER_ASSET],
   "inject-composer-draft.cjs": [COMPOSER_DRAFT_ASSET],
   "inject-project-drafts.cjs": ["out/extension.js"],
+  "inject-persisted-atoms.cjs": ["out/extension.js"],
+  "persisted-atoms.cjs": ["out/extension.js"],
   "inject-ui-cleanup.cjs": UI_CLEANUP_ASSETS,
   "inject-image-sketch.cjs": IMAGE_SKETCH_ASSETS,
   "inject-auto-review.cjs": AUTO_REVIEW_ASSETS,

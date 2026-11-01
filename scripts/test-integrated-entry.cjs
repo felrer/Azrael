@@ -75,7 +75,7 @@ test("integrated entry preserves activation, account storage migration and failu
         if (request === "node:crypto") return { createHash: crypto.createHash, randomUUID: () => fallbackUuid };
         if (request === "node:fs/promises") return fs.promises;
         if (request === "vscode") return { env: { sessionId, remoteName }, ProgressLocation: { Window: 10 }, window: {
-          createOutputChannel() { return { appendLine(value) { events.push(["history.output", value]); } }; },
+          createOutputChannel() { return { appendLine(value) { events.push(["history.output", value]); }, dispose() {} }; },
           withProgress(_options, task) { return task(); },
         } };
         if (request === "./out/local-history-host.cjs") return { async sync(receivedRuntime, _output, options) {
@@ -112,6 +112,10 @@ test("integrated entry preserves activation, account storage migration and failu
           }) };
         }
         if (request === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
+        if (request === "./out/persisted-atoms.cjs") return { async initialize(receivedContext) {
+          assert.equal(receivedContext, context);
+          return { async close() {} };
+        } };
         if (request === "./out/linux-native-supervision.cjs") return { onRestart(listener) {
           recovery.listener = listener;
           return { dispose() { recovery.listener = undefined; recovery.disposed = true; } };

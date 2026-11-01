@@ -53,12 +53,13 @@ test("prepared Linux host ships its supervisor and restarts through the injected
     const entry = fs.readFileSync(path.join(__dirname, "integrated-azrael-entry.cjs"), "utf8");
     const module = { exports: {} }, events = [], load = createRequire(path.join(root, "integrated-azrael-entry.cjs"));
     vm.runInNewContext(entry, { module, exports: module.exports, process: { platform: "linux" }, AggregateError, require(name) {
-      if (name === "vscode") return { env: { sessionId: "prepared-linux" } };
+      if (name === "vscode") return { env: { sessionId: "prepared-linux" }, window: { createOutputChannel() { return { appendLine() {}, dispose() {} }; } } };
       if (name === "node:fs/promises") return { access: async () => {} };
       if (name === "./out/extension.js") return { async activate() { events.push("native"); }, async deactivate() {} };
       if (name === "./account-ui/dist/src/extension.js") return { async activate() { events.push("account"); }, async deactivate() {} };
       if (name === "./out/azrael-runtime.cjs") return { async initialize() { return { env: {} }; } };
       if (name === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
+      if (name === "./out/persisted-atoms.cjs") return { async initialize() { return { async close() {} }; } };
       if (name === "./out/platform-runtime.cjs") return { validateRuntimePlatform: () => ({ desktopControl: false }) };
       return load(name);
     } });
