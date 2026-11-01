@@ -12,7 +12,10 @@ const COUNT_FIELDS = ["edits", "namespaceEdits", "workspaceThreadListEdits", "re
   "urlSafetyTransportEdits", "imageFileOpenEdits", "missingImageEdits", "fileOpenMenuEdits", "localFileDropEdits", "composerDraftEdits", "providerContextEdits", "uiCleanupEdits", "imageSketchEdits", "petsCleanupEdits", "contentFontEdits"];
 
 function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescriptVersion,
-  transformRules, getAssetTransformRules = () => transformRules, pruneUnused = false, statistics = { hits: 0, misses: 0 }, metrics }) {
+  transformRules, getAssetTransformRules = () => transformRules, pruneUnused = false, retentionScope, statistics = { hits: 0, misses: 0 }, metrics }) {
+  if (retentionScope !== undefined && (typeof retentionScope !== "string" || retentionScope.length > 64 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(retentionScope))) {
+    throw new Error("Invalid asset cache retention scope.");
+  }
   const initializationStarted = performance.now();
   function measure(stage, action) {
     if (!metrics) return action();
@@ -53,11 +56,35 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
   // preserves unrelated no-op hints when a path-scoped rule changes.
   const fingerprint = { schema: CACHE_SCHEMA, typescriptSha256, typescriptVersion };
   const fingerprintText = JSON.stringify(fingerprint);
-  const indexPath = directory && path.join(directory, `noops-${sha(fingerprintText)}.json`);
+  const legacyIndexPath = directory && path.join(directory, `noops-${sha(fingerprintText)}.json`);
+  const indexPath = directory && (retentionScope ? path.join(directory, `scope-${retentionScope}.json`) : legacyIndexPath);
+  function scopeRecords(strict = false) {
+    const records = new Map();
+    if (!directory) return records;
+    for (const name of fs.readdirSync(directory)) {
+      const match = /^scope-([a-z0-9]+(?:-[a-z0-9]+)*)\.json$/.exec(name);
+      if (!match) continue;
+      try {
+        const filename = path.join(directory, name);
+        if (!fs.lstatSync(filename).isFile()) throw new Error("Scope index must be a regular file.");
+        const entry = JSON.parse(readEntry(filename));
+        const payload = { fingerprint: entry.fingerprint, scope: entry.scope, keys: entry.keys, entries: entry.entries };
+        if (entry.scope !== match[1] || !Array.isArray(entry.keys) || !entry.keys.every(isSha) ||
+            !Array.isArray(entry.entries) || !entry.entries.every(isSha) ||
+            !isSha(entry.payloadSha256) || entry.payloadSha256 !== sha(JSON.stringify(payload))) {
+          throw new Error("Invalid scope index.");
+        }
+        records.set(entry.scope, entry);
+      } catch (error) {
+        if (strict) throw new Error(`Asset cache scope ${name}: ${error.message}`);
+      }
+    }
+    return records;
+  }
   function readNoops() {
     if (!indexPath) return new Set();
     try {
-      const text = readEntry(indexPath);
+      const text = readEntry(legacyIndexPath);
       return measure("cacheValidation", () => {
       const index = JSON.parse(text);
       if (JSON.stringify(index.fingerprint) !== fingerprintText || !Array.isArray(index.keys) ||
@@ -85,6 +112,9 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
     });
   }
   const noops = readNoops();
+  if (retentionScope) for (const entry of scopeRecords().values()) {
+    if (JSON.stringify(entry.fingerprint) === fingerprintText) for (const key of entry.keys) noops.add(key);
+  }
   const usedNoops = new Set(), usedEntries = new Set();
   const cleanup = { removed: 0, deferred: [] };
   function mutate(action) {
@@ -126,6 +156,9 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
     }
   }
   function pruneReplaced(relativePath, currentDigest) {
+    // Scoped collectors retire only their previously published membership.
+    // An older unscoped caller must not discard another platform's payload.
+    if (retentionScope || scopeRecords(true).size) return;
     loadEntries();
     const names = entriesByPath.get(relativePath) || new Set();
     for (const name of names) {
@@ -204,10 +237,10 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
         noops.add(keyDigest);
         usedNoops.add(keyDigest);
         dirtyNoops = true;
-        if (pruneUnused) loadEntries();
+        if (pruneUnused && !retentionScope) loadEntries();
         // Most assets are no-ops. Persist early only when replacing a stored
         // transformed asset; ordinary hints are batched by flush.
-        if (pruneUnused && entriesByPath.get(relativePath)?.size && !mutate(() => {
+        if (pruneUnused && !retentionScope && entriesByPath.get(relativePath)?.size && !mutate(() => {
           for (const key of readNoops()) noops.add(key);
           const payload = { fingerprint, keys: [...noops].sort() };
           writeAtomic(indexPath, { ...payload, payloadSha256: sha(JSON.stringify(payload)) });
@@ -227,8 +260,37 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
     },
     flush() {
       return measure("cacheFlush", () => {
-      if (!indexPath || failed || (!pruneUnused && !dirtyNoops)) return;
+      if (!indexPath || failed || (!retentionScope && !pruneUnused && !dirtyNoops)) return;
       mutate(() => {
+      const scopes = scopeRecords(true);
+      if (retentionScope) {
+        const previous = scopes.get(retentionScope);
+        const keys = [...usedNoops].sort(), entries = [...usedEntries].sort();
+        const retained = new Set(entries);
+        for (const [scope, entry] of scopes) if (scope !== retentionScope) {
+          for (const key of entry.entries) retained.add(key);
+        }
+        const retired = pruneUnused ? (previous?.entries || []).filter(key => !retained.has(key)) : [];
+        // Publish ownership of pending removals too. A failed unlink or interrupted
+        // collector can then retry without orphaning its previous payloads.
+        const pending = { fingerprint, scope: retentionScope, keys,
+          entries: [...new Set([...entries, ...(pruneUnused ? retired : previous?.entries || [])])].sort() };
+        writeAtomic(indexPath, { ...pending, payloadSha256: sha(JSON.stringify(pending)) });
+        dirtyNoops = false;
+        if (retired.length) {
+          for (const key of retired) {
+            const filename = path.join(directory, `${key}.json`);
+            if (fs.existsSync(filename) && fs.lstatSync(filename).isFile()) {
+              fs.unlinkSync(filename); cleanup.removed++;
+            } else if (fs.existsSync(filename)) {
+              throw new Error(`Retired asset cache entry is not a regular file: ${filename}`);
+            }
+          }
+          const payload = { fingerprint, scope: retentionScope, keys, entries };
+          writeAtomic(indexPath, { ...payload, payloadSha256: sha(JSON.stringify(payload)) });
+        }
+        return;
+      }
       // Completed pruning owns its visited set; ordinary writers merge valid hints.
       if (!pruneUnused) for (const key of readNoops()) noops.add(key);
       const keys = [...(pruneUnused ? usedNoops : noops)].sort();
@@ -238,10 +300,11 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
       // Commit the current index before deleting obsolete cache files. Never follow
       // links or remove unknown names, temporary files or directories.
       if (pruneUnused) {
+        const retained = new Set([...scopes.values()].flatMap(entry => entry.entries));
         for (const name of fs.readdirSync(directory)) {
           const entry = /^([a-f0-9]{64})\.json$/.exec(name);
           const oldIndex = /^noops-[a-f0-9]{64}\.json$/.test(name);
-          if (!(entry || oldIndex) || (entry && usedEntries.has(entry[1])) ||
+          if (!(entry || oldIndex) || (entry && (usedEntries.has(entry[1]) || retained.has(entry[1]))) ||
               path.join(directory, name) === indexPath) continue;
           const filename = path.join(directory, name);
           if (fs.lstatSync(filename).isFile()) { fs.unlinkSync(filename); cleanup.removed++; }

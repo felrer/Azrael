@@ -2,6 +2,42 @@
   "schema": 1,
   "features": [
     {
+      "id": "build.shared-ui-cache",
+      "area": "engine",
+      "owners": [
+        "scripts/asset-transform-cache.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/namespace-azrael-host.cjs",
+        "scripts/prepare-platform-host.cjs",
+        "scripts/build-platform.cjs",
+        "scripts/test-asset-transform-cache-retention.cjs",
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/test-build-platform.cjs"
+      ],
+      "contract": "docs/architecture/azrael-ex.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "build.shared-ui-cache.retention",
+          "executable": "node",
+          "args": ["--test", "scripts/test-asset-transform-cache-retention.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "build.shared-ui-cache.owner",
+          "executable": "node",
+          "args": ["--test", "scripts/test-namespace-cache-owner.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "build.shared-ui-cache.forwarding",
+          "executable": "node",
+          "args": ["--test", "scripts/test-build-platform.cjs"],
+          "level": "source"
+        }
+      ]
+    },
+    {
       "id": "runtime.deletion-approval",
       "area": "engine",
       "owners": [

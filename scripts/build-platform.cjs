@@ -49,7 +49,7 @@ function parse(argv) {
   for (let i = 0; i < argv.length; i++) {
     const key = argv[i];
     if (key === "--plan") { result.plan = true; continue; }
-    if (!/^--(?:project-root|engine-source|ui-root|account-ui-root|code-mode-host|node|bun|npm-cli|rg|output|target-directory|target|host-version)$/.test(key) || !argv[i + 1] || argv[i + 1].startsWith("--")) throw new Error(`Invalid build argument: ${key}`);
+    if (!/^--(?:project-root|cache-project-root|engine-source|ui-root|account-ui-root|code-mode-host|node|bun|npm-cli|rg|output|target-directory|target|host-version)$/.test(key) || !argv[i + 1] || argv[i + 1].startsWith("--")) throw new Error(`Invalid build argument: ${key}`);
     if (result[key.slice(2)] !== undefined) throw new Error(`Duplicate build argument: ${key}`);
     result[key.slice(2)] = argv[++i];
   }
@@ -70,7 +70,7 @@ function buildPlan(options, platform = process.platform, arch = process.arch, en
   for (const key of ["project-root", "engine-source", "ui-root", "node", "bun", "output", "target-directory"]) {
     if (!settings[key] || !path.isAbsolute(settings[key])) throw new Error(`--${key} must be an absolute path`);
   }
-  for (const key of ["account-ui-root", "npm-cli", "code-mode-host", "rg"]) if (settings[key] && !path.isAbsolute(settings[key])) throw new Error(`--${key} must be absolute`);
+  for (const key of ["cache-project-root", "account-ui-root", "npm-cli", "code-mode-host", "rg"]) if (settings[key] && !path.isAbsolute(settings[key])) throw new Error(`--${key} must be absolute`);
   if (fs.existsSync(settings.output)) throw new Error("--output must be a new path; existing releases cannot be overwritten");
   if (!fs.statSync(settings["target-directory"]).isDirectory()) throw new Error("--target-directory must be an existing selected native Cargo cache");
   const sourceBinaries = ["azrael", "azrael-bridge", "codex-code-mode-host"].map(name => executableName(name, descriptor));
@@ -85,6 +85,14 @@ function linuxPtyBuild(platform, input, companion) {
     if (!fs.existsSync(file)) throw new Error("Linux node-pty requires frozen selected Node headers and npm node-gyp: " + file);
   }
   return { args: [nodeGyp, "rebuild", "--nodedir=" + headers], cwd: path.join(companion, "node_modules/node-pty") };
+}
+function hostPreparationArgs(s, frozenProject, input, companion, descriptor) {
+  const args = [path.join(frozenProject, "scripts/prepare-platform-host.cjs"), "--release", s.output,
+    "--ui-root", path.join(input, "ui"), "--account-ui-root", s["account-ui-root"] ? path.join(input, "account-ui") : companion,
+    "--output", path.join(s.output, "prepared-host"), "--host-version", s["host-version"] || "0.1.0",
+    "--cache-project-root", s["cache-project-root"] || s["project-root"]];
+  if (s.rg) args.push("--rg", path.join(input, "tools", "rg" + descriptor.executableSuffix));
+  return args;
 }
 async function build(options) {
   const plan = buildPlan(options), s = plan.settings, root = s["project-root"], identity = plan.platform;
@@ -214,8 +222,7 @@ async function build(options) {
   write(path.join(s.output, "host/out/azrael-runtime.json"), { schema: 1, platform: identity, sharedEngine: true, sharedEngineProtocol: 2, engineSha256: engineProvenance.binaries[plan.binaries[0]], engine: path.join(s.output, "engine", plan.binaries[0]), bridge: path.join(s.output, "engine", plan.binaries[1]), engineVersion, codexHome: path.join(os.homedir(), ".azrael-ex"), devinNative: { releaseDirectory: s.output }, providerAccounts: { releaseDirectory: s.output } });
   write(path.join(s.output, "build-info.json"), { platform: identity, engineVersion, sha256: Object.fromEntries(inventoryTree(s.output).files.map(file => [file.path, file.sha256])), engineProvenance, engineIncludesLocalChanges: true, engineSourceRoot: frozenEngine, inputSha256: receipt.sha256 });
   if (inventoryTree(input).sha256 !== receipt.sha256) throw new Error("Frozen build inputs changed during compilation");
-  const prepareArgs = [path.join(frozenProject, "scripts/prepare-platform-host.cjs"), "--release", s.output, "--ui-root", path.join(input, "ui"), "--account-ui-root", s["account-ui-root"] ? path.join(input, "account-ui") : companion, "--output", path.join(s.output, "prepared-host"), "--host-version", s["host-version"] || "0.1.0"];
-  if (s.rg) prepareArgs.push("--rg", path.join(input, "tools", "rg" + plan.descriptor.executableSuffix));
+  const prepareArgs = hostPreparationArgs(s, frozenProject, input, companion, plan.descriptor);
   run(node, prepareArgs, work, "prepare-host");
   if (inventoryTree(input).sha256 !== receipt.sha256) throw new Error("Frozen build inputs changed during host preparation");
   write(path.join(logs, "result.json"), { exitCode: 0, release: s.output, inputs: input, work, platform: identity, inputSha256: receipt.sha256 });
@@ -228,4 +235,4 @@ async function build(options) {
   }
 }
 if (require.main === module) build(parse(process.argv.slice(2))).then(result => console.log(JSON.stringify(result))).catch(error => { console.error(error.message); process.exitCode = 1; });
-module.exports = { parse, buildPlan, build, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild, managedCargoInvocation };
+module.exports = { parse, buildPlan, build, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild, managedCargoInvocation, hostPreparationArgs };

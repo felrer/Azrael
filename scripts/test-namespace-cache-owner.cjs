@@ -68,15 +68,21 @@ test('real pinned targets: independent uncached/cold output and metadata equalit
   const expected = assets.map(a => namespace.transformAsset(a.source, a.relative, a.fullPath, ts));
   const rules = namespace.getTransformRules(); assert.ok(rules['namespace-cache-owner.cjs']);
   const factory = selectAssetCacheFactory(local, owner);
-  for (const phase of ['cold', 'warm']) {
+  const preparationOptions = require('./prepare-platform-host.cjs').namespaceCacheOptions({ 'cache-project-root': owner }, entry);
+  for (const [phase, retentionScope] of [['cold', 'win32-x64'], ['warm', 'linux-x64'], ['warm', 'darwin-arm64']]) {
     let producers = 0; const statistics = { hits: 0, misses: 0 }, started = performance.now();
-    const cache = factory({ cacheDirectory: path.join(owner, 'artifacts/cache/namespace'), typescriptSha256: sha(fs.readFileSync(entry)),
+    const cache = factory({ ...preparationOptions, retentionScope,
       typescriptVersion: ts.version, transformRules: rules, getAssetTransformRules: namespace.getAssetTransformRules, pruneUnused: true, statistics });
     const actual = assets.map(a => cache.run(a.relative, a.source, () => { producers++; return namespace.transformAsset(a.source, a.relative, a.fullPath, ts); }));
     cache.flush(); assert.deepEqual(actual, expected); assert.equal(producers, phase === 'cold' ? 2 : 0);
     assert.equal(statistics.hits, phase === 'cold' ? 0 : 2); assert.equal(statistics.misses, phase === 'cold' ? 2 : 0);
-    t.diagnostic(JSON.stringify({ phase, elapsedMs: performance.now() - started, producers, ...statistics }));
+    t.diagnostic(JSON.stringify({ phase, retentionScope, elapsedMs: performance.now() - started, producers, ...statistics }));
   }
+  const directory = preparationOptions.cacheDirectory;
+  const payloads = fs.readdirSync(directory).filter(name => /^[a-f0-9]{64}\.json$/.test(name));
+  t.diagnostic(JSON.stringify({ sharedPayloads: payloads.length,
+    payloadBytes: payloads.reduce((total, name) => total + fs.statSync(path.join(directory, name)).size, 0),
+    scopeManifests: fs.readdirSync(directory).filter(name => name.startsWith('scope-')).length }));
 });
 test('actual namespace CLI branch forwards default and explicit owner while retaining existing cache options', () => {
   const source = fs.readFileSync(path.join(__dirname, 'namespace-azrael-host.cjs'), 'utf8');

@@ -147,3 +147,56 @@ test("default cache mode preserves obsolete entries and merges concurrent no-op 
   next.flush();
   assert.equal(entries("default").length, 1);
 });
+
+test("platform scopes share payloads and no-op results while retiring only unreferenced prior membership", () => {
+  const name = "platforms", scoped = scope => cache(name, { retentionScope: scope, pruneUnused: true });
+  let produced = 0;
+  const run = (scope, text = source) => {
+    const current = scoped(scope), expected = transform(text);
+    assert.deepEqual(current.run(assetPath, text, () => { produced++; return transform(text); }), expected);
+    current.run("noop.js", "noop", () => { produced++; return { text: "noop", asset: null }; });
+    current.flush(); assert.deepEqual(current.cleanup.deferred, []);
+  };
+  run("win32-x64");
+  assert.equal(produced, 2);
+  run("linux-x64"); run("darwin-arm64");
+  assert.equal(produced, 2, "identical assets and no-ops must skip production on another platform");
+  assert.equal(entries(name).length, 1, "one common payload, not one payload per platform");
+  const changed = source + "//new";
+  run("win32-x64", changed);
+  assert.equal(entries(name).length, 2, "other platforms still reference the previous bytes");
+  run("linux-x64", changed); run("darwin-arm64", changed);
+  assert.equal(produced, 3);
+  assert.equal(entries(name).length, 1, "last consumer update retires the old payload");
+  run("win32-x64", changed);
+  assert.equal(produced, 3);
+  // An old unscoped collector cannot evict the newer scoped consumers.
+  cache(name, { pruneUnused: true }).flush();
+  run("linux-x64", changed);
+  assert.equal(produced, 3);
+});
+
+test("uncertain scope membership and a busy writer preserve payloads until ordinary retry", () => {
+  const name = "scope-protection", options = { retentionScope: "linux-x64", pruneUnused: true };
+  const first = cache(name, options); first.run(assetPath, source, () => transform()); first.flush();
+  const directory = path.join(root, name), manifest = path.join(directory, "scope-linux-x64.json");
+  const previous = fs.readFileSync(manifest);
+  fs.writeFileSync(manifest, "broken");
+  const uncertain = cache(name, options); uncertain.flush();
+  assert.equal(entries(name).length, 1);
+  assert.match(uncertain.cleanup.deferred[0], /scope/);
+  assert.equal(fs.readFileSync(manifest, "utf8"), "broken");
+  fs.writeFileSync(manifest, previous);
+  const busy = cache(name, options); fs.mkdirSync(path.join(directory, ".writer")); busy.flush();
+  assert.deepEqual(fs.readFileSync(manifest), previous);
+  assert.equal(entries(name).length, 1);
+  fs.rmdirSync(path.join(directory, ".writer"));
+  const entry = path.join(directory, entries(name)[0]), unlink = fs.unlinkSync;
+  fs.unlinkSync = filename => { if (filename === entry) throw new Error("entry locked"); return unlink(filename); };
+  try { busy.flush(); } finally { fs.unlinkSync = unlink; }
+  assert.equal(entries(name).length, 1);
+  assert.match(busy.cleanup.deferred.at(-1), /entry locked/);
+  assert.equal(JSON.parse(fs.readFileSync(manifest)).entries.length, 1, "failed removal retains ownership for retry");
+  busy.flush();
+  assert.equal(entries(name).length, 0);
+});

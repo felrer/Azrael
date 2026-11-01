@@ -685,6 +685,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
     statistics: performanceReport.cache,
     metrics: stages,
     pruneUnused: true,
+    retentionScope: `${process.platform}-${process.arch}`,
   });
   report.cacheCleanup = cache.cleanup;
   function* enumerate(folder) {

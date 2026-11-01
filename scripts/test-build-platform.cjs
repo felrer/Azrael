@@ -18,6 +18,20 @@ test('native Cargo build uses the same target owner with exact selected argument
   assert.throws(() => managedCargoInvocation(node, project, 'relative', args), /absolute/);
 });
 const { freezeProject, hash, inventoryTree, copyTree } = require("./freeze-platform-inputs.cjs");
+
+test('frozen builds forward the persistent cache owner rather than their disposable preparation project', () => {
+  const { hostPreparationArgs } = require('./build-platform.cjs');
+  const root = path.resolve('persistent-owner'), frozen = path.resolve('frozen-project'), input = path.resolve('inputs');
+  for (const owner of [undefined, path.resolve('selected-cache-owner')]) {
+    const settings = parse(['--project-root', root, '--output', path.resolve('new-release'),
+      ...(owner ? ['--cache-project-root', owner] : [])]);
+    const args = hostPreparationArgs(settings, frozen, input, path.resolve('companion'), { executableSuffix: '' });
+    const options = require('./install-platform-release.cjs').args(args.slice(1));
+    assert.equal(options['cache-project-root'], owner || root);
+    assert.equal(options['ui-root'], path.join(input, 'ui'));
+    assert.notEqual(options['cache-project-root'], frozen);
+  }
+});
 test("only Linux rebuilds node-pty with frozen headers and the selected npm node-gyp", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-pty-input-"));
   try {
