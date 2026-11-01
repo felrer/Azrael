@@ -16,6 +16,8 @@ let fallbackWindowSessionId;
 let recoveryActivation;
 let windowControlActivation;
 let engineRecoverySubscription;
+let persistedAtoms;
+let persistedAtomsOutput;
 
 function fileSystemPath(uri, owner) {
   // Local desktop VS Code routes vscode-userdata to its file provider without
@@ -157,6 +159,9 @@ exports.activate = async function activate(context) {
     if (process.platform === "win32" && platform.desktopControl && runtime.windowControl) {
       windowControlActivation = require("./out/window-control-host.cjs").initialize(context, vscode, runtime);
     }
+    persistedAtomsOutput = vscode.window.createOutputChannel("Azrael State");
+    persistedAtoms = await require("./out/persisted-atoms.cjs").initialize(context,
+      stats => persistedAtomsOutput.appendLine(JSON.stringify({ event: "atoms.storage", ...stats })));
     const nativeApi = await nativeExtension.activate(context);
     nativeActivated = true;
     accountUiActivationAttempted = true;
@@ -192,6 +197,10 @@ async function deactivate() {
   const failures = (await Promise.allSettled(deactivations))
     .filter((result) => result.status === "rejected")
     .map((result) => result.reason);
+  try { await persistedAtoms?.close(); } catch (error) { failures.push(error); }
+  persistedAtoms = undefined;
+  persistedAtomsOutput?.dispose();
+  persistedAtomsOutput = undefined;
   if (failures.length === 1) throw failures[0];
   if (failures.length > 1) throw new AggregateError(failures, "Azrael extension deactivation failed.");
 }

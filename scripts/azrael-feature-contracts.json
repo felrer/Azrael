@@ -1513,6 +1513,21 @@
       ]
     },
     {
+      "id": "host.persisted-atoms",
+      "area": "ui",
+      "owners": ["scripts/persisted-atoms.cjs", "scripts/inject-persisted-atoms.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/prepare-independent-vscode.ps1"],
+      "contract": "docs/architecture/azrael-ex.md",
+      "checks": [
+        {
+          "id": "host.persisted-atoms.behavior",
+          "executable": "node",
+          "args": ["--test", "scripts/test-persisted-atoms.cjs", "scripts/test-persisted-atoms-host.cjs"],
+          "level": "source"
+        }
+      ],
+      "reportFields": ["persistedAtomEdits"]
+    },
+    {
       "id": "ui.fetch-response",
       "area": "ui",
       "owners": [

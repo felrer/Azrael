@@ -87,6 +87,7 @@ function Assert-IntegratedHostVsixContents {
             'extension/out/session-links.cjs',
             'extension/out/azrael-recovery.cjs',
             'extension/out/recovery-state.cjs',
+            'extension/out/persisted-atoms.cjs',
             'extension/out/shared-engine-host.cjs',
             'extension/out/optional-diagnostics.cjs',
             'extension/out/url-safety-transport.cjs',
@@ -297,7 +298,7 @@ try {
             foreach ($module in @('codex-environment-engine.cjs', 'azrael-rpc-check.mjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "lib/$module") -Destination (Join-Path $environmentLib $module)
             }
-            foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'shared-engine-host.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
+            foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'persisted-atoms.cjs', 'shared-engine-host.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.OfficialExtension "out/$module")
             }
         }

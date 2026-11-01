@@ -135,6 +135,14 @@
       "inputs": ["scripts", "artifacts/upstream-ui/26.1007.21434", "extensions/azrael-ex/node_modules/typescript"]
     },
     {
+      "id": "persisted-atoms-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-persisted-atoms.cjs", "scripts/test-persisted-atoms-host.cjs", "scripts/test-project-drafts.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-linux-host-preparation.cjs", "scripts/test-namespace-cache-owner.cjs"],
+      "inputs": ["scripts", "artifacts/upstream-ui/26.1007.21434/out/extension.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/local-conversation-thread-2429c4b61076.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/local-conversation-turn-9fb266d5c020.js", "extensions/azrael-ex/node_modules/typescript"]
+    },
+    {
       "id": "resume-boundary-branch-source",
       "kind": "test",
       "purpose": "retained",

@@ -136,7 +136,7 @@ assert(wrapper.indexOf("extension.js") < wrapper.indexOf("account-ui/dist/src/ex
   "integration wrapper did not activate the native extension before the account UI");
 assert(wrapper.includes("azrael-runtime.cjs"), "integration wrapper did not load the host runtime");
 assert(wrapper.includes("azrael-recovery.cjs"), "integration wrapper did not initialize recovery");
-for (const moduleName of ["azrael-recovery.cjs", "recovery-state.cjs", "optional-diagnostics.cjs", "url-safety-transport.cjs"]) {
+for (const moduleName of ["azrael-recovery.cjs", "recovery-state.cjs", "persisted-atoms.cjs", "optional-diagnostics.cjs", "url-safety-transport.cjs"]) {
   assert.equal(hs.readFileSync(path.join(hostRoot, "out", moduleName), "utf8"),
     hs.readFileSync(path.join(__dirname, moduleName), "utf8"), `packaged ${moduleName} differs from the validated source`);
 }
