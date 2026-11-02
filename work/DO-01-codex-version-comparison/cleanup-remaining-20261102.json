@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "status": "cleaned",
+  "at": "2026-11-02T13:10:26.658Z",
+  "id": "run:DO2:remaining-20261102-r1",
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "ownerSha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+  "acceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\verification-remaining-20261102.json",
+    "sha256": "d62cc11173b27ee52c2b1612578cf8490b244ddc3070300e7668c81763aec462"
+  },
+  "register": {
+    "exit": 0,
+    "items": [
+      {
+        "id": "b35917a045242da0a0d7c725f3f21ac93074d7616d0e23176bf746950677e4c1",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DO2\\runs\\remaining-20261102-r1",
+        "logicalBytes": 167852
+      }
+    ]
+  },
+  "firstApply": {
+    "started": "2026-11-02T13:02:44.555Z",
+    "ended": "2026-11-02T13:03:17.081Z",
+    "exit": 0,
+    "signal": null,
+    "output": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:DO2:remaining-20261102-r1",
+          "status": "blocked"
+        }
+      ],
+      "results": [
+        {
+          "attempted": false,
+          "decision": "delete",
+          "decision_id": "b54b8ef72b52cb87b876f256a11b071f5e396fe2f249725f8ff7611cc6b5a33e",
+          "error": "whole lifecycle group review is stale, incomplete or protected; stale review token after authorization: {\"baseline_components\":null,\"current_components\":{\"group_token\":\"f92b9a8e1a553f5c6328aaf32fa9d5b1d68fa5f29178ead3aff1b58172c9b6ba\",\"identity\":\"4c9c1c1cfabf9b779cce212eb88a885f5dfbf217e0c90c5aa323012285637a68\",\"owner_revision\":2,\"references_sha256\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"root_sha256\":\"00fc98a9ab86fc60a694d3640542ccf975ac846b2e1963d09c5d263b950e755e\",\"source_identity\":\"e53bc9d65449fc4a88cb418dcd121c9c30a7f0f469fb30062289733ee6c40f7f\"},\"current_token\":\"5d6cd0a1af07d08a5c4f4d2f57c053230a14059ae3a28295474a557e46dc3b00\",\"expected_token\":\"db750f6d56b2820edd0ad79abd0bbf7fed221e17453b8e42039069c5acbd010e\"}",
+          "group_status": "blocked",
+          "id": "b35917a045242da0a0d7c725f3f21ac93074d7616d0e23176bf746950677e4c1",
+          "lifecycle_group_id": "run:DO2:remaining-20261102-r1",
+          "reason": "All scoped mapping/cache tests completed. Independent evidence survives in work; no consumers or protections. Disposable logs and test fixtures are no longer needed.",
+          "remaining": true,
+          "status": "blocked",
+          "token": "db750f6d56b2820edd0ad79abd0bbf7fed221e17453b8e42039069c5acbd010e"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  "retryReview": {
+    "exit": 0,
+    "items": [
+      {
+        "id": "b35917a045242da0a0d7c725f3f21ac93074d7616d0e23176bf746950677e4c1",
+        "blockers": [],
+        "token": "4bf7c7c345be970a3a7b1d49e0ff1d281adecde54f30b82890ae24b3b8dc1cba"
+      }
+    ]
+  },
+  "apply": {
+    "exit": 0,
+    "signal": null,
+    "output": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:DO2:remaining-20261102-r1",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-11168-5294-1793624851197",
+          "decision": "delete",
+          "decision_id": "324803f5e862582ddd030e5ae5b05fa4fcbe215b33c0ecd1533c6c0f1a332194",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "b35917a045242da0a0d7c725f3f21ac93074d7616d0e23176bf746950677e4c1",
+          "lifecycle_group_id": "run:DO2:remaining-20261102-r1",
+          "reason": "Fresh review of same stopped disposable group after stale-token refusal. All task results independently retained; no references or blockers.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "4bf7c7c345be970a3a7b1d49e0ff1d281adecde54f30b82890ae24b3b8dc1cba"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  "finalization": {
+    "id": "run:DO2:remaining-20261102-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\366d1ecfeb655bad1c45af5d7bc14dcbdd19f81f707e61d3d5e290c0d0b760b8.json"
+  },
+  "paths": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DO2\\runs\\remaining-20261102-r1",
+      "exists": false
+    }
+  ],
+  "controlRemoval": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\.remaining-cleanup.json",
+    "removed": true
+  }
+}

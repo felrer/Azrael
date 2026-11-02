@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "status": "passed-scoped",
+  "at": "2026-11-02T13:00:54.668Z",
+  "platform": "Windows x64",
+  "files": [
+    {
+      "path": "scripts/cargo-preflight-recipes.cjs",
+      "sha256": "e208afc7de730ae4a4beeea5a6275330f09d5cb59a24fcabb1e668c2dae4a0c5"
+    },
+    {
+      "path": "scripts/test-cargo-preflight-recipes.cjs",
+      "sha256": "d94cdf2fe17e37ff507a05e3e8cb7856908bf180145e2c7537e5f3b3d8a9ee1b"
+    },
+    {
+      "path": "scripts/cargo-verification-cache.cjs",
+      "sha256": "7d824a0ef795fc5cffd44fafbd36726798c66e2bccb0304cf419e1225ac33f18"
+    },
+    {
+      "path": "scripts/test-cargo-verification-cache.cjs",
+      "sha256": "6d46c7b3525eafd16b6e1ca829049855b4ec05fddf7b6539e87bbf144f0f394b"
+    }
+  ],
+  "results": [
+    {
+      "scope": "recipe and Cargo evidence cache",
+      "passed": 37,
+      "failed": 0,
+      "exitCode": 0
+    },
+    {
+      "scope": "Cargo verification helper",
+      "passed": 56,
+      "failed": 0,
+      "exitCode": 0
+    }
+  ],
+  "earlierFailures": [
+    "Initial37 tests:31passed6failed; Python missing from PATH and stale source-only helper audit hashes. Resolved by explicit Python313 PATH and reviewed exact helper hashes.",
+    "Initial helper run failed one case due task path uppercase DO2 differing from actual canonical do2; re-run on actual path passed56."
+  ],
+  "logs": [
+    {
+      "path": "targeted.log",
+      "sha256": "0db3b522838d96ebd20dfa01fb0c0a25069b9db87dbb3586d2b62ea29c317483"
+    },
+    {
+      "path": "targeted-r2.log",
+      "sha256": "ed28aa87fd27c2c02cd7ba0ea0d6c0a3174c033c39ba4b662ca27c2530ffb1db"
+    },
+    {
+      "path": "verification-helper.log",
+      "sha256": "e27ab48029b9740cdc237e21b7d9baafbdb87680735080a80d921f6f5246042d"
+    },
+    {
+      "path": "verification-helper-r2.log",
+      "sha256": "7c967050c65b820ec4c9a7c85529fdbd4b7a34ebdca3742cc4bf7903ba693007"
+    }
+  ],
+  "producer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DO2\\runs\\remaining-20261102-r1\\reports\\producer-8d60a83f8fedc0d2d94dada4a89582cae52b6d6f20baa613d50084ee0da43857.json",
+    "evidence_sha256": "8d60a83f8fedc0d2d94dada4a89582cae52b6d6f20baa613d50084ee0da43857",
+    "exit_code": 0,
+    "outcome": "success",
+    "reason": "Owned producer and tracked children stopped",
+    "status": "stopped"
+  },
+  "producerEvidence": {
+    "lifecycleId": "run:DO2:remaining-20261102-r1",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DO2\\runs\\remaining-20261102-r1",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "limits": [
+    "No new Rust native compilation; this task changes recipe/cache metadata and validates actual wrapper command/environment wiring with isolated VM dependencies.",
+    "Linux/macOS not executed.",
+    "Primary contains simultaneous staged/unstaged work; no broad SOURCE rewrite or mixed commit."
+  ],
+  "cleanup": {
+    "state": "pending",
+    "id": "run:DO2:remaining-20261102-r1",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\remaining-20261102-r1"
+  }
+}

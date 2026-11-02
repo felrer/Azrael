@@ -20,7 +20,7 @@ const wrapperHashes = Object.freeze({
   'check-thread-auto-compaction': '45538fd544446ae4af9453e6cde0b4cd62e9ba87b1b62e5f2c57ea80723bb053',
   'check-parent-requests': 'aa2456ae2edc5a2e3df68815594a0d01b6e1de202bebe50a2fe9ce7ac819a368',
   'check-capacity-recovery': 'ca6cccb3d50df005500d5ceeedbba0c064806a74aa4c089c880f82186b6d4c37',
-  'check-task-profile-skills': '963c93a86d4c501dd7543fe4809ff48b4ee2d3e2cab2cd2e2727a1d484ef4d17',
+  'check-task-profile-skills': '8b917134a02db256c4b5940e8611aaf37da7699934382563a4a34a0c895923e5',
   'check-shared-engine-native': 'db9d1b3a0316cd017a8c5934b88ee295050a166ab9c4987644a0dcae17a2fc05',
   'check-question-withdrawal-native': 'b17ee0244ec76cb3fa54d0384dfdb260bd8d8055a5ff32958bd1305d5bf22080',
   'check-mcp-oauth-store': '1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa',
@@ -114,7 +114,18 @@ function reviewedRecipes(wrapper, tail, platform) {
       if (!tail.length) args = [lib('codex-core', 'capacity')];
       break;
     case 'check-task-profile-skills':
-      if (!tail.length) args = [['codex-config', 'skills_config'], ['codex-skills-extension', 'host_roots']].map(([c, f]) => ['test', '-p', c, '--lib', '--locked', '--offline', f]);
+      if (!tail.length) args = [
+        ['codex-config', ['--lib'], 'skills_config'],
+        ['codex-skills-extension', ['--lib'], 'host_roots'],
+        ['codex-protocol', ['--lib'], 'agent_profile::tests::'],
+        ['codex-login', ['--lib'], 'auth::profiles::tests::profiles_remove_retires_every_cross_store_owner_even_with_active_usage'],
+        ['codex-core', ['--lib'], 'session::agent_profile::tests::'],
+        ['codex-core', ['--lib'], 'session::turn_input::tests::steering_does_not_wait_for_realtime_history'],
+        ['codex-core', ['--lib'], 'session::user_questions::tests::queued_reply_retains_original_profile_after_newer_turn_metadata'],
+        ['codex-queue-extension', ['--test', 'queue_service'], 'captured_profile_survives_queue_restart_and_content_edit'],
+      ].map(([c, target, f]) => ['test', '-p', c, ...target, '--locked', '--offline', f])
+        .concat([['test', '-p', 'codex-core', '--lib', '--locked', '--offline',
+          'session::agent_profile::tests::materializer_snapshot_contract_fixture', '--', '--ignored', '--exact']]);
       break;
     case 'check-shared-engine-native': {
       const appserver = [];
@@ -205,7 +216,9 @@ function recipesForCheck(config, check) {
   if (createHash('sha256').update(source.replace(/\r\n/g, '\n')).digest('hex') !== wrapperHashes[wrapper]) return fail('wrapper source changed; review its recipe and update the recorded source hash');
   const recipes = reviewedRecipes(wrapper, argv.slice(2), process.platform);
   if (!recipes?.length) return fail('unsupported wrapper scope or arguments');
-  return { cargoPreparations: recipes.map(recipe => ({ checkId: check.id, ...recipe })), gaps: [] };
+  return { cargoPreparations: recipes.map((recipe, index) => ({ checkId: check.id, ...recipe,
+    ...(wrapper === 'check-task-profile-skills' && index === recipes.length - 1
+      ? { envRecipe: 'task-profile-materializer' } : {}) })), gaps: [] };
 }
 
 module.exports = { recipesForCheck };

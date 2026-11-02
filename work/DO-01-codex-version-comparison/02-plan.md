@@ -201,3 +201,20 @@ root가 네 production 변경 지점과 기존 tests를 함께 소유한다. 테
 ### 사용자 archive 지시와 이동 경계
 
 사용자는 정리기 삭제 개선 제안에 대해 삭제 대신 archive 폴더로 이동하도록 지시했다. 기존 네 exe/PDB의 archive 이동 요구를 반영하며, 삭제 개선·전용 실행기 교체 승인을 받은 것으로 해석하지 않는다. 조사 결과 native 그룹 do1-unused-native-outputs-r1/do2-native-outputs-r1의 동일 경로 중복 보호가 남아 있고, producer relocateCustody는 artifacts/logs 아래로만 이동 가능하다. project-maintenance managed_roots에도 archive가 없다. 기존 파일은 그대로 보존했고 이동·설정 변경·빌드·삭제는 실행하지 않았다. implementation의 protected/uncertain material 이동 및 tool boundary 우회 금지에 따라 직접 Move-Item을 사용하지 않는다. 이중 소유 claim을 현재 신원·전체 참조와 함께 묶어 archive로 이전하는 지원 경로의 제한적 보완이 필요하다. 같은 C: archive 이동은 원래 경로를 비워도 가용 공간을 늘리지 않는다. 사용자에게 해당 이동 지원 보완 범위만 확인하며, 네 묶음의 native 검증·출처·커밋은 계속 미완료다.
+
+## Follow-up verification recipe maintenance
+
+### 남은 작업 후속 처리
+
+사용자의 “남은 작업 처리”에 따라 기존 task-profile recipe 불일치를 수정한다. 실제 wrapper의8개 일반 호출과1개 exact ignored materializer-reader 호출을 모두 선언하고 마지막 호출의 fixture 환경 준비를 명시한다. 동적 JS writer의 전체 dependency/runtime closure가 result-cache 입력으로 감사되지 않았으므로 이 wrapper만 성공 결과 재사용에서 제외한다. Cargo 컴파일 재사용과 필수 실행은 유지한다. 기존 wrapper를 VM에서 실행해 실제9개 argv·격리·fixture 환경·정상 종료를 recipe와 대조하는 기존 테스트 파일의 작은 사례를 유지한다. 나중에 wrapper에 호출을 추가하면서 매핑/준비를 빠뜨리는 구체적 재발을 막기 위한 검사다.
+
+현재 Cargo helper 세 변형도 검토했다. 검증된 내부 환경 전달·구조화 오류, immutable 종료 근거·독립 claim close, cache claim/close는 source test의 실제 명령·nonzero gate를 유지하며 제품 bundle/Code Mode host를 소비하지 않는다. exact normalized hash를 기존 source-only 감사 목록에 추가했다. 미감사 바이트·실패·unknown·불완전 receipt에서는 기존 보수적 바인딩을 유지한다. 첫 Node 검사37개 중31통과6실패:5건은 Python PATH 부재,1건은 위 감사 목록 미정합이다. 원 실패 로그를 남기고 Python313 경로를 명시해 재검증한다.
+
+범위는 공통 verification tooling이며 실제 실행 환경은 Windows x64다. 제품 빌드·설치·push·다른 작업 SOURCE 일괄 갱신·무관한 staged 변경 편입은 하지 않는다. 산출물 owner는 `run:DO2:remaining-20261102-r1`이며 사용 종료 후 기본 owner로 정리한다. 이전 immutable 검증·정리 영수증은 수정하지 않는다.
+
+후속 검증 완료: recipe·Cargo evidence cache37개와 Cargo 검증 helper56개, 합계93개 actual exit0/실패0/skip0이다. 필수 selected-tests-v2 전체 매핑 검사도 통과했다. helper 첫 실행의 대소문자 path 차이는 실제 canonical `do2` 경로를 사용해 재검증했으며 소스를 우회 수정하지 않았다. [후속 검증 영수증](verification-remaining-20261102.json)에 실패·재검증·현재 입력SHA를 독립 보존했다. 이 작업은 metadata/cache 실행 경계 검증이며 제품 Rust 검사를 다시 실행한 것으로 표시하지 않는다. 이전361개 Rust 검증은 그 고정 입력에만 적용된다. 현재 공유 파일은 앞선 작업 및 다른 세션 변경과 함께 dirty 상태여서 이를 포괄하는 커밋은 계속 보류한다. 사용자 지시 없이 다른 세션의 staged 변경을 함께 커밋하지 않는다.
+
+후속 정리 완료: 현재 기본 FF01 standalone(SHA31cbf0c2…)의 stdin 등록·검토를 통과했다. 첫 apply는 stale review token으로 차단/attempted=false였고 실제 삭제를 시도하지 않았다. 새 review와 fresh token의 apply는 그룹deleted·remaining=false, 실제 경로부재다. 지원 finalize도 finalized/remaining=[]/references=[]/blockers=[]이며 요청 control은 일반 삭제·부재를 확인했다. 167,852 logical bytes를 정리했고 [독립 정리 영수증](cleanup-remaining-20261102.json)에 실패·재검토·실제 결과를 보존했다. 공유 캐시·설치물·다른 작업 자료는 보존했고 이번 후속 작업의 disposable 잔여물은 없다.
+
+
+Commit scope: the user explicitly requested a commit after the prior deferral. This commit selects only the follow-up recipe/cache changes and their evidence; prior mixed changes and other sessions staged files remain outside this commit.

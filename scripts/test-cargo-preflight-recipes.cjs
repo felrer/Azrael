@@ -16,6 +16,47 @@ function check(wrapper, tail = [], id = wrapper) {
 const oauth = stage => check('check-mcp-oauth-store', ['--stage', stage], `oauth-${stage}`);
 const capacity = check('check-capacity-recovery');
 
+test('task-profile recipe matches all actual wrapper calls and keeps materializer preparation explicit', async () => {
+  const calls = [], homes = [], closures = [];
+  const digest = 'a'.repeat(64), home = path.join(projectRoot, 'artifacts', 'virtual-task-profile', 'home');
+  const selected = check('check-task-profile-skills');
+  const result = recipesForCheck(config, selected);
+  assert.deepEqual(result.gaps, []);
+  const context = {
+    __dirname, console, process: { argv: ['node', selected.args[0], engineSourceRoot], env: {} },
+    require: name => {
+      if (name === 'node:fs') return { existsSync: () => true, writeFileSync() {} };
+      if (name === 'node:path') return path;
+      if (name === './cargo-verification.cjs') return { runCargoTest: (_source, args, options) => {
+        calls.push({ source: _source, args, options }); return { status: 0 };
+      } };
+      if (name === './artifact-run.cjs') return {
+        beginArtifactRun: () => ({ temporary: path.dirname(home), reports: path.dirname(home) }),
+        finishArtifactRun: (_run, outcome) => closures.push(outcome),
+      };
+      if (name === './task-profile-runtime.cjs') return { TaskProfileRuntime: class {
+        constructor(options) { homes.push(options.codexHome); }
+        async createWorkbench() { return { digest }; }
+      } };
+      throw Error('Unexpected wrapper dependency: ' + name);
+    },
+  };
+  await require('node:vm').runInNewContext(fs.readFileSync(path.join(__dirname, 'check-task-profile-skills.cjs'), 'utf8'), context);
+  assert.equal(calls.length, 9);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.map(call => call.args))), result.cargoPreparations.map(recipe => recipe.args));
+  assert.ok(calls.every(call => call.source === engineSourceRoot && call.options.isolateHostEnvironment === true));
+  assert.equal(result.cargoPreparations.at(-1).envRecipe, 'task-profile-materializer');
+  assert.ok(result.cargoPreparations.slice(0, -1).every(recipe => recipe.envRecipe === undefined));
+  assert.deepEqual(homes, [home]);
+  assert.equal(calls.at(-1).options.env.TASK_PROFILE_CONTRACT_HOME, home);
+  assert.equal(calls.at(-1).options.env.TASK_PROFILE_CONTRACT_DIGEST, digest);
+  assert.equal(closures.length, 1);
+  assert.equal(closures[0].producerStopped, true);
+  assert.equal(closures[0].exitCode, 0);
+  assert.equal(recipesForCheck(config, check('check-task-profile-skills', ['unknown'])).gaps.length, 1);
+});
+
+
 test('usage window recipe preserves account processor selection and host isolation', () => {
   const result = recipesForCheck(config, check('check-usage-window'));
   assert.deepEqual(result.gaps, []);
