@@ -27,6 +27,50 @@
   ],
   "bundles": [
     {
+      "id": "window-virtual-input-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-virtual-input.cjs",
+        "scripts/test-window-virtual-policy.cjs",
+        "scripts/test-window-control-runtime.cjs",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-window-control-mcp.cjs",
+        "scripts/test-window-use-stage-authority.cjs"
+      ],
+      "inputs": [
+        "scripts/window-virtual-input.cjs",
+        "scripts/test-window-virtual-input.cjs",
+        "scripts/test-window-virtual-policy.cjs",
+        "scripts/window-control-policy.cjs",
+        "scripts/window-control-host.cjs",
+        "scripts/window-control-mcp.cjs",
+        "scripts/window-control-runtime.cjs",
+        "scripts/test-window-control-runtime.cjs",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-window-control-mcp.cjs",
+        "scripts/test-window-use-stage-authority.cjs"
+      ]
+    },
+    {
+      "id": "window-virtual-input-native",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": [
+        "node",
+        "scripts/check-window-virtual-input-native.cjs"
+      ],
+      "inputs": [
+        "native/virtual-input",
+        "scripts/check-window-virtual-input-native.cjs",
+        "scripts/window-virtual-input.cjs"
+      ]
+    },
+    {
       "id": "codex-upstream-review",
       "kind": "test",
       "purpose": "retained",

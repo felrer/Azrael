@@ -4,7 +4,7 @@ const fs = require('node:fs/promises'), path = require('node:path'), os = requir
 const { createHost } = require('./window-control-host.cjs');
 const thread = '12345678-1234-1234-1234-123456789abc';
 const otherThread = '12345678-1234-1234-1234-123456789abd';
-async function fixture(t, mode, childRuntime, approvalTimeoutMs=1000) {
+async function fixture(t, mode, childRuntime, approvalTimeoutMs=1000, virtualInput) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'window-stage-authority-'));
   const settings = require('./use-control-settings.cjs').createSettingsOwner(home);
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
@@ -12,9 +12,9 @@ async function fixture(t, mode, childRuntime, approvalTimeoutMs=1000) {
   const descriptors=[descriptor];
   const modals = [], backendCalls = [], cards = [];
   let answer = '허용';
-  const host = createHost({ runtime: { codexHome: home, computerUse: { directory: path.join(home, 'desktop-runtime') }, windowControl: childRuntime ? { childSession: childRuntime } : {} }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs,
+  const host = createHost({ virtualInput, runtime: { codexHome: home, computerUse: { directory: path.join(home, 'desktop-runtime') }, windowControl: childRuntime ? { childSession: childRuntime } : {} }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs,
     vscode: { window: { async showWarningMessage(...args) { modals.push(args); return typeof answer === 'function' ? answer() : answer; } } },
-    backend: { async request(method) { backendCalls.push(method); return method === 'listWindows' ? descriptors : descriptor; }, async dispose() {} } });
+    backend: { async request(method,args) { backendCalls.push(method);if(method==='listWindows')return descriptors;const w=descriptors.find(w=>w.hwnd===args?.window?.hwnd)||descriptor;if(['observe','inspect'].includes(method))return {window:w,observationId:'o'+backendCalls.length,frameTimestamp:'now',widthPx:w.widthPx,heightPx:w.heightPx,dpi:96,elements:[],elementsTruncated:false,image:{mimeType:'image/png',data:'YQ=='}};return w; }, async dispose() {} } });
   t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true }); });
   const native = { registerProvider() { return { dispose() {} }; } };
   const {engine}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native);
@@ -37,8 +37,9 @@ async function fixture(t, mode, childRuntime, approvalTimeoutMs=1000) {
   const call = (tool, args = {}, meta = metadata()) => host.handlePipe({ nonce: host.nonce, threadId: thread, method: 'call', tool, arguments: args, _meta: meta });
   const desktop = (meta = metadata(), extra = {}) => host.handlePipe({ nonce: host.nonce, threadId: thread, method: 'desktop_authority', _meta: meta, ...extra });
   const requestStage = (stage, targetId) => call('request_stage', { stage, ...(targetId ? { targetId } : {}), reason: 'Perform the explicitly requested fixture task' });
-  const select = async () => call('select_window', { candidateId: (await call('list_windows')).candidates[0].candidateId });
+  const select = async (index=0) => call('select_window', { candidateId: (await call('list_windows')).candidates[index].candidateId });
   return { host, native, home, engine, settings, approvals, modals, backendCalls, cards, publisher, register, start, call, desktop, metadata, requestStage, select, setAnswer: value => answer = value,
+    addWindow(patch){descriptors.push({...descriptor,...patch});},
     addApp(){descriptors.push({...descriptor,hwnd:'second',pid:5,executable:'C:/fixture/second.exe',title:'Second fixture'});},
     update(patch) { return settings.updateSettings(patch, settings.getSettings().revision); }, complete() { host.observe(native, { method: 'turn/completed', params: { threadId: thread, turn: { status: 'completed' } } }); } };
 }
@@ -314,4 +315,36 @@ test('stage3 revalidation and generic failures retain bounded native diagnostics
     else {assert.equal(payload.code,'unsupported_action');assert.equal(payload.diagnostic.hresult,-1);assert.equal(payload.diagnostic.type,'COMException');assert.equal(payload.actionExecuted,false);assert.equal(payload.recovery,'observe_again');assert.equal(payload.observationRequired,true);}
     assert.deepEqual(f.calls,['input']);
   }
+});
+
+// Retain the host boundary check: exposing static MCP tools must never widen the native selectedWindow ceiling.
+test('virtual input static tools remain outside selectedWindow and absent-runtime capabilities', async t => {
+  for(const mode of ['selectedWindow',undefined]) {
+    const f=await fixture(t,mode,undefined,1000,mode==='selectedWindow'?{release:async()=>({detached:true}),dispose:async()=>{}}:undefined);
+    await assert.rejects(f.call('request_stage',{stage:2,virtualInput:true,reason:'Reject unavailable process hooking'}));
+    for(const tool of ['virtual_input','release_virtual_input']) await assert.rejects(f.call(tool,{targetId:'forged'}),{code:'permission_denied'});
+  }
+});
+
+// Keep process approval opt-in distinct from HWND semantic control and process restarts.
+test('virtual process receipt permits exact process windows without widening semantic or native ceilings',async t=>{
+  let delivered=0,releases=0;
+  const f=await fixture(t,undefined,undefined,1000,{async input(_thread,w,_input,guard){await guard();assert.equal(w.pid,4);assert.equal(w.processCreated,'created');delivered++;return {delivered:true};},async release(){releases++;return {detached:true};},async dispose(){}});
+  let target=await f.select();
+  const capture=()=>f.call('capture',{targetId:target.targetId});
+  const input=image=>f.call('virtual_input',{targetId:target.targetId,observationId:image.observationId,input:{kind:'key',virtualKey:65,action:'down'}});
+  await f.requestStage(2,target.targetId);await assert.rejects(input(await capture()),{code:'permission_denied'});assert.equal(delivered,0);
+  target=await f.select();
+  await f.call('request_stage',{stage:2,targetId:target.targetId,virtualInput:true,reason:'Allow exact process windows'});
+  const processCard=f.cards.filter(v=>v.type==='mcp-request'&&v.request.params._meta.tool_params.virtualInput).at(-1).request;
+  assert.match(processCard.params.message,/이 프로세스의 여러 창에 DLL 입력 후킹/);
+  assert.match(processCard.params._meta.tool_params_display.find(v=>v.name==='process').value,/PID 4.*created.*editor.exe/);
+  await input(await capture());assert.equal(delivered,1);
+  const cards=f.cards.length,oldReleases=releases;
+  f.addWindow({hwnd:'same-process'});target=await f.select(1);assert.ok(releases>oldReleases);
+  await input(await capture());assert.equal(delivered,2);assert.equal(f.cards.length,cards);
+  await f.call('request_stage',{stage:2,targetId:target.targetId,virtualInput:true,reason:'Same process reuse'});assert.equal(f.cards.length,cards);
+  const image=await capture();await assert.rejects(f.call('press_key',{targetId:target.targetId,observationId:image.observationId,elementId:'e',key:'Return'}),{code:'permission_denied'});
+  f.addWindow({hwnd:'other-process',pid:5});target=await f.select(2);await assert.rejects(input(await capture()),{code:'permission_denied'});
+  f.addWindow({hwnd:'restarted-process',processCreated:'new-lifetime'});target=await f.select(3);await assert.rejects(input(await capture()),{code:'permission_denied'});assert.equal(delivered,2);
 });

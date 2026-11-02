@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "owner": "EZ-01-window-use-multipointer-review",
+  "reason": "Preserve minimal failed verification evidence before owner-based disposal of immutable test inputs, compiled fixtures and raw logs",
+  "runs": [
+    {
+      "root": "artifacts/tasks/EZ-01-window-use-multipointer-review/runs/virtual-native-1793594126803",
+      "sourceSha256": "5d028b50e9693e3289f5656dcc19ecebd9e54b03764760d108d546615fb86014",
+      "status": "failed",
+      "startedAt": "2026-11-02T04:35:41.253Z",
+      "endedAt": "2026-11-02T04:35:51.822Z",
+      "steps": [
+        {
+          "name": "configure",
+          "exitCode": 1,
+          "signal": null,
+          "elapsedMs": 10496
+        }
+      ],
+      "error": "Error: configure failed; C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ-01-window-use-multipointer-review\\runs\\virtual-native-1793594126803\\logs\\configure.log"
+    },
+    {
+      "root": "artifacts/tasks/EZ01/runs/vi-mvyrpiit",
+      "sourceSha256": "5d028b50e9693e3289f5656dcc19ecebd9e54b03764760d108d546615fb86014",
+      "status": "failed",
+      "startedAt": "2026-11-02T04:37:43.621Z",
+      "endedAt": "2026-11-02T04:38:17.770Z",
+      "steps": [
+        {
+          "name": "configure",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 8520
+        },
+        {
+          "name": "compile",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 25117
+        },
+        {
+          "name": "selftest",
+          "exitCode": 1,
+          "signal": null,
+          "elapsedMs": 432
+        }
+      ],
+      "error": "Error: selftest failed; C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\vi-mvyrpiit\\logs\\selftest.log",
+      "selftest": "FAIL: Ctrl+A/backspace did not clear EDIT\r\n"
+    },
+    {
+      "root": "artifacts/tasks/EZ01/runs/vi-mvyrvdzj",
+      "sourceSha256": "75c725fb4401bb4c20fc6fb144ab67b2c4cf3631b9bc96ce72fe214fd7c9924b",
+      "status": "failed",
+      "startedAt": "2026-11-02T04:42:23.383Z",
+      "endedAt": "2026-11-02T04:43:36.374Z",
+      "steps": [
+        {
+          "name": "configure",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 24837
+        },
+        {
+          "name": "compile",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 47519
+        },
+        {
+          "name": "selftest",
+          "exitCode": 1,
+          "signal": null,
+          "elapsedMs": 552
+        }
+      ],
+      "error": "Error: selftest failed; C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\vi-mvyrvdzj\\logs\\selftest.log",
+      "selftest": "FAIL: Ctrl+A/backspace did not clear EDIT; selected=23:23 expected=0:23 ctrlAKeys=1 ctrlAChars=1 ctrl=-32768 leftCtrl=-32768 backspaceChars=1 remaining=mousemux test 123 한글 \r\n"
+    },
+    {
+      "root": "artifacts/tasks/EZ01/runs/vi-mvys00nh",
+      "sourceSha256": "45ee97393750ae4b8513be1e92e36a8a8501681fd75cff9fa8d7a96a85e179b7",
+      "status": "failed",
+      "startedAt": "2026-11-02T04:46:06.969Z",
+      "endedAt": "2026-11-02T04:47:08.817Z",
+      "steps": [
+        {
+          "name": "configure",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 28207
+        },
+        {
+          "name": "compile",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 33087
+        },
+        {
+          "name": "selftest",
+          "exitCode": 1,
+          "signal": null,
+          "elapsedMs": 468
+        }
+      ],
+      "error": "Error: selftest failed; C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\vi-mvys00nh\\logs\\selftest.log",
+      "selftest": "FAIL: Physical cursor moved during input/detach\r\n"
+    },
+    {
+      "root": "artifacts/tasks/EZ01/runs/vi-mvys34ex",
+      "sourceSha256": "d81dee971d5f643c68d02f0002912cbaa0c25259d2534bce9793b0f0bc30a950",
+      "status": "passed",
+      "wrapperExitCode": 1,
+      "wrapperError": "finishArtifactRun lifecycle.reconcile catalog lock busy",
+      "steps": [
+        {
+          "name": "configure",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 6022
+        },
+        {
+          "name": "compile",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 20081
+        },
+        {
+          "name": "selftest",
+          "exitCode": 0,
+          "signal": null,
+          "elapsedMs": 1117
+        }
+      ],
+      "selftest": "CURSOR initial=(3410,1224) sampledAt=167018578 lastInputTick=167008531 before-first-detach=(3410,1224) sampledAt=167018734 lastInputTick=167008531\r\nCURSOR after-first-detach=(3410,1224) sampledAt=167018859 lastInputTick=167008531\r\nCURSOR before-sequential-detach[0]=(3410,1224) sampledAt=167018953 lastInputTick=167008531\r\nCURSOR after-sequential-detach[0]=(3410,1224) sampledAt=167019078 lastInputTick=167008531\r\nCURSOR before-sequential-detach[1]=(3410,1224) sampledAt=167019171 lastInputTick=167008531\r\nCURSOR after-sequential-detach[1]=(3410,1224) sampledAt=167019296 lastInputTick=167008531\r\nCURSOR before-sequential-detach[2]=(3410,1224) sampledAt=167019375 lastInputTick=167008531\r\nCURSOR after-sequential-detach[2]=(3410,1224) sampledAt=167019500 lastInputTick=167008531\r\nPASS: owned classic EDIT injection, cursor/state hooks, physical cursor/key independence, OS foreground/Z-order retention, text/Unicode, key shortcut, held releases, unload, identity rejection, same-process same/other-thread sequential roots\r\n"
+    }
+  ],
+  "producerStopEvidence": {
+    "managedExecutionWorkId": "e52863da-3770-493d-a603-43b8da3b3697",
+    "observedWrapperExitCode": 1,
+    "trackedCompileAndSelftestChildrenClosed": true,
+    "selftestBothOwnedFixtureGracefulExitAssertionsPassed": true,
+    "independentWin32ProcessSnapshot": "No azrael-virtual-input-fixture.exe or azrael-virtual-input-selftest.exe processes present after terminal execution"
+  }
+}

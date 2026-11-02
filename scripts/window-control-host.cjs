@@ -44,7 +44,7 @@ function logoffApproval(inspected,reason) {
   return {message:'Windows 자식 세션 '+inspected.identity.childSessionId+'을 종료합니다. 현재 상태: '+(inspected.health==='healthy'?'정상':'비정상')+' / 입력 소유자: '+(inspected.ownerPresent?'있음':'없음')+'. 세션 안의 모든 앱이 종료되며 저장하지 않은 작업이 사라질 수 있습니다. 정상 세션은 소유자가 없을 때만, 상태·연결 검증에 실패한 비정상 세션은 소유자와 관계없이 종료합니다. 승인은 이번 종료 요청에만 적용됩니다. 필요한 경우 Windows 관리자 승인을 요청합니다.',
     tool_params_display:[{name:'app',display_name:'대상',value:'Windows 자식 세션 '+inspected.identity.childSessionId},{name:'health',display_name:'상태',value:inspected.health==='healthy'?'정상':'비정상'},{name:'owner',display_name:'입력 소유자',value:inspected.ownerPresent?'있음':'없음'},{name:'reason',display_name:'이유',value:reason}]};
 }
-function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 30000, childLogoff }) {
+function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 30000, childLogoff, virtualInput }) {
   const settingsOwner = require('./use-control-settings.cjs').createSettingsOwner(runtime.codexHome);
   const { stageEnabled } = require('./use-control-settings.cjs');
   const stageGrants = new Map();
@@ -130,6 +130,8 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     const parts = ['common.md','stage-' + stage + '.md'].map(name => { const file=path.join(directory,'docs','window-use',name);const st=fs.lstatSync(file);if(!st.isFile() || st.isSymbolicLink() || st.size > 65536) throw expectedError('Invalid Window Use guidance');return fs.readFileSync(file,'utf8'); });
     return {guideVersion:version,guide:parts.join('\n\n')};
   }
+  const processIdentity = w => Object.fromEntries(['pid','processCreated','executable'].map(key=>[key,w[key]]));
+  const sameProcess = (a,b) => !!a && !!b && ['pid','processCreated','executable'].every(key=>a[key]===b[key]);
   const sameTarget = (a,b) => !!a && !!b && ['hwnd','pid','processCreated','executable'].every(k => a[k] === b[k]);
   async function contextFor(thread, args={}) {
     const state=settingsOwner.getSettings(), t=threads.get(thread), grant=stageGrants.get(thread);
@@ -151,13 +153,15 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     check();
     if(args.stage===3 && !childRuntime) return {...await contextFor(thread),authorized:false,missingPrerequisite:'child-session-runtime-not-prepared',message:'검증된 Windows 자식 세션 도우미 파일이 필요합니다.'};
     if(args.stage===4 && (t.mode==='selectedWindow' || !runtime.computerUse?.directory)) throw windowError('permission_denied','이 대화의 도구 범위에서 전체 데스크톱을 제어할 수 없습니다.');
+    if(args.virtualInput===true && (args.stage!==2 || t.mode==='selectedWindow' || !virtualInput || !identity)) throw windowError('permission_denied','Virtual input process approval is unavailable');
+    const processScope=args.virtualInput===true?processIdentity(identity):undefined;
     const previous=stageGrants.get(thread);
-    const reused=previous?.stage===args.stage && previous.policyGeneration===state.windowUseGeneration && (args.stage===3 || args.stage===4 && previous.turnId===t.turnId || sameTarget(previous.identity,identity));
+    const reused=previous?.stage===args.stage && previous.policyGeneration===state.windowUseGeneration && (args.stage===3 || args.stage===4 && previous.turnId===t.turnId || args.stage===2 && (processScope ? sameProcess(previous.processScope,processScope) : !previous.processScope && sameTarget(previous.identity,identity)));
     if(!reused) {
-      await consent(undefined,thread,{stage:args.stage,reason:args.reason,identity}); check();
+      await consent(undefined,thread,{stage:args.stage,reason:args.reason,identity:processScope?{virtualInput:true,processScope}:identity}); check();
       if(previous?.stage===3 && args.stage!==3) await isolation.release(thread);
       check(); desktopAuthority?.revoke(thread);
-      stageGrants.set(thread,{stage:args.stage,identity,turnId:t.turnId,prepared:args.prepareOnly===true,policyGeneration:state.windowUseGeneration,appRevocationFingerprint:require('./window-desktop-authority.cjs').appRevocationFingerprint(runtime.codexHome,args.stage===4?'computer-use':'window-use')});
+      stageGrants.set(thread,{stage:args.stage,identity,...(processScope?{processScope}:{}),turnId:t.turnId,prepared:args.prepareOnly===true,policyGeneration:state.windowUseGeneration,appRevocationFingerprint:require('./window-desktop-authority.cjs').appRevocationFingerprint(runtime.codexHome,args.stage===4?'computer-use':'window-use')});
       if(args.stage===4) desktop().grant({threadId:thread,turnId:t.turnId,policyGeneration:state.windowUseGeneration});
     }
     currentGrant=stageGrants.get(thread);
@@ -237,7 +241,12 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if(/invalid|unsupported|requires|bounds|shortcut/i.test(error.message)) throw windowError('invalid_request','격리 실행 요청이 현재 동작 조건을 충족하지 못했습니다.',details);
     throw windowError('unsupported_action','격리 실행 동작을 완료하지 못했습니다.',details);
   }if(tool==='capture_isolated') {const {png,geometry,...value}=result;return {...value,widthPx:geometry.width,heightPx:geometry.height,image:{mimeType:'image/png',data:png}};}return result;};
-  const owner = createWindowOwner({ backend, requestStage, context:contextFor, resources:resourceOperation, isolation:isolatedOperation, codexHome: runtime.codexHome, workspacePath: vscode.workspace?.workspaceFile?.fsPath || runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: (process.platform === 'win32' ? path.win32 : path).basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
+  if(!virtualInput && runtime.windowControl?.virtualInput) {
+    const verified=require('./window-control-runtime.cjs').verifyRuntime(runtime.windowControl.directory);
+    if(verified.manifestSha256!==runtime.windowControl.manifestSha256 || !verified.virtualInput || ['directory','manifestSha256','modulePath'].some(key=>verified.virtualInput[key]!==runtime.windowControl.virtualInput[key])) throw windowError('permission_denied','Virtual input runtime declaration mismatch');
+    virtualInput=require(verified.virtualInput.modulePath).createVirtualInputProvider(verified.virtualInput);
+  }
+  const owner = createWindowOwner({ backend, virtualInput, requestStage, context:contextFor, resources:resourceOperation, isolation:isolatedOperation, codexHome: runtime.codexHome, workspacePath: vscode.workspace?.workspaceFile?.fsPath || runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: (process.platform === 'win32' ? path.win32 : path).basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
     onUserStop: (thread, value) => {
       invalidateUI(thread); approvals.stop(thread);
       if (current === thread) render({ ...value, status: '이 창의 제어를 중지했습니다. 이미 전달한 동작은 적용됐을 수 있습니다.' });
@@ -250,11 +259,13 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     approve: async (w, thread) => { const allowed = await consent(w, thread); if (allowed) selections.set(thread, w); return allowed; }, authorize: (w, thread, operation={stage:2}) => {
     const permission = scope.getStore(), t = threads.get(thread), state=settingsOwner.getSettings(), grant=stageGrants.get(thread);
     if(!(permission?.threadId === thread && permission.disabled === true && !permission.signal?.aborted && t && (!permission.uiRecord || !permission.uiRecord.cancelled) && (!permission.turnId || t.turnId === permission.turnId) && (permission.policyGeneration===undefined || permission.policyGeneration===state.windowUseGeneration))) return false;
-    const controlled=stageEnabled(state,2) && grant?.stage===2 && grant.policyGeneration===state.windowUseGeneration && sameTarget(grant.identity,w) && approvals.hasAppApproval(w.executable,thread);
+    if(['virtual_input','release_virtual_input'].includes(operation.operation) && (t.mode==='selectedWindow' || !virtualInput)) return false;
+    const controlled=stageEnabled(state,2) && grant?.stage===2 && grant.policyGeneration===state.windowUseGeneration && (operation.operation==='virtual_input' ? sameProcess(grant.processScope,w) : !grant.processScope && sameTarget(grant.identity,w)) && approvals.hasAppApproval(w.executable,thread);
     return operation.stage===1 ? stageEnabled(state,1) || controlled : controlled;
   } });
   const serial = fn => { const result = queue.then(fn); queue = result.catch(() => {}); return result; };
   function invalidateUI(thread,{preserveApprovals=false}={}) {
+    if(thread) owner.invalidateObservation(thread);else for(const id of threads.keys()) owner.invalidateObservation(id);
     if(thread) void isolation.release(thread).catch(()=>{});else for(const id of stageGrants.keys()) void isolation.release(id).catch(()=>{});
     if(thread) {stageGrants.delete(thread);desktopAuthority?.revoke(thread);}else {for(const id of stageGrants.keys()) desktopAuthority?.revoke(id);stageGrants.clear();}
     for (const consent of activeConsents) if ((!thread || consent.thread === thread) && !(preserveApprovals && consent.deferred)) consent.controller.abort();
@@ -308,6 +319,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       return desktop().authorize({threadId:message.threadId,turnId:t.turnId,policyGeneration:state.windowUseGeneration});
     }
     if (disposed || threads.get(message.threadId) !== t || message._meta?.threadId !== message.threadId || !actualDisabled(message._meta)) throw windowError('permission_denied', 'Native permission context denied');
+    if(['virtual_input','release_virtual_input'].includes(message.tool) && (t.mode==='selectedWindow' || !virtualInput)) throw windowError('permission_denied','Virtual input is outside this conversation capability');
     if (message.tool === 'ui_operation') {
       const args = message.arguments;
       if (Object.hasOwn(message._meta, 'x-codex-turn-metadata') || !args || Object.keys(args).length !== 1 || typeof args.requestToken !== 'string' || !/^[a-f0-9]{64}$/.test(args.requestToken)) throw windowError('permission_denied', 'Invalid UI operation proof');
@@ -447,6 +459,12 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       const location=stageRequest.stage===2?'현재 사용자 세션의 선택한 창':stageRequest.stage===3?'Windows 자식 세션':'현재 사용자 데스크톱 전체';
       request.params.message=stageRequest.stage===2?'선택한 창을 제어합니다. 사용자 입력과 충돌할 수 있습니다.':stageRequest.stage===3?'같은 사용자 Windows 자식 세션을 만듭니다. 필요하면 Windows 관리자 권한을 요청하여 자식 세션 기능을 활성화하고 TermService를 시작합니다. 앱은 일반 사용자 권한으로 실행되며 로컬 데이터와 계정은 공유될 수 있습니다.':'현재 사용자 데스크톱 전체에 입력할 수 있습니다. 사용자 작업에 영향을 줄 수 있습니다.';
       Object.assign(request.params._meta,{window_use_approval_kind:'stage',tool_params:{app:appTitle},tool_params_display:[{name:'app',display_name:'App',value:appTitle},{name:'stage',display_name:'단계',value:String(stageRequest.stage)},{name:'location',display_name:'실행 위치',value:location},{name:'reason',display_name:'이유',value:stageRequest.reason}],persist:offered});
+      if(stageRequest.identity?.virtualInput===true) {
+        const process=stageRequest.identity.processScope;
+        request.params.message='이 프로세스의 여러 창에 DLL 입력 후킹을 허용합니다. 앱 동작은 별도 관찰로 확인하며 시스템 전체 입력으로 전환하지 않습니다.';
+        request.params._meta.tool_params_display.push({name:'process',display_name:'프로세스',value:'PID '+process.pid+' · 생성 '+process.processCreated+' · '+process.executable});
+        request.params._meta.tool_params.virtualInput=true;
+      }
       if(stageRequest.identity?.operation==='logoff') {
         const presentation=logoffApproval(stageRequest.identity.inspection,stageRequest.reason);
         request.params.message=presentation.message;request.params._meta.tool_params_display=presentation.tool_params_display;
@@ -637,7 +655,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   });
 
   const settingsHost = require('./use-settings-host.cjs').createSettingsHost({ runtime, vscode, backend, approvals, open });
-  async function dispose() { if (disposed) return; disposed = true; await Promise.allSettled([...activeConsents].map(record=>durableApprovals.defer(record.thread,record.id,record.scopeKey))); await Promise.allSettled([...approvalTasks]); const releaseThreads=[...threads.keys()];fs.unwatchFile(policyFile,policyListener);for(const watch of approvalWatches)fs.unwatchFile(watch.file,watch.listener); notificationSubscription?.dispose(); await resources.stopScheduler(); settingsHost.dispose(); invalidateUI(); await Promise.allSettled(releaseThreads.map(thread=>isolation.release(thread)));owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; if(server?.listening===true) await new Promise(resolve=>server.close(resolve));else server?.close(); await Promise.all([...notificationTasks]); await backend.dispose(); if (socketDirectory) {try{await fsp.unlink(pipe);}catch(error){if(error.code!=='ENOENT')throw error;}await fsp.rmdir(socketDirectory);} }
+  async function dispose() { if (disposed) return; disposed = true; await Promise.allSettled([...activeConsents].map(record=>durableApprovals.defer(record.thread,record.id,record.scopeKey))); await Promise.allSettled([...approvalTasks]); const releaseThreads=[...threads.keys()];fs.unwatchFile(policyFile,policyListener);for(const watch of approvalWatches)fs.unwatchFile(watch.file,watch.listener); notificationSubscription?.dispose(); await resources.stopScheduler(); settingsHost.dispose(); invalidateUI(); await Promise.allSettled(releaseThreads.map(thread=>isolation.release(thread)));await owner.dispose(); await virtualInput?.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; if(server?.listening===true) await new Promise(resolve=>server.close(resolve));else server?.close(); await Promise.all([...notificationTasks]); await backend.dispose(); if (socketDirectory) {try{await fsp.unlink(pipe);}catch(error){if(error.code!=='ENOENT')throw error;}await fsp.rmdir(socketDirectory);} }
   return { settings: settingsHost.receive, open, attach, prepareRequest, registerApprovalUI, respondApproval, request, beforeResult, observe, disconnect, dispose, handlePipe, handleUI, startThread, owner, threads, get panelNonce() { return panelNonce; }, get nonce() { return nonce; } };
 }
 let active;

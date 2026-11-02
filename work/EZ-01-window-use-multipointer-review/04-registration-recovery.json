@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "id": "run:EZ01:vi-mvyrpiit",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "64653c45aba1180abda479e671d4825192bb26ce83f3daafb96fe47b2f6c44f9",
+  "lease_owner": {
+    "acquired_at_ms": 1793595072864,
+    "operation": "group_reservation",
+    "pid": 7964,
+    "schema": 2,
+    "token": "7964-1793595072864-f435276f7d1ff10d"
+  },
+  "observedNativeExitCode": 1,
+  "supervisorTerminalSession": 13075,
+  "basis": "spawnSync observed the sole standalone registration child exit 1; supervisor immediately exited 1; this registration path measures and commits in-process with no child producers. No process termination inferred from PID absence."
+}

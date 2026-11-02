@@ -147,7 +147,7 @@ function Assert-IntegratedHostVsixContents {
                 try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
                 if ($actual -ine $file.sha256) { throw "Window Control VSIX hash mismatch: $entryName" }
             }
-            foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
+            foreach ($module in (@('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs') + @(if ($windowManifest.virtualInput) { 'window-virtual-input.cjs' }))) {
                 $entry = $archive.GetEntry("extension/out/$module")
                 if (-not $entry) { throw "Window Control host module missing: $module" }
                 $stream = $entry.Open()
@@ -290,7 +290,7 @@ try {
             }
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'instruction-library.cjs', 'instruction-publisher.cjs', 'instruction-catalog.cjs', 'instruction-migration.cjs', 'task-profile-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'instruction-library.cjs', 'instruction-publisher.cjs', 'instruction-catalog.cjs', 'instruction-migration.cjs', 'task-profile-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'window-virtual-input.cjs', 'window-control-errors.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
             $environmentLib = Join-Path $accountUiDirectory 'lib'

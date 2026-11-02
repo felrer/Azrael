@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "items": [
+    {
+      "group": "run:EZ01:vi-mvyrpiit",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\vi-mvyrpiit",
+      "bytes": 15585047,
+      "state": "failed"
+    },
+    {
+      "group": "run:EZ01:vi-mvys00nh",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\vi-mvys00nh",
+      "bytes": 15747806,
+      "state": "failed"
+    },
+    {
+      "group": "run:EZ-01-window-use-multipointer-review:virtual-native-1793594126803",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ-01-window-use-multipointer-review\\runs\\virtual-native-1793594126803",
+      "bytes": 1324700,
+      "state": "failed"
+    },
+    {
+      "group": "run:EZ01:vi-mvys34ex",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\vi-mvys34ex",
+      "bytes": 16025145,
+      "state": "failed"
+    },
+    {
+      "group": "run:EZ01:vi-mvyrvdzj",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\vi-mvyrvdzj",
+      "bytes": 15716032,
+      "state": "failed"
+    },
+    {
+      "group": "run:EZ-01-window-use-multipointer-review:virtual-provider-1793594392813",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ-01-window-use-multipointer-review\\runs\\virtual-provider-1793594392813",
+      "bytes": 1799,
+      "state": "complete"
+    },
+    {
+      "group": "run:EZ-01-window-use-multipointer-review:virtual-provider-1793593303099",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ-01-window-use-multipointer-review\\runs\\virtual-provider-1793593303099",
+      "bytes": 1799,
+      "state": "complete"
+    },
+    {
+      "group": "ez01-mousemux-20261102",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ-01-window-use-multipointer-review\\runs\\20261102-mousemux\\temporary",
+      "bytes": 76443272,
+      "state": "installation/test reference still registered; installer no longer needed"
+    }
+  ],
+  "totalBytes": 140845600,
+  "blocker": "Standalone owner registration returned maintenance_busy; no deletion attempted or bypassed. Exact registration reservation recovered with failed outcome preserved.",
+  "retentionApproval": {
+    "approved": true,
+    "basis": "User explicitly approved temporary retention of the exact eight-group, 140845600-byte scope",
+    "condition": "Until maintenance lock is released; then recheck identities, protections and references and use the existing owner for deletion. Installed MouseMux and user data excluded."
+  }
+}

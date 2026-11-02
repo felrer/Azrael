@@ -112,7 +112,7 @@ async function main() {
     await fs.writeFile(macroPath, '{bad'); await assert.rejects(owner.getMacros(), e => e.code === 'unclassified' && e.message === '미분류된 오류');
     await geometryRecoveryChecks(home);
     console.log('PASS policy: identity, argument isolation, observation lifetime, minimize/resume, Stop, revocation, macro storage, cancellation and bounded geometry recovery');
-  } finally { owner.dispose(); await fs.rm(home, { recursive: true, force: true }); }
+  } finally { owner.dispose(); await fs.rm(home, { recursive: true }); }
 }
 async function geometryRecoveryChecks(home) {
   let current, approved, hook, sequence = 0;

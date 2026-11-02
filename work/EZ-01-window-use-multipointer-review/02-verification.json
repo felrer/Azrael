@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "platform": {
+    "os": "win32",
+    "arch": "x64",
+    "version": "Windows 11 Home build 26200"
+  },
+  "status": "source-and-owned-fixture-accepted-with-approved-retention",
+  "native": [
+    {
+      "runId": "run:EZ-01-window-use-multipointer-review:virtual-native-1793594126803",
+      "exitCode": 1,
+      "result": "CMake compiler probe failed MSB6003: MAX_PATH build tracking directory"
+    },
+    {
+      "runId": "run:EZ01:vi-mvyrpiit",
+      "configureExitCode": 0,
+      "compileExitCode": 0,
+      "selftestExitCode": 1,
+      "result": "Ctrl+A/backspace did not clear EDIT"
+    },
+    {
+      "runId": "run:EZ01:vi-mvyrvdzj",
+      "configureExitCode": 0,
+      "compileExitCode": 0,
+      "selftestExitCode": 1,
+      "result": "Legacy multiline EDIT received Ctrl+A WM_KEYDOWN, WM_CHAR(1), Ctrl and leftCtrl=-32768 and Backspace, but selection stayed 23:23 instead of 0:23. Fixture version/shortcut behavior under investigation."
+    },
+    {
+      "runId": "run:EZ01:vi-mvys34ex",
+      "sourceSha256": "d81dee971d5f643c68d02f0002912cbaa0c25259d2534bce9793b0f0bc30a950",
+      "steps": [
+        {
+          "name": "configure",
+          "exitCode": 0,
+          "elapsedMs": 6022
+        },
+        {
+          "name": "compile",
+          "exitCode": 0,
+          "elapsedMs": 20081
+        },
+        {
+          "name": "selftest",
+          "exitCode": 0,
+          "elapsedMs": 1117
+        }
+      ],
+      "nativeStatus": "passed",
+      "wrapperExitCode": 1,
+      "wrapperError": "lifecycle.reconcile catalog lock busy; native behavior passed, run outcome not yet reconciled",
+      "selftest": "CURSOR initial=(3410,1224) sampledAt=167018578 lastInputTick=167008531 before-first-detach=(3410,1224) sampledAt=167018734 lastInputTick=167008531\r\nCURSOR after-first-detach=(3410,1224) sampledAt=167018859 lastInputTick=167008531\r\nCURSOR before-sequential-detach[0]=(3410,1224) sampledAt=167018953 lastInputTick=167008531\r\nCURSOR after-sequential-detach[0]=(3410,1224) sampledAt=167019078 lastInputTick=167008531\r\nCURSOR before-sequential-detach[1]=(3410,1224) sampledAt=167019171 lastInputTick=167008531\r\nCURSOR after-sequential-detach[1]=(3410,1224) sampledAt=167019296 lastInputTick=167008531\r\nCURSOR before-sequential-detach[2]=(3410,1224) sampledAt=167019375 lastInputTick=167008531\r\nCURSOR after-sequential-detach[2]=(3410,1224) sampledAt=167019500 lastInputTick=167008531\r\nPASS: owned classic EDIT injection, cursor/state hooks, physical cursor/key independence, OS foreground/Z-order retention, text/Unicode, key shortcut, held releases, unload, identity rejection, same-process same/other-thread sequential roots\r\n",
+      "runtimeManifestSha256": "ceea82076422bb77a8b10940195e224b6ff4f5fe81e3676d7b98d7c67972b7f0"
+    }
+  ],
+  "source": [
+    {
+      "suite": "test-window-virtual-input.cjs",
+      "tests": 6,
+      "passed": 6,
+      "exitCode": 0,
+      "note": "Before malformed-null response guard update; rerun required"
+    },
+    {
+      "suite": "test-window-use-stage-authority.cjs",
+      "tests": 26,
+      "passed": 26,
+      "exitCode": 0
+    },
+    {
+      "suite": "test-window-control-host-errors.cjs",
+      "tests": 41,
+      "passed": 41,
+      "exitCode": 0
+    },
+    {
+      "suite": "test-window-control-runtime.cjs",
+      "tests": 14,
+      "passed": 14,
+      "exitCode": 0
+    },
+    {
+      "suites": [
+        "test-window-control-host.cjs",
+        "test-window-control-policy.cjs",
+        "test-window-control-mcp.cjs",
+        "test-window-virtual-policy.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "suite": "test-window-use-staging.cjs",
+      "passed": 3,
+      "failed": 1,
+      "exitCode": 1,
+      "prerequisite": "python ENOENT in unrelated unified sync TOML fixture"
+    },
+    {
+      "suite": "PowerShell parser",
+      "files": [
+        "scripts/build-azrael.ps1",
+        "scripts/prepare-ordinary-vscode.ps1",
+        "scripts/prepare-independent-vscode.ps1"
+      ],
+      "exitCode": 0
+    },
+    {
+      "suite": "test-window-virtual-input.cjs rerun",
+      "exitCode": 1,
+      "executedTests": 0,
+      "prerequisite": "artifact catalog/run-claim lock busy; latest source rerun pending"
+    },
+    {
+      "suite": "test-window-virtual-input.cjs focused latest",
+      "tests": 5,
+      "passed": 5,
+      "exitCode": 0,
+      "note": "Malformed-null reply and attach-guard retirement included; unchanged runtime manifest case retains earlier passing evidence"
+    },
+    {
+      "suite": "test-window-use-staging.cjs",
+      "tests": 4,
+      "passed": 4,
+      "exitCode": 0,
+      "environment": "Existing Python313 prepended to test child PATH only; persistent environment unchanged; temporary fixture verified absent"
+    }
+  ],
+  "unverified": [
+    "Concurrent physical human typing/mouse movement",
+    "Modern Notepad/Chromium/IME/Raw Input compatibility",
+    "Distribution package and installed host acceptance"
+  ],
+  "cleanup": [
+    {
+      "group": "run:EZ-01-window-use-multipointer-review:virtual-provider-1793594392813",
+      "registrationExitCode": 0,
+      "status": "registered; review and deletion pending",
+      "bytes": 1799
+    },
+    {
+      "group": "run:EZ-01-window-use-multipointer-review:virtual-provider-1793593303099",
+      "registrationExitCode": 1,
+      "status": "maintenance_busy, not registered by this attempt"
+    },
+    {
+      "nativeProducerLifecycle": "run:EZ01:vi-mvys34ex",
+      "closed": true,
+      "actualWrapperExitCode": 1,
+      "nativeStepExitCode": 0
+    },
+    {
+      "recoveredReservation": "run:EZ01:vi-mvyrpiit",
+      "exitCode": 0,
+      "executionOutcomeChanged": false
+    },
+    {
+      "retainedGroups": 8,
+      "totalBytes": 140845600,
+      "approval": "07-pending-cleanup.json",
+      "condition": "Management lock release, then fresh owner-based review/deletion"
+    }
+  ]
+}

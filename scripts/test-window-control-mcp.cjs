@@ -28,7 +28,7 @@ async function main() {
     let relayed = false;
     const protocol = mcp.createProtocol({ relay: async () => { relayed = true; } });
     assert.deepEqual((await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/list' })).result.tools, []);
-    for (const name of ['capture', 'context', 'launch_isolated', 'ui_operation']) {
+    for (const name of ['capture', 'context', 'launch_isolated', 'ui_operation','virtual_input','release_virtual_input']) {
       const denied = await protocol({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name, arguments: {} } });
       assert.equal(denied.result.isError, true);
       const error = JSON.parse(denied.result.content[0].text);
@@ -37,6 +37,8 @@ async function main() {
     }
     assert.equal(relayed, false);
   }
+  const virtualResult=JSON.parse(callResult({targetId:'opaque',delivery:'virtualInput',verified:false,delivered:true,detached:true,pid:123,dllPath:'secret'}).content[0].text);
+  assert.equal(virtualResult.delivery,'virtualInput');assert.equal(virtualResult.verified,false);assert.equal(virtualResult.detached,true);assert.equal(virtualResult.pid,undefined);assert.equal(virtualResult.dllPath,undefined);
   const threadId = '12345678-1234-1234-1234-123456789abc';
   const proof = { 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } } };
   assert.equal(parseThreadMetadata({ 'x-codex-turn-metadata': { thread_id: threadId }, threadId }), threadId);
