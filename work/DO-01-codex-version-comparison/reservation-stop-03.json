@@ -1,0 +1,23 @@
+{
+  "id": "run:do3:tests-r1",
+  "reservation_sha256": "9d11edc2788e30956d3fd3f536b9cb7fa46800bc936b666ba9aad3898e33d5e6",
+  "lease_owner": {
+    "acquired_at_ms": 1793563828682,
+    "operation": "group_reservation",
+    "pid": 41700,
+    "schema": 2,
+    "token": "41700-1793563828682-fa7cf00e6cc713f3"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "observed": "2026-11-01T20:16:59.932Z",
+  "evidence": {
+    "controllerSession": 73950,
+    "controllerExitCode": 1,
+    "controllerPid": 53776,
+    "nativePid": 41700,
+    "nativeExitCode": null,
+    "registrationLog": "artifacts/tasks/do3/runs/edit-baseline-r1/temporary/cleanup-r2-6-register.stderr.log",
+    "basis": "The exact fixed standalone was called synchronously by the completed Node helper. Its registration call returned the retained-reservation error before the Node exception/exit1. Registration/reservation acquisition is in-process and creates no child process; no apply/deletion path ran. Both recorded native leaf PID41700 and controller53776 were absent at follow-up. Parent observed termination plus synchronous call return plus no-descendant registration path establish tree stop; PID absence alone is not used."
+  }
+}

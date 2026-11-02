@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "verifiedAt": "2026-11-01T21:49:01.750Z",
+  "producerStoppedVerified": true,
+  "groups": [
+    {
+      "id": "run:do3:native-r2",
+      "sessionId": 32406,
+      "exitCode": 0
+    },
+    {
+      "id": "run:do3:native-r3",
+      "sessionId": 46514,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:native-r4",
+      "sessionId": 74633,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:native-r5",
+      "sessionId": 52214,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:native-r6",
+      "sessionId": 52549,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:native-r7",
+      "sessionId": 17112,
+      "exitCode": 0
+    },
+    {
+      "id": "run:do3:tests-r2",
+      "sessionId": 93712,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:tests-r3",
+      "sessionId": 94455,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:tests-r7",
+      "sessionId": 94169,
+      "exitCode": 1
+    }
+  ],
+  "basis": "Actual synchronous executor terminal results were read. Source producers have ended; tests-r2 never started Cargo; tests-r3/r7 ended Cargo101 before libtests. Source-r4 Git leaf was deliberately stopped after exact identity/child verification, followed by actual controller1. Results/digests/first causal errors are retained in verification-03.json. The corrected native-r8 source uses its own task Git archive and does not consume any selected group.",
+  "consumerScope": "Exclude native-r8, tests-r8, edit-baseline-r1, shared Cargo target and external Code Mode host fixture",
+  "reason": "Superseded stopped source preparations and failed checks have no remaining diagnostic or input use; fresh native review still governs deletion."
+}

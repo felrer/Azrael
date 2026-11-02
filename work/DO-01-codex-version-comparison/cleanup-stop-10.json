@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "observedAt": "2026-11-01T23:54:14.455Z",
+  "basis": "Controllers returned actual terminal outcomes; source and fixture identities preserved in verification-stop-09.json. Consumer references were released by supported producer close.",
+  "groups": [
+    {
+      "id": "run:do3:tests-r8",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r8\\reports\\producer-2a6d8e822aca32c221085094736d6da3cc9d245caf7eeb0db823ce8446824af8.json",
+        "evidence_sha256": "2a6d8e822aca32c221085094736d6da3cc9d245caf7eeb0db823ce8446824af8",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "controllerEvidence": {
+        "lifecycleId": "run:do3:tests-r8",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r8",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\edit-baseline-r1\\temporary\\verify-r8.cjs"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "failed",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:do3:tests-r9",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r9\\reports\\producer-4333761fea1873bd2e05235c94fbd66ae257a04ab088335b4809083184b4e2d0.json",
+        "evidence_sha256": "4333761fea1873bd2e05235c94fbd66ae257a04ab088335b4809083184b4e2d0",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "controllerEvidence": {
+        "lifecycleId": "run:do3:tests-r9",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r9",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\edit-baseline-r1\\temporary\\verify-r9.cjs"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "failed",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:do3:tests-r10",
+      "revision": 2,
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r10\\reports\\producer-a7ec34a4991e6f5f432dce068a273fb6f1af0c81a1851772c3bc6d6bf7285fbc.json",
+        "evidence_sha256": "a7ec34a4991e6f5f432dce068a273fb6f1af0c81a1851772c3bc6d6bf7285fbc",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "controllerEvidence": {
+        "lifecycleId": "run:do3:tests-r10",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r10",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\edit-baseline-r1\\temporary\\verify-r10.cjs"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:do3:native-r8",
+      "revision": 4,
+      "generation": "d087abc5-be4f-4501-8a5e-c4b544cc5ba8",
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\native-r8\\reports\\producer-generation2-bd276e008c9469a4e9024f9eafa5bb757ffc37b80a4d3c1c6e2b848e29312667.json",
+        "evidence_sha256": "bd276e008c9469a4e9024f9eafa5bb757ffc37b80a4d3c1c6e2b848e29312667",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "All synchronous source preparation child calls returned terminal outcomes",
+        "status": "stopped"
+      },
+      "controllerEvidence": {
+        "id": "run:do3:native-r8",
+        "generation": "d087abc5-be4f-4501-8a5e-c4b544cc5ba8",
+        "actualSynchronousProducerExit": 0,
+        "childrenTerminated": true,
+        "time": "2026-11-01T22:48:35.318Z"
+      }
+    },
+    {
+      "id": "run:do3:fixture-lease-r1",
+      "revision": 2,
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\fixture-lease-r1\\reports\\producer-1274904d2e8c9009edb839d91e4c53f7d5439e14fffe5e0d8960f2e2edf55c3b.json",
+        "evidence_sha256": "1274904d2e8c9009edb839d91e4c53f7d5439e14fffe5e0d8960f2e2edf55c3b",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "controllerEvidence": {
+        "lifecycleId": "run:do3:fixture-lease-r1",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\fixture-lease-r1",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      }
+    }
+  ]
+}

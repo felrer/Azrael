@@ -4147,7 +4147,11 @@
         "engine/codex-rs/thread-store/src/local/read_thread.rs",
         "engine/codex-rs/tui/src/lib.rs",
         "engine/codex-rs/tui/src/app/owned_transcript_input_tests.rs",
-        "engine/codex-rs/tui/src/chatwidget/realtime_tests/caption_replay.rs"
+        "engine/codex-rs/tui/src/chatwidget/realtime_tests/caption_replay.rs",
+        "engine/codex-rs/core/src/tools/handlers/dynamic.rs",
+        "engine/codex-rs/core/tests/suite/code_mode_dynamic_tools_tests.rs",
+        "engine/codex-rs/core/src/context/instruction_state_projection.rs",
+        "engine/codex-rs/core/src/compact_remote_v2_attempt.rs"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "checks": [

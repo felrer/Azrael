@@ -110,6 +110,10 @@ pub(crate) struct ContextManager {
     /// Process-unique so resumed roots cannot match a worker's cached assistant evidence.
     guardian_review_context_revision: u64,
     token_info: Option<TokenUsageInfo>,
+    /// Raw history entries below this boundary are covered by the saved context count.
+    /// Failed or usage-less responses do not advance it; it is not persisted.
+    last_server_reported_usage_item_count: usize,
+    last_model_output_item_count: Option<usize>,
     /// Reference context snapshot used for diffing and producing model-visible
     /// settings update items.
     ///
@@ -250,6 +254,8 @@ impl ContextManager {
             token_info: TokenUsageInfo::new_or_append(
                 &None, &None, /*model_context_window*/ None,
             ),
+            last_server_reported_usage_item_count: 0,
+            last_model_output_item_count: None,
             reference_context_item: None,
             world_state_baseline: None,
         }
@@ -445,6 +451,15 @@ impl ContextManager {
         self.token_info = info;
     }
 
+    pub(crate) fn set_token_info_with_boundary(
+        &mut self,
+        info: Option<TokenUsageInfo>,
+        covered_item_count: usize,
+    ) {
+        self.last_server_reported_usage_item_count = covered_item_count;
+        self.token_info = info;
+    }
+
     pub(crate) fn set_reference_context_item(&mut self, item: Option<TurnContextItem>) {
         self.reference_context_item = item;
     }
@@ -598,6 +613,9 @@ impl ContextManager {
         if let Some(source) = &source {
             processed.metadata.get_or_insert_default().retained_source = Some(source.clone());
         }
+        if is_model_generated_item(&processed.item) {
+            self.last_model_output_item_count = Some(self.items.len() + 1);
+        }
         Arc::make_mut(&mut self.items).push(processed);
         source
     }
@@ -721,6 +739,7 @@ impl ContextManager {
             // its corresponding counterpart to keep the invariants intact without
             // running a full normalization pass.
             normalize::remove_corresponding_for(items, &removed.item);
+            self.reset_last_usage_boundary();
             self.world_state_baseline = None;
         }
     }
@@ -741,6 +760,7 @@ impl ContextManager {
             );
         }
         self.items = Arc::new(items);
+        self.reset_last_usage_boundary();
         self.history_version = self.history_version.saturating_add(1);
         self.reset_version = self.history_version;
         self.world_state_baseline = None;
@@ -779,6 +799,7 @@ impl ContextManager {
             self.review_history = Some(retained);
         }
         self.items = Arc::new(items);
+        self.reset_last_usage_boundary();
         self.history_version = self.history_version.saturating_add(1);
         if promoted {
             self.reset_version = self.history_version;
@@ -916,12 +937,30 @@ impl ContextManager {
         &mut self,
         usage: &TokenUsage,
         model_context_window: Option<i64>,
+        input_item_count: usize,
     ) {
-        self.token_info = TokenUsageInfo::new_or_append(
+        let info = TokenUsageInfo::new_or_append(
             &self.token_info,
             &Some(usage.clone()),
             model_context_window,
         );
+        let covered_item_count = self
+            .last_model_output_item_count
+            .unwrap_or(0)
+            .max(input_item_count);
+        self.set_token_info_with_boundary(info, covered_item_count);
+    }
+
+    /// Restored or rewritten history retains the existing last-output approximation.
+    fn reset_last_usage_boundary(&mut self) {
+        self.last_model_output_item_count = self
+            .items
+            .iter()
+            .rposition(|envelope| is_model_generated_item(&envelope.item))
+            .map(|index| index + 1);
+        self.last_server_reported_usage_item_count = self
+            .last_model_output_item_count
+            .unwrap_or(self.items.len());
     }
 
     fn get_non_last_reasoning_items_tokens(&self) -> i64 {
@@ -936,7 +975,7 @@ impl ContextManager {
 
         self.items
             .iter()
-            .take(last_user_index)
+            .take(last_user_index.min(self.last_server_reported_usage_item_count))
             .filter(|envelope| {
                 matches!(
                     &envelope.item,
@@ -954,15 +993,12 @@ impl ContextManager {
     // suppression depends on bodies already delivered before the provider reply.
     fn estimated_projected_tail_tokens(&self, model_slug: Option<&str>) -> i64 {
         let projected =
-            crate::context::instruction_state_projection::project_instruction_state_for_model(
+            crate::context::instruction_state_projection::project_instruction_state_since_for_model(
                 self.items.as_ref().clone(),
                 model_slug,
+                self.last_server_reported_usage_item_count,
             );
-        let start = projected
-            .iter()
-            .rposition(|envelope| is_model_generated_item(&envelope.item))
-            .map_or(projected.len(), |index| index.saturating_add(1));
-        projected[start..]
+        projected
             .iter()
             .map(|envelope| estimate_item_token_count_for_model_slug(&envelope.item, model_slug))
             .fold(0i64, i64::saturating_add)
@@ -1003,14 +1039,14 @@ impl ContextManager {
         }
     }
 
-    pub(crate) fn estimated_tokens_after_last_model_generated_item_for_model(
+    pub(crate) fn estimated_tokens_since_last_usage_for_model(
         &self,
         model_info: &codex_protocol::openai_models::ModelInfo,
     ) -> i64 {
         self.estimated_projected_tail_tokens(Some(&model_info.slug))
     }
 
-    pub(crate) fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+    pub(crate) fn estimated_tokens_since_last_usage(&self) -> i64 {
         self.estimated_projected_tail_tokens(None)
     }
 
@@ -1032,6 +1068,10 @@ impl ContextManager {
 
         // strip audio when model does not support it
         normalize::strip_audio_when_unsupported(input_modalities, items);
+        self.last_model_output_item_count = items
+            .iter()
+            .rposition(|envelope| is_model_generated_item(&envelope.item))
+            .map(|index| index + 1);
     }
 
     /// Walk backward from a rollback cut and trim contiguous pre-turn context-update items.
@@ -1532,6 +1572,7 @@ mod api_search_estimate_tests {
                 ..TokenUsage::default()
             },
             None,
+            0,
         );
         let compact = history.get_total_token_usage_for_model_slug(true, Some("api/test"));
         let ordinary = history.get_total_token_usage(true);
@@ -1587,6 +1628,20 @@ mod api_search_estimate_tests {
         assert_eq!(history.raw_items().len(), 3);
         history.replace(vec![skill("body"), assistant, skill("changed body")]);
         assert!(history.estimated_projected_tail_tokens(Some("api/test")) > 0);
+        let covered = history.raw_items().len();
+        history.update_token_info(&TokenUsage::default(), None, covered);
+        let partial: ResponseItem = serde_json::from_value(serde_json::json!({
+            "type": "message", "role": "assistant", "content": [{"type": "output_text", "text": "unreported response"}]
+        }))
+        .unwrap();
+        history.record_items(
+            [&partial],
+            codex_utils_output_truncation::TruncationPolicy::Tokens(10_000),
+        );
+        assert_eq!(
+            history.estimated_projected_tail_tokens(Some("api/test")),
+            estimate_item_token_count(&partial)
+        );
     }
 
     #[test]

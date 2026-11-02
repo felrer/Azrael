@@ -564,13 +564,10 @@ pub(crate) async fn run_turn(
                         .await;
 
                     // Construct the input that we will send to the model.
-                    let sampling_request_input: Vec<ResponseItem> = async {
-                        sess.clone_history()
-                            .await
-                            .for_prompt(&step_context.settings.model_info.input_modalities)
-                    }
-                    .instrument(trace_span!("run_turn.prepare_sampling_request_input"))
-                    .await;
+                    let sampling_request_input = sess
+                        .clone_history()
+                        .instrument(trace_span!("run_turn.prepare_sampling_request_input"))
+                        .await;
                     Ok(sampling_request_input)
                 },
             )
@@ -1745,7 +1742,7 @@ async fn run_sampling_request(
     turn_store: Arc<codex_extension_api::ExtensionData>,
     turn_diff_tracker: SharedTurnDiffTracker,
     client_session: &mut ModelClientSession,
-    input: Vec<ResponseItem>,
+    input: crate::context_manager::ContextManager,
     cancellation_token: CancellationToken,
 ) -> CodexResult<(SamplingRequestResult, Vec<ResponseItem>)> {
     let turn_context = Arc::clone(&step_context.turn);
@@ -1779,14 +1776,14 @@ async fn run_sampling_request(
     loop {
         // Running code-mode cells can request review while this response is in flight.
         // Keep the latest received ID until response.created replaces it.
-        let prompt_input = if let Some(input) = initial_input.take() {
+        let history = if let Some(input) = initial_input.take() {
             input
         } else {
-            sess.clone_history()
-                .await
-                .for_prompt(&step_context.settings.model_info.input_modalities)
+            sess.clone_history().await
         };
-        let mut prompt_input = prompt_input;
+        let input_item_count = history.raw_items().len();
+        let mut prompt_input =
+            history.for_prompt(&step_context.settings.model_info.input_modalities);
         sess.services
             .executed_tool_calls
             .attach_to_prompt(&mut prompt_input, &mut executed_tool_calls_by_output);
@@ -1887,6 +1884,7 @@ async fn run_sampling_request(
             &responses_metadata,
             Arc::clone(&turn_diff_tracker),
             &prompt,
+            input_item_count,
             final_input_tokens,
             cancellation_token.child_token(),
         )
@@ -2747,6 +2745,7 @@ async fn try_run_sampling_request(
     responses_metadata: &CodexResponsesMetadata,
     turn_diff_tracker: SharedTurnDiffTracker,
     prompt: &Prompt,
+    input_item_count: usize,
     final_input_tokens: Option<i64>,
     cancellation_token: CancellationToken,
 ) -> CodexResult<SamplingRequestResult> {
@@ -3282,6 +3281,7 @@ async fn try_run_sampling_request(
                         &turn_context,
                         &step_context.settings,
                         token_usage.as_ref(),
+                        input_item_count,
                     )
                     .await;
                 should_emit_token_count = true;

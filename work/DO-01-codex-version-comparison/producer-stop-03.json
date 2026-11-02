@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "scope": [
+    "run:do3:edit-baseline-r1",
+    "run:do3:tests-r1"
+  ],
+  "verifiedAt": "2026-11-01T20:20:55.914Z",
+  "producerStoppedVerified": true,
+  "outcomes": [
+    {
+      "id": "run:do3:edit-baseline-r1",
+      "sessionId": 34447,
+      "exitCode": 1,
+      "nativeLeasePid": 15296
+    },
+    {
+      "id": "run:do3:tests-r1",
+      "sessionId": 55406,
+      "exitCode": 1,
+      "nativeLeasePid": 22600,
+      "cargoStarted": false
+    }
+  ],
+  "basis": "Both synchronous Node sessions returned actual exit 1. Native lease leaves failed initial acquisition and the in-process initial-failure path creates no descendants. Exact leaf absence was checked before close. No unknown native exit code is inferred. These observations were retained in verification-03.json at closure.",
+  "correction": "The original closure evidence_ref points at a mutable results summary whose content subsequently changed. Its recorded historical hash is no longer current. This immutable document preserves the independently observed terminal facts; the old lifecycle outcome and historical receipt are not rewritten.",
+  "reservationRecovery": "work/DO-01-codex-version-comparison/reservation-stop-03.json"
+}

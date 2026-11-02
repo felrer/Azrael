@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "id": "run:do3:edit-baseline-r1",
+  "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc01-os33-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "binarySHA": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855",
+  "events": [
+    {
+      "operation": "register",
+      "pid": 24144,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "result": {
+        "group": {
+          "id": "run:do3:edit-baseline-r1",
+          "owner": "codex-context-and-dynamic-parallel",
+          "membership_complete": true
+        },
+        "items": [
+          {
+            "id": "2c524ce6bad74baf5801a6f8ac50d2a0c5441c23e6aedac02583db7cf8c8f1a8",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\edit-baseline-r1",
+            "logical_bytes": 29753691
+          }
+        ]
+      },
+      "stderr": "",
+      "at": "2026-11-02T01:25:05.856Z"
+    },
+    {
+      "operation": "review",
+      "pid": 51224,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "result": {
+        "items": [
+          {
+            "id": "2c524ce6bad74baf5801a6f8ac50d2a0c5441c23e6aedac02583db7cf8c8f1a8",
+            "blockers": [],
+            "verification": "registered",
+            "remaining": true
+          }
+        ]
+      },
+      "stderr": "",
+      "at": "2026-11-02T01:25:12.021Z"
+    },
+    {
+      "operation": "apply",
+      "pid": 47404,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:do3:edit-baseline-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "id": "2c524ce6bad74baf5801a6f8ac50d2a0c5441c23e6aedac02583db7cf8c8f1a8",
+            "lifecycle_group_id": "run:do3:edit-baseline-r1",
+            "status": "deleted",
+            "group_status": "deleted",
+            "remaining": false,
+            "attempt_id": "attempt-47404-4837-1793582724751",
+            "deletion": {
+              "status": "deleted",
+              "remaining": false,
+              "error": null,
+              "normalizedAttributeEntries": 0,
+              "physical_bytes_reclaimed": null
+            }
+          }
+        ]
+      },
+      "stderr": "",
+      "at": "2026-11-02T01:25:34.853Z"
+    }
+  ],
+  "state": "complete",
+  "rootAbsent": true,
+  "finalized": true
+}

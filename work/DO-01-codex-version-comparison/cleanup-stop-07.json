@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "id": "run:do3:native-r5",
+  "nativeApplyExit": 1,
+  "savedItemStatus": "deleted",
+  "savedAttempt": "attempt-57384-4723-1793571816715",
+  "rootAbsent": true,
+  "reservationRecovered": true,
+  "executionOutcomeChanged": false,
+  "basis": "Native physical deletion, actual-result save and final-presence succeeded before later OS33 in another group. Independent review confirmed saved manifest deletion. Exact reservation recovered with immutable reservation-stop-07-native-r5.json and native exit1 evidence."
+}

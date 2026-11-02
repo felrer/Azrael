@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "id": "run:do3:native-r2",
+  "reservation_sha256": "6383060c6db69ab0f54a3f006c8edeb3e4c9f1a4f18f1b2cd7a427dc1a905b5d",
+  "lease_owner": {
+    "acquired_at_ms": 1793565897162,
+    "operation": "group_reservation",
+    "pid": 46512,
+    "schema": 2,
+    "token": "46512-1793565897161-94f11baa8c5e9f9f"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "observedAt": "2026-11-01T21:06:07.147Z",
+  "basis": "Synchronous native registration call in cleanup-r4-6-register returned its terminal maintenance_busy/pre-intent error before Node threw. Executor44590 subsequently returned actual1. The registration path is in-process and does not spawn descendants; current PID46512 and children were independently absent. Native exit code not retained, therefore remains null.",
+  "nativeExitCode": null,
+  "nodeSessionId": 44590,
+  "nodeExitCode": 1,
+  "executionOutcomeChanged": false
+}

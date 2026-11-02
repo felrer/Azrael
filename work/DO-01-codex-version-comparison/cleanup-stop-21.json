@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "id": "run:do3:edit-baseline-r1",
+  "originalProducer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\verification-03.json",
+    "evidence_sha256": "198ed9dd473a6414b78b3c5710198f0abfa3e4afaf6c006626d7990efa2bacad",
+    "exit_code": 1,
+    "outcome": "failure",
+    "reason": "Actual Node failure and exact native lease leaf termination independently reconciled; preserve observed exit1",
+    "status": "stopped"
+  },
+  "originalActualExit": 1,
+  "originalStopProof": "producer-stop-03.json",
+  "historicalEvidenceCaveat": "Original producer references mutable verification-03.json with a historical hash. Independent original stop facts preserved in producer-stop-03.json; historical failure remains failure.",
+  "laterConsumersStopped": true,
+  "basis": "All owned synchronous and async cleanup/diagnostic controllers returned actual terminal outcomes, including r20 actual0. All other do3 run roots absent. This final controller executes inline from workspace root and will not use helper payload after native registration. No original or later producer outcome is rewritten.",
+  "selectedVerification": {
+    "passed": 124,
+    "failed": 0,
+    "controllerExit": 0,
+    "immutableProof": "verification-stop-09.json"
+  },
+  "time": "2026-11-02T01:24:11.048Z"
+}

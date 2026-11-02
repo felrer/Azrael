@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "verifiedAt": "2026-11-01T20:42:25.792Z",
+  "producerStoppedVerified": true,
+  "groups": [
+    {
+      "id": "run:do3:native-r1",
+      "sessionId": 56489,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:tests-r1",
+      "sessionId": 55406,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:native-r2",
+      "sessionId": 32406,
+      "exitCode": 0
+    },
+    {
+      "id": "run:do3:tests-r2",
+      "sessionId": 93712,
+      "exitCode": 1
+    },
+    {
+      "id": "run:do3:tests-r3",
+      "sessionId": 94455,
+      "exitCode": 1,
+      "cargoExitCode": 101
+    }
+  ],
+  "basis": "Actual synchronous executor results observed, native completion states recorded; tests-r3 Cargo ended101 before libtests. Tests-r2/r1 never launched Cargo. Prior failed leaf and reservation stop details are independently retained in producer-stop-03.json and reservation-stop-03.json. All required result and input digest evidence was copied to verification-03.json before deletion.",
+  "reason": "Exact task-tree replacement native-r4 prepared independently; failed and superseded run payloads no longer have a reader. Fresh native reviews must still check references and protections."
+}

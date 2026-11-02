@@ -1,0 +1,1933 @@
+{
+  "schema": 1,
+  "scope": [
+    "openai/codex#54654",
+    "openai/codex#58404"
+  ],
+  "platform": "windows-x64",
+  "static": {
+    "syntax": "targeted rustfmt completed before restoring unrelated formatting; independent 6-file syntax review passed",
+    "runnerSyntaxExitCode": 0,
+    "preservationManifestExitCode": 0,
+    "finalSyntax": {
+      "kind": "syntax-only; formatted stdout discarded; no source writes",
+      "toolchain": "1.95.0",
+      "files": [
+        "src/context/instruction_state_projection.rs",
+        "src/context_manager/history.rs",
+        "src/context_manager/history_tests.rs",
+        "src/session/mod.rs",
+        "src/session/turn.rs",
+        "src/state/session.rs",
+        "src/compact_remote_v2_attempt.rs",
+        "src/session/guardian_checkpoint_tests.rs",
+        "src/session/tests.rs",
+        "src/tasks/mod_tests.rs",
+        "tests/suite/compact.rs",
+        "src/tools/handlers/dynamic.rs",
+        "tests/suite/code_mode.rs",
+        "tests/suite/code_mode_dynamic_tools_tests.rs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "warning": "Rustfmt nightly-only imports_granularity ignored by stable; parser/syntax pass completed"
+    },
+    "finalWorkspaceTaskHunks": {
+      "reverseCheckExit": 0,
+      "paths": 16,
+      "runtimeDocumentOwnAdditionRetained": true,
+      "newDynamicRegressionTextMatchesTestedBlob": true,
+      "newDynamicRegressionDifference": "working CRLF vs Git/tested LF only"
+    }
+  },
+  "stages": [
+    {
+      "name": "edit-baseline-r1",
+      "sessionId": 34447,
+      "exitCode": 1,
+      "producerStoppedVerified": true,
+      "ownedTreeEvidence": "The synchronous Node producer exited 1. Its exact native lease leaf PID15296 was absent at follow-up; maintenance-lock-worker spawns only that lease child and the native lease initial-acquire failure path emits an error then returns without spawning descendants. Unknown native exit code is not invented.",
+      "cause": "catalog OS-lock busy at finalization"
+    },
+    {
+      "name": "native-r1",
+      "sessionId": 56489,
+      "exitCode": 1,
+      "producerStoppedVerified": true,
+      "cause": "Git hash-object filename too long before any Cargo start"
+    },
+    {
+      "name": "native-r2",
+      "exitCode": 0,
+      "sourceSha256": "e8299e384e2525ba29d1d4f1a337cdf5a47c431111cb5370c62c38d0c35a1842",
+      "receiptSha256": "a597e5f556afa766bf9c3b9b9aecd91a92df4ecb0db7183b1ebf5b8aebb5508e",
+      "fileCount": 9346
+    },
+    {
+      "name": "tests-r1-registration-attempt-1",
+      "exitCode": 1,
+      "producerStarted": false,
+      "cause": "catalog OS-lock busy; runRoot absent"
+    },
+    {
+      "name": "tests-r1",
+      "sessionId": 55406,
+      "exitCode": 1,
+      "producerStarted": false,
+      "cause": "Shared cache generation registration failed on catalog busy before Cargo spawn; finalization also hit busy. Exact worker22600 failed initial acquisition; native leaf creates no descendant."
+    },
+    {
+      "name": "tests-r2",
+      "sessionId": 93712,
+      "exitCode": 1,
+      "producerStarted": false,
+      "cause": "A different DO2 producer acquired shared Cargo cache after initial readiness and before guarded beginExecution; no Cargo command was launched by DO3."
+    },
+    {
+      "name": "cleanup-r2",
+      "sessionId": 73950,
+      "exitCode": 1,
+      "cause": "Native registration hit catalog busy; pre-intent reservation retained; no delete was attempted."
+    },
+    {
+      "name": "cleanup-r3",
+      "sessionId": 30273,
+      "exitCode": 1,
+      "cause": "Native register catalog OS lock remained busy after supported 5000ms wait; no apply/delete attempted"
+    },
+    {
+      "name": "tests-r3",
+      "sessionId": 94455,
+      "controllerExitCode": 1,
+      "cargoExitCode": 101,
+      "executed": 0,
+      "start": "2026-11-01T20:17:00.274Z",
+      "tests": [
+        {
+          "name": "history",
+          "exitCode": 101,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": false,
+            "actualCounts": {
+              "summaries": [],
+              "passed": 0,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0,
+              "executed": 0
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--features",
+                  "integration-tests",
+                  "--lib",
+                  "context_manager::history::",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-11-01T20:23:59.599Z",
+                "durationMs": 766049,
+                "exitCode": 101,
+                "signal": null
+              }
+            ]
+          }
+        }
+      ],
+      "firstCause": {
+        "code": "E0433",
+        "file": "core/src/session/agent_profile.rs",
+        "line": 79,
+        "message": "windows_sys dependency missing in frozen concurrent profile implementation"
+      },
+      "additionalCause": {
+        "code": "E0425",
+        "file": "core/src/session/mod.rs",
+        "line": 3910,
+        "message": "agent_profile::validate_turn_account not yet present in frozen concurrent profile module"
+      },
+      "rerunScope": "Exact task Git tree 55007e101365ffeebfca2556f3c7fac403568d87 based on accepted HEAD82537debf9d907fca912befa0a379c738747f006; preserve unrelated current workspace changes"
+    },
+    {
+      "name": "native-r3",
+      "sessionId": 46514,
+      "exitCode": 1,
+      "cause": "Standard Python zipfile extraction exceeded Windows MAX_PATH before compilation; fixed task-tree archive complete and reusable",
+      "rerun": "native-r4 uses namespaced Windows destination paths"
+    },
+    {
+      "name": "native-r4",
+      "sessionId": 74633,
+      "exitCode": 1,
+      "cargoStarted": false,
+      "cause": "Redundant Git blob regeneration progressing407 objects in8min; exact task-owned Git leaf49688 parent4348 verified with no children and stopped normally. Node observed spawnSync EOF, controller actual1.",
+      "rerun": "native-r5 reuses immutable existing task Git tree through alternates/read-tree"
+    },
+    {
+      "name": "native-r5",
+      "sessionId": 52214,
+      "exitCode": 1,
+      "cause": "Receipt-protected SQL differs only in EOL; no Cargo started"
+    },
+    {
+      "name": "native-r6",
+      "sessionId": 52549,
+      "exitCode": 1,
+      "cause": "Four tracked accepted-HEAD Rust sources absent from old receipt; no Cargo started"
+    },
+    {
+      "name": "native-r7",
+      "sessionId": 17112,
+      "exitCode": 0,
+      "source": {
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\native-r7\\inputs\\engine",
+        "started": "2026-11-01T21:00:46.017Z",
+        "completed": "2026-11-01T21:03:19.638Z",
+        "deltas": [
+          "codex-rs/analytics/src/reducer.rs",
+          "codex-rs/analytics/src/tests/suite/approvals_tests.rs",
+          "codex-rs/analytics/src/tests/suite/reducer_ordering_tests.rs",
+          "codex-rs/app-server-client/src/bin/azrael-bridge.rs",
+          "codex-rs/app-server/src/outgoing_message.rs",
+          "codex-rs/code-mode/src/remote_session.rs",
+          "codex-rs/core/Cargo.toml",
+          "codex-rs/core/src/compact_remote_v2_attempt.rs",
+          "codex-rs/core/src/context/instruction_state_projection.rs",
+          "codex-rs/core/src/context_manager/history.rs",
+          "codex-rs/core/src/context_manager/history_tests.rs",
+          "codex-rs/core/src/session/guardian_checkpoint_tests.rs",
+          "codex-rs/core/src/session/mcp.rs",
+          "codex-rs/core/src/session/mod.rs",
+          "codex-rs/core/src/session/tests.rs",
+          "codex-rs/core/src/session/turn.rs",
+          "codex-rs/core/src/session/turn_start_mcp_tests.rs",
+          "codex-rs/core/src/state/session.rs",
+          "codex-rs/core/src/tasks/mod_tests.rs",
+          "codex-rs/core/src/tools/handlers/dynamic.rs",
+          "codex-rs/core/tests/suite/code_mode.rs",
+          "codex-rs/core/tests/suite/compact.rs",
+          "codex-rs/core/tests/suite/remote_models.rs",
+          "codex-rs/core/tests/suite/skills_extension/cloud_lifecycle_tests.rs",
+          "codex-rs/ext/extension-api/Cargo.toml",
+          "codex-rs/ext/extension-api/src/contributors.rs",
+          "codex-rs/ext/extension-api/src/contributors/turn_lifecycle.rs",
+          "codex-rs/ext/extension-api/src/lib.rs",
+          "codex-rs/ext/mcp/Cargo.toml",
+          "codex-rs/ext/mcp/src/cloud_plugin.rs",
+          "codex-rs/ext/mcp/src/cloud_plugin_tests.rs",
+          "codex-rs/ext/mcp/src/plugin_contributor_state.rs",
+          "codex-rs/ext/mcp/tests/plugin_mcp.rs",
+          "codex-rs/ext/skills/Cargo.toml",
+          "codex-rs/ext/skills/src/cloud_cache_tests.rs",
+          "codex-rs/ext/skills/src/cloud_skill.rs",
+          "codex-rs/ext/skills/src/skills_extension_state.rs",
+          "codex-rs/ext/skills/src/state.rs",
+          "codex-rs/model-provider/src/combined_auth.rs",
+          "codex-rs/model-provider/src/shared_state_tests.rs",
+          "codex-rs/models-manager/src/manager.rs",
+          "codex-rs/models-manager/src/manager_tests.rs",
+          "codex-rs/project-maintenance/src/groups.rs",
+          "codex-rs/project-maintenance/src/lease.rs",
+          "codex-rs/project-maintenance/src/lib.rs",
+          "codex-rs/project-maintenance/src/lock_recovery.rs",
+          "codex-rs/project-maintenance/src/registry.rs",
+          "codex-rs/project-maintenance/src/reservations.rs",
+          "codex-rs/project-maintenance/src/storage.rs",
+          "codex-rs/project-maintenance/tests/registry.rs",
+          "codex-rs/prompts/templates/agent_behavior.md",
+          "codex-rs/prompts/templates/harness-runtime-core.md",
+          "codex-rs/protocol/src/error.rs",
+          "codex-rs/protocol/src/error_tests.rs",
+          "codex-rs/core/tests/suite/code_mode_dynamic_tools_tests.rs",
+          "codex-rs/code-mode/src/remote_session/delegate.rs",
+          "codex-rs/core/tests/code_mode_tracing.rs",
+          "codex-rs/ext/extension-api/src/catalog_refresh.rs",
+          "codex-rs/project-maintenance/src/registration.rs"
+        ],
+        "snapshot": {
+          "schema": 2,
+          "sourceKind": "imported-snapshot",
+          "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+          "importedInventorySha256": "3e881b6507052ef1d6d9ff75159f2a51fad4945bac928d9329a1fde494f02c09",
+          "importedReceiptSha256": "6e278c55ff0ea9b5ce80fbb57d11edda3af9f11bcf1da474ebbb1248b99c9158",
+          "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+          "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "sourceSha256": "4058d7ddaf4c83e7c43324ed3cb36245204d37710ea8db9d4316f8f04a14d5e3",
+          "fileCount": 9333,
+          "target": "x86_64-pc-windows-msvc",
+          "buildEnvironment": {
+            "RUSTFLAGS": "",
+            "CARGO_ENCODED_RUSTFLAGS": "",
+            "RUSTC_WRAPPER": "",
+            "RUSTUP_TOOLCHAIN": "",
+            "V8_FROM_SOURCE": "",
+            "V8_FORCE_DEBUG": "",
+            "RUSTY_V8_ARCHIVE": "",
+            "RUSTY_V8_MIRROR": "",
+            "RUSTY_V8_SRC_BINDING_PATH": "",
+            "GN": "",
+            "GN_ARGS": "",
+            "EXTRA_GN_ARGS": "",
+            "NINJA": "",
+            "CLANG_BASE_PATH": "",
+            "PYTHON": "",
+            "LIBCLANG_PATH": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "cleanup-r4",
+      "sessionId": 44590,
+      "exitCode": 1,
+      "cause": "native-r1 already registered and tests-r1 registration succeeded. native-r2 registration finalization hit catalog busy and retained reservation; apply/delete not reached."
+    },
+    {
+      "name": "tests-r7",
+      "sessionId": 94169,
+      "controllerExitCode": 1,
+      "cargoExitCode": 101,
+      "executed": 0,
+      "source": {
+        "schema": 2,
+        "sourceKind": "imported-snapshot",
+        "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+        "importedInventorySha256": "3e881b6507052ef1d6d9ff75159f2a51fad4945bac928d9329a1fde494f02c09",
+        "importedReceiptSha256": "6e278c55ff0ea9b5ce80fbb57d11edda3af9f11bcf1da474ebbb1248b99c9158",
+        "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+        "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "sourceSha256": "4058d7ddaf4c83e7c43324ed3cb36245204d37710ea8db9d4316f8f04a14d5e3",
+        "fileCount": 9333,
+        "target": "x86_64-pc-windows-msvc",
+        "buildEnvironment": {
+          "RUSTFLAGS": "",
+          "CARGO_ENCODED_RUSTFLAGS": "",
+          "RUSTC_WRAPPER": "",
+          "RUSTUP_TOOLCHAIN": "",
+          "V8_FROM_SOURCE": "",
+          "V8_FORCE_DEBUG": "",
+          "RUSTY_V8_ARCHIVE": "",
+          "RUSTY_V8_MIRROR": "",
+          "RUSTY_V8_SRC_BINDING_PATH": "",
+          "GN": "",
+          "GN_ARGS": "",
+          "EXTRA_GN_ARGS": "",
+          "NINJA": "",
+          "CLANG_BASE_PATH": "",
+          "PYTHON": "",
+          "LIBCLANG_PATH": ""
+        }
+      },
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": false,
+        "actualCounts": {
+          "summaries": [],
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0,
+          "executed": 0
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--features",
+              "integration-tests",
+              "--lib",
+              "context_manager::history::",
+              "--locked",
+              "--offline",
+              "--target",
+              "x86_64-pc-windows-msvc",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-01T21:08:12.706Z",
+            "durationMs": 727714,
+            "exitCode": 101,
+            "signal": null
+          }
+        ]
+      },
+      "cause": "Task hunk mapping accidentally captured a concurrent agent_profile::validate_turn_account call not present in accepted baseline. Full candidate audit found this and an unrelated shared_state filter fix; both excluded from corrected task tree b2c272724a537099e30f35da659572ccbff4fbb1. Workspace concurrent edits preserved."
+    },
+    {
+      "name": "cleanup-r5",
+      "sessionId": 74763,
+      "exitCode": 1,
+      "cause": "Pre-intent native apply OS error33; source/path/lock holder not identified",
+      "deletionStarted": false,
+      "evidence": "Manifest revision4715 unchanged, both items present/remaining with cleanup_status null; decisions empty; manifest.pending and both reservation JSONs absent. Verified by read-only owner against pre-intent abort flow."
+    },
+    {
+      "name": "native-r8",
+      "sessionId": 97433,
+      "exitCode": 0,
+      "source": {
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\native-r8\\inputs\\engine",
+        "started": "2026-11-01T21:23:04.991Z",
+        "completed": "2026-11-01T21:27:41.557Z",
+        "deltas": [
+          "codex-rs/analytics/src/reducer.rs",
+          "codex-rs/analytics/src/tests/suite/approvals_tests.rs",
+          "codex-rs/analytics/src/tests/suite/reducer_ordering_tests.rs",
+          "codex-rs/app-server-client/src/bin/azrael-bridge.rs",
+          "codex-rs/app-server/src/outgoing_message.rs",
+          "codex-rs/code-mode/src/remote_session.rs",
+          "codex-rs/core/Cargo.toml",
+          "codex-rs/core/src/compact_remote_v2_attempt.rs",
+          "codex-rs/core/src/context/instruction_state_projection.rs",
+          "codex-rs/core/src/context_manager/history.rs",
+          "codex-rs/core/src/context_manager/history_tests.rs",
+          "codex-rs/core/src/session/guardian_checkpoint_tests.rs",
+          "codex-rs/core/src/session/mcp.rs",
+          "codex-rs/core/src/session/mod.rs",
+          "codex-rs/core/src/session/tests.rs",
+          "codex-rs/core/src/session/turn.rs",
+          "codex-rs/core/src/session/turn_start_mcp_tests.rs",
+          "codex-rs/core/src/state/session.rs",
+          "codex-rs/core/src/tasks/mod_tests.rs",
+          "codex-rs/core/src/tools/handlers/dynamic.rs",
+          "codex-rs/core/tests/suite/code_mode.rs",
+          "codex-rs/core/tests/suite/compact.rs",
+          "codex-rs/core/tests/suite/remote_models.rs",
+          "codex-rs/core/tests/suite/skills_extension/cloud_lifecycle_tests.rs",
+          "codex-rs/ext/extension-api/Cargo.toml",
+          "codex-rs/ext/extension-api/src/contributors.rs",
+          "codex-rs/ext/extension-api/src/contributors/turn_lifecycle.rs",
+          "codex-rs/ext/extension-api/src/lib.rs",
+          "codex-rs/ext/mcp/Cargo.toml",
+          "codex-rs/ext/mcp/src/cloud_plugin.rs",
+          "codex-rs/ext/mcp/src/cloud_plugin_tests.rs",
+          "codex-rs/ext/mcp/src/plugin_contributor_state.rs",
+          "codex-rs/ext/mcp/tests/plugin_mcp.rs",
+          "codex-rs/ext/skills/Cargo.toml",
+          "codex-rs/ext/skills/src/cloud_cache_tests.rs",
+          "codex-rs/ext/skills/src/cloud_skill.rs",
+          "codex-rs/ext/skills/src/skills_extension_state.rs",
+          "codex-rs/ext/skills/src/state.rs",
+          "codex-rs/model-provider/src/combined_auth.rs",
+          "codex-rs/model-provider/src/shared_state_tests.rs",
+          "codex-rs/models-manager/src/manager.rs",
+          "codex-rs/models-manager/src/manager_tests.rs",
+          "codex-rs/project-maintenance/src/groups.rs",
+          "codex-rs/project-maintenance/src/lease.rs",
+          "codex-rs/project-maintenance/src/lib.rs",
+          "codex-rs/project-maintenance/src/lock_recovery.rs",
+          "codex-rs/project-maintenance/src/registry.rs",
+          "codex-rs/project-maintenance/src/reservations.rs",
+          "codex-rs/project-maintenance/src/storage.rs",
+          "codex-rs/project-maintenance/tests/registry.rs",
+          "codex-rs/prompts/templates/agent_behavior.md",
+          "codex-rs/prompts/templates/harness-runtime-core.md",
+          "codex-rs/protocol/src/error.rs",
+          "codex-rs/protocol/src/error_tests.rs",
+          "codex-rs/core/tests/suite/code_mode_dynamic_tools_tests.rs",
+          "codex-rs/code-mode/src/remote_session/delegate.rs",
+          "codex-rs/core/tests/code_mode_tracing.rs",
+          "codex-rs/ext/extension-api/src/catalog_refresh.rs",
+          "codex-rs/project-maintenance/src/registration.rs"
+        ],
+        "snapshot": {
+          "schema": 2,
+          "sourceKind": "imported-snapshot",
+          "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+          "importedInventorySha256": "bfa80b6d1a22616dfedb11bdb76c1ae0d8afa26816ba7af8c90235ead1ffb950",
+          "importedReceiptSha256": "fd27c0e428c5c26e21dae743ab0a7d81ce4f8ab4d6c63ae404ebfb530e5da16a",
+          "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+          "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "sourceSha256": "730eb28213902aa11830a16519dc59714de13fa89396d346e22edbe42d0b4004",
+          "fileCount": 9333,
+          "target": "x86_64-pc-windows-msvc",
+          "buildEnvironment": {
+            "RUSTFLAGS": "",
+            "CARGO_ENCODED_RUSTFLAGS": "",
+            "RUSTC_WRAPPER": "",
+            "RUSTUP_TOOLCHAIN": "",
+            "V8_FROM_SOURCE": "",
+            "V8_FORCE_DEBUG": "",
+            "RUSTY_V8_ARCHIVE": "",
+            "RUSTY_V8_MIRROR": "",
+            "RUSTY_V8_SRC_BINDING_PATH": "",
+            "GN": "",
+            "GN_ARGS": "",
+            "EXTRA_GN_ARGS": "",
+            "NINJA": "",
+            "CLANG_BASE_PATH": "",
+            "PYTHON": "",
+            "LIBCLANG_PATH": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "tests-r8",
+      "sessionId": 90689,
+      "controllerExitCode": 1,
+      "source": {
+        "schema": 2,
+        "sourceKind": "imported-snapshot",
+        "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+        "importedInventorySha256": "bfa80b6d1a22616dfedb11bdb76c1ae0d8afa26816ba7af8c90235ead1ffb950",
+        "importedReceiptSha256": "fd27c0e428c5c26e21dae743ab0a7d81ce4f8ab4d6c63ae404ebfb530e5da16a",
+        "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+        "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "sourceSha256": "730eb28213902aa11830a16519dc59714de13fa89396d346e22edbe42d0b4004",
+        "fileCount": 9333,
+        "target": "x86_64-pc-windows-msvc",
+        "buildEnvironment": {
+          "RUSTFLAGS": "",
+          "CARGO_ENCODED_RUSTFLAGS": "",
+          "RUSTC_WRAPPER": "",
+          "RUSTUP_TOOLCHAIN": "",
+          "V8_FROM_SOURCE": "",
+          "V8_FORCE_DEBUG": "",
+          "RUSTY_V8_ARCHIVE": "",
+          "RUSTY_V8_MIRROR": "",
+          "RUSTY_V8_SRC_BINDING_PATH": "",
+          "GN": "",
+          "GN_ARGS": "",
+          "EXTRA_GN_ARGS": "",
+          "NINJA": "",
+          "CLANG_BASE_PATH": "",
+          "PYTHON": "",
+          "LIBCLANG_PATH": ""
+        }
+      },
+      "results": [
+        {
+          "name": "history",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--features",
+            "integration-tests",
+            "--lib",
+            "context_manager::history::",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 95,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 3012
+                }
+              ],
+              "passed": 95,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3012,
+              "executed": 95
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--features",
+                  "integration-tests",
+                  "--lib",
+                  "context_manager::history::",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-11-01T21:46:12.543Z",
+                "durationMs": 1065817,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          }
+        },
+        {
+          "name": "projection",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--features",
+            "integration-tests",
+            "--lib",
+            "context::instruction_state_projection::tests::",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "exitCode": 1,
+          "signal": null,
+          "error": "Cargo ownership finalization failed",
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": false,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 16,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 3091
+                }
+              ],
+              "passed": 16,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3091,
+              "executed": 16
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--features",
+                  "integration-tests",
+                  "--lib",
+                  "context::instruction_state_projection::tests::",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-11-01T22:03:58.367Z",
+                "durationMs": 73892,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          }
+        }
+      ],
+      "cause": "Projection libtests actual0/passed16 but Cargo ownership finalization failed; preflight accepted=false. History actual0/passed95/preflight accepted=true remains valid. Shared cache generation subsequently advanced; do not close or recover a different current generation."
+    }
+  ],
+  "tests": {
+    "state": "complete",
+    "platform": "windows-x64",
+    "selectedPassed": 124,
+    "failed": 0,
+    "cargoInvocations": 7,
+    "allExitCodes": 0,
+    "sourceUnchanged": true,
+    "fixtureUnchanged": true,
+    "details": "testsR10",
+    "immutableEvidence": "verification-stop-09.json"
+  },
+  "evidenceCorrection": "producer-stop-03.json independently preserves terminal observations because historical close references used this mutable result file",
+  "testedReceiptBlob": "61338b3ac48712ebb4589e030bb2fa0834caeed5",
+  "taskCodeTree": "f2e66decbebcd6764691a872f722865b8b4b6202",
+  "taskBaseHead": "82537debf9d907fca912befa0a379c738747f006",
+  "taskIsolationCorrection": {
+    "excludedConcurrentChanges": [
+      "engine/codex-rs/core/src/session/mod.rs: validate_turn_account call",
+      "scripts/check-selected-upstream-native.cjs: shared_state filter correction"
+    ],
+    "formattingOnly": [
+      "history.rs new projection-tail assertion",
+      "session/tests.rs renamed method call"
+    ]
+  },
+  "cleanup": [
+    {
+      "name": "cleanup-r6",
+      "helperSessionId": 90754,
+      "helperExitCode": 1,
+      "nativeApplyExitCode": 0,
+      "helperFailure": "Retirement evidence argument was relative; corrected to absolute for supported finalize",
+      "nativeResult": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:do3:native-r1",
+            "status": "deleted"
+          },
+          {
+            "id": "run:do3:tests-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "id": "8b2bc9378abfe2006c601cc976097980c4ff3998631d537c470e635699cfdb30",
+            "lifecycle_group_id": "run:do3:tests-r1",
+            "status": "deleted",
+            "group_status": "deleted",
+            "remaining": false,
+            "attempt_id": "attempt-38324-4715-1793568944620",
+            "deletion": {
+              "status": "deleted",
+              "remaining": false,
+              "error": null,
+              "normalizedAttributeEntries": 0,
+              "physical_bytes_reclaimed": null
+            }
+          },
+          {
+            "id": "c28fa11c2cfbedacab9b476c32864ffc0323c433de8e66a83697010352f0286c",
+            "lifecycle_group_id": "run:do3:native-r1",
+            "status": "deleted",
+            "group_status": "deleted",
+            "remaining": false,
+            "attempt_id": "attempt-38324-4717-1793568974224",
+            "deletion": {
+              "status": "deleted",
+              "remaining": false,
+              "error": null,
+              "normalizedAttributeEntries": 6561,
+              "physical_bytes_reclaimed": null
+            }
+          }
+        ]
+      },
+      "allTargetsAbsent": true,
+      "finalized": [
+        {
+          "id": "run:do3:native-r1",
+          "status": "finalized"
+        },
+        {
+          "id": "run:do3:tests-r1",
+          "status": "finalized"
+        }
+      ]
+    }
+  ],
+  "recomputeAssertionCorrection": {
+    "productionChanged": false,
+    "oldActual": 1310,
+    "oldExpected": 1600,
+    "cause": "Pre-recompute history clone added290 already-covered retained tokens to expected total",
+    "newContract": "Local recomputation covers all raw history; tail must be zero and total equals local estimate"
+  },
+  "testsR9": {
+    "exitCode": 1,
+    "projection": {
+      "actualExit": 0,
+      "passed": 16,
+      "accepted": true
+    },
+    "recompute": {
+      "actualExit": 101,
+      "passed": 1,
+      "failed": 1,
+      "actualTotal": 1310,
+      "staleExpected": 1600
+    },
+    "nextTree": "f2e66decbebcd6764691a872f722865b8b4b6202"
+  },
+  "cleanupR7": {
+    "nativePid": 57384,
+    "nativeExit": 1,
+    "nodeExit": 1,
+    "deleted": [
+      "native-r5"
+    ],
+    "remaining": [
+      "native-r2",
+      "native-r3",
+      "native-r4"
+    ],
+    "reservationsRecoveryPending": false,
+    "recoveryActualExit": 0
+  },
+  "generation2": {
+    "preparationExit": 0,
+    "tree": "f2e66decbebcd6764691a872f722865b8b4b6202",
+    "independentCommit": "aaba87eb94345ce5c06705f356666ec94eee4fc4",
+    "receiptSHA": "9b97aa7a37769dc318acdce41bd41b1a4fb3b1f71b1f478480c89d3bc0dc2098",
+    "snapshot": {
+      "schema": 2,
+      "sourceKind": "imported-snapshot",
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "43d2105c8c7165ba6cf37d156f4fe8a91648134f87337c7de5f3797c7b8a65e9",
+      "importedReceiptSha256": "9b97aa7a37769dc318acdce41bd41b1a4fb3b1f71b1f478480c89d3bc0dc2098",
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceSha256": "9753d593fa588fc7de7e43dbddab556e5fa7344a838160552cef6073ab56b410",
+      "fileCount": 9333,
+      "target": "x86_64-pc-windows-msvc",
+      "buildEnvironment": {
+        "RUSTFLAGS": "",
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "V8_FROM_SOURCE": "",
+        "V8_FORCE_DEBUG": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "EXTRA_GN_ARGS": "",
+        "NINJA": "",
+        "CLANG_BASE_PATH": "",
+        "PYTHON": "",
+        "LIBCLANG_PATH": ""
+      }
+    },
+    "testedReceiptBlob": "61338b3ac48712ebb4589e030bb2fa0834caeed5",
+    "correctedTestSyntaxExit": 0
+  },
+  "cleanupOldR9": {
+    "exitCode": 1,
+    "registrationExitCodes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "applyNativePid": 49412,
+    "applyExit": 1,
+    "stage": "registry.catalog_snapshot_load before first delete intent",
+    "error": "Windows OS33",
+    "abortBeforeIntent": true,
+    "reservationsRemaining": 0,
+    "deletedGroups": []
+  },
+  "cleanupSingleR10": {
+    "wrapperExit": 1,
+    "nativeApplyExit": 0,
+    "aborted": true,
+    "remaining": true,
+    "error": "catalog snapshot OS33 caused unavailable owner/current token; observation persistence maintenance_busy",
+    "deletedGroups": [],
+    "source": "cleanup-single-r10-1793574464288-3-apply.stdout.log"
+  },
+  "testsR10": {
+    "state": "complete",
+    "source": {
+      "schema": 2,
+      "sourceKind": "imported-snapshot",
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "43d2105c8c7165ba6cf37d156f4fe8a91648134f87337c7de5f3797c7b8a65e9",
+      "importedReceiptSha256": "9b97aa7a37769dc318acdce41bd41b1a4fb3b1f71b1f478480c89d3bc0dc2098",
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceSha256": "9753d593fa588fc7de7e43dbddab556e5fa7344a838160552cef6073ab56b410",
+      "fileCount": 9333,
+      "target": "x86_64-pc-windows-msvc",
+      "buildEnvironment": {
+        "RUSTFLAGS": "",
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "V8_FROM_SOURCE": "",
+        "V8_FORCE_DEBUG": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "EXTRA_GN_ARGS": "",
+        "NINJA": "",
+        "CLANG_BASE_PATH": "",
+        "PYTHON": "",
+        "LIBCLANG_PATH": ""
+      }
+    },
+    "results": [
+      {
+        "name": "recompute",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--features",
+          "integration-tests",
+          "--lib",
+          "recompute_token_usage",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "preflight": {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 2,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 3105
+              }
+            ],
+            "passed": 2,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 3105,
+            "executed": 2
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--features",
+                "integration-tests",
+                "--lib",
+                "recompute_token_usage",
+                "--locked",
+                "--offline",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-01T23:04:02.774Z",
+              "durationMs": 722725,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "history",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--features",
+          "integration-tests",
+          "--lib",
+          "context_manager::history::",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "preflight": {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 95,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 3012
+              }
+            ],
+            "passed": 95,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 3012,
+            "executed": 95
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--features",
+                "integration-tests",
+                "--lib",
+                "context_manager::history::",
+                "--locked",
+                "--offline",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-01T23:16:05.504Z",
+              "durationMs": 81241,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "projection",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--features",
+          "integration-tests",
+          "--lib",
+          "context::instruction_state_projection::tests::",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "preflight": {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 16,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 3091
+              }
+            ],
+            "passed": 16,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 3091,
+            "executed": 16
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--features",
+                "integration-tests",
+                "--lib",
+                "context::instruction_state_projection::tests::",
+                "--locked",
+                "--offline",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-01T23:17:26.750Z",
+              "durationMs": 23960,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "unreported-reasoning",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--features",
+          "integration-tests",
+          "--test",
+          "all",
+          "auto_compact_accounts_for_unreported_reasoning",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "preflight": {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 4,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 1970
+              }
+            ],
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 1970,
+            "executed": 4
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--features",
+                "integration-tests",
+                "--test",
+                "all",
+                "auto_compact_accounts_for_unreported_reasoning",
+                "--locked",
+                "--offline",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-01T23:17:50.716Z",
+              "durationMs": 333391,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "retained-reasoning",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--features",
+          "integration-tests",
+          "--test",
+          "all",
+          "auto_compact_accounts_for_encrypted_reasoning",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "preflight": {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 5,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 1969
+              }
+            ],
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 1969,
+            "executed": 5
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--features",
+                "integration-tests",
+                "--test",
+                "all",
+                "auto_compact_accounts_for_encrypted_reasoning",
+                "--locked",
+                "--offline",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-01T23:23:24.112Z",
+              "durationMs": 31499,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "local-usage",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--features",
+          "integration-tests",
+          "--test",
+          "all",
+          "manual_compact_records_durable_and_local_token_usage",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "preflight": {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 1,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 1973
+              }
+            ],
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 1973,
+            "executed": 1
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--features",
+                "integration-tests",
+                "--test",
+                "all",
+                "manual_compact_records_durable_and_local_token_usage",
+                "--locked",
+                "--offline",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-01T23:23:55.616Z",
+              "durationMs": 17528,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "dynamic-parallel",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--features",
+          "integration-tests",
+          "--test",
+          "all",
+          "code_mode_dynamic_tool_calls_pending_together_resolve_in_reverse_order",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "preflight": {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 1,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 1973
+              }
+            ],
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 1973,
+            "executed": 1
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--features",
+                "integration-tests",
+                "--test",
+                "all",
+                "code_mode_dynamic_tool_calls_pending_together_resolve_in_reverse_order",
+                "--locked",
+                "--offline",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-01T23:24:13.150Z",
+              "durationMs": 17699,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      }
+    ],
+    "totalPassed": 124,
+    "failed": 0,
+    "controllerExit": 0,
+    "sourceAfter": {
+      "schema": 2,
+      "sourceKind": "imported-snapshot",
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "43d2105c8c7165ba6cf37d156f4fe8a91648134f87337c7de5f3797c7b8a65e9",
+      "importedReceiptSha256": "9b97aa7a37769dc318acdce41bd41b1a4fb3b1f71b1f478480c89d3bc0dc2098",
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceSha256": "9753d593fa588fc7de7e43dbddab556e5fa7344a838160552cef6073ab56b410",
+      "fileCount": 9333,
+      "target": "x86_64-pc-windows-msvc",
+      "buildEnvironment": {
+        "RUSTFLAGS": "",
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "V8_FROM_SOURCE": "",
+        "V8_FORCE_DEBUG": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "EXTRA_GN_ARGS": "",
+        "NINJA": "",
+        "CLANG_BASE_PATH": "",
+        "PYTHON": "",
+        "LIBCLANG_PATH": ""
+      }
+    },
+    "sourceUnchanged": true,
+    "completed": "2026-11-01T23:37:40.250Z"
+  },
+  "cleanupSingleR11": {
+    "controllerExit": 0,
+    "cleanup": [
+      {
+        "name": "cleanup-single-r11-1793575577667",
+        "nativeApplyExitCode": 0,
+        "groups": [
+          "run:do3:native-r2",
+          "run:do3:native-r3",
+          "run:do3:native-r4",
+          "run:do3:native-r6",
+          "run:do3:native-r7",
+          "run:do3:tests-r2",
+          "run:do3:tests-r3",
+          "run:do3:tests-r7"
+        ],
+        "allTargetsAbsent": true,
+        "finalized": [
+          {
+            "id": "run:do3:native-r2",
+            "status": "finalized"
+          },
+          {
+            "id": "run:do3:native-r3",
+            "status": "finalized"
+          },
+          {
+            "id": "run:do3:native-r4",
+            "status": "finalized"
+          },
+          {
+            "id": "run:do3:native-r6",
+            "status": "finalized"
+          },
+          {
+            "id": "run:do3:native-r7",
+            "status": "finalized"
+          },
+          {
+            "id": "run:do3:tests-r2",
+            "status": "finalized"
+          },
+          {
+            "id": "run:do3:tests-r3",
+            "status": "finalized"
+          },
+          {
+            "id": "run:do3:tests-r7",
+            "status": "finalized"
+          }
+        ],
+        "results": [
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:native-r2",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "c887c2325f4d00e0262a1c86d1fe69bfbdf2f2b029519ed8a3deb865a236f24d",
+                "lifecycle_group_id": "run:do3:native-r2",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-11552-4746-1793575760080",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 10281,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          },
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:native-r3",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "276f38549e1218d270e2382cc2a50ce83e083e1d73566a6eb49202eb6c2df163",
+                "lifecycle_group_id": "run:do3:native-r3",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-46780-4749-1793576399620",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 0,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          },
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:native-r4",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "13621fb1eb38bfd3e9ea51795f7650eadfb74afe2742b31a651207e082a7a904",
+                "lifecycle_group_id": "run:do3:native-r4",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-23700-4752-1793576536395",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 449,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          },
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:native-r6",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "d4686a58c6ba9f525e8424e6450744a8c26280e4b7520497a8861cc2f7767bbd",
+                "lifecycle_group_id": "run:do3:native-r6",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-39056-4755-1793576806879",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 2,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          },
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:native-r7",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "c652fe5f682952eb69d85ca119d9af99cab588a2d5f8555aa3142d2bf4c0e783",
+                "lifecycle_group_id": "run:do3:native-r7",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-21464-4758-1793576998200",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 2,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          },
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:tests-r2",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "612ca384d2e8827ccb21f4a81a5d36b9b279d671f483c9651592a694300e3609",
+                "lifecycle_group_id": "run:do3:tests-r2",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-10040-4761-1793577168027",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 0,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          },
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:tests-r3",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "839c32733eb2400ff6347b4f703b52cc89d8c6eb54e5e43610e3e14655388a99",
+                "lifecycle_group_id": "run:do3:tests-r3",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-52700-4764-1793577195802",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 0,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          },
+          {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "run:do3:tests-r7",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "id": "3e87b8f4e5ce5cb2b7e6e5e26151277f4eb006418228a8144b7bf2b26a1f36ac",
+                "lifecycle_group_id": "run:do3:tests-r7",
+                "status": "deleted",
+                "group_status": "deleted",
+                "remaining": false,
+                "attempt_id": "attempt-58272-4767-1793577224606",
+                "deletion": {
+                  "status": "deleted",
+                  "remaining": false,
+                  "error": null,
+                  "normalizedAttributeEntries": 0,
+                  "physical_bytes_reclaimed": null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "finalCleanup": {
+    "state": "complete",
+    "attempts": [
+      {
+        "name": "final-r12",
+        "pid": 28952,
+        "exit": 1
+      },
+      {
+        "name": "final-r13",
+        "pid": 57308,
+        "exit": 1
+      }
+    ],
+    "cause": "Windows OS33 in catalog snapshot during registration; no deletion; no forced removal or lock bypass",
+    "remaining": [],
+    "totalBytes": 163477122,
+    "fixtureReferenceReleased": true,
+    "userDecision": "Continue investigating cleanup without retention approval",
+    "concurrentOwnerObserved": {
+      "pid": 29832,
+      "controllerPid": 6972,
+      "controllerCreatedAtMs": 1793578681303,
+      "request": ".do2-cleanup-20261102-apply.json"
+    },
+    "lockCodeFinding": "check_available observes/reads lock metadata before trying shared OS lock; active exclusive owner may yield raw Windows OS33 before supported wait. This is a code-based explanation, not a trace identifying every historical failing leaf.",
+    "afterExternalController": {
+      "name": "final-r14",
+      "pid": 17016,
+      "exit": 1,
+      "cause": "same OS33; observed DO2 controller exit did not eliminate failure"
+    },
+    "passiveDiagnostic": {
+      "name": "diagnose-register-1793580875048",
+      "pid": 30484,
+      "exit": 0,
+      "queryTriggered": false,
+      "registered": "run:do3:tests-r8",
+      "powershellFileBlockedByExecutionPolicy": true,
+      "policyChanged": false,
+      "compiledReadOnlyWindowsApiHelper": true
+    },
+    "codeInvestigation": {
+      "deterministicSelfConflictFound": false,
+      "exactHistoricalLeafKnown": false,
+      "note": "Pinned pre-lock metadata read can fail under competing exclusive owner. Concurrent current source has lock-before-read correction; not modified or imported by this PR task. Successful follow-up supports continuing existing normal owner path."
+    },
+    "finalR15": {
+      "wrapperExit": 1,
+      "testsR8": {
+        "reviewExit": 0,
+        "applyExit": 0,
+        "rootAbsent": true,
+        "finalized": true
+      },
+      "nextRegister": {
+        "id": "run:do3:tests-r9",
+        "pid": 49836,
+        "exit": 1,
+        "code": "maintenance_busy",
+        "reservationRemaining": false
+      }
+    },
+    "resourceQuery": {
+      "actualExit": 0,
+      "observedOwnerPid": 44360,
+      "observedResources": [
+        "maintenance.lock",
+        "lifecycles/catalog.lock"
+      ],
+      "mutatedResources": false
+    },
+    "capturedContention": {
+      "name": "diagnose-register-1793581324247",
+      "nativePid": 25804,
+      "actualExit": 1,
+      "queryTriggered": true,
+      "observedAtFailure": [
+        {
+          "resource": "lifecycles/catalog.lock",
+          "pid": 19632,
+          "app": "maintenance_owner"
+        },
+        {
+          "resource": "maintenance.lock",
+          "pid": 25804,
+          "app": "maintenance_owner"
+        }
+      ],
+      "interpretation": "A foreign process used the catalog lock while this registration used maintenance lock; confirms overlapping ownership for this event, not all historical OS33 causes"
+    },
+    "finalR16": {
+      "nativePid": 42480,
+      "actualExit": 1,
+      "automaticRetry": false,
+      "reason": "No external resource owner remained at post-exit query; unchanged retry refused"
+    },
+    "finalR17": {
+      "wrapperExit": 1,
+      "testsR9": {
+        "registrationExits": [
+          1,
+          0
+        ],
+        "capturedForeignOwner": 49100,
+        "reviewExit": 0,
+        "applyExit": 0,
+        "rootAbsent": true,
+        "finalized": true
+      },
+      "testsR10": {
+        "registerExit": 0,
+        "reviewExit": 0,
+        "applyExit": 1,
+        "pid": 11772,
+        "beforeIntent": true,
+        "capturedForeignCatalogUser": 11172,
+        "reservationRetained": true
+      }
+    },
+    "finalR18": {
+      "wrapperExit": 1,
+      "exactReservationRecoveryExit": 0,
+      "testsR10": {
+        "reviewExit": 0,
+        "applyExit": 0,
+        "rootAbsent": true,
+        "finalized": true
+      },
+      "nativeR8": {
+        "registerExits": [
+          1,
+          1,
+          1,
+          0
+        ],
+        "reviewExit": 0,
+        "applyExit": 0,
+        "rootAbsent": true,
+        "finalized": true
+      },
+      "fixtureLease": {
+        "registerExits": [
+          1,
+          1,
+          0
+        ],
+        "reviewExit": 0,
+        "blocked": true,
+        "concurrentCatalogUser": 51220
+      }
+    },
+    "finalR20": {
+      "controllerExit": 0,
+      "fixtureLease": {
+        "reviewExit": 0,
+        "applyExit": 0,
+        "rootAbsent": true,
+        "finalized": true
+      },
+      "ownerBinarySHA": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855",
+      "ownerVersion": "version:maintenance-owner:fc01:os33-20261102",
+      "defaultAcceptanceSHA": "72ce37a5e21185986c3895d95ef9c8170d7fb7f366daf5a30ff9e703592aea26"
+    },
+    "remainingAtRetentionQuestion": [
+      {
+        "group": "run:do3:edit-baseline-r1",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\edit-baseline-r1",
+        "bytes": 29028091,
+        "files": 379
+      },
+      {
+        "group": "run:do3:fixture-lease-r1",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\fixture-lease-r1",
+        "bytes": 812,
+        "files": 2
+      },
+      {
+        "group": "run:do3:native-r8",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\native-r8",
+        "bytes": 134211787,
+        "files": 9373
+      },
+      {
+        "group": "run:do3:tests-r8",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r8",
+        "bytes": 79710,
+        "files": 9
+      },
+      {
+        "group": "run:do3:tests-r9",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r9",
+        "bytes": 66381,
+        "files": 9
+      },
+      {
+        "group": "run:do3:tests-r10",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do3\\runs\\tests-r10",
+        "bytes": 90341,
+        "files": 19
+      }
+    ],
+    "remainingBytes": 0,
+    "retentionApproved": false,
+    "taskRunRootsDeleted": 17,
+    "finalHelper": {
+      "controllerExit": 0,
+      "registerExit": 0,
+      "reviewExit": 0,
+      "applyExit": 0,
+      "rootAbsent": true,
+      "finalized": true,
+      "evidence": "cleanup-final-03.json",
+      "stopProof": "cleanup-stop-21.json"
+    },
+    "completed": "2026-11-02T01:26:47.985Z"
+  },
+  "commit": {
+    "state": "scoped-task-unit",
+    "expectedParent": "82537debf9d907fca912befa0a379c738747f006",
+    "taskCodeTree": "f2e66decbebcd6764691a872f722865b8b4b6202",
+    "testedSourceReceiptBlob": "61338b3ac48712ebb4589e030bb2fa0834caeed5",
+    "record": "Commit ID is provided by Git history and completion report; no self-referential hash is stored in this file",
+    "sourceReceiptScope": "Full measured inventory of task-only input. Stale manifest entries were reconciled to pre-existing committed source; concurrent workspace code was excluded.",
+    "changedManifestEntriesMatchGitTree": {
+      "count": 59,
+      "passed": true
+    }
+  },
+  "preRecomputeAssertionTaskTree": "b2c272724a537099e30f35da659572ccbff4fbb1"
+}

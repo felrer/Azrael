@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "id": "run:do3:tests-r10",
+  "reservation_sha256": "95acfa1dbb343aa270490f09a24a9d8ae9e651440d8361eb313cb9ca085edc32",
+  "lease_owner": {
+    "acquired_at_ms": 1793581637494,
+    "operation": "group_reservation",
+    "pid": 11772,
+    "schema": 2,
+    "token": "11772-1793581637494-5ee1f70bda560c40"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "nativeExitCode": 1,
+  "parentExitCode": 1,
+  "basis": "Async native11772 close delivered actual1 and managed r17 executor87415 ended1. apply.safe_entries.pre_intent failed; no physical_delete/intent stage was reached. Pinned Windows delete worker is enclosed by kill-on-job-close Job Object; actual native exit closes its handle and terminates any contained worker. Current PID11772 and direct children independently absent. Captured other catalog user11172; preserve original failed outcome and payload.",
+  "windowsDeleteSourceSHA": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+  "observedAt": "2026-11-02T01:08:48.543Z"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "run:do3:native-r5",
+  "reservation_sha256": "643f46785aed2c4816e29b81ef1f9c1c846cce33e121ba17db373a510527904c",
+  "lease_owner": {
+    "acquired_at_ms": 1793571697459,
+    "operation": "group_reservation",
+    "pid": 57384,
+    "schema": 2,
+    "token": "57384-1793571697459-1a1abe11f47de358"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "observedAt": "2026-11-01T22:40:38.517Z",
+  "nativeExitCode": 1,
+  "nodeExitCode": 1,
+  "basis": "Synchronous native apply PID57384 returned status1 and executor53818 ended1. Physical deletion worker replied success before later catalog OS33. Pinned windows_delete.rs SHA e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60 confirms worker shutdown waits and closes kill-on-job-close Windows Job Object, so actual native exit terminates its contained tree. Independently observed PID57384 and children absent. Saved native-r5 deleted result preserved; no conversion of failed execution outcome."
+}

@@ -31,9 +31,18 @@ fn replaceable_kind(role: &str, kind: &str) -> Option<&'static str> {
 pub(crate) fn project_instruction_state(
     items: Vec<ResponseItemEnvelope>,
 ) -> Vec<ResponseItemEnvelope> {
+    project_instruction_state_indexed(items)
+        .into_iter()
+        .map(|(_, envelope)| envelope)
+        .collect()
+}
+
+fn project_instruction_state_indexed(
+    items: Vec<ResponseItemEnvelope>,
+) -> Vec<(usize, ResponseItemEnvelope)> {
     let mut seen = HashSet::new();
     let mut projected = Vec::with_capacity(items.len());
-    for mut envelope in items.into_iter().rev() {
+    for (index, mut envelope) in items.into_iter().enumerate().rev() {
         let ResponseItem::Message {
             role,
             content,
@@ -41,16 +50,16 @@ pub(crate) fn project_instruction_state(
             ..
         } = &mut envelope.item
         else {
-            projected.push(envelope);
+            projected.push((index, envelope));
             continue;
         };
         let Some(kinds) = &mut metadata.content_item_kinds else {
-            projected.push(envelope);
+            projected.push((index, envelope));
             continue;
         };
         // Malformed or incomplete provenance cannot authorize removal.
         if kinds.len() != content.len() {
-            projected.push(envelope);
+            projected.push((index, envelope));
             continue;
         }
         let mut retained = Vec::with_capacity(content.len());
@@ -76,7 +85,7 @@ pub(crate) fn project_instruction_state(
         *content = retained;
         *kinds = retained_kinds;
         if !removed || !content.is_empty() {
-            projected.push(envelope);
+            projected.push((index, envelope));
         }
     }
     projected.reverse();
@@ -85,11 +94,13 @@ pub(crate) fn project_instruction_state(
 
 /// Retain the first delivered copy of each selected skill path and exact body.
 /// Rebuild from this prompt's retained items so compaction/reset permits reinjection.
-fn project_skill_bodies(items: Vec<ResponseItemEnvelope>) -> Vec<ResponseItemEnvelope> {
+fn project_skill_bodies(
+    items: Vec<(usize, ResponseItemEnvelope)>,
+) -> Vec<(usize, ResponseItemEnvelope)> {
     let mut delivered = InjectedHostSkillPrompts::default();
     items
         .into_iter()
-        .filter_map(|mut envelope| {
+        .filter_map(|(index, mut envelope)| {
             let ResponseItem::Message {
                 role,
                 content,
@@ -97,16 +108,16 @@ fn project_skill_bodies(items: Vec<ResponseItemEnvelope>) -> Vec<ResponseItemEnv
                 ..
             } = &mut envelope.item
             else {
-                return Some(envelope);
+                return Some((index, envelope));
             };
             if role != "user" {
-                return Some(envelope);
+                return Some((index, envelope));
             }
             let Some(kinds) = &mut metadata.content_item_kinds else {
-                return Some(envelope);
+                return Some((index, envelope));
             };
             if kinds.len() != content.len() {
-                return Some(envelope);
+                return Some((index, envelope));
             }
             let mut retained = Vec::with_capacity(content.len());
             let mut retained_kinds = Vec::with_capacity(kinds.len());
@@ -127,7 +138,7 @@ fn project_skill_bodies(items: Vec<ResponseItemEnvelope>) -> Vec<ResponseItemEnv
             }
             *content = retained;
             *kinds = retained_kinds;
-            (!removed || !content.is_empty()).then_some(envelope)
+            (!removed || !content.is_empty()).then_some((index, envelope))
         })
         .collect()
 }
@@ -145,6 +156,26 @@ pub(crate) fn project_instruction_state_for_model(
     projected
         .into_iter()
         .filter_map(|mut envelope| project_api_skill_item(&mut envelope.item).then_some(envelope))
+        .collect()
+}
+
+/// Project the complete history before selecting an original-history usage boundary.
+/// Projection may remove entries before or after that boundary, but never renumbers it.
+pub(crate) fn project_instruction_state_since_for_model(
+    items: Vec<ResponseItemEnvelope>,
+    model_slug: Option<&str>,
+    start: usize,
+) -> Vec<ResponseItemEnvelope> {
+    project_instruction_state_indexed(items)
+        .into_iter()
+        .filter_map(|(index, mut envelope)| {
+            if model_slug.is_some_and(|slug| slug.starts_with("api/"))
+                && !project_api_skill_item(&mut envelope.item)
+            {
+                return None;
+            }
+            (index >= start).then_some(envelope)
+        })
         .collect()
 }
 
@@ -180,7 +211,10 @@ fn project_api_skill_item(item: &mut ResponseItem) -> bool {
         .zip(std::mem::take(kinds))
     {
         if role == "developer"
-            && matches!(kind.0.as_str(), "multi_agent.role_instructions" | "multi_agent.usage_hint")
+            && matches!(
+                kind.0.as_str(),
+                "multi_agent.role_instructions" | "multi_agent.usage_hint"
+            )
             && let ContentItem::InputText { text } = &mut part
         {
             *text = codex_prompts::project_api_multi_agent_instructions(text);

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "run:do3:native-r2",
+  "reservation_sha256": "6a9b52921114d20d0ced621fcbc91d0089246c30db40ec016b0acb394cbe92e1",
+  "lease_owner": {
+    "acquired_at_ms": 1793574503921,
+    "operation": "group_reservation",
+    "pid": 28552,
+    "schema": 2,
+    "token": "28552-1793574503921-ade08f2c84274c06"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "observedAt": "2026-11-01T23:26:14.401Z",
+  "nativeExitCode": 0,
+  "nodeExitCode": 1,
+  "basis": "Synchronous native apply PID28552 returned status0 with structured aborted/blocked result; parent executor68118 ended1 because target remains. Log shows safe_entries.pre_intent error and no physical_delete. Exact process and direct children independently absent. Pinned windows_delete.rs SHA e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60 binds any Windows delete worker to kill-on-job-close Job Object teardown on actual native exit. No destructive intent or deletion success claimed."
+}

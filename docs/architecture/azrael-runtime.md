@@ -22,6 +22,8 @@ Azrael은 VS Code 확장 하나로 채팅, 계정, 모델, 사용량, 진단 화
 
 Process-owned Code Mode stdio 실행은 각 execute의 W3C trace snapshot을 callback delegate에 전달한다. invoke와 notify는 span에 진입하기 전에 해당 parent를 복구하며 병행 실행·unsampled·untraced 요청의 context를 섞지 않는다. Snapshot은 실행 span을 보유하지 않으므로 yield 뒤에도 span 수명을 늘리지 않는다. 기존 gRPC 전파와 cell close·취소·종료 위임은 유지한다.
 
+Code Mode의 동적 도구 호출은 client 응답을 기다리는 동안 서로 병렬 실행될 수 있다. `Promise.all`의 두 요청은 어느 응답도 도착하기 전에 client에 전달되며, 응답이 역순으로 완료돼도 각 call ID와 결과 순서를 보존한다. 이는 shell 명령 수의 상한 변경이나 쓰기 도구 전체의 병렬 허용을 뜻하지 않는다. 보존 범위: `engine.selected-upstream`.
+
 ### 공용 실행기와 창 수명
 
 준비 상태 응답은 세션 인계의 저장 호환성 정보를 포함할 수 있다. private 상태 확인 클라이언트는 WebSocket 단일 frame과 누적 message를 각각 128KiB로 제한하고, 2초 제한과 실행기 PID·인스턴스·버전·내용 신원 검증을 유지한다. 큰 정상 응답의 수신과 상한 초과 거부를 함께 검증한다. 이 수신 한도 수정의 실제 바이너리·설치 검증은 [현재 작업](../../work/DM-01-committed-windows-install/02-plan.md)을 따른다.

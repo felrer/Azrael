@@ -292,8 +292,10 @@ impl SessionState {
         &mut self,
         usage: &TokenUsage,
         model_context_window: Option<i64>,
+        input_item_count: usize,
     ) {
-        self.history.update_token_info(usage, model_context_window);
+        self.history
+            .update_token_info(usage, model_context_window, input_item_count);
     }
 
     pub(crate) fn ensure_auto_compact_window_server_prefill_from_usage(
