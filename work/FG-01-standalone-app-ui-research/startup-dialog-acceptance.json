@@ -1,0 +1,248 @@
+{
+  "schema": 1,
+  "status": "partial",
+  "scope": "Windows x64 local source helper + real Electron45 native showMessageBox adapter fixture; no engine daemon/account/login/bridge/client startup",
+  "source": {
+    "helper": {
+      "path": "scripts/shared-engine-host.cjs",
+      "sha256": "b113c9bb3cb755ff2f249dd36bb7ce464a8335035f11ceb34685ec29d9f37c79"
+    }
+  },
+  "nativeFixture": {
+    "platform": "win32",
+    "arch": "x64",
+    "electron": "45.2.1",
+    "results": [
+      {
+        "theme": "light",
+        "checks": 1,
+        "prompts": 1,
+        "cancelMethod": "fixture AbortSignal after observation; no UI input grant",
+        "bridgeClientLoaded": false,
+        "response": 1,
+        "code": "AZRAEL_STORAGE_INCOMPATIBLE",
+        "userNotified": true
+      },
+      {
+        "theme": "dark",
+        "checks": 1,
+        "prompts": 1,
+        "cancelMethod": "fixture AbortSignal after observation; no UI input grant",
+        "bridgeClientLoaded": false,
+        "response": 1,
+        "code": "AZRAEL_STORAGE_INCOMPATIBLE",
+        "userNotified": true
+      }
+    ]
+  },
+  "observations": [
+    {
+      "id": "observation-14",
+      "themeRequested": "light",
+      "dpi": 144,
+      "viewed": true,
+      "result": "Native dialog headline/detail/retry legible; close button fixture encoding defect corrected in final attempt; state path native-ellipsized"
+    },
+    {
+      "id": "observation-15",
+      "themeRequested": "dark",
+      "dpi": 144,
+      "viewed": true,
+      "result": "Correct native retry and close labels legible; OS-native task dialog remained white despite Electron dark theme request"
+    }
+  ],
+  "attempts": [
+    {
+      "runId": "native-dialog-1793624690461",
+      "exitCode": 1,
+      "cause": "Harness absolute Electron package require returns executable path, app undefined; no UI created"
+    },
+    {
+      "runId": "native-dialog-fixed-1793624899592",
+      "exitCode": 1,
+      "cause": "Light native cancellation succeeded; harness last-window-closed autoquit prevented dark data URL load"
+    },
+    {
+      "runId": "native-dialog-final-1793625101668",
+      "exitCode": 0,
+      "result": "Light and dark-requested real native dialogs; fixture AbortSignal cancellation in each; userNotified/storage denial/no management socket assertions passed"
+    }
+  ],
+  "limitations": [
+    "Managed stage2 prepare_permissions returned unclassified error; stale candidate preparation subsequently returned state_changed; no UI input was sent",
+    "Actual native retry/cancel button input unverified; fixture AbortSignal only establishes native canceled-response handling",
+    "Actual VSCode host API dialog, installed Azrael startup, and dark-colored Windows-native rendering unverified",
+    "No claim for Linux/macOS"
+  ],
+  "cleanup": {
+    "status": "deleted",
+    "ownerSha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+    "groups": [
+      {
+        "id": "run:FG-01-standalone-app-ui-research:native-dialog-1793624690461",
+        "apply": {
+          "aborted": false,
+          "cancelled": false,
+          "groups": [
+            {
+              "id": "run:FG-01-standalone-app-ui-research:native-dialog-1793624690461",
+              "status": "deleted"
+            }
+          ],
+          "results": [
+            {
+              "attempt_id": "attempt-25016-5297-1793625461241",
+              "decision": "delete",
+              "decision_id": "bababfd23a5ba1efe106ba74855744f09568630e88e744ed31c5b8f4450354d1",
+              "deletion": {
+                "attributes": [],
+                "error": null,
+                "physical_bytes_reclaimed": null,
+                "remaining": false,
+                "status": "deleted"
+              },
+              "group_status": "deleted",
+              "id": "74b0174509f8e340e7108a5250f4a2d1469f617dff592b3e57611c43918aed31",
+              "lifecycle_group_id": "run:FG-01-standalone-app-ui-research:native-dialog-1793624690461",
+              "reason": "One-off native dialog observation complete; compact independent evidence preserved in work record",
+              "remaining": false,
+              "status": "deleted",
+              "token": "951e434831a3319b4af5308bb3170850642087875c0f67995e56a479c9ad1d19"
+            }
+          ]
+        },
+        "absent": true,
+        "finalized": {
+          "id": "run:FG-01-standalone-app-ui-research:native-dialog-1793624690461",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\71529d8de7738c1ad6f52f89bc53fff83128c7cd9c07409592f70e3cc8ee0636.json"
+        }
+      },
+      {
+        "id": "run:FG-01-standalone-app-ui-research:native-dialog-fixed-1793624899592",
+        "apply": {
+          "aborted": false,
+          "cancelled": false,
+          "groups": [
+            {
+              "id": "run:FG-01-standalone-app-ui-research:native-dialog-fixed-1793624899592",
+              "status": "deleted"
+            }
+          ],
+          "results": [
+            {
+              "attempt_id": "attempt-43592-5300-1793625535673",
+              "decision": "delete",
+              "decision_id": "f2932fc845e2d01012e8ef754a33c1c69797ec89abb3e417a0a2225bbbfb7041",
+              "deletion": {
+                "attributes": [],
+                "error": null,
+                "physical_bytes_reclaimed": null,
+                "remaining": false,
+                "status": "deleted"
+              },
+              "group_status": "deleted",
+              "id": "98ff27640b21711c16a0fd7eb6252689afbfa5121bca1dd93ef485ec978f2a90",
+              "lifecycle_group_id": "run:FG-01-standalone-app-ui-research:native-dialog-fixed-1793624899592",
+              "reason": "One-off native dialog observation complete; compact independent evidence preserved in work record",
+              "remaining": false,
+              "status": "deleted",
+              "token": "d3d544c28b0d23dba45570b96f0fe6364c33fd31f83275b1d7ae0c71c7667332"
+            }
+          ]
+        },
+        "absent": true,
+        "finalized": {
+          "id": "run:FG-01-standalone-app-ui-research:native-dialog-fixed-1793624899592",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f94ac2d02d10dd3d21cc39d026e91f2e5b8c8ade9b1e1348fb4f41493d052bc0.json"
+        }
+      },
+      {
+        "id": "run:FG-01-standalone-app-ui-research:native-dialog-final-1793625101668",
+        "apply": {
+          "aborted": false,
+          "cancelled": false,
+          "groups": [
+            {
+              "id": "run:FG-01-standalone-app-ui-research:native-dialog-final-1793625101668",
+              "status": "blocked"
+            }
+          ],
+          "results": [
+            {
+              "decision": "delete",
+              "decision_id": "73a3b123d03edddc4737d18284fae973b4a3b0a1a05d28c1912ae4e34ab7218c",
+              "error": "config changed during review",
+              "group_status": "blocked",
+              "id": "b9fcca92b2abcf0a16101c8064768e3d6a8af5ac6fb216844ebe2388b5ddc3e8",
+              "lifecycle_group_id": "run:FG-01-standalone-app-ui-research:native-dialog-final-1793625101668",
+              "reason": "One-off native dialog observation complete; compact independent evidence preserved in work record",
+              "remaining": true,
+              "status": "blocked",
+              "token": "74771b70f106519a498a27c243ff6b63262e4d48f9999878683a36fa0d6fa6d4"
+            }
+          ]
+        },
+        "absent": false,
+        "finalized": null
+      }
+    ],
+    "commandExitCode": 1,
+    "retry": {
+      "id": "run:FG-01-standalone-app-ui-research:native-dialog-final-1793625101668",
+      "apply": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:FG-01-standalone-app-ui-research:native-dialog-final-1793625101668",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-58420-5304-1793625858333",
+            "decision": "delete",
+            "decision_id": "fea25c3eb3d355d3d3e9e1feead3d4ff32204db0eb67dd68da54354a7152053c",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "b9fcca92b2abcf0a16101c8064768e3d6a8af5ac6fb216844ebe2388b5ddc3e8",
+            "lifecycle_group_id": "run:FG-01-standalone-app-ui-research:native-dialog-final-1793625101668",
+            "reason": "Fresh review after root completed configuration changes; one-off native UI observation ended",
+            "remaining": false,
+            "status": "deleted",
+            "token": "e356fa5ca32f0a13dcb1f972e3ff6f02864162954e3b35b6048f41bec70f21ea"
+          }
+        ]
+      },
+      "absent": true,
+      "finalized": {
+        "id": "run:FG-01-standalone-app-ui-research:native-dialog-final-1793625101668",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f6b5cb28ee8dd8aa47982027be960dacf1fa0563c5704b45a36f1bdc991a8a36.json"
+      }
+    },
+    "retryExitCode": 0,
+    "allRunRootsAbsent": true,
+    "windowUseResources": {
+      "count": 0,
+      "bytes": 0
+    }
+  }
+}

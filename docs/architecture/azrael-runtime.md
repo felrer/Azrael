@@ -68,6 +68,14 @@ Windows ConPTY의 대화형 자식은 부모 실행 환경에서 상속된 Ctrl+
 
 현재 구현의 자동 이관 대상은 저장된 계정 프로필과 thread에서 파생한 로컬 환경 설정을 사용하는 일반 세션이다. 별도 소유자가 제공한 환경 정책, 복원 규약에 없는 MCP capability 설정, 임시 세션·자식 세션은 원래 엔진에서 유지한다. 외부 호스트가 인증 토큰을 직접 제공하는 연결은 원래 호스트의 권한이 필요하므로 세션 연결 이전을 허용하지 않는다. 이러한 상태를 새 엔진 기본 설정으로 대체하지 않는다. 네이티브 검증과 실제 창에서의 수용 여부는 작업 기록에 구분한다.
 
+#### 비호환 엔진 시작 안내
+
+상태: `partial` — 공통 호스트와 native 소스에 구현되며 실제 검증 범위는 [작업 기록](../../work/FG-01-standalone-app-ui-research/01-plan.md)이 소유한다. 보존 항목은 `engine.shared-engine`이다.
+
+VS Code와 데스크톱은 계정·채팅 모듈을 초기화하기 전에 선택한 엔진의 endpoint 조회에서 `storageAdmission` 결과를 확인한다. Native 조회는 daemon과 동일한 임베디드 storage manifest와 기존 private lease 검사를 사용하고 `compatible` 또는 `incompatible`를 반환한다. 이 검사는 DB·설정·인증을 초기화하지 않으며 기존 admission control 파일만 기존 보호 아래 연다. 권한·손상·잠금 검사 오류는 호환 판정으로 바꾸지 않는다. 실제 창 proxy도 연결 동안 같은 lease를 유지하고 daemon의 최종 admission은 보존한다.
+
+비호환이면 공통 native 오류 대화상자에 선택 엔진 버전·상태 홈·해결 방법을 표시하고 시작을 중단한다. 기존 lease가 식별하지 않는 실행 중 엔진 버전은 추정하지 않는다. `다시 시도`는 실패 결과를 재사용하지 않고 native 조회를 새로 수행한다. 취소하면 새 Azrael 시작만 중단하며 기존 엔진·작업·VS Code 창을 종료하지 않는다. 데스크톱은 이미 표시한 오류를 중복 표시하지 않고 해당 앱을 종료한다. 이 조회 계약이 없는 구형 엔진 조합은 앱과 엔진의 릴리스 정렬을 안내하고 중단한다. 버전 번호가 다르다는 이유만으로 비호환으로 판정하지 않는다. 동일 프로젝트의 UI 간 식별자 및 파일 작업 동시성은 이 시작 안내의 보장 범위가 아니다.
+
 #### 시작 복구와 종료 예산
 
 상태: `partial`. 소스 구현과 Windows native 회귀·격리 프로세스 검증을 완료했다. 실제 설치 업데이트와 다른 OS의 수용은 별도 확인한다. 보존 항목은 [feature inventory](../../scripts/azrael-feature-contracts.json)의 `engine.shared-engine`이다. 구현·검증 범위는 [작업 기록](../../work/CX-01-azrael-auth-recovery/02-plan.md)에 둔다.

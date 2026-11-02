@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-11-02T13:30:39.675Z",
+  "scope": "Windows x64 native startup storage admission; no release build or installation",
+  "runId": "native-20261102-4fb22935",
+  "lifecycleId": "run:engine-startup-conflict:native-20261102-4fb22935",
+  "environment": {
+    "os": "win32",
+    "arch": "x64",
+    "target": "x86_64-pc-windows-msvc",
+    "rust": "1.95.0",
+    "dependencies": "locked, offline"
+  },
+  "frozenInput": {
+    "path": "artifacts/sc1102-6d89a7f5/engine",
+    "inventorySha256": "7d458981ee24ace793ef0bdaae1f8427942c5d2e13de16f79dd490e7b7bed0e2",
+    "files": 10876,
+    "algorithm": "scripts/freeze-platform-inputs.cjs inventoryTree",
+    "unchangedAfterVerification": true,
+    "nativeFiles": [
+      {
+        "path": "engine/codex-rs/app-server/src/main.rs",
+        "sha256": "7e3ca68fa60bc8dfe5620a3269aba1857561cfed70d644ce0543aa5dc0dc3f4c"
+      },
+      {
+        "path": "engine/codex-rs/app-server-daemon/src/azrael_storage.rs",
+        "sha256": "0d749044347b66f0eb6ff0e229617dbb4352f813329037157558f95345726cc0"
+      },
+      {
+        "path": "engine/codex-rs/app-server-daemon/src/lib.rs",
+        "sha256": "e00be8264fbcf8fc00a6fc33644e37161f43c9e26d0cbbafd37fd8b18f80958a"
+      }
+    ],
+    "currentNativeFilesMatchFrozen": true
+  },
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "codex-app-server-daemon",
+        "--lib",
+        "azrael_storage::tests::",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--test-threads=1"
+      ],
+      "exitCode": 0,
+      "selected": 7,
+      "passed": 6,
+      "failed": 0,
+      "ignored": 1,
+      "filteredOut": 84,
+      "testExecutionSeconds": 16.51,
+      "coverage": [
+        "typed incompatible manifest conflict",
+        "generic errors remain errors",
+        "equal manifests coexist",
+        "stale lease permits later admission",
+        "real subprocess storage locks",
+        "corrupt/invalid leases fail closed",
+        "Windows control hardlink escape refused"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "codex-app-server",
+        "--bin",
+        "azrael",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc"
+      ],
+      "exitCode": 0,
+      "coverage": [
+        "actual azrael entry includes main.rs; endpoint descriptor decoration and proxy guard typecheck"
+      ]
+    }
+  ],
+  "staticChecks": {
+    "whitespace": {
+      "command": "git -c core.whitespace=cr-at-eol diff --check -- <three native files>",
+      "exitCode": 0
+    },
+    "rustfmt": {
+      "exitCode": 1,
+      "limitation": "Only preexisting formatting in main.rs forced-exit condition and daemon/lib.rs socket_path; changed storage module/regions produced no formatting diff."
+    }
+  },
+  "cache": {
+    "path": "artifacts/cache/cargo/96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24/target",
+    "owner": "existing shared Cargo target lifecycle",
+    "identityMatched": true,
+    "reuse": "Cargo compilation cache; tests executed rather than reusing a passing receipt",
+    "disposableForThisTask": false
+  },
+  "disposableScopes": {
+    "paths": [
+      "artifacts/tasks/engine-startup-conflict/runs/native-20261102-4fb22935",
+      "artifacts/sc1102-6d89a7f5"
+    ],
+    "purpose": "native frozen source, raw logs, reports and root task-only commit temporary index/patch",
+    "cleanupOwner": "startup-conflict-engine via installed maintenance_owner",
+    "releaseCondition": "root commitDone after compact evidence handoff",
+    "rawLogs": [
+      {
+        "path": "artifacts/tasks/engine-startup-conflict/runs/native-20261102-4fb22935/logs/daemon-storage.stdout.log",
+        "sha256": "7e069d92b6f071f52c499e40c9f1064aeea487fd2ded3eee5f482a369c77eab0",
+        "bytes": 722
+      },
+      {
+        "path": "artifacts/tasks/engine-startup-conflict/runs/native-20261102-4fb22935/logs/daemon-storage.stderr.log",
+        "sha256": "fbf1487f41805a62968a3ab55dec4cf26c10c6a22dbb972f88bdb33087bebf2d",
+        "bytes": 47385
+      },
+      {
+        "path": "artifacts/tasks/engine-startup-conflict/runs/native-20261102-4fb22935/logs/azrael-entry.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "artifacts/tasks/engine-startup-conflict/runs/native-20261102-4fb22935/logs/azrael-entry.stderr.log",
+        "sha256": "5e885a85f73dc9fe78739f2cad37218b1266391092007c013a0f0bf6b60012d8",
+        "bytes": 47009
+      }
+    ],
+    "finalCleanupReceipt": "artifacts/maintenance/evidence/engine-startup-conflict-cleanup-20261102.json",
+    "handoff": "This is the immutable verification/commit handoff snapshot. Final owner-based cleanup and verified absence are recorded separately in finalCleanupReceipt after root commitDone."
+  },
+  "limitations": [
+    "No newly linked azrael executable or end-to-end CLI/proxy runtime invocation; actual entry was typechecked.",
+    "Linux/macOS native execution and installed-host activation remain unverified.",
+    "TEMP/TMP inherited host defaults; existing tempfile fixtures use their own automatic cleanup."
+  ],
+  "retainedTestReason": "A later edit could broaden incompatible classification to generic lock/read errors; real lock/corruption tests and the focused typed/generic assertion preserve that distinction."
+}

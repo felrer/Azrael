@@ -177,3 +177,22 @@ run23/24의 지원 owner 정리도 [cleanup-ui-watchdog-result.json](cleanup-ui-
 최종 테마 수정은 초기 HTML과 삽입 CSS의 중복 선언을 하나의 `azrael-desktop-theme` style 요소로 합쳐 textContent를 갱신하는 방식이다. run25는 PTY와 정상 종료를 통과했지만 light foreground 실패로 exit1이었으며 성공으로 세지 않는다. 최종 run26은 11:39:31 UTC run 시작부터 11:40:18 UTC Electron 정상 close까지 약47초였고, dark/light 각각7checks·errors[]·exit0이었다. 최종 source 관리 실행 `run-42784-5236-1793619559637823800`도 실제 exit0·input integrity valid·passed이며 그 이후 실행 소스 변경은 없다. 현재 문서만 검증 결과에 맞춰 갱신한다.
 
 최종 [cleanup-ui-final-result.json](cleanup-ui-final-result.json)은 run25/26의 4개 root, 등록 논리 크기 72,907,636B 삭제·부재·finalize를 기록한다. register/review/apply 6회 exit0, readonly 최종 확인 exit0이며 당시 acceptance SHA는 불변이었다. 별도 사전 capabilities 호출의 인자 오류 exit1과 교정된 positional 호출 exit0도 구분해 보존했다. 전체 44개 root, 등록 논리 크기 1,177,944,432B 삭제를 확인했고 4개 보호 group만 남겼다. 보호 scope의 당시 알려진 합계는 69,729,125B와 측정 불가 active socket이며 정확한 경로·해제 조건과 사용자 승인은 retention-scope.json에 있다. 승인 이후 acceptance의 상태 문구만 갱신했고 실행 결과·소스는 바꾸지 않았다. 일반 동작 확인을 새 완료 조건으로 추가하지 않는다. 다른 작업의 staged 변경을 보존하며 이번 소스·문서·검증 연결만 별도 index에서 분리해 작업 커밋한다. 유지할 정리 영수증은 실제 종료 코드·삭제 경로·부재·finalize·외부 증거 identity를 남기는 요약으로 정리하고 중복 요청·만료된 토큰은 제외했다. 원본 임시 사본과 Git index는 별도 소유 run으로 귀속해 커밋 확인 후 정리한다.
+# 비호환 엔진 시작 안내 구현
+
+공통 호스트 회귀는 직접 실행한 6개 기존 파일, 377tests/377pass/0fail, 실제 exit0으로 확인했다. 새 admission 거부·재시도·취소와 초기 모듈 로드 차단은 이 실행에 포함된다. 앞선 관리 실행 `run-42784-5288-1793624433802466100`은 입력 무결성 valid지만 10.2초 뒤 실제 exit124로 실패했으며 성공으로 취급하지 않는다. 직접 재실행은 약53.8초였고 관련 소스 입력은 그동안 불변이었다. Native storage는 6pass/0fail/1ignored helper, 실제 exit0이며 실제 `azrael` 진입점 cargo check도 exit0이다. [네이티브 검증 근거](startup-native-acceptance.json)는 명령·불변 입력·대상 및 검증 한계를 소유한다. 실제 native 대화상자 입력은 관리형 window stage2 권한 도구 오류로 승인되지 않았고 우회하지 않는다.
+
+데스크톱 source checker의 실제 재실행은 15개 syntax·메모리 renderer bundle·pinned image adaptation 통과, exit0이었다. 이전 출력 관측을 놓친 호출의 성공은 추정하지 않고 해당 node PID43496 종료 후 재실행한 session44138의 terminal 결과를 사용했다. 실패한 관리 source 실행이 남긴 정확한 disposable fixture `C:/Users/felre/.azrael-ex/tmp/devin-native/azrael-preparation-test-UBk9Dc`는 생성 시각·합성 cache owner·35files/17095B·무링크·실행 참조 부재를 확인한 뒤 기존 test fixture의 일반 삭제 절차로 제거하고 실제 부재를 확인했다. 강제 옵션과 등록된 보호 우회는 사용하지 않았다.
+
+실제 Electron45.2.1 Windows native 안내창은 light 및 dark 요청 상태에서 관찰했다. headline·detail·다시 시도·닫기가 읽히며 Windows native 대화상자는 dark 요청에도 OS 기본 밝은 색상으로 표시됐다. 프로그램 취소 응답은 양쪽 상태에서 `userNotified`와 미연결 socket을 유지했고 최종 fixture exit0이었다. 직접 버튼 클릭과 실제 VS Code API 화면은 미검증이다. [UI 근거](startup-dialog-acceptance.json)는 시도별 실패와 최종 결과, 권한 도구 오류 및 owner 정리를 구분한다.
+
+UI 검증 3runs는 owner 삭제·부재·finalize를 완료했다. Native 검증 snapshot 이후 커밋 index 소비가 끝나면 같은 owner가 native run과 짧은 frozen source를 정리하며, 최종 완료·실패 여부는 별도 [정리 영수증](../../artifacts/maintenance/evidence/engine-startup-conflict-cleanup-20261102.json)이 소유한다. 현재 설치본·사용자 홈 데이터와 기존 shared Cargo cache는 이 disposable 정리 범위가 아니다. 이전에 사용자가 승인한 4개 보호 group의 범위·해제 조건은 변경하지 않는다. 설치·완성 실행 파일의 endpoint 조회·실제 VS Code 화면·Linux/macOS는 이번 수용으로 주장하지 않는다.
+
+변경 owner의 보존 검증에 필요해 기존 standalone 항목의 directory owner를 실제 renderer 파일로 교정하고, 빈 reportFields는 재사용하는 준비된 image-open 경로의 기존 `imageFileOpenEdits`와 연결했다. 검사기를 완화하거나 새 변환 성공을 가정하지 않는다. 전역 manifest 검사는 그 뒤 별도 기존 `tool.project-maintenance`의 invalid owners/area에서 실패하므로 전체 통과로 표시하지 않는다. 이번 변경 범위인 `engine.shared-engine`, `ui.standalone-app`의 동일 validator 검사와 실제 소스 검증은 구분한다. 해당 미관련 항목은 수정하지 않는다.
+
+사용자의 구현 승인 범위는 VS Code와 데스크톱 공통의 시작 전 호환성 확인, 명확한 안내, 시작 중단과 명시적 재시도다. 기존 엔진·창·작업 종료, 인증 정보 변경, 프로젝트 식별자 수정 및 설치는 포함하지 않는다. 의미는 공통 플랫폼에 적용하며 이번 실제 검증 대상은 Windows x64다.
+
+기존 native storage manifest/lease 검사를 재사용한다. endpoint 조회는 `storageAdmission: compatible|incompatible`를 추가하며 기타 권한·손상·잠금 오류를 호환으로 취급하지 않는다. 조회에 필요한 control 파일만 기존 소유 절차로 열고 계정·설정·DB는 초기화하지 않는다. 창 proxy도 동일 lease를 연결 동안 유지해 daemon 시작 전 경합에서 비호환 엔진이 진입하지 못하게 한다. 실제 daemon의 최종 검사는 보존한다. 기존 lease에는 엔진 버전이 없으므로 UI는 추정하지 않고 `버전 정보 없음`을 표시한다.
+
+호스트는 계정·채팅 모듈 로드 전에 결과를 확인하고 공통 native 오류 대화상자를 표시한다. 재시도는 명시적 버튼에만 반응하며 매번 native 검사를 새로 한다. 취소하면 해당 시작만 중단한다. 호환성 조회를 지원하지 않는 구형 엔진도 명확한 릴리스 정렬 안내와 함께 중단한다. 데스크톱은 이미 표시한 오류를 중복 표시하지 않고 앱을 종료한다.
+
+실행 소유: root는 공통 호스트·데스크톱 경계·문서·최종 통합, native owner는 `main.rs`, storage typed conflict 및 export와 격리 native 검증을 담당한다. Cargo는 native owner만 실행한다. 검증은 기존 shared-engine/integrated-entry 검사 확장, Windows native storage 검사와 실제 CLI 경로 typecheck, 양쪽 호스트 오류 대화상자/재시도 표시 확인을 사용한다. 설치본·실계정 및 Linux/macOS 실기는 별도다. 재발 가능한 누락은 준비된 호스트와 native endpoint 계약을 함께 변경하지 않거나 native/account 모듈을 admission 이전에 로드하는 수정이므로 기존 최소 테스트를 확장해 보존한다.

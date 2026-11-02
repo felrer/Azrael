@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test"), assert = require("node:assert/strict");
 const fs = require("node:fs"), os = require("node:os"), path = require("node:path"), crypto = require("node:crypto");
-const { verifyEngine, resolveEngineEndpoint, requiresManualResume, windowContext } = require("./shared-engine-host.cjs");
+const { verifyEngine, resolveEngineEndpoint, resolveEngineEndpointWithUi, requiresManualResume, windowContext } = require("./shared-engine-host.cjs");
 
 test("engine bytes must match the preparation receipt", async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-shared-hash-"));
@@ -23,7 +23,7 @@ test("native endpoint discovery verifies release, isolates discovery context, an
       AZRAEL_EX_WINDOW_CONTEXT: "stale authority", AZRAEL_EX_MANAGEMENT_SOCKET: "old socket",
       azrael_ex_management_socket: "old lowercase socket" } };
   const descriptor = { schema: 2, instanceId: "a".repeat(64), socketPath: path.join(os.tmpdir(), "native-release", "control.sock"),
-    engineVersion: runtime.engineVersion, engineIdentity: runtime.engineSha256 };
+    engineVersion: runtime.engineVersion, engineIdentity: runtime.engineSha256, storageAdmission: "compatible" };
   const originalEnvironment = { ...process.env };
   let calls = 0;
   const execFile = (engine, args, options, callback) => {
@@ -74,6 +74,52 @@ test("native endpoint discovery verifies release, isolates discovery context, an
   }), /immutable build receipt/);
   assert.equal(launched, false);
   await assert.rejects(resolveEngineEndpoint({ ...makeRuntime(), sharedEngineProtocol: 1 }), /protocol 2/);
+});
+
+test("storage conflict stops startup, prompts once, and explicit retry rechecks native admission", async () => {
+  const makeRuntime = () => ({ engine: process.execPath, sharedEngine: true, sharedEngineProtocol: 2,
+    engineVersion: "0.162.0", engineSha256: crypto.createHash("sha256").update(fs.readFileSync(process.execPath)).digest("hex"),
+    env: { CODEX_HOME: path.join(os.tmpdir(), "selected-azrael-home") } });
+  const runtime = makeRuntime();
+  let calls = 0, prompts = 0;
+  const options = { execFile(_engine, _args, _options, callback) {
+    calls++;
+    callback(null, JSON.stringify({ schema: 2, instanceId: "a".repeat(64),
+      socketPath: path.join(os.tmpdir(), "admitted.sock"), engineVersion: runtime.engineVersion,
+      engineIdentity: runtime.engineSha256, storageAdmission: calls === 1 ? "incompatible" : "compatible" }), "");
+    return { kill() { assert.fail("must not terminate an engine on incompatibility"); } };
+  } };
+  await resolveEngineEndpointWithUi(runtime, { async showErrorMessage(message, detail, retry) {
+    prompts++;
+    assert.match(message, /호환되지/);
+    assert.equal(detail.modal, true);
+    assert.match(detail.detail, /0\.162\.0/);
+    assert.match(detail.detail, /버전 정보 없음/);
+    assert.equal(runtime.socket, undefined);
+    assert.equal(runtime.env.AZRAEL_EX_MANAGEMENT_SOCKET, undefined);
+    return retry;
+  } }, options);
+  assert.equal(calls, 2); assert.equal(prompts, 1);
+  assert.equal(runtime.socket, path.join(os.tmpdir(), "admitted.sock"));
+
+  const stopped = makeRuntime();
+  let stoppedCalls = 0;
+  const conflicting = { execFile(_engine, _args, _options, callback) {
+    stoppedCalls++;
+    callback(null, JSON.stringify({ schema: 2, instanceId: "a".repeat(64), socketPath: path.join(os.tmpdir(), "blocked.sock"),
+      engineVersion: stopped.engineVersion, engineIdentity: stopped.engineSha256, storageAdmission: "incompatible" }), "");
+  } };
+  await assert.rejects(resolveEngineEndpointWithUi(stopped, { async showErrorMessage() { return undefined; } }, conflicting),
+    error => error.code === "AZRAEL_STORAGE_INCOMPATIBLE" && error.userNotified === true);
+  assert.equal(stoppedCalls, 1);
+  assert.equal(stopped.socket, undefined);
+  assert.equal(stopped.env.AZRAEL_EX_MANAGEMENT_SOCKET, undefined);
+  const old = makeRuntime();
+  await assert.rejects(resolveEngineEndpoint(old, { execFile(_engine, _args, _options, callback) {
+    callback(null, JSON.stringify({ schema: 2, instanceId: "a".repeat(64), socketPath: path.join(os.tmpdir(), "old.sock"),
+      engineVersion: old.engineVersion, engineIdentity: old.engineSha256 }), "");
+  } }), error => error.code === "AZRAEL_STORAGE_ADMISSION_UNAVAILABLE");
+  assert.equal(old.socket, undefined);
 });
 
 test("manual-resume marker is read-only, scoped by home, and fail-closed", () => {

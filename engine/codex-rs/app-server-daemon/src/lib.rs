@@ -16,6 +16,8 @@ pub use azrael_lifecycle::publish_azrael_shutdown;
 #[cfg(feature = "lifecycle")]
 mod azrael_storage;
 #[cfg(feature = "lifecycle")]
+pub use azrael_storage::AzraelStorageConflict;
+#[cfg(feature = "lifecycle")]
 pub use azrael_storage::AzraelStorageLease;
 #[cfg(feature = "lifecycle")]
 pub use azrael_storage::acquire_azrael_storage_lease;

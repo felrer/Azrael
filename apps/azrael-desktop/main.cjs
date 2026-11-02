@@ -404,6 +404,14 @@ async function verify() {
   app.quit();
 }
 app.whenReady().then(bootstrap).catch(async cause => {
+  if (cause.userNotified && ["AZRAEL_STORAGE_INCOMPATIBLE", "AZRAEL_STORAGE_ADMISSION_UNAVAILABLE"].includes(cause.code)) {
+    // The shared host already presented the actionable startup dialog. Closing
+    // it stops this app without another generic error or any engine termination.
+    log("error", "engine-startup-blocked", cause.code);
+    finalExitCode = 1;
+    app.quit();
+    return;
+  }
   notifyError(cause);
   if (verificationRoot) { await fsp.writeFile(path.join(verificationRoot, "failure.json"), JSON.stringify({ message: cause.message, stack: cause.stack }, null, 2)); finalExitCode = 1; app.quit(); }
   else { dialog.showErrorBox("Azrael 실행 실패", `${cause.message}\n\n진단 로그: ${logFile}`); app.quit(); }

@@ -83,12 +83,44 @@ async function resolveEngineEndpoint(runtime, options = {}) {
         typeof descriptor.engineVersion !== "string" || descriptor.engineVersion !== runtime.engineVersion || descriptor.engineIdentity !== runtime.engineSha256) {
       throw new Error("Azrael engine endpoint descriptor does not match the selected release.");
     }
+    // Only the selected native engine can inspect the storage leases safely.
+    // An older endpoint-only engine must not silently skip this admission check.
+    if (!["compatible", "incompatible"].includes(descriptor.storageAdmission)) {
+      throw Object.assign(new Error("선택한 Azrael 엔진이 시작 전 호환성 확인을 지원하지 않습니다. 앱과 엔진을 같은 릴리스로 업데이트해 주세요."),
+        { code: "AZRAEL_STORAGE_ADMISSION_UNAVAILABLE" });
+    }
+    if (descriptor.storageAdmission === "incompatible") {
+      throw Object.assign(new Error("다른 Azrael 엔진이 실행 중이며, 이 버전과 저장소가 호환되지 않습니다."), {
+        code: "AZRAEL_STORAGE_INCOMPATIBLE", selectedVersion: runtime.engineVersion, stateHome: runtime.env.CODEX_HOME,
+      });
+    }
     runtime.socket = descriptor.socketPath;
     runtime.env.AZRAEL_EX_MANAGEMENT_SOCKET = descriptor.socketPath;
     runtime.engineInstanceId = descriptor.instanceId;
     return Object.freeze(descriptor);
-  })());
+  })().catch(error => {
+    // Explicit retry must run a fresh native check; never cache failed admission.
+    endpoints.delete(runtime);
+    throw error;
+  }));
   return endpoints.get(runtime);
+}
+
+async function resolveEngineEndpointWithUi(runtime, window, options = {}) {
+  for (;;) {
+    try { return await resolveEngineEndpoint(runtime, options); }
+    catch (error) {
+      if (error.code !== "AZRAEL_STORAGE_INCOMPATIBLE" && error.code !== "AZRAEL_STORAGE_ADMISSION_UNAVAILABLE") throw error;
+      const detail = error.code === "AZRAEL_STORAGE_INCOMPATIBLE"
+        ? `시작하려는 엔진: ${error.selectedVersion}\n실행 중인 엔진: 버전 정보 없음\n상태 폴더: ${error.stateHome}\n\n기존 Azrael 창을 닫거나 두 앱의 버전을 맞춘 뒤 다시 시도해 주세요. 기존 엔진과 작업은 계속 실행됩니다.`
+        : "이 앱의 시작을 중단했습니다. 호환성 확인을 지원하는 엔진이 포함된 릴리스를 사용해 주세요.";
+      const retry = "다시 시도";
+      const choice = await window.showErrorMessage(error.message, { modal: true, detail }, retry);
+      if (choice === retry) continue;
+      error.userNotified = true;
+      throw error;
+    }
+  }
 }
 
 function windowContext(runtime, { sessionId, workspacePath, hostPid, accountStateFile, accountDefaultFile }) {
@@ -115,4 +147,4 @@ function requiresManualResume(home, threadId) {
   } catch (error) { return error?.code !== "ENOENT"; }
 }
 
-module.exports = { validateSharedRuntime, verifyEngine, resolveEngineEndpoint, windowContext, requiresManualResume };
+module.exports = { validateSharedRuntime, verifyEngine, resolveEngineEndpoint, resolveEngineEndpointWithUi, windowContext, requiresManualResume };

@@ -128,7 +128,7 @@ exports.activate = async function activate(context) {
   if (runtime.sharedEngine) {
     const shared = require("./out/shared-engine-host.cjs");
     await shared.verifyEngine(runtime);
-    await shared.resolveEngineEndpoint(runtime);
+    await shared.resolveEngineEndpointWithUi(runtime, vscode.window);
     const workspacePath = fileSystemPath(context.storageUri ?? context.globalStorageUri, "Extension storage");
     runtime.env.AZRAEL_EX_WINDOW_CONTEXT = JSON.stringify(shared.windowContext(runtime, {
       sessionId: vscode.env.sessionId || (fallbackWindowSessionId ??= randomUUID()),

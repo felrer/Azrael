@@ -14,14 +14,21 @@
         "apps/azrael-desktop/dialog-service.cjs",
         "apps/azrael-desktop/theme.cjs",
         "apps/azrael-desktop/image-bridge.cjs",
-        "apps/azrael-desktop/renderer",
+        "apps/azrael-desktop/renderer/index.html",
+        "apps/azrael-desktop/renderer/shell.mjs",
+        "apps/azrael-desktop/renderer/shell.css",
+        "apps/azrael-desktop/renderer/dialogs.mjs",
+        "apps/azrael-desktop/renderer/detail-panel.mjs",
+        "apps/azrael-desktop/renderer/detail-panel.css",
         "apps/azrael-desktop/check.cjs",
         "apps/azrael-desktop/verify.cjs",
         "apps/azrael-desktop/fixture-backend.cjs",
         "apps/azrael-desktop/verification.cjs"
       ],
       "contract": "docs/architecture/standalone-app.md",
-      "reportFields": [],
+      "reportFields": [
+        "imageFileOpenEdits"
+      ],
       "checks": [
         {
           "id": "ui.standalone-app.source",

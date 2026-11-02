@@ -209,7 +209,22 @@ fn run_entry(azrael_entry: bool) -> anyhow::Result<()> {
                 &args.azrael_startup_args()?,
             )
             .await?;
-            println!("{}", serde_json::to_string(&endpoint)?);
+            let home = codex_core::config::find_codex_home()?;
+            let storage_admission = match codex_app_server_daemon::acquire_azrael_storage_lease(
+                &home,
+                &codex_state::azrael_storage_compatibility_manifest(),
+            )
+            .await
+            {
+                Ok(_lease) => "compatible",
+                Err(error) if error.is::<codex_app_server_daemon::AzraelStorageConflict>() => {
+                    "incompatible"
+                }
+                Err(error) => return Err(error),
+            };
+            let mut descriptor = serde_json::to_value(&endpoint)?;
+            descriptor["storageAdmission"] = storage_admission.into();
+            println!("{}", serde_json::to_string(&descriptor)?);
             return Ok(());
         }
         if args.azrael_shared_windows {
@@ -236,6 +251,13 @@ fn run_entry(azrael_entry: bool) -> anyhow::Result<()> {
         if azrael_entry && !args.azrael_shared_windows {
             if let Some(context) = std::env::var_os("AZRAEL_EX_WINDOW_CONTEXT") {
                 let registration = serde_json::from_str(&context.to_string_lossy())?;
+                // Keep admission across daemon selection/startup and the window connection.
+                let home = codex_core::config::find_codex_home()?;
+                let _storage_lease = codex_app_server_daemon::acquire_azrael_storage_lease(
+                    &home,
+                    &codex_state::azrael_storage_compatibility_manifest(),
+                )
+                .await?;
                 return codex_app_server_daemon::run_azrael_stdio_proxy_with_args(
                     &std::env::current_exe()?,
                     registration,

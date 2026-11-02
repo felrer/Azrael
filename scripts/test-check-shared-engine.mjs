@@ -132,7 +132,7 @@ test('checker queries the selected binary with exactly its launch startup identi
   const home = resolve(parse(process.cwd()).root, 'bj-home');
   const identity = createHash('sha256').update(await readFile(process.execPath)).digest('hex');
   const descriptor = { schema: 2, instanceId: 'a'.repeat(64), socketPath: resolve(home, 'app-server-control', 'selected.sock'),
-    engineVersion: '0.162.0', engineIdentity: identity };
+    engineVersion: '0.162.0', engineIdentity: identity, storageAdmission: 'compatible' };
   let calls = 0;
   function discover(value = descriptor) {
     return queryEngineEndpoint(process.execPath, home, identity, descriptor.engineVersion, {
