@@ -29,6 +29,7 @@ Each document or owning section labels its own state (see [document states](../R
 
 ## UI and prompt media
 
+- [Standalone app](standalone-app.md): agreed chat-history reuse and on-demand text/terminal detail panel, with standalone host integration and platform acceptance tracked separately.
 - [UI presentation](ui-presentation.md): native presentation, composer cleanup, drafts/flags, speed controls, settings, photos, typography and input diagnostics.
 - [Prompt image preparation](prompt-image-preparation.md): shared image sizing, format/transparency preservation and provider preparation boundaries.
 

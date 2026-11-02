@@ -1,0 +1,44 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; font-size: 13px; color: light-dark(#242424,#ececec); background: light-dark(#fff,#171717); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+.app-bar { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-bottom: 1px solid light-dark(#e6e6e6,#353535); }
+.app-bar button { border: 1px solid transparent; background: transparent; color: inherit; border-radius: 8px; padding: 6px 10px; font: inherit; cursor: pointer; }
+.app-bar button:hover { background: light-dark(#f3f3f3,#2b2b2b); }
+.app-bar button:focus-visible { outline: 2px solid currentColor; }
+#chat { font-weight: 600; }
+#workspace { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .65; min-width: 0; }
+.app-spacer { flex: 1; }
+main { height: calc(100% - 44px); }
+#detail { position: absolute; right: 0; top: 44px; bottom: 0; width: min(540px,42vw); min-width: 300px; }
+#detail[hidden], #app-error[hidden] { display: none; }
+#app-error { position: absolute; bottom: 12px; right: 12px; max-width: 480px; padding: 12px 16px; border: 1px solid light-dark(#c75b5b,#a75353); border-radius: 10px; background: light-dark(#fff,#242424); z-index: 10; }
+@media(max-width: 900px) { #workspace { display: none; } #detail { width: 100%; min-width: 0; } }
+
+/* Desktop host input and quick-pick dialogs. */
+.azrael-dialog { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px); margin: min(16vh, 100px) auto auto; padding: 22px; border: 1px solid light-dark(#e2e2e2,#414141); border-radius: 16px; background: light-dark(#fff,#212121); color: inherit; box-shadow: 0 18px 65px #0003; }
+.azrael-dialog::backdrop { background: #0006; }
+.azrael-dialog form { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.azrael-dialog h2 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.4; }
+.azrael-dialog-prompt, .azrael-dialog-error { margin: 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.azrael-dialog-prompt { color: light-dark(#616161,#b4b4b4); }
+.azrael-dialog-input { width: 100%; padding: 11px 12px; border: 1px solid light-dark(#d6d6d6,#555); border-radius: 10px; background: light-dark(#fff,#292929); color: inherit; font: inherit; }
+.azrael-dialog-input:focus { outline: 2px solid light-dark(#555,#aaa); outline-offset: 2px; }
+.azrael-dialog-list { max-height: min(340px,40vh); overflow: auto; padding: 3px; border: 1px solid light-dark(#e8e8e8,#3b3b3b); border-radius: 10px; }
+.azrael-dialog-list[hidden] { display: none; }
+.azrael-dialog-option { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; cursor: pointer; }
+.azrael-dialog-option.is-focused, .azrael-dialog-option:hover { background: light-dark(#f1f1f1,#353535); }
+.azrael-dialog-option[aria-selected="true"] .azrael-dialog-option-label { font-weight: 600; }
+.azrael-dialog-option input { margin: 0; accent-color: light-dark(#333,#ddd); }
+.azrael-dialog-option-content { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; row-gap: 3px; min-width: 0; }
+.azrael-dialog-option-label { overflow-wrap: anywhere; }
+.azrael-dialog-description, .azrael-dialog-detail { color: light-dark(#686868,#b6b6b6); font-size: 12px; overflow-wrap: anywhere; }
+.azrael-dialog-detail { flex-basis: 100%; line-height: 1.4; }
+.azrael-dialog-empty { padding: 8px 10px; color: light-dark(#686868,#b6b6b6); }
+.azrael-dialog-error { color: light-dark(#ad3434,#f19b9b); font-size: 12px; }
+.azrael-dialog-error:empty { display: none; }
+.azrael-dialog-error[data-severity="1"], .azrael-dialog-error[data-severity="2"] { color: light-dark(#686868,#b6b6b6); }
+.azrael-dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+.azrael-dialog-buttons button { padding: 8px 16px; border: 1px solid light-dark(#d7d7d7,#555); border-radius: 9px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.azrael-dialog-buttons .azrael-dialog-accept { background: light-dark(#262626,#ececec); border-color: transparent; color: light-dark(#fff,#171717); }
+.azrael-dialog-buttons button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.azrael-dialog-buttons button:disabled { opacity: .5; cursor: wait; }
