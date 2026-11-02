@@ -139,10 +139,12 @@ function describeSymbols({ source, fileName = 'source.ts', symbols }, ts) {
     if (!node) return { signature: '', description: '', description_source: 'none' };
     const doc = docs(node), title = callbackTitle(node);
     const sig = shorten(signature(node), true);
-    const observed = !doc?.text && title === null ? structure(node) : null;
-    const desc = shorten(doc?.text || (title !== null ? 'Test title: ' + title : observed.text));
+    const deferred = !doc?.text && title === null && symbol.include_structure !== true;
+    const observed = !doc?.text && title === null && !deferred ? structure(node) : null;
+    const desc = shorten(doc?.text || (title !== null ? 'Test title: ' + title : observed?.text || ''));
     return { signature: sig.text, description: desc.text,
       description_source: doc?.text ? doc.source : title !== null ? 'test_title' : desc.text ? 'structure' : 'none',
+      ...(deferred ? { structure_deferred: true } : {}),
       ...(sig.truncated ? { signature_truncated: true } : {}),
       ...(desc.truncated || observed?.truncated ? { description_truncated: true } : {}) };
   });

@@ -1,4 +1,4 @@
-상태: 실험용 확장 구현·비교 평가·임시 환경 정리 완료. 제품 기본 도구 전환은 미실시.
+상태: 실험용 확장의 선택적 구조 설명 구현·검증·임시 출력 정리 완료. 제품 기본 도구 전환은 미실시.
 
 # Serena 개요·일괄 읽기 확장 평가
 
@@ -8,7 +8,7 @@
 
 ## 계약과 범위
 
-개요는 정확한 심볼 식별자, 종류, 위치, 짧은 시그니처와 설명 출처를 제공한다. 설명은 실제 문서 주석·테스트 제목을 우선하고 없으면 AST에서 관측한 참조·호출·반환 키를 명시한다. 추정한 기능 설명이나 추가 모델 호출은 사용하지 않는다. 여러 심볼 읽기는 파일을 넘나드는 선택 목록을 받고 원문·위치·파일 identity를 반환하며 개별 실패를 구분한다. 함수밖 문맥과 일반 파일 읽기를 유지한다. 줄 수나 호출 수의 하드 제한은 도입하지 않는다.
+개요는 정확한 심볼 식별자, 종류, 위치, 짧은 시그니처와 설명 출처를 제공한다. 실제 문서 주석·테스트 제목은 기본 표시하고, AST에서 관측한 참조·호출·반환 키는 심볼별 선택적 펼침으로 제공한다. 추정한 기능 설명이나 추가 모델 호출은 사용하지 않는다. 여러 심볼 읽기는 파일을 넘나드는 선택 목록을 받고 원문·위치·파일 identity를 반환하며 개별 실패를 구분한다. 함수밖 문맥과 일반 파일 읽기를 유지한다. 줄 수나 호출 수의 하드 제한은 도입하지 않는다.
 
 공통 도구 후보를 검토하되 실제 검증은 Windows x64 로컬의 JS/TS 계열 고정 scripts 입력이다. 다른 언어·OS·제품 통합은 미검증으로 남긴다. root가 계약·Serena 연동·계측·통합·정리를 소유한다. AST 메타데이터 추출은 독립 모듈로 분리해 작업할 수 있다.
 
@@ -22,12 +22,14 @@
 
 ## 구현 결과
 
-- `scripts/serena-read-metadata.cjs`: 설치된 TypeScript AST를 파일당 한 번 파싱한다. 선언 시그니처와 주석/테스트 제목을 추출하고, 설명이 없으면 `Observed:`로 반환 키·호출 등 관측 구조를 표시한다. 설명 생성용 모델 호출은 없다. 길이 축약 여부와 설명 출처를 명시한다.
+- `scripts/serena-read-metadata.cjs`: 설치된 TypeScript AST를 파일당 한 번 파싱한다. 선언 시그니처와 주석/테스트 제목을 추출하고, 설명이 없는 심볼은 명시적 펼침 요청 시 `Observed:`로 반환 키·호출 등 관측 구조를 표시한다. 설명 생성용 모델 호출은 없다. 길이 축약 여부와 설명 출처를 명시한다.
 - `scripts/serena-read-tools.py`: Serena 실제 `LspApi` 위의 개요·일괄 읽기 어댑터다. 개요는 source hash에 결합된 ID, 종류, 위치, 시그니처, 설명을 제공한다. 일괄 읽기는 파일을 넘나드는 ID 또는 이름/종류 선택, 중복 매핑, 개별 오류를 지원한다. 본문을 자르지 않으며 UTF-16 위치를 원문에 적용한다. 변경된 소스의 ID와 배치 중 바뀐 파일 결과를 거부한다.
 - `scripts/test-serena-read-metadata.cjs`, `scripts/test-serena-read-tools.py`: 위 계약의 직접 회귀 검사. 재사용할 실험 산출물로 유지한다.
 - 제품 도구 등록·MCP wire 연결·기본 지침·아키텍처 기능 계약은 변경하지 않았다. 직접 Python API 실험과 제품 통합 검증을 구분한다.
 
 ## 실험 입력과 방법
+
+아래 모델 비교 수치는 선택적 펼침을 도입하기 전, 구조 설명을 기본 표시하던 버전의 결과다. 선택적 펼침의 모델 호출 감소 효과를 재측정한 결과로 해석하지 않는다.
 
 Serena 배포판 2.1.0을 별도 환경에 고정했다. 내부 agent version 문자열은 `2.1.0-1750fdb5-dirty`이며 vendor 코드는 수정하지 않았다. 기존 scripts의 JS/CJS/MJS/TS/JSON 541개, 7,466,046바이트를 고정 복사했다. 확장 소스도 모델 실험 전에 hash로 고정했다.
 
@@ -67,7 +69,7 @@ Serena 배포판 2.1.0을 별도 환경에 고정했다. 내부 agent version �
 
 실제 개요 12개의 상세 심볼에 시그니처 누락은 없었다. 다만 `maintenance-owner-config.cjs` 개요는 stock 617문자에서 상세 6,404문자로 커졌다. 다른 개요는 9,370·10,513문자였다. 전 심볼의 설명을 항상 풍부하게 보여주면 처음부터 컨텍스트 비용이 증가한다.
 
-후속 개선 후보는 (1) 기본 개요에서 최상위 선언/부모와 콜백 계층을 더 명확하게 구분, (2) 짧은 시그니처와 실제 문서 요약을 우선하고 구조 설명은 선택적으로 확장, (3) 검색 결과에 일괄 선택 가능한 정확한 ID/종류를 연결하는 것이다. 파일 발견·넓은 검색 비용도 남아 있으므로 추가 실험 없이 제품 기본 도구로 전환하지 않는다. 다른 모델·실제 수정 작업·긴 세션·다른 언어/OS에서 재현 여부는 미검증이다.
+짧은 시그니처와 실제 문서 요약을 우선하고 구조 설명은 선택적으로 확장하는 변경은 아래 절에 구현했다. 남은 후보는 기본 개요에서 최상위 선언/부모와 콜백 계층을 더 명확히 구분하고, 검색 결과에 일괄 선택 가능한 정확한 ID/종류를 연결하는 것이다. 파일 발견·넓은 검색 비용도 남아 있으므로 추가 실험 없이 제품 기본 도구로 전환하지 않는다. 다른 모델·실제 수정 작업·긴 세션·다른 언어/OS에서 재현 여부는 미검증이다.
 
 ## 검증 및 종료 증거
 
@@ -98,3 +100,19 @@ Serena 배포판 2.1.0을 별도 환경에 고정했다. 내부 agent version �
 검증된 standalone owner `maintenance-owner-ff01-group-win-x64-20261102/payload/maintenance_owner.exe`(SHA-256 `31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89`)의 등록·registered review·apply가 각각 exit 0으로 끝났다. review의 blockers와 references는 비어 있었다. 소유 루트 251,053,236바이트를 delete 결정으로 처리했고 결과는 `deleted`, `remaining:false`, `error:null`이었다. 실제 루트 부재를 확인했다. lifecycle finalize도 `finalized`, remaining/references/blockers 모두 빈 배열이었다. 강제 삭제나 다른 shell/API 우회는 사용하지 않았다. 정리 호출 준비 중 `command` 대신 실제 계약 `executable`을 사용해야 하는 필드 오류 1건을 고쳤으며, 잘못된 호출은 producer 재실행이나 삭제를 수행하지 않았다.
 
 네 개 실험 소스/회귀 검사와 이 결과 문서는 요청한 산출물로 유지한다. 제품 실행·설치·사용자 설정·다른 작업의 소스와 staged 변경은 이 작업 범위에 포함하지 않았다.
+
+## 선택적 구조 설명 계약과 검증
+
+사용자 요청에 따라 기본 개요의 구조 설명을 접고, 기존 metadata 추출기와 overview 캐시를 재사용해 선택적 확장을 구현한다. 범위는 기존 실험 어댑터의 JS/TS 계열이며 검증 환경은 Windows x64 로컬이다. 제품 연결·설정·배포·다른 플랫폼 지원 범위는 바꾸지 않는다.
+
+- 기본 `overview(relative_path, depth=0)`는 시그니처·주석·테스트 제목을 유지하고, 구조 설명을 생략한 행에 `structure_deferred: true`를 표시한다. 구조 설명을 위한 AST 순회도 기본 모드에서는 수행하지 않는다.
+- 같은 파일/깊이에서 `overview(relative_path, structure_ids=[id1, id2])`로 요청한 심볼들만 한 번의 metadata 파싱에서 펼친다. 응답은 전체 개요이며 선택하지 않은 행은 유지한다. 펼친 결과가 기본 개요 캐시에 섞이지 않는다.
+- source hash에 결합된 기존 ID를 재사용하고 알 수 없거나 다른 파일/깊이·이전 소스의 ID는 거부한다. 변경된 소스에서 이전 ID를 자동 추측하지 않는다. 본문 일괄 읽기는 그대로다.
+- metadata 직접 입력에서는 심볼별 `include_structure: true`로 동일 동작을 요청할 수 있다. 실제 주석/테스트 제목이 있으면 기존 설명 우선순위를 유지한다. `structure_deferred`는 펼침 가능 후보를 뜻하며, 분석할 관측 내용이 없으면 펼친 설명은 비어 있을 수 있다.
+- 기존 구조 설명 테스트는 명시적 확장 모드로 바꾸고, 기본 생략/일부 선택/주석·제목 유지와 캐시 오염·stale ID 거부 검사를 보완한다. 추후 metadata 호출이나 캐시를 단순화할 때 구조 설명이 다시 기본 반환되거나 확장 결과가 기본 캐시에 새는 실수를 막기 위해 기존 테스트 파일에 유지한다.
+- 일회성 출력은 사전 등록한 `run:serena-read-eval:20261102:r3`의 `artifacts/verification/sr03`에 한정한다.
+- Node metadata 검사 9/9, Python adapter 검사 5/5 모두 통과했고 실제 exit는 각각 0이었다. Python 테스트는 Serena API 경계를 최소 fake로 대체하고 실제 Node metadata subprocess·파일·캐시·본문 ID를 사용한다. 이번 변경으로 Serena 설치나 모델 비교를 재실행하지 않았으며 모델의 호출 수 개선은 미측정이다.
+- 실제 `scripts/maintenance-owner-config.cjs`의 최상위 함수 8개에 같은 metadata를 적용했다. 모든 구조 설명을 펼친 JSON은 2,103문자, 기본 JSON은 1,166문자, 첫 함수만 펼친 JSON은 1,209문자였다. 시그니처는 모두 동일했다. 이는 metadata 부분의 출력 크기이며 전체 Serena 개요나 모델 토큰의 감소율이 아니다. 측정 소스 SHA-256: `14a1cc5ed75f389fd5e883ae69916064388284fb4fafb5b2a137c6da6d89cafb`.
+- `node --check`는 metadata 소스와 테스트 모두 exit 0이었다. 동기 테스트·metadata subprocess 명령은 모두 종료 결과를 받았고 백그라운드 producer를 생성하지 않았다.
+- 삭제 전 출력 SHA-256: `metadata-tests.log` = `e9cc0aa2dec22f5547cac5c2171d28811615e0c5023e0b3dd582262d1ae71b56`, `adapter-tests.log` = `49a6d95428382debe92692c0253fa9e8754000d7677543078a95c39d7c35d360`, `output-size.json` = `76217d4d673fb92771ed40916da220bcc17fe6f9faf2e10eb1d433905d333eae`.
+- r3 lifecycle은 success/exit 0으로 종료했다. 검증된 owner의 등록·registered review·apply도 각각 exit 0이었다. blockers/references 없이 1,714바이트 임시 출력 루트를 삭제했고 `deleted`, `remaining:false`, `error:null`이었다. 실제 `sr03` 루트 부재와 lifecycle `finalized`(remaining/references/blockers 없음)를 확인했다.

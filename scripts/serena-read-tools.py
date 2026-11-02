@@ -5,6 +5,7 @@ and returns complete Serena bodies, never generated summaries in place of source
 """
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -63,7 +64,55 @@ class SerenaReadTools:
             if depth > 0:
                 yield from SerenaReadTools._flatten(list(symbol.iter_children()), depth - 1)
 
-    def overview(self, relative_path: str, depth: int = 0) -> dict:
+    def _metadata(self, source: str, relative_path: str, symbols: list[dict]) -> list[dict]:
+        env = {**os.environ, "SERENA_TYPESCRIPT_MODULE": self.typescript_module}
+        process = subprocess.run([self.node, self.metadata_script],
+                                 input=json.dumps({"source": source, "fileName": relative_path,
+                                                   "symbols": symbols}, ensure_ascii=False),
+                                 text=True, encoding="utf-8", capture_output=True,
+                                 env=env, timeout=30, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        if process.returncode:
+            raise RuntimeError("Metadata parser failed: " + process.stderr[:1000])
+        metadata = json.loads(process.stdout)
+        if len(metadata) != len(symbols):
+            raise RuntimeError("Metadata count does not match source symbols")
+        return metadata
+
+    def _expand_structure(self, overview: dict, path: Path, structure_ids: list[str] | None) -> dict:
+        if structure_ids is None or structure_ids == []:
+            return overview
+        if not isinstance(structure_ids, list) or any(not isinstance(value, str) for value in structure_ids):
+            raise ValueError("structure_ids must be a list of current overview ids")
+        rows = {row["id"]: row for row in overview["symbols"] + overview["other_symbols"]}
+        if any(value not in rows for value in structure_ids):
+            raise ValueError("Unknown or stale structure id; obtain a current overview for this file and depth")
+        selected = [value for value in dict.fromkeys(structure_ids) if rows[value].get("structure_deferred")]
+        if not selected:
+            return overview
+        source = path.read_text(encoding="utf-8-sig")
+        inputs = [{"name": self._symbols[value]["symbol"].name,
+                   "kind": self._symbols[value]["kind"],
+                   **self._symbols[value]["range"], "include_structure": True} for value in selected]
+        metadata = self._metadata(source, overview["relative_path"], inputs)
+        if self._hash(path) != overview["source_sha256"]:
+            raise ValueError("File changed while expanding structure; request a current overview")
+        # Expanded responses must not populate the compact overview cache.
+        result = copy.deepcopy(overview)
+        expanded = dict(zip(selected, metadata, strict=True))
+        for row in result["symbols"] + result["other_symbols"]:
+            if row["id"] in expanded:
+                row.pop("structure_deferred", None)
+                row.update(expanded[row["id"]])
+        return result
+
+    def overview(self, relative_path: str, depth: int = 0,
+                 structure_ids: list[str] | None = None) -> dict:
+        """Compact signatures/docs by default; expand structure for explicitly selected ids.
+
+        Read a compact overview first, then pass its structure_deferred ids (possibly
+        several together) as structure_ids with the same file/depth. Source-bound ids
+        reject stale or cross-file selections. Body reading remains independent.
+        """
         if not isinstance(depth, int) or isinstance(depth, bool) or depth < 0:
             raise ValueError("depth must be a non-negative integer")
         path = self._file(relative_path)
@@ -71,7 +120,7 @@ class SerenaReadTools:
         before = self._hash(path)
         cache_key = (relative_path, before, depth)
         if cache_key in self._overview_cache:
-            return self._overview_cache[cache_key]
+            return self._expand_structure(self._overview_cache[cache_key], path, structure_ids)
         collection = self.api.get_symbols_overview(relative_path, depth=depth)
         source = path.read_text(encoding="utf-8-sig")
         symbols = list(self._flatten(collection.symbols, depth))
@@ -85,17 +134,7 @@ class SerenaReadTools:
             entries.append(entry)
             metadata_input.append({"name": symbol.name, "kind": symbol.symbol_kind_name,
                                    **entry["range"]})
-        env = {**os.environ, "SERENA_TYPESCRIPT_MODULE": self.typescript_module}
-        process = subprocess.run([self.node, self.metadata_script],
-                                 input=json.dumps({"source": source, "fileName": relative_path,
-                                                   "symbols": metadata_input}, ensure_ascii=False),
-                                 text=True, encoding="utf-8", capture_output=True,
-                                 env=env, timeout=30, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-        if process.returncode:
-            raise RuntimeError("Metadata parser failed: " + process.stderr[:1000])
-        metadata = json.loads(process.stdout)
-        if len(metadata) != len(entries):
-            raise RuntimeError("Metadata count does not match source symbols")
+        metadata = self._metadata(source, relative_path, metadata_input)
         if self._hash(path) != before:
             raise ValueError("File changed while building overview; request again")
         for entry, details in zip(entries, metadata, strict=True):
@@ -114,12 +153,12 @@ class SerenaReadTools:
             if is_callable:
                 detailed.append(entry)
             else:
-                others.append({key: entry[key] for key in ("id", "name_path", "kind", "lines", "signature")})
+                others.append({key: entry[key] for key in ("id", "name_path", "kind", "lines", "signature", "structure_deferred") if key in entry})
         result = {"relative_path": relative_path, "source_sha256": before,
                   "line_encoding": "one-based inclusive; bodies remain unabridged",
                   "symbols": detailed, "other_symbols": others}
         self._overview_cache[cache_key] = result
-        return result
+        return self._expand_structure(result, path, structure_ids)
 
     def read_symbols(self, selections: list[dict]) -> dict:
         if not isinstance(selections, list) or not selections:

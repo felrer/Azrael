@@ -19,6 +19,7 @@ class Symbol:
     def get_name_path(self): return self.name
     def get_body_start_position(self): return SimpleNamespace(line=self.line, col=0)
     def get_body_end_position(self): return SimpleNamespace(line=self.line, col=len(self.body))
+    def iter_children(self): return iter(())
 
 class BatchContracts(unittest.TestCase):
     def setUp(self):
@@ -73,5 +74,31 @@ class BatchContracts(unittest.TestCase):
         result=self.adapter.read_symbols([{'relative_path':'a.js','name_path':'one'}, {'relative_path':'a.js','name_path':'two'}])
         self.assertEqual(result['results'],[])
         self.assertEqual({e['request_index'] for e in result['errors']},{0,1})
+
+    def test_selective_structure_uses_current_ids_without_polluting_compact_cache(self):
+        first = 'function one() { return input.value.trim(); }'
+        second = 'function two() { return input.other; }'
+        (self.root/'a.js').write_text(first+'\n'+second+'\n', encoding='utf-8')
+        self.symbols['one'].body, self.symbols['two'].body = first, second
+        self.adapter.api.get_symbols_overview = lambda *args, **kwargs: SimpleNamespace(
+            symbols=[self.symbols['one'], self.symbols['two']])
+        self.adapter.metadata_script = str(Path(__file__).with_name('serena-read-metadata.cjs').resolve())
+        self.adapter.typescript_module = os.environ['SERENA_TYPESCRIPT_MODULE']
+        compact = self.adapter.overview('a.js')
+        first_id, second_id = [row['id'] for row in compact['symbols']]
+        self.assertTrue(all(row['structure_deferred'] for row in compact['symbols']))
+        self.assertTrue(all('description' not in row for row in compact['symbols']))
+        expanded = self.adapter.overview('a.js', structure_ids=[first_id, first_id])
+        self.assertIn('calls trim', expanded['symbols'][0]['description'])
+        self.assertNotIn('structure_deferred', expanded['symbols'][0])
+        self.assertEqual(expanded['symbols'][1], compact['symbols'][1])
+        self.assertEqual(self.adapter.overview('a.js'), compact)
+        both = self.adapter.overview('a.js', structure_ids=[first_id, second_id])
+        self.assertTrue(all(row['description_source']=='structure' for row in both['symbols']))
+        self.assertEqual(self.adapter.read_symbols([{'id':first_id}])['results'][0]['body'], first)
+        with self.assertRaises(ValueError): self.adapter.overview('a.js', structure_ids=['missing'])
+        with self.assertRaises(ValueError): self.adapter.overview('a.js', structure_ids=first_id)
+        (self.root/'a.js').write_text(first+'\n'+second+'\n// changed\n', encoding='utf-8')
+        with self.assertRaises(ValueError): self.adapter.overview('a.js', structure_ids=[first_id])
 
 if __name__=='__main__': unittest.main()
