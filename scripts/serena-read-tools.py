@@ -1,16 +1,23 @@
 """Minimal read-only Serena adapter; not registered in Azrael's tool catalog.
 
-list_ids(file) returns native symbol paths only. read_symbols accepts those paths
+list_ids(file) returns native callable/type paths only. read_symbols accepts those paths
 directly and returns complete selected source bodies. File hashes stay internal.
 """
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
+import subprocess
 from typing import Any
 
 
 class SerenaReadTools:
+    # Keep data out of the list, but traverse its children. JS/TS providers also
+    # label arrow/function initializers as data; classify those with the TS AST.
+    _READING_KINDS = frozenset({"Function", "Method", "Constructor", "Class",
+                                "Interface", "Struct", "Enum"})
+
     def __init__(self, api: Any, project_root: str | Path):
         self.api = api
         self.root = Path(project_root).resolve()
@@ -34,16 +41,25 @@ class SerenaReadTools:
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
     def list_ids(self, relative_path: str) -> list[str]:
-        """List every native symbol path in one file, without descriptions or depth."""
+        """List callable/type paths only, without descriptions or depth options."""
         path = self._file(relative_path)
         name = path.relative_to(self.root).as_posix()
         identity = self._hash(path)
         symbols = self.api.get_symbols_overview(name).symbols
+        callable_positions = set()
+        if path.suffix.lower() in {'.js', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.cts', '.mts'}:
+            parsed = subprocess.run(
+                ['node', str(Path(__file__).with_name('serena-callable-positions.cjs')), str(path)],
+                check=True, capture_output=True, text=True, encoding='utf-8', timeout=30,
+                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+            callable_positions = {tuple(position) for position in json.loads(parsed.stdout)}
         pending = list(reversed(symbols))
         ids = []
         while pending:
             symbol = pending.pop()
-            ids.append(symbol.get_name_path())
+            if (symbol.symbol_kind_name in self._READING_KINDS
+                    or (symbol.line, symbol.column) in callable_positions):
+                ids.append(symbol.get_name_path())
             pending.extend(reversed(list(symbol.iter_children())))
         if len(ids) != len(set(ids)):
             raise ValueError("Ambiguous symbol paths returned by provider")

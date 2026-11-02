@@ -13,11 +13,13 @@ SPEC.loader.exec_module(MODULE)
 
 class Symbol:
     """Only the provider's name, children, body and source-range surface."""
-    def __init__(self, name_path, body, line=0, children=()):
+    def __init__(self, name_path, body, line=0, children=(), kind='Function'):
         self.name_path = name_path
         self.body = body
         self.line = line
+        self.column = 0
         self.children = children
+        self.symbol_kind_name = kind
 
     def get_name_path(self): return self.name_path
     def get_body_start_position(self): return SimpleNamespace(line=self.line, col=0)
@@ -35,8 +37,8 @@ class BatchContracts(unittest.TestCase):
         self.root = Path(self.temp.name)
         (self.root / 'a.js').write_text('function one() {}\nfunction two() {}\n', encoding='utf-8')
         (self.root / 'b.js').write_text('function three() {}\n', encoding='utf-8')
-        child = Symbol('Container/nested', 'nested() { return "nested"; }', 3)
-        container = Symbol('Container', 'class Container { nested() { return "nested"; } }', 2, [child])
+        child = Symbol('Container/nested', 'nested() { return "nested"; }', 3, kind='Method')
+        container = Symbol('Container', 'class Container { nested() { return "nested"; } }', 2, [child], kind='Class')
         self.symbols = {
             'a.js': [Symbol('one', 'function one() {}'), Symbol('two', 'function two() {}', 1), container, child],
             'b.js': [Symbol('three', 'function three() {}'), Symbol('one', 'function one() { return "b"; }', 1)],
@@ -62,12 +64,46 @@ class BatchContracts(unittest.TestCase):
     def selection(relative_path, symbol_id):
         return {'relative_path': relative_path, 'id': symbol_id}
 
-    def test_list_ids_contains_all_nested_provider_paths_only(self):
+    def test_list_ids_contains_nested_callable_and_type_paths_only(self):
         ids = self.adapter.list_ids('a.js')
         self.assertIsInstance(ids, list)
         self.assertTrue(all(isinstance(value, str) for value in ids))
         self.assertCountEqual(ids, ['one', 'two', 'Container', 'Container/nested'])
         self.assertEqual(self.adapter.list_ids('b.js'), ['three', 'one'])
+
+    def test_list_ids_filters_data_but_traverses_it_to_find_nested_callables(self):
+        # A future change to unrestricted traversal must not reintroduce locals
+        # or prune nested functions merely because their parent is filtered.
+        kept = ['Function', 'Method', 'Constructor', 'Class', 'Interface', 'Struct', 'Enum']
+        hidden = ['Variable', 'Constant', 'Property', 'Field', 'EnumMember', 'Module', 'Namespace']
+        self.symbols['a.js'] = [Symbol(kind, kind, kind=kind) for kind in kept]
+        self.symbols['a.js'] += [Symbol(kind, kind, kind=kind) for kind in hidden]
+        parameter = Symbol('Function/input', 'input', kind='Variable')
+        nested = Symbol('Function/input/nested', '() => 1', kind='Function')
+        parameter.children = [nested]
+        self.symbols['a.js'][0].children = [parameter]
+        self.assertEqual(self.adapter.list_ids('a.js'), ['Function', 'Function/input/nested', *kept[1:]])
+        self.symbols['b.js'] = [Symbol('data', '42', kind='Constant')]
+        self.assertEqual(self.adapter.list_ids('b.js'), [])
+
+    def test_js_callable_initializers_survive_data_kinds_without_text_false_positives(self):
+        source = ('const text = "() => not a function";\n'
+                  'const arrow = async (input) => input;\n'
+                  'let expression = function named() { return 1; };\n'
+                  'const object = { run: () => 2, data: "function() {}" };\n')
+        (self.root / 'a.js').write_text(source, encoding='utf-8')
+        self.symbols['a.js'] = [
+            Symbol('text', 'text', 0, kind='Constant'),
+            Symbol('arrow', 'arrow', 1, kind='Constant'),
+            Symbol('expression', 'expression', 2, kind='Variable'),
+            Symbol('object', 'object', 3, [Symbol('object/run', 'run', 3, kind='Property'),
+                                          Symbol('object/data', 'data', 3, kind='Property')], kind='Constant'),
+        ]
+        self.symbols['a.js'][1].column = 6
+        self.symbols['a.js'][2].column = 4
+        self.symbols['a.js'][3].children[0].column = 17
+        self.symbols['a.js'][3].children[1].column = 31
+        self.assertEqual(self.adapter.list_ids('a.js'), ['arrow', 'expression', 'object/run'])
 
     def test_known_id_reads_single_complete_body_without_listing(self):
         body = 'function one(input) {\n  // preserve source, including whitespace\n  return input?.value?.trim();\n}\n'

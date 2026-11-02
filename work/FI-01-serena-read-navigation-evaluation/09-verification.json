@@ -1,0 +1,347 @@
+{
+  "schema": 1,
+  "purpose": "Normal behavior and preservation checks only; no performance/model comparison",
+  "platform": "Windows x64 / Python 3.13 / Serena 2.1.0",
+  "runtime": "artifacts/verification/sr04/env/Scripts/python.exe -B",
+  "command": "python.exe -B artifacts/verification/minimal-id-kind-check-20261103-b7c5de40/probe.py",
+  "inputs": {
+    "scripts/serena-read-tools.py": "8de78f5f782a6f7fe99f69bc537b6aa0c4a2cd3a1cef8cd581199acda60e75ca",
+    "scripts/serena-callable-positions.cjs": "329f95b7ae3cc65afcd62b5a3e369800251e43580e7d35fe569105a8c962bc76",
+    "scripts/test-serena-read-tools.py": "c107f66453099e7324ef430529ea81030a899242b5bf964daae845f5ec88791f"
+  },
+  "result": {
+    "status": "passed",
+    "unit": {
+      "exit_code": 0,
+      "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 1.951s\n\nOK\n"
+    },
+    "checks": {
+      "a.js_reading_units_only": [
+        "arrowTop",
+        "Box",
+        "Box/constructor",
+        "Box/arrowProperty",
+        "Box/method",
+        "holder/child",
+        "top",
+        "top/arrowLocal",
+        "top/nested"
+      ],
+      "types.ts_reading_units_only": [
+        "Shape",
+        "Shape/area",
+        "Status",
+        "typed"
+      ],
+      "native_parameter_symbols": [],
+      "excluded_data_ids": [
+        "Box/method/methodLocal",
+        "Box/property",
+        "constantValue",
+        "holder",
+        "top/local",
+        "top/nested/nestedLocal",
+        "variableValue"
+      ],
+      "arrow_native_kinds": {
+        "arrowTop": "Constant",
+        "Box/arrowProperty": "Property",
+        "top/arrowLocal": "Constant"
+      },
+      "arrow_batch_exact_source_bodies": [
+        {
+          "request_index": 0,
+          "relative_path": "a.js",
+          "id": "arrowTop",
+          "body": "arrowTop = (value) => value * 2"
+        },
+        {
+          "request_index": 1,
+          "relative_path": "a.js",
+          "id": "top/arrowLocal",
+          "body": "arrowLocal = (arrowParameter) => arrowParameter + local"
+        },
+        {
+          "request_index": 2,
+          "relative_path": "a.js",
+          "id": "Box/arrowProperty",
+          "body": "arrowProperty = (value) => value + this.property;"
+        }
+      ],
+      "known_data_id_still_readable": "constantValue = 7",
+      "exact_body_cross_file_batch_dedup_unicode": true,
+      "changed_file_rejected_then_relisting_recovers": "File changed since list_ids; request list_ids again"
+    },
+    "native": {
+      "a.js": [
+        {
+          "id": "arrowTop",
+          "kind": "Constant"
+        },
+        {
+          "id": "Box",
+          "kind": "Class"
+        },
+        {
+          "id": "Box/constructor",
+          "kind": "Constructor"
+        },
+        {
+          "id": "Box/arrowProperty",
+          "kind": "Property"
+        },
+        {
+          "id": "Box/method",
+          "kind": "Method"
+        },
+        {
+          "id": "Box/method/methodLocal",
+          "kind": "Constant"
+        },
+        {
+          "id": "Box/property",
+          "kind": "Property"
+        },
+        {
+          "id": "constantValue",
+          "kind": "Constant"
+        },
+        {
+          "id": "holder",
+          "kind": "Constant"
+        },
+        {
+          "id": "holder/child",
+          "kind": "Method"
+        },
+        {
+          "id": "top",
+          "kind": "Function"
+        },
+        {
+          "id": "top/arrowLocal",
+          "kind": "Constant"
+        },
+        {
+          "id": "top/local",
+          "kind": "Constant"
+        },
+        {
+          "id": "top/nested",
+          "kind": "Function"
+        },
+        {
+          "id": "top/nested/nestedLocal",
+          "kind": "Variable"
+        },
+        {
+          "id": "variableValue",
+          "kind": "Variable"
+        }
+      ],
+      "types.ts": [
+        {
+          "id": "Alias",
+          "kind": "Variable"
+        },
+        {
+          "id": "Shape",
+          "kind": "Interface"
+        },
+        {
+          "id": "Shape/area",
+          "kind": "Method"
+        },
+        {
+          "id": "Status",
+          "kind": "Enum"
+        },
+        {
+          "id": "Status/Done",
+          "kind": "Constant"
+        },
+        {
+          "id": "Status/Ready",
+          "kind": "Constant"
+        },
+        {
+          "id": "typed",
+          "kind": "Function"
+        }
+      ]
+    },
+    "shutdown": {
+      "children_before": [
+        {
+          "pid": 57056,
+          "create_time": 1793661796.3581412,
+          "name": "cmd.exe"
+        },
+        {
+          "pid": 17752,
+          "create_time": 1793661796.367906,
+          "name": "conhost.exe"
+        },
+        {
+          "pid": 6588,
+          "create_time": 1793661796.4195132,
+          "name": "node.exe"
+        },
+        {
+          "pid": 21048,
+          "create_time": 1793661796.5214744,
+          "name": "node.exe"
+        },
+        {
+          "pid": 27008,
+          "create_time": 1793661796.5292118,
+          "name": "node.exe"
+        }
+      ],
+      "owner_shutdown_returned": true,
+      "children_remaining": []
+    },
+    "exit_code": 0
+  },
+  "initial_attempt": {
+    "exit_code": 1,
+    "cause": "Harness incorrectly required native parameter symbols, but provider emitted none; native kind-only filter also excluded callable arrow initializers and root corrected implementation before rerun.",
+    "unit_exit_code": 0,
+    "native": {
+      "a.js": [
+        {
+          "id": "arrowTop",
+          "kind": "Constant"
+        },
+        {
+          "id": "Box",
+          "kind": "Class"
+        },
+        {
+          "id": "Box/constructor",
+          "kind": "Constructor"
+        },
+        {
+          "id": "Box/arrowProperty",
+          "kind": "Property"
+        },
+        {
+          "id": "Box/method",
+          "kind": "Method"
+        },
+        {
+          "id": "Box/method/methodLocal",
+          "kind": "Constant"
+        },
+        {
+          "id": "Box/property",
+          "kind": "Property"
+        },
+        {
+          "id": "constantValue",
+          "kind": "Constant"
+        },
+        {
+          "id": "holder",
+          "kind": "Constant"
+        },
+        {
+          "id": "holder/child",
+          "kind": "Method"
+        },
+        {
+          "id": "top",
+          "kind": "Function"
+        },
+        {
+          "id": "top/arrowLocal",
+          "kind": "Constant"
+        },
+        {
+          "id": "top/local",
+          "kind": "Constant"
+        },
+        {
+          "id": "top/nested",
+          "kind": "Function"
+        },
+        {
+          "id": "top/nested/nestedLocal",
+          "kind": "Variable"
+        },
+        {
+          "id": "variableValue",
+          "kind": "Variable"
+        }
+      ],
+      "types.ts": [
+        {
+          "id": "Alias",
+          "kind": "Variable"
+        },
+        {
+          "id": "Shape",
+          "kind": "Interface"
+        },
+        {
+          "id": "Shape/area",
+          "kind": "Method"
+        },
+        {
+          "id": "Status",
+          "kind": "Enum"
+        },
+        {
+          "id": "Status/Done",
+          "kind": "Constant"
+        },
+        {
+          "id": "Status/Ready",
+          "kind": "Constant"
+        },
+        {
+          "id": "typed",
+          "kind": "Function"
+        }
+      ]
+    },
+    "shutdown": {
+      "children_before": [
+        {
+          "pid": 36276,
+          "create_time": 1793661668.2763493,
+          "name": "cmd.exe"
+        },
+        {
+          "pid": 53816,
+          "create_time": 1793661668.285684,
+          "name": "conhost.exe"
+        },
+        {
+          "pid": 29300,
+          "create_time": 1793661668.3357725,
+          "name": "node.exe"
+        },
+        {
+          "pid": 47652,
+          "create_time": 1793661668.4421628,
+          "name": "node.exe"
+        },
+        {
+          "pid": 32436,
+          "create_time": 1793661668.450075,
+          "name": "node.exe"
+        }
+      ],
+      "owner_shutdown_returned": true,
+      "children_remaining": []
+    }
+  },
+  "provider_shutdown": "shutdown response, exit notification, LSP exit code 0; exact observed child processes all stopped",
+  "limits": [
+    "Other OS/CPU and languages not verified",
+    "JS provider emits no parameter symbols; explicit Parameter exclusion is covered by the mock contract",
+    "Struct mapping is not exercised by JS/TS fixture"
+  ],
+  "cleanup": "Full disposable run slated for supported owner cleanup after this independent evidence is preserved"
+}
