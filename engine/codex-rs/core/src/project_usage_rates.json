@@ -14,6 +14,79 @@
     {
       "provider": "openai",
       "model_ids": [
+        "gpt-6.1-terra"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-6.1-terra",
+      "verified_at": "2026-11-01",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 1000000000,
+            "cache_read": 50000000,
+            "cache_write_5m": 1250000000,
+            "cache_write_1h": 1250000000,
+            "output": 5000000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 2000000000,
+            "cache_read": 100000000,
+            "cache_write_5m": 2500000000,
+            "cache_write_1h": 2500000000,
+            "output": 7500000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "fast",
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        },
+        {
+          "names": [
+            "flex",
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
         "gpt-6.1-sol"
       ],
       "source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",

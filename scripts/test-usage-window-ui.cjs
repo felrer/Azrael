@@ -26,6 +26,6 @@ Module._extensions[".ts"] = (module, filename) => {
   }
   module._compile(compiled.outputText, filename);
 };
-for (const name of ["usagePresentation", "usageWindowService", "usageTimerView"]) {
+for (const name of ["usagePresentation", "usageWindowService", "usageTimerView", "projectUsagePresentation"]) {
   require(path.join(extension, "test", name + ".test.ts"));
 }
