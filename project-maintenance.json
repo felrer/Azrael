@@ -27,6 +27,14 @@
   ],
   "bundles": [
     {
+      "id": "codex-upstream-review",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-codex-upstream-review.cjs"],
+      "inputs": ["scripts/codex-upstream-review.cjs", "scripts/test-codex-upstream-review.cjs"]
+    },
+    {
       "id": "deletion-approval-host",
       "kind": "test",
       "purpose": "retained",

@@ -44,6 +44,8 @@ When handling generated inputs, logs, reports, backups and version evidence, als
 <a id="기능-변경과-업데이트-보존"></a>
 ## Feature Changes and Upgrade Preservation
 
+- For selective Codex imports, use the [upstream review ledger](../ops/codex-upstream-review.md) to pin collected ranges and preserve decisions/backlog. Before task completion, update application/verification evidence and run ledger integrity checks; close only stages whose conditions hold. Record deferred/incomplete work without claiming earlier unknown coverage or changing the base version. Ledger checks supplement provenance and preservation checks.
+
 - When adding, changing or retiring a feature, update its owning section in the same task according to [architecture feature maintenance](../architecture/README.md#feature-maintenance).
   Record changed contracts for current behavior, failure and recovery, data and permissions, and applicable environments;
   distinguish document or section implementation state from verification scope. Avoid unnecessary document changes for internal edits that preserve the contract.
