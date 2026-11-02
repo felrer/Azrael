@@ -18,8 +18,10 @@ function range(source, text, name = text, occurrence = 0) {
   };
   return { name, kind: 12, start: position(offset), end: position(offset + text.length) };
 }
-const describe = (source, spans, fileName = 'fixture.ts') =>
-  describeSymbols({ source, fileName, symbols: spans.map(s => typeof s === 'string' ? range(source, s) : s) }, ts);
+const describe = (source, spans, fileName = 'fixture.ts', includeStructure = false) =>
+  describeSymbols({ source, fileName, symbols: spans.map(s => ({
+    ...(typeof s === 'string' ? range(source, s) : s), include_structure: includeStructure
+  })) }, ts);
 
 test('source signatures preserve declared types/destructuring and omit implementations', () => {
   const source = `/** Adds values from the supplied pair. */
@@ -64,7 +66,7 @@ test('whole variable statement ranges and literal whitespace preserve source mea
 
 test('structural metadata reports observed calls, properties and returned keys', () => {
   const fn = 'function collect(input) { const text = input.value.trim(); return { text, count: input.count }; }';
-  const [result] = describe(fn, [fn]);
+  const [result] = describe(fn, [fn], 'fixture.ts', true);
   assert.equal(result.description_source, 'structure');
   assert.match(result.description, /^Observed:/);
   assert.match(result.description, /calls trim/);
@@ -76,7 +78,7 @@ test('compact structure prioritizes returned keys and does not attach file banne
   const binding = 'const fs = require("node:fs").promises';
   const fn = 'function gauge(input) { const data = input.rows.filter("argument text must stay out").map(transform).flat().sort().slice().join(); return { total: data.length, active: input.active }; }';
   const source = '/** Experimental gauge reader for the whole file. */\n' + binding + ';\n' + fn;
-  const [imported, gauge] = describe(source, [binding, fn]);
+  const [imported, gauge] = describe(source, [binding, fn], 'fixture.ts', true);
   assert.equal(imported.description_source, 'structure');
   assert.equal(imported.description, 'Observed: calls require; property accesses promises');
   assert.equal(gauge.description_source, 'structure');
@@ -93,7 +95,7 @@ test('UTF-16 positions and duplicate exports resolve distinct semantic declarati
     'function read(value) { return value.path; }',
     'read: function read(value) { return value.other; }',
     'readAlias: read', range(source, 'read', 'read', 0)
-  ], 'fixture.cjs');
+  ], 'fixture.cjs', true);
   assert.equal(declaration.signature, 'function read(value)');
   assert.match(declaration.description, /property accesses path/);
   assert.equal(exported.signature, 'read: function read(value)');
@@ -111,6 +113,31 @@ test('shortening is bounded and explicitly flagged, invalid ranges remain empty'
   assert.equal(Array.from(result.signature).length, 240);
   assert.equal(Array.from(result.description).length, 240);
   assert.deepEqual(missing, { signature: '', description: '', description_source: 'none' });
+});
+
+test('compact overview keeps docs and titles but expands structure only for selected symbols', () => {
+  const first = 'function first(input) { return input.value.trim(); }';
+  const second = 'function second(input) { return input.other; }';
+  const documented = 'function documented() { return read(); }';
+  const callback = '() => { run(); }';
+  const source = `${first}\n${second}\n/** Reads a record. */\n${documented}\ntest("record case", ${callback});`;
+  const symbols = [first, second, documented, callback].map(text => range(source, text));
+  const compact = describeSymbols({ source, symbols }, ts);
+  assert.equal(compact[0].description, '');
+  assert.equal(compact[0].description_source, 'none');
+  assert.equal(compact[0].structure_deferred, true);
+  assert.equal(compact[1].structure_deferred, true);
+  assert.equal(compact[2].description, 'Reads a record.');
+  assert.equal(compact[3].description, 'Test title: record case');
+  assert.equal(compact[2].structure_deferred, undefined);
+  assert.equal(compact[3].structure_deferred, undefined);
+  symbols[0].include_structure = true;
+  const expanded = describeSymbols({ source, symbols }, ts);
+  assert.equal(expanded[0].description_source, 'structure');
+  assert.match(expanded[0].description, /calls trim/);
+  assert.equal(expanded[0].structure_deferred, undefined);
+  assert.deepEqual(expanded.slice(1), compact.slice(1));
+  assert.equal(expanded[0].signature, compact[0].signature);
 });
 
 test('batch parses once and CLI emits the aligned JSON array', () => {
