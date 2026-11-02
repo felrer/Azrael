@@ -79,7 +79,7 @@ test('only wholly eligible declared Cargo groups can reuse', () => {
 test('additional source-backed Cargo owners accept actual manifest args and bind wrapper contents', async () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'azrael-feature-contracts.json'), 'utf8'));
   const f = setup(), runtime = await f.runtime(), inputs = await f.inputs();
-  for (const wrapper of ['check-parent-requests.cjs', 'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs']) {
+  for (const wrapper of ['check-parent-requests.cjs', 'check-capacity-recovery.cjs']) {
     const script = `scripts/${wrapper}`;
     const matches = manifest.features.flatMap(feature => feature.checks
       .filter(check => check.args[0] === script).map(check => ({ feature, check })));
@@ -97,6 +97,13 @@ test('additional source-backed Cargo owners accept actual manifest args and bind
     fs.appendFileSync(path.join(f.root, script), '\n// wrapper change\n');
     assert.notEqual(await cache.key(f.config, group, inputs, runtime), baseline, wrapper);
   }
+});
+
+test('task-profile materializer checks always execute instead of reusing Cargo result evidence', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'azrael-feature-contracts.json'), 'utf8'));
+  const feature = manifest.features.find(feature => feature.id === 'engine.task-profile-skills');
+  const check = feature.checks.find(check => check.id === 'engine.task-profile-skills.isolation');
+  assert.equal(cache.isEligible({ native: true, entries: [{ feature, check }] }), false);
 });
 
 test('full source, deleted lockfile and provenance bind keys', async () => {

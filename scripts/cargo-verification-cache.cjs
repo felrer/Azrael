@@ -20,7 +20,9 @@ const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles.cjs',
   'check-root-resume-reasoning.cjs', 'check-task-work-time-native.cjs',
   'check-thread-auto-compaction.cjs', 'check-parent-requests.cjs',
-  'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs',
+  // The task-profile JS fixture closure is not audited for result reuse.
+  // Keep actual wrapper execution and Cargo compilation reuse.
+  'check-capacity-recovery.cjs',
   'check-shared-engine-native.cjs'].map(file => `scripts/${file}`));
 const sourceOnlyHelpers = {
   // Schema2 preparation retains every compiler input and checks target identity.
@@ -30,10 +32,20 @@ const sourceOnlyHelpers = {
   'scripts/cargo-verification.cjs': [
     '9aac0bceeb7858cfa5222ba52b32b6b3bc02cd1417e38f1433b559bc6de0f552',
     '7673d86f700d4b829bb5b945629827691f1379a90162228c9a2c11dbba5511af',
+    // Reviewed coordinator environment, diagnostics and nonzero actual gate.
+    '810fd8a86d749748c805ce3ff39e3af8bb4c7e9420cfe9be620b03dea220df5f',
   ],
   // Explicit recovery only retires verified lease metadata; Cargo payload inputs remain unchanged.
-  'scripts/cargo-target-owner.cjs': '6bb5299038040a3dde8440adeec32c686817a37d6bc93c564579a8a0bbc0ef1b',
-  'scripts/cargo-shared-cache.cjs': '3b9b9f1acca1b113e7b5722675b0d36aa61028f90d90049831fc9c6cdf2ec308',
+  // Reviewed source-only ownership evidence; failures and unknown stay guarded.
+  'scripts/cargo-target-owner.cjs': [
+    '6bb5299038040a3dde8440adeec32c686817a37d6bc93c564579a8a0bbc0ef1b',
+    'fc0b578c02787edb7530d49bbaf1f0eaf2db0a57620347fffaf732d5531cf1a3',
+  ],
+  // Reviewed source-only ownership evidence; failures and unknown stay guarded.
+  'scripts/cargo-shared-cache.cjs': [
+    '3b9b9f1acca1b113e7b5722675b0d36aa61028f90d90049831fc9c6cdf2ec308',
+    '13c760941efec9b765d202d2a7111ebc9d7d1620210cfada46a68a2829b23ec3',
+  ],
 };
 function auditedSourceOnly(config, group) {
   try {
