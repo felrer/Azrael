@@ -20,7 +20,7 @@ test("integrated entry preserves activation, account storage migration and failu
   function wrapperFixture({ accountActivationError, sessionId = "11111111-1111-4111-8111-111111111111",
     fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName,
     hostPlatform = "win32", localHistory, historyError, sharedEngine = false, endpointError,
-    runtimeReady, runtimeError } = {}) {
+    runtimeReady, runtimeError, storageAdmissions = ["compatible"], startupChoice } = {}) {
     const fixtureRoot = path.join(wrapperTestRoot, `fixture-${++wrapperFixtureIndex}`);
     const events = [];
     const recovery = { listener: undefined, disposed: false };
@@ -75,6 +75,7 @@ test("integrated entry preserves activation, account storage migration and failu
         if (request === "node:crypto") return { createHash: crypto.createHash, randomUUID: () => fallbackUuid };
         if (request === "node:fs/promises") return fs.promises;
         if (request === "vscode") return { env: { sessionId, remoteName }, ProgressLocation: { Window: 10 }, window: {
+          async showErrorMessage(message, options, retry) { events.push(["startup.blocked", message, options, retry]); return startupChoice; },
           createOutputChannel() { return { appendLine(value) { events.push(["history.output", value]); }, dispose() {} }; },
           withProgress(_options, task) { return task(); },
         } };
@@ -100,14 +101,15 @@ test("integrated entry preserves activation, account storage migration and failu
         } };
         if (request === "./out/shared-engine-host.cjs") {
           const shared = require("./shared-engine-host.cjs");
-          return { ...shared, resolveEngineEndpoint: receivedRuntime => shared.resolveEngineEndpoint(receivedRuntime, {
+          return { ...shared, resolveEngineEndpointWithUi: (receivedRuntime, window) => shared.resolveEngineEndpointWithUi(receivedRuntime, window, {
             execFile(_engine, _args, options, callback) {
               events.push(["endpoint.resolve"]);
               assert.equal(options.env.AZRAEL_EX_WINDOW_CONTEXT, undefined);
               assert.equal(receivedRuntime.env.AZRAEL_EX_ACCOUNT_STATE_FILE, undefined);
               callback(endpointError, JSON.stringify({ schema: 2, instanceId: "a".repeat(64),
                 socketPath: path.join(fixtureRoot, "native-release", "control.sock"),
-                engineVersion: runtime.engineVersion, engineIdentity: runtime.engineSha256 }), "");
+                engineVersion: runtime.engineVersion, engineIdentity: runtime.engineSha256,
+                storageAdmission: storageAdmissions.length > 1 ? storageAdmissions.shift() : storageAdmissions[0] }), "");
             },
           }) };
         }
@@ -164,6 +166,15 @@ test("integrated entry preserves activation, account storage migration and failu
     assert.deepEqual(unavailableEndpoint.loads, []);
     assert.equal(unavailableEndpoint.runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE, undefined);
     assert.equal(fs.existsSync(unavailableEndpoint.context.globalStorageUri.fsPath), false);
+    const blocked = wrapperFixture({ sharedEngine: true, storageAdmissions: ["incompatible"] });
+    await assert.rejects(blocked.api.activate(blocked.context), error => error.code === "AZRAEL_STORAGE_INCOMPATIBLE" && error.userNotified);
+    assert.deepEqual(blocked.events.map(event => event[0]), ["endpoint.resolve", "startup.blocked"]);
+    assert.deepEqual(blocked.loads, []);
+    assert.equal(blocked.runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE, undefined);
+    const retried = wrapperFixture({ sharedEngine: true, storageAdmissions: ["incompatible", "compatible"], startupChoice: "다시 시도" });
+    await retried.api.activate(retried.context);
+    assert.deepEqual(retried.events.slice(0, 4).map(event => event[0]), ["endpoint.resolve", "startup.blocked", "endpoint.resolve", "native.activate"]);
+    await retried.api.deactivate();
     const sharedA = wrapperFixture({ sharedEngine: true, sessionId: "window-A" });
     const sharedB = wrapperFixture({ sharedEngine: true, sessionId: "window-B" });
     sharedB.context.storageUri = sharedA.context.storageUri;

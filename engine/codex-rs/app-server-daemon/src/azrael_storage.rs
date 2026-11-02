@@ -20,6 +20,20 @@ pub struct AzraelStorageLease {
     _directory: std::os::windows::io::OwnedHandle,
 }
 
+/// A live lease for a different, validated storage compatibility manifest.
+#[derive(Debug)]
+pub struct AzraelStorageConflict;
+
+impl std::fmt::Display for AzraelStorageConflict {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(
+            "another Azrael engine is using incompatible storage; stop it before retrying",
+        )
+    }
+}
+
+impl std::error::Error for AzraelStorageConflict {}
+
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct LeaseRecord {
@@ -244,9 +258,7 @@ pub async fn acquire_azrael_storage_lease(
         if hash != identity {
             match file.try_lock() {
                 Ok(()) => {} // Closing this handle releases only our stale probe.
-                Err(TryLockError::WouldBlock) => bail!(
-                    "another Azrael engine is using incompatible storage; stop it before retrying"
-                ),
+                Err(TryLockError::WouldBlock) => return Err(AzraelStorageConflict.into()),
                 Err(TryLockError::Error(error)) => {
                     return Err(error).context("probe storage admission lease");
                 }
@@ -299,6 +311,7 @@ mod tests {
         let error = acquire_azrael_storage_lease(home.path(), "schema-two")
             .await
             .unwrap_err();
+        assert!(error.is::<AzraelStorageConflict>());
         assert!(error.to_string().contains("incompatible storage"));
         drop(first);
         assert!(
@@ -326,6 +339,7 @@ mod tests {
             .unwrap_err();
         assert!(!format!("{error:#}").contains("secret-synthetic-manifest"));
         assert!(error.to_string().contains("corrupt"));
+        assert!(!error.is::<AzraelStorageConflict>());
 
         let other = tempfile::tempdir()?;
         let directory = prepare_control_directory(other.path()).await?;
@@ -336,6 +350,14 @@ mod tests {
                 .is_err()
         );
         Ok(())
+    }
+
+    #[test]
+    fn only_typed_conflicts_are_classified_as_incompatible() {
+        let conflict = anyhow::Error::new(AzraelStorageConflict).context("admission query");
+        assert!(conflict.is::<AzraelStorageConflict>());
+        let busy = anyhow::Error::new(std::io::Error::from(std::io::ErrorKind::WouldBlock));
+        assert!(!busy.is::<AzraelStorageConflict>());
     }
 
     #[tokio::test]
