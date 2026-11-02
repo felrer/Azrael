@@ -1532,21 +1532,19 @@ impl Session {
         state.auto_compact_window_snapshot()
     }
 
-    pub(crate) async fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
+    pub(crate) async fn estimated_tokens_since_last_usage(&self) -> i64 {
         let state = self.state.lock().await;
-        state
-            .history
-            .estimated_tokens_after_last_model_generated_item()
+        state.history.estimated_tokens_since_last_usage()
     }
 
-    pub(crate) async fn estimated_tokens_after_last_model_generated_item_for_model(
+    pub(crate) async fn estimated_tokens_since_last_usage_for_model(
         &self,
         model_info: &ModelInfo,
     ) -> i64 {
         let state = self.state.lock().await;
         state
             .history
-            .estimated_tokens_after_last_model_generated_item_for_model(model_info)
+            .estimated_tokens_since_last_usage_for_model(model_info)
     }
 
     pub(crate) async fn total_token_usage(&self) -> Option<TokenUsage> {
@@ -4872,7 +4870,7 @@ impl Session {
         token_usage: Option<&TokenUsage>,
     ) -> CodexResult<()> {
         let result = self
-            .record_token_usage_info(turn_context, &turn_context.initial_settings, token_usage)
+            .record_token_usage_info(turn_context, &turn_context.initial_settings, token_usage, 0)
             .await;
         self.send_token_count_event(turn_context).await;
         result
@@ -4929,12 +4927,16 @@ impl Session {
         turn_context: &TurnContext,
         settings: &ResolvedStepSettings,
         token_usage: Option<&TokenUsage>,
+        input_item_count: usize,
     ) -> CodexResult<()> {
         if let Some(token_usage) = token_usage {
             let token_info = {
                 let mut state = self.state.lock().await;
-                state
-                    .update_token_info_from_usage(token_usage, turn_context.model_context_window());
+                state.update_token_info_from_usage(
+                    token_usage,
+                    turn_context.model_context_window(),
+                    input_item_count,
+                );
                 if matches!(
                     turn_context.config.model_auto_compact_token_limit_scope,
                     AutoCompactTokenLimitScope::BodyAfterPrefix
@@ -5008,7 +5010,9 @@ impl Session {
                 info.model_context_window = Some(model_context_window);
             }
 
-            state.set_token_info(Some(info));
+            state
+                .history
+                .set_token_info_with_boundary(Some(info), history.raw_items().len());
             // The local estimate already includes every retained reasoning item.
             state.set_server_reasoning_included(/*included*/ true);
         }

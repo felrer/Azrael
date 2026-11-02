@@ -225,6 +225,7 @@ async fn turn_completion_metrics_follow_model_switch(scenario: UsageScenario) {
                     &turn_context,
                     &response_context.initial_settings,
                     Some(&response_usage),
+                    /*input_item_count*/ 0,
                 )
                 .await
                 .expect("response usage should be recorded");

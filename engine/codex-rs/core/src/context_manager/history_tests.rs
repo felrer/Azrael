@@ -51,14 +51,10 @@ use test_case::test_case;
 // Keep the raw-history probe for boundary regressions separate from the
 // provider-aware projected token estimator used by production code.
 impl ContextManager {
-    fn items_after_last_model_generated_item(
+    fn items_since_last_usage(
         &self,
     ) -> impl Clone + ExactSizeIterator<Item = &ResponseItem> + DoubleEndedIterator {
-        let start = self
-            .items
-            .iter()
-            .rposition(|envelope| is_model_generated_item(&envelope.item))
-            .map_or(self.items.len(), |index| index.saturating_add(1));
+        let start = self.last_server_reported_usage_item_count;
         self.items[start..].iter().map(|envelope| &envelope.item)
     }
 }
@@ -908,13 +904,14 @@ fn non_last_reasoning_tokens_return_zero_when_no_user_messages() {
 
 #[test]
 fn non_last_reasoning_tokens_ignore_entries_after_last_user() {
-    let history = create_history_with_items(vec![
+    let mut history = create_history_with_items(vec![
         reasoning_with_encrypted_content(/*len*/ 900),
         user_msg("first"),
         reasoning_with_encrypted_content(/*len*/ 1_000),
         user_msg("second"),
         reasoning_with_encrypted_content(/*len*/ 2_000),
     ]);
+    history.update_token_info(&TokenUsage::default(), None, 0);
     // first: (900 * 0.75 - 650) / 4 = 6.25 tokens
     // second: (1000 * 0.75 - 650) / 4 = 25 tokens
     // first + second = 62.5
@@ -922,19 +919,23 @@ fn non_last_reasoning_tokens_ignore_entries_after_last_user() {
 }
 
 #[test]
-fn items_after_last_model_generated_tokens_include_user_and_tool_output() {
-    let history = create_history_with_items(vec![
-        assistant_msg("already counted by API"),
-        user_msg("new user message"),
-        custom_tool_call_output("call-tail", "new tool output"),
-    ]);
+fn items_since_last_usage_tokens_include_user_and_tool_output() {
+    let mut history = create_history_with_items(vec![assistant_msg("already counted by API")]);
+    history.update_token_info(&TokenUsage::default(), None, 0);
+    history.record_items(
+        [
+            &user_msg("new user message"),
+            &custom_tool_call_output("call-tail", "new tool output"),
+        ],
+        TruncationPolicy::Tokens(10_000),
+    );
     let expected_tokens = estimate_item_token_count(&user_msg("new user message")).saturating_add(
         estimate_item_token_count(&custom_tool_call_output("call-tail", "new tool output")),
     );
 
     assert_eq!(
         history
-            .items_after_last_model_generated_item()
+            .items_since_last_usage()
             .map(estimate_item_token_count)
             .fold(0i64, i64::saturating_add),
         expected_tokens
@@ -942,15 +943,15 @@ fn items_after_last_model_generated_tokens_include_user_and_tool_output() {
 }
 
 #[test]
-fn items_after_last_model_generated_tokens_are_zero_without_model_generated_items() {
+fn items_since_last_usage_tokens_include_initial_input() {
     let history = create_history_with_items(vec![user_msg("no model output yet")]);
 
     assert_eq!(
         history
-            .items_after_last_model_generated_item()
+            .items_since_last_usage()
             .map(estimate_item_token_count)
             .fold(0i64, i64::saturating_add),
-        0
+        estimate_item_token_count(&user_msg("no model output yet"))
     );
 }
 
@@ -1127,7 +1128,7 @@ fn legacy_inter_agent_assistant_messages_are_not_turn_boundaries() {
 }
 
 #[test]
-fn total_token_usage_includes_all_items_after_last_model_generated_item() {
+fn total_token_usage_includes_all_items_since_last_usage() {
     let mut history = create_history_with_items(vec![assistant_msg("already counted by API")]);
     history.update_token_info(
         &TokenUsage {
@@ -1135,6 +1136,7 @@ fn total_token_usage_includes_all_items_after_last_model_generated_item() {
             ..Default::default()
         },
         /*model_context_window*/ None,
+        /*input_item_count*/ 0,
     );
     let added_user = user_msg("new user message");
     let added_tool_output = custom_tool_call_output("tool-tail", "new tool output");
@@ -1147,6 +1149,47 @@ fn total_token_usage_includes_all_items_after_last_model_generated_item() {
         history.get_total_token_usage(/*server_reasoning_included*/ true),
         100 + estimate_item_token_count(&added_user)
             + estimate_item_token_count(&added_tool_output)
+    );
+    // Empty successful responses cover the request even without any new output item.
+    let input_item_count = history.raw_items().len();
+    history.update_token_info(
+        &TokenUsage {
+            total_tokens: 100,
+            ..Default::default()
+        },
+        None,
+        input_item_count,
+    );
+    assert_eq!(history.get_total_token_usage(true), 100);
+    let partial = reasoning_with_encrypted_content(2_000);
+    history.record_items([&partial], TruncationPolicy::Tokens(10_000));
+    let mut spending = history.token_info().unwrap();
+    spending.total_token_usage.total_tokens += 15;
+    history.set_token_info(Some(spending));
+    history.record_items([&added_user], TruncationPolicy::Tokens(10_000));
+    let expected =
+        100 + estimate_item_token_count(&partial) + estimate_item_token_count(&added_user);
+    assert_eq!(history.get_total_token_usage(true), expected);
+    assert_eq!(history.get_total_token_usage(false), expected);
+    history.record_items(
+        [&assistant_msg("next response"), &added_tool_output],
+        TruncationPolicy::Tokens(10_000),
+    );
+    history.update_token_info(
+        &TokenUsage {
+            total_tokens: 100,
+            ..Default::default()
+        },
+        None,
+        input_item_count,
+    );
+    assert_eq!(
+        history.get_total_token_usage(true),
+        100 + estimate_item_token_count(&added_tool_output)
+    );
+    assert_eq!(
+        history.get_total_token_usage(false),
+        100 + estimate_item_token_count(&partial) + estimate_item_token_count(&added_tool_output)
     );
 }
 

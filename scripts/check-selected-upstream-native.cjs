@@ -38,7 +38,8 @@ const suites = {
   "thread-store": [["codex-thread-store", "--lib", "resolve_requested_rollout_path_"]],
   "core-lib": [
     ["codex-core", "--lib", "recompute_token_usage"],
-    ["codex-core", "--lib", "context_manager::history::tests::"],
+    ["codex-core", "--lib", "context_manager::history::"],
+    ["codex-core", "--lib", "context::instruction_state_projection::tests::"],
     ["codex-core", "--lib", "unified_exec::"],
     ["codex-core", "--lib", "persisted_permissions_initialize_proxy_with_expandable_managed_allowlist"],
     ["codex-core", "--lib", "explicit_permission_overrides_win_over_saved_unnamed_permissions"],
@@ -46,6 +47,8 @@ const suites = {
   ],
   "core-integration": [
     ["codex-core", "--test", "all", "auto_compact_accounts_for_encrypted_reasoning"],
+    ["codex-core", "--test", "all", "auto_compact_accounts_for_unreported_reasoning"],
+    ["codex-core", "--test", "all", "code_mode_dynamic_tool_calls_pending_together_resolve_in_reverse_order"],
     ["codex-core", "--test", "all", "compaction_preserves_history_after_restart"],
     ["codex-core", "--test", "all", "manual_compact_emits_context_compaction_items"],
     ["codex-core", "--test", "all", "manual_compact_records_durable_and_local_token_usage"],

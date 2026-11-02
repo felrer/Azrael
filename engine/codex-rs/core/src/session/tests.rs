@@ -3495,15 +3495,19 @@ async fn recompute_token_usage_uses_session_base_instructions() {
         .last_token_usage
         .total_tokens;
     assert_eq!(actual_tokens, expected_tokens.max(0));
+    let recomputed_history = session.clone_history().await;
+    assert_eq!(
+        recomputed_history
+            .estimated_tokens_since_last_usage_for_model(turn_context.model_info().as_ref()),
+        0,
+        "local recomputation covers every retained history item",
+    );
     assert_eq!(
         session
             .get_total_token_usage_for_model(turn_context.model_info().as_ref())
             .await,
-        actual_tokens
-            + history.estimated_tokens_after_last_model_generated_item_for_model(
-                turn_context.model_info().as_ref(),
-            ),
-        "locally counted retained reasoning must not be added again",
+        actual_tokens,
+        "locally counted retained history must not be added again",
     );
 }
 
@@ -3616,6 +3620,7 @@ async fn record_token_usage_info_notifies_extension_contributors() {
             &turn_context,
             &turn_context.initial_settings,
             Some(&first_usage),
+            /*input_item_count*/ 0,
         )
         .await
         .expect("first usage should be recorded");
@@ -3624,6 +3629,7 @@ async fn record_token_usage_info_notifies_extension_contributors() {
             &turn_context,
             &turn_context.initial_settings,
             Some(&second_usage),
+            /*input_item_count*/ 0,
         )
         .await
         .expect("second usage should be recorded");
