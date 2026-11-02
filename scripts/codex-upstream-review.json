@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "repository": "openai/codex",
+  "branch": "main",
+  "baseline": {
+    "baseTag": "rust-v0.162.0",
+    "priorCoverage": "unknown"
+  },
+  "entries": {
+    "pr:55991": {
+      "id": "pr:55991",
+      "kind": "pr",
+      "number": 55991,
+      "title": "Avoid double-counting retained reasoning in token usage",
+      "mergeCommit": "07cc649c658be7018b6913299f12f843b24679f8",
+      "url": "https://github.com/openai/codex/pull/55991",
+      "commits": [
+        "07cc649c658be7018b6913299f12f843b24679f8"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "Historical backport documented with 102 Windows tests. Exact original source binding has not been migrated; record applied without upgrading verification status.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/02-plan.md",
+            "gitCommit": "d1d290516e0ac9cd7579dbfc63309eadaec071bc",
+            "sha256": "5704b600d48419688930736108fd905367dcfc224715efce652b1f62b5d0befe"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "applied",
+        "localCommits": [
+          "d1d290516e0ac9cd7579dbfc63309eadaec071bc"
+        ],
+        "featureIds": [
+          "engine.selected-upstream"
+        ],
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/02-plan.md",
+            "gitCommit": "d1d290516e0ac9cd7579dbfc63309eadaec071bc",
+            "sha256": "5704b600d48419688930736108fd905367dcfc224715efce652b1f62b5d0befe"
+          }
+        ],
+        "verification": null
+      }
+    },
+    "pr:54654": {
+      "id": "pr:54654",
+      "kind": "pr",
+      "number": 54654,
+      "title": "Allow dynamic tool calls to execute in parallel",
+      "mergeCommit": "beae473be8564d884a8cfe9704194a5c803d2ac1",
+      "url": "https://github.com/openai/codex/pull/54654",
+      "commits": [
+        "beae473be8564d884a8cfe9704194a5c803d2ac1"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "Historical adapted backport with 124 selected Windows tests; package and installed-host acceptance excluded.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/verification-03.json",
+            "gitCommit": "ab6b13a9914ec316f7d905907998edf1897b5da7",
+            "sha256": "49925a63da97e65bed7983b2c9039126a374e0d17f622bc17a5217ab4ca83c84"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "verified",
+        "localCommits": [
+          "ab6b13a9914ec316f7d905907998edf1897b5da7"
+        ],
+        "featureIds": [
+          "engine.selected-upstream"
+        ],
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/verification-03.json",
+            "gitCommit": "ab6b13a9914ec316f7d905907998edf1897b5da7",
+            "sha256": "49925a63da97e65bed7983b2c9039126a374e0d17f622bc17a5217ab4ca83c84"
+          }
+        ],
+        "verification": {
+          "evidence": {
+            "path": "work/DO-01-codex-version-comparison/verification-03.json",
+            "gitCommit": "ab6b13a9914ec316f7d905907998edf1897b5da7",
+            "sha256": "49925a63da97e65bed7983b2c9039126a374e0d17f622bc17a5217ab4ca83c84"
+          },
+          "platform": "windows-x64",
+          "scope": "native",
+          "exitCode": 0,
+          "sourceIdentity": "sourceSha256:9753d593fa588fc7de7e43dbddab556e5fa7344a838160552cef6073ab56b410",
+          "summary": "124 selected tests passed, seven invocations exit 0; source and Code Mode fixture unchanged. No package or installed-host acceptance."
+        }
+      }
+    },
+    "pr:58404": {
+      "id": "pr:58404",
+      "kind": "pr",
+      "number": 58404,
+      "title": "Fix context token estimates for responses without usable usage",
+      "mergeCommit": "7a030b97699b9fc7f997dd322a3926c03faaeb6c",
+      "url": "https://github.com/openai/codex/pull/58404",
+      "commits": [
+        "7a030b97699b9fc7f997dd322a3926c03faaeb6c"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "Historical adapted backport with 124 selected Windows tests; package and installed-host acceptance excluded.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/verification-03.json",
+            "gitCommit": "ab6b13a9914ec316f7d905907998edf1897b5da7",
+            "sha256": "49925a63da97e65bed7983b2c9039126a374e0d17f622bc17a5217ab4ca83c84"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "verified",
+        "localCommits": [
+          "ab6b13a9914ec316f7d905907998edf1897b5da7"
+        ],
+        "featureIds": [
+          "engine.selected-upstream"
+        ],
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/verification-03.json",
+            "gitCommit": "ab6b13a9914ec316f7d905907998edf1897b5da7",
+            "sha256": "49925a63da97e65bed7983b2c9039126a374e0d17f622bc17a5217ab4ca83c84"
+          }
+        ],
+        "verification": {
+          "evidence": {
+            "path": "work/DO-01-codex-version-comparison/verification-03.json",
+            "gitCommit": "ab6b13a9914ec316f7d905907998edf1897b5da7",
+            "sha256": "49925a63da97e65bed7983b2c9039126a374e0d17f622bc17a5217ab4ca83c84"
+          },
+          "platform": "windows-x64",
+          "scope": "native",
+          "exitCode": 0,
+          "sourceIdentity": "sourceSha256:9753d593fa588fc7de7e43dbddab556e5fa7344a838160552cef6073ab56b410",
+          "summary": "124 selected tests passed, seven invocations exit 0; source and Code Mode fixture unchanged. No package or installed-host acceptance."
+        }
+      }
+    }
+  },
+  "ranges": []
+}

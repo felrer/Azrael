@@ -4037,6 +4037,9 @@
       "id": "engine.selected-upstream",
       "area": "engine",
       "owners": [
+        "scripts/codex-upstream-review.cjs",
+        "scripts/codex-upstream-review.json",
+        "scripts/test-codex-upstream-review.cjs",
         "engine/codex-rs/models-manager/src/manager.rs",
         "engine/codex-rs/models-manager/src/manager_tests.rs",
         "engine/codex-rs/model-provider/src/combined_auth.rs",
@@ -4155,6 +4158,12 @@
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "checks": [
+        {
+          "id": "engine.selected-upstream.review-ledger",
+          "executable": "node",
+          "args": ["--test", "scripts/test-codex-upstream-review.cjs"],
+          "level": "source"
+        },
         {
           "id": "engine.selected-upstream.catalog-retention",
           "executable": "node",

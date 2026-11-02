@@ -4,6 +4,10 @@
 
 ## 제품 경계
 
+### Selective upstream review workflow
+
+선택 이식의 검토 범위·판단·적용 증빙은 [upstream preservation의 검토 원장 계약](upstream-preservation.md#selective-upstream-review-records)을 따른다. `engine.selected-upstream`은 원장 owner와 반복 작업의 범위·의존성·완료 gate 검사도 연결한다. 원장 수용은 각 항목에 기록된 검증 scope에 한정되며 runtime·패키지·설치 수용을 대체하지 않는다.
+
 ### 명령 출력 수집과 권한 경계
 
 상태: `target`, 선택 이식 구현·검증은 [기존 선택 이식](../../work/DO-01-codex-version-comparison/01-plan.md)과 [추론 토큰 계산 후속 작업](../../work/DO-01-codex-version-comparison/02-plan.md)을 따른다. 보존 범위는 [feature inventory](../../scripts/azrael-feature-contracts.json)의 `engine.selected-upstream`에 등록하며, `engine.shared-engine`, `engine.recovery`와 `engine.devin-code-mode`의 기존 계약도 유지한다. Retained reasoning의 단일 계산과 요청별 포함 상태는 [컨텍스트 정책](context-policy.md#context-and-automatic-compaction)을 따른다.

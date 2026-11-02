@@ -7,6 +7,7 @@
 - [Custom API models](custom-api-models.md): manual connection registration, model selection, subagent keys and safe diagnostics.
 - [Native diagnostics](native-diagnostics.md): safe error inspection, log locations and coverage limits in VS Code.
 - [Instruction and source distribution](instruction-distribution.md): imported source inventories, independent instruction releases, settings installation and public distribution gates.
+- [Codex upstream review](codex-upstream-review.md): pinned review ranges, PR decisions, backlogs and source/verification evidence links.
 - [Local app release](app-release.md): release version ownership, portable Windows packaging, verification and upload to the existing private GitHub repository.
 - [Multi-platform candidates](multi-platform.md): verified native preparation and portable package contracts, producer prerequisites and remaining installed-host gates.
 

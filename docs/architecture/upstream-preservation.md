@@ -6,6 +6,16 @@ Azrael accepts a Codex UI or engine candidate only after its registered behavior
 
 ## Ownership and inventory
 
+### Selective upstream review records
+
+Status: `current` for the development-tool contract; execution evidence is in the [work record](../../work/DO-01-codex-version-comparison/04-plan.md).
+
+The versioned `scripts/codex-upstream-review.json` records pinned upstream ranges, PR/direct-commit decisions, dependencies, and separate application/verification evidence. Its owner `scripts/codex-upstream-review.cjs` collects complete ancestor comparisons before publication and keeps historical/deferred entries visible without inventing earlier coverage. Collected, reviewed and accepted checkpoints are distinct. Review requires every item's decision; acceptance requires passing recorded verification for selected changes and satisfied dependencies for selected/equivalent changes. Deferred items remain backlog. Checkpoints cannot skip unfinished earlier ranges.
+
+Records bind evidence bytes or immutable Git blobs and reference preservation feature IDs and integration commits. They do not replace provenance, execute tests, establish the truth of review conclusions or imply package/installed acceptance. Initial historical coverage remains unknown. Mutations require an expected revision and exclusive lock; incomplete collection and conflicts publish no change. [Operations](../ops/codex-upstream-review.md) owns commands and recovery boundaries. State/completeness checks belong to `engine.selected-upstream`.
+
+### Feature preservation inventory
+
 Architecture sections own agreed behavior under [feature maintenance](README.md#feature-maintenance). The versioned inventory at `scripts/azrael-feature-contracts.json` connects stable feature IDs, UI/engine scope, implementation owners, contract references and mandatory executable checks. Every UI injector in the namespace transformation rules must have an inventory entry. Engine coverage is explicitly registered through existing deterministic native fixtures; it is not inferred from root Git changes. Adding, changing or retiring a customization updates its owning design, inventory and behavior check together.
 
 Official UI assets remain pristine inputs. Version-specific adapters apply Azrael-owned policy at preparation boundaries and reject unknown or duplicate anchors. Engine integration uses the selected source root and existing provenance verification; importing an inventory is not behavioral acceptance.
