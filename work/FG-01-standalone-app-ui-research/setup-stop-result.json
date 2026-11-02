@@ -1,0 +1,197 @@
+{
+  "schema": 1,
+  "scope": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T101500317Z-4d80be57-4db9-498b-b469-58e554d18346",
+    "fixture": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bd7a1ecf",
+    "platform": "win32 x64",
+    "readOnlyInvestigation": true
+  },
+  "observedAt": "2026-11-02T10:22:06.750Z",
+  "producer_stopped_verified": true,
+  "readiness": "Ready for a subsequent independently owned UI attempt at this observation; original attempt remains failed.",
+  "originalProducer": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T101500317Z-4d80be57-4db9-498b-b469-58e554d18346\\reports\\producer.json",
+    "sha256": "96a701c18290d5554f90d72176454c8b163e8e2e270481079e3a29ff0552a7a7",
+    "receipt": {
+      "lifecycleId": "run:standalone-app-ui:20261102T101500317Z-4d80be57-4db9-498b-b469-58e554d18346",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T101500317Z-4d80be57-4db9-498b-b469-58e554d18346",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\apps\\azrael-desktop\\verify.cjs",
+        "--host",
+        "C:/Users/felre/.vscode/extensions/azrael-ex-local.azrael-2026.0.16",
+        "--theme",
+        "dark"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": false,
+      "reason": "Actual Electron child close; independent native descendant verification required.",
+      "children": [
+        {
+          "pid": 44840,
+          "closed": true
+        }
+      ],
+      "state": "pending",
+      "membership_complete": false
+    }
+  },
+  "phaseEvidence": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bd7a1ecf\\app-state\\logs\\desktop.ndjson",
+    "sha256": "0f9bed71c0f0888d2a19a54d333ae447a92e0f6b98b42a0d45f496101aecc291",
+    "events": [
+      {
+        "timestamp": "2026-11-02T10:16:00.765Z",
+        "level": "error",
+        "component": "desktop",
+        "event": "operation-failed",
+        "version": "0.1.0",
+        "platform": "win32",
+        "message": "app-server request timed out; outcome is uncertain (initialize)",
+        "error": "Error"
+      },
+      {
+        "timestamp": "2026-11-02T10:16:01.716Z",
+        "level": "info",
+        "component": "desktop",
+        "event": "host-message",
+        "version": "0.1.0",
+        "platform": "win32",
+        "message": "desktop-stopped"
+      }
+    ],
+    "meaning": "Setup initialize timed out before extension activation, then desktop cleanup logged completion and the actual Electron child closed with exit 1. The request outcome remains uncertain; this is not a successful initialize or UI acceptance result."
+  },
+  "nativeTrace": {
+    "homeEntries": [
+      "auth.json",
+      "config.toml",
+      "logs_2.sqlite",
+      "logs_2.sqlite-shm",
+      "logs_2.sqlite-wal",
+      "state_5.sqlite",
+      "state_5.sqlite-shm",
+      "state_5.sqlite-wal",
+      "tmp"
+    ],
+    "tracePaths": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bd7a1ecf\\engine-home\\app-server-daemon",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bd7a1ecf\\engine-home\\azrael",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bd7a1ecf\\engine-home\\azrael\\runtime",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bd7a1ecf\\engine-home\\azrael\\runtime\\engines",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bd7a1ecf\\engine-home\\ipc",
+        "exists": false
+      }
+    ],
+    "meaning": "No fixture daemon PID/start, endpoint IPC or native runtime/engines trace exists. This absence supports the composite alongside positive host/root close and current OS observation; it does not by itself prove no historical bootstrap."
+  },
+  "selectedEngineIdentity": {
+    "runtimePath": "C:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.16\\out\\azrael-runtime.json",
+    "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+    "expectedSha256": "2f794a059517870f5fccc2e2d2c798cf749470c2304bf15736fb1b00815571f4",
+    "actualSha256": "2f794a059517870f5fccc2e2d2c798cf749470c2304bf15736fb1b00815571f4",
+    "bridge": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe"
+  },
+  "processObservation": {
+    "exitCode": 0,
+    "observerPids": [
+      53068,
+      17256,
+      36364
+    ],
+    "originalRootPids": [
+      44840
+    ],
+    "reusedPids": [],
+    "ownedCurrent": [],
+    "desktopElectron": [],
+    "selectedBinaryCandidates": [
+      {
+        "ProcessId": 43872,
+        "ParentProcessId": 50672,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "StartFileTime": "134380845933497100"
+      },
+      {
+        "ProcessId": 42784,
+        "ParentProcessId": 43872,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "\"\\\\?\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe\" app-server --azrael-shared-windows --managed-daemon --azrael-engine-instance 54d4d6e8a715e6b96dc71df6b839d2bf1a7b43103b24ebf075a2a7eda56a8cbe --listen unix://C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock -c features.code_mode_host=true --session-source vscode --analytics-default-enabled",
+        "StartFileTime": "134380845985911140"
+      },
+      {
+        "ProcessId": 18504,
+        "ParentProcessId": 50672,
+        "Name": "azrael-bridge.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+        "StartFileTime": "134380846005626110"
+      },
+      {
+        "ProcessId": 27940,
+        "ParentProcessId": 12252,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "StartFileTime": "134380846019499980"
+      },
+      {
+        "ProcessId": 57856,
+        "ParentProcessId": 12252,
+        "Name": "azrael-bridge.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+        "StartFileTime": "134380846019981370"
+      },
+      {
+        "ProcessId": 31176,
+        "ParentProcessId": 19516,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "\"\\\\?\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe\" app-server --azrael-shared-windows --managed-daemon --azrael-engine-instance 54d4d6e8a715e6b96dc71df6b839d2bf1a7b43103b24ebf075a2a7eda56a8cbe --listen unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\9105ac3b\\engine-home\\ipc\\ktknn2fhcxtls3ohdx3a.sock -c features.code_mode_host=true --session-source vscode --analytics-default-enabled",
+        "StartFileTime": "134380851340831710"
+      },
+      {
+        "ProcessId": 30448,
+        "ParentProcessId": 29928,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "StartFileTime": "134380853691267000"
+      },
+      {
+        "ProcessId": 3332,
+        "ParentProcessId": 29928,
+        "Name": "azrael-bridge.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+        "StartFileTime": "134380853691746040"
+      }
+    ],
+    "newUnscopedCandidates": [],
+    "allSelectedCandidatesPredateRun": true
+  },
+  "limits": [
+    "The original setup native child PID/start and its actual close event were not captured; newer source instrumentation/await-close behavior is not evidence that this run awaited that event.",
+    "Current stop is established by the composite of actual normal Electron close, ordered desktop-stopped log, pre-activation initialize-failure phase, absent per-fixture native state/IPC, and independent current selected-binary/tree observations. PID absence alone was not used.",
+    "No discovery/bootstrap native CLI, lifecycle close, process termination, native maintenance/cleanup or original outcome mutation was performed.",
+    "Prior latest-stop-result.json remains unchanged."
+  ]
+}

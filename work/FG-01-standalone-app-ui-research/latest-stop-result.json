@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "scope": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T095608714Z-421dac56-1fc1-453d-b5ad-6d4b8c7a9937",
+    "fixture": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4",
+    "platform": "win32 x64",
+    "readOnlyInvestigation": true
+  },
+  "observedAt": "2026-11-02T10:13:48.056Z",
+  "producer_stopped_verified": true,
+  "conclusion": "Composite evidence establishes that this fixture producer and observable owned Electron/bridge/native tree are stopped at observation. No UI acceptance or successful exit is inferred.",
+  "originalProducer": {
+    "receipt": {
+      "lifecycleId": "run:standalone-app-ui:20261102T095608714Z-421dac56-1fc1-453d-b5ad-6d4b8c7a9937",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T095608714Z-421dac56-1fc1-453d-b5ad-6d4b8c7a9937",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\apps\\azrael-desktop\\verify.cjs",
+        "--host",
+        "C:/Users/felre/.vscode/extensions/azrael-ex-local.azrael-2026.0.16",
+        "--theme",
+        "dark"
+      ],
+      "exitCode": null,
+      "signal": "SIGTERM",
+      "producerStopped": false,
+      "reason": "Actual Electron child close; independent native descendant verification required.",
+      "children": [
+        {
+          "pid": 49028,
+          "closed": true
+        }
+      ],
+      "state": "pending",
+      "membership_complete": false
+    },
+    "sha256": "f1d2a0dfb54c79cc8c73f98080e8c974c20c3c46a99e79e84dc50a43383d76a6",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T095608714Z-421dac56-1fc1-453d-b5ad-6d4b8c7a9937\\reports\\producer.json"
+  },
+  "startup": {
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4\\app-state\\logs\\desktop.ndjson",
+    "sha256": "1a9565f6e830178ccbaba09718d4dfcddf23d677dff73a3c3e0e3d965293dff0",
+    "events": [
+      {
+        "timestamp": "2026-11-02T09:58:31.926Z",
+        "level": "info",
+        "component": "desktop",
+        "event": "host-message",
+        "version": "0.1.0",
+        "platform": "win32",
+        "message": "[Azrael Recovery] {\"event\":\"recovery.runtime\",\"diagnosticSchema\":1,\"hostVersion\":\"2026.0.16\",\"hostModule\":\"C:\\\\Users\\\\felre\\\\.vscode\\\\extensions\\\\azrael-ex-local.azrael-2026.0.16\\\\out\\\\azrael-recovery.cjs\",\"engine\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\artifacts\\\\releases\\\\win016-ez01-paint-r8-20261102\\\\engine\\\\azrael.exe\",\"bridge\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\artifacts\\\\releases\\\\win016-ez01-paint-r8-20261102\\\\engine\\\\azrael-bridge.exe\",\"release\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\artifacts\\\\releases\\\\win016-ez01-paint-r8-20261102\",\"nodeVersion\":\"v24.22.1\",\"identitySource\":\"host_configuration\",\"hostPid\":49028,\"droppedDiagnostics\":0}"
+      },
+      {
+        "timestamp": "2026-11-02T09:58:35.430Z",
+        "level": "info",
+        "component": "desktop",
+        "event": "host-message",
+        "version": "0.1.0",
+        "platform": "win32",
+        "message": "[Azrael] [CodexMcpConnection] Spawning codex app-server"
+      },
+      {
+        "timestamp": "2026-11-02T09:58:36.603Z",
+        "level": "warn",
+        "component": "desktop",
+        "event": "host-message",
+        "version": "0.1.0",
+        "platform": "win32",
+        "message": "[Azrael Bridge] {\"schema\":1,\"event\":\"failure\",\"phase\":\"connect\",\"code\":\"endpoint_unavailable\",\"retryable\":true,\"attempt\":1,\"childPid\":17616,\"elapsedMs\":1058}"
+      },
+      {
+        "timestamp": "2026-11-02T09:58:37.907Z",
+        "level": "warn",
+        "component": "desktop",
+        "event": "host-message",
+        "version": "0.1.0",
+        "platform": "win32",
+        "message": "[Azrael Bridge] {\"schema\":1,\"event\":\"failure\",\"phase\":\"connect\",\"code\":\"endpoint_unavailable\",\"retryable\":true,\"attempt\":2,\"childPid\":30128,\"elapsedMs\":294}"
+      },
+      {
+        "timestamp": "2026-11-02T09:58:40.252Z",
+        "level": "warn",
+        "component": "desktop",
+        "event": "host-message",
+        "version": "0.1.0",
+        "platform": "win32",
+        "message": "[Azrael Bridge] {\"schema\":1,\"event\":\"failure\",\"phase\":\"connect\",\"code\":\"endpoint_unavailable\",\"retryable\":true,\"attempt\":3,\"childPid\":55700,\"elapsedMs\":341}"
+      }
+    ],
+    "nativeBootstrapTrace": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4\\engine-home\\app-server-daemon",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4\\engine-home\\azrael\\runtime",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4\\engine-home\\azrael\\runtime\\engines",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4\\engine-home\\ipc",
+        "exists": false
+      }
+    ]
+  },
+  "endpointDiscovery": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+    "engineSha256": "2f794a059517870f5fccc2e2d2c798cf749470c2304bf15736fb1b00815571f4",
+    "argv": [
+      "-c",
+      "features.code_mode_host=true",
+      "app-server",
+      "--analytics-default-enabled",
+      "--azrael-engine-endpoint"
+    ],
+    "CODEX_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4\\engine-home",
+    "removedScopeVars": [
+      "AZRAEL_EX_WINDOW_CONTEXT",
+      "AZRAEL_EX_MANAGEMENT_SOCKET",
+      "AZRAEL_EX_ACCOUNT_STATE_FILE",
+      "AZRAEL_EX_ACCOUNT_DEFAULT_FILE"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "descriptor": {
+      "schema": 2,
+      "instanceId": "54d4d6e8a715e6b96dc71df6b839d2bf1a7b43103b24ebf075a2a7eda56a8cbe",
+      "socketPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\ccf5cbb4\\engine-home\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+      "engineVersion": "0.162.0",
+      "engineIdentity": "2f794a059517870f5fccc2e2d2c798cf749470c2304bf15736fb1b00815571f4"
+    },
+    "socketAbsent": true,
+    "stderr": ""
+  },
+  "processObservation": {
+    "exitCode": 0,
+    "observerPids": [
+      32960,
+      2960,
+      32632
+    ],
+    "knownRootAndBridgePids": [
+      49028,
+      17616,
+      30128,
+      55700
+    ],
+    "reusedPids": [],
+    "ownedCurrent": [],
+    "desktopElectron": [],
+    "selectedEngineCandidates": [
+      {
+        "ProcessId": 43872,
+        "ParentProcessId": 50672,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "StartFileTime": "134380845933497100"
+      },
+      {
+        "ProcessId": 42784,
+        "ParentProcessId": 43872,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "\"\\\\?\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe\" app-server --azrael-shared-windows --managed-daemon --azrael-engine-instance 54d4d6e8a715e6b96dc71df6b839d2bf1a7b43103b24ebf075a2a7eda56a8cbe --listen unix://C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock -c features.code_mode_host=true --session-source vscode --analytics-default-enabled",
+        "StartFileTime": "134380845985911140"
+      },
+      {
+        "ProcessId": 18504,
+        "ParentProcessId": 50672,
+        "Name": "azrael-bridge.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+        "StartFileTime": "134380846005626110"
+      },
+      {
+        "ProcessId": 27940,
+        "ParentProcessId": 12252,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "StartFileTime": "134380846019499980"
+      },
+      {
+        "ProcessId": 57856,
+        "ParentProcessId": 12252,
+        "Name": "azrael-bridge.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+        "StartFileTime": "134380846019981370"
+      },
+      {
+        "ProcessId": 31176,
+        "ParentProcessId": 19516,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "\"\\\\?\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe\" app-server --azrael-shared-windows --managed-daemon --azrael-engine-instance 54d4d6e8a715e6b96dc71df6b839d2bf1a7b43103b24ebf075a2a7eda56a8cbe --listen unix://C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\9105ac3b\\engine-home\\ipc\\ktknn2fhcxtls3ohdx3a.sock -c features.code_mode_host=true --session-source vscode --analytics-default-enabled",
+        "StartFileTime": "134380851340831710"
+      },
+      {
+        "ProcessId": 30448,
+        "ParentProcessId": 29928,
+        "Name": "azrael.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael.exe -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "StartFileTime": "134380853691267000"
+      },
+      {
+        "ProcessId": 3332,
+        "ParentProcessId": 29928,
+        "Name": "azrael-bridge.exe",
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\artifacts\\releases\\win016-ez01-paint-r8-20261102\\engine\\azrael-bridge.exe C:\\Users\\felre\\.azrael-ex\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+        "StartFileTime": "134380853691746040"
+      }
+    ],
+    "newUnscopedCandidates": [],
+    "preexistingSelectedProcessesExcluded": true
+  },
+  "protocolEvidence": {
+    "installedDiscoveryOwner": "C:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.16\\out\\shared-engine-host.cjs",
+    "installedDiscoveryOwnerSha256": "ef7174711a76770c398d18c53c88379bf9270eece62c892245da7b1a6fe2fe6d",
+    "meaning": "Installed shared-engine-host uses --azrael-engine-endpoint only to calculate/validate endpoint identity. Observed bridge phase=connect endpoint_unavailable precedes a successful server registration/initialize handshake. Fixture endpoint, IPC, daemon PID and runtime/engines traces are absent. Existing selected-binary processes all predate this run and are not stopped or claimed by this task."
+  },
+  "limitations": [
+    "Original Electron/bridge start-time identities were not captured; reused PIDs are excluded using receipt terminal time and current process creation time.",
+    "No fixture engine PID/start or shutdown receipt exists. No claim is made that historical engine bootstrap was impossible; current stop is supported by root close, terminal connection failures, endpoint/trace absence and independent current process observations together.",
+    "No cleanup, lifecycle close, outcome alteration, termination or new UI runtime was performed. Original failure/SIGTERM/null remains unchanged."
+  ]
+}

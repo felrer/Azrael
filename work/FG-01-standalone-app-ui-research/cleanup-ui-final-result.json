@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "status": "DONE",
+  "scope": "Only standalone-app-ui runs25/26; all other groups excluded",
+  "finishedAt": "2026-11-02T11:48:45.984Z",
+  "evidence": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\standalone-app-ui-final-25-26-stop-20261102.json",
+    "sha256": "740315fc0dd7b4f2a196adc122092c7e6237c8b4a9c11df8dcefd5b81c7943e0",
+    "bytes": 45668
+  },
+  "deleted": [
+    {
+      "group": "run:standalone-app-ui:20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\04a29935",
+      "logicalBytes": 36424959,
+      "actualAbsent": true
+    },
+    {
+      "group": "run:standalone-app-ui:20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8",
+      "logicalBytes": 6464,
+      "actualAbsent": true
+    },
+    {
+      "group": "run:standalone-app-ui:20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e",
+      "logicalBytes": 5869,
+      "actualAbsent": true
+    },
+    {
+      "group": "run:standalone-app-ui:20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bf264c94",
+      "logicalBytes": 36470344,
+      "actualAbsent": true
+    }
+  ],
+  "deletedLogicalBytes": 72907636,
+  "remaining": [],
+  "evidenceUnchanged": true,
+  "acceptanceUnchanged": true,
+  "preflightDiagnostic": {
+    "error": "SyntaxError: Unexpected end of JSON input\n    at JSON.parse (<anonymous>)\n    at [stdin]:11:471\n    at runScriptInThisContext (node:internal/vm:219:10)\n    at node:internal/process/execution:483:12\n    at [stdin]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:481:60)\n    at evalFunction (node:internal/process/execution:315:30)\n    at evalTypeScript (node:internal/process/execution:327:3)\n    at node:internal/main/eval_stdin:51:5\n    at Socket.<anonymous> (node:internal/process/execution:237:5)",
+    "invalidInvocation": {
+      "argv": [
+        "--capabilities"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "usage: maintenance_owner --project-root ABSOLUTE_ROOT --request ABSOLUTE_IN_ROOT_JSON_OR_-"
+    },
+    "resolution": "Standalone capability verb is positional capabilities, not --capabilities. No lifecycle/native mutation occurred before correction."
+  },
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+    "maxLockWaitMs": 600000
+  },
+  "nativeCalls": [
+    {
+      "operation": "register",
+      "groups": [
+        "run:standalone-app-ui:20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8"
+      ],
+      "startedAt": "2026-11-02T11:45:34.337Z",
+      "finishedAt": "2026-11-02T11:46:05.690Z",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "groups": [
+        "run:standalone-app-ui:20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8"
+      ],
+      "startedAt": "2026-11-02T11:46:05.691Z",
+      "finishedAt": "2026-11-02T11:46:12.446Z",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "startedAt": "2026-11-02T11:46:12.447Z",
+      "finishedAt": "2026-11-02T11:46:51.390Z",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "groups": [
+        "run:standalone-app-ui:20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e"
+      ],
+      "startedAt": "2026-11-02T11:46:54.959Z",
+      "finishedAt": "2026-11-02T11:47:41.958Z",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "groups": [
+        "run:standalone-app-ui:20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e"
+      ],
+      "startedAt": "2026-11-02T11:47:41.959Z",
+      "finishedAt": "2026-11-02T11:47:56.720Z",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "startedAt": "2026-11-02T11:47:56.722Z",
+      "finishedAt": "2026-11-02T11:48:43.895Z",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "stderr": ""
+    }
+  ],
+  "groups": [
+    {
+      "id": "run:standalone-app-ui:20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8",
+      "status": "finalized",
+      "actualFinalOutcome": {
+        "pid": 29996,
+        "exitCode": 1,
+        "signal": null,
+        "observedAt": "2026-11-02T11:36:22.852Z"
+      },
+      "absence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8",
+          "absent": true
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\04a29935",
+          "absent": true
+        }
+      ],
+      "finalization": {
+        "id": "run:standalone-app-ui:20261102T113540199Z-3a5959ec-cc7c-4fb7-ab69-56aab81ac0f8",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\3d19a17abffb43a6f47235a11f439a338bb5ab059973e040491261d12cc2c87f.json"
+      }
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e",
+      "status": "finalized",
+      "actualFinalOutcome": {
+        "pid": 43824,
+        "exitCode": 0,
+        "signal": null,
+        "observedAt": "2026-11-02T11:40:18.564Z"
+      },
+      "absence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e",
+          "absent": true
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\bf264c94",
+          "absent": true
+        }
+      ],
+      "finalization": {
+        "id": "run:standalone-app-ui:20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\84342ef27b51c4487425eea82638f55c32f668993c9df0add7653660918d37af.json"
+      }
+    }
+  ],
+  "originalRecordSha256": "281cf209e2b87b191154b8d2bfc5b54f4d3eb9c5c619593c4685c603f3af372c",
+  "recordFormat": "Compact persistent cleanup receipt; duplicated request payloads and expired authorization tokens omitted after verified finalization."
+}

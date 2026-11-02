@@ -1,0 +1,300 @@
+{
+  "schema": 1,
+  "status": "PARTIAL",
+  "scope": "20261102T082002772Z through 20261102T085738760Z only",
+  "completedAt": "2026-11-02T09:56:11.271Z",
+  "retainedStopEvidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\standalone-app-ui-early-stop-20261102.json",
+      "bytes": 38611,
+      "sha256": "00b1bccc980f3fd50a36637eca23ea03b28f9da373a6dbdcaecafc61305d2b9e",
+      "purpose": "Independently readable original producer outcomes, native identities and bounded stop/acceptance evidence outside deleted payload"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\standalone-app-ui-later-stop-20261102.json",
+      "bytes": 44641,
+      "sha256": "bbfc0c49c32a20a33239b328c1ffb621ddd3bd3055a440f790a81f3780227840",
+      "purpose": "Independently readable original producer outcomes, native identities and bounded stop/acceptance evidence outside deleted payload"
+    }
+  ],
+  "deletedRoots": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T082719135Z-806bf8bd-4cd7-4bc9-bb4f-922f3a652d80",
+      "logicalBytes": 10729
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-1f299730",
+      "logicalBytes": 70557000
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-b6782e98",
+      "logicalBytes": 90210672
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T082938867Z-1ee870b8-c6d8-4fab-a35f-606867972005",
+      "logicalBytes": 10804
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T082511803Z-46f691c8-7e98-4d1d-98cb-cd742d917522",
+      "logicalBytes": 10729
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-16968b68",
+      "logicalBytes": 92678417
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T082002772Z-1a26305e-a8ba-4f84-a429-fa8575d4fd2f",
+      "logicalBytes": 33526319
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T085738760Z-5cb544d4-0e6a-4a1a-9ec2-37b5a6d8ca35",
+      "logicalBytes": 20159
+    }
+  ],
+  "outcomeLimits": [
+    "Run5 old wrapper exit 1 is not an actual Electron exit; actual watchdog exit remains null. Run6 SIGTERM/null remains failure/null.",
+    "Run11 Electron exit 0 proves only its producer terminal event. Retained result has no composer inputs; no whole UI acceptance claimed.",
+    "Runs7/8/9 are preserved because helper/native tree stop cannot be independently proved from available original identities, despite pre-main/early-load failure and absent native state."
+  ],
+  "correctedGuard": "Original first-four apply returned native exit 0 but run1 was blocked by a concurrent config change. Other three groups were deleted and finalized; run1 fresh review/apply then deleted and finalized. No guard bypass.",
+  "lastGuard": "Later apply returned native exit 0 but only run12 run-root deleted. Other nine members were protected by stale group tokens or earlier-member failure. Baseline/current identity, owner_revision, references_sha256, root_sha256 and source_identity matched; group_token differed. Parent resolved request 01a19baf-5c2b-7061-a415-95fd259d2b59: stop native mutation, retain compact partial evidence, return owner. No later group was finalized.",
+  "finalizations": [
+    {
+      "id": "run:standalone-app-ui:20261102T082511803Z-46f691c8-7e98-4d1d-98cb-cd742d917522",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T082719135Z-806bf8bd-4cd7-4bc9-bb4f-922f3a652d80",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T082938867Z-1ee870b8-c6d8-4fab-a35f-606867972005",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T082002772Z-1a26305e-a8ba-4f84-a429-fa8575d4fd2f",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    }
+  ],
+  "blocked": [
+    {
+      "id": "run:standalone-app-ui:20261102T084801533Z-1504ec24-3098-4733-9385-c5d91cce41fa",
+      "reason": "Exact native descendant termination cannot be established from available original identities and shutdown receipts; preserve full group.",
+      "originalElectronExitCode": 4294967295,
+      "roots": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T084801533Z-1504ec24-3098-4733-9385-c5d91cce41fa",
+          "exists": true,
+          "logicalBytesAtInvestigation": 1582
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-84606326",
+          "exists": true,
+          "logicalBytesAtInvestigation": 40
+        }
+      ],
+      "originalEvidence": {
+        "electronRootClosed": [
+          {
+            "pid": 56648,
+            "closed": true
+          }
+        ],
+        "nativeIdentityCount": 0,
+        "currentMatchingProcesses": 0
+      },
+      "releaseCondition": "Independently establish stopped exact Electron helper/native descendants using original identities and execution evidence; then close/register/review/apply through the supported owner",
+      "retentionApproval": "Unresolved; parent must handle user-facing retention/completion requirements"
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T085022444Z-6c066aed-8200-40cf-9630-6c8341d956e3",
+      "reason": "Exact native descendant termination cannot be established from available original identities and shutdown receipts; preserve full group.",
+      "originalElectronExitCode": 4294967295,
+      "roots": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T085022444Z-6c066aed-8200-40cf-9630-6c8341d956e3",
+          "exists": true,
+          "logicalBytesAtInvestigation": 1582
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-786018e0",
+          "exists": true,
+          "logicalBytesAtInvestigation": 40
+        }
+      ],
+      "originalEvidence": {
+        "electronRootClosed": [
+          {
+            "pid": 17656,
+            "closed": true
+          }
+        ],
+        "nativeIdentityCount": 0,
+        "currentMatchingProcesses": 0
+      },
+      "releaseCondition": "Independently establish stopped exact Electron helper/native descendants using original identities and execution evidence; then close/register/review/apply through the supported owner",
+      "retentionApproval": "Unresolved; parent must handle user-facing retention/completion requirements"
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T085212189Z-382931d0-f033-4632-86ba-4af5a2cf4240",
+      "reason": "Exact native descendant termination cannot be established from available original identities and shutdown receipts; preserve full group.",
+      "originalElectronExitCode": 1,
+      "roots": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T085212189Z-382931d0-f033-4632-86ba-4af5a2cf4240",
+          "exists": true,
+          "logicalBytesAtInvestigation": 2527
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-525c529d",
+          "exists": true,
+          "logicalBytesAtInvestigation": 3709650
+        }
+      ],
+      "originalEvidence": {
+        "electronRootClosed": [
+          {
+            "pid": 58220,
+            "closed": true
+          }
+        ],
+        "nativeIdentityCount": 0,
+        "currentMatchingProcesses": 0
+      },
+      "releaseCondition": "Independently establish stopped exact Electron helper/native descendants using original identities and execution evidence; then close/register/review/apply through the supported owner",
+      "retentionApproval": "Unresolved; parent must handle user-facing retention/completion requirements"
+    }
+  ],
+  "cleanupHelper": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FG-01-standalone-app-ui-research\\cleanup-early.cjs",
+    "sha256": "11bcebe15a183fad4593655a66aac43fb4efc071c170bfc282b552a31566b128",
+    "disposable": true,
+    "deletionPending": false,
+    "actualAbsent": true,
+    "deletionMethod": "Task-owned unregistered one-off work script removed with ordinary PowerShell Remove-Item -LiteralPath; actual absence checked. No native registered payload bypass."
+  },
+  "disposableTransportFiles": [],
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-storage-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+    "maxLockWaitMs": 600000
+  },
+  "nativeCalls": [
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance)\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}\n"
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    }
+  ],
+  "originalRecordSha256": "6f0174ae4be57ed617bdaafc28e4faf668cae563e4aa95fb202d4a3647f0b27e",
+  "recordFormat": "Compact persistent cleanup receipt; duplicated request payloads and expired authorization tokens omitted after verified finalization."
+}

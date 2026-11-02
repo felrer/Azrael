@@ -1,0 +1,109 @@
+{
+  "runId": "20261102T102251891Z-3e92a082-4d01-4b2c-8a5b-50f40f0e7097",
+  "actualElectronExitCode": 0,
+  "checks": [
+    "existing-composer",
+    "host-input-dialog",
+    "existing-chat-history",
+    "literal-text-viewer",
+    "native-terminal",
+    "native-image-viewer",
+    "narrow-detail-layout"
+  ],
+  "errors": [],
+  "visualAcceptance": false,
+  "visualGaps": [
+    "Transparent native body over white host canvas in dark mode",
+    "History popup opened but fixture task feed returned 404"
+  ],
+  "stop": {
+    "nativeIdentity": {
+      "pid": 17680,
+      "processStartTime": "134380886316722959",
+      "executableIdentity": {
+        "digest": [
+          168,
+          214,
+          149,
+          175,
+          33,
+          26,
+          190,
+          166,
+          32,
+          146,
+          195,
+          196,
+          31,
+          161,
+          197,
+          90,
+          135,
+          147,
+          171,
+          71,
+          250,
+          128,
+          123,
+          125,
+          37,
+          26,
+          9,
+          23,
+          230,
+          3,
+          100,
+          45
+        ],
+        "path_digest": [
+          81,
+          111,
+          72,
+          154,
+          126,
+          143,
+          246,
+          9,
+          254,
+          177,
+          6,
+          174,
+          179,
+          91,
+          238,
+          50,
+          215,
+          157,
+          21,
+          116,
+          104,
+          15,
+          219,
+          90,
+          203,
+          115,
+          195,
+          165,
+          103,
+          36,
+          93,
+          96
+        ]
+      }
+    },
+    "shutdown": {
+      "schema": 1,
+      "instanceId": "54d4d6e8a715e6b96dc71df6b839d2bf1a7b43103b24ebf075a2a7eda56a8cbe",
+      "process": {
+        "pid": 17680,
+        "processStartTime": "134380886316722959"
+      }
+    },
+    "connectionChildClosePids": [
+      23732,
+      43952
+    ],
+    "normalDesktopStopped": true,
+    "limitation": "Historical child trees are supported by recorded close, native shutdown identity and current OS snapshot; raw PID absence alone is not used."
+  }
+}

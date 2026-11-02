@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "status": "Windows source-app synthetic fixture passed; scoped retention approved by user",
+  "platform": "Windows x64",
+  "hostVersion": "2026.0.16",
+  "engineIdentity": "2f794a059517870f5fccc2e2d2c798cf749470c2304bf15736fb1b00815571f4",
+  "selectedReceiptSha256": "a74fa21accfbc94a3490200f18c47b474748f8651ac97e9c4db4ec5cdb154b63",
+  "runtimeRun": "20261102T113931278Z-6c65b8f7-9abf-4d5c-b431-f0b49d5cdb7e",
+  "electronClose": {
+    "pid": 43824,
+    "exitCode": 0,
+    "signal": null,
+    "observedAt": "2026-11-02T11:40:18.564Z"
+  },
+  "result": {
+    "themes": {
+      "dark": {
+        "checks": [
+          "existing-composer",
+          "host-input-dialog",
+          "existing-chat-history",
+          "literal-text-viewer",
+          "native-terminal",
+          "native-image-viewer",
+          "narrow-detail-layout"
+        ],
+        "errors": [],
+        "screenshots": [
+          "chat.png",
+          "input-dialog.png",
+          "pick-dialog.png",
+          "chat-history.png",
+          "text-panel.png",
+          "terminal-panel.png",
+          "image-viewer.png",
+          "narrow-panel.png"
+        ],
+        "theme": {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(236, 236, 236)",
+          "font": "\"Segoe WPC\", \"Segoe UI\", sans-serif",
+          "kind": "vscode-dark",
+          "rootTheme": "dark",
+          "windowType": "extension",
+          "canvasPixel": [
+            23,
+            23,
+            23,
+            255
+          ]
+        },
+        "terminalSteps": [
+          "ready-prompt",
+          "command-output",
+          "frontend-resize",
+          "hidden-output",
+          "closed"
+        ],
+        "terminalSizes": [
+          {
+            "id": "c5768e5b-03f8-480e-8fc0-3330a4939c19",
+            "cols": 63,
+            "rows": 44
+          },
+          {
+            "id": "c5768e5b-03f8-480e-8fc0-3330a4939c19",
+            "cols": 53,
+            "rows": 36
+          }
+        ]
+      },
+      "light": {
+        "checks": [
+          "existing-composer",
+          "host-input-dialog",
+          "existing-chat-history",
+          "literal-text-viewer",
+          "native-terminal",
+          "native-image-viewer",
+          "narrow-detail-layout"
+        ],
+        "errors": [],
+        "screenshots": [
+          "chat.png",
+          "input-dialog.png",
+          "pick-dialog.png",
+          "chat-history.png",
+          "text-panel.png",
+          "terminal-panel.png",
+          "image-viewer.png",
+          "narrow-panel.png"
+        ],
+        "theme": {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(36, 36, 36)",
+          "font": "\"Segoe WPC\", \"Segoe UI\", sans-serif",
+          "kind": "vscode-light",
+          "rootTheme": "light",
+          "windowType": "extension",
+          "canvasPixel": [
+            255,
+            255,
+            255,
+            255
+          ]
+        },
+        "terminalSteps": [
+          "ready-prompt",
+          "command-output",
+          "frontend-resize",
+          "hidden-output",
+          "closed"
+        ],
+        "terminalSizes": [
+          {
+            "id": "b4a3fc82-64c7-49ca-a4fa-ab7269edb9df",
+            "cols": 63,
+            "rows": 44
+          },
+          {
+            "id": "b4a3fc82-64c7-49ca-a4fa-ab7269edb9df",
+            "cols": 53,
+            "rows": 36
+          }
+        ]
+      }
+    },
+    "errors": []
+  },
+  "visualReview": [
+    {
+      "file": "light/chat.png",
+      "sha256": "771c0727c54c761f9d85d4b06271086a8c01e416b7a92f3cfb0967d6acf23554",
+      "reviewed": true
+    },
+    {
+      "file": "dark/chat.png",
+      "sha256": "8f4cb529133430e6e99c0188b77f8761209a7387ffcd340d6039ad5901c8d6d3",
+      "reviewed": true
+    },
+    {
+      "file": "dark/terminal-panel.png",
+      "sha256": "107bc313428048d1e9da9cd043c7e527998ac087925e370e7f7e23b9589a6bf8",
+      "reviewed": true
+    },
+    {
+      "file": "light/terminal-panel.png",
+      "sha256": "b62f50393ae3e95c9cd4a8ccf41e93ea873af12409b61511fd0b0316fa4bb06f",
+      "reviewed": true
+    },
+    {
+      "file": "light/text-panel.png",
+      "sha256": "a5e97c5957da00658901c0fd9cd54da3a129e06289561eb2028cee2548930732",
+      "reviewed": true
+    },
+    {
+      "file": "light/chat-history.png",
+      "sha256": "e16c76685dfc6bb175a71c7ae0b9da409a2cf8064c8b4b2c59493e7a518815e1",
+      "reviewed": true
+    }
+  ],
+  "sourceCheck": {
+    "bundle": "standalone-app-ui-source",
+    "runId": "run-42784-5236-1793619559637823800",
+    "exitCode": 0,
+    "status": "passed",
+    "inputIntegrity": "valid",
+    "inputIdentity": "c02b97c1e42d08712e1d2b6fd1e312aac4697f8e1487cd2c46e7100c4ef8025a"
+  },
+  "unverified": [
+    "Live account login/callback and existing account/history migration",
+    "Paid model turn and Windows setup wizard",
+    "Packaged installation/distribution",
+    "Linux x64 and macOS ARM64 native acceptance"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "run:standalone-app-ui:20261102T092512780Z-d9e004e3-e391-480e-b4cc-580c4182f78d",
+  "observedAt": "2026-11-02T10:51:16.371Z",
+  "roots": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T092512780Z-d9e004e3-e391-480e-b4cc-580c4182f78d",
+      "knownBytes": 1709,
+      "unreadable": []
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\9105ac3b",
+      "knownBytes": 66011995,
+      "unreadable": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt\\9105ac3b\\engine-home\\ipc\\ktknn2fhcxtls3ohdx3a.sock",
+          "code": "EACCES"
+        }
+      ]
+    }
+  ],
+  "reason": "Private fixture engine remains registered to inherited real VS Code host; no shutdown performed.",
+  "releaseCondition": "Verify the inherited host identity has ended and native fixture shutdown receipt matches original PID/start, then owner review/apply.",
+  "otherProtectedGroups": [
+    {
+      "id": "run:standalone-app-ui:20261102T084801533Z-1504ec24-3098-4733-9385-c5d91cce41fa",
+      "roots": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T084801533Z-1504ec24-3098-4733-9385-c5d91cce41fa",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-84606326"
+      ],
+      "knownBytesAtReview": 1622,
+      "reason": "Historical helper process identity/tree termination evidence is incomplete.",
+      "releaseCondition": "Obtain adequate stop evidence or a supported owner recovery route, then repeat protected owner review."
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T085022444Z-6c066aed-8200-40cf-9630-6c8341d956e3",
+      "roots": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T085022444Z-6c066aed-8200-40cf-9630-6c8341d956e3",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-786018e0"
+      ],
+      "knownBytesAtReview": 1622,
+      "reason": "Historical helper process identity/tree termination evidence is incomplete.",
+      "releaseCondition": "Obtain adequate stop evidence or a supported owner recovery route, then repeat protected owner review."
+    },
+    {
+      "id": "run:standalone-app-ui:20261102T085212189Z-382931d0-f033-4632-86ba-4af5a2cf4240",
+      "roots": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\standalone-app-ui\\runs\\20261102T085212189Z-382931d0-f033-4632-86ba-4af5a2cf4240",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\dt-525c529d"
+      ],
+      "knownBytesAtReview": 3712177,
+      "reason": "Historical helper process identity/tree termination evidence is incomplete.",
+      "releaseCondition": "Obtain adequate stop evidence or a supported owner recovery route, then repeat protected owner review."
+    }
+  ],
+  "knownBytesTotal": 69729125,
+  "approval": "approved",
+  "approvalBy": "user",
+  "approvalQuestionId": "[\"request_user_input_async\",\"01a19be3-75a0-70c3-8a89-68450ea1b724\",0]",
+  "approvalReply": "해당 범위의 보존·대기 허용",
+  "approvedScope": "Only the four named groups, eight existing roots and exact fixture engine PID 31176; existing release conditions remain unchanged.",
+  "scopeRecheck": "All four lifecycle IDs remain owned by apps/azrael-desktop/verify.cjs at revision 3, all eight roots remain present, and PID 31176 remains alive with its recorded creation identity. No termination or deletion performed.",
+  "limits": "Retention does not authorize force termination, closing the original VS Code host, deleting protected data or bypassing owner guards. Recheck and clean through the supported owner when each release condition is met."
+}
