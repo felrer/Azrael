@@ -6,6 +6,18 @@ const snapshot = (days: ProjectUsageSnapshot["days"] = []): ProjectUsageSnapshot
 const project = (id: string, amount: number, unpriced = 0, name = id) => ({ id, name, amount, unpriced, models: [] as import("../src/projectUsagePresentation").ProjectUsageModel[] });
 const usd = (amount: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(amount);
 
+test("openai automatic review shows a count without masking other unpriced observations", () => {
+  const value = project("a", 4, 5);
+  value.models = [
+    { provider: "openai", model: "codex-auto-review", amount: 0, unpriced: 3 },
+    { provider: "other", model: "codex-auto-review", amount: 0, unpriced: 2 },
+  ];
+  const html = projectUsageHtml(snapshot([{ date: "2024-01-01", projects: [value] }]), "2024-01");
+  assert.ok(html.includes(`aria-label="a · ${usd(4)} · ?×2"`));
+  assert.match(html, /codex-auto-review · openai<\/span><span data-azrael-dynamic-text>3회<\/span>/);
+  assert.match(html, /codex-auto-review · other<\/span><span data-azrael-dynamic-text>— · \?×2<\/span>/);
+});
+
 test("Sunday-first annual calendar aligns weekdays and includes leap day", () => {
   const html = projectUsageHtml(snapshot(), "2024-02");
   const calendar = html.split('class="puc-calendar"')[1].split('class="puc-projects"')[0];

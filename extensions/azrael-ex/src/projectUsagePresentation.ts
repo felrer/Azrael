@@ -53,7 +53,11 @@ export function projectUsageHtml(snapshot: ProjectUsageSnapshot, month: string, 
     for (const project of day.projects) {
       const priced = Number.isFinite(project.amount) && project.amount >= 0;
       const unpriced = Number.isSafeInteger(project.unpriced) && project.unpriced >= 0 ? project.unpriced : 1;
-      merge(projects, { id: project.id, name: project.name, amount: priced ? project.amount : 0, unpriced: unpriced + (priced ? 0 : 1), models: project.models });
+      // Auto review is count-only under the local free-review policy. The
+      // persisted unpriced count remains available for older observations.
+      const reviewCount = project.models.filter(model => model.provider === "openai" && model.model === "codex-auto-review")
+        .reduce((sum, model) => sum + model.unpriced, 0);
+      merge(projects, { id: project.id, name: project.name, amount: priced ? project.amount : 0, unpriced: Math.max(0, unpriced - reviewCount) + (priced ? 0 : 1), models: project.models });
     }
     days.set(day.date, projects);
   }
@@ -81,7 +85,7 @@ export function projectUsageHtml(snapshot: ProjectUsageSnapshot, month: string, 
   const peak = Math.max(0, ...[...days].filter(([date]) => date.startsWith(`${year.toString().padStart(4, "0")}-`)).map(([, values]) => total(values.values()).amount));
   const modelRows = (cost: Cost): string => [...(cost.models ?? [])]
     .sort((a, b) => b.amount - a.amount || a.model.localeCompare(b.model) || a.provider.localeCompare(b.provider))
-    .map(model => `<span class="puc-tip-row puc-tip-model">${dynamicTextHtml(`${model.model} · ${model.provider}`)}${dynamicTextHtml(amount({ ...model, id: "", name: "" }))}</span>`).join("");
+    .map(model => `<span class="puc-tip-row puc-tip-model">${dynamicTextHtml(`${model.model} · ${model.provider}`)}${dynamicTextHtml(model.provider === "openai" && model.model === "codex-auto-review" ? `${model.unpriced}회` : amount({ ...model, id: "", name: "" }))}</span>`).join("");
   const tooltip = (label: string, values: Cost[], known: boolean, compare = true): string => `<span class="puc-tooltip" role="tooltip"><strong>${dynamicTextHtml(label)}</strong><span class="puc-tip-total">${dynamicTextHtml(known ? amount(total(values)) : "—")}</span>${values.map(value => `${compare ? `<span class="puc-tip-row">${dynamicTextHtml(value.name)}${dynamicTextHtml(amount(value))}</span>` : ""}${modelRows(value)}`).join("")}</span>`;
   const nav = (offset: number): string => {
     const date = utcDate(year, +month.slice(5) - 1 + offset, 1);

@@ -1,0 +1,71 @@
+{
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+  "verification": "registered",
+  "logicalBytes": 127783766,
+  "results": [
+    {
+      "id": "969b743877acd741e97b78330ca21e72429149e441e5e71d6c269800a16ced53",
+      "group": "run:EY01-terra-review:render-20261102-b",
+      "status": "deleted",
+      "remaining": false,
+      "error": null,
+      "decision_id": "d2b522517bce4bfafd4710350c4cbcf921d4dbf1b7159e958cb96837cb79e04c"
+    },
+    {
+      "id": "ab44857c1ec6fa700ddddf8cddb6abfef35f8a97a7f1a81df16f8c0ced52fc1d",
+      "group": "run:EY01-terra-review:pricing-20261102-a",
+      "status": "deleted",
+      "remaining": false,
+      "error": null,
+      "decision_id": "bd95ee9ae1d6948293db5424a4599835a8f9737c4d927027534e3558745f18c3"
+    },
+    {
+      "id": "b25a67f4096abfbcd5a9b7f67aacd8f37d4c79134a3f506a5502e4679db73921",
+      "group": "run:EY01-terra-review:render-20261102-c",
+      "status": "deleted",
+      "remaining": false,
+      "error": null,
+      "decision_id": "cfc8ade6f9b881259c2c232e8801ad05c12df40bf0f48457f64973004a5e163d"
+    },
+    {
+      "id": "caf6024cb076303d672fd33360bd3e8984368a985c5573a89b48c4d512f683d8",
+      "group": "run:EY01-terra-review:render-20261102-a",
+      "status": "deleted",
+      "remaining": false,
+      "error": null,
+      "decision_id": "013bf9dc52b44fc582fdc0ee75fea6506369bcae6f155677466060f8c1f40fcd"
+    },
+    {
+      "id": "dd10b891a3fd6656cc651b23784b9779d0b3406700627918ba8a6b477dc20a15",
+      "group": "run:EY01-terra-review:source-20261102-a",
+      "status": "deleted",
+      "remaining": false,
+      "error": null,
+      "decision_id": "b2c722e63fbb16edd59dd98ee459d2d46196ef6e2b0f9d936c26f808b44ac530"
+    }
+  ],
+  "remaining": [],
+  "producerRecords": [
+    {
+      "id": "run:EY01-terra-review:pricing-20261102-a",
+      "status": "finalized"
+    },
+    {
+      "id": "run:EY01-terra-review:render-20261102-a",
+      "status": "finalized"
+    },
+    {
+      "id": "run:EY01-terra-review:render-20261102-b",
+      "status": "finalized"
+    },
+    {
+      "id": "run:EY01-terra-review:render-20261102-c",
+      "status": "finalized"
+    },
+    {
+      "id": "run:EY01-terra-review:source-20261102-a",
+      "status": "finalized"
+    }
+  ]
+}

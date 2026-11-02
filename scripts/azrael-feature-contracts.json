@@ -1268,6 +1268,11 @@
       "id": "ui.account-settings",
       "area": "ui",
       "owners": [
+        "extensions/azrael-ex/src/projectUsagePresentation.ts",
+        "extensions/azrael-ex/src/projectUsageProtocol.ts",
+        "extensions/azrael-ex/test/projectUsagePresentation.test.ts",
+        "engine/codex-rs/core/src/project_usage_pricing.rs",
+        "engine/codex-rs/core/src/project_usage_rates.json",
         "extensions/azrael-ex/src/usagePresentation.ts",
         "extensions/azrael-ex/src/usageWindowService.ts",
         "extensions/azrael-ex/src/usageView.ts",

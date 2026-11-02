@@ -1,0 +1,122 @@
+{
+  "scope": "Windows x64 source acceptance only. Pricing module and its production TokenUsage field declaration compiled in an isolated crate; full core integration, live billing, packaging, installation, Linux and macOS not claimed.",
+  "sourceHashes": {
+    "engine/codex-rs/core/src/project_usage_pricing.rs": "891f96181c62f8d37fe39712ff6ad91dc6dec7a94df99c1bf6fbb37c0b6fa27e",
+    "engine/codex-rs/core/src/project_usage_rates.json": "eaf7283e74cdf87a829b1e94ab01f9a19540e7995fe45df873bd8209ce0876aa",
+    "extensions/azrael-ex/src/projectUsagePresentation.ts": "ab129473d60b7a5f83e3070338499666004e3150f269343fc77b895f7699d446",
+    "extensions/azrael-ex/test/projectUsagePresentation.test.ts": "076bc7404f93acbb23d908dfda88c28695998c3d0d179e1f6cd9f2252b7d50f6",
+    "scripts/test-usage-window-ui.cjs": "b8486068cbba97906c3f7297181578ae7fe0d8cb3413af21b0298bbbf5dbf497"
+  },
+  "pricing": {
+    "exit": 0,
+    "passed": 10,
+    "startedUtc": "2026-11-02T13:12:02.820Z",
+    "durationMs": 75474,
+    "args": [
+      "test",
+      "--lib",
+      "--offline",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  "source": [
+    {
+      "name": "usage-ui",
+      "args": [
+        "--test",
+        "scripts/test-usage-window-ui.cjs"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "types",
+      "args": [
+        "extensions/azrael-ex/node_modules/typescript/bin/tsc",
+        "-p",
+        "extensions/azrael-ex/tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "exit": 0
+    }
+  ],
+  "sourceTestCounts": {
+    "passed": 47,
+    "failed": 0
+  },
+  "render": {
+    "exit": 0,
+    "checks": [
+      "light-420 total excludes free reviews only",
+      "light-420 hover tooltip visible",
+      "light-420 model values",
+      "light-420 tooltip contained",
+      "light-420 no horizontal page overflow",
+      "light-420 keyboard count and complete free bar",
+      "light-655 total excludes free reviews only",
+      "light-655 hover tooltip visible",
+      "light-655 model values",
+      "light-655 tooltip contained",
+      "light-655 no horizontal page overflow",
+      "light-655 keyboard count and complete free bar",
+      "dark-420 total excludes free reviews only",
+      "dark-420 hover tooltip visible",
+      "dark-420 model values",
+      "dark-420 tooltip contained",
+      "dark-420 no horizontal page overflow",
+      "dark-420 keyboard count and complete free bar",
+      "dark-655 total excludes free reviews only",
+      "dark-655 hover tooltip visible",
+      "dark-655 model values",
+      "dark-655 tooltip contained",
+      "dark-655 no horizontal page overflow",
+      "dark-655 keyboard count and complete free bar",
+      "light and dark actual colors differ"
+    ],
+    "colors": {
+      "light-420": "rgb(255, 255, 255)",
+      "light-655": "rgb(255, 255, 255)",
+      "dark-420": "rgb(33, 33, 33)",
+      "dark-655": "rgb(33, 33, 33)"
+    },
+    "browserExit": {
+      "confirmed": true,
+      "exitCode": 0,
+      "signalCode": null,
+      "processInspectionExitCode": 0,
+      "processIds": []
+    },
+    "visualReview": [
+      "light-655.png",
+      "dark-420.png"
+    ]
+  },
+  "reruns": [
+    {
+      "id": "render-20261102-a",
+      "exit": 1,
+      "cause": "PowerShell stdin encoding replaced literal expected separator characters; product file encoding intact; original test failure preserved."
+    },
+    {
+      "id": "render-20261102-b",
+      "exit": 1,
+      "cause": "CDP Page.navigate timeout; browser stopped normally."
+    },
+    {
+      "id": "render-20261102-c",
+      "exit": 0,
+      "change": "Unicode escapes in expectations and direct CDP document content; same production HTML/CSS."
+    }
+  ],
+  "artifactPolicy": "All run payload, logs, screenshots and temporary build/browser state are disposable after this independently readable evidence and visual review; cleanup results are recorded in the work plan.",
+  "featureInventory": {
+    "scope": "Changed ui.account-settings feature",
+    "exit": 0,
+    "unrelatedFullManifestFailures": [
+      "tool.project-maintenance duplicate owners in concurrent worktree",
+      "Existing directory owners conflict with current validator file-only references"
+    ]
+  }
+}

@@ -206,6 +206,37 @@ mod tests {
     }
 
     #[test]
+    fn terra_rates_and_supported_tiers() {
+        let u = usage(1000, 400, 100, 200);
+        assert_eq!(
+            estimate_nano_usd("openai", "gpt-6.1-terra", None, &u, None),
+            Some(1_645_000)
+        );
+        assert_eq!(
+            estimate_nano_usd("openai", "gpt-6.1-terra", Some("fast"), &u, None),
+            Some(3_290_000)
+        );
+        assert_eq!(
+            estimate_nano_usd("openai", "gpt-6.1-terra", Some("batch"), &u, None),
+            Some(822_500)
+        );
+        assert_eq!(
+            estimate_nano_usd("openai", "gpt-6.1-terra", Some("ultrafast"), &u, None),
+            None
+        );
+        let boundary = usage(272_000, 272_000, 0, 100);
+        let above = usage(272_001, 272_001, 0, 100);
+        assert_eq!(
+            estimate_nano_usd("openai", "gpt-6.1-terra", None, &boundary, None),
+            Some(14_100_000)
+        );
+        assert_eq!(
+            estimate_nano_usd("openai", "gpt-6.1-terra", None, &above, None),
+            Some(27_950_100)
+        );
+    }
+
+    #[test]
     fn only_published_model_tiers_apply() {
         let u = usage(1000, 0, 0, 0);
         for (tier, expected) in [

@@ -1,0 +1,49 @@
+﻿{
+    "scope":  "EY01 render attempt a",
+    "observedUtc":  "2026-11-02T13:21:49.4591621Z",
+    "originalExit":  1,
+    "trackedChildren":  [
+                            {
+                                "pid":  9708,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  25836,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  15968,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  10348,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  15340,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  48336,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  42036,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  32748,
+                                "closed":  true
+                            },
+                            {
+                                "pid":  32364,
+                                "closed":  true
+                            }
+                        ],
+    "browserRoot":  9708,
+    "earlierProfileOwnedProcess":  30484,
+    "chromeProfileOrKnownParentMatches":  [
+
+                                          ],
+    "explanation":  "Tracked Chrome root and all inspection children emitted close; independent CIM query finds no profile-owning Chrome or remaining known children. Original failure outcome preserved."
+}
