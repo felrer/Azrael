@@ -24,6 +24,8 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
   - [c. Context compaction](#c-context-compaction-that-waits-its-turn)
   - [d. Window Use](#d-window-use-work-alongside-the-agent)
   - [e. Session flags](#e-session-flags)
+- [3. Other features](#3-other-features)
+  - [a. Profile and Team](#a-profile-and-team)
 - [Platform support](#platform-support)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -219,6 +221,21 @@ Details: [Window Use](docs/architecture/window-use.md), [desktop backend (Comput
 Long-running projects produce many conversations. Hover a row in **Chats** and click the flag before its timestamp to mark it; flagged rows show a **filled red flag** at all times, including the new-chat screen's recent-chat preview. Enable **Flagged only** inside the history menu's chat-type dropdown to show marked chats plus the current chat within the current filters and search. The current chat stays visible even without a flag. Click a flag again to clear it. Flagging never opens, closes or archives anything, works from the keyboard, and is stored per host and conversation.
 
 <p align="center"><img src="docs/images/session-flags.png" alt="Chats list row with a red flag" width="576"></p>
+
+## 3. Other features
+
+### a. Profile and Team
+
+Save a reusable work environment as a **Profile**, and an agent role configuration as a **Team**. Choose a setup for the task instead of configuring instructions and models each time.
+
+- **Compose a Profile.** Combine base instructions, skills, MCP connections, Playbooks, references and roles. Optionally specify a provider, model and reasoning level. Azrael's core instructions stay fixed; duplicate the default profile or a package template to create a personal configuration.
+- **Save and activate separately.** Keep several Profiles and activate one per project. Saving is independent of activation, and changes to the applied configuration affect subsequent requests. Already accepted or running requests retain their captured configuration.
+- **Reuse a Team.** Role profiles define each agent's model, reasoning and instructions. Store one Lead profile and a list of available root and subagent profiles. The Lead selects registered root profiles; roots select registered subagent profiles to delegate work. Outside a Team, work directly with a Direct root.
+- **Preserve the configuration.** Teams retain copies of their profiles and required pinned resources. Editing or deleting an original does not change a saved Team. Team configuration changes apply to newly created sessions; resumed sessions restore their existing role, membership and model selection.
+
+*Profile editing/storage and Team creation paths are implemented in source. Project Profile engine integration, the full Team execution scheduler and installed-host acceptance remain separate verification gates.*
+
+Details: [Profile composition](docs/architecture/instructions.md#profile-composer), [role profiles](docs/architecture/instructions.md#role-profiles-for-team-and-direct), [Team and Direct](docs/architecture/work-orchestration.md#team과-direct).
 
 ## Platform support
 
