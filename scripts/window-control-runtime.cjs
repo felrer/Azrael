@@ -45,7 +45,14 @@ function verifyRuntime(directory) {
       childSession.logoffScript = path.join(directory, CHILD_LOGOFF[0]);
     }
   } else if (seen.has(CHILD_EXECUTABLE)) throw new Error('Undeclared Windows child-session helper');
-  return { directory, executable: path.join(directory, required[0]), mcpScript: path.join(directory, required[1]), manifestSha256: hash(bytes), manifest, ...(childSession ? { childSession } : {}) };
+  let virtualInput;
+  if (manifest.virtualInput) {
+    if (manifest.platform !== 'win32' || manifest.virtualInput.directory !== 'virtual-input' || !digest(manifest.virtualInput.manifestSha256) || !seen.has('window-virtual-input.cjs')) throw new Error('Invalid virtual input runtime declaration');
+    const checkedVirtual = require('./window-virtual-input.cjs').verifyVirtualRuntime(path.join(directory,'virtual-input'));
+    if (checkedVirtual.manifestSha256 !== manifest.virtualInput.manifestSha256 || manifest.files.find(f=>f.path==='virtual-input/manifest.json')?.sha256 !== checkedVirtual.manifestSha256) throw new Error('Virtual input runtime manifest mismatch');
+    virtualInput = {...checkedVirtual,modulePath:path.join(directory,'window-virtual-input.cjs')};
+  } else if ([...seen].some(name=>name==='window-virtual-input.cjs' || name.startsWith('virtual-input/'))) throw new Error('Undeclared virtual input runtime');
+  return { directory, executable: path.join(directory, required[0]), mcpScript: path.join(directory, required[1]), manifestSha256: hash(bytes), manifest, ...(childSession ? { childSession } : {}), ...(virtualInput ? {virtualInput} : {}) };
 }
 function verifyRelease(release, sourceRoot) {
   const build = JSON.parse(fs.readFileSync(checked(release, 'build-info.json')));
@@ -57,7 +64,7 @@ function verifyRelease(release, sourceRoot) {
   const result = verifyRuntime(path.join(release, 'window-control'));
   if (result.manifestSha256 !== expected.toLowerCase()) throw new Error('Release Window Control manifest hash mismatch');
   if (sourceRoot && sourceFingerprint(sourceRoot) !== result.manifest.source.sourceSha256) throw new Error('Window Control source provenance mismatch');
-  for (const module of ['window-control-host.cjs', ...(result.manifest.windowUseGuidanceVersion === 1 ? HOST_MODULES : []), 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-control-host.cjs', ...(result.virtualInput?['window-virtual-input.cjs']:[]), ...(result.manifest.windowUseGuidanceVersion === 1 ? HOST_MODULES : []), 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const wanted = build.sha256?.[`host/${module}`];
     if (!wanted || hash(fs.readFileSync(checked(release, `host/${module}`))) !== wanted.toLowerCase()) throw new Error(`Release Window Control host module mismatch: ${module}`);
   }
@@ -76,15 +83,18 @@ function verifyPreparedHost(directory, release) {
   if (expected.childSession) {
     for (const key of ['executable', 'sha256', 'probeScript']) if (config.windowControl?.childSession?.[key] !== expected.childSession[key]) throw new Error(`Prepared Window Control child-session configuration mismatch: ${key}`);
   } else if (config.windowControl?.childSession) throw new Error('Prepared Window Control declares unsupported child-session helper');
+  if (expected.virtualInput) {
+    for(const key of ['directory','manifestSha256','modulePath']) if(config.windowControl?.virtualInput?.[key] !== expected.virtualInput[key]) throw new Error(`Prepared virtual input configuration mismatch: ${key}`);
+  } else if(config.windowControl?.virtualInput) throw new Error('Prepared Window Control declares unsupported virtual input runtime');
   if (verifyRuntime(path.join(directory, 'window-control')).manifestSha256 !== expected.manifestSha256) throw new Error('Prepared Window Control manifest mismatch');
   const build = JSON.parse(fs.readFileSync(checked(release, 'build-info.json')));
-  for (const module of ['window-control-host.cjs', ...(expected.manifest.windowUseGuidanceVersion === 1 ? HOST_MODULES : []), 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-control-host.cjs', ...(expected.virtualInput?['window-virtual-input.cjs']:[]), ...(expected.manifest.windowUseGuidanceVersion === 1 ? HOST_MODULES : []), 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const wanted = build.sha256?.[`host/${module}`];
     if (!wanted || hash(fs.readFileSync(checked(directory, `out/${module}`))) !== wanted.toLowerCase()) throw new Error(`Prepared Window Control host module mismatch: ${module}`);
   }
   return expected;
 }
-function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, guidance, destination, childSessionExecutable }) {
+function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, guidance, destination, childSessionExecutable, virtualInputDirectory }) {
   for (const directory of [sourceRoot, scriptDirectory]) checked(directory);
   for (const file of [executable, provenance, guidance]) checked(path.dirname(path.resolve(file)), path.basename(file));
   destination = path.resolve(destination);
@@ -107,11 +117,18 @@ function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, gui
   if (platform === 'win32') inputs.push([CHILD_PROBE, checked(path.resolve(sourceRoot, '../windows-child-session'), 'probe.ps1')]);
   if (childSessionExecutable) inputs.push([CHILD_EXECUTABLE, checked(path.dirname(childSessionExecutable), path.basename(childSessionExecutable))]);
   if (childSessionExecutable) for (const rel of CHILD_LOGOFF) inputs.push([rel, checked(scriptDirectory, rel)]);
+  let virtualInput;
+  if(virtualInputDirectory) {
+    if(platform !== 'win32' || !path.isAbsolute(virtualInputDirectory)) throw new Error('Virtual input requires an absolute Windows runtime directory');
+    virtualInput=require('./window-virtual-input.cjs').verifyVirtualRuntime(virtualInputDirectory);
+    inputs.push(['window-virtual-input.cjs',checked(scriptDirectory,'window-virtual-input.cjs')]);
+    for(const rel of walk(virtualInputDirectory))inputs.push([`virtual-input/${rel}`,checked(virtualInputDirectory,rel)]);
+  }
   for (const rel of WINDOW_GUIDES) inputs.push([rel, checked(path.dirname(path.resolve(guidance)), rel.slice('docs/'.length))]);
   const files = inputs.map(([rel, source]) => { const bytes = fs.readFileSync(source); return { path: relative(rel), sha256: hash(bytes), bytes: bytes.length, source: path.resolve(source) }; });
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of files) { const target = path.join(destination, entry.path); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.copyFileSync(entry.source, target); if (entry.path === requiredFiles(platform)[0]) fs.chmodSync(target, 0o755); }
-  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', windowUseGuidanceVersion: 1, platform, ...(childSessionExecutable ? { childSession: { executable: CHILD_EXECUTABLE, probeScript: CHILD_PROBE, sha256: files.find(entry => entry.path === CHILD_EXECUTABLE).sha256, logoffCleanupVersion: 1 } } : {}), source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release' }, files }, null, 2) + '\n');
+  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', windowUseGuidanceVersion: 1, platform, ...(virtualInput ? {virtualInput:{directory:'virtual-input',manifestSha256:virtualInput.manifestSha256}} : {}), ...(childSessionExecutable ? { childSession: { executable: CHILD_EXECUTABLE, probeScript: CHILD_PROBE, sha256: files.find(entry => entry.path === CHILD_EXECUTABLE).sha256, logoffCleanupVersion: 1 } } : {}), source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release' }, files }, null, 2) + '\n');
   return verifyRuntime(destination);
 }
 module.exports = { sourceFingerprint, fingerprintNativeSource: sourceFingerprint, stageRuntime, verifyRuntime, verifyRelease, verifyPreparedHost };
@@ -125,7 +142,7 @@ if (require.main === module) {
     else if (command === 'verify-release') result = verifyRelease(options['--release'], options['--source-root']);
     else if (command === 'verify-host') result = verifyPreparedHost(options['--directory'], options['--release']);
     else if (command === 'fingerprint') result = { sourceSha256: sourceFingerprint(options['--source'] || options['--source-root']) };
-    else if (command === 'stage') result = stageRuntime({ sourceRoot: options['--source-root'], executable: options['--executable'], provenance: options['--provenance'], scriptDirectory: options['--script-directory'], guidance: options['--guidance'], destination: options['--destination'], childSessionExecutable: options['--child-session-executable'] });
+    else if (command === 'stage') result = stageRuntime({ sourceRoot: options['--source-root'], executable: options['--executable'], provenance: options['--provenance'], scriptDirectory: options['--script-directory'], guidance: options['--guidance'], destination: options['--destination'], childSessionExecutable: options['--child-session-executable'], virtualInputDirectory: options['--virtual-input-directory'] });
     else throw new Error('Unknown Window Control runtime command');
     if (result) delete result.manifest;
     console.log(JSON.stringify(result));

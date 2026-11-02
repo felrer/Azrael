@@ -65,11 +65,21 @@ function toolDefinitions() {
       if(name === 'set_value' || name === 'scroll') {properties.value = name === 'scroll' ? {type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false} : {type:'string',maxLength:32768}; required.push('value');}
       if(name === 'press_key') {properties.key = {enum:require('./window-task-macros.cjs').KEYS};required.push('key');}
     }
+    if(name === 'virtual_input') {
+      properties.observationId={type:'string'};
+      const coord={type:'integer',minimum:0,maximum:16383};
+      properties.input={oneOf:[
+        {type:'object',properties:{kind:{const:'text'},text:{type:'string',minLength:1,maxLength:2047,description:'At most 2047 UTF-16 code units; astral characters use two units.'}},required:['kind','text'],additionalProperties:false},
+        {type:'object',properties:{kind:{const:'key'},virtualKey:{type:'integer',minimum:1,maximum:255,not:{enum:[91,92]}},action:{enum:['down','up']}},required:['kind','virtualKey','action'],additionalProperties:false},
+        {type:'object',properties:{kind:{const:'mouse'},action:{enum:['move','down','up','wheel']},x:coord,y:coord,button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200,not:{const:0}}},required:['kind','action'],additionalProperties:false,allOf:[{if:{required:['x']},then:{required:['y']}},{if:{required:['y']},then:{required:['x']}},{if:{properties:{action:{const:'move'}}},then:{required:['x','y']}},{if:{properties:{action:{enum:['down','up']}}},then:{required:['button']}},{if:{properties:{action:{const:'wheel'}}},then:{required:['delta']}}]}
+      ]};required.push('observationId','input');
+    }
     if(name === 'select_window') {properties.candidateId = {type:'string'};required.push('candidateId');}
     if(name === 'cleanup') properties.ids={type:'array',minItems:1,maxItems:20,items:{type:'string',maxLength:128},description:'Optional owned IDs from resource_status for immediate safe cleanup; omit to apply idle/quota policy.'};
     if(name === 'logoff_isolated') {properties.reason={type:'string',minLength:1,maxLength:1024};required.push('reason');}
     if(name === 'context') properties.guideVersion = {type:'string'};
     if(name === 'request_stage' || name === 'prepare_permissions') {properties.stage={enum:[2,3,4]};properties.targetId={type:'string'};properties.reason={type:'string',minLength:1,maxLength:1024};required.push('stage','reason');}
+    if(name === 'request_stage') properties.virtualInput={type:'boolean',description:'Stage 2 general conversations only: explicitly approve DLL input hooking for all windows of this exact PID/process lifetime/executable. Required before virtual_input; does not grant semantic control or desktop input.'};
     if(name === 'prepare_permissions') properties.candidateIds={type:'array',maxItems:8,uniqueItems:true,items:{type:'string'},description:'Fresh opaque candidate IDs from list_windows for known apps to approve before work. No executable paths or wildcard grants. Selecting a window invalidates old candidates; enumerate again if needed.'};
     if(name === 'launch_isolated') {required.length=0;properties.packageName={type:'string',pattern:'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$',description:'Exact registered Windows MSIX package name, e.g. Microsoft.Paint. Host resolves its installed full-trust EXE and requests app consent; no parent window is needed.'};properties.applicationId={type:'string',pattern:'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$',description:'Exact manifest application ID when the package has multiple full-trust applications.'};}
     if(name === 'input_isolated') {properties.observationId={type:'string'};properties.input={oneOf:[{type:'object',properties:{kind:{const:'text'},text:{type:'string',maxLength:4096}},required:['kind','text'],additionalProperties:false},{type:'object',properties:{kind:{const:'key'},scanCode:{type:'integer',minimum:1,maximum:127},action:{enum:['down','up']},extended:{type:'boolean'}},required:['kind','scanCode','action'],additionalProperties:false},{type:'object',properties:{kind:{const:'mouse'},x:{type:'integer',minimum:0},y:{type:'integer',minimum:0},action:{enum:['move','down','up','wheel']},button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200}},required:['kind','x','y','action'],additionalProperties:false}]};required.push('observationId','input');}
@@ -87,6 +97,8 @@ function toolDefinitions() {
     if(name === 'resize') {properties.widthDip = {type:'number',minimum:100,maximum:8192};properties.heightDip = {type:'number',minimum:100,maximum:8192};required.push('widthDip','heightDip');}
     if(name === 'run_size_macro') {properties.macroId = {type:'string'};required.push('macroId');}
     const descriptions = {
+      virtual_input:'Opt-in general-conversation stage 2 only; first request_stage with stage:2 and virtualInput:true for explicit exact-process DLL hooking approval. Deliver target-process virtual input using a fresh capture. Mouse coordinates are physical CLIENT pixels; out-of-client input is rejected. Delivery does not verify app effects. Recapture after each input; never replay unknown input or fall back to global input.',
+      release_virtual_input:'Detach this conversation virtual-input session for the exact target, including while paused. Does not resume a user stop.',
       context:'Read current Window Use stages, prerequisites and concise guidance. Supply guideVersion to omit unchanged guidance.',
       request_stage:'Request task authority for 2 current window, 3 isolated execution, or 4 desktop. App grants do not grant stages. Follow returned guidance before input.',
       logoff_isolated:'Request one-time user approval to log off the existing Windows child session, without a target ID. Healthy sessions require no input owner; failed status/connection verification permits abnormal sessions to be ended regardless of owner. Unsaved work may be lost. Does not delete user files or profiles. Never replay an unknown logoff result.',
@@ -118,7 +130,7 @@ function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs 
   return new Promise((resolve, reject) => {
     const socket = connect(pipe); const decoder = new StringDecoder('utf8'); let buffer = ''; let receivedBytes = 0; let settled = false; let stage = 'connection';
     const finish = (error, result) => { if (settled) return; settled = true; socket.destroy(); error ? reject(error) : resolve(result); };
-    const uncertainty = () => stage === 'running' && ['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','resize','restore_window','run_size_macro','run_task_macro','ui_operation'].includes(message.tool) ? { mutationOutcome: 'unknown' } : {};
+    const uncertainty = () => stage === 'running' && ['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','resize','restore_window','run_size_macro','run_task_macro','ui_operation','virtual_input','release_virtual_input'].includes(message.tool) ? { mutationOutcome: 'unknown' } : {};
     const timeout = () => windowError(stage === 'approval' ? 'approval_timeout' : 'timeout', stage === 'approval' ? '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.' : stage === 'queued' ? '앞선 Window Use 작업을 기다리다 시간이 초과됐습니다.' : 'Window Use 호스트의 응답 대기 시간이 초과됐습니다.', { stage, ...(stage === 'approval' ? { approvalState: 'expired', userResponded: false, actionExecuted: false } : {}), ...uncertainty() });
     socket.setTimeout(timeoutMs, () => finish(timeout()));
     socket.on('connect', () => { stage = 'queued'; socket.write(JSON.stringify(message) + '\n'); });
@@ -168,6 +180,7 @@ function callResult(result) {
   const text = observation(result);
   for(const key of ['logoffConfirmed','filesCleanupState','remainingPaths','health','ownerPresent','mutationOutcome','actionExecuted','runtimeRetirement']) if(Object.hasOwn(result,key)) text[key]=result[key];
   for(const key of ['stage','backendDirectory','executionContext','enabled','stages','guideVersion','guide','authorized','missingPrerequisite','message','resources','freedBytes','deferred','failed','deleted','childSession','results','bytes','reservedBytes','maxBytes','overLimit','availableBytes','resourceCount','admissionReady','available','contentVerified','code','ok','width','height','delivered','readbackVerified','observationInvalidated','admissionScope','applicationCompatibility','resourceId']) if(Object.hasOwn(result,key)) text[key]=result[key];
+  if(typeof result.detached==='boolean') text.detached=result.detached;
   if(typeof result.prepared==='boolean') text.prepared=result.prepared;
   if(typeof result.appsAuthorized==='boolean') text.appsAuthorized=result.appsAuthorized;
   if(Array.isArray(result.appResults)) text.appResults=result.appResults.slice(0,8).map(r=>({index:r.index,authorized:r.authorized,...(typeof r.code==='string'&&/^[a-z_]{1,64}$/.test(r.code)?{code:r.code}:{})}));

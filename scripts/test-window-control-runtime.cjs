@@ -27,6 +27,26 @@ function fixture(t) {
   const options = { sourceRoot, scriptDirectory, guidance, executable, provenance, destination };
   return { ...options, release, options };
 }
+
+function virtualFixture(f) {
+  const directory=path.join(f.sourceRoot,'..','virtual-runtime');fs.mkdirSync(directory);
+  const files=['azrael-virtual-input.exe','azrael-virtual-input-hook.dll','THIRD_PARTY_NOTICES.md'].map(name=>{
+    const bytes=Buffer.from('owned virtual fixture '+name);fs.writeFileSync(path.join(directory,name),bytes);return {path:name,bytes:bytes.length,sha256:hash(bytes)};
+  });
+  fs.copyFileSync(path.join(__dirname,'window-virtual-input.cjs'),path.join(f.scriptDirectory,'window-virtual-input.cjs'));
+  fs.writeFileSync(path.join(directory,'manifest.json'),JSON.stringify({schema:1,kind:'azrael-virtual-input',platform:'win32',arch:'x64',sourceSha256:'a'.repeat(64),files}));
+  return directory;
+}
+
+test('optional virtual input stages both native files and its exact provider closure', t => {
+  const f=fixture(t),directory=virtualFixture(f);
+  const staged=stageRuntime({...f.options,virtualInputDirectory:directory});
+  assert.equal(staged.virtualInput.directory,path.join(f.destination,'virtual-input'));
+  assert.equal(staged.virtualInput.modulePath,path.join(f.destination,'window-virtual-input.cjs'));
+  assert.equal(staged.manifest.virtualInput.manifestSha256,staged.virtualInput.manifestSha256);
+  fs.appendFileSync(staged.virtualInput.modulePath,'\n// changed');
+  assert.throws(()=>verifyRuntime(f.destination),/hash mismatch/);
+});
 test('stage closure includes required owned files and release binds provenance', t => {
   const f = fixture(t), result = stageRuntime(f.options);
   const sha256 = { 'window-control/manifest.json': result.manifestSha256 };
@@ -71,11 +91,11 @@ test('Windows child runtime binds the administrator wrapper and common finalizer
 test('prepared host binds declared release, copied bundle and host modules', t => {
   const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'prepared-child.exe');
   fs.writeFileSync(helper, 'synthetic child helper');
-  const runtime = stageRuntime({ ...f.options, childSessionExecutable: helper }), host = path.join(path.dirname(f.release), 'host');
+  const runtime = stageRuntime({ ...f.options, childSessionExecutable: helper,virtualInputDirectory:virtualFixture(f) }), host = path.join(path.dirname(f.release), 'host');
   const sha256 = { 'window-control/manifest.json': runtime.manifestSha256 };
   fs.mkdirSync(path.join(host, 'out'), { recursive: true });
   fs.mkdirSync(path.join(f.release, 'host'));
-  for (const module of ['window-control-host.cjs', 'window-desktop-authority.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-virtual-input.cjs','window-control-host.cjs', 'window-desktop-authority.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const content = fs.readFileSync(path.join(__dirname, module));
     fs.writeFileSync(path.join(host, 'out', module), content); fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
@@ -86,6 +106,10 @@ test('prepared host binds declared release, copied bundle and host modules', t =
   assert.equal(verifyPreparedHost(host, f.release).manifestSha256, runtime.manifestSha256);
   const loadHost = () => spawnSync(process.execPath, ['-e', 'require(process.argv[1])', path.join(host, 'out/window-control-host.cjs')], { encoding: 'utf8' });
   assert.equal(loadHost().status, 0, 'Copied production host dependency closure must load');
+  const copiedVerifier=spawnSync(process.execPath,['-e','require(process.argv[1]).verifyRuntime(process.argv[2])',path.join(host,'out/window-control-runtime.cjs'),f.destination],{encoding:'utf8'});
+  assert.equal(copiedVerifier.status,0,copiedVerifier.stderr);
+  const provider=path.join(host,'out/window-virtual-input.cjs'),providerBytes=fs.readFileSync(provider);
+  fs.unlinkSync(provider);assert.throws(()=>verifyPreparedHost(host,f.release),/ENOENT/);fs.writeFileSync(provider,providerBytes);
   const branding = path.join(host, 'out/computer-use-branding.cjs'), brandingBytes = fs.readFileSync(branding);
   fs.unlinkSync(branding);
   assert.throws(() => verifyPreparedHost(host, f.release), /ENOENT/);
