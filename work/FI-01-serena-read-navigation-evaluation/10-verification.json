@@ -1,0 +1,3067 @@
+{
+  "schema": 1,
+  "status": "trial_analysis_and_normal_shutdown_complete_cleanup_pending",
+  "experiment": "Fresh two-base/two-filtered-minimal cold sol_executor sessions; no reruns selected by outcome",
+  "commit": "d77f6c5c92cc79c19a43f2c694ce39006d53d4bf",
+  "platform": "Windows x64 / Python3.13 / Serena2.1.0 / gpt-6.1-sol",
+  "analysis": {
+    "schema": 1,
+    "rows": [
+      {
+        "rollout": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\03\\rollout-2026-11-03T09-06-17-01a19eba-6138-7a82-9e58-ad0d9ee03375.jsonl",
+        "start": "2026-11-03T00:06:17.734Z",
+        "end": "2026-11-03T00:08:00.461Z",
+        "seconds": 102.727,
+        "model_requests": 13,
+        "model_tool_calls": 12,
+        "first_input_tokens": 24558,
+        "last_input_tokens": 54518,
+        "input_growth": 29960,
+        "delivered_chars": 100917,
+        "truncated_outputs": 1,
+        "model": "gpt-6.1-sol",
+        "delivered_outputs": [
+          {
+            "at": "2026-11-03T00:06:22.177Z",
+            "call_id": "call_3814fc33b54148cfaf0242ff52eff2d0",
+            "chars": 2399,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:30.152Z",
+            "call_id": "call_816babc6980d43eb878366f8ea432d10",
+            "chars": 20815,
+            "truncated": true
+          },
+          {
+            "at": "2026-11-03T00:06:34.343Z",
+            "call_id": "call_ec186d82a0fa4e5dae783dca62f697ba",
+            "chars": 8734,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:41.147Z",
+            "call_id": "call_bf560ad4232d4568afcc7e4ed05eb8b8",
+            "chars": 6480,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:46.601Z",
+            "call_id": "call_d495f0cd28f24f0d8f68d02f00dce9c3",
+            "chars": 11865,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:52.157Z",
+            "call_id": "call_b4e58d56a578427f9b325c854c651f0f",
+            "chars": 7922,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:58.462Z",
+            "call_id": "call_94fdcb8891624f48882302037e30a322",
+            "chars": 9048,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:06.270Z",
+            "call_id": "call_2e4c5d840e7747d499a301118b6e3e78",
+            "chars": 2910,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:11.245Z",
+            "call_id": "call_f2bf8d836d16438b9a5351f281dbfbf8",
+            "chars": 0,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:17.966Z",
+            "call_id": "call_7aefd6cffad5411588dbca8c3eff5e21",
+            "chars": 16139,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:24.488Z",
+            "call_id": "call_5e78bc8dcf434f91a612511e7f786d27",
+            "chars": 14429,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:48.621Z",
+            "call_id": "call_60ead03906fa4325bc272d11767d128f",
+            "chars": 176,
+            "truncated": false
+          }
+        ],
+        "lane": "base1",
+        "queries": 27,
+        "raw_chars": 214364,
+        "by_tool": {
+          "files": 6,
+          "search": 13,
+          "read_file": 8
+        },
+        "backend_errors": 1,
+        "selection_errors": 0,
+        "duplicates": 0,
+        "guide_file_chars": 2163
+      },
+      {
+        "rollout": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\03\\rollout-2026-11-03T09-06-22-01a19eba-7461-7690-8c25-45446b539ee6.jsonl",
+        "start": "2026-11-03T00:06:22.586Z",
+        "end": "2026-11-03T00:07:54.159Z",
+        "seconds": 91.573,
+        "model_requests": 12,
+        "model_tool_calls": 11,
+        "first_input_tokens": 24561,
+        "last_input_tokens": 51906,
+        "input_growth": 27345,
+        "delivered_chars": 91235,
+        "truncated_outputs": 1,
+        "model": "gpt-6.1-sol",
+        "delivered_outputs": [
+          {
+            "at": "2026-11-03T00:06:30.029Z",
+            "call_id": "call_8e259241337f4d4b8cad6efcc2b1b319",
+            "chars": 2829,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:35.554Z",
+            "call_id": "call_9fed7624ed594181993458989a905673",
+            "chars": 40005,
+            "truncated": true
+          },
+          {
+            "at": "2026-11-03T00:06:42.374Z",
+            "call_id": "call_d04a7b7be7be4404a0686650c06b4030",
+            "chars": 5897,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:48.721Z",
+            "call_id": "call_e0bd2cfb466749c6a1b7c9039208a139",
+            "chars": 7834,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:54.871Z",
+            "call_id": "call_a254228cc9be4c7e8f283a3c9139ada3",
+            "chars": 14336,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:58.885Z",
+            "call_id": "call_62a82698f8b94e78a37e0ba9b4662a95",
+            "chars": 149,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:04.287Z",
+            "call_id": "call_7ecd0966d7a44d879cd85599919c78f5",
+            "chars": 850,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:09.601Z",
+            "call_id": "call_426da75b56d145aca82b25cb31766b05",
+            "chars": 4631,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:14.844Z",
+            "call_id": "call_ea6ccca37d4d443f99bf2d83b9f89575",
+            "chars": 7923,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:20.438Z",
+            "call_id": "call_63e44d8eb11b4bf096297ce8a5cff08e",
+            "chars": 6605,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:44.444Z",
+            "call_id": "call_55fa13a0d0fe403b834474dd71d2bac9",
+            "chars": 176,
+            "truncated": false
+          }
+        ],
+        "lane": "minimal1",
+        "queries": 17,
+        "raw_chars": 377940,
+        "by_tool": {
+          "search": 6,
+          "files": 3,
+          "list_ids": 3,
+          "read_symbols": 3,
+          "read_file": 2
+        },
+        "backend_errors": 0,
+        "selection_errors": 0,
+        "duplicates": 0,
+        "guide_file_chars": 2757
+      },
+      {
+        "rollout": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\03\\rollout-2026-11-03T09-06-28-01a19eba-8c92-78d3-baba-f3e66c9e2d43.jsonl",
+        "start": "2026-11-03T00:06:28.808Z",
+        "end": "2026-11-03T00:08:08.592Z",
+        "seconds": 99.784,
+        "model_requests": 13,
+        "model_tool_calls": 12,
+        "first_input_tokens": 24558,
+        "last_input_tokens": 62934,
+        "input_growth": 38376,
+        "delivered_chars": 131715,
+        "truncated_outputs": 1,
+        "model": "gpt-6.1-sol",
+        "delivered_outputs": [
+          {
+            "at": "2026-11-03T00:06:33.399Z",
+            "call_id": "call_fe0ebdc94ea547fbad1227bd35242f3a",
+            "chars": 2399,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:38.119Z",
+            "call_id": "call_b70a30b5c2f84ef3b565357c7da80ce7",
+            "chars": 24949,
+            "truncated": true
+          },
+          {
+            "at": "2026-11-03T00:06:44.868Z",
+            "call_id": "call_962ab0f2c8e84d90b2e7978d04179f3c",
+            "chars": 13263,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:50.610Z",
+            "call_id": "call_b9d123cc48ea43ffb40b7226ea163289",
+            "chars": 7767,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:56.389Z",
+            "call_id": "call_68213220dce942b9bf9ea3cf3a0aee7c",
+            "chars": 4152,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:04.094Z",
+            "call_id": "call_7ce7fda45c794bb983ba13dabc86f2aa",
+            "chars": 11402,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:09.589Z",
+            "call_id": "call_360bcd1bccaa40ed83ebfa6c7cd3e2ec",
+            "chars": 6595,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:15.363Z",
+            "call_id": "call_7b2b8b3d177d4b62832ee5aaa5b91585",
+            "chars": 25818,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:20.085Z",
+            "call_id": "call_fcf0922d6a624210a775995e8fa04688",
+            "chars": 28428,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:25.540Z",
+            "call_id": "call_fc5521be7ae14a7e9f0b29eb2cb550e4",
+            "chars": 970,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:31.132Z",
+            "call_id": "call_f4bb0925802a418fbada6333ae7bc81a",
+            "chars": 5796,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:55.724Z",
+            "call_id": "call_23b03fd11de948d9982fdf52772f0b63",
+            "chars": 176,
+            "truncated": false
+          }
+        ],
+        "lane": "base2",
+        "queries": 29,
+        "raw_chars": 364170,
+        "by_tool": {
+          "files": 8,
+          "search": 13,
+          "read_file": 8
+        },
+        "backend_errors": 2,
+        "selection_errors": 0,
+        "duplicates": 0,
+        "guide_file_chars": 2163
+      },
+      {
+        "rollout": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\03\\rollout-2026-11-03T09-06-35-01a19eba-a78c-7cc0-ab5a-8f79f2256964.jsonl",
+        "start": "2026-11-03T00:06:35.796Z",
+        "end": "2026-11-03T00:08:25.352Z",
+        "seconds": 109.556,
+        "model_requests": 16,
+        "model_tool_calls": 15,
+        "first_input_tokens": 24561,
+        "last_input_tokens": 58120,
+        "input_growth": 33559,
+        "delivered_chars": 112522,
+        "truncated_outputs": 1,
+        "model": "gpt-6.1-sol",
+        "delivered_outputs": [
+          {
+            "at": "2026-11-03T00:06:42.816Z",
+            "call_id": "call_765b8e8a4e204690a5fa5535a4ccb80f",
+            "chars": 2993,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:06:49.730Z",
+            "call_id": "call_fe0fc4eaf5864f5e9d34bd88cc35020f",
+            "chars": 39923,
+            "truncated": true
+          },
+          {
+            "at": "2026-11-03T00:06:56.474Z",
+            "call_id": "call_aa475babcac84dae9c6d37524c38bca1",
+            "chars": 6470,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:02.279Z",
+            "call_id": "call_536c583af8574a5095a89c053415148b",
+            "chars": 8944,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:06.676Z",
+            "call_id": "call_efe95051ca3d412f9f1544075f52d68f",
+            "chars": 149,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:12.535Z",
+            "call_id": "call_4e42dc3b5caa49b6bb30de46d02aa443",
+            "chars": 149,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:16.076Z",
+            "call_id": "call_ce399d60853342e5aa5a9e9a94195501",
+            "chars": 149,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:20.543Z",
+            "call_id": "call_4801847665b84276bdaa81ed2b2e618c",
+            "chars": 748,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:24.923Z",
+            "call_id": "call_3d195f838e924ede92ab3f10a9ce5024",
+            "chars": 14663,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:31.326Z",
+            "call_id": "call_fdab667b9ad6446aac9df012b1ed3135",
+            "chars": 5718,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:35.555Z",
+            "call_id": "call_db06da12db15451bb2b1b4519436cdc1",
+            "chars": 15498,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:40.901Z",
+            "call_id": "call_d8143cc652784f4783143dedbb8ca993",
+            "chars": 11742,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:44.830Z",
+            "call_id": "call_d6bf8504c0784bafa60bc0ee2ec6abc2",
+            "chars": 0,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:07:49.041Z",
+            "call_id": "call_9b9b72631d5843f38f9476456561f550",
+            "chars": 5200,
+            "truncated": false
+          },
+          {
+            "at": "2026-11-03T00:08:13.455Z",
+            "call_id": "call_e12c2984b5354ea1a06969e7f450d48e",
+            "chars": 176,
+            "truncated": false
+          }
+        ],
+        "lane": "minimal2",
+        "queries": 27,
+        "raw_chars": 395331,
+        "by_tool": {
+          "search": 11,
+          "list_ids": 3,
+          "files": 5,
+          "read_symbols": 3,
+          "read_file": 5
+        },
+        "backend_errors": 0,
+        "selection_errors": 0,
+        "duplicates": 0,
+        "guide_file_chars": 2757
+      }
+    ],
+    "averages": {
+      "base": {
+        "queries": 28,
+        "raw_chars": 289267,
+        "delivered_chars": 116316,
+        "input_growth": 34168,
+        "model_requests": 13,
+        "model_tool_calls": 12,
+        "truncated_outputs": 1,
+        "seconds": 101.25550000000001,
+        "guide_file_chars": 2163,
+        "backend_errors": 1.5,
+        "selection_errors": 0,
+        "duplicates": 0
+      },
+      "minimal": {
+        "queries": 22,
+        "raw_chars": 386635.5,
+        "delivered_chars": 101878.5,
+        "input_growth": 30452,
+        "model_requests": 14,
+        "model_tool_calls": 13,
+        "truncated_outputs": 1,
+        "seconds": 100.5645,
+        "guide_file_chars": 2757,
+        "backend_errors": 0,
+        "selection_errors": 0,
+        "duplicates": 0
+      }
+    },
+    "percent_delta": {
+      "queries": -21.42857142857143,
+      "raw_chars": 33.66042445214974,
+      "delivered_chars": -12.412307851026515,
+      "input_growth": -10.875673144462649,
+      "model_requests": 7.692307692307687,
+      "model_tool_calls": 8.333333333333325,
+      "truncated_outputs": 0,
+      "seconds": -0.6824320654186811,
+      "guide_file_chars": 27.461858529819704,
+      "backend_errors": -100,
+      "selection_errors": null,
+      "duplicates": null
+    },
+    "wall_seconds": 127.618,
+    "calls": [
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:29.402563+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*context*"
+        },
+        "chars": 264,
+        "isError": false,
+        "elapsed_ms": 6.06270000571385
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:30.090908+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt|영수증",
+          "glob": "*launcher*"
+        },
+        "chars": 141466,
+        "isError": false,
+        "elapsed_ms": 170.8902999816928
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:34.139319+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*launcher*"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 5.851900001289323
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:34.199120+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "gauge|denominator|autoCompact|percent|capacity",
+          "relative_path": "scripts/inject-provider-context.cjs"
+        },
+        "chars": 8164,
+        "isError": false,
+        "elapsed_ms": 55.12279999675229
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:40.042734+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "managed.*launcher|app.launcher|APP_LAUNCHER|launcher.*receipt",
+          "relative_path": "scripts",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 150.2500000060536
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:40.567695+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/inject-provider-context.cjs",
+          "start_line": 175,
+          "end_line": 213
+        },
+        "chars": 5562,
+        "isError": false,
+        "elapsed_ms": 6.606799986911938
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:41.069671+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "secondLap|gaugeProgress|Additional capacity|추가 용량",
+          "relative_path": "scripts/test-provider-context.cjs"
+        },
+        "chars": 241,
+        "isError": false,
+        "elapsed_ms": 68.79689998459071
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:44.917366+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*managed*"
+        },
+        "chars": 208,
+        "isError": false,
+        "elapsed_ms": 8.251399995060638
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:45.464516+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "launcher",
+          "relative_path": "extensions",
+          "context": 0
+        },
+        "chars": 57,
+        "isError": true,
+        "elapsed_ms": 7.647700025700033,
+        "error": "ERROR: relative_path must identify a snapshot source file"
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:46.057478+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 120,
+          "end_line": 172
+        },
+        "chars": 9371,
+        "isError": false,
+        "elapsed_ms": 8.032699988689274
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:46.507631+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/inject-provider-context.cjs",
+          "start_line": 209,
+          "end_line": 219
+        },
+        "chars": 1636,
+        "isError": false,
+        "elapsed_ms": 7.280099991476163
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:50.887852+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*.ts"
+        },
+        "chars": 86,
+        "isError": false,
+        "elapsed_ms": 6.380100006936118
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:51.599761+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "launcher",
+          "relative_path": "scripts",
+          "context": 0
+        },
+        "chars": 2403,
+        "isError": false,
+        "elapsed_ms": 161.49660001974553
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:52.074331+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "NaN|Infinity|fallback|invalid|yellow|Additional capacity",
+          "relative_path": "scripts/test-provider-context.cjs",
+          "context": 1
+        },
+        "chars": 4994,
+        "isError": false,
+        "elapsed_ms": 58.95269999746233
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:57.560209+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "AZRAEL_.*(EXEC|LAUNCH)|appLauncher|managedRunner|managed.*runner|app-runner|app_runner",
+          "context": 0
+        },
+        "chars": 1962,
+        "isError": false,
+        "elapsed_ms": 152.85459998995066
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:57.939614+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*runner*"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 6.197000009706244
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:06:58.403835+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 171,
+          "end_line": 206
+        },
+        "chars": 6558,
+        "isError": false,
+        "elapsed_ms": 7.276299991644919
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:04.238445+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "app.*receipt|receipt.*app|APP_.*RUN|MANAGED|managed",
+          "relative_path": "scripts/project-maintenance.cjs",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 71.46249999641441
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:04.701598+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*maintenance*"
+        },
+        "chars": 583,
+        "isError": false,
+        "elapsed_ms": 5.893199995625764
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:05.269207+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt",
+          "relative_path": "scripts/ordinary-runtime.cjs",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 67.63070001034066
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:06.190345+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 206,
+          "end_line": 216
+        },
+        "chars": 1814,
+        "isError": false,
+        "elapsed_ms": 8.823800017125905
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:16.907853+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/maintenance-owner-config.cjs"
+        },
+        "chars": 13271,
+        "isError": false,
+        "elapsed_ms": 10.66460000583902
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:17.387400+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "managed|receipt|identity|fallback|AZRAEL",
+          "relative_path": "scripts/test-maintenance-owner-config.cjs",
+          "context": 0
+        },
+        "chars": 1980,
+        "isError": false,
+        "elapsed_ms": 59.785100020235404
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:17.902453+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "executor|receipt|managed",
+          "relative_path": "scripts/maintenance-lock-client.cjs",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 55.40610000025481
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:23.359658+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-maintenance-owner-config.cjs",
+          "start_line": 1,
+          "end_line": 80
+        },
+        "chars": 5473,
+        "isError": false,
+        "elapsed_ms": 7.078000024193898
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:23.786800+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/inject-provider-context.cjs",
+          "start_line": 26,
+          "end_line": 31
+        },
+        "chars": 553,
+        "isError": false,
+        "elapsed_ms": 7.257899997057393
+      },
+      {
+        "lane": "base1",
+        "at": "2026-11-03T00:07:24.396795+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "resolveMaintenanceCommand",
+          "relative_path": "scripts",
+          "context": 1
+        },
+        "chars": 7718,
+        "isError": false,
+        "elapsed_ms": 184.0170999930706
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:35.251450+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "context gauge|contextGauge|ContextGauge|compactionEnabled|autoCompact",
+          "glob": "*.ts",
+          "context": 1
+        },
+        "chars": 29414,
+        "isError": false,
+        "elapsed_ms": 162.30239998549223
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:35.424295+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt|fallback",
+          "glob": "*executor*",
+          "context": 1
+        },
+        "chars": 304274,
+        "isError": false,
+        "elapsed_ms": 167.48429997824132
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:41.384620+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*executor*"
+        },
+        "chars": 37,
+        "isError": false,
+        "elapsed_ms": 5.393300001742318
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:42.303693+00:00",
+        "tool": "list_ids",
+        "arguments": {
+          "relative_path": "scripts/inject-provider-context.cjs"
+        },
+        "chars": 5397,
+        "isError": false,
+        "elapsed_ms": 436.18340001557954
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:48.508154+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "AZRAEL_.*EXECUTOR|app-executor|app_executor|managed.executor",
+          "relative_path": "scripts",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 153.90010000555776
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:48.536338+00:00",
+        "tool": "read_symbols",
+        "arguments": {
+          "selections": [
+            {
+              "relative_path": "scripts/inject-provider-context.cjs",
+              "id": "gaugeProgress[0]"
+            },
+            {
+              "relative_path": "scripts/inject-provider-context.cjs",
+              "id": "decorateGauge[0]"
+            }
+          ]
+        },
+        "chars": 6930,
+        "isError": false,
+        "elapsed_ms": 14.900799986207858,
+        "selection_count": 2,
+        "result_count": 2
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:54.176955+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*runner*"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 10.003000003052875
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:54.778606+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 125,
+          "end_line": 204
+        },
+        "chars": 13868,
+        "isError": false,
+        "elapsed_ms": 6.010599987348542
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:58.712655+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "launcher.*receipt|receipt.*launcher",
+          "relative_path": "scripts",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 179.85460002091713
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:03.497487+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*maintenance*"
+        },
+        "chars": 583,
+        "isError": false,
+        "elapsed_ms": 5.96049998421222
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:04.121596+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "managed|receipt|identity",
+          "relative_path": "scripts/check-executor-completion.cjs",
+          "context": 1
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 58.13059999491088
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:08.521792+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt|identity|process.env|fallback",
+          "relative_path": "scripts/maintenance-owner-config.cjs",
+          "context": 1
+        },
+        "chars": 3677,
+        "isError": false,
+        "elapsed_ms": 71.78289999137633
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:09.496592+00:00",
+        "tool": "list_ids",
+        "arguments": {
+          "relative_path": "scripts/maintenance-owner-config.cjs"
+        },
+        "chars": 540,
+        "isError": false,
+        "elapsed_ms": 305.55140000069514
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:14.568923+00:00",
+        "tool": "list_ids",
+        "arguments": {
+          "relative_path": "scripts/test-maintenance-owner-config.cjs"
+        },
+        "chars": 1591,
+        "isError": false,
+        "elapsed_ms": 319.95330000063404
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:14.611343+00:00",
+        "tool": "read_symbols",
+        "arguments": {
+          "selections": [
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "resolveMaintenanceCommand[0]"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "plainFile"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "validateCapabilities[0]"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "installationPath[0]"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "waitCapability"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "resolveMaintenanceOwner[0]"
+            }
+          ]
+        },
+        "chars": 5582,
+        "isError": false,
+        "elapsed_ms": 37.61639998992905,
+        "selection_count": 6,
+        "result_count": 6
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:19.942151+00:00",
+        "tool": "read_symbols",
+        "arguments": {
+          "selections": [
+            {
+              "relative_path": "scripts/test-maintenance-owner-config.cjs",
+              "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback"
+            }
+          ]
+        },
+        "chars": 5208,
+        "isError": false,
+        "elapsed_ms": 8.265699987532571,
+        "selection_count": 1,
+        "result_count": 1
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:20.371493+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/maintenance-owner-config.cjs",
+          "start_line": 1,
+          "end_line": 13
+        },
+        "chars": 839,
+        "isError": false,
+        "elapsed_ms": 7.291499990969896
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:37.892952+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*context*"
+        },
+        "chars": 264,
+        "isError": false,
+        "elapsed_ms": 5.968899989966303
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:38.047314+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt",
+          "glob": "*runner*",
+          "context": 1
+        },
+        "chars": 266318,
+        "isError": false,
+        "elapsed_ms": 151.21699997689575
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:44.122458+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*runner*"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 6.5922999929171056
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:44.768706+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "gauge|denominator|headroom|compaction",
+          "relative_path": "scripts/inject-provider-context.cjs",
+          "context": 1
+        },
+        "chars": 12477,
+        "isError": false,
+        "elapsed_ms": 69.84740000916645
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:50.284219+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/inject-provider-context.cjs",
+          "start_line": 26,
+          "end_line": 43
+        },
+        "chars": 1712,
+        "isError": false,
+        "elapsed_ms": 8.608800009824336
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:50.294270+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/inject-provider-context.cjs",
+          "start_line": 178,
+          "end_line": 215
+        },
+        "chars": 5247,
+        "isError": false,
+        "elapsed_ms": 6.390299997292459
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:50.512067+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "app.launcher|app_launcher|APP_LAUNCHER|managed.executor|managed-exec",
+          "relative_path": "scripts",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 208.6299000075087
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:56.088145+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*managed*"
+        },
+        "chars": 208,
+        "isError": false,
+        "elapsed_ms": 7.272099988767877
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:56.259463+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "launcher",
+          "context": 0
+        },
+        "chars": 2403,
+        "isError": false,
+        "elapsed_ms": 167.12420000112616
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:06:56.325119+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "gaugeProgress|secondLap|additional capacity|추가 용량",
+          "relative_path": "scripts/test-provider-context.cjs",
+          "context": 2
+        },
+        "chars": 1045,
+        "isError": false,
+        "elapsed_ms": 61.665000015636906
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:03.716802+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*engine*"
+        },
+        "chars": 787,
+        "isError": false,
+        "elapsed_ms": 5.669899983331561
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:03.730045+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*.ps1"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 7.64070000150241
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:03.742942+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 100,
+          "end_line": 156
+        },
+        "chars": 8555,
+        "isError": false,
+        "elapsed_ms": 7.976599998073652
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:03.811975+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt|AZRAEL|identity|fallback",
+          "relative_path": "scripts/check-managed-native-engine.mjs",
+          "context": 0
+        },
+        "chars": 1366,
+        "isError": false,
+        "elapsed_ms": 64.94860001839697
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:09.095137+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt",
+          "relative_path": "scripts/lib",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 66.93559998529963
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:09.106562+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt",
+          "relative_path": "extensions",
+          "context": 0
+        },
+        "chars": 57,
+        "isError": true,
+        "elapsed_ms": 8.327100018505007,
+        "error": "ERROR: relative_path must identify a snapshot source file"
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:09.176042+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "gaugeProgress|NaN|Infinity|yellow|pricing-boundary",
+          "relative_path": "scripts/verify-provider-context-render.mjs",
+          "context": 1
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 65.78500001342036
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:09.187630+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 1,
+          "end_line": 55
+        },
+        "chars": 5827,
+        "isError": false,
+        "elapsed_ms": 7.93839999823831
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:14.874066+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*executable*"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 7.158199994591996
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:14.884302+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*runtime*"
+        },
+        "chars": 670,
+        "isError": false,
+        "elapsed_ms": 6.828899990068749
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:14.953451+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt",
+          "relative_path": "scripts/shared-engine-host.cjs",
+          "context": 1
+        },
+        "chars": 505,
+        "isError": false,
+        "elapsed_ms": 65.04459999268875
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:15.019118+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "gauge|pricing-boundary|NaN|Infinity|fallback",
+          "relative_path": "scripts/test-provider-context.cjs",
+          "context": 0
+        },
+        "chars": 6743,
+        "isError": false,
+        "elapsed_ms": 61.39580000308342
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:15.185619+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "APP_|app.*receipt|receipt.*app",
+          "context": 0
+        },
+        "chars": 16729,
+        "isError": false,
+        "elapsed_ms": 162.1852999960538
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:19.951836+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/maintenance-owner-config.cjs"
+        },
+        "chars": 13271,
+        "isError": false,
+        "elapsed_ms": 6.513300002552569
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:19.961757+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-maintenance-lock-owner.cjs",
+          "start_line": 200,
+          "end_line": 285
+        },
+        "chars": 8107,
+        "isError": false,
+        "elapsed_ms": 6.464099977165461
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:19.973275+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 185,
+          "end_line": 216
+        },
+        "chars": 5766,
+        "isError": false,
+        "elapsed_ms": 7.922299992060289
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:25.231461+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "AZRAEL_MAINTENANCE_INSTALLATION|resolveMaintenanceCommand|Invalid app|fail.closed",
+          "relative_path": "scripts/test-maintenance",
+          "context": 1
+        },
+        "chars": 57,
+        "isError": true,
+        "elapsed_ms": 9.072200016817078,
+        "error": "ERROR: relative_path must identify a snapshot source file"
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:25.241584+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*maintenance*"
+        },
+        "chars": 583,
+        "isError": false,
+        "elapsed_ms": 5.782299995189533
+      },
+      {
+        "lane": "base2",
+        "at": "2026-11-03T00:07:31.045385+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-maintenance-owner-config.cjs"
+        },
+        "chars": 5473,
+        "isError": false,
+        "elapsed_ms": 6.92649997654371
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:06:49.459631+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "context.*(gauge|usage)|autoCompact|auto.compact",
+          "glob": "*.{ts,tsx,js}",
+          "context": 1
+        },
+        "chars": 64958,
+        "isError": false,
+        "elapsed_ms": 152.84199998131953
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:06:49.614695+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt|영수증",
+          "glob": "*runner*",
+          "context": 1
+        },
+        "chars": 266318,
+        "isError": false,
+        "elapsed_ms": 150.98640002543107
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:06:54.763985+00:00",
+        "tool": "list_ids",
+        "arguments": {
+          "relative_path": "scripts/inject-provider-context.cjs"
+        },
+        "chars": 5397,
+        "isError": false,
+        "elapsed_ms": 294.08419999526814
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:06:55.197719+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*managed*"
+        },
+        "chars": 208,
+        "isError": false,
+        "elapsed_ms": 5.738000007113442
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:06:55.663072+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*runner*"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 8.098899998003617
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:06:56.334528+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*provider-context*"
+        },
+        "chars": 189,
+        "isError": false,
+        "elapsed_ms": 5.6779999868012965
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:01.831192+00:00",
+        "tool": "read_symbols",
+        "arguments": {
+          "selections": [
+            {
+              "relative_path": "scripts/inject-provider-context.cjs",
+              "id": "gaugeProgress[0]"
+            },
+            {
+              "relative_path": "scripts/inject-provider-context.cjs",
+              "id": "decorateGauge[0]"
+            }
+          ]
+        },
+        "chars": 6930,
+        "isError": false,
+        "elapsed_ms": 13.989600003696978,
+        "selection_count": 2,
+        "result_count": 2
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:01.985741+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "app.runner|appRunner|APP_RUNNER",
+          "relative_path": "scripts",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 150.26140000554733
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:02.046455+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "secondLap|gaugeProgress|Additional capacity",
+          "relative_path": "scripts/test-provider-context.cjs",
+          "context": 2
+        },
+        "chars": 1045,
+        "isError": false,
+        "elapsed_ms": 56.506199995055795
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:06.494851+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "managed.*(executor|launcher)|app-launcher|app_launcher|launcher.*receipt",
+          "relative_path": "scripts",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 301.06339999474585
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:12.382693+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "AZRAEL_.*(EXECUTOR|LAUNCHER)|app[-_ ]launcher|managed[-_ ]executor",
+          "context": 0
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 161.69590002391487
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:15.899714+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*execution*"
+        },
+        "chars": 0,
+        "isError": false,
+        "elapsed_ms": 6.703199993353337
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:20.361084+00:00",
+        "tool": "files",
+        "arguments": {
+          "glob": "*maintenance*"
+        },
+        "chars": 583,
+        "isError": false,
+        "elapsed_ms": 7.176300015999004
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:24.717471+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "gaugeProgress|gauge",
+          "relative_path": "scripts/inject-provider-context.cjs",
+          "context": 1
+        },
+        "chars": 3351,
+        "isError": false,
+        "elapsed_ms": 64.07329998910427
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:24.788131+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "receipt|managed|runner",
+          "relative_path": "scripts/maintenance-owner-config.cjs",
+          "context": 1
+        },
+        "chars": 3552,
+        "isError": false,
+        "elapsed_ms": 65.49020000966266
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:24.800793+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 112,
+          "end_line": 156
+        },
+        "chars": 7170,
+        "isError": false,
+        "elapsed_ms": 7.290799985639751
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:30.598866+00:00",
+        "tool": "list_ids",
+        "arguments": {
+          "relative_path": "scripts/maintenance-owner-config.cjs"
+        },
+        "chars": 540,
+        "isError": false,
+        "elapsed_ms": 275.5697999964468
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:30.891276+00:00",
+        "tool": "list_ids",
+        "arguments": {
+          "relative_path": "scripts/test-maintenance-owner-config.cjs"
+        },
+        "chars": 1591,
+        "isError": false,
+        "elapsed_ms": 288.41779998037964
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:30.962728+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "invalid|NaN|fallback|second lap|second-lap|Additional capacity",
+          "relative_path": "scripts/test-provider-context.cjs",
+          "context": 1
+        },
+        "chars": 1786,
+        "isError": false,
+        "elapsed_ms": 66.14999999874271
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:31.034546+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "lap|capacity|yellow",
+          "relative_path": "scripts/verify-context-compaction-render.mjs",
+          "context": 1
+        },
+        "chars": 1191,
+        "isError": false,
+        "elapsed_ms": 67.84770000376739
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:35.447655+00:00",
+        "tool": "read_symbols",
+        "arguments": {
+          "selections": [
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "installationPath[0]"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "plainFile"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "waitCapability"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "validateCapabilities[0]"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "resolveMaintenanceCommand[0]"
+            },
+            {
+              "relative_path": "scripts/maintenance-owner-config.cjs",
+              "id": "resolveMaintenanceOwner[0]"
+            }
+          ]
+        },
+        "chars": 5582,
+        "isError": false,
+        "elapsed_ms": 22.770500014303252,
+        "selection_count": 6,
+        "result_count": 6
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:35.461132+00:00",
+        "tool": "read_symbols",
+        "arguments": {
+          "selections": [
+            {
+              "relative_path": "scripts/test-maintenance-owner-config.cjs",
+              "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback"
+            }
+          ]
+        },
+        "chars": 5208,
+        "isError": false,
+        "elapsed_ms": 8.984199987025931,
+        "selection_count": 1,
+        "result_count": 1
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:35.471456+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 36,
+          "end_line": 64
+        },
+        "chars": 3660,
+        "isError": false,
+        "elapsed_ms": 6.84199997340329
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:40.689214+00:00",
+        "tool": "search",
+        "arguments": {
+          "pattern": "fallback|denominator|percent|pricing",
+          "relative_path": "scripts/test-provider-context.cjs",
+          "context": 0
+        },
+        "chars": 7249,
+        "isError": false,
+        "elapsed_ms": 88.25520001119003
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:40.707716+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/maintenance-owner-config.cjs",
+          "start_line": 1,
+          "end_line": 35
+        },
+        "chars": 2132,
+        "isError": false,
+        "elapsed_ms": 13.517700019292533
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:40.726081+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/verify-context-compaction-render.mjs",
+          "start_line": 152,
+          "end_line": 162
+        },
+        "chars": 1762,
+        "isError": false,
+        "elapsed_ms": 11.263599997619167
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:48.944036+00:00",
+        "tool": "read_file",
+        "arguments": {
+          "relative_path": "scripts/test-provider-context.cjs",
+          "start_line": 185,
+          "end_line": 209
+        },
+        "chars": 4929,
+        "isError": false,
+        "elapsed_ms": 6.202699994901195
+      }
+    ],
+    "lists": [
+      {
+        "lane": "minimal1",
+        "file": "scripts/inject-provider-context.cjs",
+        "count": 104,
+        "chars": 5397,
+        "ids": [
+          "compactionPreview[0]",
+          "createModeAveragesStore[0]",
+          "createModeAveragesStore[0]/getSnapshot",
+          "createModeAveragesStore[0]/publish",
+          "createModeAveragesStore[0]/read",
+          "createModeAveragesStore[0]/readValue",
+          "createModeAveragesStore[0]/readValue/users/result.layers.filter() callback",
+          "createModeAveragesStore[0]/refresh",
+          "createModeAveragesStore[0]/refresh/finally() callback",
+          "createModeAveragesStore[0]/refresh/then() callback[0]",
+          "createModeAveragesStore[0]/refresh/then() callback[1]",
+          "createModeAveragesStore[0]/setEnabled",
+          "createModeAveragesStore[0]/subscribe",
+          "decorateGauge[0]",
+          "decorateGauge[0]/description/rows.map() callback",
+          "decorateGauge[0]/row",
+          "decorateGauge[0]/tokens",
+          "decorateGauge[0]/tooltip/children/children[0]/rows.map() callback",
+          "decorateGauge[0]/usage",
+          "gaugeProgress[0]",
+          "injectProviderContext[0]",
+          "injectProviderContextControls[0]",
+          "legacyResponsePerformanceGraph",
+          "legacyResponsePerformanceGraph/description/points.map() callback",
+          "legacyResponsePerformanceGraph/format",
+          "legacyResponsePerformanceGraph/max/points.map() callback",
+          "legacyResponsePerformanceGraph/points/samples.map() callback",
+          "legacyResponsePerformanceGraph/samples.some() callback",
+          "legacyResponsePerformanceGraph/xy",
+          "once",
+          "policyDescription[0]",
+          "policyDescription[0]/tokens",
+          "renderCompactionAction[0]",
+          "renderCompactionAction[0]/onClick",
+          "renderCompactionAction[0]/onClick/notify",
+          "renderCompactionAction[0]/React.useEffect() callback",
+          "renderCompactionAction[0]/React.useEffect() callback/notify",
+          "renderCompactionAction[0]/React.useEffect() callback/notify/update() callback",
+          "renderSettings[0]",
+          "renderSettings[0]/action",
+          "renderSettings[0]/action/setDrafts() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[0]/children/Array.from() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[0]/onChange",
+          "renderSettings[0]/children/children[5]/children[0]/control[0]/onChange/setSelection() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[1]/children/policies.map() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[1]/onChange",
+          "renderSettings[0]/children/children[5]/children[0]/control[1]/onChange/setSelection() callback",
+          "renderSettings[0]/children/children[5]/children[3]/onClick",
+          "renderSettings[0]/children/onSubmit",
+          "renderSettings[0]/metric",
+          "renderSettings[0]/p[1]/policies.find() callback[0]",
+          "renderSettings[0]/p[1]/policies.find() callback[1]",
+          "renderSettings[0]/provider/data.contextPolicies.find() callback",
+          "renderSettings[0]/React.useEffect() callback",
+          "renderSettings[0]/React.useEffect() callback/then() callback[0]",
+          "renderSettings[0]/React.useEffect() callback/then() callback[1]",
+          "renderSettings[0]/short",
+          "renderSettings[0]/some() callback",
+          "renderSettings[0]/tokens",
+          "renderSettings[0]/update",
+          "renderSettings[0]/update/setDrafts() callback",
+          "renderThreadAutoCompaction[0]",
+          "responsePerformanceDescription[0]",
+          "responsePerformanceDescription[0]/every() callback",
+          "responsePerformanceGraph[0]",
+          "responsePerformanceGraph[0]/children[1]/children[1]/boundaries.map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[1]/children[1]/timestamps.map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[1]/means.map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[2]/filter() callback",
+          "responsePerformanceGraph[0]/children[1]/children[2]/filter() callback/points.some() callback",
+          "responsePerformanceGraph[0]/children[1]/children[2]/map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[4]/means.map() callback",
+          "responsePerformanceGraph[0]/clock",
+          "responsePerformanceGraph[0]/color",
+          "responsePerformanceGraph[0]/description/points.map() callback",
+          "responsePerformanceGraph[0]/format",
+          "responsePerformanceGraph[0]/max/points.map() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback/duration/samples.reduce() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback/rate/samples.reduce() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback/samples/points.filter() callback",
+          "responsePerformanceGraph[0]/timestamps/boundaries.map() callback",
+          "responsePerformanceGraph[0]/timestamps/boundaries.map() callback/row[0]/timestampRows.findIndex() callback",
+          "responsePerformanceGraph[0]/x",
+          "responsePerformanceGraph[0]/y",
+          "savePolicy[0]",
+          "useModeAverages[0]",
+          "useModeAverages[0]/React.useEffect() callback",
+          "useModeAverages[0]/React.useEffect() callback/refresh",
+          "useModeAverages[0]/setEnabled",
+          "useThreadAutoCompaction[0]",
+          "useThreadAutoCompaction[0]/React.useEffect() callback",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/refresh",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/refresh/update() callback",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/unsubscribe",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/update() callback",
+          "useThreadAutoCompaction[0]/read",
+          "useThreadAutoCompaction[0]/retry[0]",
+          "useThreadAutoCompaction[0]/retry[0]/update() callback[0]",
+          "useThreadAutoCompaction[0]/retry[0]/update() callback[1]",
+          "useThreadAutoCompaction[0]/retrySave",
+          "useThreadAutoCompaction[0]/save[0]",
+          "useThreadAutoCompaction[0]/save[0]/update() callback[0]",
+          "useThreadAutoCompaction[0]/save[0]/update() callback[1]"
+        ]
+      },
+      {
+        "lane": "minimal1",
+        "file": "scripts/maintenance-owner-config.cjs",
+        "count": 16,
+        "chars": 540,
+        "ids": [
+          "digest",
+          "installationPath[0]",
+          "plainFile",
+          "publishInstallation[0]",
+          "resolveMaintenanceCommand[0]",
+          "resolveMaintenanceCommand[0]/every() callback",
+          "resolveMaintenanceOwner[0]",
+          "validateCapabilities[0]",
+          "validateCapabilities[0]/REQUIRED_OPERATIONS.some() callback",
+          "validateCapabilities[0]/some() callback",
+          "verifyInstalledCommand[0]",
+          "verifyInstalledCommand[0]/invoke",
+          "verifyInstalledCommand[0]/lease[0]/map() callback",
+          "verifyInstalledCommand[0]/lease.some() callback",
+          "verifyInstalledCommand[0]/request",
+          "waitCapability"
+        ]
+      },
+      {
+        "lane": "minimal1",
+        "file": "scripts/test-maintenance-owner-config.cjs",
+        "count": 14,
+        "chars": 1591,
+        "ids": [
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[0]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[1]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[2]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[3]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[4]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[5]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[6]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[7]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[8]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[9]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/before/keys.map() callback",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/save",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/t.after() callback"
+        ]
+      },
+      {
+        "lane": "minimal2",
+        "file": "scripts/inject-provider-context.cjs",
+        "count": 104,
+        "chars": 5397,
+        "ids": [
+          "compactionPreview[0]",
+          "createModeAveragesStore[0]",
+          "createModeAveragesStore[0]/getSnapshot",
+          "createModeAveragesStore[0]/publish",
+          "createModeAveragesStore[0]/read",
+          "createModeAveragesStore[0]/readValue",
+          "createModeAveragesStore[0]/readValue/users/result.layers.filter() callback",
+          "createModeAveragesStore[0]/refresh",
+          "createModeAveragesStore[0]/refresh/finally() callback",
+          "createModeAveragesStore[0]/refresh/then() callback[0]",
+          "createModeAveragesStore[0]/refresh/then() callback[1]",
+          "createModeAveragesStore[0]/setEnabled",
+          "createModeAveragesStore[0]/subscribe",
+          "decorateGauge[0]",
+          "decorateGauge[0]/description/rows.map() callback",
+          "decorateGauge[0]/row",
+          "decorateGauge[0]/tokens",
+          "decorateGauge[0]/tooltip/children/children[0]/rows.map() callback",
+          "decorateGauge[0]/usage",
+          "gaugeProgress[0]",
+          "injectProviderContext[0]",
+          "injectProviderContextControls[0]",
+          "legacyResponsePerformanceGraph",
+          "legacyResponsePerformanceGraph/description/points.map() callback",
+          "legacyResponsePerformanceGraph/format",
+          "legacyResponsePerformanceGraph/max/points.map() callback",
+          "legacyResponsePerformanceGraph/points/samples.map() callback",
+          "legacyResponsePerformanceGraph/samples.some() callback",
+          "legacyResponsePerformanceGraph/xy",
+          "once",
+          "policyDescription[0]",
+          "policyDescription[0]/tokens",
+          "renderCompactionAction[0]",
+          "renderCompactionAction[0]/onClick",
+          "renderCompactionAction[0]/onClick/notify",
+          "renderCompactionAction[0]/React.useEffect() callback",
+          "renderCompactionAction[0]/React.useEffect() callback/notify",
+          "renderCompactionAction[0]/React.useEffect() callback/notify/update() callback",
+          "renderSettings[0]",
+          "renderSettings[0]/action",
+          "renderSettings[0]/action/setDrafts() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[0]/children/Array.from() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[0]/onChange",
+          "renderSettings[0]/children/children[5]/children[0]/control[0]/onChange/setSelection() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[1]/children/policies.map() callback",
+          "renderSettings[0]/children/children[5]/children[0]/control[1]/onChange",
+          "renderSettings[0]/children/children[5]/children[0]/control[1]/onChange/setSelection() callback",
+          "renderSettings[0]/children/children[5]/children[3]/onClick",
+          "renderSettings[0]/children/onSubmit",
+          "renderSettings[0]/metric",
+          "renderSettings[0]/p[1]/policies.find() callback[0]",
+          "renderSettings[0]/p[1]/policies.find() callback[1]",
+          "renderSettings[0]/provider/data.contextPolicies.find() callback",
+          "renderSettings[0]/React.useEffect() callback",
+          "renderSettings[0]/React.useEffect() callback/then() callback[0]",
+          "renderSettings[0]/React.useEffect() callback/then() callback[1]",
+          "renderSettings[0]/short",
+          "renderSettings[0]/some() callback",
+          "renderSettings[0]/tokens",
+          "renderSettings[0]/update",
+          "renderSettings[0]/update/setDrafts() callback",
+          "renderThreadAutoCompaction[0]",
+          "responsePerformanceDescription[0]",
+          "responsePerformanceDescription[0]/every() callback",
+          "responsePerformanceGraph[0]",
+          "responsePerformanceGraph[0]/children[1]/children[1]/boundaries.map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[1]/children[1]/timestamps.map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[1]/means.map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[2]/filter() callback",
+          "responsePerformanceGraph[0]/children[1]/children[2]/filter() callback/points.some() callback",
+          "responsePerformanceGraph[0]/children[1]/children[2]/map() callback",
+          "responsePerformanceGraph[0]/children[1]/children[4]/means.map() callback",
+          "responsePerformanceGraph[0]/clock",
+          "responsePerformanceGraph[0]/color",
+          "responsePerformanceGraph[0]/description/points.map() callback",
+          "responsePerformanceGraph[0]/format",
+          "responsePerformanceGraph[0]/max/points.map() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback/duration/samples.reduce() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback/rate/samples.reduce() callback",
+          "responsePerformanceGraph[0]/means/modes.flatMap() callback/samples/points.filter() callback",
+          "responsePerformanceGraph[0]/timestamps/boundaries.map() callback",
+          "responsePerformanceGraph[0]/timestamps/boundaries.map() callback/row[0]/timestampRows.findIndex() callback",
+          "responsePerformanceGraph[0]/x",
+          "responsePerformanceGraph[0]/y",
+          "savePolicy[0]",
+          "useModeAverages[0]",
+          "useModeAverages[0]/React.useEffect() callback",
+          "useModeAverages[0]/React.useEffect() callback/refresh",
+          "useModeAverages[0]/setEnabled",
+          "useThreadAutoCompaction[0]",
+          "useThreadAutoCompaction[0]/React.useEffect() callback",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/refresh",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/refresh/update() callback",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/unsubscribe",
+          "useThreadAutoCompaction[0]/React.useEffect() callback/update() callback",
+          "useThreadAutoCompaction[0]/read",
+          "useThreadAutoCompaction[0]/retry[0]",
+          "useThreadAutoCompaction[0]/retry[0]/update() callback[0]",
+          "useThreadAutoCompaction[0]/retry[0]/update() callback[1]",
+          "useThreadAutoCompaction[0]/retrySave",
+          "useThreadAutoCompaction[0]/save[0]",
+          "useThreadAutoCompaction[0]/save[0]/update() callback[0]",
+          "useThreadAutoCompaction[0]/save[0]/update() callback[1]"
+        ]
+      },
+      {
+        "lane": "minimal2",
+        "file": "scripts/maintenance-owner-config.cjs",
+        "count": 16,
+        "chars": 540,
+        "ids": [
+          "digest",
+          "installationPath[0]",
+          "plainFile",
+          "publishInstallation[0]",
+          "resolveMaintenanceCommand[0]",
+          "resolveMaintenanceCommand[0]/every() callback",
+          "resolveMaintenanceOwner[0]",
+          "validateCapabilities[0]",
+          "validateCapabilities[0]/REQUIRED_OPERATIONS.some() callback",
+          "validateCapabilities[0]/some() callback",
+          "verifyInstalledCommand[0]",
+          "verifyInstalledCommand[0]/invoke",
+          "verifyInstalledCommand[0]/lease[0]/map() callback",
+          "verifyInstalledCommand[0]/lease.some() callback",
+          "verifyInstalledCommand[0]/request",
+          "waitCapability"
+        ]
+      },
+      {
+        "lane": "minimal2",
+        "file": "scripts/test-maintenance-owner-config.cjs",
+        "count": 14,
+        "chars": 1591,
+        "ids": [
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[0]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[1]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[2]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[3]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[4]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[5]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[6]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[7]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[8]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/assert.throws() callback[9]",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/before/keys.map() callback",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/save",
+          "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback/t.after() callback"
+        ]
+      }
+    ],
+    "batches": [
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:06:48.536338+00:00",
+        "selections": [
+          {
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "gaugeProgress[0]"
+          },
+          {
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "decorateGauge[0]"
+          }
+        ],
+        "results": [
+          {
+            "request_index": 0,
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "gaugeProgress[0]",
+            "body_chars": 528,
+            "body_sha256": "f683e6a4ab98911c0bad77cf954a790fa1926916bf92e8199aa08cda31fad5a8"
+          },
+          {
+            "request_index": 1,
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "decorateGauge[0]",
+            "body_chars": 5823,
+            "body_sha256": "e6c4afc0fd60397bd05707761a869764eb2313e4967a21fc2f954e17ef47ee06"
+          }
+        ],
+        "errors": [],
+        "duplicates": []
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:14.611343+00:00",
+        "selections": [
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceCommand[0]"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "plainFile"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "validateCapabilities[0]"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "installationPath[0]"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "waitCapability"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceOwner[0]"
+          }
+        ],
+        "results": [
+          {
+            "request_index": 0,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceCommand[0]",
+            "body_chars": 2919,
+            "body_sha256": "ac974b21429018fa6d0f4e2437af8555c683246bf721c8c89ec46b858ba0d90e"
+          },
+          {
+            "request_index": 1,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "plainFile",
+            "body_chars": 625,
+            "body_sha256": "6c458c5f1dd97f5246463174faa3476b48230f851ed151ad44531d506617c5a2"
+          },
+          {
+            "request_index": 2,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "validateCapabilities[0]",
+            "body_chars": 516,
+            "body_sha256": "28203983960503e9b01330c62765a4b909837f0f47080a299dbd4c915ae2bb57"
+          },
+          {
+            "request_index": 3,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "installationPath[0]",
+            "body_chars": 255,
+            "body_sha256": "13e6512a7df960a80d999f5266ca3df3c955400120f956c893045758eb281290"
+          },
+          {
+            "request_index": 4,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "waitCapability",
+            "body_chars": 234,
+            "body_sha256": "3d5a610c1027ffa1324710e15ff7814b4810a90b9c6e4dfa209ae19dd1e2cb85"
+          },
+          {
+            "request_index": 5,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceOwner[0]",
+            "body_chars": 107,
+            "body_sha256": "e8f86c011e28c3608fac5d6f7f5bd12e753db5a8986a5a6ca6d26bc2e26b069c"
+          }
+        ],
+        "errors": [],
+        "duplicates": []
+      },
+      {
+        "lane": "minimal1",
+        "at": "2026-11-03T00:07:19.942151+00:00",
+        "selections": [
+          {
+            "relative_path": "scripts/test-maintenance-owner-config.cjs",
+            "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback"
+          }
+        ],
+        "results": [
+          {
+            "request_index": 0,
+            "relative_path": "scripts/test-maintenance-owner-config.cjs",
+            "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback",
+            "body_chars": 4826,
+            "body_sha256": "7484cccf5f998143cf106fcd76de5f74c2c29a88d137417b9b6086ef1010a385"
+          }
+        ],
+        "errors": [],
+        "duplicates": []
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:01.831192+00:00",
+        "selections": [
+          {
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "gaugeProgress[0]"
+          },
+          {
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "decorateGauge[0]"
+          }
+        ],
+        "results": [
+          {
+            "request_index": 0,
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "gaugeProgress[0]",
+            "body_chars": 528,
+            "body_sha256": "f683e6a4ab98911c0bad77cf954a790fa1926916bf92e8199aa08cda31fad5a8"
+          },
+          {
+            "request_index": 1,
+            "relative_path": "scripts/inject-provider-context.cjs",
+            "id": "decorateGauge[0]",
+            "body_chars": 5823,
+            "body_sha256": "e6c4afc0fd60397bd05707761a869764eb2313e4967a21fc2f954e17ef47ee06"
+          }
+        ],
+        "errors": [],
+        "duplicates": []
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:35.447655+00:00",
+        "selections": [
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "installationPath[0]"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "plainFile"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "waitCapability"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "validateCapabilities[0]"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceCommand[0]"
+          },
+          {
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceOwner[0]"
+          }
+        ],
+        "results": [
+          {
+            "request_index": 0,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "installationPath[0]",
+            "body_chars": 255,
+            "body_sha256": "13e6512a7df960a80d999f5266ca3df3c955400120f956c893045758eb281290"
+          },
+          {
+            "request_index": 1,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "plainFile",
+            "body_chars": 625,
+            "body_sha256": "6c458c5f1dd97f5246463174faa3476b48230f851ed151ad44531d506617c5a2"
+          },
+          {
+            "request_index": 2,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "waitCapability",
+            "body_chars": 234,
+            "body_sha256": "3d5a610c1027ffa1324710e15ff7814b4810a90b9c6e4dfa209ae19dd1e2cb85"
+          },
+          {
+            "request_index": 3,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "validateCapabilities[0]",
+            "body_chars": 516,
+            "body_sha256": "28203983960503e9b01330c62765a4b909837f0f47080a299dbd4c915ae2bb57"
+          },
+          {
+            "request_index": 4,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceCommand[0]",
+            "body_chars": 2919,
+            "body_sha256": "ac974b21429018fa6d0f4e2437af8555c683246bf721c8c89ec46b858ba0d90e"
+          },
+          {
+            "request_index": 5,
+            "relative_path": "scripts/maintenance-owner-config.cjs",
+            "id": "resolveMaintenanceOwner[0]",
+            "body_chars": 107,
+            "body_sha256": "e8f86c011e28c3608fac5d6f7f5bd12e753db5a8986a5a6ca6d26bc2e26b069c"
+          }
+        ],
+        "errors": [],
+        "duplicates": []
+      },
+      {
+        "lane": "minimal2",
+        "at": "2026-11-03T00:07:35.461132+00:00",
+        "selections": [
+          {
+            "relative_path": "scripts/test-maintenance-owner-config.cjs",
+            "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback"
+          }
+        ],
+        "results": [
+          {
+            "request_index": 0,
+            "relative_path": "scripts/test-maintenance-owner-config.cjs",
+            "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback",
+            "body_chars": 4826,
+            "body_sha256": "7484cccf5f998143cf106fcd76de5f74c2c29a88d137417b9b6086ef1010a385"
+          }
+        ],
+        "errors": [],
+        "duplicates": []
+      }
+    ],
+    "reports": {
+      "base1": {
+        "lane": "base1",
+        "report": {
+          "answers": {
+            "Q1": "input=policy.inputTokens, L=autoCompactTokenLimit, C=contextWindow. 자동 압축 false이며 input>=L, C가 유한하고 C>L일 때 두 번째 lap: (input-L)/(C-L)*100. 그 외 input/L*100; 모두 0~100 clamp. 정확히 L 도달 시 0%로 재시작, C 도달 시 100%. input 비유한/음수 또는 L 비유한/0이하이면 전달된 native fallback, secondLap=false. C 무효/동일/이하이면 두 번째 lap 없이 기본 비율. secondLap 또는 confirmed/reference 가격경계 충족 시 subdued yellow; 가격경계는 inclusive에 따라 >= 또는 >. 추가 용량 input-L / C-L 안내를 tooltip과 aria-label에 표시하며 자동 압축/전체 용량 비율은 원래 input/L 및 input/C로 별도 표시(100% 넘어도 tooltip은 비율을 유지). tests: disabled lap 경계 599999/600000/800000/1000000/1200000와 활성 상태; invalid fallback; 실시간 설정 100->50%; 테마/고대비 CSS. 테스트 실행 안 함.",
+            "Q2": "resolveMaintenanceCommand는 AZRAEL_MAINTENANCE_OWNER override를 최우선 적용(plainFile 검사; MODE 기본 standalone=[], azrael-maintenance=['maintenance'], 다른 mode 오류). override 경로에는 receipt SHA 검사를 하지 않는다. 기본 app receipt 경로는 AZRAEL_MAINTENANCE_INSTALLATION 또는 AZRAEL_STATE_ROOT/CODEX_HOME/~/.azrael-ex의 maintenance-installation.json. 기본 경로 receipt가 ENOENT로 없을 때만 legacy fallback. 명시 INSTALLATION이 없거나 기존 receipt가 JSON/schema/protocol/product/version/hash/capabilities/platform/acceptance 문제면 오류를 전파하고 legacy로 우회하지 않음. app 실행파일/조상은 절대 경로 plain file/directory 및 symlink/traversal 금지, 실제 SHA256가 receipt와 일치해야 하고 args=['maintenance']. legacy artifacts/maintenance/owner-installation.json도 schema1/protocol/hash 및 project 내 상대 실행파일/identity 검사 후 args=[]. tests는 absent 기본->legacy, valid app 우선, hash 변경/역량/acceptance/platform/JSON 손상 오류, 명시 missing ENOENT, override mode 확인. 실제 실행 및 테스트 실행 안 함."
+          },
+          "evidence": [
+            "scripts/inject-provider-context.cjs:gaugeProgress:26-31",
+            "scripts/inject-provider-context.cjs:decorateGauge:182-215",
+            "scripts/inject-provider-context.cjs:injected aCa/XSa:406",
+            "scripts/test-provider-context.cjs:148-155,171-173,185-208",
+            "scripts/maintenance-owner-config.cjs:plainFile:17-26,installationPath:29-31,validateCapabilities:33-37,resolveMaintenanceCommand:40-71",
+            "scripts/test-maintenance-owner-config.cjs:10-70"
+          ],
+          "tool_usage": "base1 client files/search/read_file만 사용. 초기 receipt glob 검색 결과가 잘려 파일/심볼로 좁혀 재조회. extensions relative_path 검색 1건은 snapshot source file 요구 오류(exit1), 이후 scripts 범위로 검색. 없는 launcher/runner 파일명, managed launcher 패턴 등의 no-match는 정상. 모든 read-only client 호출; 소스 실행/수정/복사/위임 없음.",
+          "uncertainty": "고정 Windows x64 JS/TS snapshot의 코드/테스트 정의를 확인했으며 tests나 제품 runtime은 실행하지 않았다. invalid capacity에 대한 직접 전용 테스트는 C==L 외 확인하지 않았지만 구현 조건은 명확하다. null input fallback은 검증되며 tooltip의 모든 비정상 숫자 표시까지 정규화하는 것은 아니다."
+        },
+        "at": "2026-11-03T00:07:48.477Z"
+      },
+      "minimal1": {
+        "lane": "minimal1",
+        "report": {
+          "answers": {
+            "Q1": "scripts/inject-provider-context.cjs의 gaugeProgress[0]: inputTokens I, autoCompactTokenLimit L, contextWindow C. I와 L이 유효하면 기본 clamp(I/L,0,1)*100. autoCompactionEnabled===false이고 I>=L이며 유한 C>L이면 secondLap=true, clamp((I-L)/(C-L),0,1)*100. 정확히 L에서 0%로 전환, C에서 100% 및 초과 포화. C<=L/비유한이면 두 번째 구간 없음. decorateGauge[0]는 secondLap 또는 confirmed/reference 요금 임계 초과(inclusive면 >=)에 황색을 적용하고 추가 용량 I-L / C-L 토큰을 툴팁과 aria-label에 표시. 두 기준 I/L, I/C 원래 비율은 clamp하지 않아 100% 초과 표시 가능. I 음수/비유한 또는 L 비양수/비유한이면 전달받은 native percent로 fallback하고 secondLap=false. null도 Number.isFinite에서 거부. tests 148-155 경계와 185-204 요금색/잘못된 값/native fallback 근거. 검사는 읽기만 했으며 실행하지 않음.",
+            "Q2": "scripts/maintenance-owner-config.cjs resolveMaintenanceCommand[0]: AZRAEL_MAINTENANCE_OWNER override가 최우선, MODE 기본 standalone은 args [], azrael-maintenance는 [maintenance], 다른 mode 오류. override는 plainFile 경로 검사만 거치며 receipt/hash 검사 우회. 앱 receipt 경로는 AZRAEL_MAINTENANCE_INSTALLATION 또는 AZRAEL_STATE_ROOT > CODEX_HOME > ~/.azrael-ex 아래 maintenance-installation.json. 기본 receipt가 ENOENT이고 명시 INSTALLATION도 없을 때만 프로젝트 artifacts/maintenance/owner-installation.json legacy fallback. 존재하는 손상 receipt 또는 명시했으나 없는 receipt는 오류 전파, fallback 없음. 앱 schema/product/version/protocol/hash형식/capabilities 현재 OS/arch/필수 연산/저장형식/acceptance 모두 검사하고 plainFile executable SHA256 일치 후 args [maintenance]. legacy도 schema1/protocol/상대 contained path/plainFile/hash 검사 후 args []. plainFile은 절대경로/NUL/.. 및 symlink/비일반파일·비디렉터리 조상 거부. test-maintenance-owner-config.cjs의 installed Azrael selection, strict negotiation and legacy bootstrap callback이 absent legacy 선택, installed 우선, hash/capabilities/acceptance/platform/JSON 실패, 명시 missing ENOENT, overrides와 mode 실패를 검증하도록 작성됨. 실행은 하지 않음."
+          },
+          "evidence": [
+            "scripts/inject-provider-context.cjs gaugeProgress[0] (검색 line 26-30)",
+            "scripts/inject-provider-context.cjs decorateGauge[0]",
+            "scripts/test-provider-context.cjs:148-155,171-174,185-204",
+            "scripts/maintenance-owner-config.cjs resolveMaintenanceCommand[0] (검색 line 40-71), plainFile, installationPath[0], validateCapabilities[0], waitCapability",
+            "scripts/maintenance-owner-config.cjs:8-10",
+            "scripts/test-maintenance-owner-config.cjs test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback"
+          ],
+          "tool_usage": {
+            "files": 3,
+            "search": 6,
+            "list_ids": 3,
+            "read_symbols": 3,
+            "read_file": 2,
+            "source_total": 17
+          },
+          "uncertainty": "첫 병렬 광범위 search 결과가 출력 상한으로 잘렸으므로 결론에 필요한 owning symbol과 제한된 테스트 범위를 별도로 조회함. search 무일치가 있었으나 오류는 아니었음. read_symbols errors/duplicates 모두 빈 배열. Windows x64 고정 snapshot의 코드/테스트 정의만 확인했으며 실행 결과·현재 설치 identity·실제 UI 및 타 플랫폼 동작은 검증하지 않음."
+        },
+        "at": "2026-11-03T00:07:44.296Z"
+      },
+      "base2": {
+        "lane": "base2",
+        "report": {
+          "answers": {
+            "Q1": "gaugeProgress에서 I=inputTokens, L=autoCompactTokenLimit, C=contextWindow. 자동 압축 false라도 I<L이면 I/L*100, I>=L이고 C가 유한하며 C>L이면 (I-L)/(C-L)*100(2회차); 0..100 clamp. 따라서 L에서 100 직전→0, C에서100, 초과도100. I가 비유한/음수 또는 L이 비유한/0이하이면 fallback과 secondLap:false. C가 부적합하면 1회차 유지. decorateGauge는 2회차 또는 confirmed/reference 요금 경계 초과( inclusive일 때 >=, 아니면 > )에 노란색. CSS light #88732b dark #c2ac65, 고대비 및 forced-colors 대응. 2회차 tooltip/aria에 '자동 압축 꺼짐 · 추가 용량: I-L / C-L 토큰', 기본 두 기준 I/L 및 I/C도 유지. 경계·clamp·fallback·색상 테스트가 소스에 존재하나 실행하지 않음.",
+            "Q2": "resolveMaintenanceCommand는 AZRAEL_MAINTENANCE_OWNER가 있으면 우선 사용: plainFile 검사, MODE 기본 standalone(args[]), azrael-maintenance(args['maintenance']), 다른 mode 오류. 이 override 경로는 영수증 SHA 검사 없음. 앱 영수증 경로는 AZRAEL_MAINTENANCE_INSTALLATION 우선, 아니면 AZRAEL_STATE_ROOT→CODEX_HOME→~/.azrael-ex 아래 maintenance-installation.json. 기본 영수증이 ENOENT로 없고 explicit INSTALLATION도 없을 때만 project artifacts/maintenance/owner-installation.json의 기존 standalone fallback. 명시한 영수증이 없거나 기존 앱 영수증이 손상/JSON오류/비호환이면 오류를 전파하고 fallback하지 않음. 앱 영수증 schema2/product Azrael/version/protocol/SHA 형식, 현재 OS/arch capability 및 모든 필수 operation/storage format, acceptance 4개 true 검사, 실행파일 plainFile와 SHA256 일치 후 maintenance prefix 반환. legacy도 schema1/protocol/상대 project-contained 경로/plainFile/SHA 검사. plainFile은 절대경로·NUL/.. 금지, 파일과 모든 부모의 symlink 금지. resolver는 실행 없이 읽기/해시만 한다. 관련 테스트 소스는 확인했으며 실행하지 않음."
+          },
+          "evidence": [
+            "scripts/inject-provider-context.cjs:gaugeProgress:26-30",
+            "scripts/inject-provider-context.cjs:decorateGauge:182-215",
+            "scripts/inject-provider-context.cjs:injectProviderContext:406 (live state.enabled 반영)",
+            "scripts/test-provider-context.cjs:148-155,171-173,185-208",
+            "scripts/maintenance-owner-config.cjs:plainFile:17-26,installationPath:29-30,validateCapabilities:33-37,resolveMaintenanceCommand:40-71",
+            "scripts/test-maintenance-owner-config.cjs:10-64",
+            "scripts/test-maintenance-lock-owner.cjs:226-272"
+          ],
+          "tool_usage": {
+            "client_queries": 29,
+            "files": 8,
+            "search": 13,
+            "read_file": 8,
+            "notes": "모든 소스 조회는 base2 client 사용. 최초 broad receipt 검색 출력이 잘려 owning filename/좁은 검색으로 재조회. 상대경로 extensions 및 scripts/test-maintenance는 snapshot source file이 아니어 오류(exit1) 각 1회; 이후 files로 소유 파일 찾아 조회. 테스트/조사대상 스크립트 실행·수정 없음."
+          },
+          "uncertainty": "고정 Windows x64 JS/TS snapshot의 정적 구현/테스트 단언 근거. 실제 UI 렌더링·설치파일·테스트 통과 여부는 실행하지 않아 미검증. 부적합 capacity는 코드 분기와 C==L 테스트 근거이며 모든 비유한 capacity 경우의 별도 테스트는 확인하지 않음."
+        },
+        "at": "2026-11-03T00:07:55.579Z"
+      },
+      "minimal2": {
+        "lane": "minimal2",
+        "report": {
+          "answers": {
+            "Q1": "inputTokens=x, autoCompactTokenLimit=L, contextWindow=C일 때 정상 1회차는 clamp(x/L,0,1)*100. 자동 압축이 명시적으로 false이고 x>=L, C가 유한하며 C>L이면 2회차 clamp((x-L)/(C-L),0,1)*100. L 도달 순간 0%, C에서 100%, 초과는 100%. 예 L=600000,C=1000000에서 599999는 약100%,600000은0%,800000은50%. 2회차는 노랑이며, 별도로 confirmed/reference 가격 경계의 inclusive에 따라 >= 또는 >일 때도 노랑. 밝은 #88732b/어두운 #c2ac65 및 고대비/forced-colors 대응. 추가 용량 안내는 (x-L)/(C-L) 토큰이며 툴팁과 aria-label에 포함, 원래 x/L·x/C 비율은 별도로 표시하고 툴팁 비율은 100% 초과 가능. x 비유한/음수 또는 L 비유한/0 이하이면 전달된 native percent fallback, secondLap=false; C가 유효한 추가구간이 아니면 1회차. 테스트 소스에 경계·가격·색상·fallback 검증이 있고 렌더 fixture는 light/dark에서 off 전환 50% 및 keyboard 복원을 검증하도록 작성됨.",
+            "Q2": "resolveMaintenanceCommand는 AZRAEL_MAINTENANCE_OWNER 지정이 최우선. plainFile 경로 검사 후 기본 standalone args=[], OWNER_MODE=azrael-maintenance면 args=['maintenance'], 다른 mode는 오류. 이 override 분기는 영수증/hash 검증을 하지 않음. 일반 선택은 MAINTENANCE_INSTALLATION 또는 STATE_ROOT/CODEX_HOME/~/.azrael-ex 아래 maintenance-installation.json. 기본 app 영수증이 ENOENT로 부재할 때만 project artifacts/maintenance/owner-installation.json의 legacy fallback. 명시 INSTALLATION이 없음을 가리키거나, app receipt 손상/잘못된 JSON/identity 불일치/권한오류라면 throw하고 fallback 없음. app receipt schema2/product/version/protocol/sha256, 현재 OS/arch 및 필수 operations/storage_formats, acceptance 네 항목을 검사; 실행파일과 조상 링크 금지 plainFile 및 실제 SHA256 일치 후 maintenance subcommand 사용. legacy도 schema1/protocol/hash 및 project 내 상대경로를 검사하고 args=[]로 반환. fixture test는 부재 fallback, 앱 우선선택, 잘못된 JSON/hash/capability/acceptance/platform, 명시 missing pointer, override mode를 assert함."
+          },
+          "evidence": [
+            "scripts/inject-provider-context.cjs:gaugeProgress[0] lines26-31",
+            "scripts/inject-provider-context.cjs:decorateGauge[0] lines172-216",
+            "scripts/inject-provider-context.cjs:injectProviderContext[0] line406",
+            "scripts/test-provider-context.cjs lines148-156,185-209",
+            "scripts/verify-context-compaction-render.mjs lines152-162",
+            "scripts/maintenance-owner-config.cjs:installationPath[0],plainFile,validateCapabilities[0],resolveMaintenanceCommand[0],waitCapability",
+            "scripts/test-maintenance-owner-config.cjs:test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback"
+          ],
+          "tool_usage": "guide를 UTF8 직접 읽은 뒤 minimal2 client의 files/search/list_ids/read_symbols/read_file만 사용. 초기 광범위 search 결과가 truncation되어 소유파일별 검색과 범위조회로 필요한 근거 보완. 무일치 검색 몇 건; read_symbols errors/duplicates 모두 빈 배열. 조사 대상 실행·수정 및 테스트 실행 없음.",
+          "uncertainty": "고정 Windows x64 JS/TS 스냅샷의 정적 구현/테스트 코드 근거이며 실행 성공이나 실제 설치상태·다른 플랫폼 동작은 확인하지 않음. gaugeProgress는 fallback 자체나 decorateGauge의 표시 숫자를 포괄적으로 sanitize하지 않음. override는 명시 경로 검사만 하므로 receipt identity 검사와 구별해야 함."
+        },
+        "at": "2026-11-03T00:08:13.312Z"
+      }
+    },
+    "accuracy": {
+      "owner": "root",
+      "all_core_questions_passed": true,
+      "lanes": {
+        "base1": {
+          "Q1": "pass: first/second denominator, threshold reset/clamp/fallback, yellow and additional-capacity guidance with source tests",
+          "Q2": "pass: absence-only default fallback, explicit-missing/corrupt fail closed, override plain-file-only, executable hash/capability checks with source tests",
+          "claim_limits": "Did not claim actual product tests or live UI verification"
+        },
+        "base2": {
+          "Q1": "pass: first/second denominator, threshold reset/clamp/fallback, yellow and additional-capacity guidance with source tests",
+          "Q2": "pass: absence-only default fallback, explicit-missing/corrupt fail closed, override plain-file-only, executable hash/capability checks with source tests",
+          "claim_limits": "Did not claim actual product tests or live UI verification"
+        },
+        "minimal1": {
+          "Q1": "pass: first/second denominator, threshold reset/clamp/fallback, yellow and additional-capacity guidance with source tests",
+          "Q2": "pass: absence-only default fallback, explicit-missing/corrupt fail closed, override plain-file-only, executable hash/capability checks with source tests",
+          "claim_limits": "Did not claim actual product tests or live UI verification"
+        },
+        "minimal2": {
+          "Q1": "pass: first/second denominator, threshold reset/clamp/fallback, yellow and additional-capacity guidance with source tests",
+          "Q2": "pass: absence-only default fallback, explicit-missing/corrupt fail closed, override plain-file-only, executable hash/capability checks with source tests",
+          "claim_limits": "Did not claim actual product tests or live UI verification"
+        }
+      },
+      "basis": "Root independently reviewed all four terminal answers against fixed source and rubric; backend metrics independently counted by executor"
+    },
+    "input_manifest_sha256": "7e9abe07d58fae8fdc0fb394aa3317c68e16635333dac1852cb2802d515736ba",
+    "source_manifest_sha256": "75ba3ca05132159533082e52b42c3d055c73f8bd4e3dd12dc7cae9f52e7341e8",
+    "guide_preparation_error": {
+      "stage": "pre-trial preparation",
+      "trials_started": 0,
+      "cause": "PowerShell native stdin default encoding replaced Korean with question marks before guide generation; corrected via UTF-8 apply_patch and exact Unicode assertions.",
+      "prior_inputs_manifest_sha256": "c71fc38da10c415d5e38f6e29043adf615487763faf7f9b84f4b4ec79a0265d6",
+      "observed": [
+        {
+          "lane": "base1",
+          "questions": [
+            "Q1. ?? ???? ??? ? ???? ???? ???? ?? ??? ??? ???? ?????? ????? ?? ?????? ? ??? ?? ?? ??? ?????.",
+            "Q2. ?? ???? ??? ? ? ??? ???? ??? ???? ??? ???? ???? ??????? identity ????? ??? fallback? ?? ?? ??? ?????."
+          ],
+          "sha256": "99800fe629f040ed8aa6d3ab052b74eb35425a19a2712355834f6d0825692c84"
+        },
+        {
+          "lane": "base2",
+          "questions": [
+            "Q1. ?? ???? ??? ? ???? ???? ???? ?? ??? ??? ???? ?????? ????? ?? ?????? ? ??? ?? ?? ??? ?????.",
+            "Q2. ?? ???? ??? ? ? ??? ???? ??? ???? ??? ???? ???? ??????? identity ????? ??? fallback? ?? ?? ??? ?????."
+          ],
+          "sha256": "c1284309be6b1ba6d0a35e239ce6ad90017160852878ea4addef5eea58bea0ac"
+        },
+        {
+          "lane": "minimal1",
+          "questions": [
+            "Q1. ?? ???? ??? ? ???? ???? ???? ?? ??? ??? ???? ?????? ????? ?? ?????? ? ??? ?? ?? ??? ?????.",
+            "Q2. ?? ???? ??? ? ? ??? ???? ??? ???? ??? ???? ???? ??????? identity ????? ??? fallback? ?? ?? ??? ?????."
+          ],
+          "sha256": "25b3ad8f3361f2755b2cb225bfcf2134f1bcbf419e6fbb43f4e43bb0b78e558a"
+        },
+        {
+          "lane": "minimal2",
+          "questions": [
+            "Q1. ?? ???? ??? ? ???? ???? ???? ?? ??? ??? ???? ?????? ????? ?? ?????? ? ??? ?? ?? ??? ?????.",
+            "Q2. ?? ???? ??? ? ? ??? ???? ??? ???? ??? ???? ???? ??????? identity ????? ??? fallback? ?? ?? ??? ?????."
+          ],
+          "sha256": "490a70e07cc73b6ec4ee5b2b3cc256af17dd48773c4d340b10f3bacb3efdce7a"
+        }
+      ],
+      "repaired_at": "2026-11-03T00:05:12.189Z",
+      "excluded_from_performance_trials": true
+    },
+    "analysis_definition_selfcheck": {
+      "status": "passed",
+      "definition": "delivered/input-growth/requests/model-tools/truncated-output-message counts reproduce all four prior08 results",
+      "results": {
+        "base1": [
+          86803,
+          25008,
+          7,
+          6,
+          1
+        ],
+        "minimal1": [
+          129036,
+          37383,
+          15,
+          14,
+          1
+        ],
+        "base2": [
+          68620,
+          20808,
+          8,
+          7,
+          0
+        ],
+        "minimal2": [
+          143583,
+          40892,
+          11,
+          10,
+          2
+        ]
+      }
+    },
+    "generated_at": "2026-11-03T00:09:12.066Z"
+  },
+  "previous08": {
+    "source": "work/FI-01-serena-read-navigation-evaluation/08-plan.md",
+    "base": {
+      "queries": 13,
+      "raw_chars": 128244.5,
+      "delivered_chars": 77711.5,
+      "input_growth": 22908,
+      "model_requests": 7.5,
+      "model_tool_calls": 6.5,
+      "truncated_outputs": 0.5,
+      "seconds": 60.692
+    },
+    "minimal": {
+      "queries": 20.5,
+      "raw_chars": 640511.5,
+      "delivered_chars": 136309.5,
+      "input_growth": 39137.5,
+      "model_requests": 13,
+      "model_tool_calls": 12,
+      "truncated_outputs": 1.5,
+      "seconds": 97.6695
+    },
+    "lists": {
+      "scripts/inject-provider-context.cjs": {
+        "count": 859,
+        "chars": 44371
+      },
+      "scripts/maintenance-owner-config.cjs": {
+        "count": 151,
+        "chars": 5631
+      }
+    }
+  },
+  "source_snapshot": {
+    "files": 544,
+    "bytes": 7566958,
+    "manifest_sha256": "75ba3ca05132159533082e52b42c3d055c73f8bd4e3dd12dc7cae9f52e7341e8",
+    "previous_files": 543,
+    "previous_bytes": 7562771,
+    "same_snapshot_settings_but_not_identical_inputs": true
+  },
+  "frozen_inputs": {
+    "commit": "d77f6c5c92cc79c19a43f2c694ce39006d53d4bf",
+    "files": [
+      {
+        "relative_path": "frozen/scripts/serena-read-tools.py",
+        "sha256": "8de78f5f782a6f7fe99f69bc537b6aa0c4a2cd3a1cef8cd581199acda60e75ca",
+        "bytes": 6863
+      },
+      {
+        "relative_path": "frozen/scripts/serena-callable-positions.cjs",
+        "sha256": "329f95b7ae3cc65afcd62b5a3e369800251e43580e7d35fe569105a8c962bc76",
+        "bytes": 1650
+      },
+      {
+        "relative_path": "frozen/extensions/azrael-ex/node_modules/typescript/package.json",
+        "sha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6",
+        "bytes": 3620
+      },
+      {
+        "relative_path": "frozen/extensions/azrael-ex/node_modules/typescript/lib/typescript.js",
+        "sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+        "bytes": 9112572
+      },
+      {
+        "relative_path": "project/jsconfig.json",
+        "sha256": "f2ddf02dee8c97bd809f81a1a5c491f0c43cd79108ad025d6165da3df67bdf46",
+        "bytes": 80
+      }
+    ],
+    "source_manifest_sha256": "75ba3ca05132159533082e52b42c3d055c73f8bd4e3dd12dc7cae9f52e7341e8"
+  },
+  "inputs_before": {
+    "status": "passed",
+    "checked": 561,
+    "changed": [],
+    "at": "2026-11-03T00:05:29.758Z"
+  },
+  "inputs_after": {
+    "status": "passed",
+    "checked": 561,
+    "changed": [],
+    "at": "2026-11-03T00:10:18.487Z"
+  },
+  "freeze_revision": {
+    "stage": "pre-trial preparation",
+    "trials_started": 0,
+    "previous_manifest_sha256": "c71fc38da10c415d5e38f6e29043adf615487763faf7f9b84f4b4ec79a0265d6",
+    "current_manifest_sha256": "7e9abe07d58fae8fdc0fb394aa3317c68e16635333dac1852cb2802d515736ba",
+    "changed": [
+      "preflight.py",
+      "guide-base1.md",
+      "guide-base2.md",
+      "guide-minimal1.md",
+      "guide-minimal2.md"
+    ],
+    "added": [
+      "check-guides.cjs"
+    ],
+    "frozen_inputs": 561,
+    "at": "2026-11-03T00:05:29.554Z"
+  },
+  "preflight": {
+    "status": "passed",
+    "checks": [
+      "four_guides_exact_unicode_questions",
+      "manifest_files_and_fnmatch_glob",
+      "exact_inclusive_range_and_original_newlines",
+      "actual_rg_regex_context_and_no_match",
+      "base_id_tools_blocked_and_path_contained",
+      "real_filtered_ids_and_exact_source_body"
+    ],
+    "source": "scripts/account-controls-fixture.mjs",
+    "id": "runAccountControls",
+    "exit_code": 0
+  },
+  "window_check": {
+    "status": "passed",
+    "outside": [
+      {
+        "at": "2026-11-03T00:03:07.538443+00:00",
+        "request": {
+          "lane": "base1",
+          "tool": "list_ids",
+          "arguments": {
+            "relative_path": "scripts/account-controls-fixture.mjs"
+          }
+        },
+        "isError": true
+      },
+      {
+        "at": "2026-11-03T00:03:07.680066+00:00",
+        "request": {
+          "lane": "base1",
+          "tool": "read_symbols",
+          "arguments": {
+            "selections": [
+              {
+                "relative_path": "scripts/account-controls-fixture.mjs",
+                "id": "anything"
+              }
+            ]
+          }
+        },
+        "isError": true
+      },
+      {
+        "at": "2026-11-03T00:05:31.263604+00:00",
+        "request": {
+          "lane": "base1",
+          "tool": "list_ids",
+          "arguments": {
+            "relative_path": "scripts/account-controls-fixture.mjs"
+          }
+        },
+        "isError": true
+      },
+      {
+        "at": "2026-11-03T00:05:31.353653+00:00",
+        "request": {
+          "lane": "base1",
+          "tool": "read_symbols",
+          "arguments": {
+            "selections": [
+              {
+                "relative_path": "scripts/account-controls-fixture.mjs",
+                "id": "anything"
+              }
+            ]
+          }
+        },
+        "isError": true
+      }
+    ],
+    "trial_calls": 100,
+    "preflight_calls": 16,
+    "by_tool": {
+      "base": {
+        "files": {
+          "calls": 14,
+          "chars": 3653
+        },
+        "search": {
+          "calls": 26,
+          "chars": 476685
+        },
+        "read_file": {
+          "calls": 16,
+          "chars": 98196
+        }
+      },
+      "minimal": {
+        "search": {
+          "calls": 17,
+          "chars": 686815
+        },
+        "files": {
+          "calls": 8,
+          "chars": 1600
+        },
+        "list_ids": {
+          "calls": 6,
+          "chars": 15056
+        },
+        "read_symbols": {
+          "calls": 6,
+          "chars": 35440
+        },
+        "read_file": {
+          "calls": 7,
+          "chars": 34360
+        }
+      }
+    }
+  },
+  "body_source_check": {
+    "status": "passed",
+    "selected_bodies": 18,
+    "raw_exact_substrings": 14,
+    "native_lf_normalized": 4,
+    "matches": [
+      {
+        "lane": "minimal1",
+        "id": "gaugeProgress[0]",
+        "relative_path": "scripts/inject-provider-context.cjs",
+        "source_start_line": 26,
+        "raw_exact_substring": false,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 528,
+        "body_sha256": "f683e6a4ab98911c0bad77cf954a790fa1926916bf92e8199aa08cda31fad5a8"
+      },
+      {
+        "lane": "minimal1",
+        "id": "decorateGauge[0]",
+        "relative_path": "scripts/inject-provider-context.cjs",
+        "source_start_line": 171,
+        "raw_exact_substring": false,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 5823,
+        "body_sha256": "e6c4afc0fd60397bd05707761a869764eb2313e4967a21fc2f954e17ef47ee06"
+      },
+      {
+        "lane": "minimal2",
+        "id": "gaugeProgress[0]",
+        "relative_path": "scripts/inject-provider-context.cjs",
+        "source_start_line": 26,
+        "raw_exact_substring": false,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 528,
+        "body_sha256": "f683e6a4ab98911c0bad77cf954a790fa1926916bf92e8199aa08cda31fad5a8"
+      },
+      {
+        "lane": "minimal2",
+        "id": "decorateGauge[0]",
+        "relative_path": "scripts/inject-provider-context.cjs",
+        "source_start_line": 171,
+        "raw_exact_substring": false,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 5823,
+        "body_sha256": "e6c4afc0fd60397bd05707761a869764eb2313e4967a21fc2f954e17ef47ee06"
+      },
+      {
+        "lane": "minimal1",
+        "id": "resolveMaintenanceCommand[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 40,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 2919,
+        "body_sha256": "ac974b21429018fa6d0f4e2437af8555c683246bf721c8c89ec46b858ba0d90e"
+      },
+      {
+        "lane": "minimal1",
+        "id": "plainFile",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 17,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 625,
+        "body_sha256": "6c458c5f1dd97f5246463174faa3476b48230f851ed151ad44531d506617c5a2"
+      },
+      {
+        "lane": "minimal1",
+        "id": "validateCapabilities[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 33,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 516,
+        "body_sha256": "28203983960503e9b01330c62765a4b909837f0f47080a299dbd4c915ae2bb57"
+      },
+      {
+        "lane": "minimal1",
+        "id": "installationPath[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 29,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 255,
+        "body_sha256": "13e6512a7df960a80d999f5266ca3df3c955400120f956c893045758eb281290"
+      },
+      {
+        "lane": "minimal1",
+        "id": "waitCapability",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 11,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 234,
+        "body_sha256": "3d5a610c1027ffa1324710e15ff7814b4810a90b9c6e4dfa209ae19dd1e2cb85"
+      },
+      {
+        "lane": "minimal1",
+        "id": "resolveMaintenanceOwner[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 74,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 107,
+        "body_sha256": "e8f86c011e28c3608fac5d6f7f5bd12e753db5a8986a5a6ca6d26bc2e26b069c"
+      },
+      {
+        "lane": "minimal1",
+        "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback",
+        "relative_path": "scripts/test-maintenance-owner-config.cjs",
+        "source_start_line": 10,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 4826,
+        "body_sha256": "7484cccf5f998143cf106fcd76de5f74c2c29a88d137417b9b6086ef1010a385"
+      },
+      {
+        "lane": "minimal2",
+        "id": "installationPath[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 29,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 255,
+        "body_sha256": "13e6512a7df960a80d999f5266ca3df3c955400120f956c893045758eb281290"
+      },
+      {
+        "lane": "minimal2",
+        "id": "plainFile",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 17,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 625,
+        "body_sha256": "6c458c5f1dd97f5246463174faa3476b48230f851ed151ad44531d506617c5a2"
+      },
+      {
+        "lane": "minimal2",
+        "id": "waitCapability",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 11,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 234,
+        "body_sha256": "3d5a610c1027ffa1324710e15ff7814b4810a90b9c6e4dfa209ae19dd1e2cb85"
+      },
+      {
+        "lane": "minimal2",
+        "id": "validateCapabilities[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 33,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 516,
+        "body_sha256": "28203983960503e9b01330c62765a4b909837f0f47080a299dbd4c915ae2bb57"
+      },
+      {
+        "lane": "minimal2",
+        "id": "resolveMaintenanceCommand[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 40,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 2919,
+        "body_sha256": "ac974b21429018fa6d0f4e2437af8555c683246bf721c8c89ec46b858ba0d90e"
+      },
+      {
+        "lane": "minimal2",
+        "id": "resolveMaintenanceOwner[0]",
+        "relative_path": "scripts/maintenance-owner-config.cjs",
+        "source_start_line": 74,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 107,
+        "body_sha256": "e8f86c011e28c3608fac5d6f7f5bd12e753db5a8986a5a6ca6d26bc2e26b069c"
+      },
+      {
+        "lane": "minimal2",
+        "id": "test(\"installed Azrael selection, strict negotiation and legacy bootstrap\") callback",
+        "relative_path": "scripts/test-maintenance-owner-config.cjs",
+        "source_start_line": 10,
+        "raw_exact_substring": true,
+        "exact_after_only_crlf_to_lf": true,
+        "body_chars": 4826,
+        "body_sha256": "7484cccf5f998143cf106fcd76de5f74c2c29a88d137417b9b6086ef1010a385"
+      }
+    ],
+    "diagnostic": {
+      "initial_raw_substring_check_exit_code": 1,
+      "cause": "Four inject-provider-context bodies are complete native Serena LF strings from a CRLF file; raw byte-substring assertion was too strict for native body contract.",
+      "correction": "Explicitly check exact source-code substring after only CRLF-to-LF normalization; retain raw mismatch evidence rather than claim byte-identical output."
+    },
+    "usefulness": {
+      "per_minimal_lane": {
+        "direct_question_and_test_bodies": 7,
+        "adjacent_support_bodies": [
+          "waitCapability",
+          "resolveMaintenanceOwner[0]"
+        ],
+        "note": "Both support bodies relate to executable selection but are not independently necessary for the core rubric; not every selection is claimed indispensable."
+      },
+      "multi_selection_calls": 4,
+      "multi_selection_targets": 16,
+      "single_selection_calls": 2,
+      "single_selection_targets": 2
+    }
+  },
+  "worker": {
+    "pid": 45816,
+    "create_time": 1793664166.423348,
+    "exit_code": 0,
+    "shutdown": {
+      "children_before": [
+        {
+          "pid": 41532,
+          "create_time": 1793664177.724713,
+          "name": "cmd.exe"
+        },
+        {
+          "pid": 43616,
+          "create_time": 1793664177.733765,
+          "name": "conhost.exe"
+        },
+        {
+          "pid": 33492,
+          "create_time": 1793664177.7966793,
+          "name": "node.exe"
+        },
+        {
+          "pid": 36612,
+          "create_time": 1793664177.893911,
+          "name": "node.exe"
+        },
+        {
+          "pid": 20524,
+          "create_time": 1793664177.9104683,
+          "name": "node.exe"
+        }
+      ],
+      "owner_shutdown_returned": true,
+      "children_remaining": []
+    },
+    "at": "2026-11-03T00:10:02.089686+00:00"
+  },
+  "native_exec_observation": {
+    "session_id": 50545,
+    "exit_code": 0
+  },
+  "lsp_shutdown_log": [
+    "2026-11-03 09:10:02,037 INFO solidlsp.ls_process: Initiating shutdown with a 20s timeout...\r",
+    "2026-11-03 09:10:02,038 INFO solidlsp.ls_process: Sending shutdown request to server\r",
+    "2026-11-03 09:10:02,038 INFO solidlsp.ls_process: Received shutdown response from server\r",
+    "2026-11-03 09:10:02,038 INFO solidlsp.ls_process: Sending exit notification to server\r",
+    "2026-11-03 09:10:02,038 INFO solidlsp.ls_process: Sent exit notification to server\r",
+    "2026-11-03 09:10:02,054 INFO solidlsp.ls_process: Language server stderr reader thread has terminated\r",
+    "2026-11-03 09:10:02,054 INFO solidlsp.ls_process: Language server stdout reader thread has terminated\r",
+    "2026-11-03 09:10:02,055 INFO solidlsp.util.subprocess_util: LS[typescript] terminated successfully with exit code 0."
+  ],
+  "guides": {
+    "base": "# Read-only code investigation\n\nAnswer both questions using the fixed project snapshot. Report implementation evidence and relevant tests, distinguish confirmed behavior from uncertainty, and cite file names and symbols or lines. Do not modify or execute the investigated scripts.\n\nQ1. 자동 컨텍스트 압축을 끈 상태에서 컨텍스트 게이지는 어떤 분모와 경계로 진행률을 계산하나요? 색상·추가 용량 안내·잘못된 값 처리와 관련 검증 근거도 설명하세요.\n\nQ2. 관리 실행기를 선택할 때 앱 실행기 영수증이 없거나 손상되면 어떻게 되나요? 환경변수 지정·실행파일 identity 검사·기존 실행기 fallback과 관련 검증 근거도 설명하세요.\n\nUse files/search to locate owners and read_file for the needed source ranges. Choose the evidence needed to answer; there is no requirement to read whole files.\n\nOnly read this guide and use the client for all source queries. No direct shell/source/report/helper/adapter/runtime reads, internet, other lanes or delegation. You share the workspace; preserve all concurrent work. All source is a read-only Windows x64 JS/TS snapshot. Do not force the answer to favor a tool. Expand evidence when a concrete gap remains. No file/line/character budget is imposed.\n\nCommon API: files({glob?:fnmatch_glob}) returns snapshot source paths; '*' may match '/'. search({pattern:rg_regex,relative_path?:file_or_dir,glob?:rg_glob,context?:nonnegative_integer}) runs rg with line numbers; no match is normal. read_file({relative_path:file,start_line?:1_based,end_line?:inclusive}) returns only requested lines with 1-based labels and preserves source line endings. Omitted range means whole file. \nThis condition does not expose list_ids/read_symbols; do not call them.\n\nPowerShell UTF-8 request (ONE JSON per invocation):\n\n```powershell\n$OutputEncoding = [System.Text.UTF8Encoding]::new($false)\n@'\n{\"tool\":\"files\",\"arguments\":{\"glob\":\"*context*\"}}\n'@ | node C:/Users/felre/Desktop/pi-harness-init/artifacts/verification/minimal-id-eval-filtered-20261103-f40ce289/client.cjs base1\n```\n\nIndependent requests may run together, each using a separate client invocation. When finished, call task_complete with arguments {answers:{Q1:...,Q2:...},evidence:[...],tool_usage:...,uncertainty:...}, then return a concise Korean answer. Root owns measurements, grading and cleanup. Do not create copies.\n",
+    "minimal": "# Read-only code investigation\n\nAnswer both questions using the fixed project snapshot. Report implementation evidence and relevant tests, distinguish confirmed behavior from uncertainty, and cite file names and symbols or lines. Do not modify or execute the investigated scripts.\n\nQ1. 자동 컨텍스트 압축을 끈 상태에서 컨텍스트 게이지는 어떤 분모와 경계로 진행률을 계산하나요? 색상·추가 용량 안내·잘못된 값 처리와 관련 검증 근거도 설명하세요.\n\nQ2. 관리 실행기를 선택할 때 앱 실행기 영수증이 없거나 손상되면 어떻게 되나요? 환경변수 지정·실행파일 identity 검사·기존 실행기 fallback과 관련 검증 근거도 설명하세요.\n\nAfter locating an owning file, prefer list_ids to see its native symbol paths, then read_symbols for the relevant bodies together. If the exact path is already known, read it directly without listing. Use common search/read_file when non-symbol context or native ambiguity requires it. Do not add unrelated symbols merely to fill a batch.\n\nOnly read this guide and use the client for all source queries. No direct shell/source/report/helper/adapter/runtime reads, internet, other lanes or delegation. You share the workspace; preserve all concurrent work. All source is a read-only Windows x64 JS/TS snapshot. Do not force the answer to favor a tool. Expand evidence when a concrete gap remains. No file/line/character budget is imposed.\n\nCommon API: files({glob?:fnmatch_glob}) returns snapshot source paths; '*' may match '/'. search({pattern:rg_regex,relative_path?:file_or_dir,glob?:rg_glob,context?:nonnegative_integer}) runs rg with line numbers; no match is normal. read_file({relative_path:file,start_line?:1_based,end_line?:inclusive}) returns only requested lines with 1-based labels and preserves source line endings. Omitted range means whole file. \nAdditional API: list_ids({relative_path:file}) returns only a string array of callable/type native paths in that file, including nested callable/type paths; ordinary data variables and parameters are omitted. read_symbols({selections:[{relative_path:file,id:native_path},...]}) returns complete selected bodies, per-item errors and duplicate mappings. One or many targets use the same endpoint. Inspect errors. No roles, descriptions, signatures, hierarchy expansion or depth options.\n\nPowerShell UTF-8 request (ONE JSON per invocation):\n\n```powershell\n$OutputEncoding = [System.Text.UTF8Encoding]::new($false)\n@'\n{\"tool\":\"files\",\"arguments\":{\"glob\":\"*context*\"}}\n'@ | node C:/Users/felre/Desktop/pi-harness-init/artifacts/verification/minimal-id-eval-filtered-20261103-f40ce289/client.cjs minimal1\n```\n\nIndependent requests may run together, each using a separate client invocation. When finished, call task_complete with arguments {answers:{Q1:...,Q2:...},evidence:[...],tool_usage:...,uncertainty:...}, then return a concise Korean answer. Root owns measurements, grading and cleanup. Do not create copies.\n"
+  },
+  "guide_and_backend_differences": [
+    "Prior guide/client/backend were deleted and reconstructed to the same public boundary",
+    "Paths/lanes changed; prior transport CRCRLF normalized to LF; exact Korean questions restored and checked before any trial",
+    "Search fnmatch wrapper wording changed to actual rg_glob for both conditions",
+    "Minimal guide now states callable/type paths and ordinary-data omission",
+    "Frozen reader adds current TypeScript AST classification and byte-identical existing TypeScript runtime inputs",
+    "Snapshot now544 source files rather than prior543; fresh base rerun, no claim all original inputs identical"
+  ],
+  "analysis_helper_sha256": "1eff2e91a81edb74a735e60aca96c9e89199e251322593e4bd66a918a0a2d440",
+  "limits": [
+    "Only two sessions per condition; no statistical significance or general model superiority claim",
+    "Shared serialized backend and provider cache; policy/guide changes are part of comparison",
+    "Input growth is last-first request input, not cumulative billed input; raw and delivered text have different definitions",
+    "All four answers passed root core rubric, but tests and live UI were not executed",
+    "Native Serena body preserves code but normalizes CRLF to LF for four selected outputs; read_file preserves original endings"
+  ],
+  "cleanup_intent": {
+    "id": "run:serena-read-eval:20261103:filtered-f40ce289",
+    "run": "artifacts/verification/minimal-id-eval-filtered-20261103-f40ce289",
+    "independent_evidence": "work/FI-01-serena-read-navigation-evaluation/10-verification.json",
+    "reason": "All four trial consumers completed; independent metrics/answers/input identities/process shutdown evidence preserved before supported owner cleanup"
+  }
+}
