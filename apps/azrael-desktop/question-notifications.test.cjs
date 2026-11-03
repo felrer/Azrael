@@ -60,3 +60,38 @@ test("unavailable and failed OS delivery cannot block host message delivery", ()
     f.owner.dispose();
   }
 });
+
+test("successful completion notifies once per turn and click opens the originating conversation", () => {
+  const f = fixture();
+  const completed = { threadId: "thread", turn: { id: "turn-one", status: "completed" } };
+  f.emit("turn/completed", completed); f.emit("turn/completed", completed);
+  assert.equal(f.shown.length, 1);
+  assert.equal(f.shown[0].options.title, "Azrael · 작업 완료"); assert.equal(f.shown[0].options.silent, false);
+  f.shown[0].emit("click"); assert.deepEqual(f.navigation, [[f.panel, "local", "thread"]]);
+  f.emit("turn/completed", { threadId: "other-thread", turn: completed.turn });
+  assert.equal(f.shown.length, 2);
+  f.emit("thread/closed", { threadId: "thread" });
+  assert.equal(f.shown[0].closed, true); assert.ok(!f.shown[1].closed);
+  f.shown[0].emit("click"); assert.equal(f.navigation.length, 1);
+  f.owner.dispose(); assert.equal(f.shown[1].closed, true);
+});
+
+test("only explicit successful identified turns notify; the next turn clears completion without clearing questions", () => {
+  const f = fixture();
+  for (const status of ["failed", "interrupted", "deferred", "inProgress", undefined]) {
+    f.emit("turn/completed", { threadId: "thread", turn: { id: "turn-one", status } });
+  }
+  for (const id of [undefined, "", 7]) f.emit("turn/completed", { threadId: "thread", turn: { id, status: "completed" } });
+  assert.equal(f.shown.length, 0);
+  f.questions([{ title: "Question" }]);
+  f.emit("turn/completed", { threadId: "thread", turn: { id: "turn-one", status: "completed" } });
+  f.emit("turn/started", { threadId: "other-thread", turn: { id: "turn-two" } });
+  assert.ok(!f.shown[1].closed);
+  f.emit("turn/started", { threadId: "thread", turn: { id: "turn-two" } });
+  assert.ok(!f.shown[0].closed); assert.equal(f.shown[1].closed, true);
+  f.shown[1].emit("click"); assert.equal(f.navigation.length, 0);
+  f.emit("turn/completed", { threadId: "thread", turn: { id: "turn-one", status: "completed" } });
+  assert.equal(f.shown.length, 2);
+  f.emit("turn/completed", { threadId: "thread", turn: { id: "turn-two", status: "completed" } });
+  assert.equal(f.shown.length, 3); f.owner.dispose();
+});

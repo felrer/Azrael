@@ -1,7 +1,7 @@
 "use strict";
 
 // Only host-delivered native events create reminders. Renderer text cannot
-// manufacture a question or resolve one before the engine accepts its reply.
+// manufacture completion or resolve a question before the engine accepts its reply.
 function createQuestionNotifications({ Notification, activate, onError = () => {} }) {
   const panels = new Map();
   let disposed = false;
@@ -16,13 +16,17 @@ function createQuestionNotifications({ Notification, activate, onError = () => {
     s.pending.delete(id);
     try { record.notification.close(); } catch (error) { onError(error); }
   }
-  function show(panel, s, id, hostId, threadId) {
+  function show(panel, s, id, hostId, threadId, kind = "question") {
     if (disposed || s.seen.has(id)) return;
     s.seen.add(id);
     try {
       if (!Notification.isSupported()) return;
-      const notification = new Notification({ title: "Azrael · Agent 질문", body: "Agent가 답변을 기다리고 있습니다. 클릭하여 대화를 열어주세요.", silent: false });
-      const record = { notification, hostId, threadId };
+      const notification = new Notification({
+        title: kind === "completion" ? "Azrael · 작업 완료" : "Azrael · Agent 질문",
+        body: kind === "completion" ? "Agent 작업이 완료되었습니다. 클릭하여 대화를 열어주세요." : "Agent가 답변을 기다리고 있습니다. 클릭하여 대화를 열어주세요.",
+        silent: false,
+      });
+      const record = { notification, hostId, threadId, kind };
       s.pending.set(id, record);
       notification.on("click", () => {
         if (!disposed && s.pending.get(id) === record) activate(panel, hostId, threadId);
@@ -59,6 +63,12 @@ function createQuestionNotifications({ Notification, activate, onError = () => {
       }
     }
     if (typeof threadId !== "string" || !threadId) return;
+    if (message?.method === "turn/started") {
+      for (const [id, record] of s.pending) if (record.hostId === hostId && record.threadId === threadId && record.kind === "completion") remove(s, id);
+    }
+    if (message?.method === "turn/completed" && p.turn?.status === "completed" && typeof p.turn.id === "string" && p.turn.id) {
+      show(panel, s, key(hostId, threadId, ["completion", p.turn.id]), hostId, threadId, "completion");
+    }
     if (["thread/closed", "thread/archived", "thread/deleted"].includes(message?.method)) {
       for (const [id, record] of s.pending) if (record.hostId === hostId && record.threadId === threadId) remove(s, id);
     }
