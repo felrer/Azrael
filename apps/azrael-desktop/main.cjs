@@ -1,5 +1,5 @@
 "use strict";
-const { app, BrowserWindow, WebContentsView, ipcMain, protocol, net, dialog, shell, clipboard, nativeTheme, safeStorage } = require("electron");
+const { app, BrowserWindow, WebContentsView, Notification, ipcMain, protocol, net, dialog, shell, clipboard, nativeTheme, safeStorage } = require("electron");
 const fs = require("node:fs");
 const fsp = require("node:fs/promises");
 const path = require("node:path");
@@ -12,6 +12,7 @@ const { TerminalService } = require("./terminal-service.cjs");
 const { DialogService } = require("./dialog-service.cjs");
 const { themeCss, themeAttributes, applyTheme } = require("./theme.cjs");
 const { transform: transformImageBridge } = require("./image-bridge.cjs");
+const { createQuestionNotifications } = require("./question-notifications.cjs");
 
 function argument(name) { const index = process.argv.indexOf(name); return index < 0 ? undefined : process.argv[index + 1]; }
 const extensionRoot = argument("--host") && path.resolve(argument("--host"));
@@ -22,6 +23,9 @@ const stateRoot = path.resolve(argument("--state") || verificationRoot && path.j
 const theme = argument("--theme") || "system";
 nativeTheme.themeSource = theme;
 app.setPath("userData", stateRoot);
+// Source launches have no installer-created AppUserModelID shortcut. Electron
+// documents the executable identity for notifications in this development mode.
+if (process.platform === "win32") app.setAppUserModelId(app.isPackaged ? "Azrael.Desktop" : process.execPath);
 protocol.registerSchemesAsPrivileged([{ scheme: "azrael-app", privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } }]);
 let window, host, runtime, terminal, nativeExtension, activePanel, primaryPanel, dialogs, fixtureSetup;
 let modalVisible = false;
@@ -48,6 +52,17 @@ function log(level, ...values) {
 }
 function sendAction(value) { if (uiReady && !window.isDestroyed()) window.webContents.send("azrael:action", value); }
 function notifyError(cause) { errors.push(cause.message); log("error", cause); sendAction({ type: "error", message: cause.message }); }
+const questionNotifications = createQuestionNotifications({
+  Notification,
+  activate(panel, hostId, threadId) {
+    if (!window || window.isDestroyed() || panel.view.webContents.isDestroyed() || !panels.has(panel.view.webContents.id)) return;
+    if (window.isMinimized()) window.restore();
+    window.show(); window.focus();
+    showPanel(panel);
+    panel.webview.postMessage({ type: "navigate-to-route", path: `/${encodeURIComponent(hostId)}/${encodeURIComponent(threadId)}` });
+  },
+  onError: () => log("warn", "question-notification-unavailable"),
+});
 function updatePanelTheme(panel, dark) {
   const contents = panel.view.webContents;
   panel.themeUpdate = (panel.themeUpdate || Promise.resolve()).then(async () => {
@@ -77,6 +92,7 @@ function updateLayout() {
 function showPanel(panel) { activePanel = panel; updateLayout(); panel.view.webContents.focus(); panel.changed.fire({ webviewPanel: panel }); }
 function disposePanel(panel) {
   if (!panels.has(panel.view.webContents.id)) return;
+  questionNotifications.disposePanel(panel);
   panels.delete(panel.view.webContents.id);
   window.contentView.removeChildView(panel.view);
   panel.view.webContents.close();
@@ -100,7 +116,7 @@ function makePanel(viewType, title, _showOptions, options = {}) {
     webview: {
       options, cspSource: "azrael-app:", onDidReceiveMessage: receive.event,
       asWebviewUri(uri) { return host.vscode.Uri.from({ scheme: "azrael-app", authority: "resource", path: host.vscode.Uri.file(uri.fsPath).path }); },
-      postMessage(message) { if (view.webContents.isDestroyed()) return Promise.resolve(false); view.webContents.send("azrael:host-message", message); return Promise.resolve(true); },
+      postMessage(message) { if (view.webContents.isDestroyed()) return Promise.resolve(false); view.webContents.send("azrael:host-message", message); if (panel === primaryPanel) questionNotifications.observe(panel, message); return Promise.resolve(true); },
       get html() { return html; },
       set html(value) {
         html = value;
@@ -132,7 +148,7 @@ function makePanel(viewType, title, _showOptions, options = {}) {
     updatePanelTheme(panel, nativeTheme.shouldUseDarkColors);
     log("info", "webview-loaded", viewType);
   });
-  view.webContents.on("render-process-gone", (_event, detail) => notifyError(new Error(`대화 화면 프로세스 종료: ${detail.reason}`)));
+  view.webContents.on("render-process-gone", (_event, detail) => { questionNotifications.disposePanel(panel); notifyError(new Error(`대화 화면 프로세스 종료: ${detail.reason}`)); });
   showPanel(panel);
   return panel;
 }
@@ -423,6 +439,7 @@ app.on("before-quit", event => {
   Promise.resolve().then(async () => {
     log("info", "desktop-stopping", "terminal");
     dialogs?.dispose();
+    questionNotifications.dispose();
     fixtureSetup?.dispose();
     await terminal?.dispose();
     await Promise.allSettled([...connectionStops]);

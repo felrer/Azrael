@@ -10,6 +10,12 @@ The central conversation is complemented by a detail panel opened on demand. The
 
 New diff/PR review, artifact management, browser panes, free docking, detached windows, full IDE editing and new scheduling/remote-handoff UI are deferred. This does not retire existing Azrael behavior.
 
+## Agent question notifications
+
+Status: `partial` — source integration and Windows-host lifecycle fixtures pass. Actual OS banners, physical clicks and installed delivery remain unverified; evidence is in [the work record](../../work/FM-01-agent-question-notifications/01-plan.md).
+
+The standalone main process uses Electron's OS `Notification` API for both synchronous user-input requests and completed asynchronous question items delivered to a chat panel. Each new question produces one reminder even while the app is active. Repeated delivery does not duplicate it. Clicking a live reminder restores/focuses its originating window and opens its conversation; it never submits an answer or grants approval. Resolved requests, accepted question replies, withdrawn questions and closed conversations remove their reminders. Ordinary turn completion preserves unanswered asynchronous questions. Panel disposal and app shutdown close owned reminders. Notification failure cannot affect question delivery or execution. OS notification and sound settings control actual presentation. The initial standalone target remains Windows x64; this API choice does not establish Linux/macOS acceptance. Preservation feature: `ui.standalone-app`.
+
 ## Detail panel
 
 Opening a text file displays its resolved path and literal text. Later file selections take precedence over older pending reads. Failed reads remain visible as errors. Reload reads the same file again; the viewer never writes it. Line/column links may focus the corresponding text location. Binary content and unsupported encodings produce an explanatory error instead of corrupted or executable content.
