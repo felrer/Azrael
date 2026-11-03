@@ -1,4 +1,4 @@
-상태: 영향 검토·합의 동작 설계 및 provider-only 추가 조사 완료 — 미인증 일반 설정·공급자별 활성화·기존 자격의 명시적 이전은 합의됐다. 보조 기능의 별도 인증·라우팅·구조화 출력 의존성을 확인했으며 해결안은 제안이다. 제품 코드·계정·설정 변경은 수행하지 않았다.
+상태: 영향 조사 완료·부가 기능 설계 진행 중 — 미인증 shell·공급자별 활성화·기존 자격의 명시적 이전, OpenAI 미연결 시 Approve for me 비활성 및 사유 안내, 자동 memory 비활성 및 대화 압축 보존, 부가 서비스용 메인 OpenAI 계정과 Anthropic 대화도 해당 계정으로 검토하는 방향은 합의됐다. 클라우드 조직 정책 제거 범위는 제안이다. 제품 코드·계정·설정 변경은 수행하지 않았다.
 
 # Azrael 인증 진입 경로 정리와 미인증 실행
 
@@ -86,9 +86,9 @@ engine 조사 owner의 추가 근거:
 
 | 기능 | 확인된 조건·영향 | 해결안 — 제안 |
 | --- | --- | --- |
-| Approve for me / Guardian | 현재 UI는 managed/·devin/ 모델과 비OpenAI provider를 제외하고, 저장 선호는 보존하며 제출의 유효 리뷰어를 user로 제한한다. 이는 기존 미지원이다. Guardian은 부모 설정·유효 인증과 provider 리뷰 모델을 사용하며, 별도 OpenAI 계정을 추가했다는 사실만으로 그 계정을 쓰지는 않는다. | 현재 provider의 리뷰 모델·인증을 명시적으로 사용하고 구조화 출력의 전 구간 지원을 구현·검증해야 한다. 다른 계정으로 몰래 전환하지 않는다. 지원 전에는 기존 수동 승인 동작과 조직 정책을 유지하고, 실패를 승인으로 처리하지 않는다. |
-| 구조화 JSON 출력이 필요한 보조 작업 | managed_runtime dispatch는 prompt.output_schema 또는 final_output_json_schema가 있으면 helper 호출 전에 명시적으로 거부한다. 따라서 모델 로그인 정상 여부만으로 해당 작업을 활성화하면 실패한다. | 엔진의 capability·요청 protocol·helper projection·vendor adapter·최종 schema 검증을 함께 연결한다. schema를 버리고 일반 텍스트를 신뢰하는 식으로 우회하지 않는다. |
-| 자동 memory 추출·통합 | 일반 managed 채팅과 다른 호출 경로다. Phase 1은 config.model_provider로 만든 ModelClient를 직접 사용하고 strict output schema가 필수다. managed slug는 이 client에서 거부된다. override가 없으면 provider 기본 추출·통합 모델은 각각 gpt-5.6-luna·gpt-5.6-terra다. | 보조 작업별 모델·인증을 명시적으로 해석하고 실제 선택 provider로 라우팅한다. Phase 1의 구조화 출력 지원을 먼저 갖추고 Phase 2 내부 thread도 같은 계약으로 검사한다. 유효한 연결 없이 숨은 GPT 호출을 시작하지 않는다. 로컬 task_memory 도구에는 이 별도 LLM 호출이 없다. |
+| Approve for me / Guardian | 현재 UI는 managed/·devin/ 모델과 비OpenAI provider를 제외하고, 저장 선호는 보존하며 제출의 유효 리뷰어를 user로 제한한다. 이는 기존 미지원이다. Guardian은 부모 설정·유효 인증과 provider 리뷰 모델을 사용하며, 별도 OpenAI 계정을 추가했다는 사실만으로 그 계정을 쓰지는 않는다. | 지정한 메인 OpenAI 계정과 별도 OpenAI 리뷰어 모델로 다른 공급자 대화도 검토하도록 연결한다. 미연결·만료·준비 미완료에는 비활성 및 사유를 표시한다. 실패를 승인으로 처리하지 않는다. |
+| 구조화 JSON 출력이 필요한 보조 작업 | managed_runtime dispatch는 prompt.output_schema 또는 final_output_json_schema가 있으면 helper 호출 전에 명시적으로 거부한다. 따라서 모델 로그인 정상 여부만으로 해당 작업을 활성화하면 실패한다. | 선택된 해법은 Guardian을 별도 OpenAI 경로로 보내고 자동 memory를 비활성화하는 것이다. 이를 위해 managed schema 지원 확대까지 수행하지 않는다. 향후 그 지원을 추가할 경우 엔진·요청 protocol·helper·adapter·결과 검증 모두가 필요하다. |
+| 자동 memory 추출·통합 | 일반 managed 채팅과 다른 호출 경로다. Phase 1은 config.model_provider로 만든 ModelClient를 직접 사용하고 strict output schema가 필수다. managed slug는 이 client에서 거부된다. override가 없으면 provider 기본 추출·통합 모델은 각각 gpt-5.6-luna·gpt-5.6-terra다. | Azrael에서는 이 자동 memory 기능을 비활성화한다. 대화 압축 및 별도 로컬 task_memory 기능은 유지한다. 상세 비활성 경계는 아래 합의·미결 설계 절이 소유한다. |
 | Apps·ChatGPT 커넥터·hosted cloud plugins | Apps는 ChatGPT/Codex backend 인증이 있어야 켜진다. 사용자가 구성한 일반 MCP는 해당 MCP의 인증 경로가 별도다. | 관리 OpenAI 프로필을 이 서비스의 명시적 인증으로 연결하거나, 별도로 지원되는 직접 MCP/OAuth 연결을 사용한다. Anthropic 토큰을 OpenAI 서비스에 보내지 않는다. 로컬·일반 MCP·파일 기반 skill/plugin은 이 서비스와 구분해 보존한다. |
 | 내장 웹 검색 | 내장 executor는 OpenAI/actor 인증 또는 standalone search 지원 provider 조건과 현재 provider의 API auth를 사용한다. 채팅 모델에 도구를 붙일 수 있다는 사실만으로 검색 backend가 생기지 않는다. | 검색 구현을 서비스별 capability로 판단하고 지원되는 검색 adapter/MCP를 연결한다. 기존 내장 서비스를 사용할 경우 그 서비스의 유효 인증을 명시한다. namespace·결과·출처·권한 계약까지 확인해야 한다. |
 | 내장 이미지 생성 | app-server가 확장을 등록하지만 core의 노출 조건에는 provider image_generation capability·image modality·OpenAI actor/backend 인증·일부 plan 제한이 있다. 이미지 입력 지원은 이미지 생성 지원과 다르다. | 이미지 생성 backend와 채팅 provider를 분리해 검증된 서비스/API/MCP 연결을 사용한다. 필요한 서비스 인증이 없으면 해당 기능의 이유를 표시한다. Anthropic의 이미지 이해 기능만으로 생성 지원을 선언하지 않는다. |
@@ -135,6 +135,32 @@ Apps 목록의 일부 threadless 경로는 현재 선택된 AuthManager를 전�
 4. 확인 시나리오는 무계정, Anthropic-only, OpenAI-only, 양쪽 연결, 선택 서비스 계정 로그아웃·만료·401, 명시적 GPT role/보조 모델, window별 cache 격리다. Guardian 정상 schema·잘못된 schema·timeout·거부 및 필수 정책, memory 추출·통합, Apps 조회/인증 갱신, 검색·이미지·URL 판정과 긴 대화 압축을 각각 검사한다. 지원 전 수동 승인 전환이 허용되는 범위는 기존 정책을 따른다.
 
 이번 변경은 조사 기록만 추가했다. 제품 코드·계정·설정 변경, 실계정 요청, 모델/성능 실험 및 build는 실행하지 않았다. 문서 diff·공백·UTF-8 검사로 기록을 검토하며 source-only 결론과 미검증 설치·타 OS 수용을 구분한다.
+
+## 부가 기능의 합의·미결 설계
+
+현재 설계 논의의 후속이다. 확정된 기능 제한·계정 선택·리뷰어 경계는 설계에 반영하며 클라우드 정책 제거 제안을 제품 구현 승인으로 확대하지 않는다. 동작 의미는 공통 desktop 대상이며 Windows source를 조사했다.
+
+### 합의된 기능 제한
+
+- `Approve for me`: 사용할 메인 OpenAI 계정이 없으면 메뉴 항목을 숨기지 않고 비활성화한다. hover 및 키보드 focus로 구체 사유를 제공한다. 미연결은 ‘OpenAI 계정을 연결해야 사용할 수 있습니다’, 메인 미지정은 메인 계정 선택 필요, 만료는 재인증 필요, 리뷰어 모델·설정 미준비·정책 제한은 해당 실제 이유를 구분한다. 기존 선호를 지우지 않으며 실제 턴 제출에도 같은 유효성 검사를 적용한다. Anthropic 등 다른 공급자 대화도 메인 OpenAI 계정으로 검토한다. 현재 managed 대화에 Guardian을 붙이는 것만으로는 동작하지 않으므로 독립 OpenAI 리뷰어 연결은 필요한 구현 범위다.
+- 자동 memory: 대화 압축과 다른 장기 기억 추출·통합 기능을 Azrael에서 비활성화한다. 추출·통합 background 모델 호출, 해당 memory 요약의 자동 주입과 전용 memories 도구를 같은 기능 경계로 비활성화하는 방향이다. 기존 저장 자료를 삭제하는 작업은 포함하지 않는다. 일반 대화 압축, task-local `task_memory`, 작업 기록·요약은 유지한다.
+- 재사용 근거: features/src/lib.rs:1230 부근의 MemoryTool(`memories`) 기본값은 false지만 기본값만으로 설정 재활성화를 막지는 않는다. memories/write/src/start.rs:24–40은 같은 feature gate에서 추출·통합 시작을 차단하고, ext/memories/src/extension.rs:48은 read-path 주입·전용 도구의 enablement를 판단한다. Azrael runtime 경계에서 해당 기능이 켜지지 않게 하는 구현을 선택할 수 있으며 공유 CLI 구현 삭제는 필요하지 않다. 실제 비활성 및 압축 보존 검증은 아직 하지 않았다.
+
+### 부가 서비스 계정과 리뷰어 — 합의된 방향
+
+Apps·ChatGPT 커넥터·OpenAI 기반 검색/이미지 등 부가 서비스는 지정된 OpenAI 서비스용 메인 계정 하나를 사용하며 채팅 공급자 선택과 분리한다. 기존 관리 프로필·인증 갱신 owner를 재사용할 수 있으나 서비스 계정 인증 owner는 채팅의 현재 인증과 분리한다. 메인 계정 변경이 진행 중 채팅의 provider/model/auth를 덮어쓰면 안 된다. 서비스용 메인 지정은 기존 root 단일 계정 자동 채택을 복원하는 것이 아니며 관리 프로필의 명시적인 선택이다.
+
+기존 기능의 다중 계정 저장·명시적 서비스 계정 전환은 유지할 수 있다. 서비스 계정 변경 시 도구 목록·계정별 cache·진행 중 서비스 요청·401 갱신도 같은 계정 owner에 묶어야 하며 기존 캐시 재사용으로 다른 계정의 결과를 노출하지 않는다. 미연결·만료·삭제된 서비스 계정은 관련 기능만 제한하고 다른 provider 채팅·일반 MCP·로컬 플러그인·설정은 유지한다. 저장된 계정이 있다는 것만으로 로그인·구독 자격·기능 사용 가능을 판단하지 않는다. 계정 만료 시 다른 저장 계정으로 임의 대체하지 않는다.
+
+`Approve for me`는 Anthropic 등 다른 공급자 대화도 메인 OpenAI 계정으로 검토한다. 부모 인증 상속과 별도로 OpenAI reviewer model/provider/auth와 구조화 응답 검증을 연결한다. 따라서 managed helper의 schema 미지원을 해제해 Anthropic으로 검토를 보내는 작업은 이 목적에 필요하지 않다. 검토 근거가 OpenAI에 전송되고 OpenAI 사용량이 발생한다는 설명을 포함해 이 방향이 선택됐다. 리뷰어의 도구·읽기 권한·승인 판단·timeout/실패 시 미실행 계약은 보존한다. 진행 중 리뷰 요청은 시작 때의 계정에 귀속되며 계정 교체로 재실행하지 않는다. 새 리뷰는 새 계정의 readiness를 검사한다.
+
+### 클라우드 조직 정책 — 제거 범위 제안
+
+권장 범위는 Azrael GUI/runtime의 클라우드 조직 config·requirements 수신과 적용을 제거하는 것이다. startup loader 설치, 계정 전환 시 loader 재등록, identity-bound cloud cache의 적용과 cloud-origin residency 요구를 함께 다뤄야 한다. 기존 계정 인증·로컬/프로젝트/관리자 제공 권한 및 샌드박스 정책의 평가기는 보존하며 OpenAI 서비스 서버가 강제하는 조직 권한은 클라이언트 변경으로 해제되지 않는다. 공유 crate·CLI 전체의 조직 정책 코드 삭제까지 확대하지 않는다.
+
+근거: cloud-config/src/service.rs:199–224의 시작 시 인증·cache/fetch 경로, app-server/src/config_manager.rs:178–225의 loader 교체·clear 함수, request_processors/account_processor/azrael.rs:657–677의 계정 변경 후 loader 재연결을 확인했다. clear 함수가 있다는 사실만으로 모든 cloud 적용 지점이 제거된다고 단정하지 않는다. 실제 구현 전 최초 loader 생성·config merge·기존 cloud 데이터 잔존 적용을 대조해야 한다. 개인용 Azrael에서 조직 관리 기능을 제공하지 않는 제품 범위 변경으로 명시하며 구현 승인은 미확정이다.
+
+이번 후속도 설계 기록 변경만 수행했다. 제품·계정·설정·저장 memory 변경 및 모델 호출·빌드·설치 없음. 클라우드 정책은 이 절의 Azrael 수신·적용 제거 범위를 권장하며 사용자 판단이 남아 있다. 서비스 메인 지정의 앱/창 범위와 최초 선택·삭제 시 UX는 실행 설계에서 확정해야 하며 현재 native 활성 계정과 같다고 가정하지 않는다.
 
 ## 보존·진행
 
