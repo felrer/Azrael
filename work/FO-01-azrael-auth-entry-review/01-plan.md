@@ -1,4 +1,4 @@
-상태: 영향 조사 완료·부가 기능 설계 진행 중 — 미인증 shell·공급자별 활성화·기존 자격의 명시적 이전, OpenAI 미연결 시 Approve for me 비활성 및 사유 안내, 자동 memory 비활성 및 대화 압축 보존, 앱 전체의 메인 OpenAI 서비스 계정 하나와 Anthropic 대화도 해당 계정으로 검토하는 방향은 합의됐다. 클라우드 조직 정책은 용도 설명 후 제거 여부를 결정하며 아직 제거 미승인이다. 제품 코드·계정·설정 변경은 수행하지 않았다.
+상태: 영향 조사 완료·부가 기능 설계 진행 중 — 미인증 shell·공급자별 활성화·기존 자격의 명시적 이전, OpenAI 미연결 시 Approve for me 비활성 및 사유 안내, 자동 memory 비활성 및 대화 압축 보존, 앱 전체의 메인 OpenAI 서비스 계정 하나와 Anthropic 대화도 해당 계정으로 검토하는 방향은 합의됐다. 클라우드 조직 정책은 유지한다. 제품 코드·계정·설정 변경은 수행하지 않았다.
 
 # Azrael 인증 진입 경로 정리와 미인증 실행
 
@@ -138,7 +138,7 @@ Apps 목록의 일부 threadless 경로는 현재 선택된 AuthManager를 전�
 
 ## 부가 기능의 합의·미결 설계
 
-현재 설계 논의의 후속이다. 확정된 기능 제한·계정 선택·리뷰어 경계는 설계에 반영하며 클라우드 정책 제거 제안을 제품 구현 승인으로 확대하지 않는다. 동작 의미는 공통 desktop 대상이며 Windows source를 조사했다.
+현재 설계 논의의 후속이다. 확정된 기능 제한·계정 선택·리뷰어 경계와 클라우드 조직 정책 보존을 설계에 반영하며 설계 합의를 제품 구현 승인으로 확대하지 않는다. 동작 의미는 공통 desktop 대상이며 Windows source를 조사했다.
 
 ### 합의된 기능 제한
 
@@ -154,17 +154,15 @@ Apps·ChatGPT 커넥터·OpenAI 기반 검색/이미지 등 부가 서비스는 
 
 `Approve for me`는 Anthropic 등 다른 공급자 대화도 메인 OpenAI 계정으로 검토한다. 부모 인증 상속과 별도로 OpenAI reviewer model/provider/auth와 구조화 응답 검증을 연결한다. 따라서 managed helper의 schema 미지원을 해제해 Anthropic으로 검토를 보내는 작업은 이 목적에 필요하지 않다. 검토 근거가 OpenAI에 전송되고 OpenAI 사용량이 발생한다는 설명을 포함해 이 방향이 선택됐다. 리뷰어의 도구·읽기 권한·승인 판단·timeout/실패 시 미실행 계약은 보존한다. 진행 중 리뷰 요청은 시작 때의 계정에 귀속되며 계정 교체로 재실행하지 않는다. 새 리뷰는 새 계정의 readiness를 검사한다.
 
-### 클라우드 조직 정책 — 제거 범위 제안
+### 클라우드 조직 정책 — 유지
 
 조직 정책은 회사·학교 등 워크스페이스 관리자가 구성원 클라이언트에 배포하는 설정·강제 요구사항이다. 보안·운영 관리 기능이며 Azrael의 기본 샌드박스·승인 검사 자체와는 별개다. config/src/config_requirements.rs:163–194에는 승인 정책/리뷰어·권한 프로필·MCP·모델 공급자·기능·네트워크·residency 등의 요구사항 필드가 있다. cloud_config_layers.rs는 원격 기본 설정을 시스템·사용자 설정 사이의 관리 계층으로 변환한다. cloud-config/src/service.rs:52–59는 Codex backend 인증과 Business 계열·Education 계열·Enterprise plan을 자격 조건으로 검사한다. 이 코드 경로가 존재한다는 사실만으로 현재 사용자의 계정에 조직 정책이 실제 적용 중이라고 판단하지 않는다. 실제 계정·정책 내용은 조회하지 않았다.
 
-개인용 Azrael에서 조직 관리 지원을 제품 범위에서 제외한다면 해당 원격 수신·적용 경로를 제거할 수 있지만, 조직 관리 계정을 지원하려면 필요한 기능이다. 로컬 권한 검사를 보존하더라도 회사 관리자가 배포한 추가 제한은 더 이상 Azrael에 적용되지 않는 제품 차이가 생긴다. 서비스 서버가 강제하는 조직 권한은 남는다. 사용자는 제거에 동의한 것이 아니라 용도를 질문했으므로 제거 결정은 미결로 유지한다.
+Azrael의 클라우드 조직 config·requirements 수신·적용 경로를 유지한다. 시작 시 loader 설치, 계정 변경 시 loader 갱신, identity-bound cloud cache와 cloud-origin residency 요구를 보존한다. 로컬·프로젝트·관리자 제공 권한 및 샌드박스 정책의 평가기도 유지한다. 메인 OpenAI 서비스 계정의 도입이 기존 조직 제한의 해제나 다른 계정 정책·cache로의 임의 대체를 허용하지 않는다. 정책의 계정·창 범위와 실제 검토 요청의 권한 제한을 보존하는 것은 후속 구현의 수용 조건이다.
 
-권장 범위는 Azrael GUI/runtime의 클라우드 조직 config·requirements 수신과 적용을 제거하는 것이다. startup loader 설치, 계정 전환 시 loader 재등록, identity-bound cloud cache의 적용과 cloud-origin residency 요구를 함께 다뤄야 한다. 기존 계정 인증·로컬/프로젝트/관리자 제공 권한 및 샌드박스 정책의 평가기는 보존하며 OpenAI 서비스 서버가 강제하는 조직 권한은 클라이언트 변경으로 해제되지 않는다. 공유 crate·CLI 전체의 조직 정책 코드 삭제까지 확대하지 않는다.
+근거: cloud-config/src/service.rs:199–224의 시작 시 인증·cache/fetch 경로, app-server/src/config_manager.rs:178–225의 loader 교체·clear 함수, request_processors/account_processor/azrael.rs:657–677의 계정 변경 후 loader 재연결을 확인했다. 이 경로들은 제거 대상에서 제외한다. 공유 crate·CLI의 조직 정책 기능과 서비스 서버가 강제하는 조직 권한도 유지한다.
 
-근거: cloud-config/src/service.rs:199–224의 시작 시 인증·cache/fetch 경로, app-server/src/config_manager.rs:178–225의 loader 교체·clear 함수, request_processors/account_processor/azrael.rs:657–677의 계정 변경 후 loader 재연결을 확인했다. clear 함수가 있다는 사실만으로 모든 cloud 적용 지점이 제거된다고 단정하지 않는다. 실제 구현 전 최초 loader 생성·config merge·기존 cloud 데이터 잔존 적용을 대조해야 한다. 개인용 Azrael에서 조직 관리 기능을 제공하지 않는 제품 범위 변경으로 명시하며 구현 승인은 미확정이다.
-
-이번 후속도 설계 기록 변경만 수행했다. 제품·계정·설정·저장 memory 변경 및 모델 호출·빌드·설치 없음. 클라우드 정책은 용도 설명 후 사용자 판단이 남아 있다. 서비스 메인은 앱 전체 하나로 확정됐으며 최초 선택·삭제 시 UX는 실행 설계에서 확정해야 한다. 현재 native 활성 계정과 같다고 가정하지 않는다.
+이번 후속도 설계 기록 변경만 수행했다. 제품·계정·설정·저장 memory 변경 및 모델 호출·빌드·설치 없음. 클라우드 조직 정책 유지와 앱 전체 서비스 메인 하나는 확정됐다. 메인 계정의 최초 선택·삭제 시 UX는 실행 설계에서 확정해야 하며 현재 native 활성 계정과 같다고 가정하지 않는다.
 
 ## 보존·진행
 
