@@ -60,18 +60,34 @@ class SearchContracts(unittest.TestCase):
         self.adapter = MODULE.SerenaReadToolsV3(self.api, self.root)
 
     def search_ids(self, query):
-        return [item['id'] for item in self.adapter.find_symbols('sample.ts', query)]
+        return [item[0] for item in self.adapter.find_symbols('sample.ts', query)]
 
     def test_search_name_signature_and_existing_doc_without_generated_text(self):
         self.assertEqual(self.search_ids('LOADaccount'), ['loadAccount'])
         self.assertEqual(self.search_ids('number[]'), ['projectRows'])
         self.assertEqual(self.search_ids('fetch'), ['loadAccount'])
         self.assertEqual(self.search_ids('STRASSE'), ['formatAddress'])
-        self.assertEqual(self.adapter.find_symbols('sample.ts', 'fetch'), [{
-            'id': 'loadAccount', 'start_line': 2, 'end_line': 4,
-            'signature': 'export async function loadAccount(id: string, refresh = false): Promise<string>',
-            'doc': 'Fetch account profile.',
-        }])
+        self.assertEqual(self.adapter.find_symbols('sample.ts', 'fetch'),
+                         [['loadAccount', 2, 4]])
+
+    def test_signature_is_opt_in_and_preserves_full_source_header(self):
+        default = self.adapter.find_symbols('sample.ts', 'profile refresh')
+        self.assertEqual(default, [['loadAccount', 2, 4]])
+        self.assertEqual(self.adapter.find_symbols(
+            'sample.ts', 'profile refresh', include_signature=False), default)
+        self.assertEqual(self.adapter.find_symbols(
+            'sample.ts', 'profile refresh', include_signature=True), [[
+                'loadAccount', 2, 4,
+                'export async function loadAccount(id: string, refresh = false): Promise<string>',
+            ]])
+        self.assertEqual(self.adapter.find_symbols(
+            'sample.ts', 'missingSymbol', include_signature=True), [])
+
+    def test_invalid_signature_option_is_rejected_before_source_lookup(self):
+        for option in [None, 0, 1, 'false', [], {}]:
+            with self.subTest(option=option), self.assertRaisesRegex(ValueError, 'boolean'):
+                self.adapter.find_symbols('../missing.ts', 'account', include_signature=option)
+        self.assertEqual(self.overviews, 0)
 
     def test_multiple_terms_are_and_across_fields_and_preserve_native_order(self):
         self.assertEqual(self.search_ids('  ACCOUNT\tstring\n'), ['loadAccount', 'saveAccount'])
