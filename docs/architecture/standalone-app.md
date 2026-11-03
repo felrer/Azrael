@@ -10,11 +10,13 @@ The central conversation is complemented by a detail panel opened on demand. The
 
 New diff/PR review, artifact management, browser panes, free docking, detached windows, full IDE editing and new scheduling/remote-handoff UI are deferred. This does not retire existing Azrael behavior.
 
-## Agent question notifications
+## Agent question and task completion notifications
 
 Status: `partial` — source integration and Windows-host lifecycle fixtures pass. Actual OS banners, physical clicks and installed delivery remain unverified; evidence is in [the work record](../../work/FM-01-agent-question-notifications/01-plan.md).
 
 The standalone main process uses Electron's OS `Notification` API for both synchronous user-input requests and completed asynchronous question items delivered to a chat panel. Each new question produces one reminder even while the app is active. Repeated delivery does not duplicate it. Clicking a live reminder restores/focuses its originating window and opens its conversation; it never submits an answer or grants approval. Resolved requests, accepted question replies, withdrawn questions and closed conversations remove their reminders. Ordinary turn completion preserves unanswered asynchronous questions. Panel disposal and app shutdown close owned reminders. Notification failure cannot affect question delivery or execution. OS notification and sound settings control actual presentation. The initial standalone target remains Windows x64; this API choice does not establish Linux/macOS acceptance. Preservation feature: `ui.standalone-app`.
+
+Successful `turn/completed` events also produce an OS notification, once per host/thread/turn identity, including while the app is active. Only an explicit `completed` status with a nonempty turn ID counts as completion; interrupted, failed, deferred or unidentified events do not. Clicking opens the originating conversation through the same window/navigation path. The next turn start removes that conversation's prior completion reminders without removing unanswered questions. Conversation closure, panel disposal, transport failure and app shutdown remove completion reminders through the shared lifecycle. Common Electron code requests notifications on Windows, Linux and macOS; actual OS delivery remains platform-specific acceptance. Completion lifecycle evidence is in [the completion work record](../../work/FM-01-agent-question-notifications/02-plan.md).
 
 ## Detail panel
 
