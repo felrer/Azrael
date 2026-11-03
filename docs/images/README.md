@@ -25,6 +25,15 @@ their separate acceptance checks.
 
 ## Reproduce
 
+### Product demo placeholder
+
+`readme-demo-placeholder-ko.svg` is an original, editable vector placeholder for
+the Korean README's future product video. It is not a screenshot or a playable
+video and has no external asset dependency. Edit the SVG directly to change its
+copy or appearance. Replace the image block marked `PRODUCT_DEMO` in
+`README.ko.md` with the real video or a linked thumbnail once available; remove
+the adjacent preparation caption at the same time.
+
 ### Korean harness guide and cursor motion
 
 The rewritten Korean README uses four diagrams from

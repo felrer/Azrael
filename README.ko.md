@@ -1,6 +1,78 @@
-# Azrael
+<h1 align="center">Azrael</h1>
 
-[English](README.md) | **한국어**
+<p align="center"><strong>AI와 함께 생각하고, 나누고, 끝까지 완성하는 작업 공간.</strong></p>
+<p align="center">원하는 모델과 나만의 작업 방식으로.<br>설계부터 구현, 검증까지 VS Code 안에서 이어갑니다.</p>
+
+<p align="center">
+  <a href="README.md">English</a> · <strong>한국어</strong>
+</p>
+<p align="center">
+  <a href="https://github.com/felrer/Azrael/releases"><strong>다운로드</strong></a> ·
+  <a href="#빠르게-시작하기">빠른 시작</a> ·
+  <a href="docs/README.md">문서</a> ·
+  <a href="https://github.com/felrer/Azrael/issues">피드백</a> ·
+  <a href="#설계와-구현">설계 살펴보기</a>
+</p>
+<p align="center"><sub>VS Code · 여러 모델과 제공자 · 오픈 소스 · 개발 중</sub></p>
+
+<!-- PRODUCT_DEMO: 영상 준비 후 아래 이미지를 실제 영상 또는 영상 썸네일 링크로 교체합니다. -->
+<p align="center">
+  <img src="docs/images/readme-demo-placeholder-ko.svg" alt="Azrael 제품 데모 영상 준비 중 — 현재 재생 가능한 영상은 없습니다" width="960">
+</p>
+<p align="center"><sub>제품 데모 영상은 준비 중입니다.</sub></p>
+
+## ✨ 작업에 집중할 수 있도록
+
+Azrael은 Codex를 바탕으로 확장한 독립 AI 작업 환경입니다. 여러 모델과 에이전트를 오가며 일할 때 필요한 설정, 협업, 작업의 연속성을 한곳에 모았습니다.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+<h3>원하는 모델로, 같은 흐름에서</h3>
+<p>여러 제공자의 계정과 사용량을 한눈에 확인합니다. 대화 중에도 작업에 맞는 모델을 고르고, 긴 대화는 컨텍스트 압축으로 이어갑니다.</p>
+<a href="#5-stay-in-flow">계정과 대화 기능 →</a>
+</td>
+<td width="50%" valign="top">
+<h3>나에게 맞는 작업 방식</h3>
+<p>자주 쓰는 지침과 스킬을 Profile로 구성합니다. 반복되는 설정을 저장해 프로젝트에 맞게 선택하고, 재사용할 구성을 패키지로 공유합니다.</p>
+<a href="#2-compose-your-workflow">Profile과 구성 →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<h3>나누어 실행하고, 이어서 완성</h3>
+<p>root가 작업을 조율하고 subagent가 맡은 범위에 집중합니다. 작업 기록을 공유하고, 필요한 결과를 기다린 뒤 통합과 검증으로 이어갑니다.</p>
+<a href="#3-work-in-parallel">에이전트 협업 →</a>
+</td>
+<td width="50%" valign="top">
+<h3>코드 밖의 화면까지</h3>
+<p>Window Use로 선택한 앱을 관찰하고 지원되는 동작을 수행합니다. 작업 대상과 중지 방법을 화면에 표시합니다. Windows에서 개발 중인 실험 기능입니다.</p>
+<a href="#4-window-use--같은-화면-다른-커서">Window Use →</a>
+</td>
+</tr>
+</table>
+
+중요한 대화에는 **플래그**를, 작업 중 떠오른 질문에는 `/btw`를, 이미지 설명에는 **스케치**를 사용합니다. 작은 조작도 작업의 흐름을 이어주도록 다듬고 있습니다.
+
+> **현재는 Direct로 시작하세요.** Team과 가상 입력은 개발·실험 단계입니다. 아래 기능 소개는 현재 소스를 기준으로 하며, 설치한 릴리스에 따라 제공 범위가 다릅니다.
+
+## 빠르게 시작하기
+
+1. **설치하기** — [Releases](https://github.com/felrer/Azrael/releases)에서 운영체제에 맞는 패키지를 받고, 동봉된 `INSTALL.md`를 따릅니다.
+2. **계정 연결하기** — Azrael의 **계정 및 사용량**에서 계정을 연결하고 모델을 선택합니다.
+3. **첫 작업 맡기기** — Direct에서 원하는 결과와 제약을 설명합니다. 프로젝트의 설계부터 코드 수정까지 필요한 범위로 시작합니다.
+
+**Windows x64 · Linux x64(glibc) · macOS(Apple Silicon)** 패키지를 대상으로 합니다. 플랫폼별 검증 범위와 Windows 전용 기능은 [설치·지원 안내](#플랫폼과-설치)에서 확인하세요.
+
+[설치 안내](docs/ops/app-release.md) · [계정 연결](docs/ops/provider-accounts.md) · [개발에 참여하기](#개발과-문서)
+
+## 함께 다듬어가는 Azrael
+
+실제 작업에서 막혔던 순간이나 필요한 기능을 [Issues](https://github.com/felrer/Azrael/issues)에 남겨주세요. 재현 방법과 사용 환경이 있으면 개선에 도움이 됩니다. 구현이나 문서에 기여하려면 [프로젝트 가이드](AGENTS.md)부터 읽어주세요.
+
+---
+
+## 설계와 구현
 
 **모델을 호출하는 도구에서, 작업을 이어가는 하네스로.**
 
