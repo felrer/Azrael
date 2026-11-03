@@ -6,6 +6,22 @@ Status: `current` for OpenAI multi-account management, provider account manageme
 
 The sidebar profile dropdown has one **계정 및 사용량** entry above the native settings entry; it opens the host-owned account/usage Webview through `azrael.usage`. The command palette exposes the same page once; `azrael.manageAccounts` and `azrael.devinAccount` remain callable aliases hidden from the palette. The page is the single account management surface for every provider: login, switch, removal and quota controls. The status-bar QuickPick remains an OpenAI shortcut. Existing native settings, shortcuts and logout keep their behavior. Tokens never enter Webviews or logs.
 
+### Authentication-independent shell and provider readiness
+
+Status: `target` — product behavior for the common local desktop platforms; source, packaged and installed-host acceptance remain separate.
+
+Azrael opens without an authenticated model connection. Account connection and general application preferences remain accessible. Missing authentication is an ordinary empty state, distinct from initialization, expired authentication and engine or management-connection failure. These states must not replace the shell with a blank view or an indefinitely pending login route.
+
+Model availability follows each provider or explicitly configured API connection. OpenAI authentication is not a prerequisite for another usable provider. An explicitly configured connection with no authentication follows the existing [custom API contract](custom-api-models.md); readiness does not invent a login requirement for that connection. When no connection supplies usable models, the selectable model list is empty and chat submission and model/inference settings are disabled, with account connection still available. Bundled or cached model metadata cannot establish permission to expose or run an unauthenticated provider's models. A missing selection cannot silently substitute a default OpenAI model.
+
+Account changes refresh availability for the corresponding window and provider. Logging out or losing readiness removes affected models from usable choices and prevents new work through that connection. In-flight work, account retirement, provider handoff and other windows retain their existing admission and lifetime owners. An authentication change does not authorize replay of completed tools or automatic resubmission. Cloud features and other protected operations retain their own authorization requirements.
+
+Saved legacy root credentials remain preserved until the user explicitly imports them through account management. Startup and managed-profile logout do not adopt them automatically as execution authentication. A successful explicit import uses the native profile and credential owners to validate the destination and retire the corresponding root credential; a failed or cancelled import preserves recoverable credentials. Legacy credential inspection for this explicit import is separate from selecting authentication for execution. Ordinary Codex credentials are not imported.
+
+Managed-profile OAuth, secure storage, refresh, selected-account status and native authenticated HTTP consumers continue to use the common authentication foundation. Account connection readiness and management transport identity are different conditions; a failed management connection does not establish logout or authorize another account. This target does not remove unrelated CLI, external-authentication or MCP OAuth capabilities. The implementation scope for retiring independent root-login entry points is reviewed separately from preserving these common mechanisms.
+
+Preservation mapping uses the [feature inventory](../../scripts/azrael-feature-contracts.json), including `ui.account-settings`, `ui.provider-model-picker`, `ui.account-switch-queue` and `engine.shared-engine`; each implementation owner must connect the changed boundary and its mandatory checks before acceptance.
+
 ### Provider groups and account summaries
 
 Status: `current` in source — compiled account summaries, handlers and settings embedding verified in light/dark themes and desktop/narrow layouts; packaging and installed-host verification pending.
