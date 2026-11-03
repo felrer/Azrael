@@ -1,4 +1,4 @@
-상태: 영향 검토·합의 동작 설계 완료 — 미인증 일반 설정·공급자별 활성화·기존 자격의 명시적 이전을 확정했다. 제거할 구현 범위의 검토 결과를 제시하며 제품 코드·계정·설정 변경은 아직 수행하지 않았다.
+상태: 영향 검토·합의 동작 설계 및 provider-only 추가 조사 완료 — 미인증 일반 설정·공급자별 활성화·기존 자격의 명시적 이전은 합의됐다. 보조 기능의 별도 인증·라우팅·구조화 출력 의존성을 확인했으며 해결안은 제안이다. 제품 코드·계정·설정 변경은 수행하지 않았다.
 
 # Azrael 인증 진입 경로 정리와 미인증 실행
 
@@ -77,6 +77,64 @@ engine 조사 owner의 추가 근거:
 5. 검증할 시나리오: 자격 없는 cold start·연결 확인 실패에도 shell 접근, 계정 추가/일반 설정 접근, 미인증 모델 목록/송신/추론 설정 비활성, 다른 provider/API-only 및 auth:none 연결, 인증 후 재조회, 만료/로그아웃 뒤 stale catalog/default model 차단, 명시적 이전 성공/취소/실패 보존, 창별·provider별 격리, 기존 인증 갱신/관련 서비스 보존. 구현에 해당하는 source/native/UI/정확한 패키지 확인과 Windows 회귀를 선택해야 하며 다른 OS의 실제 수용을 가장하지 않는다.
 
 현재 코드를 바꾸거나 위 테스트를 실행하지 않았다. 검토 결과 제안하는 제거 경계와 공통 기반 보존을 사용자에게 설명한 후 구현 범위를 확정해야 한다. 인증 없이 앱을 열려면 requiresOpenaiAuth를 무조건 false로 만드는 식으로 실제 provider 인증/네트워크 보안을 완화해서는 안 된다.
+
+## 추가 조사 — Anthropic 등 provider-only 기능 의존성
+
+사용자가 `Approve for me`를 예로 들어 기존 root 인증 제거 뒤 다른 공급자만 연결한 경우의 기능 영향을 추가 요청했다. 이 절은 source-only 영향 조사와 해결안이며, 공급자 지원 확대·서비스 계정 연결·코드 변경 승인으로 해석하지 않는다. 구 단일 계정의 자동 채택을 끄는 것과 관리 OpenAI 프로필·공통 인증을 없애는 것은 다른 작업이다.
+
+### 확인된 사례와 해법 제안
+
+| 기능 | 확인된 조건·영향 | 해결안 — 제안 |
+| --- | --- | --- |
+| Approve for me / Guardian | 현재 UI는 managed/·devin/ 모델과 비OpenAI provider를 제외하고, 저장 선호는 보존하며 제출의 유효 리뷰어를 user로 제한한다. 이는 기존 미지원이다. Guardian은 부모 설정·유효 인증과 provider 리뷰 모델을 사용하며, 별도 OpenAI 계정을 추가했다는 사실만으로 그 계정을 쓰지는 않는다. | 현재 provider의 리뷰 모델·인증을 명시적으로 사용하고 구조화 출력의 전 구간 지원을 구현·검증해야 한다. 다른 계정으로 몰래 전환하지 않는다. 지원 전에는 기존 수동 승인 동작과 조직 정책을 유지하고, 실패를 승인으로 처리하지 않는다. |
+| 구조화 JSON 출력이 필요한 보조 작업 | managed_runtime dispatch는 prompt.output_schema 또는 final_output_json_schema가 있으면 helper 호출 전에 명시적으로 거부한다. 따라서 모델 로그인 정상 여부만으로 해당 작업을 활성화하면 실패한다. | 엔진의 capability·요청 protocol·helper projection·vendor adapter·최종 schema 검증을 함께 연결한다. schema를 버리고 일반 텍스트를 신뢰하는 식으로 우회하지 않는다. |
+| 자동 memory 추출·통합 | 일반 managed 채팅과 다른 호출 경로다. Phase 1은 config.model_provider로 만든 ModelClient를 직접 사용하고 strict output schema가 필수다. managed slug는 이 client에서 거부된다. override가 없으면 provider 기본 추출·통합 모델은 각각 gpt-5.6-luna·gpt-5.6-terra다. | 보조 작업별 모델·인증을 명시적으로 해석하고 실제 선택 provider로 라우팅한다. Phase 1의 구조화 출력 지원을 먼저 갖추고 Phase 2 내부 thread도 같은 계약으로 검사한다. 유효한 연결 없이 숨은 GPT 호출을 시작하지 않는다. 로컬 task_memory 도구에는 이 별도 LLM 호출이 없다. |
+| Apps·ChatGPT 커넥터·hosted cloud plugins | Apps는 ChatGPT/Codex backend 인증이 있어야 켜진다. 사용자가 구성한 일반 MCP는 해당 MCP의 인증 경로가 별도다. | 관리 OpenAI 프로필을 이 서비스의 명시적 인증으로 연결하거나, 별도로 지원되는 직접 MCP/OAuth 연결을 사용한다. Anthropic 토큰을 OpenAI 서비스에 보내지 않는다. 로컬·일반 MCP·파일 기반 skill/plugin은 이 서비스와 구분해 보존한다. |
+| 내장 웹 검색 | 내장 executor는 OpenAI/actor 인증 또는 standalone search 지원 provider 조건과 현재 provider의 API auth를 사용한다. 채팅 모델에 도구를 붙일 수 있다는 사실만으로 검색 backend가 생기지 않는다. | 검색 구현을 서비스별 capability로 판단하고 지원되는 검색 adapter/MCP를 연결한다. 기존 내장 서비스를 사용할 경우 그 서비스의 유효 인증을 명시한다. namespace·결과·출처·권한 계약까지 확인해야 한다. |
+| 내장 이미지 생성 | app-server가 확장을 등록하지만 core의 노출 조건에는 provider image_generation capability·image modality·OpenAI actor/backend 인증·일부 plan 제한이 있다. 이미지 입력 지원은 이미지 생성 지원과 다르다. | 이미지 생성 backend와 채팅 provider를 분리해 검증된 서비스/API/MCP 연결을 사용한다. 필요한 서비스 인증이 없으면 해당 기능의 이유를 표시한다. Anthropic의 이미지 이해 기능만으로 생성 지원을 선언하지 않는다. |
+| 외부 이미지 URL의 인라인 표시 | 현재 URL safety 판정은 ChatGPT backend의 /ecosystem/url_safe 호출이며 호스트 HTTP 인증 공급자와 연결된다. 미인증 시 판정 실패 가능성이 있다. | 독립된 동등 안전성 판정 adapter를 검토하거나 해당 서비스 인증을 명시한다. 판정 불가를 safe:true로 바꾸지 않는다. 판정이 없을 때 인라인 렌더링 대신 링크/설명 표시를 유지하는 경로를 구분한다. |
+| Cloud Tasks·Remote Control | Cloud Tasks CLI는 독립 AuthManager로 ChatGPT 인증을 요구한다. 일반 Remote Control도 ChatGPT backend+account ID를 요구하지만 Azrael window context는 현재 handle이 없어 이미 미지원이다. | 앱 fallback 제거와 CLI 자격 삭제를 구분한다. CLI는 이번 제거 범위 밖이며 root 자료는 명시 이전 전 보존한다. 원격 기능을 제공하려면 별도 서비스 인증/실행 adapter가 필요하다. 현재 미지원 기능을 제거 회귀로 집계하지 않는다. |
+| 클라우드 조직 설정·요구사항·residency | 적격 ChatGPT Business/Education/Enterprise 인증으로 cloud config를 가져오는 경로가 있다. Anthropic-only가 그 조직 identity를 대체하지 않는다. | 해당 cloud policy의 계정 scope와 로컬·프로젝트 정책을 구분한다. 인증 오류 시 기존 필수 정책을 조용히 해제하지 않고 정책 소유자의 동작을 유지한다. 다른 계정의 캐시를 적용하지 않는다. |
+| 하위 agent·일반 코드 Review·Plan | 기본 child model/provider는 부모를 상속하며 Review는 review_model이 없으면 부모 모델, Plan 기본 preset은 model override가 없다. 명시 role/task profile은 다른 모델을 지정할 수 있다. | 기본 상속을 보존하고 명시된 GPT profile을 실행할 때 필요한 공급자 연결을 사전에 확인한다. 연결이 없다고 다른 계정·모델로 자동 대체하지 않는다. 일반 코드 Review와 Guardian 승인은 구분한다. |
+
+### 구조화 출력의 직접 부족점
+
+`engine/codex-rs/core/src/managed_runtime.rs:245`는 `managed providers do not support output schemas`로 요청을 거부한다. Devin native_runtime.rs:189에도 별도 제한이 있다. Guardian core review_session.rs:760–776 및 ext/guardian-reviewer/src/settings.rs:70–107은 final output schema를 설정하므로 메뉴 제한만 풀어서는 동작하지 않는다.
+
+추가로 `providers/opencodex/inference.ts:221–273`의 projectRequest는 parsed.options에 reasoning·parallel 설정만 넣고 textFormat/schema를 연결하지 않는다. vendor Anthropic adapter의 json_schema→output_config.format 변환(anthropic.ts:998–1009)은 존재하지만 현재 projection에서 해당 입력이 만들어지지 않는다. Claude model-info의 structured_outputs:false도 확인했다. 따라서 native gate 제거만으로도 지원이 완성되지 않는다. app-server의 실제 contributor 등록은 extensions.rs:96의 guardian-v2이며 core/guardian은 그 host/runtime 경계다.
+
+일반 코드 Review의 tasks/review.rs:138은 final_output_json_schema를 None으로 두고 후속 텍스트 파서를 사용한다. 모든 review 기능이 같은 schema 제한을 받는다고 일반화하지 않는다.
+
+### 선택 계정 대신 root 자격을 다시 읽는 경로
+
+Apps 목록의 일부 threadless 경로는 현재 선택된 AuthManager를 전달받지 않고 `AuthManager::shared_from_config`로 새 관리자를 만든다(core/src/connectors.rs:118–132·207–252). apps_processor.rs:199–218 및 plugins.rs:1788–1804가 이 함수를 호출한다. shared_from_config→shared_from_auth_config는 별도 manager를 생성해 config의 인증 저장을 읽는다(login/src/auth/manager.rs:3027·3083 부근). 앱 최초 생성 지점만 바꾸면 이 소비자가 예전 root 인증을 계속 읽거나, 관리 계정의 인증을 놓칠 위험이 있다. 실제 설치에서 계정 누출이 재현됐다는 의미는 아니다.
+
+해결안은 GUI 내부 기능이 명시적으로 선택된 창/서비스 인증 owner를 전달받도록 묶고 root 저장 자격의 조회는 명시적 이전 기능에 한정하는 것이다. CLI·외부 인증의 기존 계약까지 일괄 제거하지 않는다. Apps/도구 cache identity·갱신·401 recovery도 같은 owner에 연결해야 한다.
+
+### 기타 근거·검증 한계
+
+- Guardian: scripts/inject-auto-review.cjs:11–23의 UI/제출 게이트, core/src/guardian/reviewer_config.rs:84–125와 review_session_setup.rs:127–162의 모델·인증 상속. 필수 schema 오류·timeout에서 작업을 자동 허용하지 않는 기존 계약을 보존한다.
+- Apps: features/src/lib.rs:571의 apps_enabled_for_auth, codex-mcp/src/mcp/mod.rs:344의 host_owned_codex_apps_enabled, connection_manager/startup.rs:22–33의 서버별 명시 ChatGPT auth 선택. cloud plugin은 ext/mcp/src/cloud_plugin.rs에서 별도 auth cache key를 사용한다.
+- 검색·이미지: ext/web-search/src/extension.rs:41–54와 tool.rs:103–116, ext/image-generation/src/extension.rs:41–51·88–112, core/src/tools/spec_plan.rs:840–879. app-server/src/extensions.rs:96–103에서 실제 확장 등록을 확인했다. 설치 계정으로 호출하지 않았다.
+- URL safety: scripts/url-safety-transport.cjs의 endpoint/헤더 보존과 고정 UI app-initial-c014f9ee4429.js의 apr 함수, 고정 host out/extension.js의 sF HTTP 인증 consumer를 좁게 확인했다. backend는 안전 판정 service이며 임의 허용으로 대체하지 않는다.
+- cloud config: cloud-config/src/service.rs:52–60·199–224, app-server/config_manager.rs:178–225. Remote Control: app-server-transport/remote_control/auth.rs:28–44·98–142 및 azrael_shared_server.rs:515–518. Cloud Tasks CLI: cloud-tasks/src/util.rs:79–130.
+- child/profile/Plan/Review: core/src/agent/child_config.rs:155–180·220–264, role_profile.rs:69–102, tasks/review.rs:99–138, models-manager/src/collaboration_mode_presets.rs:6–22. 사용자별 실제 profile 값은 읽지 않았다.
+
+- 자동 memory: memories/write/src/phase1.rs:161–170·310–314, runtime.rs:325–380의 direct ModelClient 경로, core/src/client.rs:2349–2354의 managed slug 거부, model-provider/src/provider.rs:97–101·138–146의 기본 모델, phase2.rs:344–351 및 runtime.rs:415–438의 내부 thread를 대조했다. 일반 채팅은 core/src/session/turn.rs:2818–2830에서 managed_runtime으로 분기하므로 config.model_provider만으로 같은 라우팅이라고 추론하지 않는다. task_memory handler는 로컬 dispatch다. 실제 사용자 override·인증 설정은 읽지 않았다.
+- 압축: core/src/compact.rs:279–287과 compact_remote_v2.rs:389–411에는 provider 기반 분기가 있다. 모든 managed provider의 실제 압축 성공을 확인한 근거는 아니며 일반 채팅 성공으로 압축 성공을 대신 판정하지 않는다. 모델별 긴 대화·압축 후 도구 연속성은 구현 단계의 회귀 항목이다.
+
+음성/녹음 UI 등 고정 bundle 안의 추가 구성 요소는 코드 존재만으로 Azrael에서 실제 제공된다고 판단하지 않았다. 이번 표는 확인된 의존 사례이며 전 기능 완전 감사 또는 실제 공급자 수용 검증이 아니다.
+
+### 통합 해법·수용 조건 제안
+
+창을 여는 상태, 채팅 모델 연결, 부가 서비스 인증을 별개로 판정한다. 기능의 사용 가능 여부는 실제 adapter·모델 capability·해당 서비스 인증·정책 조건을 함께 사용하며 ‘아무 provider나 로그인됨’ 또는 전역 OpenAI 로그인 여부만으로 결정하지 않는다. 이는 사용자가 합의한 공급자별 활성화를 구체화하는 제안이며 새 서비스 계정 선택 UI나 Anthropic Guardian 지원의 구현 승인은 아니다.
+
+1. GUI의 root 자격 재조회 소비자까지 현재 창의 인증 owner를 전달하고, root 자격은 명시적 이전에서만 읽는다. CLI 등 범위 밖 소비자는 별도로 보존한다.
+2. provider로 옮길 수 있는 기능은 해당 모델의 일반 추론·구조화 출력·보조 thread를 검증된 경로로 연결한다. 지원하지 않는 capability를 true로 표시하거나 다른 계정·모델로 조용히 대체하지 않는다.
+3. OpenAI 서비스 자체가 필요한 기능은 명시적으로 선택된 관리 OpenAI 서비스 계정 또는 검증된 대체 API/MCP 연결을 사용한다. 서비스 계정이 없으면 그 기능의 제한 이유만 표시하며 일반 채팅·설정·shell은 유지한다.
+4. 확인 시나리오는 무계정, Anthropic-only, OpenAI-only, 양쪽 연결, 선택 서비스 계정 로그아웃·만료·401, 명시적 GPT role/보조 모델, window별 cache 격리다. Guardian 정상 schema·잘못된 schema·timeout·거부 및 필수 정책, memory 추출·통합, Apps 조회/인증 갱신, 검색·이미지·URL 판정과 긴 대화 압축을 각각 검사한다. 지원 전 수동 승인 전환이 허용되는 범위는 기존 정책을 따른다.
+
+이번 변경은 조사 기록만 추가했다. 제품 코드·계정·설정 변경, 실계정 요청, 모델/성능 실험 및 build는 실행하지 않았다. 문서 diff·공백·UTF-8 검사로 기록을 검토하며 source-only 결론과 미검증 설치·타 OS 수용을 구분한다.
 
 ## 보존·진행
 
