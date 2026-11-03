@@ -209,7 +209,7 @@ function injectStudentDesign(text, relativePath, vp) {
     text = once(text, "personalization:{component:Ki,commandAsset:wr,", "\"azrael-design\":{component:Ki,commandAsset:wr,navigation:{assets:{16:wr,20:Er},ariaHidden:!1}},personalization:{component:Ki,commandAsset:wr,");
     return { text: text + '\n' + MARKER, count: 1 };
   }
-  text = once(text, "if(y===`azrael-instructions`){Me=(0,$.jsx)(AzraelInstructionSettings,{});}let B;e[72]", "if(y===`azrael-instructions`){Me=(0,$.jsx)(AzraelInstructionSettings,{});}if(y===`azrael-design`){Me=(0,$.jsx)(AzraelDesignSettings,{});}let B;e[72]");
+  text = once(text, "if(y===`azrael-instructions`){Me=(0,$.jsx)(AzraelWorkbenchSettings,{});}let B;e[72]", "if(y===`azrael-instructions`){Me=(0,$.jsx)(AzraelWorkbenchSettings,{});}if(y===`azrael-design`){Me=(0,$.jsx)(AzraelDesignSettings,{});}let B;e[72]");
   text = once(text, ".appshots.agent.personalization.azrael-instructions.pets.", ".appshots.agent.personalization.azrael-instructions.azrael-design.pets.");
   text = once(text, ".voice.storage.agent.personalization.azrael-instructions.pets.", ".voice.storage.agent.personalization.azrael-instructions.azrael-design.pets.");
   text = once(text, 's=e.slug===`azrael-instructions`?', 's=e.slug===`azrael-design`?{id:`azrael.settings.design`,defaultMessage:azraelSettingsText(T.locale,`Design`,`디자인`)}:e.slug===`azrael-instructions`?');
