@@ -25,6 +25,36 @@ their separate acceptance checks.
 
 ## Reproduce
 
+### Korean harness guide and cursor motion
+
+The rewritten Korean README uses four diagrams from
+[`harness-guide-ko.html`](harness-guide-ko.html): `harness-flow-ko.svg`,
+`execution-modes-ko.svg`, `work-memory-ko.svg`, and `artifact-lifecycle-ko.svg`.
+The HTML is the editable source. It uses inline SVG, local system fonts and
+keyboard-focusable figure scrolling on narrow screens; no network dependency is
+required. These are explanatory diagrams, not screenshots or measurements.
+
+[`window-use-cursor-ko.html`](window-use-cursor-ko.html) is the self-contained
+cursor-motion source and interactive demo. It preserves the adopted A3 model
+cursor and motion study, adds pause/restart, speed, theme and state controls, and
+respects reduced-motion preferences. Its inert `cursor-poster` block owns the
+static `window-use-cursor-ko.svg` shown in the README. The white user cursor and
+sky-blue model cursor illustrate motion only: the page sends no OS input and
+does not establish independent-input support in an application. The Fluent-derived
+geometry's pinned source attribution and MIT license are embedded in both assets.
+
+```sh
+node scripts/export-readme-harness-diagrams.cjs
+node scripts/export-readme-harness-diagrams.cjs --check
+node scripts/export-readme-cursor.cjs
+node scripts/export-readme-cursor.cjs --check
+```
+
+Open the HTML files locally for the interactive views. GitHub displays the SVG
+posters in Markdown; an HTML link on GitHub opens its source, so download/open the
+HTML to run it. Export needs only Node and does not read work records or user
+profiles. The English README retains its existing assets.
+
 ### Agent diagrams
 
 Edit `agent-diagrams.html`, then run:

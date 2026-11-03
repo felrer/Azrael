@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="harness-flow-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 790" role="img" aria-labelledby="flow-title flow-desc">
+<style>
+  text { font-family: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; fill: #202522; }
+  .canvas { fill: #fafbf9; }
+  .title { font-size: 34px; font-weight: 700; letter-spacing: -1.2px; }
+  .subtitle { font-size: 18px; fill: #616963; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 1.4px; fill: #66726a; }
+  .h { font-size: 24px; font-weight: 650; letter-spacing: -.6px; }
+  .body { font-size: 19px; }
+  .small { font-size: 16px; fill: #616963; }
+  .label { font-size: 16px; font-weight: 650; }
+  .mono { font-family: Consolas, "SFMono-Regular", monospace; font-size: 17px; }
+  .paper { fill: #fff; stroke: #dce1db; stroke-width: 1.5; }
+  .soft { fill: #f0f2ee; }
+  .blue { fill: #edf3fc; stroke: #c3d5ee; stroke-width: 1.5; }
+  .green { fill: #eaf4ee; stroke: #bfd8c8; stroke-width: 1.5; }
+  .purple { fill: #f1edf8; stroke: #d4c9e8; stroke-width: 1.5; }
+  .blue-ink { fill: #315d94; }
+  .green-ink { fill: #326a4b; }
+  .purple-ink { fill: #6b508e; }
+  .rule { stroke: #dce1db; stroke-width: 1.5; }
+  .line { fill: none; stroke: #7d8981; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .dash { stroke-dasharray: 5 6; }
+  .number { font-size: 15px; font-weight: 700; fill: #fff; }
+  .dot { fill: #53685a; }
+</style>
+<title id="flow-title">지시와 실행을 연결하는 Azrael 하네스</title>
+<desc id="flow-desc">Profile, 프로젝트와 사용자 지시, 대화와 작업을 출처를 보존하여 요청으로 조립한다. 모델이 행동과 도구 호출을 선택하면 런타임이 권한과 승인을 적용하여 실행하고 결과를 모델로 돌려준다. Skill 본문, 문서와 작업 기억은 필요할 때 읽는다.</desc>
+<defs><marker id="flow-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="790" rx="20"/>
+<text class="eyebrow" x="48" y="48">01 / HARNESS</text>
+<text class="title" x="48" y="94">지시를 묶고, 실행을 이어 줍니다</text>
+<text class="subtitle" x="48" y="129">모델의 판단과 런타임의 실행 경계를 연결하는 요청 흐름</text>
+
+<rect class="paper" x="48" y="168" width="294" height="196" rx="16"/>
+<text class="label" x="72" y="199">요청의 재료</text>
+<path class="rule" d="M72 215H318"/>
+<text class="body" x="72" y="246">Profile</text>
+<text class="body" x="72" y="286">프로젝트 · 사용자 지시</text>
+<text class="body" x="72" y="326">대화 · 현재 작업</text>
+<path class="line" d="M342 266H384" marker-end="url(#flow-arrow)"/>
+<rect class="paper" x="396" y="199" width="280" height="134" rx="16"/>
+<text class="h" x="420" y="242">네이티브 요청 조립</text>
+<text class="body" x="420" y="280">각 지시의 출처 보존</text>
+<text class="small" x="420" y="309">역할 · 도구 · 실행 환경 반영</text>
+<path class="line" d="M676 266H724" marker-end="url(#flow-arrow)"/>
+<rect class="blue" x="736" y="199" width="336" height="134" rx="16"/>
+<text class="label blue-ink" x="760" y="232">MODEL REQUEST</text>
+<text class="h" x="760" y="272">모델이 다음 행동 선택</text>
+<text class="small" x="760" y="308">답변하거나, 도구를 호출하거나</text>
+
+<path class="line" d="M904 333V405" marker-end="url(#flow-arrow)"/>
+<text class="small" x="923" y="375">도구 호출</text>
+<rect class="green" x="636" y="417" width="436" height="150" rx="16"/>
+<text class="label green-ink" x="660" y="452">RUNTIME</text>
+<text class="h" x="660" y="490">권한 확인 · 승인 · 실행</text>
+<text class="body" x="660" y="530">허용된 도구와 실행 정책 적용</text>
+<path class="line" d="M636 492H520V355H704V300H724" marker-end="url(#flow-arrow)"/>
+<text class="small" x="540" y="396">도구 결과를</text>
+<text class="small" x="540" y="420">모델로 반환</text>
+<rect class="purple" x="48" y="417" width="404" height="150" rx="16"/>
+<text class="label purple-ink" x="72" y="452">필요할 때 읽는 자료</text>
+<text class="h" x="72" y="490">Skill 본문 · 문서 · 작업 기억</text>
+<text class="small" x="72" y="530">모든 본문이 자동 주입되는 것은 아님</text>
+<path class="line dash" d="M452 470H502" marker-end="url(#flow-arrow)"/>
+
+<rect class="soft" x="48" y="610" width="1024" height="128" rx="16"/>
+<circle class="dot" cx="81" cy="648" r="6"/>
+<text class="body" x="102" y="655">결과를 바탕으로 다음 도구 호출 또는 사용자 응답으로 이어집니다.</text>
+<text class="small" x="72" y="700">모델은 행동을 선택하고, 런타임은 도구와 권한의 경계를 집행합니다.</text>
+</svg>
