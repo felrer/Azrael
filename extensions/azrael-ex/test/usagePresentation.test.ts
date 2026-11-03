@@ -115,6 +115,19 @@ test("ticket details use native settings rows and per-ticket actions without the
   assert.match(html, /class="ticket-title"><span data-azrael-dynamic-text>Full reset available/);
   assert.match(html, /class="ticket-use confirming"[^>]*data-workspace="&lt;workspace&gt;" data-credit="&lt;ticket&gt;"[^>]*>확인<\/button>/);
   assert.doesNotMatch(html, /data-credit="used"|리셋 티켓|만료일 없음|available ·|ticket-actions/);
+  assert.doesNotMatch(html, /class="ticket-expiry"/);
+  data.rateLimitResetCredits.credits = [{ ...credit, expiresAt: Date.UTC(2030, 10, 7, 14, 23, 45) / 1000 }];
+  const datedHtml = openAIUsageHtml(data, 'profile');
+  const expiry = datedHtml.match(/class="ticket-expiry" title="([^"]+)"><span data-azrael-dynamic-text>([^<]+)<\/span>/);
+  assert.ok(expiry, 'expiry must be visible in the ticket row');
+  assert.equal(expiry[1], expiry[2], 'tooltip and visible expiry must agree');
+  assert.match(expiry[2], /2030/);
+  const clockParts = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' }).formatToParts(new Date(Date.UTC(2030, 10, 7, 14, 23, 45)));
+  for (const part of clockParts.filter(part => ['hour', 'minute', 'second'].includes(part.type))) {
+    assert.ok(expiry[2].includes(part.value), `visible expiry must include ${part.type}`);
+  }
+  const zone = new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(new Date(Date.UTC(2030, 10, 7, 14, 23, 45))).find(part => part.type === 'timeZoneName')!.value;
+  assert.ok(expiry[2].includes(escapeHtml(zone)), 'visible expiry must identify its local time zone');
   assert.match(usageStyles, /\.reset-ticket\{[^}]*gap:24px;padding:12px 16px/);
   assert.match(usageStyles, /\.ticket-use\{[^}]*height:var\(--spacing-token-button-composer,28px\)/);
   data.rateLimitResetCredits.credits = null;

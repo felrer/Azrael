@@ -102,8 +102,8 @@ export function openAIUsageHtml(usage: AccountUsage | null, profileId: string, t
   const rows = available.map(credit => {
     const title = credit.title?.trim() || "사용량 초기화";
     const expiration = credit.expiresAt === null ? null : new Date(credit.expiresAt * 1000);
-    const expiry = expiration ? expiration.toLocaleDateString(undefined, { day: "numeric", month: "long" }) : "";
-    const tooltip = expiration ? expiration.toLocaleString(undefined, { day: "numeric", month: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" }) : "";
+    const expiry = expiration ? expiration.toLocaleString(undefined, { year: "numeric", day: "numeric", month: "long", hour: "numeric", minute: "2-digit", second: "2-digit", timeZoneName: "short" }) : "";
+    const tooltip = expiry;
     const confirming = ticketState?.confirmingCreditId === credit.id;
     const eligible = credit.resetType === "codexRateLimits" && Number.isSafeInteger(credit.grantedAt)
       && (credit.expiresAt === null || (Number.isSafeInteger(credit.expiresAt) && credit.expiresAt > Date.now() / 1000));
