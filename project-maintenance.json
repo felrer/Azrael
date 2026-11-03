@@ -44,7 +44,7 @@
       "purpose": "retained",
       "cwd": ".",
       "argv": ["node", "apps/azrael-desktop/check.cjs"],
-      "inputs": ["apps/azrael-desktop/main.cjs", "apps/azrael-desktop/vscode-host.cjs", "apps/azrael-desktop/file-service.cjs", "apps/azrael-desktop/terminal-service.cjs", "apps/azrael-desktop/dialog-service.cjs", "apps/azrael-desktop/theme.cjs", "scripts/account-fixture-environment.mjs", "apps/azrael-desktop/image-bridge.cjs", "apps/azrael-desktop/preload.cjs", "apps/azrael-desktop/shell-preload.cjs", "apps/azrael-desktop/check.cjs", "apps/azrael-desktop/verify.cjs", "apps/azrael-desktop/fixture-backend.cjs", "apps/azrael-desktop/verification.cjs", "apps/azrael-desktop/renderer", "apps/azrael-desktop/package.json", "apps/azrael-desktop/package-lock.json", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-c014f9ee4429.js"]
+      "inputs": ["apps/azrael-desktop/question-notifications.cjs", "apps/azrael-desktop/question-notifications.test.cjs", "apps/azrael-desktop/main.cjs", "apps/azrael-desktop/vscode-host.cjs", "apps/azrael-desktop/file-service.cjs", "apps/azrael-desktop/terminal-service.cjs", "apps/azrael-desktop/dialog-service.cjs", "apps/azrael-desktop/theme.cjs", "scripts/account-fixture-environment.mjs", "apps/azrael-desktop/image-bridge.cjs", "apps/azrael-desktop/preload.cjs", "apps/azrael-desktop/shell-preload.cjs", "apps/azrael-desktop/check.cjs", "apps/azrael-desktop/verify.cjs", "apps/azrael-desktop/fixture-backend.cjs", "apps/azrael-desktop/verification.cjs", "apps/azrael-desktop/renderer", "apps/azrael-desktop/package.json", "apps/azrael-desktop/package-lock.json", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-c014f9ee4429.js"]
     },
     {
       "id": "window-virtual-input-source",
