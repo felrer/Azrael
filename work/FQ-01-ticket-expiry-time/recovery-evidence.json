@@ -1,0 +1,14 @@
+{
+  "id": "run:ticket-usage-render:20261103T114233966Z-b45ca9f5-ee31-499f-bd7f-5ea228bc2e34",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "4cc5f47dc45ee976da4383ba72889f485669e0b69fe987dbc2084e0799409bfd",
+  "lease_owner": {
+    "acquired_at_ms": 1793706230862,
+    "operation": "group_reservation",
+    "pid": 36024,
+    "schema": 2,
+    "token": "36024-1793706230862-ba705942c63b9e4a"
+  },
+  "reason": "Direct synchronous maintenance_owner register invocation returned terminal exit 1 (exec chunk 670ece). Native inventory/register/review/apply CLI runs in-process and launches no children; this exact producer tree consists solely of the terminal executable. No producer restart performed."
+}
