@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "status": "PASS unit contract accepted; cleanup receipt belongs to19-plan",
+  "generated_at": "2026-11-03T10:23:50.064Z",
+  "authorization": {
+    "selected_suite": "v3 compact return existing unit",
+    "suite_runs": 1,
+    "cases": 8,
+    "additional_v1_v2_suites": 0,
+    "model_performance_trials": 0,
+    "native_serena_starts": 0,
+    "package_installs": 0,
+    "source_test_writes_by_execution_owner": false
+  },
+  "owning_lifecycle": {
+    "id": "run:serena-read-eval:20261103:v3compact-7d93b2a6",
+    "owner": "work:serena-read-eval",
+    "version": "v3-compact-default",
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\minimal-id-v3-compact-unit-20261103-7d93b2a6",
+    "shared_sr04_reference": false
+  },
+  "contract": {
+    "default_row": [
+      "id",
+      "start_line",
+      "end_line"
+    ],
+    "include_signature": {
+      "keyword_only": true,
+      "default": false,
+      "type": "bool",
+      "true_adds": "original full source signature as fourth item"
+    },
+    "matching": "Unchanged whitespace-separated casefold literal AND across ID, complete signature and attached first documentation sentence; documentation searched but omitted from returned rows",
+    "preserved": [
+      "empty query rejected before lookup",
+      "invalid non-bool option rejected before lookup",
+      "native result order",
+      "complete selected source bodies",
+      "batched reads and duplicates",
+      "project-relative paths",
+      "stale source guards"
+    ],
+    "signature_content_deduplication": "Not implemented; separate design discussion"
+  },
+  "root_acceptance": {
+    "grade": "PASS",
+    "basis": "Root independently reviewed changed source/test diff and actual8-case verbose log, including compact default/false, original full header opt-in, hidden signature/doc search, invalid bool, native order and body/path/stale contracts."
+  },
+  "execution": {
+    "schema": 1,
+    "status": "PASS",
+    "command": {
+      "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+      "argv": [
+        "-B",
+        "scripts/test-serena-read-tools-v3.py",
+        "-v"
+      ],
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init"
+    },
+    "start_epoch_ms": 1793701308356,
+    "end_epoch_ms": 1793701313607,
+    "actual_exit": 0,
+    "signal": null,
+    "error": null,
+    "environment": {
+      "platform": "win32",
+      "arch": "x64",
+      "python": "Python 3.13.15",
+      "node": "v26.7.0",
+      "typescript": "5.9.3",
+      "SERENA_READ_TEST_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\minimal-id-v3-compact-unit-20261103-7d93b2a6\\tmp",
+      "TEMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\minimal-id-v3-compact-unit-20261103-7d93b2a6\\tmp",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONIOENCODING": "utf-8"
+    },
+    "stdout": "",
+    "stderr": "test_invalid_query_is_rejected_before_source_lookup (__main__.SearchContracts.test_invalid_query_is_rejected_before_source_lookup) ... ok\r\ntest_invalid_signature_option_is_rejected_before_source_lookup (__main__.SearchContracts.test_invalid_signature_option_is_rejected_before_source_lookup) ... ok\r\ntest_known_id_body_read_needs_no_search (__main__.SearchContracts.test_known_id_body_read_needs_no_search) ... ok\r\ntest_multiple_terms_are_and_across_fields_and_preserve_native_order (__main__.SearchContracts.test_multiple_terms_are_and_across_fields_and_preserve_native_order) ... ok\r\ntest_no_match_body_comments_and_regex_are_not_silently_expanded (__main__.SearchContracts.test_no_match_body_comments_and_regex_are_not_silently_expanded) ... ok\r\ntest_search_name_signature_and_existing_doc_without_generated_text (__main__.SearchContracts.test_search_name_signature_and_existing_doc_without_generated_text) ... ok\r\ntest_search_preserves_batch_read_and_source_path_protections (__main__.SearchContracts.test_search_preserves_batch_read_and_source_path_protections) ... ok\r\ntest_signature_is_opt_in_and_preserves_full_source_header (__main__.SearchContracts.test_signature_is_opt_in_and_preserves_full_source_header) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 8 tests in 5.044s\r\n\r\nOK\r\n",
+    "inputs": [
+      {
+        "relative_path": "scripts/serena-read-tools-v3.py",
+        "sha256": "23473236add45efb919e0373f5208c7587f7bd57e86addd6183ffac20287cc32",
+        "after_sha256": "23473236add45efb919e0373f5208c7587f7bd57e86addd6183ffac20287cc32"
+      },
+      {
+        "relative_path": "scripts/test-serena-read-tools-v3.py",
+        "sha256": "13558127dc9dae09f496d1c9fc5d68479874c049ddd21d198172386c7f6612bb",
+        "after_sha256": "13558127dc9dae09f496d1c9fc5d68479874c049ddd21d198172386c7f6612bb"
+      },
+      {
+        "relative_path": "scripts/serena-read-tools-v2.py",
+        "sha256": "287c2ef4a46c02befc2953f9e849f75dea282c06891e4c2f4002b759e2c5a32d",
+        "after_sha256": "287c2ef4a46c02befc2953f9e849f75dea282c06891e4c2f4002b759e2c5a32d"
+      },
+      {
+        "relative_path": "scripts/test-serena-read-tools-v2.py",
+        "sha256": "40249d72ac21ac4393d5e2d1ee57ff0c5af09993f76fae228c61b6f59f8a7709",
+        "after_sha256": "40249d72ac21ac4393d5e2d1ee57ff0c5af09993f76fae228c61b6f59f8a7709"
+      },
+      {
+        "relative_path": "scripts/serena-read-tools.py",
+        "sha256": "8de78f5f782a6f7fe99f69bc537b6aa0c4a2cd3a1cef8cd581199acda60e75ca",
+        "after_sha256": "8de78f5f782a6f7fe99f69bc537b6aa0c4a2cd3a1cef8cd581199acda60e75ca"
+      },
+      {
+        "relative_path": "scripts/serena-callable-positions.cjs",
+        "sha256": "329f95b7ae3cc65afcd62b5a3e369800251e43580e7d35fe569105a8c962bc76",
+        "after_sha256": "329f95b7ae3cc65afcd62b5a3e369800251e43580e7d35fe569105a8c962bc76"
+      },
+      {
+        "relative_path": "scripts/serena-symbol-metadata.cjs",
+        "sha256": "1cb47772851ff0e592b4174b8e27c6362216f5f157c6953fa703e740646290a4",
+        "after_sha256": "1cb47772851ff0e592b4174b8e27c6362216f5f157c6953fa703e740646290a4"
+      },
+      {
+        "relative_path": "extensions/azrael-ex/node_modules/typescript/lib/typescript.js",
+        "sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+        "after_sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675"
+      },
+      {
+        "relative_path": "extensions/azrael-ex/node_modules/typescript/package.json",
+        "sha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6",
+        "after_sha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6"
+      }
+    ],
+    "changed": [],
+    "old_version_performance_trials": 0,
+    "new_model_trials": 0,
+    "new_native_serena_starts": 0,
+    "additional_suites": 0
+  },
+  "cases": [
+    {
+      "name": "test_invalid_query_is_rejected_before_source_lookup",
+      "case": "__main__.SearchContracts.test_invalid_query_is_rejected_before_source_lookup",
+      "status": "PASS"
+    },
+    {
+      "name": "test_invalid_signature_option_is_rejected_before_source_lookup",
+      "case": "__main__.SearchContracts.test_invalid_signature_option_is_rejected_before_source_lookup",
+      "status": "PASS"
+    },
+    {
+      "name": "test_known_id_body_read_needs_no_search",
+      "case": "__main__.SearchContracts.test_known_id_body_read_needs_no_search",
+      "status": "PASS"
+    },
+    {
+      "name": "test_multiple_terms_are_and_across_fields_and_preserve_native_order",
+      "case": "__main__.SearchContracts.test_multiple_terms_are_and_across_fields_and_preserve_native_order",
+      "status": "PASS"
+    },
+    {
+      "name": "test_no_match_body_comments_and_regex_are_not_silently_expanded",
+      "case": "__main__.SearchContracts.test_no_match_body_comments_and_regex_are_not_silently_expanded",
+      "status": "PASS"
+    },
+    {
+      "name": "test_search_name_signature_and_existing_doc_without_generated_text",
+      "case": "__main__.SearchContracts.test_search_name_signature_and_existing_doc_without_generated_text",
+      "status": "PASS"
+    },
+    {
+      "name": "test_search_preserves_batch_read_and_source_path_protections",
+      "case": "__main__.SearchContracts.test_search_preserves_batch_read_and_source_path_protections",
+      "status": "PASS"
+    },
+    {
+      "name": "test_signature_is_opt_in_and_preserves_full_source_header",
+      "case": "__main__.SearchContracts.test_signature_is_opt_in_and_preserves_full_source_header",
+      "status": "PASS"
+    }
+  ],
+  "validation_reuse": {
+    "v1_v2_ast_code_unchanged": true,
+    "existing_unit_native_evidence_reused": true,
+    "previous_evidence": "18-verification.json reader_dependencies_reused and prior12-15 capability receipts; no additional native probe or v2 suite required by root"
+  },
+  "platform_scope": {
+    "verified": "Windows x64 Python3.13.15 / Nodev26.7.0 / installed TypeScript5.9.3 unit execution",
+    "unverified": [
+      "other operating systems",
+      "real native provider integration for compact return",
+      "model reading behavior",
+      "token cost or performance improvement"
+    ]
+  },
+  "shutdown": {
+    "actual_test_producer_exit": 0,
+    "signal": null,
+    "scope": "One synchronous Python unittest process and awaited TypeScript AST subprocess.run calls only; no SerenaAgent/LSP/background session started",
+    "current_run_commandline_processes_excluding_checker": [],
+    "process_tree_sampling_performed": false,
+    "scope_limit": "No exact PID/create-time tree sample; synchronous subprocess terminal exits and no background producer are the bounded evidence, not full native provider lifecycle acceptance."
+  },
+  "cleanup_intent": {
+    "action": "Delete this run only through supported owner; retain source/test/plan/this close-bound JSON",
+    "physical_bytes_reclaimed": null,
+    "receipt_destination": "19-plan.md"
+  },
+  "input_hashes_unchanged": true
+}
