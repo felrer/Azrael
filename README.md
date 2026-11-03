@@ -12,7 +12,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 ## Contents
 
 - [Highlights](#highlights)
-- [1. Azrael harness architecture](#1-azrael-harness-architecture)
+- [1. Harness Architecture](#1-harness-architecture)
 - [2. Reducing cognitive load](#2-reducing-cognitive-load)
 - [3. Other features](#3-other-features)
   - [a. Documentation](#a-documentation-that-connects-sessions)
@@ -45,7 +45,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 | **Session flags** | Pin a red flag on a conversation so it stands out in the Chats list. |
 | **Recovery and queues** | Queued inputs survive reloads; accepted turns are reconciled instead of replayed. |
 
-## 1. Azrael harness architecture
+## 1. Harness Architecture
 
 ## 2. Reducing cognitive load
 
