@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="work-memory-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 830" role="img" aria-labelledby="memory-title memory-desc">
+<style>
+  text { font-family: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; fill: #202522; }
+  .canvas { fill: #fafbf9; }
+  .title { font-size: 34px; font-weight: 700; letter-spacing: -1.2px; }
+  .subtitle { font-size: 18px; fill: #616963; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 1.4px; fill: #66726a; }
+  .h { font-size: 24px; font-weight: 650; letter-spacing: -.6px; }
+  .body { font-size: 19px; }
+  .small { font-size: 16px; fill: #616963; }
+  .label { font-size: 16px; font-weight: 650; }
+  .mono { font-family: Consolas, "SFMono-Regular", monospace; font-size: 17px; }
+  .paper { fill: #fff; stroke: #dce1db; stroke-width: 1.5; }
+  .soft { fill: #f0f2ee; }
+  .blue { fill: #edf3fc; stroke: #c3d5ee; stroke-width: 1.5; }
+  .green { fill: #eaf4ee; stroke: #bfd8c8; stroke-width: 1.5; }
+  .purple { fill: #f1edf8; stroke: #d4c9e8; stroke-width: 1.5; }
+  .blue-ink { fill: #315d94; }
+  .green-ink { fill: #326a4b; }
+  .purple-ink { fill: #6b508e; }
+  .rule { stroke: #dce1db; stroke-width: 1.5; }
+  .line { fill: none; stroke: #7d8981; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .dash { stroke-dasharray: 5 6; }
+  .number { font-size: 15px; font-weight: 700; fill: #fff; }
+  .dot { fill: #53685a; }
+</style>
+<title id="memory-title">설계 문서, 작업 계획과 작성자별 작업 기억</title>
+<desc id="memory-desc">docs/architecture는 장기 합의 설계, work의 계획은 요구사항과 결정 및 수용 기준을 보관한다. 작업 mem은 작성자별 context, finding, task의 불변 revision을 보관한다. Root와 직속 하위 에이전트는 명시적 ID와 revision으로 읽고 메시지로 참조를 전달한다. Lead의 직접 mem 자동화는 이 경로에 포함되지 않는다.</desc>
+<defs><marker id="memory-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="830" rx="20"/>
+<text class="eyebrow" x="48" y="48">03 / WORK MEMORY</text>
+<text class="title" x="48" y="94">합의와 작업 맥락을 제자리에 남깁니다</text>
+<text class="subtitle" x="48" y="129">오래 유지할 설계, 현재 작업의 판단, 작성자별 기억은 서로 다른 책임입니다.</text>
+
+<rect class="paper" x="48" y="169" width="1024" height="100" rx="15"/>
+<rect class="blue" x="72" y="193" width="46" height="46" rx="10"/>
+<path d="M86 207H104M86 216H104M86 225H98" class="line"/>
+<text class="mono blue-ink" x="142" y="209">docs/architecture/</text>
+<text class="h" x="142" y="244">장기 합의 설계</text>
+<text class="body" x="632" y="214">제품과 시스템의 지속되는 계약</text>
+<text class="small" x="632" y="244">작업이 끝난 뒤에도 유지할 내용</text>
+
+<rect class="paper" x="48" y="285" width="1024" height="100" rx="15"/>
+<rect class="green" x="72" y="309" width="46" height="46" rx="10"/>
+<path d="M85 323L90 328L101 317M85 340H104" class="line"/>
+<text class="mono green-ink" x="142" y="325">work/&lt;task&gt;/nn-plan.md</text>
+<text class="h" x="142" y="360">작업의 요구사항 · 결정 · 수용 기준</text>
+<text class="body" x="632" y="330">무엇을 왜 하는지, 완료를 어떻게 판단할지</text>
+<text class="small" x="632" y="360">진행과 검증은 같은 작업 기록으로 연결</text>
+
+<rect class="purple" x="48" y="401" width="1024" height="170" rx="15"/>
+<text class="mono purple-ink" x="72" y="441">work/&lt;task&gt;/mem/</text>
+<text class="h" x="72" y="480">작성자별 작업 기억</text>
+<text class="small" x="72" y="520">필요한 항목과 revision을 명시해 읽기</text>
+<text class="small" x="72" y="546">새 revision을 남기며 기존 내용은 불변</text>
+<rect class="paper" x="524" y="426" width="158" height="116" rx="12"/>
+<rect class="paper" x="702" y="426" width="158" height="116" rx="12"/>
+<rect class="paper" x="880" y="426" width="168" height="116" rx="12"/>
+<text class="label purple-ink" x="544" y="460">context</text>
+<text class="body" x="544" y="493">이어 갈 맥락</text>
+<text class="small" x="544" y="521">작성자 · ID · rev</text>
+<text class="label purple-ink" x="722" y="460">finding</text>
+<text class="body" x="722" y="493">확인한 발견</text>
+<text class="small" x="722" y="521">작성자 · ID · rev</text>
+<text class="label purple-ink" x="900" y="460">task</text>
+<text class="body" x="900" y="493">작업별 상태</text>
+<text class="small" x="900" y="521">작성자 · ID · rev</text>
+
+<rect class="blue" x="48" y="610" width="224" height="70" rx="14"/>
+<text class="h blue-ink" x="132" y="654">Root</text>
+<rect class="green" x="808" y="610" width="264" height="70" rx="14"/>
+<text class="h green-ink" x="852" y="654">직속 Subagents</text>
+<path class="line" d="M290 645H790" marker-start="url(#memory-arrow)" marker-end="url(#memory-arrow)"/>
+<rect class="canvas" x="404" y="624" width="272" height="40" rx="8"/>
+<text class="label" x="433" y="651">메시지로 ID + revision 전달</text>
+<path class="line dash" d="M160 610V583M940 610V583" marker-end="url(#memory-arrow)"/>
+<text class="small" x="48" y="717">Root와 직속 하위 에이전트가 명시적으로 참조를 읽는 경로입니다.</text>
+<path class="rule" d="M48 742H1072"/>
+<text class="small" x="48" y="779">범위: Lead의 직접 mem 자동화는 이 경로에 포함되지 않습니다.</text>
+</svg>

@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azrael 하네스 — 동작과 작업 구조</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #eeefed; color: #202522; font-family: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  main { width: min(1184px, 100%); margin: auto; padding: 40px 24px; }
+  header { margin: 0 0 32px; }
+  header h1 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.04em; margin: 0 0 10px; }
+  header p, figcaption { color: #616963; line-height: 1.7; }
+  figure { min-width: 0; margin: 0 0 40px; }
+  .figure-scroll { overflow-x: auto; max-width: 100%; border: 1px solid #dce1db; border-radius: 18px; background: #fafbf9; }
+  svg { display: block; width: 100%; height: auto; min-width: 760px; }
+  figcaption { margin: 10px 4px; font-size: 14px; }
+  @media (max-width: 600px) { main { padding: 24px 12px; } }
+  @media print {
+    @page { size: landscape; margin: 10mm; }
+    body { background: white; }
+    main { width: 100%; padding: 0; }
+    header, figcaption { display: none; }
+    figure { margin: 0; break-after: page; break-inside: avoid; }
+    figure:last-child { break-after: auto; }
+    .figure-scroll { overflow: visible; border: 0; border-radius: 0; }
+    svg { min-width: 0; width: 100%; max-height: 175mm; }
+  }
+</style>
+<style id="diagram-styles">
+  text { font-family: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; fill: #202522; }
+  .canvas { fill: #fafbf9; }
+  .title { font-size: 34px; font-weight: 700; letter-spacing: -1.2px; }
+  .subtitle { font-size: 18px; fill: #616963; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 1.4px; fill: #66726a; }
+  .h { font-size: 24px; font-weight: 650; letter-spacing: -.6px; }
+  .body { font-size: 19px; }
+  .small { font-size: 16px; fill: #616963; }
+  .label { font-size: 16px; font-weight: 650; }
+  .mono { font-family: Consolas, "SFMono-Regular", monospace; font-size: 17px; }
+  .paper { fill: #fff; stroke: #dce1db; stroke-width: 1.5; }
+  .soft { fill: #f0f2ee; }
+  .blue { fill: #edf3fc; stroke: #c3d5ee; stroke-width: 1.5; }
+  .green { fill: #eaf4ee; stroke: #bfd8c8; stroke-width: 1.5; }
+  .purple { fill: #f1edf8; stroke: #d4c9e8; stroke-width: 1.5; }
+  .blue-ink { fill: #315d94; }
+  .green-ink { fill: #326a4b; }
+  .purple-ink { fill: #6b508e; }
+  .rule { stroke: #dce1db; stroke-width: 1.5; }
+  .line { fill: none; stroke: #7d8981; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .dash { stroke-dasharray: 5 6; }
+  .number { font-size: 15px; font-weight: 700; fill: #fff; }
+  .dot { fill: #53685a; }
+</style>
+</head>
+<body>
+<main>
+<header><h1>Azrael 하네스, 네 장으로 이해하기</h1><p>요청이 실행되는 방식부터 역할, 작업 기억, 산출물 정리까지. 좁은 화면에서는 각 그림을 가로로 스크롤할 수 있습니다.</p></header>
+
+<figure>
+<div class="figure-scroll" tabindex="0" role="region" aria-label="하네스 동작 그림, 가로 스크롤 가능">
+<svg id="harness-flow-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 790" role="img" aria-labelledby="flow-title flow-desc">
+<title id="flow-title">지시와 실행을 연결하는 Azrael 하네스</title>
+<desc id="flow-desc">Profile, 프로젝트와 사용자 지시, 대화와 작업을 출처를 보존하여 요청으로 조립한다. 모델이 행동과 도구 호출을 선택하면 런타임이 권한과 승인을 적용하여 실행하고 결과를 모델로 돌려준다. Skill 본문, 문서와 작업 기억은 필요할 때 읽는다.</desc>
+<defs><marker id="flow-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="790" rx="20"/>
+<text class="eyebrow" x="48" y="48">01 / HARNESS</text>
+<text class="title" x="48" y="94">지시를 묶고, 실행을 이어 줍니다</text>
+<text class="subtitle" x="48" y="129">모델의 판단과 런타임의 실행 경계를 연결하는 요청 흐름</text>
+
+<rect class="paper" x="48" y="168" width="294" height="196" rx="16"/>
+<text class="label" x="72" y="199">요청의 재료</text>
+<path class="rule" d="M72 215H318"/>
+<text class="body" x="72" y="246">Profile</text>
+<text class="body" x="72" y="286">프로젝트 · 사용자 지시</text>
+<text class="body" x="72" y="326">대화 · 현재 작업</text>
+<path class="line" d="M342 266H384" marker-end="url(#flow-arrow)"/>
+<rect class="paper" x="396" y="199" width="280" height="134" rx="16"/>
+<text class="h" x="420" y="242">네이티브 요청 조립</text>
+<text class="body" x="420" y="280">각 지시의 출처 보존</text>
+<text class="small" x="420" y="309">역할 · 도구 · 실행 환경 반영</text>
+<path class="line" d="M676 266H724" marker-end="url(#flow-arrow)"/>
+<rect class="blue" x="736" y="199" width="336" height="134" rx="16"/>
+<text class="label blue-ink" x="760" y="232">MODEL REQUEST</text>
+<text class="h" x="760" y="272">모델이 다음 행동 선택</text>
+<text class="small" x="760" y="308">답변하거나, 도구를 호출하거나</text>
+
+<path class="line" d="M904 333V405" marker-end="url(#flow-arrow)"/>
+<text class="small" x="923" y="375">도구 호출</text>
+<rect class="green" x="636" y="417" width="436" height="150" rx="16"/>
+<text class="label green-ink" x="660" y="452">RUNTIME</text>
+<text class="h" x="660" y="490">권한 확인 · 승인 · 실행</text>
+<text class="body" x="660" y="530">허용된 도구와 실행 정책 적용</text>
+<path class="line" d="M636 492H520V355H704V300H724" marker-end="url(#flow-arrow)"/>
+<text class="small" x="540" y="396">도구 결과를</text>
+<text class="small" x="540" y="420">모델로 반환</text>
+<rect class="purple" x="48" y="417" width="404" height="150" rx="16"/>
+<text class="label purple-ink" x="72" y="452">필요할 때 읽는 자료</text>
+<text class="h" x="72" y="490">Skill 본문 · 문서 · 작업 기억</text>
+<text class="small" x="72" y="530">모든 본문이 자동 주입되는 것은 아님</text>
+<path class="line dash" d="M452 470H502" marker-end="url(#flow-arrow)"/>
+
+<rect class="soft" x="48" y="610" width="1024" height="128" rx="16"/>
+<circle class="dot" cx="81" cy="648" r="6"/>
+<text class="body" x="102" y="655">결과를 바탕으로 다음 도구 호출 또는 사용자 응답으로 이어집니다.</text>
+<text class="small" x="72" y="700">모델은 행동을 선택하고, 런타임은 도구와 권한의 경계를 집행합니다.</text>
+</svg>
+</div>
+<figcaption>모델 요청과 도구 실행은 결과를 주고받는 반복 흐름입니다.</figcaption>
+</figure>
+
+<figure>
+<div class="figure-scroll" tabindex="0" role="region" aria-label="Direct와 Team 구조 그림, 가로 스크롤 가능">
+<svg id="execution-modes-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 820" role="img" aria-labelledby="modes-title modes-desc">
+<title id="modes-title">Direct와 개발 중인 Team의 실행 역할</title>
+<desc id="modes-desc">권장 Direct는 사용자가 Root와 대화하고 Root가 하위 에이전트에 일을 맡기는 구조다. 개발 중인 Team은 사용자가 Lead와 대화하고 Lead 아래 여러 Root가 각자의 하위 에이전트를 갖는 구조다. 두 구조는 저장된 역할 Profile 라이브러리를 공유한다.</desc>
+<defs><marker id="modes-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="820" rx="20"/>
+<text class="eyebrow" x="48" y="48">02 / EXECUTION MODES</text>
+<text class="title" x="48" y="94">대화 창구와 실행 책임의 구조</text>
+<text class="subtitle" x="48" y="129">Direct를 기본으로 시작하고, Team의 개발 상태를 구분합니다.</text>
+<rect class="paper" x="48" y="167" width="464" height="474" rx="18"/>
+<rect class="paper" x="536" y="167" width="536" height="474" rx="18"/>
+<text class="h" x="76" y="210">Direct</text>
+<rect class="green" x="176" y="185" width="62" height="32" rx="16"/>
+<text class="label green-ink" x="192" y="207">권장</text>
+<text class="small" x="76" y="244">사용자와 Root가 직접 협업</text>
+<text class="h" x="564" y="210">Team</text>
+<rect class="purple" x="652" y="185" width="98" height="32" rx="16"/>
+<text class="label purple-ink" x="670" y="207">개발 중</text>
+<text class="small" x="564" y="244">Lead가 여러 Root의 작업을 조율</text>
+
+<rect class="soft" x="196" y="278" width="168" height="52" rx="26"/>
+<text class="body" x="253" y="312">사용자</text>
+<path class="line" d="M280 342V370" marker-start="url(#modes-arrow)" marker-end="url(#modes-arrow)"/>
+<rect class="blue" x="164" y="382" width="232" height="80" rx="14"/>
+<text class="h blue-ink" x="252" y="416">Root</text>
+<text class="small" x="200" y="445">작업 책임 · 통합</text>
+<path class="line" d="M280 462V492H165V518M280 492H395V518" marker-end="url(#modes-arrow)"/>
+<path class="line" d="M165 492V518" marker-end="url(#modes-arrow)"/>
+<rect class="green" x="76" y="530" width="178" height="66" rx="13"/>
+<rect class="green" x="306" y="530" width="178" height="66" rx="13"/>
+<text class="body green-ink" x="112" y="571">Subagent</text>
+<text class="body green-ink" x="342" y="571">Subagent</text>
+
+<rect class="soft" x="720" y="278" width="168" height="52" rx="26"/>
+<text class="body" x="777" y="312">사용자</text>
+<path class="line" d="M804 342V363" marker-start="url(#modes-arrow)" marker-end="url(#modes-arrow)"/>
+<rect class="purple" x="704" y="375" width="200" height="58" rx="14"/>
+<text class="h purple-ink" x="776" y="413">Lead</text>
+<path class="line" d="M804 433V453H682V469M804 453H926V469" marker-end="url(#modes-arrow)"/>
+<path class="line" d="M682 453V469" marker-end="url(#modes-arrow)"/>
+<rect class="blue" x="594" y="481" width="176" height="54" rx="12"/>
+<rect class="blue" x="838" y="481" width="176" height="54" rx="12"/>
+<text class="body blue-ink" x="657" y="515">Root</text>
+<text class="body blue-ink" x="901" y="515">Root</text>
+<path class="line" d="M682 535V558" marker-end="url(#modes-arrow)"/>
+<path class="line" d="M926 535V558" marker-end="url(#modes-arrow)"/>
+<rect class="green" x="594" y="570" width="176" height="42" rx="11"/>
+<rect class="green" x="838" y="570" width="176" height="42" rx="11"/>
+<text class="label green-ink" x="636" y="597">Subagents</text>
+<text class="label green-ink" x="880" y="597">Subagents</text>
+
+<rect class="soft" x="48" y="674" width="1024" height="98" rx="16"/>
+<text class="h" x="72" y="714">하나의 저장된 역할 Profile 라이브러리</text>
+<text class="body" x="72" y="749">Direct와 Team에서 역할에 맞는 Profile을 선택해 사용합니다.</text>
+<rect class="paper" x="871" y="696" width="173" height="52" rx="12"/>
+<text class="label" x="897" y="728">Lead · Root · Sub</text>
+</svg>
+</div>
+<figcaption>Team은 개발 중인 구조이며, 일반 사용 가능 상태를 뜻하지 않습니다.</figcaption>
+</figure>
+
+<figure>
+<div class="figure-scroll" tabindex="0" role="region" aria-label="문서와 작업 기억 그림, 가로 스크롤 가능">
+<svg id="work-memory-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 830" role="img" aria-labelledby="memory-title memory-desc">
+<title id="memory-title">설계 문서, 작업 계획과 작성자별 작업 기억</title>
+<desc id="memory-desc">docs/architecture는 장기 합의 설계, work의 계획은 요구사항과 결정 및 수용 기준을 보관한다. 작업 mem은 작성자별 context, finding, task의 불변 revision을 보관한다. Root와 직속 하위 에이전트는 명시적 ID와 revision으로 읽고 메시지로 참조를 전달한다. Lead의 직접 mem 자동화는 이 경로에 포함되지 않는다.</desc>
+<defs><marker id="memory-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="830" rx="20"/>
+<text class="eyebrow" x="48" y="48">03 / WORK MEMORY</text>
+<text class="title" x="48" y="94">합의와 작업 맥락을 제자리에 남깁니다</text>
+<text class="subtitle" x="48" y="129">오래 유지할 설계, 현재 작업의 판단, 작성자별 기억은 서로 다른 책임입니다.</text>
+
+<rect class="paper" x="48" y="169" width="1024" height="100" rx="15"/>
+<rect class="blue" x="72" y="193" width="46" height="46" rx="10"/>
+<path d="M86 207H104M86 216H104M86 225H98" class="line"/>
+<text class="mono blue-ink" x="142" y="209">docs/architecture/</text>
+<text class="h" x="142" y="244">장기 합의 설계</text>
+<text class="body" x="632" y="214">제품과 시스템의 지속되는 계약</text>
+<text class="small" x="632" y="244">작업이 끝난 뒤에도 유지할 내용</text>
+
+<rect class="paper" x="48" y="285" width="1024" height="100" rx="15"/>
+<rect class="green" x="72" y="309" width="46" height="46" rx="10"/>
+<path d="M85 323L90 328L101 317M85 340H104" class="line"/>
+<text class="mono green-ink" x="142" y="325">work/&lt;task&gt;/nn-plan.md</text>
+<text class="h" x="142" y="360">작업의 요구사항 · 결정 · 수용 기준</text>
+<text class="body" x="632" y="330">무엇을 왜 하는지, 완료를 어떻게 판단할지</text>
+<text class="small" x="632" y="360">진행과 검증은 같은 작업 기록으로 연결</text>
+
+<rect class="purple" x="48" y="401" width="1024" height="170" rx="15"/>
+<text class="mono purple-ink" x="72" y="441">work/&lt;task&gt;/mem/</text>
+<text class="h" x="72" y="480">작성자별 작업 기억</text>
+<text class="small" x="72" y="520">필요한 항목과 revision을 명시해 읽기</text>
+<text class="small" x="72" y="546">새 revision을 남기며 기존 내용은 불변</text>
+<rect class="paper" x="524" y="426" width="158" height="116" rx="12"/>
+<rect class="paper" x="702" y="426" width="158" height="116" rx="12"/>
+<rect class="paper" x="880" y="426" width="168" height="116" rx="12"/>
+<text class="label purple-ink" x="544" y="460">context</text>
+<text class="body" x="544" y="493">이어 갈 맥락</text>
+<text class="small" x="544" y="521">작성자 · ID · rev</text>
+<text class="label purple-ink" x="722" y="460">finding</text>
+<text class="body" x="722" y="493">확인한 발견</text>
+<text class="small" x="722" y="521">작성자 · ID · rev</text>
+<text class="label purple-ink" x="900" y="460">task</text>
+<text class="body" x="900" y="493">작업별 상태</text>
+<text class="small" x="900" y="521">작성자 · ID · rev</text>
+
+<rect class="blue" x="48" y="610" width="224" height="70" rx="14"/>
+<text class="h blue-ink" x="132" y="654">Root</text>
+<rect class="green" x="808" y="610" width="264" height="70" rx="14"/>
+<text class="h green-ink" x="852" y="654">직속 Subagents</text>
+<path class="line" d="M290 645H790" marker-start="url(#memory-arrow)" marker-end="url(#memory-arrow)"/>
+<rect class="canvas" x="404" y="624" width="272" height="40" rx="8"/>
+<text class="label" x="433" y="651">메시지로 ID + revision 전달</text>
+<path class="line dash" d="M160 610V583M940 610V583" marker-end="url(#memory-arrow)"/>
+<text class="small" x="48" y="717">Root와 직속 하위 에이전트가 명시적으로 참조를 읽는 경로입니다.</text>
+<path class="rule" d="M48 742H1072"/>
+<text class="small" x="48" y="779">범위: Lead의 직접 mem 자동화는 이 경로에 포함되지 않습니다.</text>
+</svg>
+</div>
+<figcaption>작업 기억은 명시적인 참조로 공유하며, 문서 전체를 자동으로 주입하지 않습니다.</figcaption>
+</figure>
+
+<figure>
+<div class="figure-scroll" tabindex="0" role="region" aria-label="산출물 정리 절차 그림, 가로 스크롤 가능">
+<svg id="artifact-lifecycle-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 750" role="img" aria-labelledby="artifact-title artifact-desc">
+<title id="artifact-title">소유자와 보호 상태를 확인하는 산출물 수명주기</title>
+<desc id="artifact-desc">출력, 로그, 백업을 그룹으로 등록한 후 현재 소유자, 참조, 보호 상태를 확인하고 리뷰한다. 명시적으로 삭제 또는 보류를 결정하고 실제 삭제 여부를 검증한다. 한 구성원이라도 보호되거나 불확실하면 전체 그룹을 보존한다. 잠금은 관리 작업의 조정 범위이며 모든 파일의 충돌 방지를 보장하지 않는다.</desc>
+<defs><marker id="artifact-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="750" rx="20"/>
+<text class="eyebrow" x="48" y="48">04 / ARTIFACT LIFECYCLE</text>
+<text class="title" x="48" y="94">만든 산출물은 확인하고 정리합니다</text>
+<text class="subtitle" x="48" y="129">소유권과 현재 사용 상태를 근거로, 그룹 단위로 판단하는 절차</text>
+
+<rect class="paper" x="48" y="181" width="180" height="176" rx="15"/>
+<rect class="paper" x="258" y="181" width="196" height="176" rx="15"/>
+<rect class="paper" x="484" y="181" width="164" height="176" rx="15"/>
+<rect class="blue" x="678" y="181" width="180" height="176" rx="15"/>
+<rect class="green" x="888" y="181" width="184" height="176" rx="15"/>
+<circle class="dot" cx="80" cy="214" r="14"/><text class="number" x="76" y="219">1</text>
+<circle class="dot" cx="290" cy="214" r="14"/><text class="number" x="286" y="219">2</text>
+<circle class="dot" cx="516" cy="214" r="14"/><text class="number" x="512" y="219">3</text>
+<circle class="dot" cx="710" cy="214" r="14"/><text class="number" x="706" y="219">4</text>
+<circle class="dot" cx="920" cy="214" r="14"/><text class="number" x="916" y="219">5</text>
+<text class="h" x="70" y="264">그룹 등록</text>
+<text class="small" x="70" y="302">출력 · 로그 · 백업</text>
+<text class="small" x="70" y="330">소유자와 범위 기록</text>
+<text class="h" x="280" y="264">현재 상태</text>
+<text class="small" x="280" y="302">소유자 · 참조 확인</text>
+<text class="small" x="280" y="330">보호 · 사용 상태</text>
+<text class="h" x="506" y="264">리뷰</text>
+<text class="small" x="506" y="302">현재 근거와</text>
+<text class="small" x="506" y="330">정리 가능성 확인</text>
+<text class="h blue-ink" x="700" y="264">명시적 결정</text>
+<text class="small" x="700" y="302">삭제 또는 보류</text>
+<text class="small" x="700" y="330">이유와 조건 기록</text>
+<text class="h green-ink" x="910" y="264">결과 검증</text>
+<text class="small" x="910" y="302">실제 삭제 여부</text>
+<text class="small" x="910" y="330">남은 경로 확인</text>
+<path class="line" d="M228 270H246" marker-end="url(#artifact-arrow)"/>
+<path class="line" d="M454 270H472" marker-end="url(#artifact-arrow)"/>
+<path class="line" d="M648 270H666" marker-end="url(#artifact-arrow)"/>
+<path class="line" d="M858 270H876" marker-end="url(#artifact-arrow)"/>
+
+<path class="line" d="M356 357V417H484" marker-end="url(#artifact-arrow)"/>
+<text class="small" x="66" y="413">보호 · 불확실성 발견 시</text>
+<rect class="purple" x="496" y="389" width="576" height="111" rx="15"/>
+<text class="h purple-ink" x="520" y="431">한 구성원이라도 보호되면 그룹 전체 보존</text>
+<text class="body" x="520" y="471">활성 참조나 불확실성이 남으면 삭제하지 않습니다.</text>
+<rect class="soft" x="48" y="541" width="1024" height="150" rx="16"/>
+<text class="h" x="72" y="582">정리는 자동 삭제와 다릅니다</text>
+<text class="body" x="72" y="623">테스트 통과나 시간 경과만으로 삭제가 승인되지는 않습니다.</text>
+<text class="small" x="72" y="660">잠금은 관리 작업을 조정합니다. 모든 파일의 충돌 방지를 보장하는 잠금은 아닙니다.</text>
+</svg>
+</div>
+<figcaption>보류에는 재검토 조건이 필요하며, 삭제 결정 뒤에도 실제 결과를 확인합니다.</figcaption>
+</figure>
+</main>
+</body>
+</html>

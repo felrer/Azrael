@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="execution-modes-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 820" role="img" aria-labelledby="modes-title modes-desc">
+<style>
+  text { font-family: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; fill: #202522; }
+  .canvas { fill: #fafbf9; }
+  .title { font-size: 34px; font-weight: 700; letter-spacing: -1.2px; }
+  .subtitle { font-size: 18px; fill: #616963; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 1.4px; fill: #66726a; }
+  .h { font-size: 24px; font-weight: 650; letter-spacing: -.6px; }
+  .body { font-size: 19px; }
+  .small { font-size: 16px; fill: #616963; }
+  .label { font-size: 16px; font-weight: 650; }
+  .mono { font-family: Consolas, "SFMono-Regular", monospace; font-size: 17px; }
+  .paper { fill: #fff; stroke: #dce1db; stroke-width: 1.5; }
+  .soft { fill: #f0f2ee; }
+  .blue { fill: #edf3fc; stroke: #c3d5ee; stroke-width: 1.5; }
+  .green { fill: #eaf4ee; stroke: #bfd8c8; stroke-width: 1.5; }
+  .purple { fill: #f1edf8; stroke: #d4c9e8; stroke-width: 1.5; }
+  .blue-ink { fill: #315d94; }
+  .green-ink { fill: #326a4b; }
+  .purple-ink { fill: #6b508e; }
+  .rule { stroke: #dce1db; stroke-width: 1.5; }
+  .line { fill: none; stroke: #7d8981; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .dash { stroke-dasharray: 5 6; }
+  .number { font-size: 15px; font-weight: 700; fill: #fff; }
+  .dot { fill: #53685a; }
+</style>
+<title id="modes-title">Direct와 개발 중인 Team의 실행 역할</title>
+<desc id="modes-desc">권장 Direct는 사용자가 Root와 대화하고 Root가 하위 에이전트에 일을 맡기는 구조다. 개발 중인 Team은 사용자가 Lead와 대화하고 Lead 아래 여러 Root가 각자의 하위 에이전트를 갖는 구조다. 두 구조는 저장된 역할 Profile 라이브러리를 공유한다.</desc>
+<defs><marker id="modes-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="820" rx="20"/>
+<text class="eyebrow" x="48" y="48">02 / EXECUTION MODES</text>
+<text class="title" x="48" y="94">대화 창구와 실행 책임의 구조</text>
+<text class="subtitle" x="48" y="129">Direct를 기본으로 시작하고, Team의 개발 상태를 구분합니다.</text>
+<rect class="paper" x="48" y="167" width="464" height="474" rx="18"/>
+<rect class="paper" x="536" y="167" width="536" height="474" rx="18"/>
+<text class="h" x="76" y="210">Direct</text>
+<rect class="green" x="176" y="185" width="62" height="32" rx="16"/>
+<text class="label green-ink" x="192" y="207">권장</text>
+<text class="small" x="76" y="244">사용자와 Root가 직접 협업</text>
+<text class="h" x="564" y="210">Team</text>
+<rect class="purple" x="652" y="185" width="98" height="32" rx="16"/>
+<text class="label purple-ink" x="670" y="207">개발 중</text>
+<text class="small" x="564" y="244">Lead가 여러 Root의 작업을 조율</text>
+
+<rect class="soft" x="196" y="278" width="168" height="52" rx="26"/>
+<text class="body" x="253" y="312">사용자</text>
+<path class="line" d="M280 342V370" marker-start="url(#modes-arrow)" marker-end="url(#modes-arrow)"/>
+<rect class="blue" x="164" y="382" width="232" height="80" rx="14"/>
+<text class="h blue-ink" x="252" y="416">Root</text>
+<text class="small" x="200" y="445">작업 책임 · 통합</text>
+<path class="line" d="M280 462V492H165V518M280 492H395V518" marker-end="url(#modes-arrow)"/>
+<path class="line" d="M165 492V518" marker-end="url(#modes-arrow)"/>
+<rect class="green" x="76" y="530" width="178" height="66" rx="13"/>
+<rect class="green" x="306" y="530" width="178" height="66" rx="13"/>
+<text class="body green-ink" x="112" y="571">Subagent</text>
+<text class="body green-ink" x="342" y="571">Subagent</text>
+
+<rect class="soft" x="720" y="278" width="168" height="52" rx="26"/>
+<text class="body" x="777" y="312">사용자</text>
+<path class="line" d="M804 342V363" marker-start="url(#modes-arrow)" marker-end="url(#modes-arrow)"/>
+<rect class="purple" x="704" y="375" width="200" height="58" rx="14"/>
+<text class="h purple-ink" x="776" y="413">Lead</text>
+<path class="line" d="M804 433V453H682V469M804 453H926V469" marker-end="url(#modes-arrow)"/>
+<path class="line" d="M682 453V469" marker-end="url(#modes-arrow)"/>
+<rect class="blue" x="594" y="481" width="176" height="54" rx="12"/>
+<rect class="blue" x="838" y="481" width="176" height="54" rx="12"/>
+<text class="body blue-ink" x="657" y="515">Root</text>
+<text class="body blue-ink" x="901" y="515">Root</text>
+<path class="line" d="M682 535V558" marker-end="url(#modes-arrow)"/>
+<path class="line" d="M926 535V558" marker-end="url(#modes-arrow)"/>
+<rect class="green" x="594" y="570" width="176" height="42" rx="11"/>
+<rect class="green" x="838" y="570" width="176" height="42" rx="11"/>
+<text class="label green-ink" x="636" y="597">Subagents</text>
+<text class="label green-ink" x="880" y="597">Subagents</text>
+
+<rect class="soft" x="48" y="674" width="1024" height="98" rx="16"/>
+<text class="h" x="72" y="714">하나의 저장된 역할 Profile 라이브러리</text>
+<text class="body" x="72" y="749">Direct와 Team에서 역할에 맞는 Profile을 선택해 사용합니다.</text>
+<rect class="paper" x="871" y="696" width="173" height="52" rx="12"/>
+<text class="label" x="897" y="728">Lead · Root · Sub</text>
+</svg>

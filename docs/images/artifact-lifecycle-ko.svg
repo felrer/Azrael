@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="artifact-lifecycle-ko" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 750" role="img" aria-labelledby="artifact-title artifact-desc">
+<style>
+  text { font-family: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; fill: #202522; }
+  .canvas { fill: #fafbf9; }
+  .title { font-size: 34px; font-weight: 700; letter-spacing: -1.2px; }
+  .subtitle { font-size: 18px; fill: #616963; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 1.4px; fill: #66726a; }
+  .h { font-size: 24px; font-weight: 650; letter-spacing: -.6px; }
+  .body { font-size: 19px; }
+  .small { font-size: 16px; fill: #616963; }
+  .label { font-size: 16px; font-weight: 650; }
+  .mono { font-family: Consolas, "SFMono-Regular", monospace; font-size: 17px; }
+  .paper { fill: #fff; stroke: #dce1db; stroke-width: 1.5; }
+  .soft { fill: #f0f2ee; }
+  .blue { fill: #edf3fc; stroke: #c3d5ee; stroke-width: 1.5; }
+  .green { fill: #eaf4ee; stroke: #bfd8c8; stroke-width: 1.5; }
+  .purple { fill: #f1edf8; stroke: #d4c9e8; stroke-width: 1.5; }
+  .blue-ink { fill: #315d94; }
+  .green-ink { fill: #326a4b; }
+  .purple-ink { fill: #6b508e; }
+  .rule { stroke: #dce1db; stroke-width: 1.5; }
+  .line { fill: none; stroke: #7d8981; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .dash { stroke-dasharray: 5 6; }
+  .number { font-size: 15px; font-weight: 700; fill: #fff; }
+  .dot { fill: #53685a; }
+</style>
+<title id="artifact-title">소유자와 보호 상태를 확인하는 산출물 수명주기</title>
+<desc id="artifact-desc">출력, 로그, 백업을 그룹으로 등록한 후 현재 소유자, 참조, 보호 상태를 확인하고 리뷰한다. 명시적으로 삭제 또는 보류를 결정하고 실제 삭제 여부를 검증한다. 한 구성원이라도 보호되거나 불확실하면 전체 그룹을 보존한다. 잠금은 관리 작업의 조정 범위이며 모든 파일의 충돌 방지를 보장하지 않는다.</desc>
+<defs><marker id="artifact-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#7d8981" stroke-width="1.5"/></marker></defs>
+<rect class="canvas" width="1120" height="750" rx="20"/>
+<text class="eyebrow" x="48" y="48">04 / ARTIFACT LIFECYCLE</text>
+<text class="title" x="48" y="94">만든 산출물은 확인하고 정리합니다</text>
+<text class="subtitle" x="48" y="129">소유권과 현재 사용 상태를 근거로, 그룹 단위로 판단하는 절차</text>
+
+<rect class="paper" x="48" y="181" width="180" height="176" rx="15"/>
+<rect class="paper" x="258" y="181" width="196" height="176" rx="15"/>
+<rect class="paper" x="484" y="181" width="164" height="176" rx="15"/>
+<rect class="blue" x="678" y="181" width="180" height="176" rx="15"/>
+<rect class="green" x="888" y="181" width="184" height="176" rx="15"/>
+<circle class="dot" cx="80" cy="214" r="14"/><text class="number" x="76" y="219">1</text>
+<circle class="dot" cx="290" cy="214" r="14"/><text class="number" x="286" y="219">2</text>
+<circle class="dot" cx="516" cy="214" r="14"/><text class="number" x="512" y="219">3</text>
+<circle class="dot" cx="710" cy="214" r="14"/><text class="number" x="706" y="219">4</text>
+<circle class="dot" cx="920" cy="214" r="14"/><text class="number" x="916" y="219">5</text>
+<text class="h" x="70" y="264">그룹 등록</text>
+<text class="small" x="70" y="302">출력 · 로그 · 백업</text>
+<text class="small" x="70" y="330">소유자와 범위 기록</text>
+<text class="h" x="280" y="264">현재 상태</text>
+<text class="small" x="280" y="302">소유자 · 참조 확인</text>
+<text class="small" x="280" y="330">보호 · 사용 상태</text>
+<text class="h" x="506" y="264">리뷰</text>
+<text class="small" x="506" y="302">현재 근거와</text>
+<text class="small" x="506" y="330">정리 가능성 확인</text>
+<text class="h blue-ink" x="700" y="264">명시적 결정</text>
+<text class="small" x="700" y="302">삭제 또는 보류</text>
+<text class="small" x="700" y="330">이유와 조건 기록</text>
+<text class="h green-ink" x="910" y="264">결과 검증</text>
+<text class="small" x="910" y="302">실제 삭제 여부</text>
+<text class="small" x="910" y="330">남은 경로 확인</text>
+<path class="line" d="M228 270H246" marker-end="url(#artifact-arrow)"/>
+<path class="line" d="M454 270H472" marker-end="url(#artifact-arrow)"/>
+<path class="line" d="M648 270H666" marker-end="url(#artifact-arrow)"/>
+<path class="line" d="M858 270H876" marker-end="url(#artifact-arrow)"/>
+
+<path class="line" d="M356 357V417H484" marker-end="url(#artifact-arrow)"/>
+<text class="small" x="66" y="413">보호 · 불확실성 발견 시</text>
+<rect class="purple" x="496" y="389" width="576" height="111" rx="15"/>
+<text class="h purple-ink" x="520" y="431">한 구성원이라도 보호되면 그룹 전체 보존</text>
+<text class="body" x="520" y="471">활성 참조나 불확실성이 남으면 삭제하지 않습니다.</text>
+<rect class="soft" x="48" y="541" width="1024" height="150" rx="16"/>
+<text class="h" x="72" y="582">정리는 자동 삭제와 다릅니다</text>
+<text class="body" x="72" y="623">테스트 통과나 시간 경과만으로 삭제가 승인되지는 않습니다.</text>
+<text class="small" x="72" y="660">잠금은 관리 작업을 조정합니다. 모든 파일의 충돌 방지를 보장하는 잠금은 아닙니다.</text>
+</svg>

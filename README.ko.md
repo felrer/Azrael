@@ -2,109 +2,193 @@
 
 [English](README.md) | **한국어**
 
-Azrael은 VS Code에서 AI 에이전트와 함께 코드와 프로젝트 작업을 하기 위한 독립 호스트입니다. Codex 기반 엔진과 UI 위에, 길고 여러 에이전트가 참여하는 작업에 실제로 필요한 기능을 더했습니다. 범위가 정해진 서브에이전트를 조정하는 루트 에이전트, 빌드와 렌더링이 진행되는 동안 루트가 토큰을 쓰지 않고 기다리는 재개 예약, 하나의 선택기로 모이는 여러 계정과 제공자, 대기열에 넣는 컨텍스트 압축, 같은 데스크톱에서 에이전트와 나란히 일하는 Window Use, 중요한 대화로 빠르게 돌아가는 플래그가 그 예입니다.
+**모델을 호출하는 도구에서, 작업을 이어가는 하네스로.**
 
-Azrael은 하나의 통합 확장으로 실행됩니다. 계정·대화·설정은 일반 Codex와 분리된 `~/.azrael-ex`에 보관하며, 설치 과정은 기존 Codex 확장과 다른 확장, VS Code 설정을 보존합니다.
+Azrael은 **Codex 기반의 독립 AI 작업 환경**입니다. 엔진과 UI를 출발점으로 삼았지만, 지침 조합·다중 제공자·에이전트 협업·작업 기억·산출물 관리·창 제어를 지속적으로 확장하고 있습니다. 기본 실행 흐름을 공유하면서도, 작업을 구성하고 이어가는 방식에는 많은 차이가 생겼습니다. 이 구조는 앞으로도 개선합니다.
 
-> [!NOTE]
-> Azrael은 개발 중이며 기능마다 검증된 범위가 다릅니다. 이 문서는 각 기능 옆에 그 한계를 함께 적었고, 정식 기준은 [아키텍처 문서](docs/architecture/README.md)입니다.
+현재 VS Code의 통합 확장으로 실행합니다. 계정·대화·설정은 일반 Codex와 분리된 `~/.azrael-ex`에 보관합니다.
+
+> **개발 상태** — 이 README는 현재 소스의 기능과 설계를 함께 설명합니다. 설치한 릴리스의 제공 범위는 다를 수 있습니다. **일상 작업은 Direct를 권장**하며, Team과 가상 입력은 개발·실험 단계입니다. 기능별 경계는 해당 절과 [아키텍처 문서](docs/architecture/README.md)에 표시합니다.
 
 ## 목차
 
-- [주요 기능](#주요-기능)
-- [1. Harness Architecture](#1-harness-architecture)
-- [2. 사람의 인지 부하를 줄이기](#2-사람의-인지-부하를-줄이기)
-- [3. 기타](#3-기타)
-  - [a. 문서 체계](#a-세션을-잇는-문서-체계)
-  - [b. 자체 스킬](#b-논의에서-구현까지-이어지는-자체-스킬)
-  - [c. 역할과 소통](#c-root는-시간을-subagent는-토큰을)
-  - [d. 대기와 재개](#d-상태를-되묻지-않고-기다리기-defer_root)
-  - [e. 묶음 관리와 잠금](#e-산출물은-묶음으로-충돌은-잠금으로)
-  - [f. 계정](#f-여러-계정을-한-화면에서)
-  - [g. 모델](#g-대화-중에도-원하는-모델로)
-  - [h. 컨텍스트 압축](#h-차례를-기다리는-컨텍스트-압축)
-  - [i. Window Use](#i-window-use-에이전트와-나란히-작업하기)
-  - [j. 세션 플래그](#j-세션-플래그)
-  - [k. Profile과 Team](#k-profile과-team)
-- [플랫폼 지원](#플랫폼-지원)
-- [설치](#설치)
-- [사용법](#사용법)
-- [개발](#개발)
+- [1. Harness Architecutre](#1-harness-architecutre)
+  - [요청이 실행이 되기까지](#요청이-실행이-되기까지)
+  - [지침을 조합하는 방식](#지침을-조합하는-방식)
+  - [문서가 이어주는 맥락](#문서가-이어주는-맥락)
+  - [필요한 순간에 꺼내는 스킬](#필요한-순간에-꺼내는-스킬)
+  - [계획에서 작업 메모리까지](#계획에서-작업-메모리까지)
+- [2. Compose Your Workflow](#2-compose-your-workflow)
+  - [Profile — 작업 방식의 기본 단위](#profile--작업-방식의-기본-단위)
+  - [Direct와 Team — 하나의 루트에서 여러 작업으로](#direct와-team--하나의-루트에서-여러-작업으로)
+  - [변경을 공유하고 검증하는 방식](#변경을-공유하고-검증하는-방식)
+  - [설정을 넘어 패키지로](#설정을-넘어-패키지로)
+- [3. Work in Parallel](#3-work-in-parallel)
+  - [root는 시간을, subagent는 토큰을](#root는-시간을-subagent는-토큰을)
+  - [기다리는 동안에는 추론도 멈춥니다](#기다리는-동안에는-추론도-멈춥니다)
+  - [작업의 끝에는 정리까지](#작업의-끝에는-정리까지)
+- [4. Window Use — 같은 화면, 다른 커서](#4-window-use--같은-화면-다른-커서)
+- [5. Stay in Flow](#5-stay-in-flow)
+- [시작하기](#시작하기)
+- [개발과 문서](#개발과-문서)
 - [라이선스와 출처](#라이선스와-출처)
 
-## 주요 기능
+## 1. Harness Architecutre
 
-| 기능 | 제공하는 것 |
+### 요청이 실행이 되기까지
+
+큰 흐름은 일반적인 에이전트 하네스와 같습니다. **설정에 맞춰 컨텍스트를 구성하고, 모델의 응답이나 도구 호출을 처리한 뒤, 결과를 다음 추론으로 연결합니다.** Azrael은 이 흐름에 역할·작업 기록·실행 수명 관리를 더합니다.
+
+![설정과 대화에서 모델 요청을 구성하고 런타임이 도구 실행을 관리하는 흐름](docs/images/harness-flow-ko.svg)
+
+1. **구성을 정합니다.** Profile, 역할, 프로젝트 지침과 현재 실행 환경을 확인합니다.
+2. **요청을 조합합니다.** 지침·대화·도구 정의와 필요한 작업 맥락을 모델에 전달합니다.
+3. **모델이 다음 행동을 선택합니다.** 답변하거나, 허용된 도구에 작업을 요청합니다.
+4. **런타임이 실행합니다.** 권한·승인·입출력 경계를 확인하고 결과를 돌려줍니다. 모델은 그 결과로 작업을 이어갑니다.
+
+Profile은 뒤에서 설명할 **재사용 가능한 에이전트 구성**입니다. 프롬프트를 바꿔도 파일 권한이나 실행 가능한 도구가 저절로 늘어나지는 않습니다.
+
+### 지침을 조합하는 방식
+
+하나의 거대한 고정 프롬프트 대신, 출처와 책임이 다른 지침을 조합합니다.
+
+| 구성 | 담는 내용 |
 | --- | --- |
-| **루트·서브에이전트 협업** 지침 내장 | 토큰을 아끼는 서브에이전트가 파일 단위의 좁은 작업을 맡고, 루트가 이를 병렬로 스케줄링하며 통합과 최종 수용을 책임집니다. |
-| **루트 재개 예약** | 선택한 서브에이전트와 빌드·렌더링 같은 외부 작업이 끝날 때까지 루트가 대기하며, 모델 요청으로 상태를 반복 확인하지 않습니다. |
-| **계정 및 사용량** | 제공자마다 여러 계정을 연결하고, 남은 사용량과 초기화 시각을 보며 한 번의 클릭으로 전환합니다. |
-| **여러 제공자의 모델** | OpenAI, Devin, Anthropic, Google, xAI, OpenRouter와 직접 등록한 API를 검색 가능한 하나의 선택기에서 고르고, 대화 중에도 바꿉니다. |
-| **컨텍스트 압축** | 모델별 자동 압축 기준과, 실행 중인 턴을 끊지 않고 대기열에 넣는 수동 압축을 제공합니다. |
-| **Window Use** *(실험적)* | 에이전트가 선택한 창 하나를 관찰·조작하는 동안 마우스·키보드·클립보드는 사용자가 계속 사용합니다. |
-| **세션 플래그** | 대화에 빨간 깃발을 꽂아 Chats 목록에서 눈에 띄게 합니다. |
-| **복구와 대기열** | 대기 중인 입력은 창을 다시 로드해도 유지되고, 이미 접수된 턴은 재전송하지 않고 대조합니다. |
+| **하네스 공통 지침** | 기본 행동, 도구 사용, 권한과 실행 환경의 경계 |
+| **사용자·프로젝트 지침** | 사용자의 작업 원칙, `AGENTS.md`, 프로젝트별 규칙 |
+| **Profile·역할 지침** | 선택한 추가 지침과 root·subagent·Lead의 책임 |
+| **현재 작업의 맥락** | 요청, 대화, 읽어 온 계획·문서·메모리, 도구 결과 |
 
-## 1. Harness Architecture
+이 표는 구성 요소를 나타냅니다. 모든 내용이 같은 권한의 시스템 메시지로 합쳐지는 것은 아닙니다. 제공자에 맞춰 요청 형식을 변환해도 **사용자·프로젝트·도구 결과의 출처와 권한은 유지**합니다.
 
-## 2. 사람의 인지 부하를 줄이기
+스킬은 목록으로 발견하고, 필요한 본문과 참조 자료를 읽습니다. 모델 전환이나 기능 상태 변경 때는 교체 가능한 지침을 갱신하며, 저장된 대화 자체를 지우지 않습니다. 프로필의 요청 스냅샷은 접수 당시 구성을 보존해 진행 중인 요청에 새 설정이 섞이지 않도록 설계되어 있습니다.
 
-## 3. 기타
+[프롬프트와 도구 프로필](docs/architecture/model-harness-profiles.md) · [지침 조합과 상태 갱신](docs/architecture/instructions.md#native-instruction-state-and-prompt-projection)
 
-문서로 작업의 맥락을 잇고, 지침으로 실행 방식을 맞춥니다. root는 전체 작업 시간을, subagent는 개별 작업의 토큰 사용을 줄이는 데 집중하도록 설계했습니다.
+### 문서가 이어주는 맥락
 
-### a. 세션을 잇는 문서 체계
+`project-bootstrap`은 프로젝트의 문서 진입점과 작업 지침을 정리합니다. 코드를 생성하기보다 **다음 세션이 어디서 무엇을 읽을지** 정하는 스킬입니다.
 
-`docs/`는 여러 세션의 모델이 같은 설계를 기준으로 작업을 이어가는 공통 맥락입니다. 필요한 정보에 바로 도달하도록 네 범주로 나눕니다.
-
-| 범주 | 역할 |
+| 위치 | 맡는 역할 |
 | --- | --- |
-| [`architecture/`](docs/architecture/README.md) | 코드 참조와 수정 이력을 분리하고, 시스템의 전체 구조·동작·경계와 설계 의도를 유지합니다. |
-| [`maps/`](docs/maps/README.md) | 필요한 문서와 구현 위치로 연결해 탐색 범위를 좁힙니다. |
-| [`ops/`](docs/ops/README.md) | 개발·실행·배포·복구에 필요한 재현 가능한 절차를 정리합니다. |
-| [`playbooks/`](docs/playbooks/README.md) | 사용자가 검토하고 관리하는 모델의 작업 지침입니다. 프로젝트별 판단·검증·완료 기준을 명시합니다. |
+| `docs/architecture/` | 시스템의 구조·동작·설계 의도. 코드 위치와 수정 이력은 별도 소유자에 둡니다. |
+| `docs/maps/` | 필요한 문서와 구현으로 빠르게 연결하는 지도 |
+| `docs/ops/` | 실행·배포·복구를 위한 재현 가능한 절차 |
+| `docs/playbooks/` | 사용자가 관리하는 작업 원칙과 적용 조건 |
+| `work/` | 개별 작업의 계획·결정·검증과 공유 메모리 |
 
-기본 playbook은 모델과 작업하며 반복되던 누락을 보정합니다.
+기본 playbook인 `work.md`, `app-logging.md`, `artifact-lifecycle.md`는 범위 유지, 오류 추적, 산출물 정리에서 반복되는 누락을 보완합니다. 해당 문서가 필요한 작업으로 안내하며, 모든 문서를 매번 읽게 하지는 않습니다.
 
-- [`work.md`](docs/playbooks/work.md) — 작업 범위와 권한을 유지하고, 검증과 완료까지 연결합니다.
-- [`app-logging.md`](docs/playbooks/app-logging.md) — 오류가 발생했을 때 실행 흐름과 원인을 추적할 수 있도록 로그 기준을 정합니다.
-- [`artifact-lifecycle.md`](docs/playbooks/artifact-lifecycle.md) — 산출물의 소유권·보존·삭제 기준을 정해 임시 파일과 백업의 정리까지 책임지게 합니다.
+스킬·Playbook·참조 문서는 Profile의 구성요소로 선택할 수 있습니다. 프로젝트 파일을 만든 것과 Profile에 등록해 적용하는 것은 별도 단계입니다.
 
-### b. 논의에서 구현까지 이어지는 자체 스킬
+### 필요한 순간에 꺼내는 스킬
 
-반복해서 필요한 작업 방식을 스킬로 묶었습니다. 프로젝트의 playbook과 함께 적용하며, 논의에서 구현으로 넘어가도 같은 작업 기록과 합의된 범위를 이어갑니다.
-
-| 스킬 | 핵심 역할 |
+| 스킬 | 사용하는 때 |
 | --- | --- |
-| [`project-bootstrap`](instructions/skills/project-bootstrap/SKILL.md) | 문서 체계와 기본 playbook을 구성하고, 기존 프로젝트의 진입점과 지침을 정렬합니다. |
-| [`design-collaboration`](instructions/skills/design-collaboration/SKILL.md) | 사용자와 선택지·추천안·영향을 논의하며, 서로 연결된 설계 결정을 구체화합니다. |
-| [`design-documentation`](instructions/skills/design-documentation/SKILL.md) | 합의한 내용을 `architecture/`의 현재 설계로 반영합니다. 구조·동작·계약을 남기고 논의 이력은 분리합니다. |
-| [`development-workflow`](instructions/skills/development-workflow/SKILL.md) | 조사 결과, 필요한 결정, 실행 순서와 검증 기준을 하나의 작업 계획으로 연결합니다. |
-| [`implementation`](instructions/skills/implementation/SKILL.md) | 기존 구현을 먼저 살피고, 승인된 범위 안에서 수정·검증·정리까지 수행합니다. |
-| [`testing`](instructions/skills/testing/SKILL.md) | 변경된 계약에 맞는 최소 충분한 검증을 고르고, 유지할 가치가 있는 테스트를 남깁니다. |
+| [`project-bootstrap`](instructions/skills/project-bootstrap/SKILL.md) | 새 프로젝트의 문서 체계를 만들거나 기존 진입점을 정렬할 때 |
+| [`design-collaboration`](instructions/skills/design-collaboration/SKILL.md) | 사용자의 선택에 따라 다음 설계가 달라져 여러 차례 논의가 필요할 때 |
+| [`design-documentation`](instructions/skills/design-documentation/SKILL.md) | 합의한 요구사항과 동작을 담당 설계 문서에 반영할 때 |
+| [`development-workflow`](instructions/skills/development-workflow/SKILL.md) | 목표가 정해져 조사·계획·질문·검증 기준을 구성할 때 |
+| [`implementation`](instructions/skills/implementation/SKILL.md) | 승인된 범위의 구현·수정·검증·정리를 수행할 때 |
+| [`testing`](instructions/skills/testing/SKILL.md) | 변경에 필요한 검증과 유지할 테스트를 판단할 때 |
 
-### c. root는 시간을, subagent는 토큰을
+스킬은 고정된 여섯 단계가 아닙니다. 작업에 맞는 경로를 선택하고, 단계가 바뀌어도 **같은 작업 기록과 합의된 범위**를 이어갑니다.
 
-root는 사용자와 설계를 논의하고, 의존관계에 따라 작업을 배정하며, 결과를 통합합니다. subagent는 짧은 인계와 명확한 작업 범위에 집중합니다.
+### 계획에서 작업 메모리까지
 
-![root와 subagent의 역할 분담 및 공통 설계](docs/images/agent-roles-ko.svg)
+작업 계획은 `work/<작업>/nn-plan.md`에 둡니다. 요구사항·승인·공통 결정·완료 기준을 유지하고, 현재 단계와 검증 결과를 갱신합니다.
 
-사용자와의 설계 논의를 전담하는 **lead**는 추후 추가할 예정입니다. 현재는 root가 이 역할을 함께 맡습니다.
+![설계 문서, 작업 계획, 작성자별 메모리와 명시적인 버전 인계](docs/images/work-memory-ko.svg)
 
-엔진의 root 전용 조정 지침, 공통·프로젝트 지침, 역할별 스킬을 결합해 두 역할의 판단 범위를 나눕니다.
+선택형 `task_memory`는 같은 작업 폴더의 `mem/`에 조사 결론·차단·결과를 저장합니다. root는 공통 `context`를, 각 세션은 자신의 `finding`·`task`를 작성합니다. 수정은 새 불변 버전으로 남고, 작성자는 다른 세션의 기록을 덮어쓰지 않습니다.
 
-| | root | subagent |
+root는 작업을 배정할 때 **항목 ID와 버전**을 지정합니다. subagent는 필요한 기록만 읽고, 결과는 한 번 저장한 뒤 메시지에 참조를 보냅니다. 전체 대화를 반복해서 인계하는 부담을 줄이기 위한 구조입니다.
+
+현재 공유 계약은 **root와 직접 생성한 subagent**를 중심으로 합니다. Lead까지의 자동 주입이나 자동 알림을 뜻하지 않으며, 메모리 저장은 메시지·판단 요청·완료 신호를 대신하지 않습니다. 역할별 메모리 지침은 Profile에서 선택하며 기본 비선택입니다.
+
+[작업 메모리 설계](docs/architecture/task-memory.md) · [작업 문서 규칙](work/README.md)
+
+## 2. Compose Your Workflow
+
+### Profile — 작업 방식의 기본 단위
+
+**Profile은 모델의 작업 방식을 저장한 구성 단위**입니다. 지침과 리소스를 묶고, 허용 역할과 필요에 따른 제공자·모델·reasoning 설정을 지정합니다. 같은 모델도 서로 다른 Profile로 조사·구현 등 다른 역할을 맡길 수 있습니다.
+
+- **조합** — 기본 지침, 스킬, MCP 연결, Playbook, 참조 문서와 역할을 선택합니다. 추가 기본 지침은 순서를 정하고, 스킬·MCP는 활성화할 목록을 고릅니다.
+- **복제** — 읽기 전용 기본 Profile이나 패키지 템플릿에서 개인 구성을 만듭니다. Azrael 핵심 지침은 고정됩니다.
+- **저장과 적용** — 저장한 구성과 현재 프로젝트에 활성화한 구성을 구분합니다. 일반 대화에는 Root 호환 Profile 하나를 적용합니다.
+- **검증** — 잘못된 구성도 편집용으로 저장할 수 있지만 활성화는 막습니다. 기존 활성 구성은 마지막 유효 버전을 유지합니다.
+
+추가 지침을 선택하지 않을 수도 있습니다. 리소스 선택은 MCP 설치·인증·권한 승인을 대신하지 않습니다. **지침이 있는 것과 실행 권한이 있는 것은 별개**입니다.
+
+*통합 편집·저장·생성 경로는 소스에 구현되어 있습니다. 선택한 리소스만의 native 적용과 설치본 수용은 별도 검증 범위입니다.*
+
+[Profile 구성](docs/architecture/instructions.md#profile-composer) · [역할 프로필](docs/architecture/instructions.md#role-profiles-for-team-and-direct)
+
+### Direct와 Team — 하나의 루트에서 여러 작업으로
+
+![Direct는 root와 subagent, 개발 중인 Team은 Lead 아래 여러 root 작업으로 구성](docs/images/execution-modes-ko.svg)
+
+| | Direct | Team |
 | --- | --- | --- |
-| **지침 구성** | 공통·프로젝트 지침 + root 전용 조정 지침 + 작업에 맞는 스킬 | 공통·프로젝트 지침 + 역할별 지침 + root의 짧은 인계 |
-| **판단 범위** | 요구사항, 공유 계약, 작업 배정, 실행 순서, 통합과 최종 수용 | 배정받은 결과 하나와 지정된 파일·읽기 범위 |
-| **실행 원칙** | 전체 완료 시간을 좌우하는 작업부터 시작하고, 독립 작업을 병행하며 실제 의존 지점에서 대기 | 부모의 전체 대화 대신 목표·범위·제약·참조·완료 기준·보고 형식으로 시작하고 재위임 없이 수행 |
-| **결과 확인** | 완료 기준과 검증·정리를 확인한 뒤 사용자에게 최종 보고 | 실제 수행 범위, 종료 코드, 로그 경로와 미검증 항목을 보고 |
+| **대화 상대** | root | Lead |
+| **작업 구조** | root와 그 subagent | Lead 아래 여러 root와 각 subagent |
+| **저장하는 구성** | Root Profile과 Subagent 목록을 담은 전역 설정 한 개 | Lead Profile 하나와 사용할 Root·Subagent 목록을 담은 여러 프리셋 |
+| **용도** | 하나의 작업을 직접 맡기고 필요한 부분을 위임 | 여러 작업의 요청·상태·결과를 중앙에서 조율 |
+| **권장 상태** | 일상 작업에 권장 | 개발 중, 현재 사용 비권장 |
 
-지원되는 다른 제공자의 모델과 사용자 등록 API 모델도 subagent로 실행할 수 있습니다. 각 subagent는 별도 스레드와 계정 연결을 갖습니다.
+Direct는 기존 Codex의 root–subagent 구조에 해당합니다. 단일 에이전트만 실행한다는 뜻은 아닙니다. Team은 이 작업 단위를 Lead 아래 묶는 구조입니다.
 
-#### 서브에이전트가 루트와 소통하는 세 가지 방법
+**새 채팅 버튼을 우클릭**하거나 길게 누르면 Direct와 저장된 Team 프리셋의 시작 메뉴를 엽니다. 프리셋을 선택하고 첫 메시지를 보내면 해당 구성으로 세션을 만듭니다.
 
-일상 보고는 관련 근거를 모아 전달하고, 다음 작업을 막는 결정은 즉시 요청합니다. 소통의 목적에 따라 세 경로를 구분합니다.
+생성된 Team은 Profile과 필요한 고정 리소스의 복사본을 보존합니다. 원본 Profile을 수정·삭제해도 기존 Team의 구성이 따라 바뀌지 않습니다. Team 안의 Profile 수정은 이후 생성하는 자식에게 적용하고, 이미 생성한 세션은 자신의 구성을 유지합니다.
+
+역할별 부가 지침은 각 Profile에 둡니다. Team 생성 요청의 `developerInstructions`를 공통 기반 지침으로 저장하는 경로도 있지만, **저장된 Team 프리셋에 독립적인 추가 지침 편집란이 있는 것은 아닙니다.**
+
+Team의 승인 요청은 Lead 화면으로, Direct의 요청은 root 화면으로 모으는 구조입니다. 승인자는 사용자이며, 한 세션의 승인이 Team 전체 권한으로 확대되지 않습니다.
+
+[Team과 Direct](docs/architecture/work-orchestration.md#team과-direct)
+
+### 변경을 공유하고 검증하는 방식
+
+Team은 **Git의 코드 이력 위에 작업 상태를 연결**합니다. Git을 대체하는 자체 파일 저장소가 아닙니다.
+
+| 저장하는 것 | 담당 |
+| --- | --- |
+| 코드 내용과 이력 | Git 객체·커밋 |
+| 요구사항 버전, 변경 단위와 revision, 의존성 | Team 변경 관리 원장 |
+| 검증된 기준점과 반영 상태 | 전용 Git ref와 검증 기록 |
+
+목표 흐름은 **기준점 선택 → 변경 제출 → 의존성 확인 → 통합 검증 → 반영**입니다. 작업자는 격리된 변경을 넘기고, 통합 담당은 검증된 기준점을 관리합니다.
+
+현재 서비스는 기존 커밋을 고정하고 상태를 추적합니다. 후보 생성·테스트 실행·활성 worktree 통합 전체를 자동으로 수행하지는 않습니다. 내부 checkpoint를 외부 커밋으로 변환하는 흐름도 아직 완성되지 않았습니다. 외부 저장소로 push하거나 게시하는 권한은 별도로 유지합니다.
+
+[Team 변경 관리](docs/architecture/work-orchestration.md#team-변경-관리)
+
+### 설정을 넘어 패키지로
+
+지침·스킬·Playbook·참조 문서·역할과 **Profile 템플릿**은 패키지로 묶어 저장하고 공유합니다. 이름·설명·이미지와 구성 파일을 함께 보존하고, 버전과 내용 해시로 가져올 대상을 고정합니다. 역할 Profile의 모델 설정은 생략할 수 있지만, 공유용 `task-profile` 형식은 모델과 고정 의존성을 지정합니다.
+
+패키지를 가져오는 것, 개인 Profile을 만드는 것, 프로젝트에 활성화하는 것, 원격에 게시하는 것은 각각 별도 동작입니다. 로컬 구성은 로컬에 남길 수 있고, 공개·협업자용 배포는 연결된 GitHub 저장소의 권한과 게시 검사를 따릅니다. 계정 인증과 지침 공유는 분리하며, 게시 시 알려진 비밀정보 경로와 패턴을 검사합니다.
+
+현재 패키지의 지원 범위는 리소스와 Profile 템플릿입니다. **Team 프리셋과 Direct 전역 설정을 통째로 내보내고 복원하는 기능은 포함하지 않습니다.**
+
+[패키지와 배포](docs/architecture/instructions.md#package-development-workbench)
+
+## 3. Work in Parallel
+
+### root는 시간을, subagent는 토큰을
+
+root는 요구사항·의존관계·공유 계약을 정리하고, 작업을 배정하며 결과를 통합합니다. subagent는 지정된 범위와 결과 하나에 집중합니다. **전체 완료 시간과 반복 인계 비용을 함께 줄이는 방향**입니다.
+
+| 역할 | 받는 지침과 책임 |
+| --- | --- |
+| **root** | 공통·프로젝트 지침과 root 조정 지침. 실행 순서·공유 자원·통합·최종 검증을 담당합니다. |
+| **subagent** | 자신의 역할·Profile 지침과 목표·소유 파일·제약·참조·완료 기준. 실제 결과와 미검증 범위를 보고합니다. |
+
+부모 대화를 공유하더라도 부모 전용 역할과 권한까지 물려받지는 않습니다. 조사용 `luna_explorer`, 구현·검증용 `sol_executor`처럼 목적이 분명한 기본 프로필을 제공합니다.
+
+**소통은 목적에 따라 세 경로로 나눕니다.**
 
 | 경로 | 서브에이전트가 사용하는 때 | 루트에 미치는 영향 | 효율적인 이유 |
 | --- | --- | --- | --- |
@@ -112,288 +196,160 @@ root는 사용자와 설계를 논의하고, 의존관계에 따라 작업을 �
 | **결정 요청** (`request_parent`) | 직속 부모의 결정이나 조율이 지금 필요할 때 | 대기 중인 루트를 깨우거나, 실행 중인 루트의 다음 안전한 처리 시점에 합류합니다. 루트는 `resolved`, `cancelled`, `deferred` 중 하나로 답합니다. | 자식은 독립 작업을 계속하고, 막힌 동작만 멈춘 채 `await_parent_response`로 답을 기다립니다. |
 | **최종 보고** | 배정이 성공, 실패, 부분 결과로 끝났을 때 | 종료 상태가 됩니다. 이 자식을 `all_terminal`로 기다리던 루트가 재개됩니다. | 범위, 종료 코드, 로그, 미검증 항목을 담은 보고 한 번이 반복적인 상태 확인을 대신합니다. |
 
-root는 다시 대기하기 전에 결정 요청을 처리합니다. subagent는 답을 기다리는 동안 독립 작업을 이어갑니다. 구조화된 요청 도구가 없는 세션에서는 메시지와 필요한 결정을 명시한 부분 완료 보고를 사용합니다.
+### 기다리는 동안에는 추론도 멈춥니다
 
-자세한 내용: [루트 조정](docs/architecture/root-coordination.md), [부모 결정 요청](docs/architecture/root-resume.md#parent-decision-requests), [지침 라이브러리](instructions/README.md).
+root가 다음 단계로 넘어가려면 빌드나 subagent의 결과가 필요한 순간이 있습니다. `defer_root`는 이 의존 지점에서 **재개 조건을 저장하고 모델 호출을 멈춥니다.**
 
-### d. 상태를 되묻지 않고 기다리기: `defer_root`
+![선택한 작업 완료와 외부 종료 플래그, 예약 시각에 따라 root가 재개되는 흐름](docs/images/agent-resume-ko.svg)
 
-빌드나 렌더링을 기다리며 모델이 상태를 반복 확인하면 매번 토큰을 사용합니다. root 전용 도구 **`azrael_agents.defer_root`**는 재개 조건을 등록한 뒤 모델 호출을 멈춥니다.
+- **자식 작업** — 선택한 subagent들이 모두 종료되면 재개합니다.
+- **외부 작업** — `work_completion`으로 실행을 등록하고, 실제 종료 플래그를 재개 조건에 연결합니다. 관리 명령은 실행기가 종료 결과를 기록합니다.
+- **예약과 개입** — 지정 시각은 최종 대기 한도이며, 부모 판단 요청이나 사용자의 수동 재개도 별도 경로로 처리합니다.
 
-- **대상 지정.** `wake_on.agent_paths`로 subagent를, `wake_on.work_ids`로 외부 작업을 선택합니다. `condition: all_terminal`은 선택한 대상이 모두 종료되어야 충족됩니다.
-- **대기.** root는 독립 작업을 마친 뒤 대기합니다. 추론과 상태·파일·로그 폴링을 멈추며, 배정한 작업은 계속 실행됩니다.
-- **재개.** 모든 대상이 종료되거나 예약 시각이 되면 엔진이 한 번 재개합니다. `resume_after_ms` 또는 UTC `resume_at`으로 최대 12시간 안의 대체 재개 시점을 지정합니다. 일반 진행 메시지는 root를 깨우지 않습니다.
+일반 진행 메시지는 대기 중인 root를 깨우지 않습니다. 성공·실패·취소는 모두 종료일 수 있으므로, 재개한 root가 결과를 확인하고 통합·검증합니다. 종료가 불명확한 상태를 성공으로 바꾸지 않습니다.
 
-#### 외부 작업도 종료 플래그로 연결
+*현재 `defer_root` 제공 범위는 검증된 native OpenAI root 경로입니다. 다른 제공자의 동등한 재개 지원을 뜻하지 않습니다.*
 
-빌드·렌더링·테스트는 **`azrael_agents.work_completion`**으로 등록합니다. `action: create`가 반환한 `workId`를 대기 대상으로 지정하면, 실제 종료 결과가 기록됐을 때 같은 재개 흐름에 합류합니다.
+[대기와 재개](docs/architecture/root-resume.md)
 
-- 관리형 `exec_command`에는 `work_id`를 전달합니다. 실행기가 종료 결과를 기록합니다.
-- 별도 실행기는 반환된 `signalPath`에 실제 종료 결과를 게시하도록 연결합니다. 이 완료 플래그를 확인하는 일은 런타임이 맡습니다.
+### 작업의 끝에는 정리까지
 
-![종료 플래그·예약 시각·결정 요청에 따른 root의 대기와 재개](docs/images/agent-resume-ko.svg)
+출력·로그·임시 복사본 중 **등록된 산출물은 작업·실행·버전 단위로 묶어 정리와 보존을 확인**합니다. 공유 캐시는 소유자 하나와 여러 소비 참조를 가집니다.
 
-종료에는 성공·실패·취소가 모두 포함됩니다. root는 재개 후 실제 결과를 확인합니다. 예약 시각 도달이나 직접 재개는 작업 완료를 뜻하지 않으며, 종료 관찰을 놓친 `unknown`도 별도 확인이 필요합니다.
+![등록, 보호 확인, 검토, 삭제 또는 보류, 실제 부재 확인으로 이어지는 산출물 수명](docs/images/artifact-lifecycle-ko.svg)
 
-예약은 **루트 재개 예약** 화면에서 확인하고 바로 재개하거나 취소할 수 있습니다. 예약 취소는 subagent나 외부 작업을 중단하지 않습니다.
-
-자세한 내용: [루트 재개 예약](docs/architecture/root-resume.md).
-
-### e. 산출물은 묶음으로, 충돌은 잠금으로
-
-*`maintenance_owner`의 Azrael 통합을 가정한 설명입니다.*
-
-Azrael은 빌드 결과·로그·백업 등 등록된 산출물을 작업·실행·버전·공유 캐시 단위로 묶고, 소유자·구성원·사용 참조를 함께 기록합니다. 에이전트가 작업의 전체 산출물을 한 단위로 파악할 수 있습니다.
-
-- **묶음 단위 보호.** 구성원 하나라도 사용 중이거나 보호 대상이면 묶음 전체의 삭제를 막습니다. 정리는 구성과 참조를 확인한 뒤 적용하고, 실제 삭제 결과까지 기록합니다.
-- **병행 작업 조율.** OS 잠금과 묶음별 예약으로 생성·등록·정리의 충돌을 제어합니다. 공통 관리 잠금은 짧게 유지하고, 긴 처리 중에는 해당 묶음을 예약해 관련 없는 작업이 병행되도록 합니다.
-- **검증 근거 재사용.** 등록된 측정값을 재사용하면서 현재 소유권·참조·보호·구성을 확인합니다. 변경이 보고되면 기록을 갱신하고, 필요할 때 전체 내용을 다시 검증해 반복적인 전체 탐색을 줄입니다.
-
-모델은 정리 대상을 판단하고, Azrael의 내장 관리 도구는 소유권 확인부터 검토·적용·결과 기록까지 이어갑니다.
-
-자세한 내용: [생성물 관리 설계](docs/architecture/project-maintenance.md), [관리 운영](docs/ops/project-maintenance.md).
-
-### f. 여러 계정을 한 화면에서
-
-프로필 메뉴에서 **계정 및 사용량**을 엽니다. 모든 제공자의 계정이 제공자 로고 아래에 묶여 한곳에 표시되고, 계정마다 남은 사용량 게이지와 초기화 시각, 현재 사용 중인 계정의 배지가 나타납니다.
-
-![합성 계정으로 렌더링한 계정 및 사용량 화면](docs/images/accounts-usage.png)
-
-- **한 번의 클릭으로 전환합니다.** 계정마다 한 번만 로그인해 두면, 사용량이 줄어들거나 프로젝트가 바뀔 때 바로 옮겨갈 수 있습니다.
-- **창마다 독립적입니다.** VS Code 창마다 다른 창이 쓰는 계정을 포함해 어떤 계정이든 선택할 수 있습니다.
-- **제공자별로 기억합니다.** 대화는 제공자마다 사용한 계정을 기억하므로, OpenAI → Anthropic → OpenAI로 오가도 같은 OpenAI 계정으로 돌아옵니다.
-- **자동 전환을 선택할 수 있습니다.** 계정 세부 정보에서 **자동 전환 허용**을 켜면, *확인된* 사용량 소진 응답을 받았을 때 같은 제공자의 정상 계정으로 옮겨 모델과 추론 설정을 유지한 채 이어갑니다. 기본값은 꺼짐입니다.
-- **입력은 계속됩니다.** 전환을 기다리는 동안 보낸 메시지는 영속 대기열에 들어가고 계정 전환 대기 중으로 표시됩니다.
-
-자격 증명은 Webview와 로그에 남지 않으며, 실행 중인 요청을 다른 계정으로 몰래 넘기지 않습니다.
-
-### g. 대화 중에도 원하는 모델로
-
-모델 선택기는 제공자별로 모델을 묶어 섹션마다 개수를 보여 주고, 검색창 하나로 모든 섹션의 표시 이름과 모델 ID를 찾습니다.
-
-<p align="center"><img src="docs/images/model-picker.png" alt="OpenAI와 Anthropic 섹션이 있는 모델 선택기" width="420"></p>
-
-지원 대상: 네이티브 **OpenAI**와 **Devin**, 관리형 **Anthropic**(구독 OAuth), **Google AI Studio**, **Google Antigravity**, **xAI**, **OpenRouter**, 그리고 직접 등록한 **Chat Completions**·**Responses** 엔드포인트. 사용할 수 있는 모델, 추론 단계와 한도는 연결마다 다릅니다.
-
-모델 변경은 다음 턴 경계에서 적용되며, 실행 중인 턴은 기존 제공자·모델·계정을 유지합니다. 대화가 다른 제공자로 넘어갈 때는 이전 모델이 분량이 제한된 일반 텍스트 인계 요약을 작성하고, 이것이 압축 체크포인트가 됩니다. 그래서 다음 모델은 맥락을 이어받되 다른 제공자의 암호화된 추론은 받지 않습니다. 서브에이전트가 실행할 모델도 같은 선택기로 지정합니다.
-
-### h. 차례를 기다리는 컨텍스트 압축
-
-컨텍스트 게이지는 자동 압축 기준과 모델 전체 용량 대비 사용량을 함께 보여 줍니다. 카드의 **Compact context**를 누르거나 `/compact`를 입력하면, 요청은 현재 턴을 끊지 않고 대화 대기열에 들어갑니다.
-
-<p align="center"><img src="docs/images/context-compaction.png" alt="Compact context 버튼이 있는 컨텍스트 사용량 카드" width="460"></p>
-
-- 압축은 엔진의 독립 동작이며, 모델에게 스스로 요약하라고 지시하는 프롬프트가 아닙니다.
-- 대기열 차례가 되면 사용량을 다시 확인하고, 컨텍스트가 15% 미만이면 **건너뜁니다**.
-- 자동 압축 기준은 Azrael 설정에서 **제공자 안의 모델별로** 지정합니다. 네이티브 OpenAI 구독은 300,000토큰(1M의 30%), 1M 이상 컨텍스트의 Anthropic 모델은 600,000토큰, 그 밖의 경로는 길이 할증이 없는 기준 용량의 95%가 기본값입니다. 모든 기준은 모델의 안전 사용 가능 컨텍스트를 넘지 않습니다. 서브에이전트는 자신의 제공자·모델·인증 경로에 맞는 정책을 따로 적용합니다.
-
-압축은 원래의 모든 세부를 보존하지 않고 분량이 제한된 요약을 남깁니다. 다시 로드 복구와 함께, 대기 중인 작업은 **Developer: Reload Window** 이후에도 유지되며 이미 접수된 메시지를 무작정 다시 보내지 않습니다.
-
-자세한 내용: [계정](docs/architecture/accounts.md), [관리형 제공자](docs/architecture/managed-providers.md), [사용자 API 모델](docs/architecture/custom-api-models.md), [컨텍스트 정책](docs/architecture/context-policy.md), [대기열 압축](docs/architecture/queued-compaction.md), [다시 로드 복구](docs/architecture/reload-recovery.md).
-
-### i. Window Use: 에이전트와 나란히 작업하기
-
-기존의 데스크톱 전체 제어는 커서를 움직이고, 포커스가 있는 곳에 입력하고, 화면을 혼자 써야 하므로 에이전트가 일하는 동안 사용자는 손을 놓게 됩니다. **Window Use**는 그 반대 방향으로 설계한 Azrael의 데스크톱 기능입니다. 에이전트는 **자신이 선택한 창 하나**만 다루고, 다른 창에 가려져도 그 창의 내용을 보며, 앱의 접근성 인터페이스로 조작합니다. 그래서 커서·키보드·클립보드는 사용자의 것으로 남습니다.
-
-![사용자가 편집기에서 입력하는 동안 에이전트가 가려진 스프레드시트 창을 제어하는 모습](docs/images/window-use.svg)
-
-Window Use는 권한을 4단계로 나눕니다. 단계마다 스위치가 따로 있으며, 에이전트는 높은 단계를 가정하지 않고 필요할 때 요청합니다.
-
-| 단계 | 에이전트가 할 수 있는 일 | 사용자에게 미치는 영향 |
-| --- | --- | --- |
-| **1 · 관찰** | 창 목록을 보고, 하나를 선택하고, 캡처하고 UI 구조를 읽습니다. 창을 올리거나 포커스를 옮기거나 최소화를 풀지 않습니다. | 없음. 앱별 승인도 필요 없습니다. |
-| **2 · 현재 창 제어** | 사용자 세션에서 선택한 창을 UI Automation으로 조작합니다. | 다른 곳에서 계속 작업할 수 있지만, 일부 동작은 앱이나 대화상자를 앞으로 가져올 수 있습니다. |
-| **3 · 격리 실행** | 승인한 앱을 입력이 분리된 별도 Windows 세션에서 실행합니다. | 입력을 완전히 분리하도록 설계했습니다. 기본값은 꺼짐이며, 아직 시험한 어떤 PC에서도 수용되지 않았습니다. |
-| **4 · 데스크톱 전체 제어** | 기존 데스크톱 백엔드(Computer Use)를 사용합니다. | 이전처럼 데스크톱을 함께 씁니다. |
-
-작업 흐름은 다음과 같습니다.
-
-1. **찾고 선택합니다.** 에이전트가 열린 창 목록을 봅니다. 후보마다 다른 Azrael 세션이 이미 사용 중인지(`available`, `occupied`, `unknown`) 표시되므로 두 대화가 같은 창을 두고 다투지 않습니다.
-2. **앱을 승인합니다.** 2단계부터는 앱을 처음 사용할 때 이 대화에서만 허용, 항상 허용, 거부 중 하나를 대화 안의 카드에서 고르며, Windows 알림으로도 알려 줍니다. 모든 앱 허용은 꺼져 있고 승인 앱 목록은 비어 있는 상태로 시작하며, Window Use 승인은 Computer Use 승인과 별개입니다.
-3. **제어 대상을 눈으로 확인합니다.** 선택한 창의 모서리에서 안쪽으로 은은한 빛이 퍼집니다. 그 창이 앞에 있을 때는 반투명하고 클릭이 통과되는 안내가 중지 단축키 **Ctrl+Alt+Shift+F12**를 보여 줍니다. 이 단축키는 제어와 대기 중인 단계를 멈추며, 사용자가 재개할 때까지 유지됩니다. 일반 Esc는 그대로 앱에 전달됩니다.
-4. **적은 왕복으로 처리합니다.** 에이전트는 간결한 요소 요약을 확인하고 실행·값 설정·토글·선택·펼치기·스크롤을 수행하거나, 최대 32단계(20초)의 **작업 매크로**를 클릭마다 모델 턴을 쓰지 않고 한 번에 실행합니다. 대상이 최소화되면 안전하게 일시 정지하고, 사용자의 포커스를 빼앗지 않고 복원할 수 있습니다.
-
-> [!WARNING]
-> **Window Use는 실험적이며 일부만 검증되었습니다.** Windows에서 실제 Firefox와 파일 탐색기 창의 캡처·검사·상태 확인이 통과했고, 앞쪽 창이 면적의 27.94%를 가린 탐색기 창도 캡처했습니다. 탐색기의 일부 동작도 검증했으며, 이 과정에서 창이 앞으로 활성화되는 것이 관찰되었습니다. 동시 사용 중 사용자 물리 입력의 분리, 시험한 PC(Windows 11 Home 포함)에서의 3단계, 실제 창에서의 매크로, 화면에 보이는 승인 알림, 여러 모니터에서의 오버레이 동작은 *아직* 수용되지 않았습니다. 백그라운드 키 전달은 실험 기능이고, 결과는 앱이 쓸 수 있는 UI Automation 컨트롤을 제공하는지에 달려 있으며, 실패해도 권한이 더 높은 단계로 넓어지지 않습니다.
-
-자세한 내용: [Window Use](docs/architecture/window-use.md), [데스크톱 백엔드(Computer Use)](docs/architecture/computer-use.md).
-
-### j. 세션 플래그
-
-오래 이어지는 프로젝트에는 대화가 많이 쌓입니다. **Chats**의 대화 행에 마우스를 올리고 시간 표시 앞의 깃발을 누르면 표시가 됩니다. 플래그를 단 행은 새 채팅 화면의 최근 채팅 미리보기를 포함해 항상 **채워진 빨간 깃발**을 보여 줍니다. 기록 메뉴의 채팅 유형 드롭다운에서 **플래그만 보기**를 켜면 현재 필터와 검색 범위 안에서 표시한 대화와 현재 대화만 보여 주며, 현재 대화는 플래그가 없어도 계속 보입니다. 깃발을 다시 누르면 해제됩니다. 플래그 동작은 대화를 열거나 닫거나 보관하지 않고, 키보드로도 사용할 수 있으며, 호스트와 대화별로 저장됩니다.
-
-<p align="center"><img src="docs/images/session-flags.png" alt="빨간 깃발이 표시된 Chats 목록 행" width="576"></p>
-
-### k. Profile과 Team
-
-반복해서 쓰는 작업 환경은 **Profile**로, 에이전트의 역할 구성은 **Team**으로 저장합니다. 매번 지침과 모델을 다시 설정하는 대신, 작업에 맞는 구성을 꺼내 씁니다.
-
-- **Profile 구성.** 기본 지침·스킬·MCP·Playbook·참조 문서·역할을 조합합니다. 필요하면 제공자·모델·reasoning도 지정합니다. Azrael 핵심 지침은 고정하고, 기본 프로필이나 패키지의 템플릿을 복제해 개인 구성을 만듭니다.
-- **저장과 적용 분리.** 여러 Profile을 보관하고 프로젝트마다 하나를 활성화합니다. 저장은 활성화와 별개이며, 적용한 구성의 변경은 이후 요청부터 반영합니다. 이미 접수하거나 실행 중인 요청은 기존 구성을 유지합니다.
-- **Team 재사용.** 역할별 모델·reasoning·지침을 담은 프로필로 Lead 하나와 사용할 root·subagent 목록을 구성합니다. Lead는 등록된 root 프로필을, root는 등록된 subagent 프로필을 선택해 작업을 나눕니다. Team 밖에서는 Direct root와 바로 협업합니다.
-- **구성 보존.** Team은 프로필과 필요한 고정 리소스의 복사본을 보관합니다. 원본을 수정하거나 삭제해도 저장한 Team은 유지됩니다. Team 구성 변경은 이후 생성하는 세션부터 적용하며, 재개할 때는 기존 역할·소속·모델 선택을 복원합니다.
-
-*프로필 편집·저장과 Team 생성 경로는 소스에 구현되어 있습니다. 프로젝트 Profile의 엔진 적용, Team 전체 실행 스케줄러와 설치본 수용은 별도 검증 단계입니다.*
-
-자세한 내용: [Profile 구성](docs/architecture/instructions.md#profile-composer), [역할 프로필](docs/architecture/instructions.md#role-profiles-for-team-and-direct), [Team과 Direct](docs/architecture/work-orchestration.md#team과-direct).
-
-## 플랫폼 지원
-
-Azrael은 **Windows x64**, **glibc Linux x64**, **Apple Silicon macOS**의 로컬 VS Code를 대상으로 합니다. 세 플랫폼 모두 [2026.0.5 릴리스](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.5)에 공개 패키지가 있으며, 검증 범위는 서로 다릅니다.
-
-| 플랫폼 | 패키지 | 검증 범위 |
-| --- | --- | --- |
-| **Windows x64** | 2026.0.5(최신) | 데스크톱 제어 백엔드를 포함해 이 문서의 모든 기능의 기준 플랫폼입니다. |
-| **Linux x64(glibc)** | 2026.0.5와 Linux 전용 [2026.0.6 긴급 수정](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.6) | 2026.0.5는 WSLg로 실행한 네이티브 Linux VS Code에서 Ubuntu 24.04 / glibc 2.39 기준 패키지·설치 호스트 수용을 통과했습니다. 2026.0.6은 사용자 API 도구 컨텍스트를 수정했으며, 그 컨텍스트와 도구 호출 흐름만 검증했습니다. |
-| **macOS(Apple Silicon)** | 2026.0.5 | macOS 26.6.2와 VS Code 1.138.0에서 패키지·설치 호스트·렌더링 UI를 수용했습니다. ad-hoc 서명이며, Developer ID 서명이나 Apple 공증은 **없습니다**. |
-
-### Linux와 macOS에서 지원하지 않는 기능
-
-Unix 패키지에는 Windows 데스크톱 제어 구성 요소가 포함되지 않으며 그 백엔드도 시작하지 않습니다. 관련 경로는 *사용할 수 없음*으로 보고됩니다. 두 플랫폼 모두 다음 기능이 없습니다.
-
-- **데스크톱 전체 제어**(Window Use 4단계, Computer Use 백엔드)와 **격리 실행**(3단계)
-- 위에서 설명한 **Windows용 Window Use** — Windows Graphics Capture, UI Automation 동작, 작업 매크로, 모서리 빛 오버레이와 중지 단축키 안내
-- 데스크톱 제어 승인을 알리는 **Windows 알림**
-- [`native/`](native/)의 Windows 네이티브 모듈
-
-플랫폼별 참고 사항:
-
-- **macOS**에는 데스크톱 제어 백엔드가 전혀 없으며, 네이티브 캡처와 접근성 연동은 이후 범위입니다. 음성 사용도 검증되지 않았습니다.
-- **Linux** 공개 패키지는 Window Use를 검증 범위에 포함하지 않습니다. 별도의 로컬 Linux 포트가 **Xorg**에서 범위가 제한된 선택 창 제어(XComposite 캡처, AT-SPI 동작, 단축키·모서리 빛 대신 GTK 중지 컨트롤)를 추가하지만, 격리된 GTK 창에서만 검증했고 임의의 데스크톱이나 앱은 검증하지 않았습니다. **Wayland**는 지원하지 않습니다.
-
-### Windows 외에서 아직 검증하지 않은 기능
-
-아래 기능은 공통 제품에 속하지만 Linux와 macOS 수용 범위에는 포함되지 않았습니다.
-
-- 루트 재개 예약의 외부 작업 종료 신호
-- 실제 제공자 로그인과 추론, 실제 계정 간 전환(Unix 수용은 합성 계정을 사용했습니다)
-- 단독 Linux 데스크톱, Ubuntu 24.04 이외의 배포판, macOS 26.6.2 이외의 버전
-
-Linux에는 **glibc 2.39 이상과 OpenSSL 3**, 관리형 계정 저장을 위한 데스크톱 **Secret Service**(예: GNOME Keyring), 한국어 표시를 위한 CJK 글꼴이 필요합니다. Intel Mac, Linux ARM64, Alpine/musl, 제품 대상으로서의 WSL, Remote SSH, 컨테이너는 후속 대상입니다.
-
-자세한 내용: [멀티 플랫폼 계약](docs/architecture/multi-platform.md), [플랫폼 운영](docs/ops/multi-platform.md), [Linux 로컬 호스트](docs/ops/linux.md), [릴리스 기록](docs/ops/app-release.md).
-
-## 설치
-
-모든 패키지는 자체 Node 런타임을 포함하고 Azrael 상태를 일반 Codex와 분리된 `~/.azrael-ex`에 보관합니다. 기존 Codex 확장, 로그인과 대화는 보존됩니다. 각 릴리스에는 해당 버전의 기준이 되는 `INSTALL.md`도 함께 제공됩니다.
-
-### Windows
-
-1. VS Code와 PowerShell 7을 설치하고 `code` 명령이 동작하는지 확인합니다.
-2. [2026.0.5 릴리스](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.5)에서 `Azrael-2026.0.5-windows-x64.zip`과 `SHA256SUMS.txt`를 내려받습니다.
-3. 해시를 확인하고 새 디렉터리에 압축을 푼 다음, PowerShell 7에서 설치 도구를 실행합니다.
-
-   ```powershell
-   Get-FileHash .\Azrael-2026.0.5-windows-x64.zip -Algorithm SHA256   # SHA256SUMS.txt와 비교
-   Expand-Archive .\Azrael-2026.0.5-windows-x64.zip -DestinationPath .\Azrael-2026.0.5
-   cd .\Azrael-2026.0.5
-   ./install.ps1
-   ```
-
-4. VS Code에서 **Developer: Reload Window**를 실행합니다. 설치 도구는 창을 직접 닫거나 다시 로드하지 않습니다.
-
-런타임은 `%LOCALAPPDATA%/azrael-ex/releases/<version>`에, 상태는 `%USERPROFILE%/.azrael-ex`에 저장됩니다. 주요 옵션은 `-ReleasesRoot`, `-StateRoot`, `-CodePath`, `-DevinExecutable`, `-PrepareOnly`(VS Code를 호출하지 않고 준비만 수행)입니다. `-StateRoot`를 바꿔도 기존 계정은 옮겨지지 않습니다. 자세한 내용은 [앱 릴리스 설치](docs/ops/app-release.md#package-and-installation-contract)를 참고하세요.
-
-### Linux
-
-`Azrael-2026.0.5-linux-x64.*` 자산 네 개(`.tar.gz`, `.manifest.json`, `.SHA256SUMS.txt`, `.INSTALL.md`)를 한 디렉터리에 내려받고, 실행 중인 Azrael 세션을 닫은 뒤 다음을 실행합니다.
-
-```sh
-sha256sum -c Azrael-2026.0.5-linux-x64.SHA256SUMS.txt
-mkdir Azrael-2026.0.5-linux-x64
-tar -xzf Azrael-2026.0.5-linux-x64.tar.gz -C Azrael-2026.0.5-linux-x64
-cd Azrael-2026.0.5-linux-x64
-./runtime/runtime/node/node install-platform-release.cjs \
-  --package "$PWD" \
-  --install-root "$HOME/.local/share/azrael/releases" \
-  --state-root "$HOME/.azrael-ex" \
-  --code "$(command -v code)"
-```
-
-설치 후 VS Code를 다시 시작하고, 압축을 푼 디렉터리는 지우지 않습니다. 사용자 API 모델을 쓴다면 [2026.0.6 긴급 수정](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.6)도 같은 방식으로 설치하되 해당 릴리스의 `INSTALL.md`를 따르고, 검증 범위가 더 좁다는 점을 유의하세요.
-
-### macOS(Apple Silicon)
-
-`Azrael-2026.0.5-darwin-arm64.*` 자산 네 개를 내려받은 뒤 다음을 실행합니다.
-
-```sh
-shasum -a 256 -c Azrael-2026.0.5-darwin-arm64.SHA256SUMS.txt
-mkdir Azrael-2026.0.5-darwin-arm64
-tar -xzf Azrael-2026.0.5-darwin-arm64.tar.gz -C Azrael-2026.0.5-darwin-arm64
-cd Azrael-2026.0.5-darwin-arm64
-runtime/runtime/node/node install-platform-release.cjs --package "$PWD" --prepare-only
-runtime/runtime/node/node install-platform-release.cjs --package "$PWD"
-```
-
-패키지는 Apple 공증 없이 ad-hoc 서명되어 있습니다. Gatekeeper가 신뢰하는 항목을 막으면 한 번 실행을 시도한 뒤 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**를 사용하세요([Apple 안내](https://support.apple.com/ko-kr/102445)). Gatekeeper와 SIP는 켜 둔 상태로 유지합니다.
-
-## 사용법
-
-### 처음 실행
-
-1. VS Code를 다시 로드하고 Azrael 사이드바를 엽니다.
-2. 프로필 메뉴 → **계정 및 사용량**에서 계정을 하나 이상 연결합니다.
-3. 입력창에서 모델을 고르고, 원하는 결과와 제약 조건을 설명합니다.
-4. **Azrael 설정**에서 압축 기준, 지침 구성 요소, 데스크톱 제어 설정을 조정합니다.
-
-제공자별 연결 조건은 [계정 및 제공자 운영 안내](docs/ops/provider-accounts.md), Devin 설정은 [Devin 운영 안내](docs/ops/devin-native.md)를 참고하세요.
-
-### 자주 하는 작업
-
-| 하려는 일 | 방법 |
+| 도구 | 책임 |
 | --- | --- |
-| 큰 작업 나누기 | 그대로 요청합니다. 예: *"실패하는 모듈 세 개를 병렬로 조사한 뒤 고쳐 줘."* 루트가 서브에이전트를 배정하고 결과를 통합합니다. |
-| 긴 빌드나 렌더링 기다리기 | 실행하고 끝나면 이어서 진행해 달라고 요청합니다. 네이티브 OpenAI 루트 경로에서는 종료 플래그를 등록하고 폴링 대신 대기합니다. 대기 상태는 **루트 재개 예약**에서 확인하거나 취소합니다. |
-| 계정 바꾸기 | **계정 및 사용량**에서 다른 계정을 누르거나, 그 계정의 **자동 전환 허용**을 켭니다. |
-| 모델이나 제공자 바꾸기 | 입력창에서 다른 모델을 고릅니다. 다음 턴부터 적용됩니다. |
-| 컨텍스트 비우기 | 게이지 카드의 **Compact context**를 누르거나 `/compact`를 입력합니다. |
-| 옆에서 에이전트에게 앱 맡기기 | 설정에서 Window Use를 켜고, 그 앱에서 작업해 달라고 요청한 뒤, 요청이 오면 승인합니다. 멈출 때는 **Ctrl+Alt+Shift+F12**를 누릅니다. *(Windows. Linux 참고 사항 확인)* |
-| 나중에 대화 다시 찾기 | **Chats**에서 해당 행에 플래그를 답니다. |
+| `project_inventory` | 소유자·구성원·참조·보호 상태와 묶음 등록 |
+| `project_tests` / `project_build` | 선택한 검증·빌드의 계획, 실행, 실제 종료 결과 기록 |
+| `project_cleanup_review` | 현재 상태를 검토하고 검토 대상에 묶인 토큰 발급 |
+| `project_cleanup_apply` | 명시한 삭제·보류 결정을 적용하고 실제 결과 확인 |
 
-## 개발
+**기본 정리 원칙은 사용이 끝난 작업 소유의 일회성 자료를 지우는 것**입니다. 소스·사용자 문서·합의된 결과물까지 삭제하는 것은 아닙니다. 정리 대상 중 계속 남길 자료는 명시적인 사용자 보존 승인을 받습니다. 정상 동작 확인에 필요한 최소 복구 자료는 안내한 범위로 보존하고 확인 뒤 정리합니다.
 
-### 프로젝트 구조
+관리 프로토콜을 따르는 실행기는 로컬 OS 잠금과 묶음별 예약으로 같은 산출물의 생성·등록·정리를 조정합니다. 관계없는 묶음은 병행할 수 있습니다. 프로젝트의 모든 파일을 자동 잠그거나, 관리 경로 밖의 편집 충돌까지 없애지는 않습니다.
+
+구성원 하나라도 사용 중이거나 보호·소유권·종료 상태가 불명확하면 묶음 삭제를 막습니다. 검증 통과만으로 삭제하지 않으며, 일부 삭제가 실패하면 실제 남은 파일과 진단 근거를 보존합니다.
+
+내장 관리 도구와 독립 실행기 `maintenance_owner`는 같은 Rust 관리 코드를 사용합니다. 이 체크아웃의 정리는 검증된 독립 실행기를 사용하는 운영 경로도 유지합니다. 설치 앱에 모든 최적화가 통합되었다고 가정하지 않습니다.
+
+[산출물 설계](docs/architecture/project-maintenance.md) · [관리 운영](docs/ops/project-maintenance.md) · [보존과 정리 원칙](docs/playbooks/artifact-lifecycle.md)
+
+## 4. Window Use — 같은 화면, 다른 커서
+
+Window Use는 앱을 관찰하고 조작하는 권한을 단계별로 나눕니다. 기능을 켠 뒤 1단계 관찰에는 앱별 승인을 요구하지 않으며, 제어에는 단계와 앱에 맞는 승인을 적용합니다. 실패했다고 더 넓은 제어 권한으로 넘어가지 않습니다.
+
+| 단계 | 범위 |
+| --- | --- |
+| **1 · 관찰** | 창 캡처, UI 구조·상태 확인 |
+| **2 · 선택 창 제어** | 지원되는 UI Automation 동작과 작업 매크로 |
+| **3 · 별도 실행 세션** | 사용자 작업 공간과 분리한 Windows 자식 세션 — 수용 범위 제한 |
+| **4 · 데스크톱 제어** | 화면 전반의 입력 — 별도의 승인과 경계 |
+
+### 어디서 작업하는지 보이도록
+
+선택한 창에는 **모서리의 은은한 빛과 중지 안내 오버레이**를 표시합니다. 표시용 창은 클릭을 통과시키고, 대상의 이동·크기 변경과 실행 수명에 맞춰 갱신합니다. **Ctrl+Alt+Shift+F12**로 제어와 대기를 멈춥니다. 일반 Esc는 앱에 전달합니다.
+
+### 커서는 둘, 입력 경로는 구분해서
+
+[![흰 사용자 화살표와 파란 모델 커서의 클릭·드래그·대기 모션 시안](docs/images/window-use-cursor-ko.svg)](docs/images/window-use-cursor-ko.html)
+
+[커서 애니메이션 열기](docs/images/window-use-cursor-ko.html) · 로컬 HTML에서 재생·일시정지·구간 이동·밝은/어두운 배경을 확인할 수 있습니다.
+
+흰 화살표는 사용자, 파란 화살표는 모델을 나타냅니다. 클릭은 짧은 눌림으로, 드래그는 입력 위치의 점으로 표현합니다. 전환은 교차 페이드로, 순간이동은 짧은 잔상으로 연결합니다. **이 자료는 실제 OS 입력을 보내지 않는 동작 시안**입니다. A3 모양과 애니메이션은 네이티브 오버레이에 아직 적용하지 않았으며, 현재 구현은 정적인 삼각형과 이름표를 사용합니다.
+
+새 커서 표시와 가상 입력은 서로 다른 구현입니다.
+
+| 경로 | 현재 동작과 한계 |
+| --- | --- |
+| **Window Use 선택 창 제어** | UI Automation을 이용합니다. 지원 동작은 앱마다 다르고, 대상 창이 활성화될 수 있습니다. |
+| **Switched 다중 커서 실험** | 준비된 협업 상태에서는 시스템 커서를 숨기고 사용자·모델 오버레이를 표시하며, 해제하면 복원합니다. 커서 이동 표시는 논리적으로 분리하지만 클릭·드래그는 공유 OS 입력을 사용합니다. |
+| **`virtual_input` 실험** | 선택한 프로세스·스레드 안에서 입력을 전달해 전역 커서·실제 포커스·클립보드 변경을 피하는 경로입니다. Windows x64의 소유 테스트 창 범위이며 일반 앱·설치 수용은 미완료입니다. |
+
+따라서 **모든 앱에서 사용자 작업을 방해하지 않는 제어는 아직 보장하지 않습니다.** 다중 커서의 Paint 시험과 별개로, 독립적인 키보드·IME 사용 및 드래그 종료 시 커서 복구 문제는 남아 있습니다. 오버레이 표시 검증도 일반 앱의 입력 격리를 의미하지 않습니다.
+
+Window Use는 현재 **Windows 전용**입니다. Linux 구현과 일부 과거 시험 기록은 남아 있지만 제품에서는 비활성화되어 있으며, macOS 지원도 제공하지 않습니다.
+
+[Window Use](docs/architecture/window-use.md) · [표시와 중지](docs/architecture/window-use-visualization.md) · [다중 커서](docs/architecture/multi-pointer.md) · [가상 입력](native/virtual-input/README.md)
+
+## 5. Stay in Flow
+
+### 여러 계정과 모델, 하나의 작업 흐름
+
+**계정 및 사용량**에서 제공자별 계정과 남은 사용량을 확인합니다. 현재 계정, 재인증, 전환과 자동 전환 허용을 한곳에서 관리하며, 조회 실패를 사용량 0으로 표시하지 않습니다.
+
+<p align="center"><img src="docs/images/accounts-usage.png" alt="제공자별 계정과 남은 사용량을 모아 보여주는 화면" width="780"></p>
+
+모델 선택기는 여러 제공자와 사용자 등록 API를 연결합니다. 모델·reasoning을 작업에 맞게 바꾸고, subagent에도 다른 제공자의 모델을 배정할 수 있습니다. 실행 중인 요청은 기존 구성을 유지하며, 모델 변경은 다음 요청 경계에 적용합니다. 제공자·모델마다 도구와 인증 지원 범위는 다릅니다.
+
+<p align="center"><img src="docs/images/model-picker.png" alt="제공자와 모델을 검색하는 선택기" width="700"></p>
+
+[계정](docs/architecture/accounts.md) · [제공자 전환](docs/architecture/managed-providers.md) · [사용자 API](docs/architecture/custom-api-models.md)
+
+### 길어져도 이어지는 대화
+
+컨텍스트 게이지에서 사용량을 보고 자동 압축 기준을 조정합니다. 수동 압축은 실행 중인 턴을 끊지 않고 대기열에 넣습니다. 압축은 앞선 기록을 정리해 이어가는 동작이며, 저장된 원본 대화를 삭제하는 기능이 아닙니다.
+
+<p align="center"><img src="docs/images/context-compaction.png" alt="컨텍스트 게이지와 수동 압축 조작" width="680"></p>
+
+다시 로드한 뒤에는 대기 입력과 접수 상태를 대조해 복구합니다. 이미 접수된 요청을 무조건 다시 보내지 않습니다. 작업 시간 표시도 병렬 실행 시간을 단순 합산하지 않고 기록된 실행·대기 구간을 사용합니다.
+
+[컨텍스트 정책](docs/architecture/context-policy.md) · [압축 대기열](docs/architecture/queued-compaction.md) · [재개 복구](docs/architecture/reload-recovery.md) · [작업 시간](docs/architecture/task-work-time.md)
+
+### 작은 조작이 줄이는 인지 부하
+
+| 기능 | 줄여주는 수고 |
+| --- | --- |
+| **세션 플래그** | 중요한 대화를 빨간 깃발로 표시하고 플래그 필터로 다시 찾습니다. |
+| **`/btw` 곁가지 질문** | 본 작업을 유지한 채 별도 패널에서 질문합니다. 도구 실행 없이 참고 맥락으로 답하고, 명시적으로 전달한 내용만 본 작업에 보냅니다. |
+| **이미지 위 스케치** | 첨부 이미지 위에 위치와 의도를 표시해 전달합니다. 원본 대화의 이미지를 수정하지 않고 새 첨부나 편집 중인 초안에 반영합니다. |
+| **프로젝트 사용량** | 일별 달력과 프로젝트별 비교로 API 환산 사용 가치를 봅니다. 구독 결제액이나 실제 청구서와는 구분합니다. |
+| **Auto-Review** | 지원되는 native OpenAI 경로에서 기존 Guardian 리뷰어로 검토 대상 작업을 심사합니다. 샌드박스와 별도 사용자 승인은 유지합니다. |
+
+<p align="center"><img src="docs/images/session-flags.png" alt="중요한 대화를 표시한 빨간 세션 플래그" width="576"></p>
+
+*곁가지 질문·스케치·사용량 등은 기능별 소스·렌더 검증과 설치 수용 범위가 다릅니다.* [곁가지 질문](docs/architecture/side-questions.md) · [이미지 스케치](docs/architecture/ui-presentation.md#sketch-on-an-attached-image) · [사용량 집계](docs/architecture/project-usage.md) · [Auto-Review](docs/architecture/auto-review.md)
+
+## 시작하기
+
+### 플랫폼과 설치
+
+| 대상 | 핵심 앱 | Window Use |
+| --- | --- | --- |
+| **Windows x64** | 주요 개발·검증 환경. 릴리스별 수용 범위 확인 | 지원 경로 제공, 단계·앱별 검증 제한 |
+| **Linux x64 · glibc** | 패키지·호스트 검증 기록 있음. 배포판·데스크톱별 차이 있음 | 현재 비활성 |
+| **macOS · Apple Silicon** | 패키지·호스트 검증 기록 있음. 버전·제공자별 차이 있음 | 현재 미지원 |
+
+[Releases](https://github.com/felrer/Azrael/releases)에서 운영체제에 맞는 패키지와 체크섬을 받습니다. **해당 릴리스의 `INSTALL.md`를 기준**으로 해시를 확인하고 설치합니다. 패키지는 자체 런타임을 포함하며, 원래 Codex 확장과 별도의 상태 경로를 사용합니다.
+
+Windows는 VS Code와 PowerShell 7을 준비하고 패키지의 `install.ps1`을 실행한 뒤 창을 다시 로드합니다. Linux·macOS는 동봉된 플랫폼 설치기를 사용합니다. 실제 실행 중인 패키지 디렉터리를 임의로 지우지 않습니다.
+
+[설치 운영](docs/ops/app-release.md) · [플랫폼 계약](docs/architecture/multi-platform.md) · [Linux 운영](docs/ops/linux.md)
+
+### 첫 작업
+
+1. Azrael 사이드바를 열고 **계정 및 사용량**에서 계정을 연결합니다.
+2. **Direct**로 시작하고 모델을 선택합니다. Profile 편집 기능의 제공 여부는 설치한 버전을 확인합니다.
+3. 원하는 결과와 제약을 설명합니다. 새 프로젝트의 문서 체계가 필요하면 `project-bootstrap`을 요청합니다.
+4. 작업 계획과 필요한 질문을 확인하고, 구현·검증·정리 결과를 받습니다.
+
+[계정 연결](docs/ops/provider-accounts.md) · [Devin 연결](docs/ops/devin-native.md)
+
+## 개발과 문서
 
 | 경로 | 역할 |
 | --- | --- |
-| [`engine/`](engine/) | Codex 기반 Azrael 엔진(Rust)과 소스 출처 정보 |
-| [`extensions/azrael-ex/`](extensions/azrael-ex/) | 통합 호스트에 포함되는 계정·사용량·설정·UI 통합 모듈 |
-| [`providers/`](providers/) | 제공자 인증·추론 연동 |
-| [`native/`](native/) | 창 제어 같은 Windows 네이티브 기능 |
-| [`plugins/`](plugins/) | 플러그인과 관련 스킬·도구 |
-| [`instructions/`](instructions/) | 조정 지침, 에이전트 역할(`agents/`), 스킬과 예시 |
-| [`scripts/`](scripts/) | 빌드·패키징·렌더 검증·설치·릴리스 도구 |
-| [`docs/`](docs/) | 아키텍처, 코드 지도, 운영 절차와 플레이북. README 이미지는 [`docs/images/`](docs/images/) |
-| `artifacts/` | Git에서 제외되는 빌드 결과, 릴리스 입력, 패키지와 로그 |
+| [`engine/`](engine/) | Codex 기반 Azrael 엔진과 소스 출처 |
+| [`extensions/azrael-ex/`](extensions/azrael-ex/) | 계정·사용량·설정과 호스트 통합 |
+| [`providers/`](providers/) | 제공자 인증과 추론 연동 |
+| [`native/`](native/) | Windows 창 제어와 입력 실험 |
+| [`instructions/`](instructions/) | 재사용할 지침·역할·스킬 |
+| [`scripts/`](scripts/) | 빌드·검증·패키징·설치 도구 |
+| [`docs/`](docs/README.md) | 설계·코드 지도·운영·playbook |
 
-### 소스에서 빌드하고 검증하기
+기여 전 [`AGENTS.md`](AGENTS.md)와 [Work playbook](docs/playbooks/work.md)을 읽습니다. 빌드 입력과 출처를 고정하고, 소스 검증·패키징·설치 수용을 구분합니다. 전체 플랫폼이나 전체 회귀 테스트의 성공을 일부 검사로 대신하지 않습니다.
 
-저장소를 복제하는 것만으로는 빌드 입력이 모두 갖춰지지 않습니다. Windows 개발에는 PowerShell 7, Git, Node/npm, Python 3.11 이상, 프로젝트가 지정한 Rust 도구 체인과 MSVC Build Tools, VS Code, 지정된 공식 UI 스냅샷, 호환되는 `codex-code-mode-host.exe`, 같은 버전의 공식 Codex 확장과 오디오 확장이 필요합니다. Devin에는 Node 22.18 이상이, 관리형 제공자에는 지정된 Bun 런타임이 필요합니다. [개발 환경 요구사항](docs/ops/development.md#prerequisites)을 참고하세요.
-
-```powershell
-./scripts/deploy-azrael.ps1 -ReleaseName '<새 릴리스 이름>' `
-  -SourceRoot "$PWD/engine" `
-  -EngineTargetDirectory '<Rust 빌드 캐시의 절대 경로>' `
-  -CodeModeHostPath '<호환되는 codex-code-mode-host.exe의 절대 경로>' `
-  -OriginalExtensionPath '<공식 Codex 확장 경로>' `
-  -OriginalAudioPath '<같은 버전의 공식 오디오 확장 경로>' `
-  -VerifyOnly
-```
-
-`-VerifyOnly`는 빌드, 소스 검사, 패키지 준비와 격리된 호스트 검증을 수행합니다. 사용자 프로필에 설치하려면 새 릴리스 이름으로 `-VerifyOnly` 없이 다시 실행합니다. 배포 절차에 빌드가 포함되어 있으므로 별도 빌드는 필요 없습니다. `azrael-ex.vsix`는 중간 패키지이므로, 모듈이 아니라 검증된 통합 호스트를 설치합니다. Linux와 macOS 후보는 [플랫폼 운영](docs/ops/multi-platform.md)에 설명된 이식용 `scripts/*-platform-*.cjs` 도구를 사용하며, [`scripts/azrael-platforms.json`](scripts/azrael-platforms.json)이 플랫폼별 대상과 데스크톱 제어 가용성을 관리합니다.
-
-### 기여하기
-
-먼저 [`AGENTS.md`](AGENTS.md)와 해당하는 [프로젝트 플레이북](docs/playbooks/README.md)을 읽습니다. 빌드 입력을 고정하고, 소스 출처를 남기고, 실제로 바꾼 범위를 검증하고, 사용 중인 런타임과 롤백용 런타임을 보존합니다. 소스 변경, 패키징, 설치 호스트 수용, 공개 릴리스는 서로 다른 단계이며, 검증하지 않은 플랫폼을 수용되었다고 보고하지 않습니다.
-
-### 문서
-
-- [문서 안내](docs/README.md) — 경로, 소유권과 상태 표기(`current`, `partial`, `target`, `draft`)
-- [아키텍처](docs/architecture/README.md) — 기능 동작과 계약
-- [코드 지도](docs/maps/README.md) — 구현 위치
-- [운영 안내](docs/ops/README.md) — 개발, 설치, 계정 연결과 진단
-- [플레이북](docs/playbooks/README.md) — 검증, 정리와 작업 규칙
-- [지침 라이브러리](instructions/README.md) — 재배포 가능한 역할, 스킬과 조정 지침
+[개발과 빌드](docs/ops/development.md) · [검증·빌드 규칙](docs/playbooks/build.md) · [코드 지도](docs/maps/README.md) · [시각자료 원본과 재현](docs/images/README.md)
 
 ## 라이선스와 출처
 
