@@ -2117,6 +2117,7 @@
       "area": "ui",
       "owners": [
         "scripts/inject-composer-draft.cjs",
+        "scripts/test-composer-draft.cjs",
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],

@@ -28,34 +28,49 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
   const attachmentFields = ["imageAttachments", "imageCommentDrafts", "appshotContexts", "fileAttachments", "pastedTextAttachments", "uploadedFileAttachments", "addedFiles", "mcpAppModelContextAttachments", "selectedTextAttachments", "responseTextAnnotations", "attachmentOrder"];
   const attachments = Object.fromEntries(attachmentFields.map(k => [k, []]));
   const atoms = new Map([...["uK", "OW", "DW", "iW", "lW"].map(k => [k, []]), ["xW", 0]]);
-  let editor = text, draft = { prompt: text, pullRequestChecks: [] }, retained, callback, restores = 0, clears = 0, unsubscribes = 0;
+  let editor = text, draft = { prompt: text, pullRequestChecks: [] }, retained, callback, conditionalWriteHook, restores = 0, clears = 0, unsubscribes = 0;
   const events = [], errors = [], compactions = [], submissions = [];
+  const documentListeners = new Set(), atomListeners = new Set();
+  const documentChanged = () => { for (const listener of [...documentListeners]) listener(true); };
+  const notifyAtoms = () => { for (const listener of [...atomListeners]) listener(scope); };
   const scope = {
     value: { kind: "local", conversationId: "thread" },
     get(atom) {
       if (atom === "drafts") return { thread: draft };
       if (atom === "QG") return attachments;
       if (atom === "WG" || atom === "UG") return retained;
+      if (atom === "XG") return context.sbr(draft, retained) ? undefined : context.PG(draft);
+      if (atom === "eK") return context.FG(scope.get("XG")?.prompt);
       return atoms.get(atom);
     },
     set(atom, key, value) {
       if (atom === "UG") retained = value;
       else atoms.set(atom, arguments.length === 3 ? value : key);
+      notifyAtoms();
     },
-    watch() { return () => { unsubscribes++; }; },
+    watch(listener) { atomListeners.add(listener); return () => { atomListeners.delete(listener); unsubscribes++; }; },
   };
   const controller = {
     view: { isDestroyed: false },
     getText: () => editor, getPersistedText: () => editor, getPlainText: () => editor,
     getMentionedComputerUseApps: () => [], getMentionedBrowserFamilies: () => [], getComputerUseAppMentions: () => [],
-    setText(value) { editor = value; if (value !== "") draft = { prompt: value, pullRequestChecks: [] }; events.push(["text", value]); },
+    setText(value) { editor = value; if (value !== "") draft = { prompt: value, pullRequestChecks: [] }; events.push(["text", value]); documentChanged(); },
+    setPromptText(value) { events.push(["native-restore", value]); controller.setText(value); },
   };
   const noop = () => {};
   const context = pm.createContext({
-    Symbol, JSON, performance, WeakMap, DOMException, o6e: class extends Error {}, g_: value => value.conversationId, jnt: () => "thread", RG: { drafts$: "drafts", setDraft(_scope, keys, value) { assert.ok(keys.includes("thread")); draft = value; } }, IG: { default: (a, b) => util.isDeepStrictEqual(JSON.parse(JSON.stringify(a ?? null)), JSON.parse(JSON.stringify(b ?? null))) },
+    Symbol, JSON, performance, WeakMap, DOMException, o6e: class extends Error {}, g_: value => value.conversationId, jnt: () => "thread", RG: { drafts$: "drafts", setDraft(_scope, keys, value, expectedValue) {
+      assert.ok(keys.includes("thread"));
+      if (arguments.length >= 4) {
+        const hook = conditionalWriteHook; conditionalWriteHook = undefined; hook?.();
+        if (!context.IG.default(draft, expectedValue)) return;
+      }
+      draft = value; notifyAtoms();
+    } }, IG: { default: (a, b) => util.isDeepStrictEqual(JSON.parse(JSON.stringify(a ?? null)), JSON.parse(JSON.stringify(b ?? null))) },
     Px: (_scope, host) => ({ compactThread: async id => { compactions.push({ host, id }); await compact?.(); } }),
-    ...Object.fromEntries(["QG", "uK", "OW", "DW", "iW", "lW", "xW", "SW", "UG", "WG", "dq", "dg", "q6", "Kf", "Dj", "Hk"].map(k => [k, k])),
-    Nx: () => ({ u: x => x, d() { if (this.e) throw this.e; } }), zut: () => false, LMa: x => x, lja: async () => [],
+    ...Object.fromEntries(["QG", "uK", "OW", "DW", "iW", "lW", "xW", "SW", "UG", "WG", "XG", "eK", "Dh", "dq", "dg", "q6", "Kf", "Dj", "Hk"].map(k => [k, k])),
+    Nx: () => ({ resources: [], u(x) { this.resources.push(x); return x; }, d() { for (const x of this.resources.reverse()) x?.[Symbol.dispose]?.(); if (this.e) throw this.e; } }), zut: () => false, LMa: x => x, lja: async () => [],
+    $U(_view, listener) { documentListeners.add(listener); return () => documentListeners.delete(listener); },
     yXe: "yXe", RMa: () => ["sidechat"],
     eQ: ({ context, text, messageId }) => ({ id: messageId ?? "input-A", text, context }),
     Fke: noop, Yh: { abort: noop, fail: noop }, sk: noop, VMa: noop, HMa: noop, kan: noop,
@@ -65,7 +80,7 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
     Gyr() { for (const k of attachmentFields) attachments[k] = []; context.NG(scope, undefined); },
     FG: value => value ?? "", d_: value => value, Ryr: noop,
   });
-  for (const name of ["PG", "abr", "NG", "sbr", "cbr", "dbr", "Fyr", "Bba", "RMa", "__azraelComposerSnapshot", "__azraelComposerMatches", "zMa"]) pm.runInContext(declarations.get(name), context);
+  for (const name of ["PG", "abr", "NG", "sbr", "cbr", "dbr", "Fyr", "Bba", "RMa", "Lyr", "xMa", ...[...declarations.keys()].filter(name => name.startsWith("__azraelComposer")), "zMa"]) pm.runInContext(declarations.get(name), context);
   pm.runInContext("const __azraelCompactActions=new WeakMap", context);
   for (const name of ["I2i", "__azraelCompactAction", "__azraelRunSlashSelection", "__azraelSubmitCompaction"]) pm.runInContext(declarations.get(name), context);
   if (!isolation) pm.runInContext(baselineSubmit, context);
@@ -74,9 +89,25 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
     attachments, atoms, controller, context, scope, events, errors, compactions, submissions,
     text: () => editor, savedDraft: () => draft, retained: () => retained, clears: () => clears, restores: () => restores, unsubscribes: () => unsubscribes,
     edit(value) { controller.setText(value); },
-    typeWithoutPersist(value) { editor = value; },
+    typeWithoutPersist(value) { editor = value; documentChanged(); },
     saveDraft(value) { draft = value; },
+    beforeConditionalDraftWrite(hook) { conditionalWriteHook = hook; },
     revisit() { editor = context.PG(draft)?.prompt ?? ""; },
+    mountNativeRestore() {
+      // Run the production retained-draft effect. Other React effects concern
+      // editor persistence, prewarming and uploads, outside this adapter.
+      let effectIndex = 0;
+      const cleanups = [];
+      Object.assign(context, {
+        CMa: { c: count => Array(count).fill(Symbol("uninitialized")) },
+        Ou: () => scope, zZ: () => controller, X: atom => scope.get(atom), Qd: noop, Lu: () => ({ state: {} }),
+        wMa: context.IG,
+        J7: { useRef: value => ({ current: value }), useEffectEvent: fn => fn,
+          useEffect(effect) { if (effectIndex++ === 0) cleanups.push(effect()); } },
+      });
+      context.xMa({ attachmentGeneration: { current: 0 }, composerMode: "local", isSubmitting: false, scheduleLocalThreadPrewarm: noop, setEmptySubmitTooltipNonce: noop, uploadImageAttachment: noop, usesSharedHomeComposer: false });
+      return () => { for (const cleanup of cleanups) cleanup?.(); };
+    },
     added(flags = {}) {  callback(flags); },
     async run() {
       await context.zMa({
@@ -95,6 +126,7 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
         invalidateRateLimit: noop, handleEditedQueuedMessageSubmitted: async () => {}, logMessageSent: noop,
         handleSubmitError: e => errors.push(e), options, prompts: [], mentionedThreadReferences: [],
       });
+      assert.equal(documentListeners.size, 0, "submission releases its document-change subscription");
     },
   };
   if (sidechat) atoms.set("yXe", true);
@@ -232,16 +264,21 @@ for (const acceptance of ["locallyAccepted", "requestDispatched", "final"]) {
 for (const text of ["B", "A"]) {
   for (const persisted of [true, false]) {
     test(`acceptance preserves newer ${JSON.stringify(text)} with persistence ${persisted}`, async () => {
+      let unmount;
       const f = fixture({ submission: async f => {
         f.added();
+        unmount = f.mountNativeRestore();
         persisted ? f.edit(text) : f.typeWithoutPersist(text);
         f.added({ locallyAccepted: true });
         return { messageResult: { status: "queued" } };
       } });
-      await f.run(); assert.deepEqual(f.errors, []); assert.equal(f.text(), text);
-      assert.equal(f.savedDraft().prompt, persisted ? text : "A");
-      assert.equal(f.retained(), undefined);
-      if (persisted) { f.revisit(); assert.equal(f.text(), text); }
+      try {
+        await f.run(); assert.deepEqual(f.errors, []); assert.equal(f.text(), text);
+        assert.equal(f.savedDraft().prompt, persisted ? text : "A");
+        assert.equal(f.retained(), undefined);
+        assert.equal(f.events.some(([kind]) => kind === "native-restore"), false);
+        if (persisted) { f.revisit(); assert.equal(f.text(), text); }
+      } finally { unmount?.(); }
     });
   }
 }
@@ -250,6 +287,19 @@ test("acceptance preserves a newer saved draft even while the visible editor is 
   const next = { prompt: "B", pullRequestChecks: [] };
   const f = fixture({ submission: async f => { f.added(); f.saveDraft(next); return { messageResult: { status: "queued" } }; } });
   await f.run(); assert.equal(f.savedDraft(), next); f.revisit(); assert.equal(f.text(), "B");
+});
+
+test("conditional saved-draft cleanup preserves a newer value written immediately before deletion", async () => {
+  const next = { prompt: "B", pullRequestChecks: [] };
+  let conditionalWriteAttempted = false;
+  const f = fixture({ submission: async f => {
+    f.added();
+    f.beforeConditionalDraftWrite(() => { conditionalWriteAttempted = true; f.saveDraft(next); });
+    return { messageResult: { status: "queued" } };
+  } });
+  await f.run();
+  assert.deepEqual(f.errors, []); assert.equal(conditionalWriteAttempted, true);
+  assert.equal(f.savedDraft(), next); f.revisit(); assert.equal(f.text(), "B");
 });
 
 test("failure after a selection change retains the sent draft for retry", async () => {
@@ -261,6 +311,81 @@ test("preparation edits survive the first callback and final success", async () 
   const f = fixture({ beforePreparation: f => f.edit("B") });
   await f.run(); assert.equal(f.text(), "B"); assert.equal(f.clears(), 0); assert.equal(f.retained(), undefined);
 });
+
+test("deleting and retyping the same text during preparation is a new document edit", async () => {
+  const f = fixture({ beforePreparation: f => { f.typeWithoutPersist(""); f.typeWithoutPersist("A"); } });
+  await f.run();
+  assert.deepEqual(f.errors, []); assert.equal(f.text(), "A"); assert.equal(f.clears(), 0);
+});
+
+for (const change of ["selection", "draft metadata"]) {
+  test(`${change} during preparation clears sent text and preserves the changed state`, async () => {
+    const f = fixture({ beforePreparation: f => {
+      if (change === "selection") f.atoms.set("OW", [{ id: "new-selection" }]);
+      else f.saveDraft({ prompt: "A", pullRequestChecks: [{ id: "new-check" }] });
+    } });
+    await f.run();
+    assert.deepEqual(f.errors, []); assert.equal(f.text(), ""); assert.equal(f.savedDraft(), undefined);
+    if (change === "selection") assert.equal(f.atoms.get("OW")[0].id, "new-selection");
+  });
+}
+
+for (const metadataChanged of [false, true]) {
+  test(`native xMa cannot restore an accepted sent prompt with metadata changed ${metadataChanged}`, async () => {
+    let unmount;
+    const f = fixture({ submission: async f => {
+      f.added();
+      assert.equal(f.text(), "");
+      assert.equal(f.retained().draft.prompt, "A");
+      unmount = f.mountNativeRestore();
+      if (metadataChanged) f.saveDraft({ prompt: "A", pullRequestChecks: [{ id: "new-check" }] });
+      return { messageResult: { status: "queued" } };
+    } });
+    try {
+      await f.run();
+      assert.deepEqual(f.errors, []); assert.equal(f.text(), "");
+      if (metadataChanged) {
+        assert.equal(f.savedDraft().prompt, "");
+        assert.deepEqual(JSON.parse(JSON.stringify(f.savedDraft().pullRequestChecks)), [{ id: "new-check" }]);
+      } else assert.equal(f.savedDraft(), undefined);
+      assert.equal(f.events.some(([kind]) => kind === "native-restore"), false);
+      f.revisit(); assert.equal(f.text(), "");
+    } finally { unmount?.(); }
+  });
+}
+
+test("native attachment custody handoff cannot leave the sent saved text behind", async () => {
+  let unmount;
+  const f = fixture({ submission: async f => {
+    f.added();
+    unmount = f.mountNativeRestore();
+    f.saveDraft({ prompt: "A", pullRequestChecks: [{ id: "new-check" }] });
+    f.attachments.fileAttachments.push({ id: "new-file" });
+    f.scope.set("OW", [{ id: "new-selection" }]);
+    assert.equal(f.retained(), undefined, "native attachment effect releases retention before final acceptance");
+    assert.equal(f.text(), "");
+    return { messageResult: { status: "queued" } };
+  } });
+  try {
+    await f.run();
+    assert.deepEqual(f.errors, []);
+    assert.equal(f.text(), ""); assert.equal(f.savedDraft().prompt, "");
+    assert.equal(f.savedDraft().pullRequestChecks[0].id, "new-check");
+    assert.equal(f.attachments.fileAttachments[0].id, "new-file");
+    f.revisit(); assert.equal(f.text(), "");
+  } finally { unmount?.(); }
+});
+
+test("native xMa adapter restores an unaccepted retained prompt when custody is released", () => {
+  const f = fixture(), release = f.context.Fyr(f.scope);
+  f.controller.setText("");
+  const unmount = f.mountNativeRestore();
+  try {
+    release(false, true, false);
+    assert.equal(f.text(), "A");
+    assert.deepEqual(f.events.filter(([kind]) => kind === "native-restore"), [["native-restore", "A"]]);
+  } finally { unmount(); }
+});
 test("delayed native enqueue preserves a newer draft", async () => {
   let release, entered;
   const waiting = new Promise(resolve => { entered = resolve; });
@@ -269,14 +394,16 @@ test("delayed native enqueue preserves a newer draft", async () => {
   assert.equal(f.text(), "B"); assert.equal(f.clears(), 0);
 });
 for (const field of ["fileAttachments", "imageAttachments", "imageCommentDrafts", "mcpAppModelContextAttachments"]) {
-  for (const operation of ["add", "remove", "change"]) test(`${field} ${operation} protects the editable draft`, async () => {
+  for (const operation of ["add", "remove", "change"]) test(`${field} ${operation} preserves attachment edits while clearing sent text`, async () => {
     const f = fixture({ beforePreparation: f => {
       if (operation === "remove") f.attachments[field].pop();
       else if (operation === "change") f.attachments[field][0].payload = "B";
       else f.attachments[field].push({ id: "B", payload: "B", comments: [] });
     } });
     if (operation !== "add") f.attachments[field].push({ id: "A", payload: "A", comments: [] });
-    await f.run(); assert.equal(f.clears(), 0); assert.equal(f.text(), "A");
+    await f.run(); assert.deepEqual(f.errors, []); assert.equal(f.text(), ""); assert.equal(f.savedDraft(), undefined);
+    if (operation === "remove") assert.equal(f.attachments[field].length, 0);
+    else assert.equal(f.attachments[field][0].payload, "B");
   });
 }
 test("unchanged failure restores A after early clear", async () => {
@@ -396,7 +523,7 @@ test("draft validation accepts complete btw composition and rejects damaged cust
   const custodyComposed = custodyPrefix + BTW_COMPOSER_ADMISSION_REPLACEMENT;
 
   for (const damaged of [
-    composed.replace("if(!__azraelOwns())return!1", "if(!__azraelOwns())return!0"),
+    composed.replace("if(!__azraelOwnsText())return!1", "if(!__azraelOwnsText())return!0"),
     composed.replace("__azraelBtw?.matches(Ae)", "__azraelBtw?.matches(ye)"),
     composed.replace(BTW_COMPOSER_ADMISSION_REPLACEMENT, "let Ae=Se??p.getText();let je="),
     composed.replace(custodyPrefix, ""),
@@ -407,6 +534,6 @@ test("draft validation accepts complete btw composition and rejects damaged cust
     draftOnly + custodyOriginal,
     draftOnly + custodyComposed + BTW_MARKER,
     draftOnly + BTW_MARKER,
-    composed.replace("__azraelClear(ut)", "u(ut)"),
+    composed.replace("__azraelAcceptedClear(ut)", "u(ut)"),
   ]) assert.throws(() => injectComposerDraft(damaged), /Invalid or partial/);
 });

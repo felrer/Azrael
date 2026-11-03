@@ -396,15 +396,15 @@ test("expired /btw panels cannot recreate an ordinary tool-enabled side chat", (
 
 test("actual composer routes /btw before queue, goal, history and steering and clears only its owned draft", async () => {
   const composer = injectBtw(injectComposerDraft(originals[1]).text, BTW_ASSETS[1]).text;
-  const names = ["zMa", "__azraelComposerSnapshot", "__azraelComposerMatches"], code = names.map(n => declaration(composer, n)).join("\n");
+  const names = ["zMa", "__azraelComposerSnapshot", "__azraelComposerMatches", "__azraelComposerTrack", "__azraelComposerEditableMatches", "__azraelComposerConsumeSaved"], code = names.map(n => declaration(composer, n)).join("\n");
   let text = "/btw explain", routed = 0, cleared = 0, admission = 0; const errors = [];
-  const ctx = { performance, Nx: () => ({ u: () => ({}), e: e => { throw e; }, d() {} }), dq: "blocked", QG: "attachments", RG: { drafts$: "drafts" },
+  const ctx = { performance, Symbol, $U: () => () => {}, Nx: () => ({ resources: [], u(x) { this.resources.push(x); return x; }, d() { for (const x of this.resources) x?.[Symbol.dispose]?.(); if (this.e) throw this.e; } }), dq: "blocked", QG: "attachments", RG: { drafts$: "drafts" },
     g_: () => "parent", PG: x => x, IG: { default: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
     uK: 1, OW: 2, DW: 3, iW: 4, lW: 5, SW: 6, xW: 7, jnt: x => x,
     __azraelBtw: { lookup: () => undefined, matches: text => /^\s*\/btw(?:\s|$)/.test(text) }, __azraelTryBtw: async () => { routed++; return true; } };
   vm.createContext(ctx); vm.runInContext(code, ctx);
   const scope = { value: {}, get: atom => atom === "drafts" ? { parent: {} } : atom === "attachments" ? {} : undefined };
-  const submit = () => ctx.zMa({ scope, composerController: { getText: () => text, getPersistedText: () => text }, clearStopTurnConfirmation() {},
+  const submit = () => ctx.zMa({ scope, composerController: { view: {}, getText: () => text, getPersistedText: () => text }, clearStopTurnConfirmation() {},
     conversationId: "parent", submitTarget: { type: "local" }, clearComposerUi: () => { text = ""; cleared++; }, options: {},
     prepareGoalSubmit: () => { admission++; }, appendPromptToHistory: () => { admission++; }, handleSubmitError: e => errors.push(e) });
   await submit(); assert.deepEqual(errors, []); assert.equal(routed, 1); assert.equal(cleared, 1); assert.equal(admission, 0);
