@@ -11,7 +11,7 @@ if (registry.has(runtimeKey)) {
 } else {
 const { randomUUID, createHash } = require("node:crypto");
 const { RecoveryState } = require("./recovery-state.cjs");
-const { diagnosticsEnabled } = require("./optional-diagnostics.cjs");
+const { diagnosticsEnabled, monitorHost } = require("./optional-diagnostics.cjs");
 const routineEvents = new Set(["recovery.rpc_dispatch", "recovery.rpc_result",
   "recovery.request_dispatch", "recovery.request_result", "host.user_message_received",
   "host.rpc_response_received"]);
@@ -179,6 +179,11 @@ function initialize(context, vscode, options = {}) {
       try { output.info(JSON.stringify({ ...record, hostPid: process.pid, droppedDiagnostics })); }
       catch { droppedDiagnostics++; }
     } };
+  if (diagnosticsEnabled("HOST_HEALTH")) {
+    ui.health = monitorHost(ui.log, () => [...controllers.values()].flatMap(controller =>
+      controller.state.list().filter(state => ["starting", "waiting", "responding", "tool", "recovering"].includes(state.phase))
+        .map(state => state.threadId)));
+  }
   // Read only the installed host's own identity; never serialize the environment.
   const path = require("node:path");
   const fs = require("node:fs");
@@ -223,6 +228,7 @@ function initialize(context, vscode, options = {}) {
   timer.unref?.();
   const disposable = { dispose() {
     if (disposed) return;
+    ui.health?.dispose();
     disposed = true;
     clearInterval(timer);
     for (const controller of controllers.values()) controller.dispose();
@@ -493,6 +499,9 @@ function recordWindowLogoffFailure({requestId,phase,nativeCode,error,mutationOut
   const causes=[];for(let value=error;value&&causes.length<3;value=value.cause)causes.push(errorTypes.includes(value.name)?value.name:'unknown');
   ui?.log({event:'window_use.logoff_failed',component:'window-use',requestId,phase,nativeCode:knownCodes.includes(nativeCode)?nativeCode:'child_logoff_failed',errorTypes:causes,mutationOutcome:mutationOutcome==='not_executed'?'not_executed':'unknown'});
 }
-module.exports = { initialize, dispatch, observe, disconnect, recordWindowLogoffFailure };
+function measureStateUpdate(atom, operation) {
+  return ui?.health ? ui.health.measure(atom, operation) : operation();
+}
+module.exports = { initialize, dispatch, observe, disconnect, recordWindowLogoffFailure, measureStateUpdate };
 registry.set(runtimeKey, module.exports);
 }

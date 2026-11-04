@@ -2,7 +2,39 @@
 const test = require("node:test"), assert = require("node:assert/strict");
 const { monitorWebview, recordWebviewLifecycle, injectUiInputPolicy } = require("./optional-diagnostics.cjs");
 const { installUiHealth } = require("./ui-health-runtime.cjs");
+const { monitorHost } = require("./optional-diagnostics.cjs");
 const secret = "PRIVATE-command-token-path-and-stack";
+test("host health bounds content-free samples and preserves state update results and failures", async () => {
+  let time = 0, tick, cleared = false;
+  const records = [], failure = new Error(secret);
+  const monitor = monitorHost(record => records.push(record), () => [secret], {
+    now: () => time, setInterval: fn => { tick = fn; return 1; }, clearInterval: () => { cleared = true; },
+    process: { platform: process.platform, arch: process.arch, version: process.version,
+      memoryUsage: () => ({ rss: 50, heapUsed: 20, heapTotal: 30, external: 2, arrayBuffers: 1 }),
+      cpuUsage: () => ({ user: time * 10, system: time }) }
+  });
+  assert.equal(await monitor.measure(secret, async () => 42), 42);
+  await assert.rejects(monitor.measure(secret, async () => { throw failure; }), error => error === failure);
+  let finish;
+  const pending = monitor.measure(secret, () => new Promise(resolve => { finish = resolve; }));
+  time = 8000; tick();
+  const delayed = records.find(record => record.event === "host_health.observer_delayed");
+  assert.equal(delayed.observerDelayMs, 3000);
+  assert.equal(delayed.statePending, 1);
+  assert.equal(delayed.stateCompleted, 2);
+  assert.equal(delayed.stateFailed, 1);
+  assert.equal(delayed.stateOldestMs, 8000);
+  assert.equal(delayed.rendererExitConfirmed, false);
+  assert.equal(JSON.stringify(records).includes(secret), false);
+  finish("done"); assert.equal(await pending, "done");
+  monitor.dispose(); monitor.dispose();
+  assert.equal(cleared, true);
+  const count = records.length; time += 60000; tick(); assert.equal(records.length, count);
+  const failing = monitorHost(() => { throw failure; }, () => [], {
+    now: () => time, setInterval: () => 1, clearInterval() {} });
+  assert.equal(await failing.measure(secret, async () => "preserved"), "preserved");
+  failing.dispose();
+});
 function fixture(loggerFailure = false) {
   let time = 0, dispose;
   const timers = new Map(), records = [], webview = {};
