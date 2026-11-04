@@ -1,0 +1,239 @@
+'use strict';
+const fs = require('node:fs/promises');
+const path = require('node:path');
+const os = require('node:os');
+const net = require('node:net');
+const readline = require('node:readline');
+const { StringDecoder } = require('node:string_decoder');
+const { TOOLS } = require('./window-control-policy.cjs');
+const { windowError, expectedError, errorPayload, fromPayload } = require('./window-control-errors.cjs');
+function parseThreadMetadata(meta) {
+  const hasHeader = meta && Object.hasOwn(meta, 'x-codex-turn-metadata');
+  let value = meta?.['x-codex-turn-metadata'];
+  if (hasHeader) {
+    if (typeof value === 'string') { try { value = JSON.parse(value); } catch { throw expectedError('Trusted Codex turn metadata required'); } }
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw expectedError('Trusted Codex turn metadata required');
+  }
+  const threadId = hasHeader ? value.thread_id : meta?.threadId;
+  if (threadId === undefined && !hasHeader) throw expectedError('Trusted Codex turn metadata required');
+  if (typeof threadId !== 'string' || !/^(?:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}|[A-Za-z0-9_-]{32,128})$/.test(threadId)) throw expectedError('Invalid trusted thread identifier');
+  if (meta.threadId !== undefined && meta.threadId !== threadId) throw expectedError('Conflicting trusted thread identifier');
+  return threadId;
+}
+function relayMetadata(meta) {
+  parseThreadMetadata(meta);
+  const sandboxState = meta?.['codex/sandbox-state-meta'];
+  const permissionProfile = sandboxState?.permissionProfile;
+  let nativePermissionReason;
+  if (!Object.hasOwn(meta, 'codex/sandbox-state-meta')) nativePermissionReason = 'missing';
+  else if (!sandboxState || typeof sandboxState !== 'object' || Array.isArray(sandboxState)) nativePermissionReason = 'malformed';
+  else if (!Object.hasOwn(sandboxState, 'permissionProfile')) nativePermissionReason = 'missing';
+  else if (!permissionProfile || typeof permissionProfile !== 'object' || Array.isArray(permissionProfile) || !Object.hasOwn(permissionProfile, 'type') || typeof permissionProfile.type !== 'string' || !permissionProfile.type.length || Object.keys(permissionProfile).some(key => key !== 'type')) nativePermissionReason = 'malformed';
+  else if (permissionProfile.type !== 'disabled') nativePermissionReason = 'not_disabled';
+  if (nativePermissionReason) throw windowError('permission_denied', 'Native Disabled permission profile required', { stage: 'permission', nativePermissionReason, actionExecuted: false });
+  const selected = {};
+  selected['codex/sandbox-state-meta'] = { permissionProfile: { type: 'disabled' } };
+  if (Object.hasOwn(meta, 'threadId')) selected.threadId = meta.threadId;
+  if (Object.hasOwn(meta, 'x-codex-turn-metadata')) {
+    const nested = typeof meta['x-codex-turn-metadata'] === 'string' ? JSON.parse(meta['x-codex-turn-metadata']) : meta['x-codex-turn-metadata'];
+    const trusted = { thread_id: nested.thread_id };
+    for (const key of ['turn_id']) {
+      if (Object.hasOwn(nested, key)) {
+        if (typeof nested[key] !== 'string' || !nested[key].length || nested[key].length > 256 || /[\x00-\x1f]/.test(nested[key])) throw expectedError('Invalid native turn context');
+        trusted[key] = nested[key];
+      }
+    }
+    selected['x-codex-turn-metadata'] = trusted;
+  }
+  return selected;
+}
+function toolDefinitions() {
+  // Retain Unix backends without advertising them until platform acceptance resumes.
+  if (process.platform !== 'win32') return [];
+  const selector = {type:'object',properties:{name:{type:'string'},automationId:{type:'string'},controlType:{type:'string'}},anyOf:[{required:['name']},{required:['automationId']}],additionalProperties:false};
+  const fullSelector = {...selector,properties:{...selector.properties,ancestor:selector}};
+  const parameter = {type:'object',properties:{parameter:{type:'string'}},required:['parameter'],additionalProperties:false};
+  const condition = {type:'object',properties:{selector:fullSelector,property:{enum:['exists','enabled','value','selected','toggleState','expandState']},equals:{anyOf:[{type:'string'},{type:'boolean'},parameter]}},required:['selector','property','equals'],additionalProperties:false};
+  condition.allOf = [{if:{properties:{property:{enum:['exists','enabled','selected']}}},then:{properties:{equals:{type:'boolean'}}}}];
+  const definition = {type:'object',properties:{schema:{const:1},id:{type:'string'},name:{type:'string'},parameters:{type:'array',items:{type:'string'},uniqueItems:true,maxItems:32},steps:{type:'array',minItems:1,maxItems:32,items:{type:'object',properties:{action:{enum:['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','wait_for','assert','capture']},selector:fullSelector,value:{anyOf:[{type:'string',maxLength:32768},parameter,{type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false}]},key:{enum:require('./window-task-macros.cjs').KEYS},condition,postcondition:condition,timeoutMs:{type:'integer',minimum:0,maximum:10000}},required:['action'],additionalProperties:false}}},required:['schema','steps'],additionalProperties:false};
+  const discovery = ['context','prepare_permissions','request_stage','resource_status','cleanup','logoff_isolated','list_windows','select_window','list_task_macros','save_task_macro'];
+  const cooperativeSchemaAvailable=require('node:fs').existsSync(path.join(__dirname,'window-switched-input.cjs'));
+  const definitions = TOOLS.filter(name=>cooperativeSchemaAvailable||!['switched_input','release_switched_input'].includes(name)).map(name => {
+    const properties = discovery.includes(name) ? {} : {targetId:{type:'string',description:'Opaque selected target ID from select_window or status.'}};
+    const required = discovery.includes(name) || name === 'status' ? [] : ['targetId'];
+    if(['invoke','set_value','toggle','select','expand','collapse','scroll','press_key'].includes(name)) {
+      properties.observationId = {type:'string'}; properties.elementId = {type:'string'}; required.push('observationId','elementId');
+      if(name === 'set_value' || name === 'scroll') {properties.value = name === 'scroll' ? {type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false} : {type:'string',maxLength:32768}; required.push('value');}
+      if(name === 'press_key') {properties.key = {enum:require('./window-task-macros.cjs').KEYS};required.push('key');}
+    }
+    if(name === 'virtual_input') {
+      properties.observationId={type:'string'};
+      const coord={type:'integer',minimum:0,maximum:16383};
+      properties.input={oneOf:[
+        {type:'object',properties:{kind:{const:'text'},text:{type:'string',minLength:1,maxLength:2047,description:'At most 2047 UTF-16 code units; astral characters use two units.'}},required:['kind','text'],additionalProperties:false},
+        {type:'object',properties:{kind:{const:'key'},virtualKey:{type:'integer',minimum:1,maximum:255,not:{enum:[91,92]}},action:{enum:['down','up']}},required:['kind','virtualKey','action'],additionalProperties:false},
+        {type:'object',properties:{kind:{const:'mouse'},action:{enum:['move','down','up','wheel']},x:coord,y:coord,button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200,not:{const:0}}},required:['kind','action'],additionalProperties:false,allOf:[{if:{required:['x']},then:{required:['y']}},{if:{required:['y']},then:{required:['x']}},{if:{properties:{action:{const:'move'}}},then:{required:['x','y']}},{if:{properties:{action:{enum:['down','up']}}},then:{required:['button']}},{if:{properties:{action:{const:'wheel'}}},then:{required:['delta']}}]}
+      ]};required.push('observationId','input');
+    }
+    if(name === 'switched_input') {properties.observationId={type:'string'};properties.input=require('./window-switched-input.cjs').switchedInputSchema();required.push('observationId','input');}
+    if(name === 'select_window') {properties.candidateId = {type:'string'};required.push('candidateId');}
+    if(name === 'cleanup') properties.ids={type:'array',minItems:1,maxItems:20,items:{type:'string',maxLength:128},description:'Optional owned IDs from resource_status for immediate safe cleanup; omit to apply idle/quota policy.'};
+    if(name === 'logoff_isolated') {properties.reason={type:'string',minLength:1,maxLength:1024};required.push('reason');}
+    if(name === 'context') properties.guideVersion = {type:'string'};
+    if(name === 'request_stage' || name === 'prepare_permissions') {properties.stage={enum:[2,3,4]};properties.targetId={type:'string'};properties.reason={type:'string',minLength:1,maxLength:1024};required.push('stage','reason');}
+    if(name === 'request_stage') properties.virtualInput={type:'boolean',description:'Stage 2 general conversations only: explicitly approve DLL input hooking for all windows of this exact PID/process lifetime/executable. Required before virtual_input; does not grant semantic control or desktop input.'};
+    if(name === 'request_stage') properties.switchedInput={type:'boolean',description:'Stage 2 general conversations only: explicitly approve shared foreground input and cooperative mouse routing for this exact process lifetime. Required before switched_input. Separate from DLL virtualInput; select only one backend.'};
+    if(name === 'prepare_permissions') properties.candidateIds={type:'array',maxItems:8,uniqueItems:true,items:{type:'string'},description:'Fresh opaque candidate IDs from list_windows for known apps to approve before work. No executable paths or wildcard grants. Selecting a window invalidates old candidates; enumerate again if needed.'};
+    if(name === 'launch_isolated') {required.length=0;properties.packageName={type:'string',pattern:'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$',description:'Exact registered Windows MSIX package name, e.g. Microsoft.Paint. Host resolves its installed full-trust EXE and requests app consent; no parent window is needed.'};properties.applicationId={type:'string',pattern:'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$',description:'Exact manifest application ID when the package has multiple full-trust applications.'};}
+    if(name === 'input_isolated') {properties.observationId={type:'string'};properties.input={oneOf:[{type:'object',properties:{kind:{const:'text'},text:{type:'string',maxLength:4096}},required:['kind','text'],additionalProperties:false},{type:'object',properties:{kind:{const:'key'},scanCode:{type:'integer',minimum:1,maximum:127},action:{enum:['down','up']},extended:{type:'boolean'}},required:['kind','scanCode','action'],additionalProperties:false},{type:'object',properties:{kind:{const:'mouse'},x:{type:'integer',minimum:0},y:{type:'integer',minimum:0},action:{enum:['move','down','up','wheel']},button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200}},required:['kind','x','y','action'],additionalProperties:false}]};required.push('observationId','input');}
+    if(name === 'inspect') {
+      properties.mode={enum:['summary','find','read','changes'],default:'summary'};
+      properties.limit={type:'integer',minimum:1,maximum:100,default:20};
+      properties.query={type:'object',properties:{name:{type:'object',properties:{equals:{type:'string',maxLength:512},contains:{type:'string',maxLength:512}},additionalProperties:false,oneOf:[{required:['equals']},{required:['contains']}]},automationId:{type:'string',maxLength:512},controlType:{type:'string',maxLength:512}},additionalProperties:false};
+      properties.scope={type:'object',properties:{containerId:{type:'string'}},required:['containerId'],additionalProperties:false};
+      for(const key of ['observationId','elementId','baseObservationId']) properties[key]={type:'string'};
+      properties.fields={type:'array',maxItems:12,items:{enum:['name','controlType','automationId','patterns','enabled','isPassword','value','selected','toggleState','expandState','text']}};
+      properties.textRange={type:'object',properties:{start:{type:'integer',minimum:0},length:{type:'integer',minimum:1,maximum:4096}},required:['start','length'],additionalProperties:false};
+    }
+    if(name === 'save_task_macro') {properties.definition = {...definition,required:['schema','id','name','steps']};required.push('definition');}
+    if(name === 'run_task_macro') {properties.definition = definition;properties.macroId = {type:'string'};properties.parameters = {type:'object',additionalProperties:{type:'string',maxLength:32768}};}
+    if(name === 'resize') {properties.widthDip = {type:'number',minimum:100,maximum:8192};properties.heightDip = {type:'number',minimum:100,maximum:8192};required.push('widthDip','heightDip');}
+    if(name === 'run_size_macro') {properties.macroId = {type:'string'};required.push('macroId');}
+    const descriptions = {
+      virtual_input:'Opt-in general-conversation stage 2 only; first request_stage with stage:2 and virtualInput:true for explicit exact-process DLL hooking approval. Deliver target-process virtual input using a fresh capture. Mouse coordinates are physical CLIENT pixels; out-of-client input is rejected. Delivery does not verify app effects. Recapture after each input; never replay unknown input or fall back to global input.',
+      release_virtual_input:'Detach this conversation virtual-input session for the exact target, including while paused. Does not resume a user stop.',
+      switched_input:'Opt-in shared-foreground mouse collaboration. First request_stage stage:2 switchedInput:true. Use fresh image observations and physical SCREEN pixels inside the main client. Start collaboration explicitly and check capability before claiming isolated mouse motion. User mouse actions queue; physical keyboard input stops model input. Recover foreground/occlusion with bounded preparation; never replay partial or unknown input. Delivery needs a new capture to verify effects.',
+      release_switched_input:'Release cooperative mouse routing and tracked model input for this selected target, including while paused. Does not resume a user stop.',
+      context:'Read current Window Use stages, prerequisites and concise guidance. Supply guideVersion to omit unchanged guidance.',
+      request_stage:'Request task authority for 2 current window, 3 isolated execution, or 4 desktop. App grants do not grant stages. Follow returned guidance before input.',
+      logoff_isolated:'Request one-time user approval to log off the existing Windows child session, without a target ID. Healthy sessions require no input owner; failed status/connection verification permits abnormal sessions to be ended regardless of owner. Unsaved work may be lost. Does not delete user files or profiles. Never replay an unknown logoff result.',
+      prepare_permissions:'At task start, request the required stage and known app permissions through Azrael cards before execution. Each request allows 50 seconds. Supply up to eight fresh observed candidateIds. Does not create a child session, launch apps, select a target or perform input. Additional scope still requires approval; call request_stage to activate a prepared child session.',
+      launch_isolated:'Launch an app directly in the authorized Windows child session. Supply either an observed targetId or an exact installed Windows MSIX packageName and optional applicationId. Host resolves and revalidates the executable and requests app consent. No parent app window is required for installed packages. Reuses stored profile data where supported; does not move an existing window.',
+      capture_isolated:'Capture an opaque owned child-session target. Check verification and availability; a returned image alone does not establish app compatibility.',
+      input_isolated:'Send bounded input to the exact owned child target using a fresh capture observation. Never replay uncertain input or fall back to the parent desktop.',
+      resource_status:'Read owned Window Use temporary-resource usage and cleanup protection reasons.',
+      cleanup:'Request cleanup of eligible Window Use temporary resources. Active work and user data remain protected.',
+      list_windows:'Discover opaque candidates and advisory session occupancy for this thread. Defer selection/control if another session occupies the window or occupancy is unknown. Refresh invalidates earlier candidate IDs. No targetId needed.',
+      select_window:'Select a candidate for read-only observation and revalidate its exact identity. Does not request or grant app control. Use request_stage before input.',
+      status:'Call with {} to obtain the selected targetId, minimized state, pauseReason, restoreAllowed, observationRequired and fresh occupancy. Refresh before each action or restore; defer if occupied or unknown. Failures with recovery observe_again permit a fresh capture or inspect after status; never reuse old elements or replay input. A minimized target with restoreAllowed true can be recovered using restore_window. User stops and genuine error pauses require explicit user resume.',
+      restore_window:'Restore the exact selected window after minimization only when fresh status reports restoreAllowed true and no other occupying session. Never resumes a user stop or another error pause. Does not replay input or macros. Obtain a new capture or inspect after restoration; old observations are invalid.',
+      inspect:'Read bounded accessibility data: summary, find by condition, read exact element fields/text range, or changes from a base observation. Check retrieval coverage before claiming absence or uniqueness.',
+      press_key:'Send one supported key to the selected window through window messages. Delivery is unverified; inspect and assert its effect. Requires a fresh observation.',
+      list_task_macros:'List task definitions and storage revision for the current Azrael workspace. Requires an open workspace; no targetId needed.',
+      save_task_macro:'Save a schema 1 task definition with stable id/name in the current Azrael workspace. Requires an open workspace. Use parameter references for runtime values; never save secrets, element IDs, coordinates or native code. No targetId needed.',
+      run_task_macro:'Run either definition or macroId from the current Azrael workspace using an immutable snapshot and string parameters. Maximum 32 steps, 20 seconds total, waits at most 10 seconds. Selectors match exact name or automationId and optional controlType/ancestor, uniquely resolved afresh each step. wait_for/assert need condition; press_key requires explicit postcondition. Unsupported state is an error. Stops on cancellation, revoked permission, changed identity, failed/unknown mutation; never replays. Returns per-step outcomes and final capture when feasible.'
+    };
+    const inputSchema = {type:'object',properties,required,additionalProperties:false};
+    if(name === 'launch_isolated') inputSchema.oneOf=[{required:['targetId'],not:{anyOf:[{required:['packageName']},{required:['applicationId']}]}},{required:['packageName'],not:{required:['targetId']}}];
+    if(name === 'run_task_macro') inputSchema.oneOf = [{required:['definition'],not:{required:['macroId']}},{required:['macroId'],not:{required:['definition']}}];
+    return {name,description:descriptions[name] || `Selected-window ${name}; requires current stage authority and exact fresh target references. Follow context guidance.`,inputSchema};
+  });
+  definitions.push({name:'ui_operation',description:'Complete a prepared application UI operation for the authenticated thread.',inputSchema:{type:'object',properties:{requestToken:{type:'string',pattern:'^[a-fA-F0-9]{64}$',minLength:64,maxLength:64}},required:['requestToken'],additionalProperties:false},_meta:{ui:{visibility:['app']}}});
+  return definitions;
+}
+function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs = 30000 } = {}) {
+  return new Promise((resolve, reject) => {
+    const socket = connect(pipe); const decoder = new StringDecoder('utf8'); let buffer = ''; let receivedBytes = 0; let settled = false; let stage = 'connection';
+    const finish = (error, result) => { if (settled) return; settled = true; socket.destroy(); error ? reject(error) : resolve(result); };
+    const uncertainty = () => stage === 'running' && ['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','resize','restore_window','run_size_macro','run_task_macro','ui_operation','virtual_input','release_virtual_input'].includes(message.tool) ? { mutationOutcome: 'unknown' } : {};
+    const timeout = () => windowError(stage === 'approval' ? 'approval_timeout' : 'timeout', stage === 'approval' ? '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.' : stage === 'queued' ? '앞선 Window Use 작업을 기다리다 시간이 초과됐습니다.' : 'Window Use 호스트의 응답 대기 시간이 초과됐습니다.', { stage, ...(stage === 'approval' ? { approvalState: 'expired', userResponded: false, actionExecuted: false } : {}), ...uncertainty() });
+    socket.setTimeout(timeoutMs, () => finish(timeout()));
+    socket.on('connect', () => { stage = 'queued'; socket.write(JSON.stringify(message) + '\n'); });
+    socket.on('error', e => finish(windowError('connection_error', stage === 'connection' ? 'Window Use 호스트에 연결하지 못했습니다.' : 'Window Use 호스트 연결에 오류가 발생했습니다.', { stage, cause: e, ...uncertainty() })));
+    const closed = () => finish(stage === 'approval' ? timeout() : windowError('connection_error', 'Window Use 호스트 연결이 응답 전에 종료됐습니다.', { stage, ...uncertainty() }));
+    socket.on('end', closed); socket.on('close', closed);
+    socket.on('data', data => {
+      receivedBytes += data.length; if (receivedBytes > 32 * 1024 * 1024) return finish(windowError('unclassified', '', { stage }));
+      buffer += decoder.write(data);
+      while (!settled) {
+        const newline = buffer.indexOf('\n'); if (newline < 0) return;
+        let result;
+        try { result = JSON.parse(buffer.slice(0, newline)); } catch (cause) { return finish(windowError('unclassified', '', { stage, cause })); }
+        buffer = buffer.slice(newline + 1);
+        if (result?.progress && ['queued', 'running', 'approval'].includes(result.progress.stage)) { stage = result.progress.stage; socket.setTimeout(stage === 'approval' ? 60000 : timeoutMs, () => finish(timeout())); continue; }
+        if (!result || typeof result !== 'object' || (!Object.hasOwn(result, 'result') && !Object.hasOwn(result, 'error'))) return finish(windowError('unclassified', '', { stage }));
+        if (result.error) finish(fromPayload(result.error)); else finish(null, result.result);
+      }
+    });
+  });
+}
+function createRelay({ codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), request = pipeRequest, readFile = fs.readFile } = {}) {
+  return async (threadId, tool, args, meta) => {
+    // The model cannot choose the session path; only validated native turn metadata can.
+    parseThreadMetadata({ 'x-codex-turn-metadata': { thread_id: threadId } });
+    const trustedMeta = relayMetadata(meta);
+    if (meta !== undefined && parseThreadMetadata(meta) !== threadId) throw expectedError('Conflicting trusted thread identifier');
+    let session;
+    try { const raw = await readFile(path.join(codexHome, 'azrael', 'computer-use', 'window-sessions', threadId + '.json'), 'utf8'); if (raw.length > 16384) throw windowError('unclassified', ''); session = JSON.parse(raw); } catch (cause) { if (cause.code === 'ENOENT') throw windowError('selection_required', 'No selected-window session for this thread', { stage: 'session' }); throw windowError('unclassified', '', { stage: 'session', cause }); }
+    if (!session || session.schema !== 1 || Object.keys(session).some(k => !['schema', 'pipe', 'nonce'].includes(k)) || typeof session.pipe !== 'string' || !(process.platform === 'win32' ? /^\\\\\.\\pipe\\azrael-window-[A-Za-z0-9_-]{16,128}$/.test(session.pipe) : /^\/tmp\/azw-[A-Za-z0-9]{6}\/w\.sock$/.test(session.pipe)) || typeof session.nonce !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(session.nonce)) throw expectedError('Invalid selected-window session');
+    return request(session.pipe, { nonce: session.nonce, threadId, method: 'call', tool, arguments: args, _meta: trustedMeta },
+      tool === 'logoff_isolated' || tool === 'request_stage' && args?.stage === 3 ? { timeoutMs: 360000 } : undefined);
+  };
+}
+function callResult(result) {
+  if (!result || typeof result !== 'object' || Array.isArray(result)) throw expectedError('Invalid host result');
+  const occupancy = value => require('./window-control-occupancy.cjs').publicOccupancy(value);
+  function observation(value) {
+    const projected = {};
+    if(value.occupancy) projected.occupancy = occupancy(value.occupancy);
+    for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified','experimental','elementsTruncated','pauseReason','restoreAllowed','restored']) if(Object.hasOwn(value,key)) projected[key] = value[key];
+    if(value.window) projected.window = Object.fromEntries(['title','widthPx','heightPx','dpi','minimized'].filter(k => Object.hasOwn(value.window,k)).map(k => [k,value.window[k]]));
+    if(Array.isArray(value.elements)) projected.elements = value.elements.map(e => Object.fromEntries(['id','name','controlType','patterns','automationId','parentId','enabled','isPassword','value','valueTruncated','text','textRange','selected','toggleState','expandState'].filter(k => Object.hasOwn(e,k) && !(['value','text'].includes(k) && e.isPassword)).map(k => [k,e[k]])));
+    for(const key of ['retrieval','changes']) if(Object.hasOwn(value,key)) projected[key]=value[key];
+    return projected;
+  }
+  const text = observation(result);
+  if(result.inputResult)text.inputResult=require('./window-control-errors.cjs').switchedMetadata(result.inputResult);
+  if(result.inputBackends)text.inputBackends=Object.fromEntries(['virtualInput','switchedInput','switchedInputGranted'].filter(k=>typeof result.inputBackends[k]==='boolean').map(k=>[k,result.inputBackends[k]]));
+  for(const key of ['logoffConfirmed','filesCleanupState','remainingPaths','health','ownerPresent','mutationOutcome','actionExecuted','runtimeRetirement']) if(Object.hasOwn(result,key)) text[key]=result[key];
+  for(const key of ['stage','backendDirectory','executionContext','enabled','stages','guideVersion','guide','authorized','missingPrerequisite','message','resources','freedBytes','deferred','failed','deleted','childSession','results','bytes','reservedBytes','maxBytes','overLimit','availableBytes','resourceCount','admissionReady','available','contentVerified','code','ok','width','height','delivered','readbackVerified','observationInvalidated','admissionScope','applicationCompatibility','resourceId']) if(Object.hasOwn(result,key)) text[key]=result[key];
+  if(typeof result.detached==='boolean') text.detached=result.detached;
+  if(typeof result.prepared==='boolean') text.prepared=result.prepared;
+  if(typeof result.appsAuthorized==='boolean') text.appsAuthorized=result.appsAuthorized;
+  if(Array.isArray(result.appResults)) text.appResults=result.appResults.slice(0,8).map(r=>({index:r.index,authorized:r.authorized,...(typeof r.code==='string'&&/^[a-z_]{1,64}$/.test(r.code)?{code:r.code}:{})}));
+  if(Array.isArray(result.candidates)) text.candidates = result.candidates.map(c => ({candidateId:c.candidateId,appName:c.appName,title:c.title,minimized:c.minimized,...(c.occupancy ? {occupancy:occupancy(c.occupancy)} : {})}));
+  if(result.diagnostic && typeof result.diagnostic === 'object' && !Array.isArray(result.diagnostic)) text.diagnostic = require('./window-use-isolation.cjs').childDiagnostic({diagnostic:result.diagnostic});
+  if(Array.isArray(result.macros)) text.macros = result.schema === 1 ? result.macros.map(m => require('./window-task-macros.cjs').definition(m,true)) : result.macros.map(m => ({id:m.id,name:m.name,steps:m.steps.map(s => ({widthDip:s.widthDip,heightDip:s.heightDip}))}));
+  for(const key of ['schema','revision','runId','status','macroId','error']) if(Object.hasOwn(result,key)) text[key] = result[key];
+  if(result.definition) text.definition = require('./window-task-macros.cjs').definition(result.definition,true);
+  if(Array.isArray(result.steps)) text.steps = result.steps.map(s => ({index:s.index,action:s.action,status:s.status}));
+  if(result.finalObservation) text.finalObservation = observation(result.finalObservation);
+  const content = [{type:'text',text:JSON.stringify(text)}];
+  const image = result.image || result.finalObservation?.image;
+  if(image) {if(image.mimeType !== 'image/png' || typeof image.data !== 'string') throw expectedError('Invalid capture image');content.push({type:'image',mimeType:'image/png',data:image.data});}
+  return {content,isError:result.status === 'failed'};
+}
+function createProtocol({ relay = createRelay() } = {}) {
+  return async message => {
+    const id = message?.id;
+    if (!message || message.jsonrpc !== '2.0' || typeof message.method !== 'string') return { jsonrpc: '2.0', id: id ?? null, error: { code: -32600, message: 'Invalid JSON-RPC request' } };
+    if (id === undefined) return null;
+    let result;
+    if (message.method === 'initialize') result = { protocolVersion: message.params?.protocolVersion || '2024-11-05', capabilities: { tools: {}, experimental: { 'codex/sandbox-state-meta': {} } }, serverInfo: { name: 'azrael-selected-window', version: '1.0.0' } };
+    else if (message.method === 'ping') result = {};
+    else if (message.method === 'tools/list') result = { tools: toolDefinitions() };
+    else if (message.method === 'tools/call') {
+      try {
+        const params = message.params; if (!params || (!TOOLS.includes(params.name) && params.name !== 'ui_operation')) throw expectedError('Unsupported selected-window tool');
+        const args = params.arguments || {}; const definition = toolDefinitions().find(t => t.name === params.name);
+        if (!definition) throw windowError('unsupported_action', 'Window Use is temporarily available only on Windows.', { actionExecuted: false });
+        if (!args || typeof args !== 'object' || Array.isArray(args) || Object.keys(args).some(k => !Object.hasOwn(definition.inputSchema.properties, k)) || definition.inputSchema.required.some(k => !Object.hasOwn(args, k))) throw expectedError('Invalid tool arguments');
+        if (params.name === 'ui_operation' && (typeof args.requestToken !== 'string' || !/^[a-fA-F0-9]{64}$/.test(args.requestToken))) throw expectedError('Invalid prepared UI request token');
+        const threadId = parseThreadMetadata(params._meta);
+        const trustedMeta = relayMetadata(params._meta);
+        result = callResult(await relay(threadId, params.name, args, trustedMeta));
+      } catch (e) { result = { content: [{ type: 'text', text: JSON.stringify(errorPayload(e)) }], isError: true }; }
+    } else return { jsonrpc: '2.0', id, error: { code: -32601, message: 'Method not found' } };
+    return { jsonrpc: '2.0', id, result };
+  };
+}
+async function runProtocol({ input = process.stdin, output = process.stdout, protocol = createProtocol() } = {}) {
+  const lines = readline.createInterface({ input, crlfDelay: Infinity });
+  for await (const line of lines) {
+    let response;
+    try { response = await protocol(JSON.parse(line)); } catch { response = { jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }; }
+    if (response) output.write(JSON.stringify(response) + '\n');
+  }
+}
+module.exports = { parseThreadMetadata, relayMetadata, toolDefinitions, pipeRequest, createRelay, callResult, createProtocol, runProtocol };
+if (require.main === module) runProtocol().catch(() => { process.exitCode = 1; });

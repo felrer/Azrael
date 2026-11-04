@@ -1,0 +1,636 @@
+{
+  "schema": 1,
+  "purpose": "User-authorized historical source retirement; excluded from active execution",
+  "files": [
+    {
+      "kind": "exclusive",
+      "original": "docs/architecture/window-use-visualization.md",
+      "archived": "archive/window-use-stages-v1/exclusive/docs/architecture/window-use-visualization.md",
+      "bytes": 14559,
+      "sha256": "dfe35c719f32c81d3af5cd92814c91696d52af8562ea15aff09270b566884529"
+    },
+    {
+      "kind": "exclusive",
+      "original": "docs/images/window-use-cursor-ko.html",
+      "archived": "archive/window-use-stages-v1/exclusive/docs/images/window-use-cursor-ko.html",
+      "bytes": 25182,
+      "sha256": "8d11ebf0e6fb3dedb03a931e3f670f1443117710728eb9d5a757c1da57737c9f"
+    },
+    {
+      "kind": "exclusive",
+      "original": "instructions/computer-use-selected-window.md",
+      "archived": "archive/window-use-stages-v1/exclusive/instructions/computer-use-selected-window.md",
+      "bytes": 1819,
+      "sha256": "48e3de8abdfa6c19a9252619218cb0bd7f1e7cbdaa397550ff47c9740b8b9f52"
+    },
+    {
+      "kind": "exclusive",
+      "original": "instructions/window-use/stage-1.md",
+      "archived": "archive/window-use-stages-v1/exclusive/instructions/window-use/stage-1.md",
+      "bytes": 693,
+      "sha256": "610956f6ad0260849895e0cee9f40b27454d4654223e0e26eed0bd35d1a4b7c3"
+    },
+    {
+      "kind": "exclusive",
+      "original": "instructions/window-use/stage-2.md",
+      "archived": "archive/window-use-stages-v1/exclusive/instructions/window-use/stage-2.md",
+      "bytes": 5991,
+      "sha256": "7e1c0596d09d17c3a74c7f10263155aebddb40526a8052649b0ca9d1fcc65986"
+    },
+    {
+      "kind": "exclusive",
+      "original": "instructions/window-use/stage-3.md",
+      "archived": "archive/window-use-stages-v1/exclusive/instructions/window-use/stage-3.md",
+      "bytes": 4788,
+      "sha256": "68966d514d56076fb8fa7aa3c30c31117b49f0027cd12b39990c34780dbd962b"
+    },
+    {
+      "kind": "exclusive",
+      "original": "instructions/window-use/stage-4.md",
+      "archived": "archive/window-use-stages-v1/exclusive/instructions/window-use/stage-4.md",
+      "bytes": 1399,
+      "sha256": "1f970dde0f0252b1de512480e109141e425f011fd54d6f87a43c4da19aa9c721"
+    },
+    {
+      "kind": "exclusive",
+      "original": "native/windows-child-session/ChildSession.cs",
+      "archived": "archive/window-use-stages-v1/exclusive/native/windows-child-session/ChildSession.cs",
+      "bytes": 129814,
+      "sha256": "08f98dc84ea13a7b5cee020c87d6282a25bcc01780c6498fe938e493ffccf921"
+    },
+    {
+      "kind": "exclusive",
+      "original": "native/windows-child-session/prepare-test.ps1",
+      "archived": "archive/window-use-stages-v1/exclusive/native/windows-child-session/prepare-test.ps1",
+      "bytes": 2666,
+      "sha256": "069dba2ceca4292050e45a92de8d412bdbf6695f931a773ab836a46e4253163d"
+    },
+    {
+      "kind": "exclusive",
+      "original": "native/windows-child-session/probe.ps1",
+      "archived": "archive/window-use-stages-v1/exclusive/native/windows-child-session/probe.ps1",
+      "bytes": 5775,
+      "sha256": "a1a7148b9d2ac9659c4fdccb87d7a413a084427f688d391b4415c8644900ca20"
+    },
+    {
+      "kind": "exclusive",
+      "original": "native/windows-child-session/test-bootstrap.ps1",
+      "archived": "archive/window-use-stages-v1/exclusive/native/windows-child-session/test-bootstrap.ps1",
+      "bytes": 6974,
+      "sha256": "c0903c2f9210d0e118ddc0395393958156cd83c0778692fb268c686f1d697031"
+    },
+    {
+      "kind": "exclusive",
+      "original": "native/windows-child-session/test-machine-setup.ps1",
+      "archived": "archive/window-use-stages-v1/exclusive/native/windows-child-session/test-machine-setup.ps1",
+      "bytes": 4168,
+      "sha256": "78c4bb297ed442a9484fa5970b9dcba793faede54c9ac72d7253208b9f573ce7"
+    },
+    {
+      "kind": "exclusive",
+      "original": "native/windows-child-session/test-reconnect.ps1",
+      "archived": "archive/window-use-stages-v1/exclusive/native/windows-child-session/test-reconnect.ps1",
+      "bytes": 3744,
+      "sha256": "552277f70ab54d5bc6182eaf841574c5b13688a6a4067a0beeff84b8cc901bf6"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/check-window-child-logoff.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/check-window-child-logoff.cjs",
+      "bytes": 2683,
+      "sha256": "084ec7d75d09e2104365dd9b33d494de0d11698444135ee40b9097a537127fcc"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/computer-use-approvals.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/computer-use-approvals.cjs",
+      "bytes": 11265,
+      "sha256": "50fa24824d12e1146ef9ed0b517793aa9cf0d94df7b8f8280f1ec7a25fc455b1"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/computer-use-branding.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/computer-use-branding.cjs",
+      "bytes": 2582,
+      "sha256": "58cfc3bc024525b55142dcebba228f7b24bc15ee108ff2f1806107aa946af656"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/inject-sky-control-policy.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/inject-sky-control-policy.cjs",
+      "bytes": 6704,
+      "sha256": "9a7031ba22cb72ad6fc11c2e8ebe046a45617cca8cbe7673690413460f00f49b"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/request-window-child-logoff.ps1",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/request-window-child-logoff.ps1",
+      "bytes": 25365,
+      "sha256": "bf142287b0fb52d7051df2d3081df8caf6afb0a0fac8652ca365929af4eaffad"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/request-window-child-recovery.ps1",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/request-window-child-recovery.ps1",
+      "bytes": 3494,
+      "sha256": "542f419d0dea700d9eb8987e7b868fdacadb2cea537bcbc0ab7a0005b133b731"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/sky-control-policy.mjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/sky-control-policy.mjs",
+      "bytes": 8134,
+      "sha256": "cf70e90d7fbae1a44ed02b48225511be3d97e4c821ab49099c415ea10a915fcf"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/sky-controlled-service.mjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/sky-controlled-service.mjs",
+      "bytes": 323,
+      "sha256": "2a300d6bbe8eb3da2d672b0742a0b62f91979f0e5b54d099384c1303387e6b28"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-computer-use-approvals.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-computer-use-approvals.cjs",
+      "bytes": 7869,
+      "sha256": "a6188fc4c832d383d82037a8dba2be323c0ee3dee67f9eb6f2fee0ab2dfc80e4"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-sky-control-policy.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-sky-control-policy.cjs",
+      "bytes": 16184,
+      "sha256": "397b395a10e0955c72d86446f6fe86e89eb601531040aef1e26687321146de1f"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-use-settings-integration.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-use-settings-integration.cjs",
+      "bytes": 6887,
+      "sha256": "66ca073b9187bb1a36518fa7919c9c1d1bcc17d807a0c56378dcf4bd3e3ccf8d"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-child-explicit-logoff.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-child-explicit-logoff.cjs",
+      "bytes": 5370,
+      "sha256": "2ff002cfca4a5c6495e539d1ac3a8df618783d6687dacee83dfe182c9a47b963"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-child-logoff.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-child-logoff.cjs",
+      "bytes": 15908,
+      "sha256": "4dee236f9f1188814875be1770070a675d9a47cbc2483581c90b760728e7ab2f"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-child-reconnect-integration.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-child-reconnect-integration.cjs",
+      "bytes": 8972,
+      "sha256": "37de6343798ff480816cd5bd764e87a0c75c907d6fd429374f726659bda887d2"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-child-reconnect.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-child-reconnect.cjs",
+      "bytes": 10804,
+      "sha256": "8774f9cb4c7414a23fa05e079b5172797e870bc5d8f4914596963e5747c992fb"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-child-recovery.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-child-recovery.cjs",
+      "bytes": 8407,
+      "sha256": "b579e28977f759d70ee258960224db30df19e118777b15567fc8eb00f0224130"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-child-session.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-child-session.cjs",
+      "bytes": 27021,
+      "sha256": "b975cd2d38ef1af63aed9b08bce8d6f85c9591fdbf96a2f4531cf0debb2e1799"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-child-viewer.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-child-viewer.cjs",
+      "bytes": 7699,
+      "sha256": "1c2d789027d1c257a2f23d9047f8ed4cf194eacec1fc36b372ed7ed0830f5a4f"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-desktop-authority.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-desktop-authority.cjs",
+      "bytes": 10339,
+      "sha256": "434d09c391c9cca4b70db0a8ea4ce2974b009dbeb7706554371ac085ea7df3e1"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-input-revalidation.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-input-revalidation.cjs",
+      "bytes": 5693,
+      "sha256": "1d8faab3c9084a8762c51256485627b281f3b2f09504bc493ce7404ab78d0fc8"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-installed-application.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-installed-application.cjs",
+      "bytes": 5383,
+      "sha256": "475aef2b89196efc86e84a176bcb2693d2454efc66cce0d0333ea022938c5adf"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-permission-preparation.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-permission-preparation.cjs",
+      "bytes": 4563,
+      "sha256": "a71c08ec734dad3cdadfb876f552a43f824acd0660f427dced662145a5ad9905"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-use-isolation.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-use-isolation.cjs",
+      "bytes": 27402,
+      "sha256": "ef2c1e325e58f0aa0cee8270bfc5eaa6b4b0f40cd23598158e350fe079c84416"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-use-resources.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-use-resources.cjs",
+      "bytes": 21378,
+      "sha256": "30cece4aa5b67817a92623ce57bbd4cd9e0770572b1f7168630e113ad8783202"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-use-stage-authority.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-use-stage-authority.cjs",
+      "bytes": 33891,
+      "sha256": "41e1da3c447dd96090ea83787b5caece5fcb16b094d35ef654847f99b97e6c30"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/test-window-use-staging.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/test-window-use-staging.cjs",
+      "bytes": 12581,
+      "sha256": "280923d14a7033e217a1cbf1cd9e1aebd3e0e8492088a577c6d9810ed00f5060"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/window-child-session-cleanup.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/window-child-session-cleanup.cjs",
+      "bytes": 8467,
+      "sha256": "dd2ea017304668641961de7f67921b92dcb1214ebaea2759f2d2d4af849b7aa3"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/window-child-session.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/window-child-session.cjs",
+      "bytes": 54993,
+      "sha256": "5b1ddd5ec0c34b159f1c5b618ff76a27202f9543654aa2355dd687b1b3850cc3"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/window-desktop-authority.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/window-desktop-authority.cjs",
+      "bytes": 5182,
+      "sha256": "c6c2b79de97cf73e9732fce7df979d01863497d665e98f4f0edff7f5b83807a2"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/window-use-isolation.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/window-use-isolation.cjs",
+      "bytes": 26953,
+      "sha256": "b80cac02e72558bef3c8c11bc8db75983b09d4f5b7fde75b352bb4d4ba733bbd"
+    },
+    {
+      "kind": "exclusive",
+      "original": "scripts/window-use-resources.cjs",
+      "archived": "archive/window-use-stages-v1/exclusive/scripts/window-use-resources.cjs",
+      "bytes": 26423,
+      "sha256": "e202675f45be115cfc8b22333458516737d69eaacbd4b1700dc160cb466f286b"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "docs/architecture/computer-use.md",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/docs/architecture/computer-use.md",
+      "bytes": 21141,
+      "sha256": "3087633540656f86279c66c172ec8ae60fd485c208e8040af5bf290df4028b2c"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "docs/architecture/window-use.md",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/docs/architecture/window-use.md",
+      "bytes": 99045,
+      "sha256": "0431e3a895b13e346c59e7064d17a251a01d82335a7205f7a26575fd906290b6"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "instructions/window-use/common.md",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/instructions/window-use/common.md",
+      "bytes": 8913,
+      "sha256": "a0612b7d4602dc32245d2174c15666c932f7ab91183f83fb9410766d81df6db9"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/build-azrael.ps1",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/build-azrael.ps1",
+      "bytes": 28596,
+      "sha256": "db2637c261427241ca10d35f3f0eeeb0143219cf00dd5679666ae7b996026c95"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/computer-use-runtime.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/computer-use-runtime.cjs",
+      "bytes": 19544,
+      "sha256": "b920f16cc4279cce3d7b589d5696733129a715c66e9cd1fba14a393f7f0cd947"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/inject-computer-use.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/inject-computer-use.cjs",
+      "bytes": 9710,
+      "sha256": "7844cc374bc50c58396db6af0261155598986a7a66e34ae8cf9242719607812f"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/inject-window-control.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/inject-window-control.cjs",
+      "bytes": 16180,
+      "sha256": "19e8ada27a4ed14e6ed31b8b8d04168439d217090a120966e8799d3ebf4d03b2"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/install-app-release.ps1",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/install-app-release.ps1",
+      "bytes": 15013,
+      "sha256": "7c079daa33c605f3f931c8f4f1bcfd9bdc0951a58ca9f8f8791e3ac4d57e3a49"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/namespace-azrael-host.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/namespace-azrael-host.cjs",
+      "bytes": 65901,
+      "sha256": "170c1730053a400e1a3157910a39c566c1971be355e2638cba9e115cc5bb9f01"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/package-app-release.py",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/package-app-release.py",
+      "bytes": 17382,
+      "sha256": "45eb681630cec7ce2d50c61d8e724549a4131564481fd8154e67fd9341207cfb"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/preparation-state.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/preparation-state.cjs",
+      "bytes": 9434,
+      "sha256": "55fff4d73c08a22d5a94216f24fae146c279fda5a443ed062d0eaf93f6d31f24"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/prepare-independent-vscode.ps1",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/prepare-independent-vscode.ps1",
+      "bytes": 31092,
+      "sha256": "e8538a688ddc63cc6b2000f9fc636bb0701b05205d4f213974217333b23106f8"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/prepare-ordinary-vscode.ps1",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/prepare-ordinary-vscode.ps1",
+      "bytes": 9788,
+      "sha256": "9ccfca3cd3827a35f654ebd1ef73ed4a44b4873e1b5e3c9bf9282ffc815a3ac4"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/prepare-platform-host.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/prepare-platform-host.cjs",
+      "bytes": 17446,
+      "sha256": "7c0a6bf02ee0379b93f16b5ffb99ab857585fc620ec62da3ad79e4ed5d6129f8"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/source-test-fixtures.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/source-test-fixtures.cjs",
+      "bytes": 10394,
+      "sha256": "044bd82c1b2efbb8a5264346a05c385e72f63f69340e4b9502e9098f72e2cbaa"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/sync-codex-environment.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/sync-codex-environment.cjs",
+      "bytes": 39635,
+      "sha256": "65c4edb0e05752603a6043d9859fdeddec2bedc228c74c119ad3eedb8d7b4d2a"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-computer-use-injection.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-computer-use-injection.cjs",
+      "bytes": 34036,
+      "sha256": "ba0a620d9b877bf5ca2ac3e3ef136568826fefa1943c4be4eae10e90e6eca5cf"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-computer-use-runtime.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-computer-use-runtime.cjs",
+      "bytes": 15349,
+      "sha256": "0eac66da96c4acda88be5650603d98f75a17ca7715d8cda92e294da7f731ba86"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-project-selection.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-project-selection.cjs",
+      "bytes": 49572,
+      "sha256": "60d0037b47b150518e22feccf0bae340592de50e898f7bfe3017300b9a3154ff"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-source-test-fixtures.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-source-test-fixtures.cjs",
+      "bytes": 16029,
+      "sha256": "ae8349849964240fef2bd97e3bd5d22b24c484f9b688113ae00215d584ec43ef"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-team-runtime.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-team-runtime.cjs",
+      "bytes": 32107,
+      "sha256": "554250a05558b24cf58076adcff4e98b460ad61d4f19f2960d261810de7a464f"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-use-control-settings.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-use-control-settings.cjs",
+      "bytes": 6291,
+      "sha256": "4c26344686dca36be431ab00877e9711ad59ae71c13f7bd938098e138b28d6d8"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-use-settings-host.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-use-settings-host.cjs",
+      "bytes": 8543,
+      "sha256": "c046e34ec99a0d4f9eb691310a921531278ffdbc90dc804832df793b010259f3"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-use-settings-ui.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-use-settings-ui.cjs",
+      "bytes": 10900,
+      "sha256": "44383417739f8c6322792a528e28dbc3e9e2db5607ddbea3d09e1a1f9321fed5"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-approval-notifications.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-approval-notifications.cjs",
+      "bytes": 18528,
+      "sha256": "d62878285f24c6cd30cb7a3dc140b80b2b5ffc3e86653cc35a351b24b04e977f"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-approval-ui-integration.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-approval-ui-integration.cjs",
+      "bytes": 6579,
+      "sha256": "fe5e9e49db7e000448400f0d6d4b42238de4c92c5feaa2817e7f1e86ab38d3f7"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-control-approval.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-control-approval.cjs",
+      "bytes": 5162,
+      "sha256": "7455cb1fe69d3324b82e14f00646d0a233e04e7d07a1194f9983d35622cea4f6"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-control-errors.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-control-errors.cjs",
+      "bytes": 16052,
+      "sha256": "b51e974345881ec07f776b1c6e8ac359df1b49cf0e9bd1c4d5d79a1ee03703b0"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-control-host-errors.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-control-host-errors.cjs",
+      "bytes": 24512,
+      "sha256": "ffac02da34126414a38fe9b17b47cec39f5b8c6b9add325124bc5294813b44d3"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-control-host.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-control-host.cjs",
+      "bytes": 19998,
+      "sha256": "278374412db250f00ce0d4e32abd784c4efdc78c5acd3b6449ab67e61a6830a4"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-control-injection.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-control-injection.cjs",
+      "bytes": 18819,
+      "sha256": "3e799bbac93bf5c7028558f0117cd24109da2153c15665f98ec1993dfab35fcb"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-control-mcp.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-control-mcp.cjs",
+      "bytes": 20419,
+      "sha256": "65469dc4d5b17172c96265910008d470eb89570de926239b20125cb46f3c9687"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-control-runtime.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-control-runtime.cjs",
+      "bytes": 23127,
+      "sha256": "9d954e6f4c6a1749240a2ab58aa6a942398a60226dbe3709f3111772ebfa3a54"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-overlay.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-overlay.cjs",
+      "bytes": 14234,
+      "sha256": "c6c2f6cab2f9d5584ee989c870213c738e4f4b7ac9f572c81ec385a563016556"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/test-window-virtual-policy.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/test-window-virtual-policy.cjs",
+      "bytes": 6620,
+      "sha256": "ce1b39328f4c67af6d09ec9d9567cd34c35b0c3c42008c12ebf471c49e3bdbb2"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/tests/sync-codex-environment.test.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/tests/sync-codex-environment.test.cjs",
+      "bytes": 29804,
+      "sha256": "c74172e4e1beafc0919d1dd17e57dd64b6a5666147a8b8c0834d412946c9e246"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/use-control-settings.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/use-control-settings.cjs",
+      "bytes": 5229,
+      "sha256": "d83d386002be3e82c65b9f495eeb374ac5d2d30ca2ae9cd3614690adffcea43b"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/use-settings-host.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/use-settings-host.cjs",
+      "bytes": 4920,
+      "sha256": "0ce7543047471b34b96aa7334714ecaeefd2003cb750439d80beac9f194924a7"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/verify-use-settings-render.mjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/verify-use-settings-render.mjs",
+      "bytes": 18969,
+      "sha256": "d922443755528d6a75e64afe12637ed7da3b46a350eccbc48abc71eb5c809bf3"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/verify-window-native-approval-render.mjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/verify-window-native-approval-render.mjs",
+      "bytes": 23762,
+      "sha256": "66e88a0a7df56eb4b5aff83ce7eeb2d572cae33b3191e36672ed21b4924d53b6"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/window-control-backend.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/window-control-backend.cjs",
+      "bytes": 15737,
+      "sha256": "868bd93cb94e38763700d888c52bbb1639899225bf2d406ca710facf823e6483"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/window-control-host.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/window-control-host.cjs",
+      "bytes": 92832,
+      "sha256": "552192d1ae429be7f1fcfe42983b4937ceab3dd5eb4cec7304c3cfd6b0691c2a"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/window-control-mcp.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/window-control-mcp.cjs",
+      "bytes": 32261,
+      "sha256": "55e80c2e74500fa98977d86386f46bb88b5efa9df222849258434da9ce5db5e7"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/window-control-policy.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/window-control-policy.cjs",
+      "bytes": 45532,
+      "sha256": "ff7bf2c2a5e26a4d846ad1866ee9f43a7b574cfcf86a72b6e0289ffed121717b"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/window-control-runtime.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/window-control-runtime.cjs",
+      "bytes": 18159,
+      "sha256": "33a7004a27d183208b78f0712c90c24d50d0b2507300b90409a128a681111425"
+    },
+    {
+      "kind": "shared-snapshots",
+      "original": "scripts/window-use-approvals.cjs",
+      "archived": "archive/window-use-stages-v1/shared-snapshots/scripts/window-use-approvals.cjs",
+      "bytes": 843,
+      "sha256": "6387d25ca6a328f84b74795d611dacb4bc05e48b3250ea76a9087421e6f0d22d"
+    }
+  ]
+}
