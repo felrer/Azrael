@@ -1,0 +1,95 @@
+{
+  "selected": [
+    {
+      "id": "run:ec01-cache-optimization:module-regression-r2",
+      "original_acceptance": {
+        "exitCode": 1,
+        "signal": null,
+        "elapsedMs": 69108,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r2\\logs\\module-cache-test.log"
+      },
+      "purpose": "Completed isolated module-cache test attempt, no incoming consumers, stopped producer checked by owner review",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r2",
+      "acceptance_sha256": "878ef800758cdd99056cce46ae495b1682e849a22a124c8025465faf03a7fe74",
+      "logical_bytes": 2788,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "147c8e5bb4fd9a66e0c0d710618807e8555e13399cc1b462ccf1429a46d1ea0e",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:module-regression-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\05c1ee83c4023d74fa6267f2369117a0c8b8fdc9b9a7d2d115c44ff522c0f204.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:module-regression-r3",
+      "original_acceptance": {
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 149308,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r3\\logs\\module-cache-test.log"
+      },
+      "purpose": "Completed isolated module-cache test attempt, no incoming consumers, stopped producer checked by owner review",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r3",
+      "acceptance_sha256": "5a7f3b911d7b65daa65ab1f28e52864db7f5e15450db058bd4748de993813f62",
+      "logical_bytes": 2872,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "0354e770d0a961bc01fa02f586a724f2a123f9f803296d196b35a2e1ff977f31",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:module-regression-r3",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\089a85b0ce197c4711c367dd9e7eb96fa0dbcdf38ed34e2d5ef16c4c8fead673.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:module-regression-r4",
+      "original_acceptance": {
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 253720,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r4\\logs\\module-cache-test.log",
+        "subsetReport": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r4\\reports\\subset.json"
+      },
+      "purpose": "Completed isolated module-cache test attempt, no incoming consumers, stopped producer checked by owner review",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r4",
+      "acceptance_sha256": "ae557aa94ab80152de108fdd6d267a8865ce2a0774634b12d7b29de7c4a34b95",
+      "logical_bytes": 5596,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "4a8a2f07a2bdce8eed5cf24adf81ca9a1976fd1e58d7a551a07f45793f7f9b01",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:module-regression-r4",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\25c9eee8d6205e2d6fe326434159c1c9a471f6c6cc0c2da59a7db7de656f89c1.json"
+      },
+      "absence_verified": true
+    }
+  ],
+  "schema": 1,
+  "owner": "FR-01-recent-session-cleanup-commits",
+  "owner_sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "review_exit": 0,
+  "apply_exit": 0,
+  "finished_utc": "2026-11-04T00:36:15.314Z"
+}

@@ -1,0 +1,461 @@
+{
+  "schema": 1,
+  "selected": [
+    {
+      "id": "run:ec01-cache-optimization:metrics-regression-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\metrics-regression-r1",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\metrics-regression-r1\\reports\\producer-de616906802a7da442f7faeb2cec8b1ac41a76182741d4794f2e561a55465ce5.json",
+        "evidence_sha256": "de616906802a7da442f7faeb2cec8b1ac41a76182741d4794f2e561a55465ce5",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "small_results": [
+        {
+          "name": "result.json",
+          "data": {
+            "exitCode": 1,
+            "signal": null
+          },
+          "sha256": "91065cacef14884d515aa1f0530a80185e0051e8a670e7b723bf2af4a89cb013"
+        }
+      ],
+      "logical_bytes": 288304,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "5cb049934bb8e948ffc5d99642da62795641975e1488d7ed1f404529c6d7153d",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:metrics-regression-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\095fe5b9a23bc0d593bc5ed1264c2c8aaa652ae875d983cf135d6520c84dc247.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:module-measurement-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-measurement-r2",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-measurement-r2\\reports\\producer-4ad8ecd463266ce54a5c623452228730f7303fa95fbefe277cfaa2986b9cf620.json",
+        "evidence_sha256": "4ad8ecd463266ce54a5c623452228730f7303fa95fbefe277cfaa2986b9cf620",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Synchronous focused module validation/measurement returned",
+        "status": "stopped"
+      },
+      "small_results": [
+        {
+          "name": "acceptance.json",
+          "data": {
+            "runId": "module-measurement-r2",
+            "exitCode": 0,
+            "signal": null,
+            "elapsedMs": 21799,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-measurement-r2\\logs\\execution.log"
+          },
+          "sha256": "a1a839128cb7182d5e40dfee5e6582323aeb486786268fdadcf35cb537546558"
+        }
+      ],
+      "logical_bytes": 6305,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "dbc8fce7c321150d1125a0fe00fff81d6cff526e2de412118ffa7756271ee1a8",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:module-measurement-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1317867ac217e5ba3fe03d63e10ae28100053a963a10352aefd9294da56fe973.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:cargo-regression-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r2",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r2\\reports\\producer-c96a8bd3bdc3f9080e65eca6dc72353f4db8b60ca9908eb437b9db267a4d28a6.json",
+        "evidence_sha256": "c96a8bd3bdc3f9080e65eca6dc72353f4db8b60ca9908eb437b9db267a4d28a6",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "small_results": [],
+      "logical_bytes": 3137210,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "4a73425dcd92fa597c4c444e3767f9b120388406563b1bb36ebe6a192aed37e8",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:cargo-regression-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\181bb2552983f8e2995badead2fa079cc351c25aca4919dc67f4033cff6d3b77.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:module-regression-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r1",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r1\\reports\\producer-4583ccd84da901f41d41939326b7ba6c5912bc827b98a91cf4f9b49292360098.json",
+        "evidence_sha256": "4583ccd84da901f41d41939326b7ba6c5912bc827b98a91cf4f9b49292360098",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Synchronous isolated PowerShell test returned; existing fixture owner runs finally cleanup",
+        "status": "stopped"
+      },
+      "small_results": [
+        {
+          "name": "acceptance.json",
+          "data": {
+            "exitCode": 1,
+            "signal": null,
+            "elapsedMs": 25242,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-regression-r1\\logs\\module-cache-test.log"
+          },
+          "sha256": "35664ae63d126f85d8c08712a38e765a873aeeb2266f42f5b39a1f94cd560e5d"
+        }
+      ],
+      "logical_bytes": 1588,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "97eb466d1a31b55c081abfed021b5c1b139e5f699c862794baf2363b360c5e97",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:module-regression-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\3112cbaf5668fad2bf102f1e6a8d990ee1648ec119e7012ddd188733ad838a1d.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:module-measurement-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-measurement-r1",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-measurement-r1\\reports\\producer-163bb97bde0c9cd58fe9af87afa2a08bb2ed652c61f66bcf1fbd8a3e52d68770.json",
+        "evidence_sha256": "163bb97bde0c9cd58fe9af87afa2a08bb2ed652c61f66bcf1fbd8a3e52d68770",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Read-only measurement PowerShell returned synchronously",
+        "status": "stopped"
+      },
+      "small_results": [
+        {
+          "name": "acceptance.json",
+          "data": {
+            "exitCode": 0,
+            "signal": null,
+            "elapsedMs": 221694,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-measurement-r1\\logs\\module-measurement.log",
+            "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-measurement-r1\\reports\\module-result.json"
+          },
+          "sha256": "c76e113956619aa740e9ff70023100eb7e5fc231a18b0c8795e5bf4e6687f0d8"
+        }
+      ],
+      "logical_bytes": 6253,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "8b23875fb1de8c8e144bc4a4a214c3dd7e232e89c0f778192d7a87804b6a5881",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:module-measurement-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5af2309a7ce4c69736459885d79a00a28de98e0e15569d45f9e27c2e0ed57859.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:cargo-regression-r5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r5",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r5\\reports\\producer-9ee9c9af89e25e408e4c46b5a7f66467876b34f2c2c4ecb92660ebbcd8bce627.json",
+        "evidence_sha256": "9ee9c9af89e25e408e4c46b5a7f66467876b34f2c2c4ecb92660ebbcd8bce627",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "small_results": [],
+      "logical_bytes": 6857141,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "3007ba6923a8bb3815b5f1bd35cf40a681f0e41b471a78f2ef8fe0c2cdcbafd0",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:cargo-regression-r5",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6eaa8997ce772e2491ea9ae8cb30d27cb46f027688fa0c4ef271ccd14e3ac22f.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:cargo-regression-r6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r6",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r6\\reports\\producer-fe6e217f4c07aa6916eb9266f0d97c0130904d721438c3d53f1dc858c9637b17.json",
+        "evidence_sha256": "fe6e217f4c07aa6916eb9266f0d97c0130904d721438c3d53f1dc858c9637b17",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "small_results": [],
+      "logical_bytes": 22960,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "373a7c3e1bd5ccac4c8e992021048ac46f178996ed8172e97a24734b7e1cc7b8",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:cargo-regression-r6",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7a5c511b305026b5f99da77502d88f8e93f6453d87b89faa9000324c47988076.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:cargo-regression-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r3",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r3\\reports\\producer-93a1bddef7da900bccf2726d2cc5a0626eed84f307d2d00785a0a4d1afb2db0a.json",
+        "evidence_sha256": "93a1bddef7da900bccf2726d2cc5a0626eed84f307d2d00785a0a4d1afb2db0a",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "small_results": [],
+      "logical_bytes": 6605137,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "7ba022f83bf457056e4d7758dbce6d55c083b227ced223c83d7d96baecacf04a",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:cargo-regression-r3",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\81c1f2f8f84706647cb0b3138056505f6ab15e30f608e745943844db65429217.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:metrics-regression-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\metrics-regression-r2",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\metrics-regression-r2\\reports\\producer-9a5c429489c4465798949eabf7f9fffbcd13dbbd997cdd011194ae9f15a910f6.json",
+        "evidence_sha256": "9a5c429489c4465798949eabf7f9fffbcd13dbbd997cdd011194ae9f15a910f6",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Synchronous metrics regression observed terminal result",
+        "status": "stopped"
+      },
+      "small_results": [
+        {
+          "name": "result.json",
+          "data": {
+            "exitCode": 0,
+            "signal": null
+          },
+          "sha256": "3fa9af694401223e1c3d68816c46a55059800ec0f020f98b19cc046ee7dc331f"
+        }
+      ],
+      "logical_bytes": 22085,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "61f80c912031aa0c27aecdc7f3a9a04b17cf4d472c3413bd64b0c0bce371632d",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:metrics-regression-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8ed321402224eff8e055f662aa0c9727ead4ab10715619a0651e8e571e9ca972.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:metrics-regression-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\metrics-regression-r3",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\metrics-regression-r3\\reports\\producer-2ab508ff2d46a71fcdeb422ea1502a1637d6deb06f035797578ba45943c88411.json",
+        "evidence_sha256": "2ab508ff2d46a71fcdeb422ea1502a1637d6deb06f035797578ba45943c88411",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Synchronous final metrics regression observed terminal result",
+        "status": "stopped"
+      },
+      "small_results": [
+        {
+          "name": "result.json",
+          "data": {
+            "exitCode": 0,
+            "signal": null
+          },
+          "sha256": "3fa9af694401223e1c3d68816c46a55059800ec0f020f98b19cc046ee7dc331f"
+        }
+      ],
+      "logical_bytes": 22198,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "820835caa710f8952da0e720dba68cc1e3841fdcea277d564be68aac41752e67",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:metrics-regression-r3",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\94317d748e1eb534ca010efdec819423d4777774da210fd3c5cc51bcb0f44fee.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:cargo-regression-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r4",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r4\\reports\\producer-f0b891b7b4c280799187ee33546c29511cac5dec4501d8e24186d86663dd128e.json",
+        "evidence_sha256": "f0b891b7b4c280799187ee33546c29511cac5dec4501d8e24186d86663dd128e",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "small_results": [],
+      "logical_bytes": 3856264,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "56ea93bad2fd14a4b7aea6d5e76099854fe6b3eddbc688f5ba427b67737fa246",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:cargo-regression-r4",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ebe7c00030b81607b8972585fe33d3b52b55bf9b3f3354f3d1b460f5b3f17eb5.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:module-recipe-result-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-recipe-result-r1",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-recipe-result-r1\\reports\\producer-6925feaed7929919ecddd2f04324898339f51566294929b2c88ff40cb789ad62.json",
+        "evidence_sha256": "6925feaed7929919ecddd2f04324898339f51566294929b2c88ff40cb789ad62",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Synchronous focused module validation/measurement returned",
+        "status": "stopped"
+      },
+      "small_results": [
+        {
+          "name": "acceptance.json",
+          "data": {
+            "runId": "module-recipe-result-r1",
+            "exitCode": 0,
+            "signal": null,
+            "elapsedMs": 32636,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\module-recipe-result-r1\\logs\\execution.log"
+          },
+          "sha256": "bb0c459d19fa29c744c9f61b8b37a722e6c49132281fe2b1ea3fe448fcec1ae0"
+        }
+      ],
+      "logical_bytes": 2615,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "42cab961e553646a498b6ee54138ed638bf709c24ac71cb8585d4f3a54da0844",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:module-recipe-result-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ee0ead08ab7beb7b5fb3d5612edd81d86b3d7cb8800070daec6ceea264f3793b.json"
+      },
+      "absence_verified": true
+    },
+    {
+      "id": "run:ec01-cache-optimization:cargo-regression-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r1",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-cache-optimization\\runs\\cargo-regression-r1\\reports\\producer-76ad9753c299bd9af493f2b219e21c8408179b166e73e8d6846554dcc3400b62.json",
+        "evidence_sha256": "76ad9753c299bd9af493f2b219e21c8408179b166e73e8d6846554dcc3400b62",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "small_results": [],
+      "logical_bytes": 131329,
+      "deletion": {
+        "status": "deleted",
+        "remaining": false,
+        "decision_id": "c15c8f29ff54a963b9c700e52ee50dbc7c99c09daa0d8338cf5ad1fdb231e3eb",
+        "physical_bytes_reclaimed": null
+      },
+      "finalization": {
+        "id": "run:ec01-cache-optimization:cargo-regression-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fb2400aa9d5f5b58b32a6943a578b5d57d7bf6cdc5d2e40763e9a1a6e3a26b78.json"
+      },
+      "absence_verified": true
+    }
+  ],
+  "review_exit": 0,
+  "apply_exit": 0,
+  "owner_sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "finished_utc": "2026-11-04T00:58:07.118Z",
+  "status": "all-selected-deleted-absent-finalized"
+}

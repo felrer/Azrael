@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "work_record_created_utc": "2026-11-04T00:28:32.319Z",
+  "recorded_utc": "2026-11-04T01:02:35.867Z",
+  "scope": "Completed, independently separable changes only; remaining source changes preserved",
+  "source_commits": [
+    {
+      "id": "26e8af1856422a5f4d4fdf0f6058586f1117c591",
+      "subject": "Add a read-only audit queue for unresolved Cargo ownership"
+    },
+    {
+      "id": "b8a2bee8c2f4a2cfa400785a26b0f718cff2bd15",
+      "subject": "Preserve the requested historical Window Use stage sources"
+    },
+    {
+      "id": "8727f5155537a8e1cd7a092a969262111b11ba80",
+      "subject": "Keep disposable command transport under its caller work owner"
+    },
+    {
+      "id": "6f603891a9a8f7d658cfaba200a5f44979ea0789",
+      "subject": "Add bounded host health and persisted-state diagnostics"
+    },
+    {
+      "id": "369e8fa6d09b4b7d8fef0dc5683336db4425c5ad",
+      "subject": "Reduce overlapping request preparation and saved-state reads"
+    }
+  ],
+  "verification": {
+    "request_preparation": {
+      "passed": 13,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "host_health_focused": {
+      "passed": 34,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "source_ui_health": {
+      "passed": 60,
+      "failed": 0,
+      "exit_code": 0,
+      "duration_ms": 29737.4553
+    },
+    "cargo_audit_assertion_script": {
+      "exit_code": 0,
+      "behavioral_assertions_passed": true
+    },
+    "instruction_library": {
+      "exit_code": 0,
+      "skill_files": 63,
+      "components": 15,
+      "local_links": 92,
+      "installed_copy_matches": true
+    },
+    "archive": {
+      "manifest_payloads": 90,
+      "bytes": 1680630,
+      "committed_bytes_match": true,
+      "text_conversion_disabled": true
+    }
+  },
+  "cleanup": {
+    "prior_cache_groups_deleted": 16,
+    "registered_logical_bytes": 20970645,
+    "all_selected_paths_absent": true,
+    "all_selected_lifecycles_finalized": true,
+    "own_verification_group_deleted": true,
+    "own_verification_empty_parent_absent": true,
+    "temporary_helpers_logs_reviews_absent": true,
+    "physical_reclaimed_bytes": null,
+    "large_batch_native_process_start_utc": "2026-11-04T00:41:58.226Z",
+    "large_batch_finalization_utc": "2026-11-04T00:58:07.118Z",
+    "large_batch_command_end_timing": "not separately measured; actual exit 0 observed before finalization"
+  },
+  "preserved_staged_paths": 37,
+  "retention_approval_report": "work/FR-01-recent-session-cleanup-commits/10-blocked-cleanup.json",
+  "remaining_changes_report": "work/FR-01-recent-session-cleanup-commits/11-remaining-changes.md",
+  "no_push": true,
+  "no_build_install_or_deploy": true,
+  "staged_diff_sha256": "2fcf243d07251ac608b32d9abd7d5b2273bf7cc79a84232d75b38d2add302553",
+  "retention_two_groups_user_approved": true
+}

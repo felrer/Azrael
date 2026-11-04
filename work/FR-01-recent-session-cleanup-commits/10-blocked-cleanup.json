@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "status": "two-exact-groups-retention-approved",
+  "observed_inventory_at": "2026-11-04T00:30:15.4441172Z",
+  "groups": [
+    {
+      "id": "run:permission-disabled-host:rmvl4okue",
+      "items": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\permission-disabled-host\\runs\\rmvl4okue",
+          "logical_bytes": 191186
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\pd13",
+          "logical_bytes": 2142679844
+        }
+      ],
+      "known_blockers": [
+        "a lifecycle group member is protected",
+        "generation or usage protection unconfirmed",
+        "outside configured managed roots"
+      ],
+      "release_condition": "Use the existing owner after supported ownership/protection resolution, with no active/recovery consumers; fresh review before deletion",
+      "logical_bytes": 2142871030
+    },
+    {
+      "id": "run:EM-02-controls",
+      "items": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n1-recovery-result.json",
+          "logical_bytes": 3849
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n2-register-request.json",
+          "logical_bytes": 1017
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n1-recover-request.json",
+          "logical_bytes": 3189
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-1-partial-recovery-result.json",
+          "logical_bytes": 4456
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n1-refresh-request.json",
+          "logical_bytes": 88
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-1-partial-recovery-request.json",
+          "logical_bytes": 3804
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n1-refresh-result.json",
+          "logical_bytes": 1949
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\EM-02-native-1-register.json",
+          "logical_bytes": 1018
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\EM-02-native-2-register.json",
+          "logical_bytes": 1018
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n1-register.json",
+          "logical_bytes": 998
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n12-apply.json",
+          "logical_bytes": 635
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n2-register-result.json",
+          "logical_bytes": 197
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-1-apply-recovery-request.json",
+          "logical_bytes": 3797
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n2-register-r2-result.json",
+          "logical_bytes": 1764
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n2-register-r2.json",
+          "logical_bytes": 1017
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-2-apply-recovery-result.json",
+          "logical_bytes": 4377
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-2-partial-recovery-result.json",
+          "logical_bytes": 4384
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-2-partial-recovery-request.json",
+          "logical_bytes": 3736
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n12-apply-result.json",
+          "logical_bytes": 702
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n12-review-r2-result.json",
+          "logical_bytes": 7179
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-1-apply-recovery-result.json",
+          "logical_bytes": 4449
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n12-review-r2.json",
+          "logical_bytes": 98
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-EM-02-native-2-apply-recovery-request.json",
+          "logical_bytes": 3729
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\EM-02-native-1-register.json.result.json",
+          "logical_bytes": 414
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\em02-n3-cleanup-request.json",
+          "logical_bytes": 8423
+        }
+      ],
+      "known_blockers": [
+        "Protected maintenance-state paths; prior EM task requests retention pending supported control-evidence compaction"
+      ],
+      "release_condition": "Use the existing owner after supported ownership/protection resolution, with no active/recovery consumers; fresh review before deletion",
+      "logical_bytes": 66287
+    }
+  ],
+  "retention_approval": {
+    "user_response": "?? ???? ? ?? ?? ??",
+    "scope": [
+      "run:permission-disabled-host:rmvl4okue",
+      "run:EM-02-controls"
+    ],
+    "release_condition": "?? ??? ??? ????? ??? ???? active/recovery ??? ??? ? ?? ? ????. ?? ???? ?? ??? ???? ???."
+  }
+}

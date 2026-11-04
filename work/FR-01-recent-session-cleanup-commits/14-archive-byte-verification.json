@@ -1,0 +1,12 @@
+{
+  "archive": {
+    "old": "c8c9dd42f51af7e633061a6b37d52b5336b7f3fc",
+    "new": "b8a2bee8c2f4a2cfa400785a26b0f718cff2bd15"
+  },
+  "cargo_audit": {
+    "old": "d0e78fc4f76660ce4fc44cb4334556629da184cc",
+    "new": "26e8af1856422a5f4d4fdf0f6058586f1117c591"
+  },
+  "verified_archive_payloads": 90,
+  "unrelated_staged_preserved": 37
+}
