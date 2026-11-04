@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "id": "run:FR01-cargo-audit:verify-20261104",
+  "started": "2026-11-04T00:52:19.929Z",
+  "owner_sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "steps": [
+    {
+      "operation": "register",
+      "actual_exit": 0
+    },
+    {
+      "operation": "review",
+      "actual_exit": 0
+    },
+    {
+      "operation": "apply",
+      "actual_exit": 0
+    }
+  ],
+  "registration": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:FR01-cargo-audit:verify-20261104",
+      "kind": "run",
+      "members": [
+        "505ae5b312e344052f652966fcba74e22746e5e6c610f88a63c587fd49a8ffdd"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "85b88b34dafbd56d56f6ccad14d7c36f4a000318d19c77d77868fa3de40a18c8",
+      "owner": "FR-01-recent-session-cleanup-commits",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b5753cf7b14240ca7c295a70f23eb07ba1d115730cb20732e77f1739622b3a8c.json",
+      "registered_at_ms": 1793753580746,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "505ae5b312e344052f652966fcba74e22746e5e6c610f88a63c587fd49a8ffdd",
+        "identity": "19f8344243bed8aa16fe95c9fae0d25622442d62712236a387f7cf8bee7183bf",
+        "kind": "run",
+        "lifecycle_group_id": "run:FR01-cargo-audit:verify-20261104",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 12689,
+        "measured_at_ms": 1793753569982,
+        "owner": "FR-01-recent-session-cleanup-commits",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FR01-cargo-audit\\runs\\verify-20261104",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b5753cf7b14240ca7c295a70f23eb07ba1d115730cb20732e77f1739622b3a8c.json",
+        "references": [],
+        "registered_at_ms": 1793753569982,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "deletions": [
+    {
+      "id": "505ae5b312e344052f652966fcba74e22746e5e6c610f88a63c587fd49a8ffdd",
+      "group": "run:FR01-cargo-audit:verify-20261104",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "remaining": false
+    }
+  ],
+  "finalization": {
+    "id": "run:FR01-cargo-audit:verify-20261104",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b5753cf7b14240ca7c295a70f23eb07ba1d115730cb20732e77f1739622b3a8c.json"
+  },
+  "absence_verified": true,
+  "finished": "2026-11-04T00:53:53.019Z"
+}

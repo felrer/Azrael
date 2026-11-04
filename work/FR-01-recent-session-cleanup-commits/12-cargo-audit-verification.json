@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "started": "2026-11-04T00:50:24.435Z",
+  "finished": "2026-11-04T00:50:41.787Z",
+  "platform": "win32",
+  "arch": "x64",
+  "lifecycle_id": "run:FR01-cargo-audit:verify-20261104",
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FR01-cargo-audit\\runs\\verify-20261104",
+  "command": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "scripts/test-cargo-owner-audit.cjs"
+  ],
+  "actual_exit": 0,
+  "signal": null,
+  "behavioral_assertions_passed": true,
+  "closed_state": "complete",
+  "producer": {
+    "status": "stopped",
+    "outcome": "success",
+    "exit_code": 0,
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FR01-cargo-audit\\runs\\verify-20261104\\reports\\producer-fcd0b4fd8c0652e0c2cf15a9675a0502508fda31a031fc5580b0f99c3045482f.json",
+    "evidence_sha256": "fcd0b4fd8c0652e0c2cf15a9675a0502508fda31a031fc5580b0f99c3045482f",
+    "reason": "Synchronous audit assertion script and its synchronous CLI children returned; no detached producer"
+  },
+  "source_sha256": {
+    "scripts/cargo-owner-audit.cjs": "f27ceb65aabe548e6e24f33594ed3fca2b3cd3b5c35e933647442ccfbe16650a",
+    "scripts/test-cargo-owner-audit.cjs": "1327fc92e26afc589b612089562076f8c58911e843d74bf16c4e135f551b95c7"
+  }
+}
