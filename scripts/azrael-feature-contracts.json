@@ -389,7 +389,9 @@
         "engine/codex-rs/app-server-transport/src/transport/mod.rs",
         "engine/codex-rs/app-server-transport/src/transport/unix_socket_tests.rs",
         "scripts/verification-state.ps1",
-        "scripts/test-verification-state.ps1"
+        "scripts/test-verification-state.ps1",
+        "scripts/cargo-owner-audit.cjs",
+        "scripts/test-cargo-owner-audit.cjs"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "reportFields": [],
@@ -411,7 +413,8 @@
             "scripts/test-cargo-verification-cache.cjs",
             "scripts/test-verification-result-cache.cjs",
             "scripts/test-feature-preservation-cache.cjs",
-            "scripts/test-compile-scope.cjs"
+            "scripts/test-compile-scope.cjs",
+            "scripts/test-cargo-owner-audit.cjs"
           ],
           "level": "source"
         },
