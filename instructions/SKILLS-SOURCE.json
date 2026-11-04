@@ -274,8 +274,8 @@
     {
       "path": "skills/implementation/references/artifact-lifecycle.md",
       "source": "implementation/references/artifact-lifecycle.md",
-      "size": 19220,
-      "sha256": "41f121c1359bbd0b3e0bb8fd26d42d839e21b88b8ae765759238a62b9a8559f2",
+      "size": 19958,
+      "sha256": "cd395094a51c22d5e848592c47e039655b5fc76a569a5cb5da691d847cbf3873",
       "original": {
         "size": 4370,
         "sha256": "834485e7b1e853611b50da821109b8f171cd342b27e4438890aa9bb007fa3abe"
@@ -288,7 +288,8 @@
         "Link shared-cache reuse to its build owner and retire unused recovery copies instead of protecting the immediately preceding version by default.",
         "Maintain common user-confirmation and backup cleanup procedure with scoped pending acceptance.",
         "Remove automatic archive fallback; use existing owner-based deletion and investigate failures while preserving protection and explicit retention approval; active installed skill resolves to this maintained source.",
-        "Define copied-environment end-of-use, independent attempt ownership, verified handoff and interruption-safe cleanup; consolidate profile cleanup with the common contract."
+        "Define copied-environment end-of-use, independent attempt ownership, verified handoff and interruption-safe cleanup; consolidate profile cleanup with the common contract.",
+        "Keep disposable command transport in caller work/run; preserve only referenced minimal control evidence; synchronize installed copy."
       ]
     },
     {
