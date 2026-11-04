@@ -20,6 +20,8 @@ Before a command, register its group, planned output paths, input/tool identity 
 
 ## Evidence And Shared Use
 
+Disposable command requests, raw responses and transport logs belong to the caller's work/run, outside protected management state and outside the targets being deleted. Prefer an existing structured or stdin request interface when available; otherwise create uniquely named request/response files under the task-owned run and remove them through its supported owner once consumed and the minimum outcome is preserved. Keep only management state and explicitly referenced minimum acceptance/recovery evidence in protected control storage. A file's JSON extension, name or location does not prove that it is unused. Do not move or directly delete existing protected evidence to evade its owner's reference, reservation or recovery checks.
+
 Raw logs remain with the work/run that generated them. Before removing task evidence needed by a release, copy or record the required verified evidence into version scope with source identity, content identity and verification outcome; confirm it is independently usable and switch the references. The resulting version evidence is a separate version-owned artifact. A reference to a file about to be deleted is insufficient.
 
 Product version and unique build identity are separate: two builds of the same version must not overwrite each other's payload or verification. Shared cache reuse follows [Build inputs](build-inputs.md#후속-소비자와-산출물-재사용). Shared entries own their explicit references; an active, uncertain or last required consumer blocks deletion until its dependency is released or replaced and verified.
