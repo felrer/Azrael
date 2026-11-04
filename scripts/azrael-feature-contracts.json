@@ -2,6 +2,52 @@
   "schema": 1,
   "features": [
     {
+      "id": "ui.request-preparation",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-request-preparation.cjs",
+        "scripts/inject-request-state.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.request-preparation.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-request-preparation.cjs",
+            "scripts/test-request-state.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.request-preparation.account-admission",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-account-switch-queue.cjs",
+            "scripts/test-submit-only-thread.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.request-preparation.namespace-cache-owner",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "requestPreparationEdits",
+        "requestStateEdits"
+      ]
+    },
+    {
       "id": "ui.standalone-app",
       "area": "ui",
       "owners": [

@@ -1,0 +1,1019 @@
+{
+  "version": "2026.0.14",
+  "platform": "Windows x64",
+  "engineSha256": "2f794a059517870f5fccc2e2d2c798cf749470c2304bf15736fb1b00815571f4",
+  "comparison": "Same isolated profile and installed 2026.0.14 engine; baseline disables only request-preparation parallelism and pending-read sharing; candidate executes installed optimized functions.",
+  "accountState": "Existing .azrael-ex authentication/shared engine; VS Code user data/extensions/workspace isolated. Own git project boundary; IDE context off; Standard; sol medium.",
+  "sampleCount": 20,
+  "excludedPreflightRequests": 7,
+  "validModel": true,
+  "toolsUsed": false,
+  "summary": {
+    "baseline_fresh": {
+      "totalMs": {
+        "n": 5,
+        "median": 9343,
+        "min": 7407,
+        "max": 11621,
+        "mean": 9491.4
+      },
+      "preTurnMs": {
+        "n": 5,
+        "median": 4479,
+        "min": 3949,
+        "max": 5837,
+        "mean": 4707
+      },
+      "nativePrepMs": {
+        "n": 5,
+        "median": 1436.483,
+        "min": 792.83,
+        "max": 1716.451,
+        "mean": 1316.626
+      },
+      "afterPrepToDeltaMs": {
+        "n": 5,
+        "median": 1549.323,
+        "min": 1414.889,
+        "max": 1927.992,
+        "mean": 1636.534
+      },
+      "builderMs": {
+        "n": 5,
+        "median": 29,
+        "min": 11,
+        "max": 46,
+        "mean": 30.8
+      },
+      "shellMs": null,
+      "toolMs": null
+    },
+    "baseline_followup": {
+      "totalMs": {
+        "n": 5,
+        "median": 5020,
+        "min": 2828,
+        "max": 6270,
+        "mean": 4428.2
+      },
+      "preTurnMs": {
+        "n": 5,
+        "median": 2533,
+        "min": 543,
+        "max": 3781,
+        "mean": 2063.2
+      },
+      "nativePrepMs": {
+        "n": 5,
+        "median": 282.067,
+        "min": 221.746,
+        "max": 431.994,
+        "mean": 306.524
+      },
+      "afterPrepToDeltaMs": {
+        "n": 5,
+        "median": 1693.925,
+        "min": 1326.312,
+        "max": 2152.795,
+        "mean": 1694.317
+      },
+      "builderMs": null,
+      "shellMs": null,
+      "toolMs": null
+    },
+    "candidate_fresh": {
+      "totalMs": {
+        "n": 5,
+        "median": 9107,
+        "min": 6165,
+        "max": 11068,
+        "mean": 8726.8
+      },
+      "preTurnMs": {
+        "n": 5,
+        "median": 3783,
+        "min": 3269,
+        "max": 4226,
+        "mean": 3716.8
+      },
+      "nativePrepMs": {
+        "n": 5,
+        "median": 1592.36,
+        "min": 836.332,
+        "max": 1943.351,
+        "mean": 1421.756
+      },
+      "afterPrepToDeltaMs": {
+        "n": 5,
+        "median": 1750.122,
+        "min": 1432.647,
+        "max": 3456.335,
+        "mean": 2017.626
+      },
+      "builderMs": {
+        "n": 5,
+        "median": 28,
+        "min": 24,
+        "max": 31,
+        "mean": 28
+      },
+      "shellMs": null,
+      "toolMs": null
+    },
+    "candidate_followup": {
+      "totalMs": {
+        "n": 5,
+        "median": 4547,
+        "min": 2992,
+        "max": 5969,
+        "mean": 4513.2
+      },
+      "preTurnMs": {
+        "n": 5,
+        "median": 515,
+        "min": 329,
+        "max": 3556,
+        "mean": 1594.2
+      },
+      "nativePrepMs": {
+        "n": 4,
+        "median": 258.617,
+        "min": 193.138,
+        "max": 307.038,
+        "mean": 254.353
+      },
+      "afterPrepToDeltaMs": {
+        "n": 4,
+        "median": 2239.017,
+        "min": 1503.132,
+        "max": 3821.84,
+        "mean": 2450.752
+      },
+      "builderMs": null,
+      "shellMs": null,
+      "toolMs": null
+    }
+  },
+  "samples": [
+    {
+      "index": 30,
+      "mode": "baseline",
+      "kind": "fresh",
+      "clickAt": 1793560590111,
+      "domAt": 1793560599454,
+      "turnStartAt": 1793560594060,
+      "turnStartedAt": 1793560595691,
+      "deltaAt": 1793560599401,
+      "completedAt": 1793560599569,
+      "totalMs": 9343,
+      "preTurnMs": 3949,
+      "builderMs": [
+        11
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 1446.574,
+      "afterPrepToDeltaMs": 1824.371,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 4,
+        "config/read": 4,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 1,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 3,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 31,
+      "mode": "baseline",
+      "kind": "followup",
+      "clickAt": 1793560599848,
+      "domAt": 1793560604970,
+      "turnStartAt": 1793560602381,
+      "turnStartedAt": 1793560602529,
+      "deltaAt": 1793560604934,
+      "completedAt": 1793560605081,
+      "totalMs": 5122,
+      "preTurnMs": 2533,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 221.746,
+      "afterPrepToDeltaMs": 2152.795,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 1,
+        "config/read": 2,
+        "plugin/installed": 1,
+        "thread/approval/list": 1,
+        "azrael/account": 2,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 32,
+      "mode": "candidate",
+      "kind": "fresh",
+      "clickAt": 1793560605497,
+      "domAt": 1793560616565,
+      "turnStartAt": 1793560608766,
+      "turnStartedAt": 1793560610789,
+      "deltaAt": 1793560616531,
+      "completedAt": 1793560616665,
+      "totalMs": 11068,
+      "preTurnMs": 3269,
+      "builderMs": [
+        28
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 1943.351,
+      "afterPrepToDeltaMs": 3456.335,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 3,
+        "config/read": 4,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 2,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "plugin/installed": 6,
+        "fs/getMetadata": 12,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1
+      }
+    },
+    {
+      "index": 33,
+      "mode": "candidate",
+      "kind": "followup",
+      "clickAt": 1793560616822,
+      "domAt": 1793560619814,
+      "turnStartAt": 1793560617151,
+      "turnStartedAt": 1793560617339,
+      "deltaAt": 1793560619784,
+      "completedAt": 1793560619930,
+      "totalMs": 2992,
+      "preTurnMs": 329,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 267.761,
+      "afterPrepToDeltaMs": 2145.282,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 1,
+        "config/read": 2,
+        "azrael/account": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 34,
+      "mode": "candidate",
+      "kind": "fresh",
+      "clickAt": 1793560620264,
+      "domAt": 1793560629626,
+      "turnStartAt": 1793560624490,
+      "turnStartedAt": 1793560626276,
+      "deltaAt": 1793560629566,
+      "completedAt": 1793560629688,
+      "totalMs": 9362,
+      "preTurnMs": 4226,
+      "builderMs": [
+        24
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 1592.36,
+      "afterPrepToDeltaMs": 1750.122,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 6,
+        "config/read": 4,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 1,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 3,
+        "thread/turns/list": 4,
+        "turn/start": 1,
+        "fs/getMetadata": 12,
+        "hooks/list": 1
+      }
+    },
+    {
+      "index": 35,
+      "mode": "candidate",
+      "kind": "followup",
+      "clickAt": 1793560653820,
+      "domAt": 1793560659789,
+      "turnStartAt": 1793560657049,
+      "turnStartedAt": 1793560657565,
+      "deltaAt": 1793560659744,
+      "completedAt": 1793560659962,
+      "totalMs": 5969,
+      "preTurnMs": 3229,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": null,
+      "afterPrepToDeltaMs": null,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 2,
+        "config/read": 2,
+        "azrael/account": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "thread/approval/list": 1,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 36,
+      "mode": "baseline",
+      "kind": "fresh",
+      "clickAt": 1793560660800,
+      "domAt": 1793560669889,
+      "turnStartAt": 1793560666637,
+      "turnStartedAt": 1793560667392,
+      "deltaAt": 1793560669845,
+      "completedAt": 1793560669996,
+      "totalMs": 9089,
+      "preTurnMs": 5837,
+      "builderMs": [
+        23
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 792.83,
+      "afterPrepToDeltaMs": 1549.323,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 3,
+        "config/read": 5,
+        "plugin/installed": 8,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 2,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "app/installed": 1,
+        "turn/start": 1,
+        "thread/turns/list": 3,
+        "app/read": 1,
+        "fs/getMetadata": 12,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1
+      }
+    },
+    {
+      "index": 37,
+      "mode": "baseline",
+      "kind": "followup",
+      "clickAt": 1793560670277,
+      "domAt": 1793560673105,
+      "turnStartAt": 1793560670941,
+      "turnStartedAt": 1793560671309,
+      "deltaAt": 1793560673044,
+      "completedAt": 1793560673257,
+      "totalMs": 2828,
+      "preTurnMs": 664,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 371.204,
+      "afterPrepToDeltaMs": 1326.312,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 1,
+        "config/read": 2,
+        "azrael/account": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 38,
+      "mode": "baseline",
+      "kind": "fresh",
+      "clickAt": 1793560673983,
+      "domAt": 1793560681390,
+      "turnStartAt": 1793560678017,
+      "turnStartedAt": 1793560678659,
+      "deltaAt": 1793560681328,
+      "completedAt": 1793560681533,
+      "totalMs": 7407,
+      "preTurnMs": 4034,
+      "builderMs": [
+        46
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 1190.792,
+      "afterPrepToDeltaMs": 1414.889,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 3,
+        "config/read": 4,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 2,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 2,
+        "configRequirements/read": 1,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "fs/getMetadata": 12,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1
+      }
+    },
+    {
+      "index": 39,
+      "mode": "baseline",
+      "kind": "followup",
+      "clickAt": 1793560681801,
+      "domAt": 1793560684702,
+      "turnStartAt": 1793560682344,
+      "turnStartedAt": 1793560682600,
+      "deltaAt": 1793560684666,
+      "completedAt": 1793560684800,
+      "totalMs": 2901,
+      "preTurnMs": 543,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 225.607,
+      "afterPrepToDeltaMs": 1791.937,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 1,
+        "config/read": 2,
+        "azrael/account": 2,
+        "plugin/installed": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 40,
+      "mode": "candidate",
+      "kind": "fresh",
+      "clickAt": 1793560685122,
+      "domAt": 1793560691287,
+      "turnStartAt": 1793560688542,
+      "turnStartedAt": 1793560688945,
+      "deltaAt": 1793560691246,
+      "completedAt": 1793560691377,
+      "totalMs": 6165,
+      "preTurnMs": 3420,
+      "builderMs": [
+        26
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 836.332,
+      "afterPrepToDeltaMs": 1432.647,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 3,
+        "config/read": 4,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 2,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 1,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "fs/getMetadata": 12,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1
+      }
+    },
+    {
+      "index": 41,
+      "mode": "candidate",
+      "kind": "followup",
+      "clickAt": 1793560691530,
+      "domAt": 1793560696077,
+      "turnStartAt": 1793560691872,
+      "turnStartedAt": 1793560691964,
+      "deltaAt": 1793560696029,
+      "completedAt": 1793560696216,
+      "totalMs": 4547,
+      "preTurnMs": 342,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 193.138,
+      "afterPrepToDeltaMs": 3821.84,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 2,
+        "config/read": 2,
+        "azrael/account": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "fs/getMetadata": 12,
+        "thread/metadata/update": 1
+      }
+    },
+    {
+      "index": 42,
+      "mode": "candidate",
+      "kind": "fresh",
+      "clickAt": 1793560696757,
+      "domAt": 1793560704689,
+      "turnStartAt": 1793560700540,
+      "turnStartedAt": 1793560701727,
+      "deltaAt": 1793560704646,
+      "completedAt": 1793560704799,
+      "totalMs": 7932,
+      "preTurnMs": 3783,
+      "builderMs": [
+        31
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 940.458,
+      "afterPrepToDeltaMs": 1936.42,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 4,
+        "config/read": 5,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 2,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 1,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "fs/getMetadata": 12,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1
+      }
+    },
+    {
+      "index": 43,
+      "mode": "candidate",
+      "kind": "followup",
+      "clickAt": 1793560705027,
+      "domAt": 1793560708405,
+      "turnStartAt": 1793560705542,
+      "turnStartedAt": 1793560705677,
+      "deltaAt": 1793560708352,
+      "completedAt": 1793560708593,
+      "totalMs": 3378,
+      "preTurnMs": 515,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 307.038,
+      "afterPrepToDeltaMs": 2332.752,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 2,
+        "config/read": 2,
+        "azrael/account": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 44,
+      "mode": "baseline",
+      "kind": "fresh",
+      "clickAt": 1793560709403,
+      "domAt": 1793560721024,
+      "turnStartAt": 1793560714639,
+      "turnStartedAt": 1793560717737,
+      "deltaAt": 1793560720973,
+      "completedAt": 1793560721194,
+      "totalMs": 11621,
+      "preTurnMs": 5236,
+      "builderMs": [
+        45
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 1716.451,
+      "afterPrepToDeltaMs": 1466.094,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 5,
+        "config/read": 5,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 1,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 2,
+        "turn/start": 1,
+        "thread/turns/list": 4,
+        "fs/getMetadata": 12,
+        "hooks/list": 1
+      }
+    },
+    {
+      "index": 45,
+      "mode": "baseline",
+      "kind": "followup",
+      "clickAt": 1793560721873,
+      "domAt": 1793560728143,
+      "turnStartAt": 1793560725654,
+      "turnStartedAt": 1793560725928,
+      "deltaAt": 1793560728098,
+      "completedAt": 1793560728326,
+      "totalMs": 6270,
+      "preTurnMs": 3781,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 431.994,
+      "afterPrepToDeltaMs": 1693.925,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 2,
+        "config/read": 2,
+        "plugin/installed": 8,
+        "azrael/account": 2,
+        "thread/approval/list": 1,
+        "thread/approval/withdraw": 1,
+        "thread/turns/list": 3,
+        "thread/name/set": 1,
+        "turn/start": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 46,
+      "mode": "baseline",
+      "kind": "fresh",
+      "clickAt": 1793560728863,
+      "domAt": 1793560738860,
+      "turnStartAt": 1793560733342,
+      "turnStartedAt": 1793560735320,
+      "deltaAt": 1793560738809,
+      "completedAt": 1793560738988,
+      "totalMs": 9997,
+      "preTurnMs": 4479,
+      "builderMs": [
+        29
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 1436.483,
+      "afterPrepToDeltaMs": 1927.992,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 5,
+        "config/read": 4,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 1,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 1,
+        "thread/turns/list": 4,
+        "turn/start": 1,
+        "fs/getMetadata": 12,
+        "hooks/list": 1
+      }
+    },
+    {
+      "index": 47,
+      "mode": "baseline",
+      "kind": "followup",
+      "clickAt": 1793560739521,
+      "domAt": 1793560744541,
+      "turnStartAt": 1793560742316,
+      "turnStartedAt": 1793560742625,
+      "deltaAt": 1793560744497,
+      "completedAt": 1793560744661,
+      "totalMs": 5020,
+      "preTurnMs": 2795,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 282.067,
+      "afterPrepToDeltaMs": 1506.618,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 1,
+        "config/read": 2,
+        "plugin/installed": 6,
+        "azrael/account": 2,
+        "thread/approval/list": 1,
+        "thread/turns/list": 3,
+        "thread/approval/withdraw": 1,
+        "turn/start": 1,
+        "thread/name/set": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    },
+    {
+      "index": 48,
+      "mode": "candidate",
+      "kind": "fresh",
+      "clickAt": 1793560745134,
+      "domAt": 1793560754241,
+      "turnStartAt": 1793560749020,
+      "turnStartedAt": 1793560750832,
+      "deltaAt": 1793560754187,
+      "completedAt": 1793560754469,
+      "totalMs": 9107,
+      "preTurnMs": 3886,
+      "builderMs": [
+        31
+      ],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 1796.277,
+      "afterPrepToDeltaMs": 1512.607,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 6,
+        "config/read": 4,
+        "azrael/account": 2,
+        "thread/start": 2,
+        "thread/approval/list": 1,
+        "model/list": 1,
+        "thread/queue/list": 3,
+        "thread/attachment/list": 1,
+        "thread/list": 2,
+        "plugin/installed": 2,
+        "thread/turns/list": 4,
+        "turn/start": 1,
+        "fs/getMetadata": 12,
+        "hooks/list": 1
+      }
+    },
+    {
+      "index": 49,
+      "mode": "candidate",
+      "kind": "followup",
+      "clickAt": 1793560755044,
+      "domAt": 1793560760724,
+      "turnStartAt": 1793560758600,
+      "turnStartedAt": 1793560758869,
+      "deltaAt": 1793560760676,
+      "completedAt": 1793560760888,
+      "totalMs": 5680,
+      "preTurnMs": 3556,
+      "builderMs": [],
+      "shellMs": [],
+      "toolMs": [],
+      "nativePrepMs": 249.473,
+      "afterPrepToDeltaMs": 1503.132,
+      "rolloutModel": "gpt-6.1-sol",
+      "rolloutEffort": "medium",
+      "sentCounts": {
+        "getAuthStatus": 2,
+        "config/read": 2,
+        "plugin/installed": 8,
+        "azrael/account": 2,
+        "thread/turns/list": 3,
+        "turn/start": 1,
+        "thread/approval/list": 1,
+        "thread/approval/withdraw": 1,
+        "thread/name/set": 1,
+        "thread/metadata/update": 1,
+        "fs/getMetadata": 12
+      }
+    }
+  ],
+  "tests": {
+    "count": 13,
+    "exitCode": 0,
+    "scope": [
+      "scripts/test-request-preparation.cjs",
+      "scripts/test-request-state.cjs"
+    ]
+  },
+  "limitations": [
+    "5 samples per condition; no p95 or significance claim",
+    "No shell/tool callback stage occurred in this VS Code request builder",
+    "Account list send count remains 2 per measured turn in both conditions",
+    "1 of 20 turns lacks response_preparation logs; model/effort verified in all 20 rollout turn_context records",
+    "Sync metadata logging and benchmark mode guards are identical in both conditions; physical display presentation is not measured"
+  ],
+  "cleanup": {
+    "status": "complete",
+    "runs": [
+      "run:sol-medium-request-optimization:20261028T233049552Z-2567cf34-e931-4426-9975-e6264bf00368",
+      "run:sol-medium-request-measurement:20261101T190956082Z-32d8954d-098c-4c04-8d6d-4ef0d625b24d"
+    ],
+    "nativeTestThreadsDeleted": 14,
+    "nativeTestThreadsRemaining": 0,
+    "ownedCodeProcessesStopped": true,
+    "controllerExitCode": 0,
+    "retentionApproval": "not-needed: disposable runs deleted",
+    "blocker": null,
+    "waitingFor": null,
+    "registrationFailures": [
+      {
+        "pid": 34044,
+        "exitCode": 1,
+        "reservationRecovered": true
+      },
+      {
+        "pid": 30116,
+        "exitCode": 1,
+        "reservationRecovered": true
+      },
+      {
+        "workId": "929daced-0c98-458d-ae7d-ba6d69e8fa20",
+        "exitCode": 1,
+        "error": "Windows os error 33",
+        "activeReservationPresent": false
+      },
+      {
+        "workId": "3dfd6fd8-d7fb-42dd-8fb7-21c4dc25a847",
+        "exitCode": 1,
+        "error": "Windows os error 33",
+        "activeReservationPresent": false
+      },
+      {
+        "pid": 26532,
+        "workId": "c201a2ca-164f-4083-86fa-78a84ffc002d",
+        "exitCode": 1,
+        "reservationRecovered": true
+      }
+    ],
+    "latestInstruction": "One additional attempt completed successfully",
+    "ownerSha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "firstGroupRegistered": {
+      "logicalBytes": 1310117323,
+      "exitCode": 0
+    },
+    "firstGroupReview": {
+      "exitCode": 0,
+      "blockers": []
+    },
+    "firstGroupDeleted": {
+      "exitCode": 0,
+      "logicalBytes": 1310117323,
+      "remaining": false,
+      "actualAbsent": true,
+      "finalized": true
+    },
+    "secondGroup": {
+      "path": "artifacts/tasks/sol-medium-request-measurement/runs/20261101T190956082Z-32d8954d-098c-4c04-8d6d-4ef0d625b24d",
+      "actualPresent": false,
+      "registrationExitCode": 0,
+      "reviewExitCode": 0,
+      "applyExitCode": 0,
+      "logicalBytes": 1359125204,
+      "remaining": false,
+      "finalized": true
+    },
+    "lastAttemptOwnerSha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+    "firstDeletionResult": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:sol-medium-request-optimization:20261028T233049552Z-2567cf34-e931-4426-9975-e6264bf00368",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-35376-4849-1793586573021",
+          "decision": "delete",
+          "decision_id": "c161d204eaa1f5c90504c6670433c84f2d8c6bdbf7ddf8b0c40e3fa92f85f069",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "b7ed36eafe6c6324c9d7d5bef1854410caeb889d44ebc194a10686ffb4e08f20",
+          "lifecycle_group_id": "run:sol-medium-request-optimization:20261028T233049552Z-2567cf34-e931-4426-9975-e6264bf00368",
+          "reason": "Owned disposable test extension/profile/raw logs no longer needed; processes stopped and independent measurement summary preserved",
+          "remaining": false,
+          "status": "deleted",
+          "token": "3f873bfba3578d4534222be179c41971bd2ea7f663343095599758cd99d96f4c"
+        }
+      ]
+    },
+    "lockWaitMs": 600000,
+    "secondDeletionResult": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:sol-medium-request-measurement:20261101T190956082Z-32d8954d-098c-4c04-8d6d-4ef0d625b24d",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-30168-4993-1793611908501",
+          "decision": "delete",
+          "decision_id": "f1bbb86ef121c19a732b48cb645eccfb4e8033a5e7a80ea45e4a0df7cb158895",
+          "deletion": {
+            "attributes": [
+              {
+                "after": 32,
+                "before": 33,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\sol-medium-request-measurement\\runs\\20261101T190956082Z-32d8954d-098c-4c04-8d6d-4ef0d625b24d\\temporary\\fixture\\workspace\\.git\\objects\\4b\\825dc642cb6eb9a060e54bf8d69288fbee4904"
+              },
+              {
+                "after": 16,
+                "before": 18,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\sol-medium-request-measurement\\runs\\20261101T190956082Z-32d8954d-098c-4c04-8d6d-4ef0d625b24d\\temporary\\fixture\\workspace\\.git"
+              }
+            ],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "64a36b50dd94831f9be7856ddbab746e2256c8db9be170b19f5ffa9b81530682",
+          "lifecycle_group_id": "run:sol-medium-request-measurement:20261101T190956082Z-32d8954d-098c-4c04-8d6d-4ef0d625b24d",
+          "reason": "Disposable measurement profile, extension copy and raw logs no longer used; stopped process trees and independent result summary verified",
+          "remaining": false,
+          "status": "deleted",
+          "token": "e2153e269e1c36d88d405237cc345228cbbc2fe9c88838f66561c89c616c2b11"
+        }
+      ]
+    },
+    "totalDeletedLogicalBytes": 2669242527,
+    "physicalBytesReclaimed": null
+  }
+}

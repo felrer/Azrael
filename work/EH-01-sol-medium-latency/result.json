@@ -1,0 +1,217 @@
+{
+  "version": "2026.0.13",
+  "platform": "Windows x64",
+  "enginePath": "C:/Users/felre/AppData/Local/azrael-ex/releases/2026.0.13/runtime/engine/azrael.exe",
+  "engineSha256": "af05729487ad2fa94d97eb0abedb795f843130297135546464becb522fb8c40a",
+  "profileIsolation": "Dedicated VS Code user-data, shared-data, extensions and workspace; native state/auth at existing .azrael-ex and shared-engine reused",
+  "method": "Tools disabled by fixed arithmetic prompts; IDE context toggle off; five valid UI sends in two new local chats; one hidden-composer action excluded because no turn/start occurred",
+  "limitations": [
+    "Small sample; no prolonged stall reproduced",
+    "MutationObserver measures DOM answer presence, not physical display presentation",
+    "No per-request server receipt/first-byte telemetry; after-preparation interval combines uninstrumented local work, network and service processing",
+    "Extension copy instrumented at method boundaries; ordinary installed files unchanged",
+    "Running older and newer engines coexist; not an idle-machine benchmark",
+    "Recorded immutable source path for release no longer exists; source inspection is explanatory rather than an exact release-source verification"
+  ],
+  "samples": [
+    {
+      "name": "fresh1",
+      "click": 1793194969415,
+      "firstVisible": 1793194976061,
+      "totalMs": 6646,
+      "beforeTurnStartMs": 2846,
+      "turnAdmissionMs": 624,
+      "acceptedToFirstDeltaMs": 3118,
+      "renderMs": 58,
+      "preparationWindowMs": 624,
+      "afterPreparationToFirstDeltaMs": 2472,
+      "stages": [
+        {
+          "stage": "context_capture",
+          "elapsedMs": 226
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 248
+        },
+        {
+          "stage": "initial_context",
+          "elapsedMs": 296
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 28
+        },
+        {
+          "stage": "sampling_context",
+          "elapsedMs": 29
+        }
+      ],
+      "model": "gpt-6.1-sol",
+      "reasoningEffort": "medium"
+    },
+    {
+      "name": "followup1",
+      "click": 1793195004757,
+      "firstVisible": 1793195008855,
+      "totalMs": 4098,
+      "beforeTurnStartMs": 1195,
+      "turnAdmissionMs": 77,
+      "acceptedToFirstDeltaMs": 2791,
+      "renderMs": 35,
+      "preparationWindowMs": 244,
+      "afterPreparationToFirstDeltaMs": 2526,
+      "stages": [
+        {
+          "stage": "context_capture",
+          "elapsedMs": 31
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 32
+        },
+        {
+          "stage": "initial_context",
+          "elapsedMs": 49
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 102
+        },
+        {
+          "stage": "sampling_context",
+          "elapsedMs": 108
+        }
+      ],
+      "model": "gpt-6.1-sol",
+      "reasoningEffort": "medium"
+    },
+    {
+      "name": "followup2",
+      "click": 1793195051268,
+      "firstVisible": 1793195055602,
+      "totalMs": 4334,
+      "beforeTurnStartMs": 241,
+      "turnAdmissionMs": 83,
+      "acceptedToFirstDeltaMs": 3975,
+      "renderMs": 35,
+      "preparationWindowMs": 277,
+      "afterPreparationToFirstDeltaMs": 3679,
+      "stages": [
+        {
+          "stage": "context_capture",
+          "elapsedMs": 40
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 32
+        },
+        {
+          "stage": "initial_context",
+          "elapsedMs": 46
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 147
+        },
+        {
+          "stage": "sampling_context",
+          "elapsedMs": 148
+        }
+      ],
+      "model": "gpt-6.1-sol",
+      "reasoningEffort": "medium"
+    },
+    {
+      "name": "fresh2",
+      "click": 1793195207346,
+      "firstVisible": 1793195214893,
+      "totalMs": 7547,
+      "beforeTurnStartMs": 2593,
+      "turnAdmissionMs": 376,
+      "acceptedToFirstDeltaMs": 4547,
+      "renderMs": 31,
+      "preparationWindowMs": 553,
+      "afterPreparationToFirstDeltaMs": 3828,
+      "stages": [
+        {
+          "stage": "context_capture",
+          "elapsedMs": 173
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 210
+        },
+        {
+          "stage": "initial_context",
+          "elapsedMs": 281
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 27
+        },
+        {
+          "stage": "sampling_context",
+          "elapsedMs": 28
+        }
+      ],
+      "model": "gpt-6.1-sol",
+      "reasoningEffort": "medium"
+    },
+    {
+      "name": "followup3",
+      "click": 1793195238828,
+      "firstVisible": 1793195243394,
+      "totalMs": 4566,
+      "beforeTurnStartMs": 240,
+      "turnAdmissionMs": 61,
+      "acceptedToFirstDeltaMs": 4243,
+      "renderMs": 22,
+      "preparationWindowMs": 267,
+      "afterPreparationToFirstDeltaMs": 3959,
+      "stages": [
+        {
+          "stage": "context_capture",
+          "elapsedMs": 25
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 31
+        },
+        {
+          "stage": "initial_context",
+          "elapsedMs": 47
+        },
+        {
+          "stage": "world_state",
+          "elapsedMs": 86
+        },
+        {
+          "stage": "sampling_context",
+          "elapsedMs": 86
+        }
+      ],
+      "model": "gpt-6.1-sol",
+      "reasoningEffort": "medium"
+    }
+  ],
+  "cleanup": {
+    "status": "completed",
+    "logicalBytesDeleted": 1354220844,
+    "groupId": "run:sol-medium-latency:20261028T133840033Z-032ca999-2817-46df-89c1-d32c0be0d35b",
+    "deleteStatus": "deleted",
+    "remaining": false,
+    "actualRunPathAbsent": true,
+    "isolatedVSCodeExitCode": 0,
+    "cdpControllerExitCode": 0,
+    "ownedProcessTreeCountBefore": 18,
+    "ownedProcessesRemaining": 0,
+    "testThreadsRemaining": 0,
+    "registrationExitCode": 0,
+    "reviewExitCode": 0,
+    "applyExitCode": 0,
+    "finalizeExitCode": 0,
+    "interruptedRegistrationOutcome": "unknown; recovered exact reservation without changing outcome",
+    "controlRecoveryEvidence": "artifacts/maintenance/evidence/eh01-registration-stop.json"
+  }
+}

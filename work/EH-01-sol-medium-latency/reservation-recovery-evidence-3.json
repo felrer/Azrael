@@ -1,0 +1,23 @@
+{
+  "id": "run:sol-medium-request-optimization:20261028T233049552Z-2567cf34-e931-4426-9975-e6264bf00368",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "1b4bbe73459d50990f880a3a7d6ff83c7e002103030526978d076fca79ac6d99",
+  "lease_owner": {
+    "acquired_at_ms": 1793581678554,
+    "operation": "group_reservation",
+    "pid": 26532,
+    "schema": 2,
+    "token": "26532-1793581678554-06e1aa08a882422d"
+  },
+  "verification": {
+    "executorWorkId": "c201a2ca-164f-4083-86fa-78a84ffc002d",
+    "executorExitCode": 1,
+    "nativeOperation": "register",
+    "nativeError": "maintenance_busy: maintenance/catalog lock reacquisition timeout after measurement; pre-intent reservation retained",
+    "nativeOwnerPid": 26532,
+    "processQuery": "No PID 26532 or direct children after executor terminal exit",
+    "processTreeBasis": "Registration dispatch has no child-spawn path; production child worker is deletion-only. Managed executor observed terminal exit 1.",
+    "outcomePreserved": "failed"
+  }
+}

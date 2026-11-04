@@ -1,0 +1,23 @@
+{
+  "id": "run:sol-medium-request-optimization:20261028T233049552Z-2567cf34-e931-4426-9975-e6264bf00368",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "dbd7a06bab3b63e41ddc6a48defbd3f01cfa99616854a300a5d23869711099ed",
+  "lease_owner": {
+    "acquired_at_ms": 1793580642453,
+    "operation": "group_reservation",
+    "pid": 34044,
+    "schema": 2,
+    "token": "34044-1793580642453-9ada933e71514565"
+  },
+  "verification": {
+    "executorWorkId": "b62ba3b4-7644-4d30-adf5-0ff527e10959",
+    "executorExitCode": 1,
+    "nativeOperation": "register",
+    "nativeError": "maintenance_busy: catalog lock contention; pre-intent reservation retained",
+    "nativeOwnerPid": 34044,
+    "processQuery": "No PID 34044 or direct children in Win32_Process after observed executor completion",
+    "processTreeBasis": "Registration request dispatch performs measurement and state publication; the only production child-spawn path is the deletion worker, reached by deletion operations, not registration. Managed executor observed terminal exit 1.",
+    "outcomePreserved": "failed"
+  }
+}
