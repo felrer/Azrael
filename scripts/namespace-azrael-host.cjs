@@ -58,6 +58,8 @@ const { TEAM_RUNTIME_ASSETS, injectTeamRuntime } = require("./inject-team-runtim
 const { TASK_PROFILE_ASSETS, injectTaskProfile } = require("./inject-task-profile.cjs");
 const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
 const { ASSET: SUBMIT_ONLY_THREAD_ASSET, injectSubmitOnlyThread } = require("./inject-submit-only-thread.cjs");
+const { ASSET: REQUEST_PREPARATION_ASSET, injectRequestPreparation } = require("./inject-request-preparation.cjs");
+const { ASSETS: REQUEST_STATE_ASSETS, injectRequestState } = require("./inject-request-state.cjs");
 const { IMMEDIATE_STOP_ASSET, injectImmediateStop } = require("./inject-immediate-stop.cjs");
 const { QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET,
   QUEUED_COMPACTION_HOST_ASSET, QUEUED_COMPACTION_EXPECTED_COUNTS, injectQueuedCompactionHost, injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
@@ -392,7 +394,9 @@ function transformAsset(source, relativePath, filename, ts) {
   const errorPresentation = injectErrorPresentation(capacityRetryStop.text, relativePath);
   const paginatedHistory = injectPaginatedHistory(errorPresentation.text, relativePath);
   const submitOnlyThread = injectSubmitOnlyThread(paginatedHistory.text, relativePath);
-  const recentChatFilter = injectRecentChatFilter(submitOnlyThread.text, relativePath);
+  const requestPreparation = injectRequestPreparation(submitOnlyThread.text, relativePath);
+  const requestState = injectRequestState(requestPreparation.text, relativePath, ts);
+  const recentChatFilter = injectRecentChatFilter(requestState.text, relativePath);
   const sessionFlags = injectSessionFlags(recentChatFilter.text, relativePath);
   const teamUI = injectTeamUI(sessionFlags.text, relativePath);
   const webviewIdle = injectWebviewIdle(teamUI.text, relativePath);
@@ -425,7 +429,7 @@ function transformAsset(source, relativePath, filename, ts) {
   // Role admission must preserve request hooks already added by approvals and recovery.
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
   const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
-  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || requestPreparation.count || requestState.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     const asset = {
       path: relativePath,
       edits: 0,
@@ -454,6 +458,8 @@ function transformAsset(source, relativePath, filename, ts) {
       btwEdits: btw.count,
       paginatedHistoryEdits: paginatedHistory.count,
       submitOnlyThreadEdits: submitOnlyThread.count,
+      requestPreparationEdits: requestPreparation.count,
+      requestStateEdits: requestState.count,
       recentChatFilterEdits: recentChatFilter.count,
       sessionFlagEdits: sessionFlags.count,
       teamUIEdits: teamUI.count,
@@ -517,7 +523,7 @@ function getTransformRules() {
     "inject-error-presentation.cjs", "../extensions/azrael-ex/src/errorPresentation.js",
     "inject-btw.cjs", "btw-conversation.cjs",
     "inject-session-links.cjs", "session-links.cjs",
-    "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
+    "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-request-preparation.cjs", "inject-request-state.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
     "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "team-runtime-host.cjs", "team-change-service.cjs", "team-observability.cjs", "inject-task-profile.cjs", "task-profile-runtime.cjs", "instruction-library.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
   ];
   return { ...Object.fromEntries(transformSources.map((name) =>
@@ -584,6 +590,8 @@ const ASSET_RULE_PATHS = {
   "ui-health-runtime.cjs": ["webview/assets/app-initial-7a199c66e670.js"],
   "inject-queued-compaction.cjs": [QUEUED_COMPACTION_HOST_ASSET, QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET],
   "inject-account-switch-queue.cjs": [ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET],
+  "inject-request-preparation.cjs": [REQUEST_PREPARATION_ASSET],
+  "inject-request-state.cjs": REQUEST_STATE_ASSETS,
   "inject-provider-model-picker.cjs": PROVIDER_PICKER_ASSETS,
   "inject-max-reasoning.cjs": MAX_REASONING_ASSETS,
   "inject-account-settings.cjs": ["out/extension.js", ACCOUNT_SETTINGS_ASSET],
@@ -763,10 +771,13 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
       throw new Error(`/btw transformation was incomplete: ${assetPath}`);
     }
   }
-  for (const field of ["paginatedHistoryEdits", "submitOnlyThreadEdits", "immediateStopEdits", "capacityRetryStopEdits"]) {
+  for (const field of ["paginatedHistoryEdits", "submitOnlyThreadEdits", "requestPreparationEdits", "immediateStopEdits", "capacityRetryStopEdits"]) {
     if (report.assets.reduce((total, asset) => total + (asset[field] ?? 0), 0) !== 1) {
       throw new Error(`${field} transformation was incomplete.`);
     }
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.requestStateEdits ?? 0), 0) !== REQUEST_STATE_ASSETS.length) {
+    throw new Error("Request state sharing transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + (asset.computerUseApprovalEdits ?? 0), 0) !== 7) throw new Error("Computer-use approval transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.taskProfileEdits ?? 0), 0) !== TASK_PROFILE_ASSETS.length) throw new Error("Task-profile transformation was incomplete.");
