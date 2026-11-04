@@ -1,0 +1,927 @@
+"use strict";
+const { ACCOUNT_SETTINGS_ASSET, injectAccountSettings } = require("./inject-account-settings.cjs");
+const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings } = require("./inject-instruction-settings.cjs");
+const { DESIGN_ASSETS, injectStudentDesign } = require("./inject-student-design.cjs");
+const { copyStudentAvatarAssets } = require("./student-avatar-assets.cjs");
+const { SESSION_LINK_ASSETS, injectSessionLinks } = require("./inject-session-links.cjs");
+const fs = require("node:fs");
+const path = require("node:path");
+const crypto = require("node:crypto");
+const { injectTeamApprovals, TEAM_APPROVAL_ASSETS } = require("./inject-team-approvals.cjs");
+const { selectAssetCacheFactory } = require("./namespace-cache-owner.cjs");
+const { readAssetsInOrder } = require("./ordered-asset-reader.cjs");
+const { injectRecovery } = require("./inject-recovery.cjs");
+const { injectFetchResponse } = require("./inject-fetch-response.cjs");
+const { injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
+const { injectWindowApprovalTitle, injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET } = require("./inject-computer-use.cjs");
+const { injectWindowApprovalClassifier, APPROVAL_CLASSIFIER_ASSET, injectWindowControl, SETTINGS_ASSET: WINDOW_CONTROL_SETTINGS_ASSET } = require("./inject-window-control.cjs");
+const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
+const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
+const { injectMissingImage, ASSETS: MISSING_IMAGE_ASSETS } = require("./inject-missing-image.cjs");
+const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
+const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
+const { injectProjectDrafts } = require("./inject-project-drafts.cjs");
+const { injectPersistedAtoms } = require("./inject-persisted-atoms.cjs");
+const { injectUiInputDiagnostics } = require("./inject-ui-input-diagnostics.cjs");
+const { IMAGE_SKETCH_ASSETS, injectImageSketch } = require("./inject-image-sketch.cjs");
+const { UI_CLEANUP_ASSETS, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
+const { AUTO_REVIEW_ASSETS, injectAutoReview } = require("./inject-auto-review.cjs");
+const { PETS_CLEANUP_ASSETS, injectPetsCleanup } = require("./inject-pets-cleanup.cjs");
+const { CONTENT_FONT_ASSETS, CONTENT_FONT_CSS_ASSET, injectContentFonts } = require("./inject-content-fonts.cjs");
+const { injectScrollFade } = require("./inject-scroll-fade.cjs");
+const { ASSETS: COMMAND_DRAG_ASSETS, injectCommandDragBlock } = require("./inject-command-drag-block.cjs");
+const { getContentFontRules, copyContentFontAssets } = require("./content-fonts.cjs");
+const { CONTEXT_ASSET, SETTINGS_ASSET, injectProviderContextControls } = require("./inject-provider-context.cjs");
+const { MAINTENANCE_PREFERENCES_ASSETS, injectMaintenancePreferences } = require("./inject-maintenance-preferences.cjs");
+const { runProviderContext } = require("./provider-context-labels.cjs");
+const { DEFERRED_HEADER_ASSET, injectDeferredHeader, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
+  injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification } = require("./inject-deferred-turn.cjs");
+const { ASSETS: PARENT_REQUEST_ACTIVITY_ASSETS, EXPECTED_TOTAL: PARENT_REQUEST_ACTIVITY_TOTAL, injectParentRequestActivity } = require("./inject-parent-request-activity.cjs");
+const { WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET, injectWorkSegmentFolding, injectWorkSegmentWaiting } = require("./inject-work-segment-folding.cjs");
+const { ASSET: TASK_WORK_TIME_ASSET, TURN_ASSET: TASK_TIME_MESSAGE_ASSET, injectTaskWorkTime } = require("./inject-task-work-time.cjs");
+const { injectUserWaitTime, PENDING: USER_WAIT_PENDING_ASSET } = require("./inject-user-wait-time.cjs");
+const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require("./inject-compaction-progress.cjs");
+const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
+const { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
+const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
+const { QUESTION_WITHDRAWAL_ASSETS, injectQuestionWithdrawal } = require("./inject-question-withdrawal.cjs");
+const { QUESTION_QUEUE_ASSETS, injectQuestionQueue } = require("./inject-question-queue.cjs");
+const { PROVIDER_PICKER_ASSETS, injectProviderModelPicker } = require("./inject-provider-model-picker.cjs");
+const { MAX_REASONING_ASSETS, injectMaxReasoning } = require("./inject-max-reasoning.cjs");
+const { loadManifest, validateManifest, validateTransformReport } = require("./feature-preservation.cjs");
+const { CAPACITY_RETRY_ASSET, injectCapacityRetryStop } = require("./inject-capacity-retry-stop.cjs");
+const { ERROR_PRESENTATION_ASSET, injectErrorPresentation } = require("./inject-error-presentation.cjs");
+const { THREAD_BRANCH_ASSET, injectThreadBranch } = require("./inject-thread-branch.cjs");
+const { BTW_ASSETS, injectBtw } = require("./inject-btw.cjs");
+const { ASSET: RECENT_CHAT_FILTER_ASSET, QUERY_ASSET: RECENT_CHAT_QUERY_ASSET, injectRecentChatFilter } = require("./inject-recent-chat-filter.cjs");
+const { ASSET: WEBVIEW_IDLE_ASSET, injectWebviewIdle } = require("./inject-webview-idle.cjs");
+const { ASSET: SESSION_FLAGS_ASSET, injectSessionFlags } = require("./inject-session-flags.cjs");
+const { ASSET: TEAM_UI_ASSET, injectTeamUI } = require("./inject-team-ui.cjs");
+const { TEAM_RUNTIME_ASSETS, injectTeamRuntime } = require("./inject-team-runtime.cjs");
+const { TASK_PROFILE_ASSETS, injectTaskProfile } = require("./inject-task-profile.cjs");
+const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
+const { ASSET: SUBMIT_ONLY_THREAD_ASSET, injectSubmitOnlyThread } = require("./inject-submit-only-thread.cjs");
+const { ASSET: REQUEST_PREPARATION_ASSET, injectRequestPreparation } = require("./inject-request-preparation.cjs");
+const { ASSETS: REQUEST_STATE_ASSETS, injectRequestState } = require("./inject-request-state.cjs");
+const { IMMEDIATE_STOP_ASSET, injectImmediateStop } = require("./inject-immediate-stop.cjs");
+const { QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET,
+  QUEUED_COMPACTION_HOST_ASSET, QUEUED_COMPACTION_EXPECTED_COUNTS, injectQueuedCompactionHost, injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
+
+const HOST_ID = "azrael-ex-local.azrael";
+const ACCOUNT_UI_COMMANDS = [
+  "azrael.manageAccounts",
+  "azrael.usage",
+  "azrael.rootResume",
+  "azrael.accountQuickPick",
+  "azrael.refreshAccounts",
+  "azrael.openCodex",
+  "azrael.openCodexSettings",
+  "azrael.devinAccount",
+  "azrael.syncSharedEnvironment",
+  "azrael.fetchSharedPlaybook",
+  "azrael.instructions",
+];
+const RECENT_THREAD_LIST_ASSET = "webview/assets/app-initial-97d3534ad35f.js";
+const RECENT_THREAD_LIST_SCOPE_MARKER = "__azraelWorkspaceThreadList";
+const WORKSPACE_CWD_EXPRESSION = '(require("vscode").workspace.workspaceFolders??[])' +
+  '.filter(({uri})=>uri.scheme==="file").map(({uri})=>uri.fsPath)';
+function rewriteValue(value) {
+  if (/^(?:https?|wss?):\/\//i.test(value)) return value;
+  // Backend header names are protocol identifiers, independent of UI branding.
+  if (/^(?:OAI-|x-openai-)/i.test(value)) return value;
+  return value
+    .replaceAll("azrael-ex.manageAccounts", "azrael.manageAccounts")
+    .replaceAll("azrael-ex.usage", "azrael.usage")
+    .replaceAll("azrael-ex.rootResume", "azrael.rootResume")
+    .replaceAll("openai.chatgpt", HOST_ID)
+    .replace(/chatgpt\.(?!com\b)/g, "azrael.")
+    .replaceAll("codexSecondaryViewContainer", "azraelSecondaryViewContainer")
+    .replaceAll("codexViewContainer", "azraelViewContainer")
+    .replaceAll("openai-codex", "azrael-session")
+    .replaceAll("codex-ipc", "azrael-ipc")
+    .replaceAll("codex-rules", "azrael-rules");
+}
+function sha(text) { return crypto.createHash("sha256").update(text).digest("hex"); }
+
+// Assemble descending edits without repeatedly copying the complete asset.
+// The suffix stack also retains the old splice semantics for overlapping edits.
+function applyEdits(text, edits) {
+  const suffix = [];
+  let cursor = text.length;
+  for (const edit of [...edits].sort((a, b) => b.start - a.start)) {
+    if (edit.end <= cursor) suffix.push(text.slice(edit.end, cursor));
+    else {
+      let remove = edit.end - cursor;
+      while (remove && suffix.length) {
+        const piece = suffix.pop();
+        if (piece.length > remove) {
+          suffix.push(piece.slice(remove));
+          remove = 0;
+        } else remove -= piece.length;
+      }
+    }
+    suffix.push(edit.replacement);
+    cursor = edit.start;
+  }
+  suffix.push(text.slice(0, cursor));
+  return suffix.reverse().join("");
+}
+
+function rewriteJavaScript(text, filename, ts) {
+  const isLocaleAsset = /(?:^|[\\/])[a-z]{2}(?:-[A-Za-z]{2,4})?-[a-f0-9]+\.js$/.test(filename);
+  const file = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  if (file.parseDiagnostics.length) throw new Error(`Cannot parse pinned asset: ${filename}`);
+  const edits = [];
+  const visit = (node) => {
+    if (ts.isPropertyAssignment(node) && ts.isStringLiteral(node.name) &&
+        node.name.text === "OAI-App-Brand" && ["Nl.toLowerCase()", "tu.toLowerCase()", "Ud.toLowerCase()"].includes(node.initializer.getText(file))) {
+      edits.push({ start: node.initializer.getStart(file), end: node.initializer.end, replacement: '"codex"' });
+      return;
+    }
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+      let next = rewriteValue(node.text);
+      // "chatgpt" also denotes the native authentication type. Only change the
+      // VS Code configuration argument, never that backend contract.
+      if (node.text === "chatgpt" && ts.isCallExpression(node.parent) &&
+          ts.isPropertyAccessExpression(node.parent.expression) &&
+          node.parent.expression.name.text === "getConfiguration") next = "azrael";
+      if (node.text === "Codex" || node.text === "Codex Chat" || node.text === "Codex Agent") next = node.text.replace("Codex", "Azrael");
+      if (node.text === "Codex Settings") next = "Azrael Settings";
+      if (["Codex Dark", "Codex Light", "Implement with Codex", "Open Codex Sidebar", "New Codex Agent", "Add to Codex Thread", "Add File to Codex Thread"].includes(node.text)) next = node.text.replace("Codex", "Azrael");
+      if (node.text === "azrael" && ts.isVariableDeclaration(node.parent) && node.parent.name.getText(file) === "qOt") next = "Azrael";
+      if (ts.isPropertyAssignment(node.parent) && node.parent.initializer === node &&
+          (isLocaleAsset || node.parent.name.getText(file) === "defaultMessage")) {
+        next = next.replace(/\bCodex\b(?! (?:Spark|Mini)\b)/g, "Azrael");
+      }
+      if (next !== node.text) {
+        const replacement = ts.isStringLiteral(node) ? JSON.stringify(next) :
+          "`" + next.replaceAll("\\", "\\\\").replaceAll("`", "\\`").replaceAll("${", "\\${") + "`";
+        edits.push({ start: node.getStart(file), end: node.end, replacement });
+      }
+    } else if (ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node)) {
+      const original = text.slice(node.getStart(file), node.end);
+      const template = ts.isTemplateExpression(node.parent) ? node.parent : node.parent.parent;
+      const externalTemplate = ts.isTemplateExpression(template) && /^(?:https?|wss?):\/\//i.test(template.head.text);
+      const replacement = externalTemplate ? original : rewriteValue(original);
+      if (replacement !== original) edits.push({ start: node.getStart(file), end: node.end, replacement });
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  const result = applyEdits(text, edits);
+  const parsed = ts.createSourceFile(filename, result, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
+  if (parsed.parseDiagnostics.length) throw new Error(`Invalid transformed asset: ${filename}`);
+  return { text: result, count: edits.length };
+}
+
+function injectWorkspaceThreadListBridgeFilter(text, filename, ts) {
+  const file = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  if (file.parseDiagnostics.length) throw new Error(`Cannot parse pinned asset: ${filename}`);
+  const edits = [];
+  const visit = (node) => {
+    if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name) &&
+        node.name.text === "sendProviderRequest" && node.body && node.parameters.length === 6 &&
+        node.parameters.every(({ name }) => ts.isIdentifier(name))) {
+      const methodName = node.parameters[2].name.text;
+      const paramsName = node.parameters[3].name.text;
+      const findRequestParams = (child) => {
+        if (ts.isPropertyAssignment(child) && ts.isIdentifier(child.name) && child.name.text === "params" &&
+            ts.isIdentifier(child.initializer) && child.initializer.text === paramsName &&
+            ts.isObjectLiteralExpression(child.parent)) {
+          const methodProperty = child.parent.properties.find((property) =>
+            ts.isPropertyAssignment(property) && ts.isIdentifier(property.name) && property.name.text === "method");
+          if (methodProperty && ts.isIdentifier(methodProperty.initializer) &&
+              methodProperty.initializer.text === methodName) edits.push(child.initializer);
+        }
+        ts.forEachChild(child, findRequestParams);
+      };
+      findRequestParams(node.body);
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  if (edits.length !== 1) {
+    throw new Error(`Pinned host app-server bridge contract changed in ${filename}: expected 1 request params boundary, found ${edits.length}.`);
+  }
+  const params = edits[0];
+  const paramsName = params.text;
+  const method = params.parent.parent.properties.find((property) =>
+    ts.isPropertyAssignment(property) && ts.isIdentifier(property.name) && property.name.text === "method").initializer.text;
+  const replacement = `(${method}==="thread/list"&&${paramsName}?.${RECENT_THREAD_LIST_SCOPE_MARKER}` +
+    `?(({${RECENT_THREAD_LIST_SCOPE_MARKER}:_,...__azraelParams})=>({...__azraelParams,modelProviders:[],cwd:${WORKSPACE_CWD_EXPRESSION}}))(${paramsName})` +
+    `:${paramsName})`;
+  const result = text.slice(0, params.getStart(file)) + replacement + text.slice(params.end);
+  const parsed = ts.createSourceFile(filename, result, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
+  if (parsed.parseDiagnostics.length) throw new Error(`Invalid transformed asset: ${filename}`);
+  return { text: result, count: 1 };
+}
+
+function markRecentThreadListRequest(text, filename, ts) {
+  const file = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  if (file.parseDiagnostics.length) throw new Error(`Cannot parse pinned asset: ${filename}`);
+  const edits = [];
+  let invalidShapes = 0;
+  function countRecentThreadSources(node) {
+    let count = 0;
+    const visit = (child) => {
+      if (ts.isPropertyAssignment(child) && ts.isIdentifier(child.name) && child.name.text === "source" &&
+          (ts.isStringLiteral(child.initializer) || ts.isNoSubstitutionTemplateLiteral(child.initializer)) &&
+          child.initializer.text === "recent_threads") count += 1;
+      ts.forEachChild(child, visit);
+    };
+    visit(node);
+    return count;
+  }
+  const visit = (node) => {
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) &&
+        node.expression.name.text === "sendRequest" && node.arguments.length >= 3) {
+      const method = node.arguments[0];
+      const sourceCount = countRecentThreadSources(node.arguments[2]);
+      if ((ts.isStringLiteral(method) || ts.isNoSubstitutionTemplateLiteral(method)) &&
+          method.text === "thread/list" && sourceCount) {
+        const params = node.arguments[1];
+        if (node.arguments.length !== 3 || !ts.isIdentifier(params) || sourceCount !== 2) invalidShapes += 1;
+        else edits.push(params);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  if (edits.length !== 1 || invalidShapes) {
+    throw new Error(`Pinned recent-thread list contract changed in ${filename}: expected 1 conditional recent_threads request, found ${edits.length} (${invalidShapes} unsupported).`);
+  }
+  const result = applyEdits(text, edits.map((edit) => ({
+    start: edit.getStart(file), end: edit.end,
+    replacement: `({...(${text.slice(edit.getStart(file), edit.end)}),${RECENT_THREAD_LIST_SCOPE_MARKER}:!0})`,
+  })));
+  const parsed = ts.createSourceFile(filename, result, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
+  if (parsed.parseDiagnostics.length) throw new Error(`Invalid transformed asset: ${filename}`);
+  return { text: result, count: edits.length };
+}
+
+function transformManifest(original, hostVersion = "0.5.0", accountUiManifest) {
+  function visit(value) {
+    if (typeof value === "string") return rewriteValue(value);
+    if (Array.isArray(value)) return value.map(visit);
+    if (!value || typeof value !== "object") return value;
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [rewriteValue(key), visit(item)]));
+  }
+  const manifest = visit(original);
+  manifest.publisher = "azrael-ex-local";
+  manifest.name = "azrael";
+  manifest.version = hostVersion;
+  manifest.displayName = "Azrael";
+  manifest.description = "Independent Azrael chat host with its own accounts, sessions and engine.";
+  manifest.extensionKind = ["ui"];
+  delete manifest.__metadata;
+  delete manifest.enabledApiProposals;
+  // The original extension is allowlisted for proposed APIs; the local host is
+  // not. Its guarded native implementation falls back to normal Webview panels.
+  delete manifest.contributes.chatSessions;
+  delete manifest.contributes.menus?.["chatSessions/newSession"];
+  delete manifest.extensionDependencies;
+  delete manifest.extensionPack;
+  if (accountUiManifest) {
+    const accountVersion = accountUiManifest.version;
+    if (typeof accountVersion !== "string" || !/^\d+(?:\.\d+){2}(?:[-+].*)?$/.test(accountVersion) ||
+        accountVersion.split(".").slice(0, 3).map(Number).some((part) => !Number.isSafeInteger(part)) ||
+        compareVersions(accountVersion, "0.3.0") < 0) {
+      throw new Error("Integrated account UI version 0.3.0 or newer is required.");
+    }
+    const payloadCommands = accountUiManifest.contributes?.commands;
+    if (!Array.isArray(payloadCommands)) throw new Error("Integrated account UI commands are missing.");
+    const sidebarCommands = payloadCommands.filter((command) => command?.command === "azrael.openSidebar");
+    if (sidebarCommands.length > 1) throw new Error("Integrated account UI duplicates the official sidebar command.");
+    const accountCommands = payloadCommands.filter((command) => command?.command !== "azrael.openSidebar");
+    const commandIds = accountCommands.map((command) => command?.command).sort();
+    const expectedIds = [...ACCOUNT_UI_COMMANDS, ...(commandIds.includes("azrael.apiConnections") ? ["azrael.apiConnections"] : [])].sort();
+    if (JSON.stringify(commandIds) !== JSON.stringify(expectedIds)) {
+      throw new Error(`Integrated account UI command contract mismatch: ${commandIds.join(", ")}`);
+    }
+    manifest.contributes.commands = [...(manifest.contributes.commands ?? []), ...accountCommands.map(visit)];
+    manifest.contributes.menus ??= {};
+    manifest.contributes.menus.commandPalette = [
+      ...(manifest.contributes.menus.commandPalette ?? []),
+      ...(accountUiManifest.contributes?.menus?.commandPalette ?? []).map(visit),
+    ];
+    const payloadConfiguration = accountUiManifest.contributes?.configuration;
+    const configurationBlocks = Array.isArray(payloadConfiguration) ? payloadConfiguration : payloadConfiguration ? [payloadConfiguration] : [];
+    for (const block of configurationBlocks) {
+      if (!block || typeof block !== "object" || !block.properties || typeof block.properties !== "object") continue;
+      manifest.contributes.configuration ??= { properties: {} };
+      manifest.contributes.configuration.properties = { ...manifest.contributes.configuration.properties, ...visit(block.properties) };
+    }
+    manifest.contributes.commands.push({ command: "azrael.recoveryStatus", title: "실행 상태 및 복구", category: "Azrael" });
+    manifest.contributes.commands.push({ command: "azrael.migrateSessionLink", title: "Migrate old session link", category: "Azrael" });
+    manifest.contributes.commands.push({ command: "azrael.windowControl", title: "Computer Use: 선택 창 모드", category: "Azrael" });
+    manifest.main = "./integrated-azrael-entry.cjs";
+    manifest.azraelIntegratedAccounts = true;
+    manifest.azraelAccountPayloadVersion = accountVersion;
+  }
+  manifest.contributes.configuration.title = "Azrael Settings";
+  manifest.contributes.configuration.properties["azrael.commentCodeLensEnabled"].default = false;
+  for (const command of manifest.contributes.commands ?? []) {
+    if (typeof command.title === "string") command.title = command.title.replaceAll("Codex", "Azrael");
+    command.category = "Azrael";
+  }
+  for (const editor of manifest.contributes.customEditors ?? []) editor.displayName = editor.displayName.replaceAll("Codex", "Azrael");
+  for (const containers of Object.values(manifest.contributes.viewsContainers ?? {})) {
+    for (const container of containers) if (/^(?:Codex|azrael)$/.test(container.title)) container.title = "Azrael";
+  }
+  for (const views of Object.values(manifest.contributes.views ?? {})) {
+    for (const view of views) if (/^(?:Codex|azrael)$/.test(view.name)) view.name = "Azrael";
+  }
+  for (const language of manifest.contributes.languages ?? []) {
+    delete language.extensions; // Keep ordinary .rules file associations intact.
+    language.aliases = ["azrael Rules"];
+  }
+  return manifest;
+}
+
+function compareVersions(left, right) {
+  const parts = (value) => value.split(/[+-]/, 1)[0].split(".").map(Number);
+  const a = parts(left);
+  const b = parts(right);
+  for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
+    const difference = (a[index] ?? 0) - (b[index] ?? 0);
+    if (difference) return difference;
+  }
+  return 0;
+}
+
+function transformAsset(source, relativePath, filename, ts) {
+  const isHostBundle = relativePath === "out/extension.js";
+  const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
+  const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
+  const isTeamAsset = relativePath === TEAM_UI_ASSET || TEAM_RUNTIME_ASSETS.includes(relativePath);
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![USER_WAIT_PENDING_ASSET, TASK_TIME_MESSAGE_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !IMAGE_SKETCH_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  const namespaced = relativePath === CONTENT_FONT_CSS_ASSET ? { text: source, count: 0 } : rewriteJavaScript(source, filename, ts);
+  const accountSettings = injectAccountSettings(namespaced.text, relativePath);
+  const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
+  const studentDesign = injectStudentDesign(instructionSettings.text, relativePath, ts);
+  const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(studentDesign.text, filename, ts) :
+    isRecentThreadListAsset ? markRecentThreadListRequest(studentDesign.text, filename, ts) :
+      { text: studentDesign.text, count: 0 };
+  const persistedAtoms = isHostBundle ? injectPersistedAtoms(filtered.text) : { text: filtered.text, count: 0 };
+  const projectDrafts = isHostBundle ? injectProjectDrafts(persistedAtoms.text) : { text: persistedAtoms.text, count: 0 };
+  const fetchResponse = isHostBundle ? injectFetchResponse(projectDrafts.text) : { text: projectDrafts.text, count: 0 };
+  const recovered = isHostBundle ? injectRecovery(fetchResponse.text, filename, ts) : { text: fetchResponse.text, count: 0 };
+  const deferred = isHostBundle ? injectDeferredHostNotification(recovered.text) : relativePath === DEFERRED_NOTIFICATION_ASSET ? injectDeferredRendererNotification(recovered.text) : relativePath === DEFERRED_REDUCER_ASSET ? injectDeferredTurn(recovered.text) :
+    relativePath === DEFERRED_PRESENTATION_ASSET ? injectDeferredPresentation(recovered.text) :
+    relativePath === DEFERRED_WAIT_RENDERER_ASSET ? injectDeferredWaitRenderer(recovered.text) :
+    relativePath === DEFERRED_THREAD_ASSET ? injectDeferredThread(recovered.text) :
+    relativePath === DEFERRED_TURN_ASSET ? injectDeferredTurnView(recovered.text) :
+    relativePath === DEFERRED_COLLAPSED_ASSET ? injectDeferredCollapsed(recovered.text) :
+    relativePath === DEFERRED_HEADER_ASSET ? injectDeferredHeader(recovered.text, { allowAlreadyTransformed: true }) : { text: recovered.text, count: 0 };
+  const workSegmentFolding = relativePath === WORK_SEGMENT_FOLDING_ASSET ? injectWorkSegmentFolding(deferred.text) :
+    relativePath === WORK_SEGMENT_FOLDING_ACTIVITY_ASSET ? injectWorkSegmentWaiting(deferred.text) : { text: deferred.text, count: 0 };
+  const parentRequestActivity = injectParentRequestActivity(workSegmentFolding.text, relativePath);
+  const taskWorkTime = injectTaskWorkTime(parentRequestActivity.text, relativePath);
+  const userWaitTime = injectUserWaitTime(taskWorkTime.text, relativePath);
+  const compactionProgress = relativePath === COMPACTION_PROGRESS_REDUCER_ASSET ?
+    injectCompactionProgress(userWaitTime.text) : { text: userWaitTime.text, count: 0 };
+  const queueRefresh = relativePath === QUEUE_REFRESH_ASSET ?
+    injectQueueRefresh(compactionProgress.text) : { text: compactionProgress.text, count: 0 };
+  const queuedCompaction = relativePath === QUEUED_COMPACTION_HOST_ASSET ? injectQueuedCompactionHost(queueRefresh.text) :
+    relativePath === QUEUED_COMPACTION_CORE_ASSET ? injectQueuedCompactionCore(queueRefresh.text) :
+    relativePath === QUEUED_COMPACTION_PRESENTATION_ASSET ? injectQueuedCompactionPresentation(queueRefresh.text) :
+      relativePath === QUEUED_COMPACTION_LIST_ASSET ? injectQueuedCompactionList(queueRefresh.text) : { text: queueRefresh.text, count: 0 };
+  const queueConsumption = relativePath === QUEUE_CONSUMPTION_ASSET ? injectQueueConsumption(queuedCompaction.text) : { text: queuedCompaction.text, count: 0 };
+  const accountQueue = injectAccountSwitchQueue(queueConsumption.text, relativePath);
+  const questionQueue = injectQuestionQueue(accountQueue.text, relativePath);
+  const questionWithdrawal = injectQuestionWithdrawal(questionQueue.text, relativePath);
+  const providerPicker = injectProviderModelPicker(questionWithdrawal.text, relativePath);
+  const maxReasoning = injectMaxReasoning(providerPicker.text, relativePath);
+  const threadBranch = injectThreadBranch(maxReasoning.text, relativePath);
+  const capacityRetryStop = injectCapacityRetryStop(threadBranch.text, relativePath);
+  const errorPresentation = injectErrorPresentation(capacityRetryStop.text, relativePath);
+  const paginatedHistory = injectPaginatedHistory(errorPresentation.text, relativePath);
+  const submitOnlyThread = injectSubmitOnlyThread(paginatedHistory.text, relativePath);
+  const requestPreparation = injectRequestPreparation(submitOnlyThread.text, relativePath);
+  const requestState = injectRequestState(requestPreparation.text, relativePath, ts);
+  const recentChatFilter = injectRecentChatFilter(requestState.text, relativePath);
+  const sessionFlags = injectSessionFlags(recentChatFilter.text, relativePath);
+  const teamUI = injectTeamUI(sessionFlags.text, relativePath);
+  const webviewIdle = injectWebviewIdle(teamUI.text, relativePath);
+  const immediateStop = injectImmediateStop(webviewIdle.text, relativePath);
+  const urlSafety = isHostBundle ? injectUrlSafetyTransport(immediateStop.text) : { text: immediateStop.text, count: 0 };
+  const computerUse = isHostBundle ? injectComputerUse(urlSafety.text) : { text: urlSafety.text, count: 0 };
+  const computerUseSettings = injectComputerUseSettings(computerUse.text, relativePath);
+  const computerUseCancelRequest = injectComputerUseCancelRequest(computerUseSettings.text, relativePath);
+  const windowApprovalTitle = injectWindowApprovalTitle(computerUseCancelRequest.text, relativePath);
+  const computerUseManagement = injectComputerUseManagement(windowApprovalTitle.text, relativePath);
+  const windowControl = injectWindowControl(computerUseManagement.text, relativePath, ts);
+  const windowApprovalClassifier = injectWindowApprovalClassifier(windowControl.text, relativePath);
+  const fileOpenMenu = injectFileOpenMenu(windowApprovalClassifier.text, relativePath);
+  const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
+  const missingImage = injectMissingImage(imageFileOpen.text, relativePath);
+  const localFileDrop = injectLocalFileDrop(missingImage.text, relativePath);
+  const composerDraft = relativePath === COMPOSER_DRAFT_ASSET ? injectComposerDraft(localFileDrop.text) : { text: localFileDrop.text, count: 0 };
+  const btw = injectBtw(composerDraft.text, relativePath);
+  const providerContext = runProviderContext(btw.text, relativePath,
+    [CONTEXT_ASSET, SETTINGS_ASSET].includes(relativePath) ? injectProviderContextControls : undefined);
+  const maintenancePreferences = injectMaintenancePreferences(providerContext.text, relativePath);
+  const imageSketch = injectImageSketch(maintenancePreferences.text, relativePath);
+  const uiCleanup = injectUiCleanup(imageSketch.text, relativePath, ts);
+  const autoReview = injectAutoReview(uiCleanup.text, relativePath, ts);
+  const petsCleanup = injectPetsCleanup(autoReview.text, relativePath, ts);
+  const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
+  const commandDragBlock = injectCommandDragBlock(contentFonts.text, relativePath);
+  const scrollFade = injectScrollFade(commandDragBlock.text, relativePath);
+  const uiInputDiagnostics = injectUiInputDiagnostics(scrollFade.text, relativePath, ts);
+  const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
+  // Role admission must preserve request hooks already added by approvals and recovery.
+  const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
+  const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
+  const teamApprovals = injectTeamApprovals(taskProfile.text, relativePath);
+  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || userWaitTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || requestPreparation.count || requestState.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || teamApprovals.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || maintenancePreferences.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+    const asset = {
+      path: relativePath,
+      edits: 0,
+      accountSettingsEdits: accountSettings.count,
+      instructionSettingsEdits: instructionSettings.count,
+      studentDesignEdits: studentDesign.count,
+      namespaceEdits: namespaced.count,
+      workspaceThreadListEdits: filtered.count,
+      recoveryEdits: recovered.count,
+      fetchResponseEdits: fetchResponse.count,
+      projectDraftEdits: projectDrafts.count,
+      persistedAtomEdits: persistedAtoms.count,
+      deferredTurnEdits: deferred.count,
+      workSegmentFoldingEdits: workSegmentFolding.count,
+      parentRequestActivityEdits: parentRequestActivity.count,
+      taskWorkTimeEdits: taskWorkTime.count,
+      userWaitTimeEdits: userWaitTime.count,
+      deferredNativeTimingChecks: deferred.nativeTimingChecks ?? 0,
+      compactionProgressEdits: compactionProgress.count,
+      queueRefreshEdits: queueRefresh.count,
+      queueRefreshNativeChecks: queueRefresh.nativeChecks ?? 0,
+      providerPickerEdits: providerPicker.count,
+      maxReasoningEdits: maxReasoning.count,
+      threadBranchEdits: threadBranch.count,
+      capacityRetryStopEdits: capacityRetryStop.count,
+      errorPresentationEdits: errorPresentation.count,
+      btwEdits: btw.count,
+      paginatedHistoryEdits: paginatedHistory.count,
+      submitOnlyThreadEdits: submitOnlyThread.count,
+      requestPreparationEdits: requestPreparation.count,
+      requestStateEdits: requestState.count,
+      recentChatFilterEdits: recentChatFilter.count,
+      sessionFlagEdits: sessionFlags.count,
+      teamUIEdits: teamUI.count,
+      teamRuntimeEdits: teamRuntime.count,
+      taskProfileEdits: taskProfile.count,
+      teamApprovalEdits: teamApprovals.count,
+      webviewIdleEdits: webviewIdle.count,
+      immediateStopEdits: immediateStop.count,
+      queuedCompactionEdits: queuedCompaction.count,
+      queueConsumptionEdits: queueConsumption.count,
+      accountSwitchQueueEdits: accountQueue.count,
+      questionWithdrawalEdits: questionWithdrawal.count,
+      questionQueueEdits: questionQueue.count,
+      urlSafetyTransportEdits: urlSafety.count,
+      computerUseApprovalEdits: computerUse.count,
+      computerUseSettingsEdits: computerUseSettings.count,
+      computerUseCancelRequestEdits: computerUseCancelRequest.count,
+      windowApprovalTitleEdits: windowApprovalTitle.count,
+      computerUseManagementEdits: computerUseManagement.count,
+      windowControlEdits: windowControl.count,
+      windowApprovalClassifierEdits: windowApprovalClassifier.count,
+      imageFileOpenEdits: imageFileOpen.count,
+      missingImageEdits: missingImage.count,
+      fileOpenMenuEdits: fileOpenMenu.count,
+      localFileDropEdits: localFileDrop.count,
+      composerDraftEdits: composerDraft.count,
+      providerContextEdits: providerContext.count,
+      maintenancePreferencesEdits: maintenancePreferences.count,
+      imageSketchEdits: imageSketch.count,
+      uiCleanupEdits: uiCleanup.count,
+      autoReviewEdits: autoReview.count,
+      petsCleanupEdits: petsCleanup.count,
+      contentFontEdits: contentFonts.count,
+      scrollFadeEdits: scrollFade.count,
+      commandDragBlockEdits: commandDragBlock.count,
+      uiInputDiagnosticsEdits: uiInputDiagnostics.count,
+      sessionLinkEdits: sessionLinks.count,
+      sourceSha256: sha(source),
+      sha256: sha(teamApprovals.text),
+    };
+    asset.edits = Object.entries(asset).filter(([name]) => name.endsWith("Edits")).reduce((total, [, count]) => total + count, 0);
+    return { text: teamApprovals.text, asset };
+  }
+  return { text: teamApprovals.text, asset: null };
+}
+
+function getTransformRules() {
+  const transformSources = [
+    "inject-persisted-atoms.cjs", "persisted-atoms.cjs",
+    "inject-window-control.cjs", "window-control-host.cjs", "window-use-async-approvals.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
+    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
+    "inject-deferred-turn.cjs", "inject-work-segment-folding.cjs", "inject-parent-request-activity.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
+    "inject-task-work-time.cjs", "inject-user-wait-time.cjs", "task-work-time.cjs", "task-work-time-history.cjs",
+    "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs", "ui-health-runtime.cjs", "optional-diagnostics.cjs",
+    "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs", "inject-question-withdrawal.cjs", "inject-question-queue.cjs",
+    "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "astra-speed-toggle.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
+    "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
+    "inject-student-design.cjs", "student-avatar-assets.cjs",
+    "inject-maintenance-preferences.cjs", "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-image-sketch.cjs", "inject-auto-review.cjs", "inject-pets-cleanup.cjs",
+    "inject-content-fonts.cjs", "content-fonts.cjs", "inject-scroll-fade.cjs", "scroll-fade.cjs",
+    "inject-command-drag-block.cjs", "command-drag-policy.cjs",
+    "inject-thread-branch.cjs", "thread-branch.cjs",
+    "inject-error-presentation.cjs", "../extensions/azrael-ex/src/errorPresentation.js",
+    "inject-btw.cjs", "btw-conversation.cjs",
+    "inject-session-links.cjs", "session-links.cjs",
+    "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-request-preparation.cjs", "inject-request-state.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
+    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "team-runtime-host.cjs", "team-change-service.cjs", "team-observability.cjs", "inject-task-profile.cjs", "inject-team-approvals.cjs", "team-approval-routing.cjs", "task-profile-runtime.cjs", "role-profile-runtime.cjs", "role-profile-store.cjs", "role-profile-defaults.cjs", "instruction-workbench-runtime.cjs", "instruction-workbench-view.cjs", "instruction-library.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
+  ];
+  return { ...Object.fromEntries(transformSources.map((name) =>
+    [name, sha(fs.readFileSync(path.join(__dirname, name)))])), ...getContentFontRules(),
+    "team-design-collaboration": sha(fs.readFileSync(path.join(__dirname, "../instructions/skills/design-collaboration/SKILL.md"))),
+    "team-lead-guidance": sha(fs.readFileSync(path.join(__dirname, "../instructions/skills/design-collaboration/references/team-lead.md"))),
+  };
+}
+
+// Only closed path gates from transformAsset or the injector owners belong here.
+// Unlisted rules (including generic label transforms and helper dependencies)
+// remain shared. The namespace/cache implementations also invalidate every asset.
+const ASSET_RULE_PATHS = {
+  "inject-error-presentation.cjs": [ERROR_PRESENTATION_ASSET],
+  "../extensions/azrael-ex/src/errorPresentation.js": [ERROR_PRESENTATION_ASSET],
+  "inject-student-design.cjs": DESIGN_ASSETS,
+  "inject-session-links.cjs": SESSION_LINK_ASSETS,
+  "session-links.cjs": ["out/extension.js"],
+  "inject-window-control.cjs": ["out/extension.js", WINDOW_CONTROL_SETTINGS_ASSET, APPROVAL_CLASSIFIER_ASSET],
+  "window-control-host.cjs": ["out/extension.js"],
+  "window-use-async-approvals.cjs": ["out/extension.js"],
+  "window-control-backend.cjs": ["out/extension.js"],
+  "window-control-policy.cjs": ["out/extension.js"],
+  "window-control-errors.cjs": ["out/extension.js"],
+  "window-control-occupancy.cjs": ["out/extension.js"],
+  "window-task-macros.cjs": ["out/extension.js"],
+  "inject-recovery.cjs": ["out/extension.js"],
+  "optional-diagnostics.cjs": ["out/extension.js"],
+  "inject-fetch-response.cjs": ["out/extension.js"],
+  "inject-url-safety-transport.cjs": ["out/extension.js"],
+  "inject-image-file-open.cjs": ["out/extension.js"],
+  "inject-missing-image.cjs": MISSING_IMAGE_ASSETS,
+  "inject-file-open-menu.cjs": [FILE_OPEN_MENU_ASSET],
+  "inject-local-file-drop.cjs": [DROP_ASSET, COMPOSER_ASSET],
+  "inject-composer-draft.cjs": [COMPOSER_DRAFT_ASSET],
+  "inject-project-drafts.cjs": ["out/extension.js"],
+  "inject-persisted-atoms.cjs": ["out/extension.js"],
+  "persisted-atoms.cjs": ["out/extension.js"],
+  "inject-ui-cleanup.cjs": UI_CLEANUP_ASSETS,
+  "inject-image-sketch.cjs": IMAGE_SKETCH_ASSETS,
+  "inject-auto-review.cjs": AUTO_REVIEW_ASSETS,
+  "inject-pets-cleanup.cjs": PETS_CLEANUP_ASSETS,
+  "inject-content-fonts.cjs": CONTENT_FONT_ASSETS,
+  "inject-scroll-fade.cjs": [CONTENT_FONT_CSS_ASSET, COMPOSER_ASSET],
+  "scroll-fade.cjs": [COMPOSER_ASSET],
+  "inject-command-drag-block.cjs": COMMAND_DRAG_ASSETS,
+  "command-drag-policy.cjs": COMMAND_DRAG_ASSETS,
+  "content-fonts.cjs": CONTENT_FONT_ASSETS.filter(name => name.endsWith(".css") || name.includes("app-initial-7a199c66e670")),
+  ...Object.fromEntries(Object.keys(getContentFontRules()).map(name => [name, name === "content-font-policy" ? CONTENT_FONT_ASSETS.filter(asset => asset.endsWith(".css") || asset.includes("app-initial-7a199c66e670")) : [CONTENT_FONT_CSS_ASSET]])),
+  "inject-deferred-turn.cjs": ["out/extension.js", DEFERRED_HEADER_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET,
+    DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET],
+  "inject-work-segment-folding.cjs": [WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET],
+  "inject-parent-request-activity.cjs": PARENT_REQUEST_ACTIVITY_ASSETS,
+  "inject-task-work-time.cjs": [TASK_WORK_TIME_ASSET, TASK_TIME_MESSAGE_ASSET],
+  "inject-user-wait-time.cjs": ["out/extension.js", DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_NOTIFICATION_ASSET, DEFERRED_TURN_ASSET, USER_WAIT_PENDING_ASSET],
+  "task-work-time.cjs": [TASK_WORK_TIME_ASSET, DEFERRED_PRESENTATION_ASSET],
+  "task-work-time-history.cjs": [TASK_WORK_TIME_ASSET],
+  "inject-compaction-progress.cjs": [COMPACTION_PROGRESS_REDUCER_ASSET],
+  "inject-queue-refresh.cjs": [QUEUE_REFRESH_ASSET],
+  "inject-queue-consumption.cjs": [QUEUE_CONSUMPTION_ASSET],
+  "inject-question-withdrawal.cjs": QUESTION_WITHDRAWAL_ASSETS,
+  "inject-question-queue.cjs": QUESTION_QUEUE_ASSETS,
+  "inject-ui-input-diagnostics.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
+  "ui-input-diagnostics-runtime.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
+  "ui-health-runtime.cjs": ["webview/assets/app-initial-7a199c66e670.js"],
+  "inject-queued-compaction.cjs": [QUEUED_COMPACTION_HOST_ASSET, QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET],
+  "inject-account-switch-queue.cjs": [ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET],
+  "inject-request-preparation.cjs": [REQUEST_PREPARATION_ASSET],
+  "inject-request-state.cjs": REQUEST_STATE_ASSETS,
+  "inject-provider-model-picker.cjs": PROVIDER_PICKER_ASSETS,
+  "inject-max-reasoning.cjs": MAX_REASONING_ASSETS,
+  "inject-account-settings.cjs": ["out/extension.js", ACCOUNT_SETTINGS_ASSET],
+  "inject-instruction-settings.cjs": ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS],
+  "instruction-workbench-view.cjs": ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS],
+  "inject-maintenance-preferences.cjs": MAINTENANCE_PREFERENCES_ASSETS,
+  "inject-provider-context.cjs": [CONTEXT_ASSET, SETTINGS_ASSET],
+  "inject-thread-branch.cjs": [THREAD_BRANCH_ASSET],
+  "inject-capacity-retry-stop.cjs": [CAPACITY_RETRY_ASSET],
+  "inject-btw.cjs": BTW_ASSETS,
+  "btw-conversation.cjs": BTW_ASSETS,
+  "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET, RECENT_THREAD_LIST_ASSET, RECENT_CHAT_QUERY_ASSET],
+  "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
+  "inject-team-ui.cjs": [TEAM_UI_ASSET],
+  "inject-team-runtime.cjs": TEAM_RUNTIME_ASSETS,
+  "team-runtime-host.cjs": ["out/extension.js"],
+  "team-change-service.cjs": ["out/extension.js"],
+  "team-observability.cjs": ["out/extension.js"],
+  "inject-task-profile.cjs": TASK_PROFILE_ASSETS,
+  "task-profile-runtime.cjs": TASK_PROFILE_ASSETS,
+  "inject-team-approvals.cjs": TEAM_APPROVAL_ASSETS,
+  "team-approval-routing.cjs": TEAM_APPROVAL_ASSETS,
+  "role-profile-runtime.cjs": TASK_PROFILE_ASSETS,
+  "role-profile-store.cjs": TASK_PROFILE_ASSETS,
+  "role-profile-defaults.cjs": TASK_PROFILE_ASSETS,
+  "instruction-workbench-runtime.cjs": TASK_PROFILE_ASSETS,
+  "instruction-library.cjs": TASK_PROFILE_ASSETS,
+  "team-design-collaboration": TEAM_RUNTIME_ASSETS,
+  "team-lead-guidance": TEAM_RUNTIME_ASSETS,
+  "inject-webview-idle.cjs": ["out/extension.js", WEBVIEW_IDLE_ASSET],
+  "webview-idle.cjs": ["out/extension.js", WEBVIEW_IDLE_ASSET],
+  "inject-paginated-history.cjs": [PAGINATED_HISTORY_ASSET],
+  "inject-submit-only-thread.cjs": [SUBMIT_ONLY_THREAD_ASSET],
+  "inject-immediate-stop.cjs": [IMMEDIATE_STOP_ASSET],
+};
+
+function getAssetTransformRules(relativePath, transformRules = getTransformRules()) {
+  return Object.fromEntries(Object.entries(transformRules)
+    .filter(([name]) => !Object.hasOwn(ASSET_RULE_PATHS, name) || ASSET_RULE_PATHS[name].includes(relativePath)));
+}
+
+async function transformExtension(directory, ts, hostVersion, options = {}) {
+  const started = performance.now();
+  const readConcurrency = options.readConcurrency ?? 4;
+  if (!Number.isInteger(readConcurrency) || readConcurrency < 1 || readConcurrency > 8) {
+    throw new Error("Asset read concurrency must be an integer from 1 to 8.");
+  }
+  const stages = Object.fromEntries(["enumeration", "sourceRead", "decode", "sourceHash",
+    "cacheInitialization", "cacheLookup", "cacheRead", "cacheValidation", "cacheWrite",
+    "cacheFlush", "transform", "outputWrite", "finalize"].map((name) =>
+    [name, { elapsedMs: 0, count: 0, bytes: 0 }]));
+  const performanceReport = { elapsedMs: 0, readBytes: 0, fileCount: 0, cache: { hits: 0, misses: 0 },
+    stages, slowFiles: [], reads: { concurrency: readConcurrency, scanElapsedMs: 0 },
+    timingSemantics: "sourceRead elapsedMs sums asynchronous request latency and may overlap other reads and transformation. reads.scanElapsedMs is scan wall time; reads.readWaitMs sums ordered-consumer waits. Other stages measure synchronous wall time. cacheInitialization/cacheFlush include nested cacheRead/cacheValidation/cacheWrite; finalize includes cacheFlush. slowFiles elapsedMs combines consumptionMs and ordered readWaitMs, excluding prior read-ahead latency. Do not sum overlapping or nested totals. sourceRead/cacheRead/cacheWrite/outputWrite bytes count successful I/O; decode/sourceHash bytes count processed source bytes. Do not sum repeated byte counts. Finalize metadata and report I/O are excluded." };
+  function measure(stage, action) {
+    const stageStarted = performance.now();
+    try { return action(); } finally {
+      stages[stage].elapsedMs += performance.now() - stageStarted;
+      stages[stage].count += 1;
+    }
+  }
+  if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(hostVersion ?? "") ||
+      hostVersion.split(".").some(part => !Number.isSafeInteger(Number(part)))) {
+    throw new Error("A numeric major.minor.patch host version is required.");
+  }
+  const root = fs.realpathSync(directory);
+  const manifestPath = path.join(root, "package.json");
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  if (manifest.publisher !== "openai" || manifest.name !== "chatgpt" || manifest.version !== "26.1007.21434") {
+    throw new Error("Independent transformation requires the prepared pinned original identity.");
+  }
+  if (!fs.existsSync(path.join(root, "out", "azrael-runtime.cjs")) || !fs.existsSync(path.join(root, ".azrael-official-ui.json"))) {
+    throw new Error("Prepare the hash-verified host and private runtime before namespacing.");
+  }
+  const sourceUi = JSON.parse(fs.readFileSync(path.join(root, ".azrael-official-ui.json"), "utf8"));
+  if (sourceUi.schema !== 1 || sourceUi.sourceVersion !== manifest.version ||
+      !/^[a-f\d]{64}$/i.test(sourceUi.sourcePackageSha256 ?? "") ||
+      !/^[a-f\d]{64}$/i.test(sourceUi.sourceWebviewSha256 ?? "")) {
+    throw new Error("Prepared official UI provenance does not match the pinned source.");
+  }
+  const accountUiManifestPath = path.join(root, "account-ui", "package.json");
+  const integratedEntryPath = path.join(root, "integrated-azrael-entry.cjs");
+  const accountUiEntryPath = path.join(root, "account-ui", "dist", "src", "extension.js");
+  if (!fs.existsSync(accountUiManifestPath) || !fs.existsSync(accountUiEntryPath) || !fs.existsSync(integratedEntryPath)) {
+    throw new Error("Prepare the integrated account UI payload and entry point before namespacing.");
+  }
+  const accountUiManifest = JSON.parse(fs.readFileSync(accountUiManifestPath, "utf8"));
+  const report = {
+    schema: 1, hostId: HOST_ID, hostVersion, sourceVersion: manifest.version,
+    sourceUi: {
+      version: sourceUi.sourceVersion,
+      packageSha256: sourceUi.sourcePackageSha256.toLowerCase(),
+      webviewSha256: sourceUi.sourceWebviewSha256.toLowerCase(),
+    },
+    transformRules: getTransformRules(),
+    assets: [],
+  };
+  const featureManifest = loadManifest(path.resolve(__dirname, ".."));
+  validateManifest(featureManifest, path.resolve(__dirname, ".."), report.transformRules);
+  const cacheFactory = selectAssetCacheFactory(require.resolve("./asset-transform-cache.cjs"), options.cacheProjectRoot);
+  const cache = cacheFactory({
+    cacheDirectory: options.cacheDirectory,
+    typescriptSha256: options.typescriptSha256,
+    typescriptVersion: ts.version,
+    transformRules: report.transformRules,
+    getAssetTransformRules,
+    statistics: performanceReport.cache,
+    metrics: stages,
+    pruneUnused: true,
+    retentionScope: `${process.platform}-${process.arch}`,
+  });
+  report.cacheCleanup = cache.cleanup;
+  function* enumerate(folder) {
+    for (const entry of measure("enumeration", () => fs.readdirSync(folder, { withFileTypes: true }))) {
+      const filename = path.join(folder, entry.name);
+      if (entry.isDirectory()) { yield* enumerate(filename); continue; }
+      if (!entry.isFile() || (!filename.endsWith(".js") && path.relative(root, filename).replaceAll("\\", "/") !== CONTENT_FONT_CSS_ASSET)) continue;
+      yield filename;
+    }
+  }
+  function* assets() {
+    yield* enumerate(path.join(root, "out"));
+    yield* enumerate(path.join(root, "webview"));
+  }
+  const scanStarted = performance.now();
+  await readAssetsInOrder(assets(), (filename, sourceBytes, readWaitMs) => {
+      const fileStarted = performance.now();
+      const source = measure("decode", () => sourceBytes.toString("utf8"));
+      stages.decode.bytes += sourceBytes.length;
+      const relativePath = path.relative(root, filename).replaceAll("\\", "/");
+      performanceReport.fileCount += 1;
+      performanceReport.readBytes += sourceBytes.length;
+      const sourceSha256 = measure("sourceHash", () => sha(sourceBytes));
+      stages.sourceHash.bytes += sourceBytes.length;
+      const hitsBefore = performanceReport.cache.hits;
+      const result = cache.run(relativePath, source,
+        () => measure("transform", () => transformAsset(source, relativePath, filename, ts)), sourceSha256);
+      if (result.asset) {
+        measure("outputWrite", () => fs.writeFileSync(filename, result.text));
+        stages.outputWrite.bytes += Buffer.byteLength(result.text);
+        report.assets.push(result.asset);
+      }
+      const consumptionMs = performance.now() - fileStarted;
+      const elapsedMs = consumptionMs + readWaitMs;
+      const slowFiles = performanceReport.slowFiles;
+      if (slowFiles.length < 10 || elapsedMs > slowFiles[slowFiles.length - 1].elapsedMs) {
+        slowFiles.push({ path: relativePath, elapsedMs, consumptionMs, readWaitMs, readBytes: sourceBytes.length,
+          cacheHit: performanceReport.cache.hits > hitsBefore, changed: Boolean(result.asset) });
+        slowFiles.sort((a, b) => b.elapsedMs - a.elapsedMs);
+        if (slowFiles.length > 10) slowFiles.pop();
+      }
+  }, { concurrency: readConcurrency, statistics: performanceReport.reads, readMetrics: stages.sourceRead });
+  performanceReport.reads.scanElapsedMs = performance.now() - scanStarted;
+  const finalizeStarted = performance.now();
+  for (const assetPath of COMMAND_DRAG_ASSETS) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.commandDragBlockEdits === 1)) {
+      throw new Error(`Command drag transformation was incomplete: ${assetPath}`);
+    }
+  }
+  for (const [assetPath, count] of [[CONTENT_FONT_CSS_ASSET, 4], [COMPOSER_ASSET, 1]]) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.scrollFadeEdits === count)) {
+      throw new Error(`Scroll fade transformation was incomplete: ${assetPath}`);
+    }
+  }
+  for (const [field, paths] of [["webviewIdleEdits", ["out/extension.js", WEBVIEW_IDLE_ASSET]], ["sessionFlagEdits", [SESSION_FLAGS_ASSET]], ["teamUIEdits", [TEAM_UI_ASSET]], ["teamRuntimeEdits", TEAM_RUNTIME_ASSETS], ["imageSketchEdits", IMAGE_SKETCH_ASSETS], ["uiCleanupEdits", UI_CLEANUP_ASSETS], ["autoReviewEdits", AUTO_REVIEW_ASSETS], ["petsCleanupEdits", PETS_CLEANUP_ASSETS], ["contentFontEdits", CONTENT_FONT_ASSETS]]) {
+    for (const assetPath of paths) {
+      if (!report.assets.some(asset => asset.path === assetPath && asset[field] > 0)) {
+        throw new Error(`${field} transformation was incomplete: ${assetPath}`);
+      }
+    }
+  }
+  if (report.assets.reduce((total, asset) => total + asset.providerPickerEdits, 0) !== PROVIDER_PICKER_ASSETS.length) {
+    throw new Error("Provider model-picker transformation was incomplete.");
+  }
+  for (const assetPath of MAX_REASONING_ASSETS) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.maxReasoningEdits === 1)) {
+      throw new Error(`Max availability transformation was incomplete: ${assetPath}`);
+    }
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.threadBranchEdits ?? 0), 0) !== 1) {
+    throw new Error("Thread branch transformation was incomplete.");
+  }
+  for (const assetPath of BTW_ASSETS) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.btwEdits === 1)) {
+      throw new Error(`/btw transformation was incomplete: ${assetPath}`);
+    }
+  }
+  for (const field of ["paginatedHistoryEdits", "submitOnlyThreadEdits", "requestPreparationEdits", "immediateStopEdits", "capacityRetryStopEdits"]) {
+    if (report.assets.reduce((total, asset) => total + (asset[field] ?? 0), 0) !== 1) {
+      throw new Error(`${field} transformation was incomplete.`);
+    }
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.requestStateEdits ?? 0), 0) !== REQUEST_STATE_ASSETS.length) {
+    throw new Error("Request state sharing transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.computerUseApprovalEdits ?? 0), 0) !== 7) throw new Error("Computer-use approval transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.taskProfileEdits ?? 0), 0) !== TASK_PROFILE_ASSETS.length) throw new Error("Task-profile transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.computerUseSettingsEdits ?? 0), 0) !== 1) throw new Error("Computer-use settings transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.computerUseCancelRequestEdits ?? 0), 0) !== 1) throw new Error("Computer-use cancel-request transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.computerUseManagementEdits ?? 0), 0) !== 1) throw new Error("Computer-use local-management transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.windowApprovalTitleEdits ?? 0), 0) !== 1) throw new Error("Window Use approval title transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.windowApprovalClassifierEdits ?? 0), 0) !== 1) throw new Error("Window Use native approval classifier transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.windowControlEdits ?? 0), 0) !== 5) throw new Error("Selected-window Computer Use transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + asset.urlSafetyTransportEdits, 0) !== 1) {
+    throw new Error("URL safety transport transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.fileOpenMenuEdits ?? 0), 0) !== 1) {
+    throw new Error("File-open menu transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + asset.imageFileOpenEdits, 0) !== 1) {
+    throw new Error("Image file-open transformation was incomplete.");
+  }
+  for (const assetPath of MISSING_IMAGE_ASSETS) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.missingImageEdits === 1)) {
+      throw new Error("Missing-image transformation was incomplete: " + assetPath);
+    }
+  }
+  if (report.assets.reduce((total, asset) => total + asset.localFileDropEdits, 0) !== 2) {
+    throw new Error("Local file-drop transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.composerDraftEdits ?? 0), 0) !== 1) {
+    throw new Error("Composer draft transformation was incomplete.");
+  }
+  for (const contextAsset of [CONTEXT_ASSET, SETTINGS_ASSET]) {
+    if (!report.assets.some(asset => asset.path === contextAsset && asset.providerContextEdits > 0)) throw new Error("Provider context transformation was incomplete: " + contextAsset);
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.accountSwitchQueueEdits ?? 0), 0) !== 3) {
+    throw new Error("Account-switch queue transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + asset.queueConsumptionEdits, 0) !== 1) {
+    throw new Error("Queue-consumption transformation was incomplete.");
+  }
+  for (const assetPath of [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"]) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.uiInputDiagnosticsEdits === 1)) {
+      throw new Error("UI input diagnostics transformation was incomplete: " + assetPath);
+    }
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.fetchResponseEdits ?? 0), 0) !== 1) {
+    throw new Error("Fetch-response transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.projectDraftEdits ?? 0), 0) !== 1) {
+    throw new Error("Project draft transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + asset.queuedCompactionEdits, 0) !== Object.values(QUEUED_COMPACTION_EXPECTED_COUNTS).reduce((total, count) => total + count, 0)) {
+    throw new Error("Queued-compaction transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + asset.queueRefreshNativeChecks, 0) !== 1) {
+    throw new Error("Native queue-refresh validation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 51) {
+    throw new Error("Deferred-turn transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.parentRequestActivityEdits ?? 0), 0) !== PARENT_REQUEST_ACTIVITY_TOTAL) {
+    throw new Error("Parent request activity transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.workSegmentFoldingEdits ?? 0), 0) !== 7) {
+    throw new Error("Work-segment folding transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + asset.deferredNativeTimingChecks, 0) !== 1) {
+    throw new Error("Native deferred timing validation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + asset.compactionProgressEdits, 0) !== 1) {
+    throw new Error("Compaction-progress transformation was incomplete.");
+  }
+  const workspaceThreadListEdits = report.assets.reduce(
+    (total, asset) => total + asset.workspaceThreadListEdits, 0);
+  if (workspaceThreadListEdits !== 2) {
+    throw new Error(`Workspace thread-list transformation was incomplete: expected 2 edits, found ${workspaceThreadListEdits}.`);
+  }
+  cache.flush();
+  report.studentAvatars = copyStudentAvatarAssets(path.join(root, "webview"));
+  report.contentFonts = copyContentFontAssets(root);
+  const grammarPath = path.join(root, "syntaxes", "starlark.tmLanguage.json");
+  fs.writeFileSync(grammarPath, rewriteValue(fs.readFileSync(grammarPath, "utf8")));
+  const transformed = transformManifest(manifest, hostVersion, accountUiManifest);
+  fs.writeFileSync(manifestPath, JSON.stringify(transformed, null, 2) + "\n");
+  const oldVsixManifest = path.join(root, ".vsixmanifest");
+  if (fs.existsSync(oldVsixManifest)) fs.unlinkSync(oldVsixManifest);
+  fs.writeFileSync(path.join(root, "readme.md"), "# azrael\n\nIndependent local azrael extension. Runs beside the original Codex extension with separate accounts and conversations.\n\nDerived from the locally installed, pinned Codex extension; original notices are retained in LICENSE.md.\n");
+  const runtime = JSON.parse(fs.readFileSync(path.join(root, "out/azrael-runtime.json"), "utf8").replace(/^\uFEFF/, ""));
+  const { validateRuntimePlatform, executableName } = require("./platform-runtime.cjs");
+  const selected = validateRuntimePlatform(runtime.platform);
+  const tools = { win32: "windows-x86_64", linux: "linux-x86_64", darwin: "macos-aarch64" };
+  const ignored = Object.values(tools).filter(name => name !== tools[selected.os]).map(name => `bin/${name}/**`);
+  const prebuilds = path.join(root, "account-ui/node_modules/node-pty/prebuilds");
+  if (fs.existsSync(prebuilds)) {
+    for (const name of fs.readdirSync(prebuilds)) if (name !== selected.vsixTarget) ignored.push(`account-ui/node_modules/node-pty/prebuilds/${name}/**`);
+  }
+  ignored.push(`bin/${tools[selected.os]}/${executableName("codex", selected)}`);
+  fs.writeFileSync(path.join(root, ".vscodeignore"), ignored.join("\n") + "\n");
+  report.manifestSha256 = sha(fs.readFileSync(manifestPath));
+  validateTransformReport(featureManifest, report);
+  stages.finalize.elapsedMs = performance.now() - finalizeStarted;
+  stages.finalize.count = 1;
+  performanceReport.elapsedMs = performance.now() - started;
+  report.performance = performanceReport;
+  fs.writeFileSync(path.join(root, ".azrael-independent-host.json"), JSON.stringify(report, null, 2) + "\n");
+  return report;
+}
+
+module.exports = {
+  applyEdits,
+  getTransformRules,
+  getAssetTransformRules,
+  ASSET_RULE_PATHS,
+  transformAsset,
+  rewriteValue,
+  rewriteJavaScript,
+  injectWorkspaceThreadListBridgeFilter,
+  markRecentThreadListRequest,
+  transformManifest,
+  transformExtension,
+};
+if (require.main === module) {
+  const [directory, typescript, hostVersion, cacheDirectory, cacheProjectRoot] = process.argv.slice(2);
+  if (!directory || !typescript) throw new Error("Usage: namespace-azrael-host.cjs <prepared extension> <typescript module> <host version> [cache directory] [absolute cache project root]");
+  const typescriptPath = path.resolve(typescript);
+  transformExtension(directory, require(typescriptPath), hostVersion, {
+    cacheDirectory, cacheProjectRoot, typescriptSha256: sha(fs.readFileSync(typescriptPath)),
+  }).then(report => {
+    console.log(JSON.stringify({ hostId: report.hostId, changedAssets: report.assets.length, manifestSha256: report.manifestSha256 }));
+  }).catch(error => { console.error(error); process.exitCode = 1; });
+}
