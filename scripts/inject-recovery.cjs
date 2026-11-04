@@ -19,8 +19,18 @@ function injectRecovery(text, filename, ts) {
   const source = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const edits = [];
   const counts = { sendProviderRequest: 0, routeIncomingMessage: 0, teardownProcess: 0 };
-  let webviewCount = 0;
+  let webviewCount = 0, stateCount = 0;
   const visit = node => {
+    if (ts.isMethodDeclaration(node) && node.name?.text === "updatePersistedAtomValue") {
+      if (!node.body || node.parameters.length !== 3 || !node.parameters.every(p => ts.isIdentifier(p.name))) {
+        throw new Error("Pinned persisted state diagnostic signature changed.");
+      }
+      const body = text.slice(node.body.getStart(source) + 1, node.body.end - 1);
+      edits.push({ start: node.body.getStart(source), end: node.body.end,
+        text: `{return require("./azrael-recovery.cjs").measureStateUpdate(${node.parameters[0].name.text},async()=>{${body}})}` });
+      stateCount++;
+      return;
+    }
     if (ts.isMethodDeclaration(node) && node.name?.text === "initializeWebview") {
       if (node.parameters.length !== 4 || !node.parameters.every(p => ts.isIdentifier(p.name))) throw Error("Pinned Webview initialization signature changed.");
       const [view, role, dispose] = node.parameters.map(p => p.name.text);
@@ -82,6 +92,7 @@ function injectRecovery(text, filename, ts) {
   visit(source);
   if (Object.values(counts).some(count => count !== 1)) throw new Error(`Pinned recovery bridge changed: ${JSON.stringify(counts)}`);
   if (webviewCount !== 1) throw new Error(`Pinned UI diagnostics bootstrap changed: ${webviewCount}`);
+  if (stateCount !== 1) throw new Error(`Pinned persisted state diagnostics changed: ${stateCount}`);
   for (const edit of edits.sort((a, b) => b.start - a.start)) text = text.slice(0, edit.start) + edit.text + text.slice(edit.end);
   if (ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length) {
     throw new Error("Invalid recovery bridge transform.");

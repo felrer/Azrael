@@ -103,4 +103,57 @@ function monitorWebview(webview, logger, metadata, onDispose, clock = {}) {
   return api;
 }
 function recordWebviewLifecycle(webview, event) { webviewHealth.get(webview)?.lifecycle(event); }
-module.exports = { parseDiagnosticBoolean, diagnosticsEnabled, injectUiInputPolicy, monitorWebview, recordWebviewLifecycle };
+// Content-free host sampling. Do not serialize application state to measure it:
+// diagnostic work must not amplify the suspected storage/GC pressure.
+function monitorHost(log, activeThreads, clock = {}) {
+  const now = clock.now ?? (() => require("node:perf_hooks").performance.now());
+  const every = clock.setInterval ?? setInterval, clear = clock.clearInterval ?? clearInterval;
+  const host = clock.process ?? process;
+  const hash = value => require("node:crypto").createHash("sha256").update(String(value)).digest("hex").slice(0, 16);
+  let tickAt = now(), reportAt = tickAt, cpuAt = host.cpuUsage(), disposed = false;
+  let completed = 0, failed = 0, maxDurationMs = 0, dropped = 0;
+  const pending = new Map(), atoms = new Map();
+  let sequence = 0;
+  function report(event, delayMs = 0) {
+    if (disposed) return;
+    try {
+      const memory = host.memoryUsage(), time = now(), cpu = host.cpuUsage();
+      const threads = activeThreads().filter(value => typeof value === "string");
+      log({ event: "host_health." + event, observedAt: new Date().toISOString(),
+        platform: host.platform, arch: host.arch, nodeVersion: host.version,
+        rssBytes: memory.rss, heapUsedBytes: memory.heapUsed, heapTotalBytes: memory.heapTotal,
+        externalBytes: memory.external, arrayBufferBytes: memory.arrayBuffers,
+        heapLimitBytes: require("node:v8").getHeapStatistics().heap_size_limit,
+        cpuUserMicros: Math.max(0, cpu.user - cpuAt.user), cpuSystemMicros: Math.max(0, cpu.system - cpuAt.system),
+        intervalMs: Math.max(0, Math.round(time - reportAt)), observerDelayMs: Math.round(delayMs),
+        activeThreadCount: threads.length, threadRefs: [...new Set(threads)].slice(0, 8).map(hash),
+        statePending: pending.size, stateCompleted: completed, stateFailed: failed,
+        stateOldestMs: Math.round(Math.max(0, ...[...pending.values()].map(start => time - start))),
+        stateMaxDurationMs: Math.round(maxDurationMs), atomUpdates: [...atoms].map(([atomRef, count]) => ({ atomRef, count })),
+        droppedDiagnostics: dropped, rendererExitConfirmed: false });
+      reportAt = time; cpuAt = cpu; completed = failed = maxDurationMs = dropped = 0; atoms.clear();
+    } catch { dropped++; }
+  }
+  report("started");
+  const timer = every(() => {
+    const time = now(), delay = Math.max(0, time - tickAt - 5000); tickAt = time;
+    if (delay >= 2000 || time - reportAt >= 30000) report(delay >= 2000 ? "observer_delayed" : "sample", delay);
+  }, 5000);
+  timer?.unref?.();
+  return {
+    async measure(atom, operation) {
+      if (disposed) return operation();
+      const start = now(), id = ++sequence;
+      // Bound diagnostic state independently of the host's actual queue.
+      const tracked = pending.size < 128;
+      if (tracked) pending.set(id, start); else dropped++;
+      try { const ref = hash(atom); if (atoms.has(ref) || atoms.size < 16) atoms.set(ref, (atoms.get(ref) ?? 0) + 1); else dropped++; }
+      catch { dropped++; }
+      try { return await operation(); }
+      catch (error) { failed++; throw error; }
+      finally { if (tracked) pending.delete(id); completed++; maxDurationMs = Math.max(maxDurationMs, now() - start); }
+    },
+    dispose() { if (disposed) return; report("disposed"); disposed = true; clear(timer); pending.clear(); atoms.clear(); }
+  };
+}
+module.exports = { parseDiagnosticBoolean, diagnosticsEnabled, injectUiInputPolicy, monitorWebview, recordWebviewLifecycle, monitorHost };

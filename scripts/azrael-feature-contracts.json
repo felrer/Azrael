@@ -3601,6 +3601,7 @@
         "scripts/ui-input-diagnostics-runtime.cjs",
         "scripts/ui-health-runtime.cjs",
         "scripts/optional-diagnostics.cjs",
+        "scripts/azrael-recovery.cjs",
         "scripts/inject-recovery.cjs",
         "scripts/webview-idle.cjs",
         "scripts/inject-webview-idle.cjs",
@@ -3615,7 +3616,8 @@
           "args": [
             "--test",
             "scripts/test-ui-input-diagnostics.cjs",
-            "scripts/test-ui-health.cjs"
+            "scripts/test-ui-health.cjs",
+            "scripts/test-recovery-bridge.cjs"
           ],
           "level": "source"
         },

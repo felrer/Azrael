@@ -24,6 +24,36 @@ function owningClass(ts, source, filename) {
   return { ast, owner };
 }
 
+test("pinned persisted-state hook measures the real method without changing writes or errors", async () => {
+  const ts = require(typescriptPath);
+  const transformed = injectRecovery(fs.readFileSync(originalBundle, "utf8"), originalBundle, ts);
+  const source = ts.createSourceFile(originalBundle, transformed.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  let method;
+  function visit(node) {
+    if (ts.isMethodDeclaration(node) && node.name?.text === "updatePersistedAtomValue") method = node;
+    ts.forEachChild(node, visit);
+  }
+  visit(source);
+  const measured = [], writes = [], failure = new Error("storage unavailable");
+  const target = vm.runInNewContext(`({${method.getText(source)}})`, {
+    Re: { PERSISTED_ATOM_STATE: "persisted" },
+    require(name) { assert.equal(name, "./azrael-recovery.cjs"); return {
+      measureStateUpdate(atom, operation) { measured.push(atom); return operation(); }
+    }; }
+  });
+  Object.assign(target, {
+    storage: { get: () => ({ retained: 1 }), async update(key, value) { writes.push([key, value]); } },
+    enqueueUpdate: (_key, operation) => operation(), pendingUpdates: new Map(), pendingPersistedAtomUpdates: new Map(),
+    onDidUpdateEntryEmitter: { fire() {} }, onDidUpdatePersistedAtomEmitter: { fire() {} }
+  });
+  await target.updatePersistedAtomValue("changed", 2);
+  assert.equal(writes[0][0], "persisted");
+  assert.deepEqual(JSON.parse(JSON.stringify(writes[0][1])), { retained: 1, changed: 2 });
+  target.storage.update = async () => { throw failure; };
+  await assert.rejects(target.updatePersistedAtomValue("failed", 3), error => error === failure);
+  assert.deepEqual(measured, ["changed", "failed"]);
+});
+
 test("pinned bridge transform executes its owning class and preserves ordinary routing", async () => {
   assert.equal(fs.existsSync(originalBundle), true, `missing pinned original bundle: ${originalBundle}`);
   assert.equal(fs.existsSync(typescriptPath), true, `missing staged TypeScript: ${typescriptPath}`);

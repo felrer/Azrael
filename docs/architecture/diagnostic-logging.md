@@ -11,6 +11,7 @@ Status: `partial` — Windows에서 엔진·helper·호스트 소스 회귀 검�
 | `AZRAEL_DIAGNOSTICS_INFERENCE` | helper transport 상세 계측과 엔진의 반복 progress/transport 진단 기록 |
 | `AZRAEL_DIAGNOSTICS_TOOLS` | 카탈로그·스키마 분석 및 도구 호출 상세 계측·기록 |
 | `AZRAEL_DIAGNOSTICS_RECOVERY` | 호스트 RPC와 정상 메시지 처리의 반복 진단 기록 |
+| `AZRAEL_DIAGNOSTICS_HOST_HEALTH` | 확장 호스트 메모리·CPU·관찰 타이머 지연 및 전역 atom 저장의 집계 진단 |
 | `AZRAEL_DIAGNOSTICS_UI_INPUT` | webview 입력 진단의 수집·전송 |
 | `AZRAEL_DIAGNOSTICS_UI_HEALTH` | Webview 부팅·오류·드래그·응답 신호의 상세 수집·전송; 호스트가 이미 확인한 생성 실패·준비 시간 초과의 오류 기록은 유지 |
 | `AZRAEL_DIAGNOSTICS_ACCOUNTS` | provider 계정 helper 요청의 정상 시작·완료 기록 |
@@ -24,6 +25,14 @@ Status: `partial` — Windows에서 엔진·helper·호스트 소스 회귀 검�
 진행 프레임과 유효성 검증, generation inactivity 및 thinking heartbeat 판정, timeout, 도구 검증·실행, 복구·계정 상태와 대화 기록은 계속 동작한다. 실패·경고 및 주요 실행 결과를 보존한다. 로깅 여부는 실행 권한이나 오류 결과를 바꾸지 않는다.
 
 기존 tracing/SQLite 및 VS Code 로그 채널과 보관 정책을 재사용한다. `RUST_LOG`는 stderr 출력 필터이므로 이 수집 정책을 대신하지 않는다. upstream의 모든 로그와 외부 code-mode-host 바이너리 내부 로그를 끄는 설정은 아니다.
+
+## 확장 호스트 정지 진단
+
+상태: `partial` — 소스에 계측을 포함하며 설치된 패키지의 활성화와 실제 재발 관찰은 별도다. 보존 매핑은 `ui.input-diagnostics`가 소유한다.
+
+`Azrael Recovery` 채널의 `host_health.*`는 시작·해제와 30초 간격 집계를 기록한다. 5초 관찰 타이머가 예상보다 2초 이상 늦으면 지연 집계를 기록한다. 지연에는 OS 절전·스케줄링·부하도 포함되며 확장 코드의 CPU 정지나 렌더러 충돌을 확정하지 않는다. 기록에는 UTC 시각, 호스트 PID/OS/CPU 아키텍처/Node 버전, RSS·JS heap·external/ArrayBuffer·heap 한도, 구간 CPU 사용 시간, 활성 세션 해시(최대 8개), atom 갱신 시도 해시별 횟수(최대 16개), 완료·실패 수, 추적 중인 저장 수(최대 128개), 가장 오래된 대기 시간과 최대 완료 시간이 포함된다. 저장 시간은 대기열 진입부터 갱신 메서드 완료까지이며 파일 쓰기 시간만을 뜻하지 않는다.
+
+상태 저장은 기존 메서드를 감싸 관찰하며 순서, 저장 값, 반환값과 원래 오류를 보존한다. 계측을 위해 상태 전체를 직렬화하지 않고, 대화 내용·도구 인자·경로·인증 정보·원시 atom 키는 기록하지 않는다. 추적 한도 초과와 진단 오류는 누락 수로 집계한다. 타이머는 비차단이며 해제 시 정리한다. 별도 파일·전송 서비스나 종료/재시작 동작은 추가하지 않는다. 강제 종료는 마지막 집계와 해제 기록을 유실시킬 수 있으므로 기록 부재만으로 충돌 원인을 판단하지 않는다.
 
 모델 오류는 [근거 기반 오류 분류](managed-providers.md#evidence-based-error-classification)를 따른다. HTTP 상태만으로 제한의 종류를 추측하지 않으며, 상세 진단에는 허용된 오류 유형·사유·본문 판독 결과와 검증된 제한 수치·헤더만 보존한다. 분류되지 않은 오류의 사용자 문구는 `정의되지 않은 오류`다. 공급자의 종료 사유와 refusal 범주도 `provider_stop_reason`·`provider_refusal_category`의 닫힌 허용값으로만 보존한다. 명시적 null은 unspecified, 누락은 missing, 미지원 값은 unknown으로 구분한다. refusal 판정은 상세 진단의 활성 여부와 독립적이다. 원문 본문과 인증 정보는 기록하지 않는다.
 
