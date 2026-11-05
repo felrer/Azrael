@@ -98,7 +98,16 @@ def snapshot(root, target=TARGET):
     }
 
 
-def verify(root, directory, target=TARGET, profile=None):
+def source_snapshot(root, target, source_state=None, source_generation=None):
+    if source_state is None:
+        return snapshot(root, target)
+    spec = importlib.util.spec_from_file_location("engine_source_state", Path(__file__).with_name("engine-source-state.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.selected_snapshot(root, target, source_state, source_generation, snapshot, BUILD_ENVIRONMENT_KEYS)
+
+
+def verify(root, directory, target=TARGET, profile=None, *, source_state=None, source_generation=None):
     names = binary_names(target)
     receipt = directory / RECEIPT
     if not receipt.is_file():
@@ -106,7 +115,7 @@ def verify(root, directory, target=TARGET, profile=None):
     record = json.loads(receipt.read_text(encoding="utf-8-sig"))
     if profile is not None and record.get("buildProfile") != profile:
         raise ValueError(f"Engine build profile is not {profile}. Rebuild with the selected profile.")
-    if record.get("source") != snapshot(root, target):
+    if record.get("source") != source_snapshot(root, target, source_state, source_generation):
         raise ValueError("Engine source changed since this pair was built. Run a full engine build.")
     if set(record.get("binaries", {})) != set(names):
         raise ValueError("Engine provenance binary identities differ from target")
@@ -132,17 +141,21 @@ def main():
     parser.add_argument("--code-mode-host-source", type=Path)
     parser.add_argument("--target", default=TARGET)
     parser.add_argument("--profile", choices=("dev", "release"))
+    parser.add_argument("--source-state", type=Path)
+    parser.add_argument("--source-generation")
     parser.add_argument("--code-mode-host-built", action="store_true")
     parser.add_argument("--code-mode-host-original", type=Path)
     parser.add_argument("--code-mode-host-original-sha256")
     args = parser.parse_args()
+    if bool(args.source_state) != bool(args.source_generation):
+        parser.error("--source-state and --source-generation must be supplied together")
     names = binary_names(args.target)
     if args.action == "snapshot":
-        value = snapshot(args.root, args.target)
+        value = source_snapshot(args.root, args.target, args.source_state, args.source_generation)
         args.file.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
     elif args.action == "record":
         before = json.loads(args.file.read_text(encoding="utf-8-sig"))
-        if before != snapshot(args.root, args.target):
+        if before != source_snapshot(args.root, args.target, args.source_state, args.source_generation):
             raise ValueError("Source changed during engine build. Do not package this pair; rebuild.")
         host_hash = sha(args.engine_dir / names[2])
         if args.code_mode_host_built:
@@ -171,7 +184,7 @@ def main():
         temporary.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
         temporary.replace(destination)
     else:
-        value = verify(args.root, args.engine_dir, args.target, args.profile)
+        value = verify(args.root, args.engine_dir, args.target, args.profile, source_state=args.source_state, source_generation=args.source_generation)
     print(json.dumps(value))
 
 
