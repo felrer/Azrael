@@ -165,6 +165,8 @@ function rewriteJavaScript(text, filename, ts) {
     ts.forEachChild(node, visit);
   };
   visit(file);
+  // The unchanged input already passed the syntax check above.
+  if (edits.length === 0) return { text, count: 0 };
   const result = applyEdits(text, edits);
   const parsed = ts.createSourceFile(filename, result, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
   if (parsed.parseDiagnostics.length) throw new Error(`Invalid transformed asset: ${filename}`);
