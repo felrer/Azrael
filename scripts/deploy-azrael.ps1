@@ -373,6 +373,9 @@ try {
     if ($CargoVerificationCacheProjectRoot) { $sourceConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if (-not $FullRegression) { $sourceConfig.featureIds = $focusedEngineFeatureIds }
     $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
+    if (-not $FullRegression -and -not $PSBoundParameters.ContainsKey('EngineFeatureId')) {
+        $sourceConfig.sourceCheckPaths = @($policyPaths)
+    }
     $temporaryIdentity = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($sourceConfig.temporaryDirectory))).ToLowerInvariant()
     $temporaryLifecycleId = "work:deployment-temporary:$temporaryIdentity"
     $temporaryLifecycleMembers = [ordered]@{ temporary = $sourceConfig.temporaryDirectory }
@@ -432,6 +435,9 @@ try {
         $enginePreservationConfig.featureIds = $focusedEngineFeatureIds
     }
     $enginePreservationConfigPath = Join-Path $logs 'engine-preservation-inputs.json'
+    if (-not $FullRegression -and -not $PSBoundParameters.ContainsKey('EngineFeatureId')) {
+        $enginePreservationConfig.sourceCheckPaths = @($policyPaths)
+    }
     $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
     $enginePreservation = Start-OwnedCommand 'engine-preservation' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $enginePreservationConfigPath)
     if (-not $TypeScriptPath) {

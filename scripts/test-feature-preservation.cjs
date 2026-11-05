@@ -36,6 +36,33 @@ const path = require('node:path');
     return { assets: [{ fixtureEdits: count }], transformRules: config.transformRules, sourceUi: {
       version: '1.2.3', packageSha256: sha(path.join(config.uiRoot, 'package.json')), webviewSha256: sha(path.join(config.uiRoot, 'picker.js')) } };
   }
+  test('selected source files bind receipts and reuse the same preflight without rerunning', async () => {
+    const { root, manifest, config } = setup();
+    fs.writeFileSync(path.join(root, 'scripts/check.cjs'), "require('./leaf.cjs')");
+    fs.writeFileSync(path.join(root, 'scripts/leaf.cjs'), 'module.exports = 1');
+    fs.writeFileSync(path.join(root, 'scripts/other.cjs'), 'module.exports = 2');
+    const feature = manifest.features[1];
+    feature.owners.push('scripts/leaf.cjs');
+    feature.checks = ['check', 'other'].map(name => ({ id: `engine.fixture.${name}`, level: 'source', executable: 'node',
+      args: ['--test', `scripts/${name}.cjs`], sourceSelection: { files: [`scripts/${name}.cjs`] } }));
+    let calls = 0;
+    const selected = { ...config, area: 'engine', checkPhase: 'source', sourceCheckPaths: ['scripts/leaf.cjs'],
+      execute: async (...args) => { calls++; return config.execute(...args); } };
+    const receipt = await gate.runPreservation(selected);
+    assert.equal(receipt.status, 'passed', receipt.error);
+    assert.equal(calls, 1);
+    assert.deepEqual(receipt.checks.map(check => check.checkId), ['engine.fixture.check']);
+    assert.deepEqual(receipt.sourceCheckSelection.checks[1].files, []);
+    await gate.verifyReceipt({ ...selected, receiptPath: receipt.receiptPath });
+    await assert.rejects(gate.verifyReceipt({ ...selected, sourceCheckPaths: ['scripts/other.cjs'], receiptPath: receipt.receiptPath }), /source check selection differs/);
+    const final = await gate.runPreservation({ ...selected, checkPhase: 'all', sourceReceiptPath: receipt.receiptPath });
+    assert.equal(final.status, 'passed', final.error); assert.equal(calls, 1);
+    assert.equal(final.checks[0].executionStatus, 'reused');
+    const tampered = JSON.parse(fs.readFileSync(receipt.receiptPath));
+    tampered.checks[0].args = ['--test', 'scripts/other.cjs'];
+    fs.writeFileSync(receipt.receiptPath, JSON.stringify(tampered));
+    await assert.rejects(gate.verifyReceipt({ ...selected, receiptPath: receipt.receiptPath }), /selected command differs/);
+  });
   test('native consumers share preparation owned by their physical Cargo target and frozen source identity', async () => {
     const { config } = setup(); config.area = 'engine';
     config.cargoTargetDirectory = path.join(config.projectRoot, 'artifacts', 'cargo-target');

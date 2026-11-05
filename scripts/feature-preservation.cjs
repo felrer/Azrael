@@ -12,6 +12,7 @@ const cargoCache = require('./cargo-verification-cache.cjs');
 const { validateCargoPreflight } = require('./cargo-verification.cjs');
 const { physicalPath } = require('./cargo-target-owner.cjs');
 const { planVerificationSchedule } = require('./verification-schedule.cjs');
+const sourceCheckSelection = require('./source-check-selection.cjs');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
@@ -109,6 +110,7 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
       if (feature.area === 'ui' && check.level !== 'source') throw Error(`UI check must be source: ${check.id}`);
       validateCargoSchedule(feature, check);
       validateCargoPreflight(check);
+      sourceCheckSelection.validate(check, source => reference(projectRoot, source));
       const sources = checkSources(check);
       if (!sources.length) throw Error(`Missing executable check source: ${check.id}`);
       sources.forEach(source => reference(projectRoot, source));
@@ -151,7 +153,7 @@ async function execute(executable, args, options) {
     });
   });
 }
-function selected(manifest, area, config) {
+function selectedFeatures(manifest, area, config) {
   if (!['ui', 'engine', 'all'].includes(area)) throw Error('Explicit area ui, engine or all required');
   const features = manifest.features.filter(feature => area === 'all' || feature.area === area);
   for (const required of area === 'all' ? ['ui', 'engine'] : [area]) if (!features.some(feature => feature.area === required)) throw Error(`Missing mandatory area: ${required}`);
@@ -160,6 +162,11 @@ function selected(manifest, area, config) {
   if (!Array.isArray(ids) || ids.some(id => typeof id !== 'string') || new Set(ids).size !== ids.length) throw Error('featureIds must be an array of unique feature IDs');
   for (const id of ids) if (!features.some(feature => feature.id === id)) throw Error(`Unknown or wrong-area feature ID: ${id}`);
   return features.filter(feature => ids.includes(feature.id));
+}
+function selected(manifest, area, config) {
+  const result = sourceCheckSelection.select(selectedFeatures(manifest, area, config), config);
+  Object.defineProperty(result.features, 'sourceCheckSelection', { value: result.selection });
+  return result.features;
 }
 function rulesFor(config) { return config.transformRules ?? require(path.join(config.projectRoot, 'scripts/namespace-azrael-host.cjs')).getTransformRules(); }
 async function sourceUiIdentity(config) {
@@ -206,13 +213,19 @@ function phaseChecks(feature, phase) {
   return feature.checks.filter(check => phase !== 'source' || check.level === 'source');
 }
 function sourceInputs(inputs) { const { engine, ...source } = inputs; return source; }
-function expectedReceipt(manifest, features, receipt) {
+function expectedReceipt(manifest, features, receipt, config) {
+  if (!same(receipt.sourceCheckSelection, features.sourceCheckSelection)) throw Error('Receipt source check selection differs');
   if (receipt.schema !== 1 || receipt.status !== 'passed' || !same(receipt.featureIds, features.map(feature => feature.id))) throw Error('Receipt missing requested passing feature scope');
   const required = features.flatMap(feature => phaseChecks(feature, receipt.checkPhase).map(check => ({ featureId: feature.id, checkId: check.id, area: feature.area })));
   if (!Array.isArray(receipt.checks) || receipt.checks.length !== required.length) throw Error('Receipt mandatory checks missing');
   for (const check of required) {
     const entries = receipt.checks.filter(entry => entry.featureId === check.featureId && entry.checkId === check.checkId && entry.area === check.area);
     if (entries.length !== 1 || entries[0].exitCode !== 0 || entries[0].signal || entries[0].error) throw Error(`Receipt mandatory check failed: ${check.checkId}`);
+    const declaration = features.find(feature => feature.id === check.featureId).checks.find(item => item.id === check.checkId);
+    if (declaration.sourceSelection) {
+      const expected = sourceTestCommand(config, declaration, declaration.args).args;
+      if (!same(entries[0].args, expected)) throw Error(`Receipt selected command differs: ${check.checkId}`);
+    }
   }
 }
 async function verifyLogs(receipt) {
@@ -369,6 +382,7 @@ async function runPreservation(config) {
     const scheduleOptions = config.verificationSchedule === undefined ? manifest.verificationSchedule ?? {} : config.verificationSchedule;
     nativeSchedulePlan(manifestNativeGroups(manifest), scheduleOptions);
     features = selected(manifest, config.area, config);
+    receipt.sourceCheckSelection = features.sourceCheckSelection;
     receipt.featureIds = features.map(feature => feature.id);
     receipt.notApplicableFeatureIds = manifest.features.filter(feature =>
       (config.area === 'all' || feature.area === config.area) && !receipt.featureIds.includes(feature.id)).map(feature => feature.id);
@@ -384,7 +398,7 @@ async function runPreservation(config) {
       if (config.checkPhase !== 'all') throw Error('Source evidence can only be handed to a complete run');
       sourceReceipt = readJson(config.sourceReceiptPath);
       if (sourceReceipt.checkPhase !== 'source' || sourceReceipt.area !== config.area) throw Error('Invalid source preflight receipt');
-      expectedReceipt(manifest, features, sourceReceipt); await verifyLogs(sourceReceipt);
+      expectedReceipt(manifest, features, sourceReceipt, config); await verifyLogs(sourceReceipt);
       if (!same(sourceInputs(sourceReceipt.inputs), sourceInputs(receipt.inputs))) throw Error('Source preflight input identity is stale');
     }
     const shared = new Map(), records = [];
@@ -572,7 +586,7 @@ async function runPreservation(config) {
     receipt.timings.identityAfterMs = performance.now() - identityStarted;
     if (receipt.sourceExecution && !same(receipt.sourceExecution, await sourceExecutionIdentity(config))) throw Error('Source execution environment changed');
     receipt.status = 'passed';
-    expectedReceipt(manifest, features, receipt);
+    expectedReceipt(manifest, features, receipt, config);
     await publishPassingCaches(false);
   } catch (error) {
     receipt.status = 'failed'; receipt.error = error.message;
@@ -617,7 +631,7 @@ async function verifyReceipt(config) {
   if (config.area && config.area !== receipt.area) throw Error('Receipt selected area differs');
   config.area = config.area ?? receipt.area;
   const features = selected(manifest, config.area, config);
-  expectedReceipt(manifest, features, receipt);
+  expectedReceipt(manifest, features, receipt, config);
   await verifyLogs(receipt);
   if (receipt.sourceExecution && !same(receipt.sourceExecution, await sourceExecutionIdentity(config))) throw Error('Source execution environment changed');
   await fs.promises.mkdir(config.outputDirectory, { recursive: true });
