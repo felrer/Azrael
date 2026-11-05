@@ -2,6 +2,7 @@
 //! Commands in plans are data: the host owns process execution and authorization.
 mod apply;
 mod groups;
+mod io_priority;
 pub mod lease;
 mod lock_recovery;
 mod nested_retirement;
@@ -276,6 +277,7 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
         );
     }
     let state = &mut store.state;
+    let mut refresh_unchanged = false;
     let result = match operation {
         "inventory" => {
             let config = config.as_ref().ok_or("valid project config required")?;
@@ -378,7 +380,10 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             if request.get("group").is_some() || request.get("item").is_some() {
                 return Err("refresh_group cannot include item or group".into());
             }
-            groups::refresh(&root, string(refresh, "id")?, state, authorize)?
+            let (result, changed) =
+                groups::refresh(&root, string(refresh, "id")?, state, authorize)?;
+            refresh_unchanged = !changed;
+            result
         }
         "plan" | "begin_run" => {
             let config = config.as_ref().ok_or("valid project config required")?;
@@ -711,10 +716,12 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
         )?,
         _ => return Err("unknown maintenance operation".into()),
     };
-    if matches!(
-        operation,
-        "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
-    ) {
+    if !refresh_unchanged
+        && matches!(
+            operation,
+            "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
+        )
+    {
         store.save(authorize)?;
     }
     Ok(result)

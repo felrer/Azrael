@@ -2,6 +2,18 @@
 
 상태: `partial`. 공통 Rust·native handler/권한·가용성 지침과 주요 Windows producer/cleaner의 소스 수용을 확인했다. 설치 앱의 가용성, 다른 OS 실기기와 과거 경로의 물리 이전은 별도다. 상세 검증 상태는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)이 소유한다. 기능 보존 ID는 `tool.project-maintenance`다.
 
+## Windows 대량 I/O와 측정 메모리
+
+상태: `current` (소스·Windows x64 native 검증). 근거는 [FW-01 작업](../../work/FW-01-volsnap-io-safety/01-plan.md)이 소유한다. 보존 기능은 `tool.project-maintenance`이며 실사용 설치·VSS 재발 관측과 다른 OS 검증은 별도다.
+
+등록의 대량 파일 측정은 유지관리·catalog 전역 잠금을 반환한 뒤 Windows 스레드 백그라운드 모드로 실행한다. 이 모드는 CPU뿐 아니라 I/O·메모리 자원 우선순위를 조절하며 고정 대기나 처리량 상한을 추가하지 않는다. 새 진입 실패는 측정을 시작하지 않는 오류이고, 종료 후 원래 모드를 복원한 다음 전역 상태를 재취득한다. 이미 background인 호출자의 모드는 반환하지 않는다. 다른 OS는 기존 스케줄링을 유지한다. 실제 오류 취소·예약 및 CAS·의도/결과의 동기 저장은 유지한다.
+
+Windows 삭제 전용 프로세스도 Job Object containment gate 이후 백그라운드 모드를 적용한다. 호스트 전체의 우선순위는 바꾸지 않는다. 검토된 경로만 자식부터 ordinary Win32 삭제하고 비어 있지 않은 디렉터리는 실패시킨다. 마지막 검사 뒤 추가된 이름을 재귀 탐색하여 삭제하지 않는다. 기존 junction·hardlink·System 속성·ReadOnly/Hidden 정규화·부분 실패·unknown 보호는 유지한다. 경로 기반 삭제가 같은 이름의 동시 객체 교체까지 원자적으로 방지한다고 주장하지 않는다.
+
+공통 측정 identity는 기존 JSON 배열의 바이트를 고정 크기 버퍼로 SHA-256에 스트리밍한다. 전체 트리의 JSON records와 최종 직렬화 버퍼를 동시에 보유하지 않으며 기존 경로 목록·파일 전후 안정성 검사와 저장된 digest 의미는 유지한다. 이는 OS 크래시 무발생 보장이나 디스크별 전역 처리량 제한이 아니다. 분할 저장은 아래의 명시적 이관 조건을 유지하며 자동으로 실사용 저장소를 전환하지 않는다.
+
+`refresh_group`은 전역 상태·catalog 잠금 아래 기존 예약·source·구성원·보호 검사를 모두 수행한다. 선택한 그룹과 모든 멤버의 전체 JSON 값이 같으면 응답을 반환하되 manifest를 다시 쓰거나 revision을 올리지 않는다. 어느 값이든 달라지면 기존 동기 저장을 수행한다. 이 생략은 refresh에만 적용하고 일반 저장·삭제 의도·실제 결과·실행 종료 기록에는 적용하지 않는다.
+
 ## 생성 소유권과 보관·관찰 책임
 
 상태: `partial` — 현재 checkout의 Node 구현과 Windows x64 연동을 검증했다. 다른 OS 실기기·과거 기록의 전체 전환은 미완료이며, 앱 내장 엔진은 변경하지 않았다. [현재 구현·검증 작업](../../work/DW-01-build-preflight-timing/16-plan.md)이 수용 범위를 소유한다. 기능 보존 owner는 `tool.project-maintenance.lifecycle-source`와 같은 inventory의 writer 검사다.

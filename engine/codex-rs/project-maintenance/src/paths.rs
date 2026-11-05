@@ -857,8 +857,58 @@ pub(crate) fn entries(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<Pa
     }
     Ok(out)
 }
+struct MeasurementIdentity {
+    writer: std::io::BufWriter<MeasurementDigest>,
+    entries: usize,
+}
+
+struct MeasurementDigest(sha2::Sha256);
+
+impl std::io::Write for MeasurementDigest {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        use sha2::Digest;
+        self.0.update(bytes);
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+impl MeasurementIdentity {
+    fn new() -> Self {
+        Self {
+            writer: std::io::BufWriter::with_capacity(65536, MeasurementDigest(Default::default())),
+            entries: 0,
+        }
+    }
+
+    fn push(&mut self, record: &Value) -> Result<(), String> {
+        use std::io::Write;
+        // Preserve exactly the compact JSON array bytes used by hash(&records),
+        // including Value's object-key order, without retaining the whole tree.
+        self.writer
+            .write_all(if self.entries == 0 { b"[" } else { b"," })
+            .map_err(|e| e.to_string())?;
+        serde_json::to_writer(&mut self.writer, record).map_err(|e| e.to_string())?;
+        self.entries += 1;
+        Ok(())
+    }
+
+    fn finish(mut self) -> Result<String, String> {
+        use sha2::Digest;
+        use std::io::Write;
+        self.writer
+            .write_all(if self.entries == 0 { b"[]" } else { b"]" })
+            .map_err(|e| e.to_string())?;
+        let digest = self.writer.into_inner().map_err(|e| e.to_string())?;
+        Ok(format!("{:x}", digest.0.finalize()))
+    }
+}
+
 pub(crate) fn measure(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Value, String> {
-    let mut records = Vec::new();
+    let mut identity = MeasurementIdentity::new();
     let mut bytes = 0u64;
     for p in entries(root, path, auth)? {
         auth(&p, AccessMode::Read)?;
@@ -880,9 +930,10 @@ pub(crate) fn measure(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Value,
         {
             return Err("input changed while measuring".into());
         }
-        records.push(json!({"path":p.strip_prefix(path).map_err(|e|e.to_string())?,"bytes":before.len(),"modified":before.modified().ok().and_then(|t|t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d|d.as_nanos().to_string()),"directory":before.is_dir(),"readonly":before.permissions().readonly(),"platform":platform_identity(&before),"content":content}));
+        identity.push(&json!({"path":p.strip_prefix(path).map_err(|e|e.to_string())?,"bytes":before.len(),"modified":before.modified().ok().and_then(|t|t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d|d.as_nanos().to_string()),"directory":before.is_dir(),"readonly":before.permissions().readonly(),"platform":platform_identity(&before),"content":content}))?;
     }
-    Ok(json!({"identity":hash(&records)?,"logical_bytes":bytes,"entries":records.len()}))
+    let entries = identity.entries;
+    Ok(json!({"identity":identity.finish()?,"logical_bytes":bytes,"entries":entries}))
 }
 #[cfg(windows)]
 pub(crate) fn platform_identity(m: &fs::Metadata) -> Value {
@@ -897,6 +948,34 @@ pub(crate) fn platform_identity(m: &fs::Metadata) -> Value {
 #[cfg(not(any(windows, unix)))]
 pub(crate) fn platform_identity(_: &fs::Metadata) -> Value {
     Value::Null
+}
+
+#[cfg(test)]
+mod measurement_identity_tests {
+    use super::*;
+
+    #[test]
+    fn streamed_measurement_identity_matches_legacy_json_array() {
+        // Future record/serializer changes must preserve persisted identities,
+        // including separators, escaping, key order and buffered digest writes.
+        let records = [
+            json!({"path":"","bytes":0,"modified":null,"directory":true,"readonly":false,"platform":null,"content":""}),
+            json!({"path":"nested/한글\\\"\nfile","bytes":u64::MAX,"modified":"12345678901234567890","directory":false,"readonly":true,"platform":{"attributes":33,"created":123,"written":456},"content":"a".repeat(64)}),
+            json!({"path":"nested/large","bytes":65537,"modified":"0","directory":false,"readonly":false,"platform":{"device":1,"inode":2,"mode":33188,"ctime":-1,"ctime_nsec":99},"content":"b".repeat(65537)}),
+        ];
+        for count in 0..=records.len() {
+            let mut identity = MeasurementIdentity::new();
+            for record in &records[..count] {
+                identity.push(record).unwrap();
+            }
+            assert_eq!(identity.entries, count);
+            assert_eq!(
+                identity.finish().unwrap(),
+                hash(&records[..count].to_vec()).unwrap(),
+                "{count} records"
+            );
+        }
+    }
 }
 
 #[cfg(test)]

@@ -260,7 +260,7 @@ pub(crate) fn refresh(
     group_id: &str,
     state: &mut State,
     auth: Auth<'_>,
-) -> Result<Value, String> {
+) -> Result<(Value, bool), String> {
     crate::reservations::check_group(root, group_id, auth)?;
     let mut group = state
         .groups
@@ -329,10 +329,17 @@ pub(crate) fn refresh(
     group["membership_complete"] = observed["settled"].clone();
     group["membership_source_identity"] = observed["identity"].clone();
     group["protection_revision"] = observed["identity"].clone();
+    // Refresh changes only this group and its members. Compare their complete
+    // Values (including unknown fields) under the existing catalog/state locks;
+    // an unchanged refresh needs no full-manifest rewrite or revision bump.
+    let changed = state.groups.get(group_id) != Some(&group)
+        || items
+            .iter()
+            .any(|(id, item)| state.items.get(id) != Some(item));
     let refreshed_items = items.values().cloned().collect::<Vec<_>>();
     state.items.extend(items);
     state.groups.insert(group_id.to_owned(), group.clone());
-    Ok(json!({"group":group,"items":refreshed_items}))
+    Ok((json!({"group":group,"items":refreshed_items}), changed))
 }
 
 pub(crate) struct Batch {

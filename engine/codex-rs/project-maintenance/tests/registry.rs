@@ -483,10 +483,25 @@ fn refresh_releases_consumers_without_payload_measurement() {
         "changed payload bytes",
     )
     .unwrap();
+    let manifest = root.path().join("artifacts/maintenance/manifest.json");
+    let before = std::fs::read(&manifest).unwrap();
     let refreshed = call(
         &root,
         json!({"operation":"register","refresh_group":{"id":"version"}}),
     );
+    let persisted = std::fs::read(&manifest).unwrap();
+    assert_ne!(persisted, before, "changed protection must be persisted");
+    let repeated = call(
+        &root,
+        json!({"operation":"register","refresh_group":{"id":"version"}}),
+    );
+    assert_eq!(repeated, refreshed);
+    assert_eq!(
+        std::fs::read(&manifest).unwrap(),
+        persisted,
+        "an unchanged refresh must preserve the manifest and revision"
+    );
+    assert!(!manifest.with_file_name("manifest.pending").exists());
     for (old, new) in registered["items"]
         .as_array()
         .unwrap()
