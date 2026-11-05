@@ -44,7 +44,7 @@ async function archiveEntries(filename) {
 
 test("pinned yazl writer preserves buffers, files, modes, output replacement and reproducible ordering/mtime", async t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "package-writer-"));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const previousEpoch = process.env.SOURCE_DATE_EPOCH;
   t.after(() => previousEpoch === undefined ? delete process.env.SOURCE_DATE_EPOCH : process.env.SOURCE_DATE_EPOCH = previousEpoch);
   process.env.SOURCE_DATE_EPOCH = "1700000000";
@@ -78,7 +78,7 @@ test("pinned yazl writer preserves buffers, files, modes, output replacement and
 
 function extensionFixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "package-real-"));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const cwd = path.join(root, "extension");
   fs.mkdirSync(cwd);
   fs.writeFileSync(path.join(cwd, "package.json"), JSON.stringify({ name: "fixture-host", publisher: "fixture",
@@ -91,8 +91,30 @@ function extensionFixture(t) {
   return { root, cwd };
 }
 
-test("minimal real fixture matches pinned VSCE CLI archive entries and metadata", async t => {
+test("precompressed image/font entries use STORE and preserve bytes and modes for disk and buffer inputs", async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "package-compression-"));
+  t.after(() => fs.rmSync(root, { recursive: true }));
+  const disk = path.join(root, "image");
+  const bytes = Buffer.from([0, 255, 128, 1, 2, 3]);
+  fs.writeFileSync(disk, bytes);
+  const names = ["image.png", "photo.JPG", "photo.jpeg", "image.webp", "image.avif", "image.gif", "font.woff", "font.WOFF2",
+    "main.js", "engine.exe", "library.dll", "vector.svg", "font.ttf", "font.otf", "image.png.map", "no-extension"];
+  const files = names.map((name, index) => ({ path: `extension/assets/${name}`, mode: 0o100640,
+    ...(index % 2 ? { contents: bytes } : { localPath: disk }) }));
+  const output = path.join(root, "compression.vsix");
+  assert.deepEqual(await writeVsix(files, output, pinnedRequire("yazl")), { stored: 8, deflated: 8 });
+  const entries = await archiveEntries(output);
+  assert.deepEqual(entries.map(entry => entry.name), files.map(file => file.path));
+  entries.forEach((entry, index) => {
+    assert.equal(entry.compression, index < 8 ? 0 : 8, names[index]);
+    assert.equal(entry.contents, bytes.toString("base64"), names[index]);
+    assert.equal(entry.mode, 0o100640, names[index]);
+  });
+});
+
+test("minimal real fixture preserves pinned VSCE entries and metadata with stored media", async t => {
   const { root, cwd } = extensionFixture(t);
+  fs.writeFileSync(path.join(cwd, "photo.PNG"), Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64"));
   const output = path.join(root, "optimized.vsix");
   const baseline = path.join(root, "baseline.vsix");
   const options = { cwd, encoding: "utf8", windowsHide: true,
@@ -102,7 +124,11 @@ test("minimal real fixture matches pinned VSCE CLI archive entries and metadata"
   const original = spawnSync(process.execPath, [pinnedCli, "package", "--no-dependencies", "--no-rewrite-relative-links",
     "--allow-missing-repository", "--allow-package-all-secrets", "--out", baseline], options);
   assert.equal(original.status, 0, `${original.error || ""}\n${original.stdout}\n${original.stderr}`);
-  assert.deepEqual(await archiveEntries(output), await archiveEntries(baseline));
+  const optimizedEntries = await archiveEntries(output);
+  const baselineEntries = await archiveEntries(baseline);
+  const withoutCompression = ({ compression, ...entry }) => entry;
+  assert.deepEqual(optimizedEntries.map(withoutCompression), baselineEntries.map(withoutCompression));
+  for (const entry of optimizedEntries) assert.equal(entry.compression, entry.name.endsWith("photo.PNG") ? 0 : 8);
 });
 
 test("real .env and credential fixtures fail with nonzero status and no secret body in logs", async t => {
@@ -134,7 +160,7 @@ test("real .env and credential fixtures fail with nonzero status and no secret b
 
 function fixture(t, { diskOk = true, memoryOk = true, validationError } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "package-unit-"));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const cwd = path.resolve("prepared-host");
   const cli = path.resolve("pinned-vsce", "vsce");
   const manifest = { name: "host" };
@@ -336,7 +362,7 @@ async function pristineFixture(run) {
   try {
     await run({ root, host, pristine, outside, write });
   } finally {
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true });
   }
 }
 

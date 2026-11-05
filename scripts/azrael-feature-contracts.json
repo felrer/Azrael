@@ -561,7 +561,9 @@
         "scripts/build-azrael.ps1",
         "scripts/build-platform.cjs",
         "scripts/test-build-metrics.ps1",
-        "engine/codex-rs/app-server/src/bin/azrael.rs"
+        "engine/codex-rs/app-server/src/bin/azrael.rs",
+        "scripts/package-local-host.cjs",
+        "scripts/test-package-local-host.cjs"
       ],
       "contract": "docs/architecture/upstream-preservation.md",
       "reportFields": [],
@@ -571,6 +573,15 @@
           "executable": "node",
           "args": [
             "scripts/check-engine-provenance-guards.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "engine.source-provenance.package-archive",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-package-local-host.cjs"
           ],
           "level": "source"
         }
