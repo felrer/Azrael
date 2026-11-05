@@ -1,0 +1,60 @@
+{
+  "recordedUtc": "2026-11-05T12:07:13.083Z",
+  "exitCode": 0,
+  "logicalBytes": 2592656035,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:fw02:delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc",
+        "status": "deleted"
+      },
+      {
+        "id": "run:fw02:delete-vss2-e82e1c78-88a9-460c-b489-c43406dababf",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-31924-7319-1793880407901",
+        "decision": "delete",
+        "decision_id": "f6052ce1e9f6896929599a48873f741448fbe9969f0d7eab66ae075bbcdb13e6",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "62e358e8d419b06f3d4d8f65d23f4efc304727869af87f30e5a51ad9020ba7c3",
+        "lifecycle_group_id": "run:fw02:delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc",
+        "reason": "Exact owned VHD detached and shadows absent; all producers terminal; actual deletion/failure evidence retained independently in work; disposable experiment inputs and outputs no longer needed",
+        "remaining": false,
+        "status": "deleted",
+        "token": "94a6e231343640e1de68eb9e6dd801138bb587e7cde0633e15f780e9d683713b"
+      },
+      {
+        "attempt_id": "attempt-31924-7321-1793880426561",
+        "decision": "delete",
+        "decision_id": "f2deb99912a800d1c99453a5dfe8fed42270381fe31491bef538eb0a30c99201",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "846189159d760bcbeef3b4dde3efb531e5479f866724c626bc596fc2d658f418",
+        "lifecycle_group_id": "run:fw02:delete-vss2-e82e1c78-88a9-460c-b489-c43406dababf",
+        "reason": "Exact owned VHD detached and shadows absent; all producers terminal; actual deletion/failure evidence retained independently in work; disposable experiment inputs and outputs no longer needed",
+        "remaining": false,
+        "status": "deleted",
+        "token": "f0504083d43350fba2f2cdc9ca692fb95af317a19272754e078e9a9d2b2ab339"
+      }
+    ]
+  },
+  "stderr": ""
+}

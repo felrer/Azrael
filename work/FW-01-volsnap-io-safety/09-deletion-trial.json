@@ -1,0 +1,688 @@
+{
+  "schema": 1,
+  "runId": "run:fw02:delete-vss2-e82e1c78-88a9-460c-b489-c43406dababf",
+  "classification": "actual-installed-owner-deletion-completed-event25-not-reproduced",
+  "recordedUtc": "2026-11-05T12:04:49.533Z",
+  "environment": "Windows 11 Home 10.0.26200 x64 local; isolated 8GiB VHDX on C with shared physical storage",
+  "testedOwner": {
+    "path": "artifacts/versions/maintenance-owner-ff01-reservation-win-x64-20261102/payload/maintenance_owner.exe",
+    "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+    "scope": "Currently installed standalone owner, not FW-01 uninstalled candidate or embedded app tool"
+  },
+  "inputs": {
+    "controller.ps1": "ae63f74905a284e30689463d6a60236823a82bc9db4104862cd25f596cb9e3b1",
+    "fixture.cs": "db6c6ede095a98bc3ec65bce1a8f137f114c6f02a39cfe314ce948488dcdba04",
+    "delete-stage.ps1": "8c44c6455f3763da1cb75058d4c75ec66f1bcb03303c125005c714becc9df868"
+  },
+  "limits": {
+    "vhdBytes": 8589934592,
+    "diffAreaBytes": 4294967296,
+    "maxPayloadWrites": 17179869184,
+    "newWorkCutoffSeconds": 180,
+    "waitForStartedNative": true,
+    "userApproved": true
+  },
+  "fixture": {
+    "directoryCount": 32,
+    "filesPerDirectory": 512,
+    "fileCount": 16384,
+    "fileBytes": 65536,
+    "payloadBytes": 1073741824,
+    "preflightPayloadBytes": 1048576,
+    "creation": "CreateNew, WriteThrough, Flush(true), one foreground writer joined before deletion",
+    "groupCount": 1
+  },
+  "preflight": {
+    "Stage": "Preflight",
+    "StartedUtc": "2026-11-05T12:01:05.3121964Z",
+    "Success": true,
+    "Cleanup": [],
+    "Failure": null,
+    "RecoveryNeeded": false,
+    "CreateAttempted": true,
+    "ShadowCreateReturnValue": 0,
+    "QuotaResizeExitCode": 0,
+    "CutoffUtc": "2026-11-05T12:01:15.2441354Z",
+    "ShadowAbsent": true,
+    "Detached": true,
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "ProjectRoot": null,
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T12:01:15.7003479Z"
+  },
+  "deleteStage": {
+    "Stage": "Delete",
+    "StartedUtc": "2026-11-05T12:02:23.2332723Z",
+    "Success": true,
+    "Cleanup": [],
+    "Failure": null,
+    "RecoveryNeeded": false,
+    "CreateAttempted": true,
+    "ShadowCreateReturnValue": 0,
+    "FixtureJoined": true,
+    "RequestedBytes": 1073741824,
+    "CompletedBytes": 1073741824,
+    "FixtureFiles": 16384,
+    "FixtureSeconds": 87.9805229,
+    "CutoffUtc": "2026-11-05T12:03:55.1880570Z",
+    "ShadowAbsent": true,
+    "Detached": true,
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "ProjectRoot": "F:\\fw03-15cfcc8d-5483-42d6-8809-0923911110c9",
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T12:03:55.6139818Z"
+  },
+  "exits": [
+    {
+      "startedUtc": "2026-11-05T11:59:53.6834261Z",
+      "Stage": "Preflight",
+      "pid": 41956,
+      "endedUtc": "2026-11-05T12:01:15.7733707Z",
+      "actualExit": 0,
+      "processExited": true
+    },
+    {
+      "startedUtc": "2026-11-05T12:02:20.4982939Z",
+      "Stage": "Delete",
+      "pid": 18488,
+      "endedUtc": "2026-11-05T12:03:55.6771946Z",
+      "actualExit": 0,
+      "processExited": true
+    }
+  ],
+  "identity": {
+    "ImagePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\delete-vss2-e82e1c78-88a9-460c-b489-c43406dababf\\outputs\\test.vhdx",
+    "DiskUniqueId": "600224801AE24580061CBE07357E99DF",
+    "PartitionGuid": "{4ca65953-d6af-4834-b3ba-c1ee21797b7d}",
+    "VolumeGuid": "\\\\?\\Volume{4ca65953-d6af-4834-b3ba-c1ee21797b7d}\\",
+    "DriveToken": "F:",
+    "DeviceName": "\\Device\\HarddiskVolume23"
+  },
+  "before": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "Utc": "2026-11-05T12:02:25.1749755Z",
+    "EventFloor": 45031,
+    "Shadows": {}
+  },
+  "after": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "ChangedBaselineAssociations": [],
+    "Shadows": {},
+    "MissingBaselineShadowIds": []
+  },
+  "phases": [
+    {
+      "Schema": 1,
+      "Phase": "Prepare",
+      "ProjectRoot": "F:\\fw03-15cfcc8d-5483-42d6-8809-0923911110c9",
+      "Success": true,
+      "NativeStarted": false,
+      "NativeTerminated": true,
+      "NativeExit": null,
+      "NativePid": null,
+      "NativeTreeSettled": true,
+      "Failure": null,
+      "Validation": {
+        "ConfigWritten": true,
+        "MemberCount": 32
+      },
+      "StartedUtc": "2026-11-05T12:03:16.6463848Z",
+      "EndedUtc": "2026-11-05T12:03:18.1454069Z"
+    },
+    {
+      "Schema": 1,
+      "Phase": "Register",
+      "ProjectRoot": "F:\\fw03-15cfcc8d-5483-42d6-8809-0923911110c9",
+      "Success": true,
+      "NativeStarted": true,
+      "NativeTerminated": true,
+      "NativeExit": 0,
+      "NativePid": 27656,
+      "NativeTreeSettled": true,
+      "Failure": null,
+      "Validation": {
+        "MemberCount": 32,
+        "GroupId": "fw03-vss-delete-fixture"
+      },
+      "StartedUtc": "2026-11-05T12:03:22.0926380Z",
+      "EndedUtc": "2026-11-05T12:03:32.3089148Z"
+    },
+    {
+      "Schema": 1,
+      "Phase": "Review",
+      "ProjectRoot": "F:\\fw03-15cfcc8d-5483-42d6-8809-0923911110c9",
+      "Success": true,
+      "NativeStarted": true,
+      "NativeTerminated": true,
+      "NativeExit": 0,
+      "NativePid": 12476,
+      "NativeTreeSettled": true,
+      "Failure": null,
+      "Validation": {
+        "TokensCaptured": true,
+        "Blockers": 0,
+        "MemberCount": 32,
+        "GroupId": "fw03-vss-delete-fixture"
+      },
+      "StartedUtc": "2026-11-05T12:03:34.0755020Z",
+      "EndedUtc": "2026-11-05T12:03:35.7239680Z"
+    },
+    {
+      "Schema": 1,
+      "Phase": "Apply",
+      "ProjectRoot": "F:\\fw03-15cfcc8d-5483-42d6-8809-0923911110c9",
+      "Success": true,
+      "NativeStarted": true,
+      "NativeTerminated": true,
+      "NativeExit": 0,
+      "NativePid": 41136,
+      "NativeTreeSettled": true,
+      "Failure": null,
+      "Validation": {
+        "PayloadBytes": 1073741824,
+        "RemainingPaths": 0,
+        "FileCount": 16384,
+        "GroupId": "fw03-vss-delete-fixture",
+        "DeletedMembers": 32
+      },
+      "StartedUtc": "2026-11-05T12:03:38.3911754Z",
+      "EndedUtc": "2026-11-05T12:03:54.1841843Z"
+    }
+  ],
+  "phaseSeconds": [
+    {
+      "phase": "Prepare",
+      "seconds": 1.499,
+      "scope": "Adapter invocation including native execution and response validation"
+    },
+    {
+      "phase": "Register",
+      "seconds": 10.216,
+      "scope": "Adapter invocation including native execution and response validation"
+    },
+    {
+      "phase": "Review",
+      "seconds": 1.648,
+      "scope": "Adapter invocation including native execution and response validation"
+    },
+    {
+      "phase": "Apply",
+      "seconds": 15.793,
+      "scope": "Adapter invocation including native execution and response validation"
+    }
+  ],
+  "stageSeconds": 92.38,
+  "applyResults": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "fw03-vss-delete-fixture",
+        "status": "deleted"
+      }
+    ],
+    "items": [
+      {
+        "id": "fw03-member-00",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-01",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-02",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-03",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-04",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-05",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-06",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-07",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-08",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-09",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-10",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-11",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-12",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-13",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-14",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-15",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-16",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-17",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-18",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-19",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-20",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-21",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-22",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-23",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-24",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-25",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-26",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-27",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-28",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-29",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-30",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      },
+      {
+        "id": "fw03-member-31",
+        "status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        }
+      }
+    ]
+  },
+  "observations": {
+    "ownedVolumeEvent25": 0,
+    "otherVolsnap": 0,
+    "afterApplyShadowObservation": {
+      "Utc": "2026-11-05T12:03:55.1685027Z",
+      "Phase": "delete-Apply",
+      "Kind": "owned-shadow",
+      "Data": {
+        "ID": "{A7DD84C2-9CDB-4BEA-84F1-3FA67FA614C5}",
+        "VolumeName": "\\\\?\\Volume{4ca65953-d6af-4834-b3ba-c1ee21797b7d}\\",
+        "DeviceObject": "\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy7",
+        "ProviderID": "{B5946137-7B9F-4925-AF80-51ABD60B20D5}",
+        "InstallDate": "/Date(1793880199572)/",
+        "State": 12,
+        "ClientAccessible": true
+      }
+    },
+    "maxDiffUsedBytes": 38191104,
+    "maxDiffAllocatedBytes": 301989888,
+    "minCFreeBytes": 176271822848,
+    "minAvailableRamBytes": 9994719232
+  },
+  "contractProbe": {
+    "Phases": [
+      {
+        "Phase": "Prepare",
+        "NativeExit": null,
+        "Terminated": true
+      },
+      {
+        "Phase": "Register",
+        "NativeExit": 0,
+        "Terminated": true
+      },
+      {
+        "Phase": "Review",
+        "NativeExit": 0,
+        "Terminated": true
+      },
+      {
+        "Phase": "Apply",
+        "NativeExit": 0,
+        "Terminated": true
+      }
+    ],
+    "AllMembersAbsent": true,
+    "ActualBytes": 32,
+    "ActualFixtureFiles": 32
+  },
+  "producerStopEvidence": "Parent WaitForExit/Refresh observed controller exit0; fixture joined; each native process and adapter child terminal, apply reports all32 deleted and actual paths absent. Snapshot observed after apply, then exact snapshot deleted/absent and image normally detached. Original VSS preserved.",
+  "backingFileBytes": 1312817152,
+  "limitations": [
+    "One bounded deletion trial; does not prove inability to reproduce Volsnap25 in other conditions.",
+    "No baseline/candidate comparison; no claim about FW-01 mitigation effectiveness or maximal throughput.",
+    "VSS was retained through register/review/apply and post-apply observation, then intentionally deleted for cleanup.",
+    "No concurrent synthetic stress writer during deletion."
+  ]
+}

@@ -1,4 +1,4 @@
-상태: 직접 shadow 생성 경로의 사전 점검 및 제한 부하 시험이 exit0으로 완료됐다. 총 쓰기16GiB에 도달했으나 새 Volsnap25 및 다른 Volsnap 이벤트는0개였다. 재현 목표는 미달성이며 해당 한도에서 미재현으로 판정했다. 두 후속 실행의 임시 파일 삭제·부재·소유 기록 종료를 확인했다.
+상태: 실제 설치된 삭제 도구로 VSS 복사본을 유지한32개 디렉터리·16,384개 파일·1GiB 삭제를 완료했다. native register/review/apply 모두 exit0이며 새 Volsnap25는0건이었다. 최소 결과를 보존하고 두 실행의 임시 파일 삭제·부재·소유 기록 종료를 확인했다.
 
 # Volsnap 이벤트 25 제한 재현
 
@@ -81,3 +81,22 @@
 - 두 foreground worker Join 성공, exact-ID shadow 삭제 후 부재와 image detach 검증, 기존 VSS 보존, cleanup 오류0개를 확인했다. 시험 종료 시 VHDX 파일 크기는4,366,270,464바이트였다.
 - 해석 범위: 한 차례 합성 I/O 시험이다. 쓰기 총량16GiB와 별개로 변경 대상 파일의 합계는2GiB여서 계속 새로운 영역을 수정하는 작업과 차등 저장소 성장 양상이 다르다. Azrael의 실제 기존/개선 binary를 비교하지 않았으므로 인과관계·개선 효과·최대 처리량·향후 재발 불가를 입증하지 않는다. 재현을 위해 자동으로 한도나 실사용 볼륨 변경 범위를 넓히지 않았다.
 - [후속 정리 결과](07-followup-cleanup.json): vss2/vss3 등록·fresh review·명시적 삭제 모두 exit0, 두 group `deleted`, 두 member `remaining:false`, 오류 없음. 논리 크기 합계4,370,571,452바이트를 삭제했으며 물리 회수량은 측정하지 않았다. 두 lifecycle finalize도 `remaining:[]`, `references:[]`, `blockers:[]`로 확인했다. 입력 hash는 실행 후에도 동일했다. 별도 상주 harness·제품 코드·설치는 추가하지 않았고, 근거 JSON 및 이 작업 기록만 보존했다.
+
+## 실제 삭제 도구 실험
+
+- 사용자가 다음 단계로 삭제 도구 실험을 요청했다. 현재 실제 정리에 사용하는 Windows x64 standalone `maintenance_owner.exe`(SHA256 `c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680`)를 대상으로 한다. FW-01의 미설치 개선 버전이나 앱 내장 도구를 시험했다고 보고하지 않는다. 제품 코드·설치 변경은 포함하지 않는다.
+- 새 run은 `run:fw02:delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc`이며, outputs/test.vhdx와 입력·로그·보고서·컴파일 임시물 전체를 생성 전에 root/fw02-volsnap-reproduction 소유로 등록했다. 실제 fixture는 새 VHDX의 독립 projectRoot 안에만 생성한다.
+- 데이터는64KiB 파일16,384개(1GiB)를512개씩32개 disjoint 디렉터리에 배치한다. VSS 복사본을 만든 뒤 실제 owner의 register/review/apply를 호출한다. 32개 디렉터리를 하나의 완결된 그룹으로 등록하고 fresh token에 대한 명시적 삭제만 실행한다. 임의 PowerShell 재귀 삭제로 대체하지 않는다.
+- 기존8GiB VHDX·4GiB 동일 볼륨 diff area·총 요청쓰기16GiB·180초 부하 상한 및 자원/이벤트/복사본/기존VSS 보존 조건을 유지한다. 실제 native 작업의 취소·프로세스 종료 계약을 확인한 뒤 실행한다. 종료가 불확실한 삭제 프로세스를 남긴 채 shadow 삭제나 VHD detach를 하지 않는다.
+- root는 native adapter·관리자 실행·통합 검토·정리, harness executor는 VHD/fixture/관측 제어기, deletion reviewer는 설치 기능과 native 요청·종료 계약의 읽기 전용 확인을 담당한다. Controller와 adapter 고정 입력이 준비되면 작은 preflight부터 실행한다.
+- 설치 CLI는 취소 callback을 false로 전달하고 Windows worker 응답을 시간 제한 없이 기다린다. `lock_wait_ms:0`은 잠금 대기만 제한한다. 사용자는 180초/관측 실패/사용자 중지 이후 새 단계 금지 및 진행 중 native 종료 대기 조건을 승인했다. 강제 종료를 사용하지 않으며 unknown/active 상태에서는 shadow 삭제·detach를 금지한다.
+- Preflight는 2026-11-05 20:32:24~20:32:35 KST에 actual exit0. shadow 생성·동일VHD association·4GiB quota·정확한 shadow 삭제·detach·기존 VSS 보존을 확인했다. Native adapter의 실제 함수로 새 작은 프로젝트의 inventory를 호출해 actual exit0과 프로세스 종료를 확인했다. 실제 삭제는 수행하지 않았다.
+- 실행 입력 고정값: controller `96c3e24253b15abc1ffda28b4258532b4c9e603061004c2490224c24e3ed67e1`, fixture `db6c6ede095a98bc3ec65bce1a8f137f114c6f02a39cfe314ce948488dcdba04`, adapter `40bfd1ad86e1dcaf7a26d930e83eb0e22606fdd426815ce72a664c61cf31a195`. 성공 Preflight의 원본 controller `d70124db3f0290e34256da9e980eacbe3d9cea5f3c457d46460fd74d90168c56`도 실행 묶음 안에 보존했다. AST·fixture C# compile-only·native helper exit0/exit7 검증은 모두 exit0이다.
+- 첫 Delete 단계는 20:56:29~20:57:31 KST에 exit1로 종료됐다. 파일16,384개/1GiB와 shadow 준비는 성공했으나 native Register가 `missing nonempty provenance_ref`로 exit1을 반환했다. 실제 삭제는 시작하지 않았다. 이는 harness의 group 요청 구성 오류이며 [독립 실패 근거](08-deletion-registration-failure.json)에 원래 실패와 종료·shadow 부재·detach·기존 VSS 보존을 남겼다.
+- 새 run `run:fw02:delete-vss2-e82e1c78-88a9-460c-b489-c43406dababf`에서만 요청을 수정했다. Prepare가 fixture 소유·완결 구성을 `fixture-provenance.json`에 기록하고 Register group의 필수 `provenance_ref`가 이를 참조한다. adapter의 실제 phase 본문과 native 실행 함수를 AST에서 추출해32개 디렉터리/각1바이트 파일로 Prepare→Register→Review→Apply를 실행했다. native 호출 모두 exit0, 32개 경로 실제 부재를 확인했다. 이 작은 시험은 요청 계약 검증이며 VSS 부하 결과에 포함하지 않는다.
+- 수정 입력: controller `ae63f74905a284e30689463d6a60236823a82bc9db4104862cd25f596cb9e3b1`, adapter `8c44c6455f3763da1cb75058d4c75ec66f1bcb03303c125005c714becc9df868`, fixture는 동일하다. AST와 실제 phase 계약 검증 exit0. 같은 승인 범위의 VSS 사전 점검·삭제를 새 identity로 수행한다.
+- [실제 삭제 시험 결과](09-deletion-trial.json): 2026-11-05 21:02:23~21:03:55 KST, 단계 전체92.380초(파일 준비·VSS·호출·관측·정리 포함), actual controller exit0. Register10.216초, Review1.648초, Apply15.793초는 각 adapter의 호출·응답 검증을 포함한 시간이며 순수 디스크 처리시간이나 최대 처리량으로 해석하지 않는다. 총 요청 fixture쓰기1GiB, preflight1MiB이며180초 신규 단계 제한에 도달하지 않았다.
+- 네이티브 apply는32개 member 모두 `deleted`, `remaining:false`, 삭제 오류 없음으로 반환했고32개 디렉터리의 실제 부재도 확인했다. 원래 파일 생성·완료 수는16,384개다. 삭제 후21:03:55.168 KST에도 같은 시험 shadow `{A7DD84C2-9CDB-4BEA-84F1-3FA67FA614C5}`가 존재했다. 이후 의도적 정리로만 삭제했다.
+- 시험 중 새 Volsnap25=0, 다른 Volsnap 이벤트=0. diff area 최대 관측 사용량38,191,104바이트, 할당량301,989,888바이트(상한4GiB)였다. 가용RAM 최저9,994,719,232바이트, C여유 최저176,271,822,848바이트였다. native/adapter/controller 실제 종료·fixture Join·shadow 부재·정상 detach·기존 VSS 보존을 확인했다.
+- 이 결과는 현재 설치된 standalone 삭제 도구의 한 차례 제한 시험이다. 삭제와 동시에 별도 합성 쓰기 부하는 주지 않았으며, FW-01의 미설치 개선 후보와의 비교나 실제 대규모 운영 환경에서의 재발 불가를 입증하지 않는다.
+- [삭제 실험 정리 결과](10-deletion-cleanup.json): 실패·성공 실행 두 group을 기존 owner로 fresh review 후 명시적으로 삭제했다. actual exit0, group 모두 `deleted`, member 모두 `remaining:false`, 삭제 오류 없음. 논리 크기 합계2,592,656,035바이트이며 물리 회수량은 측정하지 않았다. 두 lifecycle finalize의 `remaining/references/blockers`는 빈 배열이다. VHDX·일회용 제어기·fixture·probe·raw 로그 등 실행물 전체가 정리됐고, 독립 결과와 작업 기록만 보존했다.

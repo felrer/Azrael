@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "runId": "run:fw02:delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc",
+  "classification": "harness-registration-schema-error-before-deletion",
+  "recordedUtc": "2026-11-05T11:59:38.099Z",
+  "ownerExecutableSha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "preflight": {
+    "Stage": "Preflight",
+    "StartedUtc": "2026-11-05T11:32:24.6988034Z",
+    "Success": true,
+    "Cleanup": [],
+    "Failure": null,
+    "RecoveryNeeded": false,
+    "CreateAttempted": true,
+    "ShadowCreateReturnValue": 0,
+    "QuotaResizeExitCode": 0,
+    "CutoffUtc": "2026-11-05T11:32:35.1435847Z",
+    "ShadowAbsent": true,
+    "Detached": true,
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "ProjectRoot": null,
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T11:32:35.4716345Z"
+  },
+  "deleteStage": {
+    "Stage": "Delete",
+    "StartedUtc": "2026-11-05T11:56:29.4668900Z",
+    "Success": false,
+    "Cleanup": [],
+    "Failure": {
+      "Position": "위치 C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc\\inputs\\controller.ps1:247 문자:54\r\n+ ... .Success) { throw \"Adapter phase $AdapterPhase failed: child exit $ch ...\r\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "Message": "Adapter phase Register failed: child exit 1; Native Register exit 1",
+      "ScriptStackTrace": "위치: Complete-DeleteAdapter, C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc\\inputs\\controller.ps1: 247번째 줄\r\n위치: Wait-DeleteAdapter, C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc\\inputs\\controller.ps1: 261번째 줄\r\n위치: Invoke-DeleteAdapter, C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc\\inputs\\controller.ps1: 290번째 줄\r\n위치: <ScriptBlock>, C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc\\inputs\\controller.ps1: 364번째 줄\r\n위치: <ScriptBlock>, <파일 없음>: 1번째 줄",
+      "Exception": "System.Management.Automation.RuntimeException: Adapter phase Register failed: child exit 1; Native Register exit 1",
+      "FullyQualifiedErrorId": "Adapter phase Register failed: child exit 1; Native Register exit 1",
+      "Phase": "delete-Register",
+      "Utc": "2026-11-05T11:57:30.4416285Z"
+    },
+    "RecoveryNeeded": false,
+    "CreateAttempted": true,
+    "ShadowCreateReturnValue": 0,
+    "FixtureJoined": true,
+    "RequestedBytes": 1073741824,
+    "CompletedBytes": 1073741824,
+    "FixtureFiles": 16384,
+    "FixtureSeconds": 57.169376199999995,
+    "CutoffUtc": "2026-11-05T11:57:30.4833099Z",
+    "ShadowAbsent": true,
+    "Detached": true,
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "ProjectRoot": "F:\\fw03-bfac0c7a-6bd9-4417-81b2-37caeae5b6a0",
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T11:57:31.1753432Z"
+  },
+  "exit": {
+    "startedUtc": "2026-11-05T11:56:27.3186027Z",
+    "Stage": "Delete",
+    "pid": 42804,
+    "endedUtc": "2026-11-05T11:57:31.2165421Z",
+    "actualExit": 1,
+    "processExited": true
+  },
+  "nativeRegister": {
+    "Schema": 1,
+    "Phase": "Register",
+    "ProjectRoot": "F:\\fw03-bfac0c7a-6bd9-4417-81b2-37caeae5b6a0",
+    "Success": false,
+    "NativeStarted": true,
+    "NativeTerminated": true,
+    "NativeExit": 1,
+    "NativePid": 43224,
+    "NativeTreeSettled": true,
+    "Failure": "Native Register exit 1",
+    "Validation": {},
+    "StartedUtc": "2026-11-05T11:57:28.1230232Z",
+    "EndedUtc": "2026-11-05T11:57:29.5442991Z"
+  },
+  "nativeError": "{\"error\":\"missing nonempty provenance_ref\"}",
+  "identity": {
+    "ImagePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\delete-vss-d538f667-b5a3-4ed1-a17b-5845936cbecc\\outputs\\test.vhdx",
+    "DiskUniqueId": "60022480EC8767A0336E09829AF719DC",
+    "PartitionGuid": "{3fa8048a-139f-475a-82d4-4e0530ee6db3}",
+    "VolumeGuid": "\\\\?\\Volume{3fa8048a-139f-475a-82d4-4e0530ee6db3}\\",
+    "DriveToken": "F:",
+    "DeviceName": "\\Device\\HarddiskVolume19"
+  },
+  "before": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "Utc": "2026-11-05T11:56:31.6496624Z",
+    "EventFloor": 45019,
+    "Shadows": {}
+  },
+  "after": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "ChangedBaselineAssociations": [],
+    "Shadows": {},
+    "MissingBaselineShadowIds": []
+  },
+  "actualDeletionAttempted": false,
+  "limits": {
+    "newWorkCutoffSeconds": 180,
+    "waitForStartedNative": true,
+    "vhdMaxBytes": 8589934592,
+    "maxPayloadWrites": 17179869184
+  },
+  "inputs": {
+    "controller.ps1": "96c3e24253b15abc1ffda28b4258532b4c9e603061004c2490224c24e3ed67e1",
+    "fixture.cs": "db6c6ede095a98bc3ec65bce1a8f137f114c6f02a39cfe314ce948488dcdba04",
+    "delete-stage.ps1": "40bfd1ad86e1dcaf7a26d930e83eb0e22606fdd426815ce72a664c61cf31a195"
+  },
+  "producerStopEvidence": "Elevated controller WaitForExit/Refresh observed exit1; fixture joined; adapter Register native terminated with exit1 before review/apply; exact owned snapshot deleted and absent, image detached, original VSS preserved; no unresolved producer.",
+  "backingFileBytes": 1279262720
+}
