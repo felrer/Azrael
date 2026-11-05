@@ -24,6 +24,28 @@ test("Azrael theme and command labels preserve model and command identities", ()
   assert.equal(transformer.rewriteJavaScript(result.text, "branding-labels.js", ts).count, 0);
 });
 
+test("namespace rewriting parses unchanged input once and validates changed output", () => {
+  const parsedTexts = [];
+  const observedTs = new Proxy(ts, {
+    get(target, key) {
+      if (key !== "createSourceFile") return Reflect.get(target, key);
+      return (...args) => {
+        parsedTexts.push(args[1]);
+        return target.createSourceFile(...args);
+      };
+    },
+  });
+  const source = 'const url="https://chatgpt.com";const native="chatgpt";';
+  assert.deepEqual(transformer.rewriteJavaScript(source, "unchanged.js", observedTs), { text: source, count: 0 });
+  assert.deepEqual(parsedTexts.splice(0), [source]);
+  assert.throws(() => transformer.rewriteJavaScript("const = ;", "invalid.js", observedTs), /Cannot parse pinned asset/);
+  assert.deepEqual(parsedTexts.splice(0), ["const = ;"]);
+  const changed = 'const title="Codex";';
+  const result = transformer.rewriteJavaScript(changed, "changed.js", observedTs);
+  assert.equal(result.text, 'const title="Azrael";');
+  assert.deepEqual(parsedTexts, [changed, result.text]);
+});
+
 test("display branding preserves backend HTTP header names and accepted app brand", () => {
   const source = 'const Nl="Codex";const headers={"OAI-App-Brand":Nl.toLowerCase(),"x-openai-codex-pricing-chooser":"1"};';
   const rewritten = transformer.rewriteJavaScript(source, "protocol-brand.js", ts).text;
