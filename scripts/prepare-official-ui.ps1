@@ -174,7 +174,7 @@ $stage = Join-Path $extensionsPath ".$destinationName.staging-$([guid]::NewGuid(
 $reusedAfterRace = $false
 try {
     New-Item -ItemType Directory -Path $stage | Out-Null
-    & robocopy.exe $source $stage /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD (Join-Path $source 'bin/linux-x86_64') | Out-Null
+    & robocopy.exe $source $stage /E /MT:8 /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD (Join-Path $source 'bin/linux-x86_64') | Out-Null
     if ($LASTEXITCODE -gt 7) {
         throw "Official extension staging copy failed with robocopy exit code $LASTEXITCODE."
     }
