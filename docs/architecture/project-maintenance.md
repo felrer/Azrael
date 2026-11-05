@@ -114,6 +114,8 @@ Windows 삭제에 사용하는 내부 PowerShell은 공용 `background_command` 
 
 ### 기능 의존 캐시와 연결 정리
 
+모듈 입력 fingerprint와 출력 검증은 한 번의 관리 코드 배치에서 파일을 열거하고 SHA256을 계산한다. 파일 읽기와 해시 계산은 최대 4개 작업으로 제한해 병렬 처리하며, 결과는 열거 단계에서 확보한 원래 행에 기록한다. 키의 입력 순서·상대 경로·정렬·직렬화 의미와 전체 출력 해시는 유지한다. 해시 처리 중 파일 변경과 경계의 링크를 검사하며, 실제 캐시 선택·publication·정리는 기존 lease와 소비자 보호를 유지한다.
+
 Status: `current` for the script-level cache/log integration verified on Windows x64; full product builds, installation and other-platform execution remain separate acceptance scopes.
 
 재생성 범위는 기능 이름의 추측 목록 대신 실제 입력 바이트, 모듈별 생성 recipe, 도구·플랫폼 identity로 결정한다. companion과 providers는 서로 다른 recipe를 키에 포함하며 공통 cache/command helper 변경은 양쪽 키에 반영한다. Cargo 중간 컴파일은 Cargo의 dependency fingerprint를 사용하고, 완성 엔진 번들 재사용은 전체 source provenance와 bundle hash 일치를 요구한다. asset 및 검사 결과는 기존 파일/검사별 owner의 키와 lease를 유지한다.

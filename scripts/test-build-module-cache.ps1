@@ -283,6 +283,46 @@ try{
    return
  }
  $source=Join-Path $fixture 'source';New-Item -ItemType Directory $source|Out-Null;Set-Content (Join-Path $source 'code.ts') 'one'
+ # Parallel readers must keep file identities and input roles aligned, and may
+ # not publish partial rows when one worker cannot read its selected file.
+ $parallelSource=Join-Path $fixture 'parallel-fingerprint';New-Item -ItemType Directory $parallelSource|Out-Null
+ $expectedHashes=@{}
+ for($i=0;$i -lt 24;$i++){
+   $file=Join-Path $parallelSource ('file-{0:D2}.bin' -f $i)
+   $bytes=[byte[]]::new(16384+$i)
+   for($offset=0;$offset -lt $bytes.Length;$offset++){$bytes[$offset]=[byte](($offset+$i)%251)}
+   [IO.File]::WriteAllBytes($file,$bytes)
+   $expectedHashes[$file]=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes))
+ }
+ $selectedFile=Join-Path $parallelSource 'file-07.bin'
+ $parallelRows=[Azrael.BuildModuleFingerprint]::Scan([string[]]@($parallelSource,$selectedFile),$false,$fixture)
+ Assert (@($parallelRows|Where-Object FullName).Count -eq 25) 'Parallel scan retains every selected file and repeated input role'
+ Assert ($parallelRows[0].Kind -ceq 'directory' -and $parallelRows[-2].Kind -ceq 'file' -and $parallelRows[-1].Input -eq 1) 'Parallel completion preserves input row order'
+ foreach($row in $parallelRows|Where-Object FullName){Assert ($row.Sha256 -ceq $expectedHashes[$row.FullName]) 'Parallel result hash belongs to its original file'}
+ $locked=[IO.File]::Open($selectedFile,[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+ try{
+   $scanRejected=$false
+   try{[Azrael.BuildModuleFingerprint]::Scan([string[]]@($parallelSource),$false,$fixture)|Out-Null}catch{$scanRejected=$true}
+   Assert $scanRejected 'A failed parallel reader fails the complete fingerprint'
+ }finally{$locked.Dispose()}
+ Remove-Item -LiteralPath $parallelSource -Recurse -ErrorAction Stop
+ # Independent schema-2 serialization contract: input roles, file names, SHA case,
+ # value escaping and ordering must survive fingerprint implementation changes.
+ $contractHash=Get-BuildModuleFileHash (Join-Path $source 'code.ts')
+ $contractRecords=@(
+   [ordered]@{schema=2;platform=@(Get-BuildCachePlatform)},
+   [ordered]@{input=0;kind='directory'},
+   [ordered]@{input=0;path='code.ts';sha256=$contractHash},
+   [ordered]@{input=1;kind='file'},
+   [ordered]@{input=1;path='code.ts';sha256=$contractHash},
+   [ordered]@{value=0;content='tool <one> "quoted"'},
+   [ordered]@{value=1;content="line`nbreak"}
+ )
+ $contractJson=ConvertTo-Json -InputObject $contractRecords -Depth 5 -Compress
+ $contractKey=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($contractJson))).ToLowerInvariant()
+ $fingerprintDiagnostics=@{}
+ Assert ((Get-BuildModuleKey @($source,(Join-Path $source 'code.ts')) @('tool <one> "quoted"',"line`nbreak") -Diagnostics $fingerprintDiagnostics) -ceq $contractKey) 'Batched fingerprint preserves schema-2 key bytes'
+ Assert ($fingerprintDiagnostics.inputManifest.inputs[1].path -ceq 'code.ts' -and $fingerprintDiagnostics.inputManifest.inputs[1].sha256 -ceq $contractHash -and $fingerprintDiagnostics.inputManifest.values.Count -eq 2) 'Manifest records relative input roles and value identities from the same fingerprint'
  # Module recipes select only their own implementation and common helpers.
  $runner=Join-Path $fixture 'runner.ps1';$recipe=Join-Path $fixture 'recipe.ps1';$common=Join-Path $fixture 'common.ps1'
  Copy-Item (Join-Path $PSScriptRoot 'build-azrael.ps1') $runner;Copy-Item (Join-Path $PSScriptRoot 'build-module-companion-recipe.ps1') $recipe;Copy-Item (Join-Path $PSScriptRoot 'build-module-cache.ps1') $common
@@ -314,6 +354,16 @@ try{
  Set-Content $selectedLeaf 'selected-two'
  Assert ((Get-BuildModuleKey @($source) @('excluded-guard')) -cne $leafKey) 'Selected regular leaf changes must invalidate the key'
  Remove-Item -LiteralPath $selectedLeaf -ErrorAction Stop
+ $selectedLink=Join-Path $source 'selected-link'
+ New-Item -ItemType Junction -Path $selectedLink -Target $source|Out-Null
+ try{
+   try{Get-BuildModuleKey @($source)|Out-Null;throw 'Expected selected source link failure'}catch{Assert ($_.Exception.Message -match 'Linked cache path') 'Batched source scan refuses selected links'}
+   try{[Azrael.BuildModuleFingerprint]::Scan([string[]]@($source),$false,$fixture)|Out-Null;throw 'Expected output link failure'}catch{Assert ($_.Exception.Message -match 'Linked cache path') 'Batched output scan refuses nested links'}
+ }finally{Remove-Item -LiteralPath $selectedLink -ErrorAction Stop}
+ $excludedLink=Join-Path $source 'node_modules'
+ New-Item -ItemType Junction -Path $excludedLink -Target $source|Out-Null
+ try{Assert ((Get-BuildModuleKey @($source) @('excluded-guard')) -ceq $sourceKey) 'Excluded generated link is pruned before descent'}
+ finally{Remove-Item -LiteralPath $excludedLink -ErrorAction Stop}
  $cache=Open-BuildModuleCache $fixture
  function Test-CompanionProductionRecipe {
   . (Join-Path $PSScriptRoot 'build-metrics.ps1')
@@ -417,6 +467,14 @@ try{
  Set-Content (Join-Path $a.LogDirectory 'compile.log') 'raw command output'
  Set-Content (Join-Path $a.Path 'output.txt') 'compiled';Save-BuildModuleEntry $a @('output.txt')
  $b=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert $b.Hit 'Identical input must hit'
+ if($IsWindows){
+   $caseReceiptPath=Join-Path $b.Path 'cache.json'
+   $caseReceipt=Get-Content $caseReceiptPath -Raw|ConvertFrom-Json
+   $caseReceipt.files[0].path='OUTPUT.TXT'
+   $caseReceipt|ConvertTo-Json -Depth 6|Set-Content $caseReceiptPath -Encoding utf8NoBOM
+   $b=Get-BuildModuleEntry $cache companion @($source) @('node1')
+   Assert $b.Hit 'Indexed output hashes retain Windows case-insensitive path lookup'
+ }
  Set-Content (Join-Path $b.Path 'output.txt') 'damaged';$b=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert (-not $b.Hit) 'Damaged output must miss'
  Set-Content (Join-Path $b.Path 'output.txt') 'compiled';Save-BuildModuleEntry $b @('output.txt')
  Set-Content (Join-Path $source 'code.ts') 'two';$c=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert ($c.Key -ne $b.Key -and -not $c.Hit) 'Source change must miss'

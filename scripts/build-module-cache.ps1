@@ -1,4 +1,87 @@
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
+# Keep enumeration, ancestor guards and streaming SHA in one managed batch. The
+# caller still owns record ordering and JSON encoding (the schema-2 key format).
+if(-not ('Azrael.BuildModuleFingerprint' -as [type])){
+Add-Type -TypeDefinition @'
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+namespace Azrael {
+ public sealed class BuildModuleFingerprint {
+  public sealed class Item {
+   public int Input; public string Kind; public string FullName; public string Name;
+   public long Length; public string Sha256;
+  }
+  sealed class PendingFile {
+   public Item Row; public DateTime Modified;
+  }
+  static readonly HashSet<string> Excluded = new HashSet<string>(new [] {"node_modules","dist","target",".git","artifacts"}, StringComparer.OrdinalIgnoreCase);
+  static void Plain(string path, HashSet<string> checkedPaths) {
+   for(var current=path; !String.IsNullOrEmpty(current); current=Path.GetDirectoryName(current)) {
+    if(!checkedPaths.Add(current)) break;
+    if((File.GetAttributes(current)&FileAttributes.ReparsePoint)!=0) throw new IOException("Linked cache path: "+current);
+   }
+  }
+  public static Item[] Scan(string[] inputs, bool source, string boundary) {
+   var rows=new List<Item>();
+   var comparer=OperatingSystem.IsWindows()?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal;
+   var checkedPaths=new HashSet<string>(comparer);
+   var directories=new List<string>();
+   var files=new List<PendingFile>();
+   for(int index=0;index<inputs.Length;index++) {
+    var input=Path.GetFullPath(inputs[index]);
+    if(!String.IsNullOrEmpty(boundary)) {
+     var root=Path.TrimEndingDirectorySeparator(Path.GetFullPath(boundary));
+     if(!comparer.Equals(input,root)&&!input.StartsWith(root+Path.DirectorySeparatorChar,OperatingSystem.IsWindows()?StringComparison.OrdinalIgnoreCase:StringComparison.Ordinal)) throw new IOException("Cache path escapes root: "+input);
+    }
+    if(!File.Exists(input)&&!Directory.Exists(input)) throw new IOException((source?"Missing module input: ":"Missing cache output: ")+input);
+    Plain(input,checkedPaths);
+    bool directory=Directory.Exists(input);
+    rows.Add(new Item {Input=index,Kind=directory?"directory":"file"});
+    var pending=new Stack<FileSystemInfo>();
+    pending.Push(directory?(FileSystemInfo)new DirectoryInfo(input):new FileInfo(input));
+    while(pending.Count>0) {
+     var info=pending.Pop();var current=info.FullName;
+     // Directory enumeration supplies attributes/length/timestamps together.
+     // Reuse that observation instead of statting every child before hashing.
+     var attributes=info.Attributes;
+     if((attributes&FileAttributes.ReparsePoint)!=0) throw new IOException("Linked cache path: "+current);
+     if((attributes&FileAttributes.Directory)!=0) {
+      directories.Add(current);
+      foreach(var child in ((DirectoryInfo)info).EnumerateFileSystemInfos()) {
+       var childAttributes=child.Attributes;
+       if(source&&(childAttributes&FileAttributes.Directory)!=0&&Excluded.Contains(child.Name)) continue;
+       pending.Push(child);
+      }
+     } else {
+      var before=(FileInfo)info;
+      var row=new Item {Input=index,FullName=current,Name=Path.GetFileName(current),Length=before.Length};
+      rows.Add(row);
+      files.Add(new PendingFile {Row=row,Modified=before.LastWriteTimeUtc});
+     }
+    }
+   }
+   // Workers fill preallocated rows: completion order cannot change key ordering.
+   // Keep the enumeration observations and all post-read/ancestor guards.
+   Parallel.ForEach(files,new ParallelOptions {MaxDegreeOfParallelism=Math.Min(4,Environment.ProcessorCount)},file=>{
+    var row=file.Row;
+    using(var stream=new FileStream(row.FullName,FileMode.Open,FileAccess.Read,FileShare.Read)) row.Sha256=Convert.ToHexString(SHA256.HashData(stream));
+    var after=new FileInfo(row.FullName);
+    if((after.Attributes&FileAttributes.ReparsePoint)!=0) throw new IOException("Linked cache path: "+row.FullName);
+    if(row.Length!=after.Length||file.Modified!=after.LastWriteTimeUtc) throw new IOException("Module input/output changed during hashing.");
+   });
+   // Do not reuse the initial ancestor observations at the publication boundary.
+   checkedPaths.Clear();
+   foreach(var directory in directories) Plain(directory,checkedPaths);
+   foreach(var row in rows) if(row.FullName!=null) Plain(Path.GetDirectoryName(row.FullName),checkedPaths);
+   return rows.ToArray();
+  }
+ }
+}
+'@
+}
 # Module cache primitives. All mutation is serialized under the build-owned lock.
 function Assert-BuildCachePath([string]$Path, [string]$Root) {
     $full=[IO.Path]::GetFullPath($Path);$boundary=[IO.Path]::GetFullPath($Root).TrimEnd('\','/')
@@ -339,28 +422,38 @@ function Get-BuildModuleFileHash([string]$Path) {
     try { return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) }
     finally { $stream.Dispose() }
 }
-function Get-BuildModuleKey([string[]]$Inputs, [string[]]$Values=@()) {
+function Get-BuildModuleKey([string[]]$Inputs, [string[]]$Values=@(),[hashtable]$Diagnostics) {
+    if($null -eq $Inputs){$Inputs=[string[]]@()}
     $records=[Collections.Generic.List[object]]::new()
     $records.Add([ordered]@{schema=2;platform=@(Get-BuildCachePlatform)})
+    $snapshot=[Azrael.BuildModuleFingerprint]::Scan($Inputs,$true,$null)
+    $inputKinds=[string[]]::new($Inputs.Count)
+    $inputFiles=@{}
+    foreach($row in $snapshot){
+      if($row.Kind){$inputKinds[$row.Input]=$row.Kind;$inputFiles[$row.Input]=[Collections.Generic.List[object]]::new()}
+      else{$inputFiles[$row.Input].Add($row)}
+    }
     for($index=0;$index -lt $Inputs.Count;$index++){
         $inputPath=[IO.Path]::GetFullPath($Inputs[$index])
-        Assert-BuildCachePath $inputPath $inputPath|Out-Null
-        if(-not(Test-Path -LiteralPath $inputPath)){throw "Missing module input: $inputPath"}
-        $kind=if(Test-Path -LiteralPath $inputPath -PathType Leaf){'file'}else{'directory'}
+        $kind=$inputKinds[$index]
         $records.Add([ordered]@{input=$index;kind=$kind})
-        $files=if($kind -eq 'file'){@(Get-Item -LiteralPath $inputPath)}else{@(Get-BuildModuleSourceFiles $inputPath)}
+        $files=$inputFiles[$index]
         foreach($file in $files|Sort-Object FullName){
-          if($file.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Module source contains a link.'}
-          $before=Get-Item -LiteralPath $file.FullName -Force
-          $hash=(Get-BuildModuleFileHash $file.FullName)
-          $after=Get-Item -LiteralPath $file.FullName -Force
-          if($after.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Module source contains a link.'}
-          if($before.Length -ne $after.Length -or $before.LastWriteTimeUtc -ne $after.LastWriteTimeUtc){throw 'Module input changed during hashing.'}
+          $hash=$file.Sha256
           $name=if($kind -eq 'file'){$file.Name}else{[IO.Path]::GetRelativePath($inputPath,$file.FullName).Replace('\','/')}
           $records.Add([ordered]@{input=$index;path=$name;sha256=$hash})
         }
     }
     for($index=0;$index -lt $Values.Count;$index++){$records.Add([ordered]@{value=$index;content=$Values[$index]})}
+    if($null -ne $Diagnostics){
+      $Diagnostics.inputManifest=[ordered]@{
+        schema=1
+        inputs=@($records.ToArray()|Where-Object {$_.Contains('input')})
+        values=@(for($index=0;$index -lt $Values.Count;$index++){
+          [ordered]@{value=$index;isNull=($null -eq $Values[$index]);sha256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$Values[$index])))}
+        })
+      }
+    }
     $json=ConvertTo-Json -InputObject @($records.ToArray()) -Depth 5 -Compress
     return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($json))).ToLowerInvariant()
 }
@@ -447,12 +540,15 @@ function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][stri
       try{
         $receipt=Get-Content -LiteralPath $receiptPath -Raw|ConvertFrom-Json
         if($receipt.schema -ne 1 -or $receipt.module -cne $Module -or $receipt.key -cne $key -or -not @($receipt.files).Count -or -not @($receipt.outputs).Count){throw 'Invalid cache receipt'}
-        $inventoryFiles=@(foreach($output in $receipt.outputs){Get-BuildModuleFiles (Join-Path $path $output) $path})
+        $outputPaths=[string[]]@(foreach($output in $receipt.outputs){Join-Path $path $output})
+        $inventoryFiles=@([Azrael.BuildModuleFingerprint]::Scan($outputPaths,$false,$path)|Where-Object FullName)
         $inventory=@($inventoryFiles|ForEach-Object {[IO.Path]::GetRelativePath($path,$_.FullName)})
         if(@(Compare-Object @($inventory|Sort-Object) @($receipt.files.path|Sort-Object)).Count){throw 'Cache inventory changed'}
+        $hashComparer=if([OperatingSystem]::IsWindows()){[StringComparer]::OrdinalIgnoreCase}else{[StringComparer]::Ordinal}
+        $hashes=[Collections.Generic.Dictionary[string,string]]::new($hashComparer)
+        foreach($file in $inventoryFiles){$hashes[[IO.Path]::GetRelativePath($path,$file.FullName)]=$file.Sha256}
         foreach($file in $receipt.files){
-          $p=Join-Path $path $file.path
-          if((Get-BuildModuleFileHash $p) -ine $file.sha256){throw 'Cache output changed'}
+          if($hashes[$file.path] -ine $file.sha256){throw 'Cache output changed'}
         }
         $receipt.lastUsedUtc=[DateTime]::UtcNow.ToString('o');$receipt|ConvertTo-Json -Depth 6|Set-Content -LiteralPath $receiptPath -Encoding utf8NoBOM;(Get-Item -LiteralPath $path).LastWriteTimeUtc=[DateTime]::UtcNow;$entry.Hit=$true
       }catch{$entry.Hit=$false}
@@ -489,12 +585,9 @@ function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
     Get-BuildCacheProjects $Entry.Cache -RequireExisting|Out-Null
     Get-BuildModuleLifecycleRecord $Entry.Cache $Entry.Module $Entry.Key $Entry.Path|Out-Null
     if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed during compilation; cache is not reusable.'}
-    $files=@(foreach($output in $Outputs){
-      $p=Assert-BuildCachePath (Join-Path $Entry.Path $output) $Entry.Path
-      if(-not(Test-Path -LiteralPath $p)){throw "Missing module output: $p"}
-      $items=@(Get-BuildModuleFiles $p $Entry.Path)
-      foreach($file in $items){@{path=[IO.Path]::GetRelativePath($Entry.Path,$file.FullName);sha256=(Get-BuildModuleFileHash $file.FullName)}}
-    })
+    $outputPaths=[string[]]@(foreach($output in $Outputs){Join-Path $Entry.Path $output})
+    foreach($outputPath in $outputPaths){if(-not(Test-Path -LiteralPath $outputPath)){throw "Missing module output: $outputPath"}}
+    $files=@([Azrael.BuildModuleFingerprint]::Scan($outputPaths,$false,$Entry.Path)|Where-Object FullName|ForEach-Object {@{path=[IO.Path]::GetRelativePath($Entry.Path,$_.FullName);sha256=$_.Sha256}})
     if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed before cache publication.'}
     $temporary=Join-Path $Entry.Path ('cache-'+[guid]::NewGuid().ToString('N')+'.tmp')
     try {
