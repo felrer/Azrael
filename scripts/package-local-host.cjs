@@ -44,24 +44,29 @@ async function untrustedTextFiles(files, cwd, pristineRoot) {
   if (!pristineRoot) return textFiles;
   const hostRoot = await fs.promises.realpath(cwd);
   const trustedRoot = await fs.promises.realpath(pristineRoot);
-  const selected = [];
-  for (const file of textFiles) {
+  const selected = new Array(textFiles.length);
+  let cursor = 0;
+  let failure;
+  async function settledPair(pending) {
+    try { return await Promise.all(pending); }
+    finally { await Promise.allSettled(pending); }
+  }
+  async function needsScan(file) {
     const local = path.resolve(file.localPath);
     const relative = path.relative(path.resolve(cwd), local);
     // Environment files never inherit pristine trust in the manual scan.
     if (!withinRoot(path.resolve(cwd), local) || /^\.env(?:\.|$)/i.test(path.basename(local))) {
-      selected.push(file);
-      continue;
+      return true;
     }
     const candidate = path.resolve(trustedRoot, relative);
     let identical = false;
     if (withinRoot(trustedRoot, candidate)) {
       try {
-        const [realLocal, realCandidate] = await Promise.all([
+        const [realLocal, realCandidate] = await settledPair([
           fs.promises.realpath(local), fs.promises.realpath(candidate),
         ]);
         if (withinRoot(hostRoot, realLocal) && withinRoot(trustedRoot, realCandidate)) {
-          const [localHash, trustedHash] = await Promise.all([sha256(realLocal), sha256(realCandidate)]);
+          const [localHash, trustedHash] = await settledPair([sha256(realLocal), sha256(realCandidate)]);
           identical = localHash === trustedHash;
         }
       } catch (error) {
@@ -69,9 +74,18 @@ async function untrustedTextFiles(files, cwd, pristineRoot) {
         if (!error || !["ENOENT", "ENOTDIR", "EACCES", "EPERM", "EISDIR"].includes(error.code)) throw error;
       }
     }
-    if (!identical) selected.push(file);
+    return !identical;
   }
-  return selected;
+  const workers = Array.from({ length: Math.min(4, textFiles.length) }, async () => {
+    while (!failure && cursor < textFiles.length) {
+      const index = cursor++;
+      try { selected[index] = await needsScan(textFiles[index]); }
+      catch (error) { failure ??= error; }
+    }
+  });
+  await Promise.all(workers);
+  if (failure) throw failure;
+  return textFiles.filter((_, index) => selected[index]);
 }
 
 // Preserve the pinned VSCE file set, modes, ordering and timestamps. Already
