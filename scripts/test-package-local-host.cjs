@@ -383,6 +383,41 @@ test("only exact corresponding SHA256-identical files inherit pristine trust", a
   });
 });
 
+for (const failRead of [false, true]) {
+  test(`parallel pristine comparison preserves order, bounds reads and drains ${failRead ? "failed" : "successful"} work`, async () => {
+    await pristineFixture(async ({ host, pristine, write }) => {
+      const files = Array.from({ length: 12 }, (_, index) => {
+        const file = write(host, `${index}.js`, `local ${index}`);
+        write(pristine, `${index}.js`, index % 2 ? "different" : `local ${index}`);
+        return file;
+      });
+      const fault = Object.assign(new Error("controlled read failure"), { code: "EIO" });
+      let active = 0;
+      let peak = 0;
+      const observedFs = { ...fs, createReadStream(filename) {
+        return (async function* () {
+          active++;
+          peak = Math.max(peak, active);
+          try {
+            await new Promise(resolve => setTimeout(resolve,
+              filename === path.join(pristine, "0.js") ? 80 : 5));
+            if (failRead && filename === files[0].localPath) throw fault;
+            yield* fs.createReadStream(filename);
+          } finally { active--; }
+        })();
+      } };
+      const module = { exports: {} };
+      vm.runInNewContext(source, { module, Buffer, process,
+        require: name => name === "node:fs" ? observedFs : require(name) });
+      const result = module.exports.untrustedTextFiles(files, host, pristine);
+      if (failRead) await assert.rejects(result, error => error === fault);
+      else assert.deepEqual(Array.from(await result), files.filter((_, index) => index % 2));
+      assert.equal(active, 0, "all started reads must finish before returning or rejecting");
+      assert.ok(peak > 2 && peak <= 8, `expected bounded parallel reads, observed ${peak}`);
+    });
+  });
+}
+
 test("outside-host traversal cannot inherit trust from a corresponding outside file", async () => {
   await pristineFixture(async ({ host, pristine, outside, write }) => {
     const file = write(outside, "main.js", "same bytes");
