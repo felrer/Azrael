@@ -39,14 +39,14 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
   ];
 }
 function main(argv) {
-  if (argv.length !== 2 || argv[0] !== "--stage") throw new Error("Usage: check-artifact-lifecycle.cjs --stage source|writers|windows");
+  if (argv.length < 2 || argv[0] !== "--stage" || (argv.length - 2) % 2) throw new Error("Usage: check-artifact-lifecycle.cjs --stage source|writers|windows|pipeline [--test-file file]");
   const root = path.resolve(__dirname, ".."), id = crypto.randomUUID();
   // Keep Git's initial config path below Windows' pre-config path limit.
   // The full UUID still identifies the run; removing separators is lossless.
   const run = path.join(root, "artifacts/tasks/lifecycle-checks/runs", id.replaceAll("-", ""));
   // Child deploy checks own registered sibling runs. Nesting another project
   // under this run can make Git discover the parent instead of its fixture.
-  const selected = commands(argv[1], process.platform, root, run);
+  const selected = selectCommands(argv, process.platform, root, run);
   const record = {id:`run:lifecycle-check:${id}`,kind:"run",owner:"artifact-lifecycle-checks",members:[{path:run,role:"run"}]};
   lifecycle.recordLifecycle(root,{...record,state:"pending",membership_complete:false});
   fs.mkdirSync(path.join(run,"logs"),{recursive:true});
@@ -78,5 +78,22 @@ function main(argv) {
   console.log(JSON.stringify({status:"passed",lifecycle_id:record.id,results:receipts}));
   return 0;
 }
-module.exports = { commands, main };
+function selectCommands(argv, platform, root, run) {
+  const all = commands(argv[1], platform, root, run);
+  if (argv.length === 2) return all;
+  if (!["source", "writers"].includes(argv[1])) throw Error("Test-file selection requires source or writers stage");
+  const requested = [];
+  for (let index = 2; index < argv.length; index += 2) {
+    if (argv[index] !== "--test-file" || requested.includes(argv[index + 1])) throw Error("Invalid or duplicate test-file selection");
+    requested.push(argv[index + 1]);
+  }
+  const files = all.flatMap(([, args]) => args.filter(arg => /^scripts\/.*\.cjs$/.test(arg)));
+  if (!requested.length || requested.some(file => !files.includes(file))) throw Error("Unknown test-file selection");
+  return all.flatMap(([command, args]) => {
+    const own = args.filter(arg => files.includes(arg));
+    if (!own.some(file => requested.includes(file))) return [];
+    return [[command, args.filter(arg => !own.includes(arg) || requested.includes(arg))]];
+  });
+}
+module.exports = { commands, selectCommands, main };
 if (require.main === module) { try { process.exitCode = main(process.argv.slice(2)); } catch (error) { console.error(error.message); process.exitCode = 1; } }

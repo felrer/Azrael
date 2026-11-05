@@ -3827,7 +3827,9 @@
         "scripts/capture-project-inputs.cjs",
         "scripts/test-capture-project-inputs.cjs",
         "scripts/deployment-workspace.cjs",
-        "scripts/test-deployment-workspace.cjs"
+        "scripts/test-deployment-workspace.cjs",
+        "scripts/source-check-selection.cjs",
+        "scripts/test-source-check-selection.cjs"
       ],
       "contract": "docs/architecture/project-maintenance.md",
       "checks": [
@@ -3838,15 +3840,28 @@
             "--test",
             "scripts/test-project-maintenance.cjs",
             "scripts/test-maintenance-lock-owner.cjs",
-            "scripts/test-artifact-lifecycle.cjs",
             "scripts/test-project-fail-fast.cjs",
             "scripts/test-project-selection.cjs",
             "scripts/test-source-test-policy.cjs",
             "scripts/test-source-test-fixtures.cjs",
             "scripts/test-account-fixture-environment.cjs",
-            "scripts/test-account-models-catalog.cjs"
+            "scripts/test-account-models-catalog.cjs",
+            "scripts/test-source-check-selection.cjs"
           ],
-          "level": "source"
+          "level": "source",
+          "sourceSelection": {
+            "files": [
+              "scripts/test-project-maintenance.cjs",
+              "scripts/test-maintenance-lock-owner.cjs",
+              "scripts/test-project-fail-fast.cjs",
+              "scripts/test-project-selection.cjs",
+              "scripts/test-source-test-policy.cjs",
+              "scripts/test-source-test-fixtures.cjs",
+              "scripts/test-account-fixture-environment.cjs",
+              "scripts/test-account-models-catalog.cjs",
+              "scripts/test-source-check-selection.cjs"
+            ]
+          }
         },
         {
           "id": "tool.project-maintenance.library",
@@ -3892,7 +3907,14 @@
             "--stage",
             "source"
           ],
-          "level": "source"
+          "level": "source",
+          "sourceSelection": {
+            "files": [
+              "scripts/test-artifact-lifecycle.cjs",
+              "scripts/test-build-platform.cjs",
+              "scripts/test-platform-packaging.cjs"
+            ]
+          }
         },
         {
           "id": "tool.project-maintenance.windows-cleanup",
@@ -3930,7 +3952,16 @@
             "--stage",
             "writers"
           ],
-          "level": "source"
+          "level": "source",
+          "sourceSelection": {
+            "files": [
+              "scripts/test-artifact-run.cjs",
+              "scripts/test-deployment-workspace.cjs",
+              "scripts/test-artifact-check-ownership.cjs",
+              "scripts/test-artifact-render-ownership.cjs",
+              "scripts/tests/instruction-package.test.cjs"
+            ]
+          }
         },
         {
           "id": "tool.project-maintenance.verification-schedule",

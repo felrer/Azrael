@@ -742,5 +742,5 @@ async function main(args = process.argv.slice(2)) {
   return report.exitCode;
 }
 
-module.exports = { AREAS, parseArgs, discover, changedFiles, select, runCommand, runSelection, main };
+module.exports = { AREAS, parseArgs, discover, changedFiles, select, scriptOwners, runCommand, runSelection, main };
 if (require.main === module) main().then(code => { process.exitCode = code; }, error => { console.error(error.message); process.exitCode = 1; });
