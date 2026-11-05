@@ -123,12 +123,12 @@ $originalFixture = Join-Path $extensions (Split-Path $originalSource -Leaf)
 $audioFixture = Join-Path $extensions (Split-Path $audioSource -Leaf)
 $runtimeConfigOverride = $null
 try {
-    & robocopy.exe $originalSource $originalFixture /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+    & robocopy.exe $originalSource $originalFixture /E /MT:8 /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -gt 7) { throw "Pristine original fixture copy failed with exit code $LASTEXITCODE." }
     $global:LASTEXITCODE = 0
     $fixtureOriginalBefore = Get-DirectoryState -Path $originalFixture
     if ($fixtureOriginalBefore.sha256 -cne $sourceBefore.sha256) { throw 'Pristine original fixture copy hash differed from its source.' }
-    & robocopy.exe $audioSource $audioFixture /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+    & robocopy.exe $audioSource $audioFixture /E /MT:8 /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -gt 7) { throw "Official audio dependency fixture copy failed with exit code $LASTEXITCODE." }
     $global:LASTEXITCODE = 0
     $fixtureAudioBefore = Get-DirectoryState -Path $audioFixture
