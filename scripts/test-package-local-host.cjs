@@ -9,6 +9,7 @@ const { EventEmitter } = require("node:events");
 const { PassThrough } = require("node:stream");
 const { test } = require("node:test");
 const { spawnSync } = require("node:child_process");
+const { deflateRawSync } = require("node:zlib");
 const { textScanFiles, untrustedTextFiles, validateEnvPaths, writeVsix } = require("./package-local-host.cjs");
 
 const source = fs.readFileSync(path.join(__dirname, "package-local-host.cjs"), "utf8");
@@ -32,7 +33,8 @@ async function archiveEntries(filename) {
           stream.on("end", () => {
             entries.push({ name: entry.fileName, contents: Buffer.concat(chunks).toString("base64"),
               mode: entry.externalFileAttributes >>> 16, mtime: entry.getLastModDate().getTime(),
-              compression: entry.compressionMethod });
+              compression: entry.compressionMethod, compressedSize: entry.compressedSize,
+              extraFields: entry.extraFields.map(field => field.id) });
             zip.readEntry();
           });
         });
@@ -57,23 +59,47 @@ test("pinned yazl writer preserves buffers, files, modes, output replacement and
   ];
   const output = path.join(root, "test.vsix");
   fs.writeFileSync(output, "previous package");
-  await writeVsix(files, output, pinnedRequire("yazl"));
+  await writeVsix(files, output, pinnedRequire("azrael-yazl"));
   const entries = await archiveEntries(output);
   assert.deepEqual(entries.map(entry => entry.name), ["a-text", "b-local", "z-buffer"]);
   assert.deepEqual(entries.map(entry => entry.mode), [0o100644, 0o100640, 0o100755]);
   assert.deepEqual(entries.map(entry => entry.contents), [Buffer.from("utf8 한글").toString("base64"),
     Buffer.from("local file bytes").toString("base64"), Buffer.from([0, 255, 128]).toString("base64")]);
   for (const entry of entries) assert.equal(entry.mtime, 1700000000000);
+  for (const entry of entries) assert.deepEqual(entry.extraFields, []);
   const first = fs.readFileSync(output);
-  await writeVsix(files, output, pinnedRequire("yazl"));
+  await writeVsix(files, output, pinnedRequire("azrael-yazl"));
   assert.deepEqual(fs.readFileSync(output), first);
   delete process.env.SOURCE_DATE_EPOCH;
   const unsorted = files.slice().reverse();
-  await writeVsix(unsorted, output, pinnedRequire("yazl"));
+  await writeVsix(unsorted, output, pinnedRequire("azrael-yazl"));
   assert.deepEqual((await archiveEntries(output)).map(entry => entry.name), unsorted.map(file => file.path));
   const missing = [{ path: "missing", localPath: path.join(root, "missing") }];
-  await assert.rejects(writeVsix(missing, path.join(root, "missing.vsix"), pinnedRequire("yazl")), { code: "ENOENT" });
-  await assert.rejects(writeVsix(files, root, pinnedRequire("yazl")));
+  await assert.rejects(writeVsix(missing, path.join(root, "missing.vsix"), pinnedRequire("azrael-yazl")), { code: "ENOENT" });
+  await assert.rejects(writeVsix(files, root, pinnedRequire("azrael-yazl")));
+  fs.writeFileSync(output, first.subarray(0, first.length - 22));
+  await assert.rejects(archiveEntries(output));
+});
+
+// Later dependency/writer edits can silently restore zlib's slower default.
+test("actual pinned writer uses DEFLATE level 1 for disk and buffer entries", async t => {
+  assert.equal(pinnedRequire("azrael-yazl/package.json").version, "3.3.1");
+  assert.equal(pinnedRequire("yazl/package.json").version, "2.5.1");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "package-level-"));
+  t.after(() => fs.rmSync(root, { recursive: true }));
+  const bytes = Buffer.from("const packageLevel = 'speed-first';\n".repeat(16000));
+  const expectedSize = deflateRawSync(bytes, { level: 1 }).length;
+  assert.notEqual(expectedSize, deflateRawSync(bytes).length);
+  const disk = path.join(root, "main.js");
+  fs.writeFileSync(disk, bytes);
+  const output = path.join(root, "level.vsix");
+  await writeVsix([{ path: "disk.js", localPath: disk }, { path: "buffer.js", contents: bytes }],
+    output, pinnedRequire("azrael-yazl"));
+  for (const entry of await archiveEntries(output)) {
+    assert.equal(entry.compression, 8);
+    assert.equal(entry.compressedSize, expectedSize);
+    assert.equal(entry.contents, bytes.toString("base64"));
+  }
 });
 
 function extensionFixture(t) {
@@ -102,7 +128,7 @@ test("precompressed image/font entries use STORE and preserve bytes and modes fo
   const files = names.map((name, index) => ({ path: `extension/assets/${name}`, mode: 0o100640,
     ...(index % 2 ? { contents: bytes } : { localPath: disk }) }));
   const output = path.join(root, "compression.vsix");
-  assert.deepEqual(await writeVsix(files, output, pinnedRequire("yazl")), { stored: 8, deflated: 8 });
+  assert.deepEqual(await writeVsix(files, output, pinnedRequire("azrael-yazl")), { stored: 8, deflated: 8 });
   const entries = await archiveEntries(output);
   assert.deepEqual(entries.map(entry => entry.name), files.map(file => file.path));
   entries.forEach((entry, index) => {
@@ -126,7 +152,7 @@ test("minimal real fixture preserves pinned VSCE entries and metadata with store
   assert.equal(original.status, 0, `${original.error || ""}\n${original.stdout}\n${original.stderr}`);
   const optimizedEntries = await archiveEntries(output);
   const baselineEntries = await archiveEntries(baseline);
-  const withoutCompression = ({ compression, ...entry }) => entry;
+  const withoutCompression = ({ compression, compressedSize, ...entry }) => entry;
   assert.deepEqual(optimizedEntries.map(withoutCompression), baselineEntries.map(withoutCompression));
   for (const entry of optimizedEntries) assert.equal(entry.compression, entry.name.endsWith("photo.PNG") ? 0 : 8);
 });
@@ -200,7 +226,7 @@ function fixture(t, { diskOk = true, memoryOk = true, validationError } = {}) {
     throw new Error(`Unexpected module: ${name}`);
   };
   mockRequire.resolve = (name, options) => {
-    assert.equal(name, "yazl");
+    assert.equal(name, "azrael-yazl");
     assert.equal(options.paths[0], path.dirname(cli));
     return "pinned-yazl";
   };
