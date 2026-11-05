@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "runId": "run:fw02:vss2-0f21bc14-0bed-407a-b389-094212031d97",
+  "classification": "harness-native-exit-observation-bug-before-mount",
+  "recordedUtc": "2026-11-05T10:51:58.400Z",
+  "controllerSha256": "31514591b2c56ddbd2183d50e08bd2d99486471880bab0c7024073a1e3d60b4e",
+  "workerSha256": "07103b1b6cc5a23d0b8927afb917b4275ded6a6f3a71d6dfbda6df2efb455ddd",
+  "exit": {
+    "startedUtc": "2026-11-05T10:50:59.0425627Z",
+    "Stage": "Preflight",
+    "pid": 3772,
+    "endedUtc": "2026-11-05T10:51:06.4441440Z",
+    "actualExit": 1,
+    "processExited": true
+  },
+  "preflight": {
+    "Stage": "Preflight",
+    "StartedUtc": "2026-11-05T10:51:02.2038689Z",
+    "Success": false,
+    "Cleanup": [],
+    "Failure": {
+      "Position": "위치 C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\vss2-0f21bc14-0bed-407a-b389-094212031d97\\inputs\\controller.ps1:52 문자:56\r\n+ ... de -ne 0) { throw \"$Kind failed: actual exit $nativeCode; no automati ...\r\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "Message": "diskpart-create-only failed: actual exit ; no automatic retry",
+      "ScriptStackTrace": "위치: Invoke-Native, C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\vss2-0f21bc14-0bed-407a-b389-094212031d97\\inputs\\controller.ps1: 52번째 줄\r\n위치: <ScriptBlock>, C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\vss2-0f21bc14-0bed-407a-b389-094212031d97\\inputs\\controller.ps1: 259번째 줄\r\n위치: <ScriptBlock>, <파일 없음>: 1번째 줄",
+      "Exception": "System.Management.Automation.RuntimeException: diskpart-create-only failed: actual exit ; no automatic retry",
+      "FullyQualifiedErrorId": "diskpart-create-only failed: actual exit ; no automatic retry",
+      "Phase": "create-only-vhdx",
+      "Utc": "2026-11-05T10:51:06.0952800Z"
+    },
+    "RecoveryNeeded": false,
+    "CutoffUtc": "2026-11-05T10:51:06.1378446Z",
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T10:51:06.3864226Z"
+  },
+  "before": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "Utc": "2026-11-05T10:51:04.0964118Z",
+    "EventFloor": 44924,
+    "Shadows": {}
+  },
+  "after": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "ChangedBaselineAssociations": [],
+    "Shadows": {},
+    "MissingBaselineShadowIds": []
+  },
+  "nativeExit": null,
+  "diagnosis": {
+    "cause": "Local $LASTEXITCODE=$null shadows global native exit updates in PowerShell function",
+    "harmlessProbe": "whoami.exe returned Global=0, Local=null; probe exit0",
+    "diskpart": "Synchronous invocation returned and printed file creation success; actual exit was not captured and remains null",
+    "mountAttempted": false,
+    "vssAttempted": false,
+    "workloadStarted": false
+  },
+  "cleanupPrerequisite": {
+    "ownedImageAttached": false,
+    "backingFileBytes": 4194304,
+    "verifiedBy": "Get-DiskImage exact owned path after controller termination; read-only command exit0",
+    "producerStopped": "Parent WaitForExit/Refresh reports elevated PID3772 exited1; synchronous diskpart returned; no mount, VSS or worker reached"
+  }
+}

@@ -1,4 +1,4 @@
-상태: 승인된 현재 PC 제한 시험은 VSS 저장소 생성 사전 점검에서 실패했다. 부하는 시작되지 않았으며 Volsnap 25 재현 목표는 미달성이다. 시험 VHDX는 정상 연결 해제됐고 기존 VSS 설정은 보존됐다. 일회용 실행물 삭제와 소유 기록 종료를 확인했다.
+상태: 직접 shadow 생성 경로의 사전 점검 및 제한 부하 시험이 exit0으로 완료됐다. 총 쓰기16GiB에 도달했으나 새 Volsnap25 및 다른 Volsnap 이벤트는0개였다. 재현 목표는 미달성이며 해당 한도에서 미재현으로 판정했다. 두 후속 실행의 임시 파일 삭제·부재·소유 기록 종료를 확인했다.
 
 # Volsnap 이벤트 25 제한 재현
 
@@ -19,7 +19,7 @@
 ## 현재 PC를 선택할 경우 제안한 상한
 
 - workspace의 task-owned run 아래 최대8GiB 임시 VHDX 하나를 사용한다. 기존 파일 덮어쓰기 없이 새 경로·run ID로 생성하며 정확한 image path→새 disk identity→시험 partition/volume GUID 연결을 확인한다.
-- 기존 C: 섀도 복사본/저장소 정책·서비스 설정·MinDiffAreaFileSize는 바꾸지 않는다. 시험 볼륨의 diff area도 시험 볼륨으로 명시하고 실제 association을 확인한다. 다른 볼륨으로 배치되면 부하 전에 중단한다.
+- 기존 C: 섀도 복사본/저장소 정책·서비스 설정·MinDiffAreaFileSize는 바꾸지 않는다. 시험 볼륨의 diff area도 시험 볼륨이어야 하며 실제 association을 확인한다. VHD의 차등 저장소는 같은 VHD 볼륨이어야 한다는 플랫폼 제약을 이용해 작은 shadow를 먼저 생성하는 경로도 허용하며, 다른 볼륨으로 배치되면 부하 전에 중단한다.
 - 시험 부하는 최대3분, 총 요청 쓰기16GiB 이내, 동시 writer 최대2개로 제한한다. 이는 workload의 상한이며 초기 VHDX/파일 준비 시간과 VSS 호출 대기 시간은 별도로 기록한다.
 - 초기 작은 파일·shadow 생성/조회/삭제 preflight를 먼저 수행한다. 그 다음 고정 seed와 명시적 block/queue 조건의 단계를 실행한다. 작은 quota를 채워 이벤트36을 만드는 것을 목표로 하지 않는다.
 - 시작 전 C: 여유100GiB 및 가용 RAM8GiB 이상을 확인한다. 부족·관측 실패·외부 볼륨 VSS 이벤트·시험 shadow 손실·사용자 취소가 발생하면 추가 부하를 중지하고 결과를 보존한다. 이 제한은 OS 오류나 host 지연의 부재를 보장하지 않는다.
@@ -64,3 +64,20 @@
 - [Win32_ShadowCopy.Create](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/vsswmi/create-method-in-class-win32-shadowcopy)
 - [Win32_ShadowStorage.Create](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/vsswmi/create-method-in-class-win32-shadowstorage)
 - [VSS provider 볼륨 지원 검사](https://learn.microsoft.com/en-us/windows/win32/api/vsprov/nf-vsprov-ivsssoftwaresnapshotprovider-isvolumesupported)
+- [VHD와 diff area 동일 볼륨 제약](https://learn.microsoft.com/en-us/windows/win32/api/vsmgmt/nf-vsmgmt-ivssdifferentialsoftwaresnapshotmgmt-adddiffarea)
+- [Windows 11의 shadowstorage resize 지원](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/vssadmin-resize-shadowstorage)
+
+## 두 번째 시도
+
+- 새 pending owner 경계는 `run:fw02:vss2-0f21bc14-0bed-407a-b389-094212031d97`, `artifacts/tasks/fw02/runs/vss2-0f21bc14-0bed-407a-b389-094212031d97`다. 이전 실행은 재사용하거나 실패 결과를 덮어쓰지 않는다.
+- `ShadowStorage.Create` 및 COM `AddDiffArea`는 문서상 클라이언트 지원이 명시되지 않았다. 이는 첫 Return10의 확정 원인은 아니다. 이번에는 시험 VHD의 작은 파일을 대상으로 `ShadowCopy.Create`를 직접 호출한 뒤 실제 Volume/DiffVolume을 검증하고, 동일 시험 GUID 대상으로만 `vssadmin resize shadowstorage`를 실행해4GiB를 확인한다. ShadowCopy WMI의 문서도 client 지원을 명시하지 않으므로 성공 여부는 실측으로 판단한다.
+- 현재 설치된 `vssadmin resize shadowstorage /?`가 정상 출력됐고, Microsoft 문서도 Windows11을 지원 대상으로 명시한다. 명령 존재나 도움말은 실제 resize 성공의 근거로 삼지 않는다. resize로 shadow가 사라지면 preflight 실패이며 부하로 넘어가지 않는다.
+- root는 관리자 실행·결과 검토·정리, 기존 harness executor는 이 run의 일회용 제어기 및 compile-only 검증을 담당한다. 8GiB/180초/16GiB/writer2 한도와 C: 여유100GiB/RAM8GiB, 원래 VSS 보존·worker종료·정상 detach·정리 조건은 유지한다.
+- vss2 실행은 native 종료 코드 수집 함수의 지역 `$LASTEXITCODE`가 전역 갱신을 가리는 harness 오류로 mount 전에 exit1로 중단됐다. 동기 diskpart는 반환했으나 기록된 exit는 null이며 성공으로 바꾸지 않는다. 정확한 image 조회는 `Attached=false`였다. [실패 근거](05-harness-failure.json)를 보존했다.
+- 수정은 새 run `run:fw02:vss3-7e65f579-52c5-4d0e-8cbd-3c91731eb99c`에서만 수행했다. 실제 native helper를 AST로 추출하고 로그만 대체해 child PowerShell exit0/exit7을 실행하여 정상 반환·실패 거절과 실제 종료 코드 수집을 검증했다(exit0). controller SHA256 `faaf617668830594368631293ff8e441e492fdf48a07d7104c03beba7f6f0014`, worker SHA256 `07103b1b6cc5a23d0b8927afb917b4275ded6a6f3a71d6dfbda6df2efb455ddd`로 고정했다.
+- vss3 사전 점검은 2026-11-05 19:52:57~19:53:07 KST에 실제 exit0. ShadowCopy.Create Return0, GUID `9e8c561d-dc52-4bc1-8ddb-d9cebde3c738`의 동일 source/diff association, resize exit0 및 MaxSpace4GiB를 확인했다. 반환 shadow ID `{968B8A55-5715-4772-927D-AA029B8371A1}` 삭제 후 부재, image detach, 원래 VSS 보존도 확인했다. 따라서 현재 Windows Home에서 이 직접 생성 경로는 실제 동작한다.
+- [제한 부하 결과](06-bounded-trial.json): 19:53:40~19:54:23 KST 단계 실행 exit0. worker 구간38.8086614초에 쓰기예산에 도달했다. worker requested/completed 모두17,178,820,608바이트이며 preflight1MiB를 더한 총량은 정확히16GiB다. 준비 파일은1GiB 두 개이고 이후64KiB 정렬 random overwrite를 writer1→2로 실행했다. 각 writer queue depth1, WriteThrough 및 최종 Flush(true)를 사용했다. 180초는 상한이며 총량이 먼저 소진돼 종료했다.
+- 시험 shadow `{8F0E9EBB-C543-403A-8F0E-5BA4BDC74065}`는 생성·관측됐고 의도적 정리 전에 손실되지 않았다. 새 시험-volume Event25=0, 다른 Volsnap 이벤트=0. diff area 최대 관측 사용량2,089,447,424바이트, 할당량2,617,245,696바이트(상한4GiB). 샘플 최소 C여유175,130,497,024바이트, 가용RAM11,320,590,336바이트였다.
+- 두 foreground worker Join 성공, exact-ID shadow 삭제 후 부재와 image detach 검증, 기존 VSS 보존, cleanup 오류0개를 확인했다. 시험 종료 시 VHDX 파일 크기는4,366,270,464바이트였다.
+- 해석 범위: 한 차례 합성 I/O 시험이다. 쓰기 총량16GiB와 별개로 변경 대상 파일의 합계는2GiB여서 계속 새로운 영역을 수정하는 작업과 차등 저장소 성장 양상이 다르다. Azrael의 실제 기존/개선 binary를 비교하지 않았으므로 인과관계·개선 효과·최대 처리량·향후 재발 불가를 입증하지 않는다. 재현을 위해 자동으로 한도나 실사용 볼륨 변경 범위를 넓히지 않았다.
+- [후속 정리 결과](07-followup-cleanup.json): vss2/vss3 등록·fresh review·명시적 삭제 모두 exit0, 두 group `deleted`, 두 member `remaining:false`, 오류 없음. 논리 크기 합계4,370,571,452바이트를 삭제했으며 물리 회수량은 측정하지 않았다. 두 lifecycle finalize도 `remaining:[]`, `references:[]`, `blockers:[]`로 확인했다. 입력 hash는 실행 후에도 동일했다. 별도 상주 harness·제품 코드·설치는 추가하지 않았고, 근거 JSON 및 이 작업 기록만 보존했다.

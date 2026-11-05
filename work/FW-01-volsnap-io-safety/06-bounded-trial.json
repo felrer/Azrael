@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "runId": "run:fw02:vss3-7e65f579-52c5-4d0e-8cbd-3c91731eb99c",
+  "recordedUtc": "2026-11-05T10:55:02.866Z",
+  "classification": "bounded-workload-completed-event25-not-reproduced",
+  "environment": {
+    "os": "Windows 11 Home 10.0.26200",
+    "architecture": "x64",
+    "location": "current PC; VHDX on C; physical storage shared"
+  },
+  "limits": {
+    "virtualDiskBytes": 8589934592,
+    "diffAreaBytes": 4294967296,
+    "maxSeconds": 180,
+    "maxTotalRequestedBytes": 17179869184,
+    "maxWriters": 2
+  },
+  "inputs": {
+    "controllerSha256": "faaf617668830594368631293ff8e441e492fdf48a07d7104c03beba7f6f0014",
+    "workerSha256": "07103b1b6cc5a23d0b8927afb917b4275ded6a6f3a71d6dfbda6df2efb455ddd",
+    "nativeExitHelperVerification": "AST-extracted real helper; child exit0 returned0, exit7 threw and logged7; validation exit0"
+  },
+  "identity": {
+    "ImagePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\vss3-7e65f579-52c5-4d0e-8cbd-3c91731eb99c\\outputs\\test.vhdx",
+    "DiskUniqueId": "60022480A6C34B892B0A479B84B0FA7E",
+    "PartitionGuid": "{9e8c561d-dc52-4bc1-8ddb-d9cebde3c738}",
+    "VolumeGuid": "\\\\?\\Volume{9e8c561d-dc52-4bc1-8ddb-d9cebde3c738}\\",
+    "DriveToken": "F:",
+    "DeviceName": "\\Device\\HarddiskVolume15"
+  },
+  "preflight": {
+    "Stage": "Preflight",
+    "StartedUtc": "2026-11-05T10:52:57.2964942Z",
+    "Success": true,
+    "Cleanup": [],
+    "Failure": null,
+    "RecoveryNeeded": false,
+    "CreateAttempted": true,
+    "ShadowCreateReturnValue": 0,
+    "QuotaResizeExitCode": 0,
+    "CutoffUtc": "2026-11-05T10:53:06.9874408Z",
+    "ShadowAbsent": true,
+    "Detached": true,
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T10:53:07.3326061Z"
+  },
+  "workload": {
+    "Stage": "Workload",
+    "StartedUtc": "2026-11-05T10:53:40.1748133Z",
+    "Success": true,
+    "Cleanup": [],
+    "Failure": null,
+    "RecoveryNeeded": false,
+    "CreateAttempted": true,
+    "ShadowCreateReturnValue": 0,
+    "WorkersJoined": true,
+    "RequestedBytes": 17178820608,
+    "CompletedBytes": 17178820608,
+    "WorkerSeconds": 38.8086614,
+    "CutoffUtc": "2026-11-05T10:54:22.4181114Z",
+    "ShadowAbsent": true,
+    "Detached": true,
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T10:54:23.0196782Z"
+  },
+  "exits": [
+    {
+      "startedUtc": "2026-11-05T10:52:54.2723918Z",
+      "Stage": "Preflight",
+      "pid": 32140,
+      "endedUtc": "2026-11-05T10:53:07.3808681Z",
+      "actualExit": 0,
+      "processExited": true
+    },
+    {
+      "startedUtc": "2026-11-05T10:53:37.3812113Z",
+      "Stage": "Workload",
+      "pid": 41316,
+      "endedUtc": "2026-11-05T10:54:23.0703821Z",
+      "actualExit": 0,
+      "processExited": true
+    }
+  ],
+  "before": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "Utc": "2026-11-05T10:53:41.8710325Z",
+    "EventFloor": 44933,
+    "Shadows": {}
+  },
+  "after": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "ChangedBaselineAssociations": [],
+    "Shadows": {},
+    "MissingBaselineShadowIds": []
+  },
+  "scenario": {
+    "preflightWriteBytes": 1048576,
+    "preparationBytes": 2147483648,
+    "fileCount": 2,
+    "fileBytes": 1073741824,
+    "preparationBlockBytes": 1048576,
+    "mutationBlockBytes": 65536,
+    "mutation": "deterministic aligned random overwrite with per-write byte change",
+    "queueDepthPerWriter": 1,
+    "writeThrough": true,
+    "flushToDisk": true,
+    "seedBase": 35233693,
+    "stoppingReason": "total requested payload byte budget reached",
+    "workloadPayloadBytes": 17178820608,
+    "totalPayloadBytesIncludingPreflight": 17179869184,
+    "mutationBytes": 15031336960,
+    "elapsedScope": "WorkerSeconds includes preparation, shadow creation, mutation and monitoring; outer wall clock also includes UAC, bootstrap, remount and cleanup"
+  },
+  "phases": [
+    {
+      "utc": "2026-11-05T10:53:50.3309138Z",
+      "parameters": {
+        "Writers": 1,
+        "SecondsLimit": 30,
+        "MutationByteLimit": 2147483648
+      }
+    },
+    {
+      "utc": "2026-11-05T10:54:01.1067198Z",
+      "parameters": {
+        "TotalSecondsLimit": 180,
+        "WorkerRequestedByteLimit": 17178820608,
+        "WholeRunRequestedByteLimit": 17179869184,
+        "Writers": 2
+      }
+    }
+  ],
+  "shadowCreate": [
+    {
+      "utc": "2026-11-05T10:53:49.3456982Z",
+      "ReturnValue": 0,
+      "ShadowID": "{8F0E9EBB-C543-403A-8F0E-5BA4BDC74065}"
+    }
+  ],
+  "observations": {
+    "resourceSamples": 18,
+    "minCFreeBytes": 175130497024,
+    "minAvailableRamBytes": 11320590336,
+    "associationSamples": 16,
+    "maxAllocatedBytes": 2617245696,
+    "maxUsedBytes": 2089447424,
+    "lastAssociation": {
+      "Volume": "\\\\?\\Volume{9e8c561d-dc52-4bc1-8ddb-d9cebde3c738}\\",
+      "DiffVolume": "\\\\?\\Volume{9e8c561d-dc52-4bc1-8ddb-d9cebde3c738}\\",
+      "MaxSpace": "4294967296",
+      "AllocatedSpace": 2617245696,
+      "UsedSpace": 2089447424
+    },
+    "newOwnedEvent25": 0,
+    "otherNewVolsnap": 0
+  },
+  "backingFileBytes": 4366270464,
+  "producerStopEvidence": "Elevated processes observed exited0 by parent WaitForExit/Refresh; both foreground worker threads joined, normal exact-ID shadow deletion and exact-image Dismount followed by verified absence/detached; no unresolved producer.",
+  "limitations": [
+    "One bounded trial, no claim that Event25 cannot recur.",
+    "Synthetic I/O did not run Azrael baseline/candidate binaries and does not establish their causality or mitigation effectiveness.",
+    "ElapsedTime is not a maximum-throughput benchmark.",
+    "No Windows bugcheck reproduction attempted."
+  ]
+}

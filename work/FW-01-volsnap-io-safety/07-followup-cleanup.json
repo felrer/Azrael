@@ -1,0 +1,60 @@
+{
+  "recordedUtc": "2026-11-05T10:57:52.780Z",
+  "exitCode": 0,
+  "logicalBytes": 4370571452,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:fw02:vss2-0f21bc14-0bed-407a-b389-094212031d97",
+        "status": "deleted"
+      },
+      {
+        "id": "run:fw02:vss3-7e65f579-52c5-4d0e-8cbd-3c91731eb99c",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-40756-7313-1793876246191",
+        "decision": "delete",
+        "decision_id": "21fd125a44f20641ceb7c74f24a1044592b31748ee684517b397a8171e5bace1",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "1297989c4ea3b1fc08e1329a2f2ec0b71ad661f59b196fae0a6850b6d359e228",
+        "lifecycle_group_id": "run:fw02:vss3-7e65f579-52c5-4d0e-8cbd-3c91731eb99c",
+        "reason": "Producer terminated; exact image detached, no active workers or owned shadows; independent minimal evidence retained in work; disposable run use ended",
+        "remaining": false,
+        "status": "deleted",
+        "token": "60c841a72950d736af52109d2ac6e4bb2bd0b9d1625d6288dbde7c3ec792dc80"
+      },
+      {
+        "attempt_id": "attempt-40756-7315-1793876266867",
+        "decision": "delete",
+        "decision_id": "25f57b0db24637ec969e2c929dfff2a2403259b9522224229deec82cc0a0a91d",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "4e7a1dcacf9fbeac109c2337a464d1e1526c780e6674076780fb026d8227fc6a",
+        "lifecycle_group_id": "run:fw02:vss2-0f21bc14-0bed-407a-b389-094212031d97",
+        "reason": "Producer terminated; exact image detached, no active workers or owned shadows; independent minimal evidence retained in work; disposable run use ended",
+        "remaining": false,
+        "status": "deleted",
+        "token": "5938eae8b78ea1515353b613fbed35f9ff053e0226dd2b4ad2ed4376be9612ac"
+      }
+    ]
+  },
+  "stderr": ""
+}
