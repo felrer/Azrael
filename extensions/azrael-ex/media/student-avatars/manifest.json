@@ -6,77 +6,88 @@
       "nameKo": "시로코",
       "nameEn": "Shiroko",
       "school": "Abydos",
-      "asset": "10010.png"
+      "asset": "10010.png",
+      "assetSHA256": "b9ab6834b9e620a63dd59f53133e37933e838356b56e7894e267c63415096ce6"
     },
     {
       "id": 10005,
       "nameKo": "호시노",
       "nameEn": "Hoshino",
       "school": "Abydos",
-      "asset": "10005.png"
+      "asset": "10005.png",
+      "assetSHA256": "199c4d88e9e5a2200acccd102262b745244fcaf774ddc5c80305413be22d1740"
     },
     {
       "id": 13008,
       "nameKo": "세리카",
       "nameEn": "Serika",
       "school": "Abydos",
-      "asset": "13008.png"
+      "asset": "13008.png",
+      "assetSHA256": "8f648b4bee203f198de4e3de33818c1caeb639c37946cecf17689e901a2541e4"
     },
     {
       "id": 13004,
       "nameKo": "노노미",
       "nameEn": "Nonomi",
       "school": "Abydos",
-      "asset": "13004.png"
+      "asset": "13004.png",
+      "assetSHA256": "8ad736c54770d8add22a20b2eeaaa66cf97eff540e3708941efb7bf3b57bde21"
     },
     {
       "id": 10000,
       "nameKo": "아루",
       "nameEn": "Aru",
       "school": "Gehenna",
-      "asset": "10000.png"
+      "asset": "10000.png",
+      "assetSHA256": "957c438e9ee45764d792eca47c155f0ce51d3e8407d7427b633910e34905d066"
     },
     {
       "id": 10004,
       "nameKo": "히나",
       "nameEn": "Hina",
       "school": "Gehenna",
-      "asset": "10004.png"
+      "asset": "10004.png",
+      "assetSHA256": "deef3a28649ab72f07b5a26c8fd8421ab387fe18645b6cec2cf26d43ce4345f8"
     },
     {
       "id": 13010,
       "nameKo": "유우카",
       "nameEn": "Yuuka",
       "school": "Millennium",
-      "asset": "13010.png"
+      "asset": "13010.png",
+      "assetSHA256": "153dba08e0163b65a7e5181e9185d4557e682b3162f670197a3501bfff88acab"
     },
     {
       "id": 10015,
       "nameKo": "아리스",
       "nameEn": "Aris",
       "school": "Millennium",
-      "asset": "10015.png"
+      "asset": "10015.png",
+      "assetSHA256": "f77816ce966411c02972d60be42552f4b15de0f471ed14918ed9ee6d60949881"
     },
     {
       "id": 10008,
       "nameKo": "네루",
       "nameEn": "Neru",
       "school": "Millennium",
-      "asset": "10008.png"
+      "asset": "10008.png",
+      "assetSHA256": "6274cbbc7aa85612e0c8cd0a07ecdfdf5d48d5a2498be7ba2c33853a8d4a2750"
     },
     {
       "id": 10059,
       "nameKo": "미카",
       "nameEn": "Mika",
       "school": "Trinity",
-      "asset": "10059.png"
+      "asset": "10059.png",
+      "assetSHA256": "3547e71e83ce98ad6d2e43161c701981e3cfdd7fea87ae01726241c912f93dfa"
     },
     {
       "id": 10019,
       "nameKo": "아즈사",
       "nameEn": "Azusa",
       "school": "Trinity",
-      "asset": "10019.png"
+      "asset": "10019.png",
+      "assetSHA256": "591bb49909b3bc53e0400c8884b8cf5b6f337d8dc8997005bc40602f94dbe274"
     },
     {
       "id": 23005,
@@ -84,84 +95,95 @@
       "nameEn": "Ayane",
       "school": "Abydos",
       "asset": "23005.png",
-      "assetSHA256": "4d65fc2156f6764738a99736c6dc4c31830c116e3e0e231a0c176230b478b1c3"
+      "assetSHA256": "3a9c86bbdfff5fe396de59e3b972133e96d32e6546cfc48fa064365d2ca78d9f"
     },
     {
       "id": 10002,
       "nameKo": "하루나",
       "nameEn": "Haruna",
       "school": "Gehenna",
-      "asset": "10002.png"
+      "asset": "10002.png",
+      "assetSHA256": "fb4af826ee88e30ce9ca9ba5b27040b4664d535b4798e1e57d0af99ed655834f"
     },
     {
       "id": 10001,
       "nameKo": "에이미",
       "nameEn": "Eimi",
       "school": "Millennium",
-      "asset": "10001.png"
+      "asset": "10001.png",
+      "assetSHA256": "3477af6aa6c0f5471b728f9e9634dcab06626cda20c574a69e59a31884899271"
     },
     {
       "id": 10003,
       "nameKo": "히후미",
       "nameEn": "Hifumi",
       "school": "Trinity",
-      "asset": "10003.png"
+      "asset": "10003.png",
+      "assetSHA256": "3f0f92386318028cc9ca935da98753ac888cc585386f93db5d497fa8f9c24583"
     },
     {
       "id": 10014,
       "nameKo": "이즈나",
       "nameEn": "Izuna",
       "school": "Hyakkiyako",
-      "asset": "10014.png"
+      "asset": "10014.png",
+      "assetSHA256": "bd3e303c76050d210f2b5220a3257fad4d2330ebe07f9e134b8763400de38b11"
     },
     {
       "id": 10011,
       "nameKo": "슌",
       "nameEn": "Shun",
       "school": "Shanhaijing",
-      "asset": "10011.png"
+      "asset": "10011.png",
+      "assetSHA256": "8a1a128e8b7382fab4cc21e24e3cd1b65401e91ca130be22421c10779af4a3b2"
     },
     {
       "id": 10017,
       "nameKo": "체리노",
       "nameEn": "Cherino",
       "school": "RedWinter",
-      "asset": "10017.png"
+      "asset": "10017.png",
+      "assetSHA256": "ead1295af6f66bbcb3a6f326b0495c180827bfa5eb2c13d9742bb9c6635ddc82"
     },
     {
       "id": 10041,
       "nameKo": "미사키",
       "nameEn": "Misaki",
       "school": "Arius",
-      "asset": "10041.png"
+      "asset": "10041.png",
+      "assetSHA256": "450e8190e9cacda4de4abda43465d74302c9868d3778b2e2181044b9cf95b247"
     },
     {
       "id": 10038,
       "nameKo": "미야코",
       "nameEn": "Miyako",
       "school": "SRT",
-      "asset": "10038.png"
+      "asset": "10038.png",
+      "assetSHA256": "cf438d7a95df0b8352b6220902b13a2ab4c770f45be2a205622455a2be5d6ba7"
     },
     {
       "id": 10137,
       "nameKo": "코노카",
       "nameEn": "Konoka",
       "school": "Valkyrie",
-      "asset": "10137.png"
+      "asset": "10137.png",
+      "assetSHA256": "ec7b460cabc1310a634b88fb2b9bf3d146886caf9414970ade330fd8b8fab59f"
     },
     {
       "id": 10117,
       "nameKo": "히카리",
       "nameEn": "Hikari",
       "school": "Highlander",
-      "asset": "10117.png"
+      "asset": "10117.png",
+      "assetSHA256": "f9219a2bf6e284c02096ab75a6d078425d6c1d4b73d7f0deada8a443345cc231"
     },
     {
       "id": 10125,
       "nameKo": "에리",
       "nameEn": "Eri",
       "school": "WildHunt",
-      "asset": "10125.png"
+      "asset": "10125.png",
+      "assetSHA256": "8ab16de47f4a1b90cd8951ac0a10459cb3b4b4892d362540fe358b708f0a22eb"
     },
     {
       "id": 10149,
@@ -169,21 +191,23 @@
       "nameEn": "Kokoro",
       "school": "Odyssey",
       "asset": "10149.png",
-      "assetSHA256": "794d3f8fec182930fdf251aa891364fa33e8071fa0890cc7334513bb4de602e2"
+      "assetSHA256": "db8c352c8ba772ec7716feda3b1dde825a69889603c5fe30fdaf60f3942c5b2e"
     },
     {
       "id": 10006,
       "nameKo": "이오리",
       "nameEn": "Iori",
       "school": "Gehenna",
-      "asset": "10006.png"
+      "asset": "10006.png",
+      "assetSHA256": "2c2fa9347a56320f3710f3d3c6a0fefee5389df761ed2920000022c714557c01"
     },
     {
       "id": 10007,
       "nameKo": "마키",
       "nameEn": "Maki",
       "school": "Millennium",
-      "asset": "10007.png"
+      "asset": "10007.png",
+      "assetSHA256": "c55e513df2e8dadca15944bd3fc57b23b4122bf33fa9d6a2a686ee9d00889533"
     },
     {
       "id": 10013,
@@ -191,28 +215,31 @@
       "nameEn": "Tsurugi",
       "school": "Trinity",
       "asset": "10013.png",
-      "assetSHA256": "053412f05289e141152e8cf785bc469838b51616bfa6baf6719a16fe094e668a"
+      "assetSHA256": "260cd5eee720be0efa547da6acd9316ca586fc90b7d2de6d85e32ee7b10f8e7d"
     },
     {
       "id": 10033,
       "nameKo": "와카모",
       "nameEn": "Wakamo",
       "school": "Hyakkiyako",
-      "asset": "10033.png"
+      "asset": "10033.png",
+      "assetSHA256": "380bb69982f39f33e02210f75df819fe22360ad23d2431a345ddb117765b7c7b"
     },
     {
       "id": 10050,
       "nameKo": "코코나",
       "nameEn": "Kokona",
       "school": "Shanhaijing",
-      "asset": "10050.png"
+      "asset": "10050.png",
+      "assetSHA256": "3e94f7c40f47565e9500c1ce277a08fc775c9c3e140c47905d5562a2c7d4b799"
     },
     {
       "id": 10037,
       "nameKo": "마리나",
       "nameEn": "Marina",
       "school": "RedWinter",
-      "asset": "10037.png"
+      "asset": "10037.png",
+      "assetSHA256": "86895a12e33f668f6c143c608e3b7bb43ba637830a907d12f92caca882de14a4"
     },
     {
       "id": 10042,
@@ -220,490 +247,559 @@
       "nameEn": "Atsuko",
       "school": "Arius",
       "asset": "10042.png",
-      "assetSHA256": "5bb905bf8a327e5cfd91685fd464b88b846939f45bc3aa4fe9a5d2cdcc4e5530"
+      "assetSHA256": "7b2f0cf45d549f6b58b0cc875ef809a27b81149f2440bba0f9ccd83979f7135a"
     },
     {
       "id": 10039,
       "nameKo": "미유",
       "nameEn": "Miyu",
       "school": "SRT",
-      "asset": "10039.png"
+      "asset": "10039.png",
+      "assetSHA256": "f06b19fb81776e31d16d11c7604645ec8dd190d9b96aac220632a357881f7911"
     },
     {
       "id": 13012,
       "nameKo": "키리노",
       "nameEn": "Kirino",
       "school": "Valkyrie",
-      "asset": "13012.png"
+      "asset": "13012.png",
+      "assetSHA256": "f131aeed7a027ac1fadb75591383ed6b2bb91d48ae32d9151e28d70454d03290"
     },
     {
       "id": 10118,
       "nameKo": "노조미",
       "nameEn": "Nozomi",
       "school": "Highlander",
-      "asset": "10118.png"
+      "asset": "10118.png",
+      "assetSHA256": "98db0f86eb9245b8a82df7451a59a7a902336b2679caad84c74747c9a61769cb"
     },
     {
       "id": 10126,
       "nameKo": "카노에",
       "nameEn": "Kanoe",
       "school": "WildHunt",
-      "asset": "10126.png"
+      "asset": "10126.png",
+      "assetSHA256": "ced42cb4768e0aedc6244499a16009bd9f1bd279f82983f050e1c329b787e0bd"
     },
     {
       "id": 10150,
       "nameKo": "코토네",
       "nameEn": "Kotone",
       "school": "Odyssey",
-      "asset": "10150.png"
+      "asset": "10150.png",
+      "assetSHA256": "9a0dc79d42be42b479491f3a553edbf1d1ee0b0f4a7f5c550f879978cd864a1f"
     },
     {
       "id": 10009,
       "nameKo": "이즈미",
       "nameEn": "Izumi",
       "school": "Gehenna",
-      "asset": "10009.png"
+      "asset": "10009.png",
+      "assetSHA256": "e4d27c7df366e25e5fcd2a2955da50aeeb4abe7a8f08ab986aa29b6785977b17"
     },
     {
       "id": 10012,
       "nameKo": "스미레",
       "nameEn": "Sumire",
       "school": "Millennium",
-      "asset": "10012.png"
+      "asset": "10012.png",
+      "assetSHA256": "b9b9bf057c0d810da1f1b563bcc7dca20e555adfbc93caefb5349a928038b932"
     },
     {
       "id": 10020,
       "nameKo": "코하루",
       "nameEn": "Koharu",
       "school": "Trinity",
-      "asset": "10020.png"
+      "asset": "10020.png",
+      "assetSHA256": "ec541b63d5183d47bbfbdedd8c8dae0d359d3f5ba64ef4ad1971ce8589404adc"
     },
     {
       "id": 10034,
       "nameKo": "미모리",
       "nameEn": "Mimori",
       "school": "Hyakkiyako",
-      "asset": "10034.png"
+      "asset": "10034.png",
+      "assetSHA256": "ff36421ece5fb47dd5258b2d48109a3f43e521dc3b5729a7cba564402e4ed1ba"
     },
     {
       "id": 10069,
       "nameKo": "루미",
       "nameEn": "Rumi",
       "school": "Shanhaijing",
-      "asset": "10069.png"
+      "asset": "10069.png",
+      "assetSHA256": "02647758f03b723d1a12293b18058041e6af1e8c8b3828fb538add7c9097a44b"
     },
     {
       "id": 10055,
       "nameKo": "시구레",
       "nameEn": "Shigure",
       "school": "RedWinter",
-      "asset": "10055.png"
+      "asset": "10055.png",
+      "assetSHA256": "64b5629d77bc5271acedfb303c03c73ab59a64fe09be00a1722ddad17c265d71"
     },
     {
       "id": 10048,
       "nameKo": "사오리",
       "nameEn": "Saori",
       "school": "Arius",
-      "asset": "10048.png"
+      "asset": "10048.png",
+      "assetSHA256": "4bedda8a61a02e9e71857655991c3f9bdf9d1ada190e1402f74071711783c0fc"
     },
     {
       "id": 10139,
       "nameKo": "니코",
       "nameEn": "Niko",
       "school": "SRT",
-      "asset": "10139.png"
+      "asset": "10139.png",
+      "assetSHA256": "109b46460d095f94b64b3650e5e5941b3ae480d965d373c85acbf3e89532c6f3"
     },
     {
       "id": 16008,
       "nameKo": "후부키",
       "nameEn": "Fubuki",
       "school": "Valkyrie",
-      "asset": "16008.png"
+      "asset": "16008.png",
+      "assetSHA256": "9cf1f7251017225e52dc7d2e9668d23709394116a0e3fa0bbc983318fc8f2e1c"
     },
     {
       "id": 16017,
       "nameKo": "아오바",
       "nameEn": "Aoba",
       "school": "Highlander",
-      "asset": "16017.png"
+      "asset": "16017.png",
+      "assetSHA256": "7b3431660d6df350618c29a823b20fc32a573511c63f41b5035966e8ac43c3c6"
     },
     {
       "id": 10127,
       "nameKo": "미요",
       "nameEn": "Miyo",
       "school": "WildHunt",
-      "asset": "10127.png"
+      "asset": "10127.png",
+      "assetSHA256": "bc84db5d9dbcd22517d9edeadfa9554736b1b97a10038f965cdc6dba2b30185c"
     },
     {
       "id": 10060,
       "nameKo": "메구",
       "nameEn": "Megu",
       "school": "Gehenna",
-      "asset": "10060.png"
+      "asset": "10060.png",
+      "assetSHA256": "5d5c2bd99abb85d2c8c122722e38290be4cd191d83c12844fb9f9080476be481"
     },
     {
       "id": 10016,
       "nameKo": "미도리",
       "nameEn": "Midori",
       "school": "Millennium",
-      "asset": "10016.png"
+      "asset": "10016.png",
+      "assetSHA256": "2dc2def3edda235361911483d543b3cddce3c9c9e6974e11524fe08c002fc5fa"
     },
     {
       "id": 10029,
       "nameKo": "나츠",
       "nameEn": "Natsu",
       "school": "Trinity",
-      "asset": "10029.png"
+      "asset": "10029.png",
+      "assetSHA256": "5a5cf54f68b15b3d9a8b8a35275839b94e26b7eafa326e4c9475d485dad8d6fc"
     },
     {
       "id": 10040,
       "nameKo": "츠쿠요",
       "nameEn": "Tsukuyo",
       "school": "Hyakkiyako",
-      "asset": "10040.png"
+      "asset": "10040.png",
+      "assetSHA256": "23ea87a51bef0a5bd442595a9530703346ac754a6d7d45707e15c7e8e311eef8"
     },
     {
       "id": 10070,
       "nameKo": "미나",
       "nameEn": "Mina",
       "school": "Shanhaijing",
-      "asset": "10070.png"
+      "asset": "10070.png",
+      "assetSHA256": "c27c55ac55d8678e98db654833faf254afc6b5728cd050ff07b308c4ac86f613"
     },
     {
       "id": 10075,
       "nameKo": "메루",
       "nameEn": "Meru",
       "school": "RedWinter",
-      "asset": "10075.png"
+      "asset": "10075.png",
+      "assetSHA256": "133a143bc08a16dd4aec4e7b6c460a2fb4554a1d141382e83f26e604eda96859"
     },
     {
       "id": 10130,
       "nameKo": "스바루",
       "nameEn": "Subaru",
       "school": "Arius",
-      "asset": "10130.png"
+      "asset": "10130.png",
+      "assetSHA256": "9ac4efbedd6d3332176cf5f2fdbc3dea551034f0fe2814a9c25e098ef29a0e43"
     },
     {
       "id": 10140,
       "nameKo": "쿠루미",
       "nameEn": "Kurumi",
       "school": "SRT",
-      "asset": "10140.png"
+      "asset": "10140.png",
+      "assetSHA256": "9ac3b300adcee8d28dd523a0722fe735e2d406f7148ef2def0692e716d8c34c6"
     },
     {
       "id": 20023,
       "nameKo": "칸나",
       "nameEn": "Kanna",
       "school": "Valkyrie",
-      "asset": "20023.png"
+      "asset": "20023.png",
+      "assetSHA256": "a7b57812829148b9dbf8def3495d7895e527b5dffdb5f51183efddb7c7564d6a"
     },
     {
       "id": 10128,
       "nameKo": "후유",
       "nameEn": "Fuyu",
       "school": "WildHunt",
-      "asset": "10128.png"
+      "asset": "10128.png",
+      "assetSHA256": "a92d459178553f2278a20282c5361edde7bf64dc0ba8cf94ed2f4e7d41e2aec4"
     },
     {
       "id": 10078,
       "nameKo": "카스미",
       "nameEn": "Kasumi",
       "school": "Gehenna",
-      "asset": "10078.png"
+      "asset": "10078.png",
+      "assetSHA256": "dd1e26c6a0c9cb749849e988d05a394e5ee5371a542865ef13d218d1c63a0b2b"
     },
     {
       "id": 10018,
       "nameKo": "유즈",
       "nameEn": "Yuzu",
       "school": "Millennium",
-      "asset": "10018.png"
+      "asset": "10018.png",
+      "assetSHA256": "f5510f26536c7e7872f4cedfa80555cd63ddcadcd93bfd52d167481e03845fa2"
     },
     {
       "id": 10035,
       "nameKo": "우이",
       "nameEn": "Ui",
       "school": "Trinity",
-      "asset": "10035.png"
+      "asset": "10035.png",
+      "assetSHA256": "0e284d5146b9bc0a986aec0d4caa43583f8d38d7b8e92ffba33b128925ac1989"
     },
     {
       "id": 10065,
       "nameKo": "카호",
       "nameEn": "Kaho",
       "school": "Hyakkiyako",
-      "asset": "10065.png"
+      "asset": "10065.png",
+      "assetSHA256": "10b18d8dfe091d9737165102b26899ffbc7b3bac9a0eb55b8ae25d66dba84b00"
     },
     {
       "id": 10104,
       "nameKo": "레이죠",
       "nameEn": "Reijo",
       "school": "Shanhaijing",
-      "asset": "10104.png"
+      "asset": "10104.png",
+      "assetSHA256": "0b05fda61dffc2e4246cd4ba59def4ac78654b5fcafe561fc75aa7ec371827c3"
     },
     {
       "id": 10131,
       "nameKo": "타카네",
       "nameEn": "Takane",
       "school": "RedWinter",
-      "asset": "10131.png"
+      "asset": "10131.png",
+      "assetSHA256": "1cb9b2e5b56488968d93f3dbfd7cec0346ceeb8cf9a02fb0274f9d6ee8960676"
     },
     {
       "id": 20017,
       "nameKo": "히요리",
       "nameEn": "Hiyori",
       "school": "Arius",
-      "asset": "20017.png"
+      "asset": "20017.png",
+      "assetSHA256": "7a8895006d3c81ea623e7216e7a3a9155d8e7f3804d8ef6098f4ec7a7f4ecb36"
     },
     {
       "id": 16020,
       "nameKo": "오토기",
       "nameEn": "Otogi",
       "school": "SRT",
-      "asset": "16020.png"
+      "asset": "16020.png",
+      "assetSHA256": "5b714a37077d445e14d59cfbd50de0d8c3c339961fe686236bb13c84c79726f7"
     },
     {
       "id": 10138,
       "nameKo": "레나",
       "nameEn": "Rena",
       "school": "WildHunt",
-      "asset": "10138.png"
+      "asset": "10138.png",
+      "assetSHA256": "2872dd10a3eefc4caf33698a582cccf324382d47b5e579e648a4cabf847096ae"
     },
     {
       "id": 10093,
       "nameKo": "키라라",
       "nameEn": "Kirara",
       "school": "Gehenna",
-      "asset": "10093.png"
+      "asset": "10093.png",
+      "assetSHA256": "b610d7271f6d0b2349b6f786190d58dbb4ff5ee408e91ad11ce51f17de1b7d36"
     },
     {
       "id": 10052,
       "nameKo": "노아",
       "nameEn": "Noa",
       "school": "Millennium",
-      "asset": "10052.png"
+      "asset": "10052.png",
+      "assetSHA256": "1217354862a652b42ec532a448b1971b48df451c48370f9a74d23081c908373a"
     },
     {
       "id": 10036,
       "nameKo": "히나타",
       "nameEn": "Hinata",
       "school": "Trinity",
-      "asset": "10036.png"
+      "asset": "10036.png",
+      "assetSHA256": "a1200a753ed8caf3071b0454d9c762921e053eb050edbe1fb8e83ca4c6e76310"
     },
     {
       "id": 10081,
       "nameKo": "유카리",
       "nameEn": "Yukari",
       "school": "Hyakkiyako",
-      "asset": "10081.png"
+      "asset": "10081.png",
+      "assetSHA256": "5f66430216756f6cbdf19a86dad9034bdf28d866d0f1473b7bce12b099f441b9"
     },
     {
       "id": 20002,
       "nameKo": "사야",
       "nameEn": "Saya",
       "school": "Shanhaijing",
-      "asset": "20002.png"
+      "asset": "20002.png",
+      "assetSHA256": "009723f012bfccb2d812da6df804cc328ebf7c69fbeee2a4a501a3e68f55a343"
     },
     {
       "id": 10151,
       "nameKo": "안나",
       "nameEn": "Anna",
       "school": "RedWinter",
-      "asset": "10151.png"
+      "asset": "10151.png",
+      "assetSHA256": "ca4db1bd0664dbd08845ecd2fee2ff49e6b10415efbb6935dd3922aa67718c64"
     },
     {
       "id": 20014,
       "nameKo": "사키",
       "nameEn": "Saki",
       "school": "SRT",
-      "asset": "20014.png"
+      "asset": "20014.png",
+      "assetSHA256": "a883d4f21202682767104cffbe5a79c057803e3701354b48da5f039346385ff6"
     },
     {
       "id": 20050,
       "nameKo": "리츠",
       "nameEn": "Ritsu",
       "school": "WildHunt",
-      "asset": "20050.png"
+      "asset": "20050.png",
+      "assetSHA256": "b59867eb4bb9d96b2c0c34dc5eba47406336dbfc73df8017beae3995745f3b6c"
     },
     {
       "id": 10107,
       "nameKo": "치아키",
       "nameEn": "Chiaki",
       "school": "Gehenna",
-      "asset": "10107.png"
+      "asset": "10107.png",
+      "assetSHA256": "9e8b3e08209c425a7066efb68d4615dbbbcced43bf3e20863785e42b6e771bc3"
     },
     {
       "id": 10062,
       "nameKo": "토키",
       "nameEn": "Toki",
       "school": "Millennium",
-      "asset": "10062.png"
+      "asset": "10062.png",
+      "assetSHA256": "2003797fd4a8e69004e93c5bd5f1aea8919018494842fd4b91258c5c86bb3c18"
     },
     {
       "id": 10049,
       "nameKo": "카즈사",
       "nameEn": "Kazusa",
       "school": "Trinity",
-      "asset": "10049.png"
+      "asset": "10049.png",
+      "assetSHA256": "9e08f47f422f7e92ef46a1200a68928ebfdaa4a05f14d7848bc35299d7d69c3e"
     },
     {
       "id": 10082,
       "nameKo": "렌게",
       "nameEn": "Renge",
       "school": "Hyakkiyako",
-      "asset": "10082.png"
+      "asset": "10082.png",
+      "assetSHA256": "d9777e5b60f4bc9e77a8bedac3d3cc8ddd63776930c4f4cd28af6e457b19d1fc"
     },
     {
       "id": 20039,
       "nameKo": "키사키",
       "nameEn": "Kisaki",
       "school": "Shanhaijing",
-      "asset": "20039.png"
+      "asset": "20039.png",
+      "assetSHA256": "481fd481990b889c740edd4a24937c3ee439efb3bf4f7cf87b7ff6cefeefd024"
     },
     {
       "id": 13013,
       "nameKo": "모미지",
       "nameEn": "Momiji",
       "school": "RedWinter",
-      "asset": "13013.png"
+      "asset": "13013.png",
+      "assetSHA256": "0bf5c0d254e6486742bf862e31e348e13bd44a247b4e04e8d4ee7d496a744c8c"
     },
     {
       "id": 20018,
       "nameKo": "모에",
       "nameEn": "Moe",
       "school": "SRT",
-      "asset": "20018.png"
+      "asset": "20018.png",
+      "assetSHA256": "a9e4a0396fc39840cb9ed225ca9b263e63b71d17db7677f2530e8c4743253277"
     },
     {
       "id": 13002,
       "nameKo": "아카리",
       "nameEn": "Akari",
       "school": "Gehenna",
-      "asset": "13002.png"
+      "asset": "13002.png",
+      "assetSHA256": "8588d6a8ce4137549960a50f2453188b3c71e032368ed03a1498ef9b36fd9fff"
     },
     {
       "id": 10063,
       "nameKo": "코유키",
       "nameEn": "Koyuki",
       "school": "Millennium",
-      "asset": "10063.png"
+      "asset": "10063.png",
+      "assetSHA256": "c26016f68adc1e28ea034e4ad56aacfe8032b69a9a5facce6885f9edb1035349"
     },
     {
       "id": 10058,
       "nameKo": "미네",
       "nameEn": "Mine",
       "school": "Trinity",
-      "asset": "10058.png"
+      "asset": "10058.png",
+      "assetSHA256": "0f3b22db55d69b26cd5b9a5b8c33444fdb41746415696c1abba3b4285db8a178"
     },
     {
       "id": 10083,
       "nameKo": "키쿄",
       "nameEn": "Kikyou",
       "school": "Hyakkiyako",
-      "asset": "10083.png"
+      "asset": "10083.png",
+      "assetSHA256": "c4b5000a37f6bbdc3702e9661de1c1372cc52aea1c38cdede7f6f073c164d06c"
     },
     {
       "id": 16007,
       "nameKo": "토모에",
       "nameEn": "Tomoe",
       "school": "RedWinter",
-      "asset": "16007.png"
+      "asset": "16007.png",
+      "assetSHA256": "39fdab8a18d06139ecb5e274c1c94ae97a9a53579372671e1cda72585a656be1"
     },
     {
       "id": 13005,
       "nameKo": "카요코",
       "nameEn": "Kayoko",
       "school": "Gehenna",
-      "asset": "13005.png"
+      "asset": "13005.png",
+      "assetSHA256": "dbdba3ef827190fedcb5c2d3d3d654919d89e681be77083b1e7b12a1007aa565"
     },
     {
       "id": 10115,
       "nameKo": "레이",
       "nameEn": "Rei",
       "school": "Millennium",
-      "asset": "10115.png"
+      "asset": "10115.png",
+      "assetSHA256": "016045747e5bbb9e237d523302f1ac515695529f9bb2029431f680239d1f78e1"
     },
     {
       "id": 10061,
       "nameKo": "사쿠라코",
       "nameEn": "Sakurako",
       "school": "Trinity",
-      "asset": "10061.png"
+      "asset": "10061.png",
+      "assetSHA256": "44c3abbfbd8852c5e33fb70613bcd385a1599581190d09fd60aa434a22a3534c"
     },
     {
       "id": 10090,
       "nameKo": "우미카",
       "nameEn": "Umika",
       "school": "Hyakkiyako",
-      "asset": "10090.png"
+      "asset": "10090.png",
+      "assetSHA256": "203deac20d1cbd36ed6d639f69fc94a9b199d4694d9dbdddf56233bef6808fa2"
     },
     {
       "id": 20026,
       "nameKo": "미노리",
       "nameEn": "Minori",
       "school": "RedWinter",
-      "asset": "20026.png"
+      "asset": "20026.png",
+      "assetSHA256": "ba94b9a2974fa55ee5f44f046f47a7dd269b72eb31fc4199b3610799849fbb03"
     },
     {
       "id": 13006,
       "nameKo": "무츠키",
       "nameEn": "Mutsuki",
       "school": "Gehenna",
-      "asset": "13006.png"
+      "asset": "13006.png",
+      "assetSHA256": "39b4b675b4e0974eda54f9fea353b0bf698e88a4fa3d63361ea4ec5d7d6da888"
     },
     {
       "id": 10135,
       "nameKo": "케이",
       "nameEn": "Kei",
       "school": "Millennium",
-      "asset": "10135.png"
+      "asset": "10135.png",
+      "assetSHA256": "fd2f8821a15cc2baa1ec1d5020389c86f64278f4ec575f6ea4370885f850b9ac"
     },
     {
       "id": 10068,
       "nameKo": "레이사",
       "nameEn": "Reisa",
       "school": "Trinity",
-      "asset": "10068.png"
+      "asset": "10068.png",
+      "assetSHA256": "46e30db1a95754bd749629de7fbd10a41ac1a868550cfb960e745bab60ca4a67"
     },
     {
       "id": 10119,
       "nameKo": "나구사",
       "nameEn": "Nagusa",
       "school": "Hyakkiyako",
-      "asset": "10119.png"
+      "asset": "10119.png",
+      "assetSHA256": "dc67bf491851dd66c801425815f1548908e81bad9adeb090c3dab1b95aeb08e8"
     },
     {
       "id": 20052,
       "nameKo": "야쿠모",
       "nameEn": "Yakumo",
       "school": "RedWinter",
-      "asset": "20052.png"
+      "asset": "20052.png",
+      "assetSHA256": "0928cdffd67a5a38723a82f0aeaa66c10fc7c01a72f932b1ac71f1668953b491"
     },
     {
       "id": 13007,
       "nameKo": "준코",
       "nameEn": "Junko",
       "school": "Gehenna",
-      "asset": "13007.png"
+      "asset": "13007.png",
+      "assetSHA256": "52dafb07682e9e67c23ce29a10382748b432d0ff9bacaf78a575f0a34d3d6ec3"
     },
     {
       "id": 13000,
       "nameKo": "아카네",
       "nameEn": "Akane",
       "school": "Millennium",
-      "asset": "13000.png"
+      "asset": "13000.png",
+      "assetSHA256": "aab898cd0b46dbbe608dbaeefed163a60257079bdedc4bb300dd81cd6495a2ff"
     },
     {
       "id": 10077,
       "nameKo": "이치카",
       "nameEn": "Ichika",
       "school": "Trinity",
-      "asset": "10077.png"
+      "asset": "10077.png",
+      "assetSHA256": "b0ef03c251e37638442454807c3e9c2c199aef7af0586c80658c9638cef38517"
     },
     {
       "id": 13001,
       "nameKo": "치세",
       "nameEn": "Chise",
       "school": "Hyakkiyako",
-      "asset": "13001.png"
+      "asset": "13001.png",
+      "assetSHA256": "62e49292b2212255cbaa2b3f77fa6b5c6e350c7fb3a4b57d1ad137c75e533619"
     },
     {
       "id": 10100,
@@ -713,7 +809,7 @@
       "baseName": "Shiroko*Terror",
       "variant": null,
       "asset": "10100.png",
-      "assetSHA256": "292a51aa9ad0a0119485bb3c85e4e02095dc9487c5e0fbc118792b5a4c95f412"
+      "assetSHA256": "4c91cf632c827a4072eb1752e22ecda300012b9843c5f559f131721954b63a2e"
     },
     {
       "id": 10110,
@@ -723,7 +819,7 @@
       "baseName": "Seia",
       "variant": null,
       "asset": "10110.png",
-      "assetSHA256": "ca52311582eb9090f6cf2e54830d962242bb0ab863330d77ae29db8bc852abad"
+      "assetSHA256": "d86072c3678ed086bcc85ce746527cb5c3a4e40208cd0895e8bec9863a522c3f"
     },
     {
       "id": 13003,
@@ -733,7 +829,7 @@
       "baseName": "Hasumi",
       "variant": null,
       "asset": "13003.png",
-      "assetSHA256": "4dbd43c11ba3926c698bd3fdbbae9d825e259496b8d3f257ea0ffa7d9988b30f"
+      "assetSHA256": "a7899a5b3282c0882cf8551ec60400f3021a3c439c053d571419ed4935692980"
     },
     {
       "id": 13009,
@@ -743,7 +839,7 @@
       "baseName": "Tsubaki",
       "variant": null,
       "asset": "13009.png",
-      "assetSHA256": "cc2ce2ee9a60b6893d5e21b6b8ce6a10495ef9fa3a215bff09b6ff966a2310f8"
+      "assetSHA256": "0c5d2327801c8389a731f8808d2d5a4ff3fe3f749d9de6851f7fce3adffc7952"
     },
     {
       "id": 13011,
@@ -753,7 +849,7 @@
       "baseName": "Momoi",
       "variant": null,
       "asset": "13011.png",
-      "assetSHA256": "cd18921bdaefdfd90b9f4dbc915d83c4188d625f60178818db58afc3d0698222"
+      "assetSHA256": "4242be2a0e370b54f7c6f9e2bbd723c6dd13a8f6c711577df42456ac039ed090"
     },
     {
       "id": 16000,
@@ -763,7 +859,7 @@
       "baseName": "Haruka",
       "variant": null,
       "asset": "16000.png",
-      "assetSHA256": "625cf95ed0573d192dc48834dea4f2d0c220d8eddebdb04a30dc01a1b83089fc"
+      "assetSHA256": "c072083ae901c185e1edb549b3e288fc12a4134adb95c1fa61b61402fa598098"
     },
     {
       "id": 16001,
@@ -773,7 +869,7 @@
       "baseName": "Asuna",
       "variant": null,
       "asset": "16001.png",
-      "assetSHA256": "e3f58de7acbbcdce3a7dd94d17a2c9ee8951b7e53266756356b65040c4af45cb"
+      "assetSHA256": "7f42c837204f4e6f9bc7f42b3aba83ba093a9668a5c41f2d28db458a009441c3"
     },
     {
       "id": 16002,
@@ -783,7 +879,7 @@
       "baseName": "Kotori",
       "variant": null,
       "asset": "16002.png",
-      "assetSHA256": "2e99208e8f946f3f6d42a3a6ab111d52351e7c9ca74ea402060f11b2a17b7bf0"
+      "assetSHA256": "7d7c01ccdd2c595c7d3348d1845b02d3efaa4841fd0f184cf33068a0cd38b766"
     },
     {
       "id": 16003,
@@ -793,7 +889,7 @@
       "baseName": "Suzumi",
       "variant": null,
       "asset": "16003.png",
-      "assetSHA256": "39ad642ca44caca219abfa0ae105032fd85ebcb39ecb560b3dd6fba22dad94b7"
+      "assetSHA256": "61d6e88bff2a849960e1b886b6a4d9f55e50758bc4e959460a3b53b5c8655b77"
     },
     {
       "id": 16004,
@@ -803,7 +899,7 @@
       "baseName": "Pina",
       "variant": null,
       "asset": "16004.png",
-      "assetSHA256": "cb2b3c85d88b0d43fb92afa81a62f4b3829180d2753b860d6d859e9f680dcee9"
+      "assetSHA256": "63aec91253cecd2474cc11822ba767b524ae707cf622b4e86cfa2acf429e0fb7"
     },
     {
       "id": 16009,
@@ -813,7 +909,7 @@
       "baseName": "Michiru",
       "variant": null,
       "asset": "16009.png",
-      "assetSHA256": "b9e3aad7358195a895a0dbf9be1aac96391d89f47a21a9924704b527071ad600"
+      "assetSHA256": "2454a1aa615f852302093d9863f8c75f6da681dcc7eabfed332dddd895ead111"
     },
     {
       "id": 16014,
@@ -823,7 +919,7 @@
       "baseName": "Ibuki",
       "variant": null,
       "asset": "16014.png",
-      "assetSHA256": "92a7488bd2947402b1e47ea38c068dfc9ef7ff49f48773e886edfe0b3dfce92e"
+      "assetSHA256": "8af8d34c34537293c88a2791c127cf849c1af49463830c6156e314cb366b0ff3"
     },
     {
       "id": 16018,
@@ -833,7 +929,7 @@
       "baseName": "Rabu",
       "variant": null,
       "asset": "16018.png",
-      "assetSHA256": "7e24bd4bd09cfa2146fcca7078cf30a9513a4c3cec0ad0cb753427c5b78db401"
+      "assetSHA256": "ec383dbb1e6e3070a8d7aa4d0041cd5c34d536ab6cdd99f6d68a85ba4a7a0d69"
     },
     {
       "id": 20000,
@@ -843,7 +939,7 @@
       "baseName": "Hibiki",
       "variant": null,
       "asset": "20000.png",
-      "assetSHA256": "d5f01b72ef604338938d85802c71e1e670c3b9f1ea06eff9998917ba218564dd"
+      "assetSHA256": "b7bbbb2fadf1b63b16af7d0bb015dd7a42107d4919ad93a29ef0fa0152616d4d"
     },
     {
       "id": 20001,
@@ -853,7 +949,7 @@
       "baseName": "Karin",
       "variant": null,
       "asset": "20001.png",
-      "assetSHA256": "95e8257b4617e5aba945e7c4eeb34495b981c762388fb0d1f3201ffd90ac243d"
+      "assetSHA256": "746d5deaaa8bc883f04200a98dff07d90ed85f1233ff5b7062fb8dd4a56a1796"
     },
     {
       "id": 20003,
@@ -863,7 +959,7 @@
       "baseName": "Mashiro",
       "variant": null,
       "asset": "20003.png",
-      "assetSHA256": "50b97492eefc2ff0727dcb069e5659e294373c3b953c29e3dac9e9e4e9a07380"
+      "assetSHA256": "11542dbd948cd6ebfdbf6ad4512ac63d839a157a58c61c10f6e7cc20cee3863c"
     },
     {
       "id": 20008,
@@ -873,7 +969,7 @@
       "baseName": "Ako",
       "variant": null,
       "asset": "20008.png",
-      "assetSHA256": "fbcd75534b31e5236894b09bf8816aff9bce876a19ff16bf97882902dc70f37a"
+      "assetSHA256": "a279879d55f7db22c7c321fb0a09ab4a77821f3501d318230960f5e14bb96482"
     },
     {
       "id": 20012,
@@ -883,7 +979,7 @@
       "baseName": "Sena",
       "variant": null,
       "asset": "20012.png",
-      "assetSHA256": "9f7586908947019e6a483f08d28558c01c8985379a35394171fdb9cea776b171"
+      "assetSHA256": "9cbbae13a999574cb19d7ed6bade65b70019de45c27771c2d27f0679f9b7e281"
     },
     {
       "id": 20013,
@@ -893,7 +989,7 @@
       "baseName": "Chihiro",
       "variant": null,
       "asset": "20013.png",
-      "assetSHA256": "03af5161e5e9d2a00585b75c2839ef68dcbd3af6b9045e9bd4bd504ee26e2d88"
+      "assetSHA256": "89f6e193ab0d3cc739564be9aa9502f9fc7c7c784ac74f4e614085daa01eb426"
     },
     {
       "id": 20015,
@@ -903,7 +999,7 @@
       "baseName": "Kaede",
       "variant": null,
       "asset": "20015.png",
-      "assetSHA256": "abfe9835c7b86c08f09bdb2f6b9b52613a42ea8247852df268079ef54592902d"
+      "assetSHA256": "d6fc121c5e084a328aa953111c5923bc1ffdbffa0b956450e8df258cc464e2f4"
     },
     {
       "id": 20016,
@@ -913,7 +1009,7 @@
       "baseName": "Iroha",
       "variant": null,
       "asset": "20016.png",
-      "assetSHA256": "f22f6873730e57b597b102fb2c15b9beba2faa34aa931417a52f897318a4a3f4"
+      "assetSHA256": "bd4c0fc9f6ed868654da568f3b0d1f7165ab2b75843a96247b8aacec2ae4afc0"
     },
     {
       "id": 20020,
@@ -923,7 +1019,7 @@
       "baseName": "Himari",
       "variant": null,
       "asset": "20020.png",
-      "assetSHA256": "98938b54bb0128d0b4c4cb4556c86741cccdcff9769ef413d940cdc9134bc0a5"
+      "assetSHA256": "2d2cdb91c0eb94d0b1637468f8dc8498fd16107ff3e11549a1167696d49f4e3d"
     },
     {
       "id": 20024,
@@ -933,7 +1029,7 @@
       "baseName": "Nagisa",
       "variant": null,
       "asset": "20024.png",
-      "assetSHA256": "6d4dcc3310c7731835a788951c1650256283012c6271e074610fea8aa8669f10"
+      "assetSHA256": "80dc6e13ec74c668dbc035316335b06223d7e15ccc85531c7e44948073a36134"
     },
     {
       "id": 20033,
@@ -943,7 +1039,7 @@
       "baseName": "Makoto",
       "variant": null,
       "asset": "20033.png",
-      "assetSHA256": "eb7faf7ecf65ef60600b4674b09c757dae6014734431b2b29e645edabd5b6a09"
+      "assetSHA256": "31a6501106d43d14c936fc5e9417366d28aed5e84d6f00855e9077c545515fb7"
     },
     {
       "id": 20040,
@@ -953,7 +1049,7 @@
       "baseName": "Satsuki",
       "variant": null,
       "asset": "20040.png",
-      "assetSHA256": "2c687d98a38c942b4831fddf44d1bca49b22974c195eb0c994e7ef8cbf89683f"
+      "assetSHA256": "733546ff62aed53b2c27c035fda3027aea8fa9fbe0f03921d670dfbbb08e34ae"
     },
     {
       "id": 20041,
@@ -963,7 +1059,7 @@
       "baseName": "Rio",
       "variant": null,
       "asset": "20041.png",
-      "assetSHA256": "7265dde328d19f3093db1137a0d6c751eaf83b2c47df800cd279b3a43ba24ac9"
+      "assetSHA256": "426310c8032dc3cdb8a05478c5bdd3c755c719fa6bb15c0afdb83723f450e54b"
     },
     {
       "id": 20046,
@@ -973,7 +1069,7 @@
       "baseName": "Niya",
       "variant": null,
       "asset": "20046.png",
-      "assetSHA256": "bdd36ccda48f2c2cf07896977fc593b73b5218ddc60bfb495032d31e8f18f73c"
+      "assetSHA256": "ff60a2114587e918e1f022f8b531d2d5ddb33cb6fd1e870431baa3a35c3cdcfd"
     },
     {
       "id": 20058,
@@ -983,7 +1079,7 @@
       "baseName": "Erika",
       "variant": null,
       "asset": "20058.png",
-      "assetSHA256": "de2e0ff441d70ee125f8fbf8975ca3f101cf062e63f809c9351193434f5953a7"
+      "assetSHA256": "d8f0fe7932b24dc41120dac905e34f6cb28ed503babfb6e2f3b555db23515280"
     },
     {
       "id": 20062,
@@ -993,7 +1089,7 @@
       "baseName": "Erina",
       "variant": null,
       "asset": "20062.png",
-      "assetSHA256": "1b7d49f8a6a4d35b48d1c68b54258733151dbdaf44e89db10ffd4262cc54c592"
+      "assetSHA256": "3234224f1fba0cd92f6cba73ddc3254572aebfcdbe6d5d491e268a58a1dbfd91"
     },
     {
       "id": 23000,
@@ -1003,7 +1099,7 @@
       "baseName": "Airi",
       "variant": null,
       "asset": "23000.png",
-      "assetSHA256": "17dd40020fd9ae9814e697b91c1e64252e6e6d85eec6da0d30c6e1fcc8889dff"
+      "assetSHA256": "4f7d2faa147a9e8b82e9a384e7290f468e662477ff5f62e15c8f54eb68a4d7d1"
     },
     {
       "id": 23001,
@@ -1013,7 +1109,7 @@
       "baseName": "Fuuka",
       "variant": null,
       "asset": "23001.png",
-      "assetSHA256": "8274f14d33324d536b0c17243a1342fe717d8e6fe33384bf5790d97b2f98c088"
+      "assetSHA256": "3a437715c9b99713d90192bb0d30dd6ac1ab33711ddee26601637cbcffc8a4bc"
     },
     {
       "id": 23002,
@@ -1023,7 +1119,7 @@
       "baseName": "Hanae",
       "variant": null,
       "asset": "23002.png",
-      "assetSHA256": "23529501de889377aa5d90c9a1bed37b3351a00057b5a50cc9bef4dd45a2abda"
+      "assetSHA256": "c0e0bedcd61c32b26022efe512873f9b13fa3e513227bcfad0128ec8fec617df"
     },
     {
       "id": 23003,
@@ -1033,7 +1129,7 @@
       "baseName": "Hare",
       "variant": null,
       "asset": "23003.png",
-      "assetSHA256": "2cca2163888cd636f67fd15c576a5b3d467bcc1c08bd757f5f726225cf7b4fc0"
+      "assetSHA256": "57ce7ecb1e84434498a5e8d15f130864ae1ed606b7fb559b7d53b6a6150457e5"
     },
     {
       "id": 23004,
@@ -1043,7 +1139,7 @@
       "baseName": "Utaha",
       "variant": null,
       "asset": "23004.png",
-      "assetSHA256": "ec9ea1734a1ea5b8000949cc9acf5515a04a6f2b123aeb3a47ff530812c760ca"
+      "assetSHA256": "ed410cbfbc6d4aee187cfea9946756bd7d5b14a7fb422e5b6cc3d3220a900c3c"
     },
     {
       "id": 23006,
@@ -1053,7 +1149,7 @@
       "baseName": "Shizuko",
       "variant": null,
       "asset": "23006.png",
-      "assetSHA256": "018f7ceee08319eba88c8cf95fb613c07cc0e97f1954ed0999b39ceaa1f29e17"
+      "assetSHA256": "4659de27d732578666db7930c326efb03faafaaf13357f3764627fad26bdcfba"
     },
     {
       "id": 23007,
@@ -1063,7 +1159,7 @@
       "baseName": "Hanako",
       "variant": null,
       "asset": "23007.png",
-      "assetSHA256": "33ca48047e801d119ba984ba9295a8b253b2ca891af2296485270a5f72ad6a24"
+      "assetSHA256": "f7d4e98f5637353335cc8d3ba43fce8bd2834e2a194d0020f8e6e7d0d535874f"
     },
     {
       "id": 23008,
@@ -1073,7 +1169,7 @@
       "baseName": "Mari",
       "variant": null,
       "asset": "23008.png",
-      "assetSHA256": "7d85d864a420dfdac27b6a24c8945d3b59dd072e5ddb74be4341bbe6921e4d11"
+      "assetSHA256": "16e3168bab62a01573fc1a99830d800ffe45069427d7eee3fcef5be9f3865267"
     },
     {
       "id": 26000,
@@ -1083,7 +1179,7 @@
       "baseName": "Chinatsu",
       "variant": null,
       "asset": "26000.png",
-      "assetSHA256": "df82e0cfac1b5b6dd23410dd4117a4b6894786a92811158105b9c7912da38437"
+      "assetSHA256": "ec377b2981c5ff534dedd2e2ce867f909e7e3763207a6fdb31c15434e7699bd5"
     },
     {
       "id": 26001,
@@ -1093,7 +1189,7 @@
       "baseName": "Kotama",
       "variant": null,
       "asset": "26001.png",
-      "assetSHA256": "6d30885349cde551ca33209b184ffabcdd78df81a8175671fb11611b8e36e1e8"
+      "assetSHA256": "d2e7e3d9861e447e3b09adb76447a7f34ea61e2f6038d6520fe134a6e3ef6c09"
     },
     {
       "id": 26002,
@@ -1103,7 +1199,7 @@
       "baseName": "Juri",
       "variant": null,
       "asset": "26002.png",
-      "assetSHA256": "ac4a5559fbc8c721ce4546e260a0c8e04f5214d30fe77b62151028e2657f7eae"
+      "assetSHA256": "62d47ffc4daba1754794d932c83f464386aa2033dc99fa36360afa56cc62e18b"
     },
     {
       "id": 26003,
@@ -1113,7 +1209,7 @@
       "baseName": "Serina",
       "variant": null,
       "asset": "26003.png",
-      "assetSHA256": "0e88301a79581f3765506cab63277911681565b33819ba82e969828f256a2acb"
+      "assetSHA256": "a0b0728569db3dd54dfce71484d50a8bab53e67321dfd8311d38518b588a4cd7"
     },
     {
       "id": 26004,
@@ -1123,7 +1219,7 @@
       "baseName": "Shimiko",
       "variant": null,
       "asset": "26004.png",
-      "assetSHA256": "2bd004acc3086ce8c1a344b1d75ee9e875b9af63528b81e30704ec8287858672"
+      "assetSHA256": "ddb8f5625c71d1749687ec505562119cdbede88a95f94846534c33ab37934e2b"
     },
     {
       "id": 26005,
@@ -1133,7 +1229,7 @@
       "baseName": "Yoshimi",
       "variant": null,
       "asset": "26005.png",
-      "assetSHA256": "7dc2f48757aa70caf100c0e614c394102d254d256fe02e77d0ff98d661f291c1"
+      "assetSHA256": "ec10d7bccf69ae4213207aca2b7551648c9e6014d68c4146884844cc8fe1c22d"
     },
     {
       "id": 26006,
@@ -1143,7 +1239,7 @@
       "baseName": "Nodoka",
       "variant": null,
       "asset": "26006.png",
-      "assetSHA256": "ec2c62ceeabdb79485bf3a1a5613100cd5bb2f7386fe4c25d2a6d77b581b44d5"
+      "assetSHA256": "08b1cbab74c7fca4bfda82725f3bda402789a1a77e8c48ddc746322502afdf6c"
     },
     {
       "id": 10021,
@@ -1153,7 +1249,7 @@
       "baseName": "Azusa",
       "variant": "Swimsuit",
       "asset": "10021.png",
-      "assetSHA256": "07519730e10cca31e9bd37c320db46b4077c5b15ce4ab55706905e6a40d4e57d"
+      "assetSHA256": "6b8c51511496cc050fa2c58d26e1be5b151845eeb024f9b8e9dda26674dffc51"
     },
     {
       "id": 10022,
@@ -1163,7 +1259,7 @@
       "baseName": "Hina",
       "variant": "Swimsuit",
       "asset": "10022.png",
-      "assetSHA256": "ef35f04d05e69eb9da9a9d7f0eaba23674c5cbccdfb1a21c3ebbb87334c1c5d4"
+      "assetSHA256": "1cc06b5ebbf57f79c13a2a2efac67a9cdf61ffa280d5897e9a0157d8a9c77581"
     },
     {
       "id": 10023,
@@ -1173,7 +1269,7 @@
       "baseName": "Iori",
       "variant": "Swimsuit",
       "asset": "10023.png",
-      "assetSHA256": "33d6e9d8af50b038afa07cb02fa0cbbf8420a1e4adeb4346dace3b60358c7b1a"
+      "assetSHA256": "5e1a6736bee9c7e8f2b1ee1d6f6c9c5cb54de1bc96de39126e6d930fd5b66424"
     },
     {
       "id": 10024,
@@ -1183,7 +1279,7 @@
       "baseName": "Shiroko",
       "variant": "Cycling",
       "asset": "10024.png",
-      "assetSHA256": "236bc089022482d581737ccc71de418417a3806146d24dfce1596275a444ff87"
+      "assetSHA256": "4cc9183e1376b70f0437dc4e96d101bb88504a6fbb1b0b71503ce488d85dde14"
     },
     {
       "id": 10025,
@@ -1193,7 +1289,7 @@
       "baseName": "Shun",
       "variant": "Small",
       "asset": "10025.png",
-      "assetSHA256": "42f3bed6e2e1f9d790f390726ec2ced3973e5aeb95cb547772e4eff07736095e"
+      "assetSHA256": "db2f9d6be2bfeb848f33af491620b5e2d682a614c3540c887a993db3bc1852c3"
     },
     {
       "id": 10026,
@@ -1203,7 +1299,7 @@
       "baseName": "Neru",
       "variant": "Bunny",
       "asset": "10026.png",
-      "assetSHA256": "0af2ff369bee3e271dc3dca2df1ffffdbb822d1e37600acff0296d676c66c260"
+      "assetSHA256": "6ade620e53e4cb3a01171f2b4a496b222b201eb4f5a314c26990c829ce9af515"
     },
     {
       "id": 10027,
@@ -1213,7 +1309,7 @@
       "baseName": "Karin",
       "variant": "Bunny",
       "asset": "10027.png",
-      "assetSHA256": "32dcac87b9ee26d77fa979d623d83ba15459fcd1a166344b2091e2112c0ae1da"
+      "assetSHA256": "6acc0753472bd8020c41a34ceea44d781c3b081797a0cd5f276927d0ba326bce"
     },
     {
       "id": 10028,
@@ -1223,7 +1319,7 @@
       "baseName": "Asuna",
       "variant": "Bunny",
       "asset": "10028.png",
-      "assetSHA256": "dfbcd45c62f79e0721558817b786d96e32ff5fcf12a8d5d52cada02810d3de17"
+      "assetSHA256": "f4428e0c3709256b76dbdc083a1da6485e6ca730c6fce8535528c26965e1459c"
     },
     {
       "id": 10030,
@@ -1233,7 +1329,7 @@
       "baseName": "Chinatsu",
       "variant": "Hot Spring",
       "asset": "10030.png",
-      "assetSHA256": "223aaf3d1a45a62e9537eaec6d90c76788af2e74916f6a2aa14ef14a34c0d11e"
+      "assetSHA256": "81a4a5d63de3fd186689c52d1d91e32078bdb268c1c164cba2d005417216b917"
     },
     {
       "id": 10031,
@@ -1243,7 +1339,7 @@
       "baseName": "Aru",
       "variant": "New Year",
       "asset": "10031.png",
-      "assetSHA256": "9deda62a7cab837fcec7a35ac7dca7d16ba7e598610d2a0402038becb20a65f7"
+      "assetSHA256": "2209354733d4a3a854f328b44f6885f122be19375d771d6e97147f7e8c210c90"
     },
     {
       "id": 10032,
@@ -1253,7 +1349,7 @@
       "baseName": "Mutsuki",
       "variant": "New Year",
       "asset": "10032.png",
-      "assetSHA256": "5b54487e60ddbcefe05f08cd63cace8472936a129e401fd24d99b3458734e06f"
+      "assetSHA256": "1b27be477105ebe4025d485727661d104789b1a1dfdcd0e0c38d10d258ff0565"
     },
     {
       "id": 10043,
@@ -1263,7 +1359,7 @@
       "baseName": "Wakamo",
       "variant": "Swimsuit",
       "asset": "10043.png",
-      "assetSHA256": "48131df0c4efd226f6681677066202821943179f0d50ce587ae0cae309ed50e9"
+      "assetSHA256": "82989a7f1dbab6a36fc410bb4eccdc50402713d47a273403319f3e290ea1f884"
     },
     {
       "id": 10044,
@@ -1273,7 +1369,7 @@
       "baseName": "Nonomi",
       "variant": "Swimsuit",
       "asset": "10044.png",
-      "assetSHA256": "706a24dafcd0db4150e9f004fa795d5fc3168534452dd61edc456e29cab6e2f7"
+      "assetSHA256": "6d72354dc1d1fdaa699d879bb57c096c2638400cd15f2f052da2aaebcd891607"
     },
     {
       "id": 10045,
@@ -1283,7 +1379,7 @@
       "baseName": "Hoshino",
       "variant": "Swimsuit",
       "asset": "10045.png",
-      "assetSHA256": "03abd9c59aad64378f2716a74294f1fb2031556d0ba220b0dd4c1c6149c6799d"
+      "assetSHA256": "7222170b46d60180d56149c4fd2e6d7cfb1637f9beddc0da4c1ab1e30d1682a2"
     },
     {
       "id": 10046,
@@ -1293,7 +1389,7 @@
       "baseName": "Izuna",
       "variant": "Swimsuit",
       "asset": "10046.png",
-      "assetSHA256": "7d4282375d699fb209d69bc7169d0ef028474efa61bfa1f50431fadcc1e6f710"
+      "assetSHA256": "57bf62dae4f9e35971c084619188b7b3a3e98ca924035de35db1f91e2de1f0af"
     },
     {
       "id": 10047,
@@ -1303,7 +1399,7 @@
       "baseName": "Chise",
       "variant": "Swimsuit",
       "asset": "10047.png",
-      "assetSHA256": "aeed3274b3dfce342324ff7a958e4d3da3be5753fc9a4bd68b81ecfcb40bbd99"
+      "assetSHA256": "f391b900bc311bbd4d136c95d14d5ca7eda622af6f979cbe1b25ab050d45bbf5"
     },
     {
       "id": 10051,
@@ -1313,7 +1409,7 @@
       "baseName": "Utaha",
       "variant": "Cheer Squad",
       "asset": "10051.png",
-      "assetSHA256": "85989c477ed0451a4c83dda0b8a7a47549dcde1b5b5382cc47136f9dcef76a73"
+      "assetSHA256": "444226584e34da23aa0d548cd2acc8590c2c8f68601cd55c09de8e444958353b"
     },
     {
       "id": 10053,
@@ -1323,7 +1419,7 @@
       "baseName": "Yuuka",
       "variant": "Track",
       "asset": "10053.png",
-      "assetSHA256": "bc939d60de28366c77a8311fefc442a4b4c791b01c1cf54f5175417a6c5601a1"
+      "assetSHA256": "20673e49806446e273ec28d3a58442e4f4aa3b226b82f4fee49cc98aaf902585"
     },
     {
       "id": 10054,
@@ -1333,7 +1429,7 @@
       "baseName": "Mari",
       "variant": "Track",
       "asset": "10054.png",
-      "assetSHA256": "b227d9d44213e36e245d51bcd242cf3307700f49903caa7922308e739062e4dd"
+      "assetSHA256": "bd9b50ec6177a9a24b2a8626d81ee02fb541a5f85bec212b3b730052533515ae"
     },
     {
       "id": 10056,
@@ -1343,7 +1439,7 @@
       "baseName": "Serina",
       "variant": "Christmas",
       "asset": "10056.png",
-      "assetSHA256": "6740457932d9bd3a777c6549789d9062e8147c815a30c567ee0aee5be196392f"
+      "assetSHA256": "75f54620740fe693357caf029991848217964c7da918cfaf1472a8bd978f9225"
     },
     {
       "id": 10057,
@@ -1353,7 +1449,7 @@
       "baseName": "Haruna",
       "variant": "New Year",
       "asset": "10057.png",
-      "assetSHA256": "681841d1d0eaeeaa9c84f7c53c6aefb7241e9cd71be6957a38d44110be9c370e"
+      "assetSHA256": "4739c1bad14a71a492dc0e1566502165ac9e405a7f30443a125e73feb3f8c39f"
     },
     {
       "id": 10064,
@@ -1363,7 +1459,7 @@
       "baseName": "Kayoko",
       "variant": "New Year",
       "asset": "10064.png",
-      "assetSHA256": "f9a2d57900fbf2f3bea9013de91a414c16f7619d2585849e9680b56774dafcb8"
+      "assetSHA256": "c56f99570e8819c2990a3d971c964dc9b212e9f85929ab8f0075eb9683ee22f1"
     },
     {
       "id": 10066,
@@ -1373,7 +1469,7 @@
       "baseName": "Aris",
       "variant": "Maid",
       "asset": "10066.png",
-      "assetSHA256": "96e0dcda1284ec0438d445a64431915d911fb79feefc0e8236f02366bf144564"
+      "assetSHA256": "982454bd84e35bcab831955b492f43898968b760f6ff0ac2b1b777909fe13491"
     },
     {
       "id": 10067,
@@ -1383,7 +1479,7 @@
       "baseName": "Toki",
       "variant": "Bunny",
       "asset": "10067.png",
-      "assetSHA256": "6d3925cc8542a994450ce33a19005776131e8e1dda1207c8f0169d984fe2196b"
+      "assetSHA256": "cd997ec37ad7c10c16e43528a2ad80925b556b2df6d0b220ef605f1b12442c4f"
     },
     {
       "id": 10071,
@@ -1393,7 +1489,7 @@
       "baseName": "Miyako",
       "variant": "Swimsuit",
       "asset": "10071.png",
-      "assetSHA256": "3362f448a2efb82ec5e1f269bdebc60b1cd2e1f14144c2b01b484de150590928"
+      "assetSHA256": "08045adf5a4bf9ecfc1cea09dfa2b6c26dcfb3b71a5fa0b190e664cb5d715b51"
     },
     {
       "id": 10072,
@@ -1403,7 +1499,7 @@
       "baseName": "Saki",
       "variant": "Swimsuit",
       "asset": "10072.png",
-      "assetSHA256": "88d5b6ba4829ff4779fdba29db79ceb28963cd0accac375f24d3ece2ad0c9f71"
+      "assetSHA256": "61d4164b4abbf63ab9bfb3fd949952bdcd1c9f5156c72eaf883a76bdf07ff109"
     },
     {
       "id": 10073,
@@ -1413,7 +1509,7 @@
       "baseName": "Ui",
       "variant": "Swimsuit",
       "asset": "10073.png",
-      "assetSHA256": "9fa81f4c85ed42194b60599c8a5443c4fce1ba155ebbef02a3bd7ce35cc5335e"
+      "assetSHA256": "48c67669cbdce07eb3877cf39d6a077f2dba0067253a8423334895a66536253f"
     },
     {
       "id": 10074,
@@ -1423,7 +1519,7 @@
       "baseName": "Hanako",
       "variant": "Swimsuit",
       "asset": "10074.png",
-      "assetSHA256": "d019bb4da273dae3190778b5479a480dc7c166bcec3d567fdbb942aedab133a1"
+      "assetSHA256": "5be043bd1aac8c92b8ac6e83e71897b439050d2f720ff6eb20c621424200bf45"
     },
     {
       "id": 10076,
@@ -1433,7 +1529,7 @@
       "baseName": "Kotori",
       "variant": "Cheer Squad",
       "asset": "10076.png",
-      "assetSHA256": "6b718b79b8cba06b87522e2b4715fafb4a6f31cde9495ce41b475beb3693814c"
+      "assetSHA256": "292d9462ca9a768a14ee3536678df620ddf29b97653ffa48cae82a83e958caf0"
     },
     {
       "id": 10084,
@@ -1443,7 +1539,7 @@
       "baseName": "Kotama",
       "variant": "Camp",
       "asset": "10084.png",
-      "assetSHA256": "c358d1a20a9a5a3426af5598861d6caa970dd64b0645dfcbb90896dcf2712ad5"
+      "assetSHA256": "753f178e7b42003153333c45b48c8ddf610b254b890995934b61e5de57397dbc"
     },
     {
       "id": 10085,
@@ -1453,7 +1549,7 @@
       "baseName": "Hare",
       "variant": "Camp",
       "asset": "10085.png",
-      "assetSHA256": "b1e9d8c52a46ca1fa949d758164ca78fc5b1f1c0a70218aef78e7da2c24712a9"
+      "assetSHA256": "ec5d986797244603a8bbad17031351f005d2b446e64e83682564344be913f896"
     },
     {
       "id": 10086,
@@ -1463,7 +1559,7 @@
       "baseName": "Hina",
       "variant": "Dress",
       "asset": "10086.png",
-      "assetSHA256": "e4efba4ef214b5755feb051ccc8203779225002c3f07fcf33021f7c854e612c1"
+      "assetSHA256": "5acca764826c98ad96a6400dc10f23499e36f46976762dfff42299b5f50423fc"
     },
     {
       "id": 10087,
@@ -1473,7 +1569,7 @@
       "baseName": "Ako",
       "variant": "Dress",
       "asset": "10087.png",
-      "assetSHA256": "5cde9f4acd9bbff0da391cc92cbafe0efa6d8aa9abbdedc9aa945d4ab91129f0"
+      "assetSHA256": "6b344b9c11a585b3d60150ae03c484c685239f88a25503b96ffba5d134b3fe6a"
     },
     {
       "id": 10088,
@@ -1483,7 +1579,7 @@
       "baseName": "Kayoko",
       "variant": "Dress",
       "asset": "10088.png",
-      "assetSHA256": "ce4c85dfbc2cf248a6cebf99910f5f8d450dadb1be69fb6dc327e49869ffcca9"
+      "assetSHA256": "b95eae0fa70a6aa4806ae329b17da03483696bbc424bf3eea45bdc82d2d1f78f"
     },
     {
       "id": 10089,
@@ -1493,7 +1589,7 @@
       "baseName": "Aru",
       "variant": "Dress",
       "asset": "10089.png",
-      "assetSHA256": "2f6f05886773b16f36f1cf59755e689eb5c713b9693719f238e872ded261704a"
+      "assetSHA256": "bf62e0194f04049b31a9321a5182adf3217640b3b5bc492685dc896b3cfeae42"
     },
     {
       "id": 10091,
@@ -1503,7 +1599,7 @@
       "baseName": "Kazusa",
       "variant": "Band",
       "asset": "10091.png",
-      "assetSHA256": "46bd916e37ee559425ca17f3c0043b423ea572ca843e1109f5b268371c018ba5"
+      "assetSHA256": "b79c0f94100593ae27af5ffed1ac832fe6a03e4f01846f0819e6c4ec46017032"
     },
     {
       "id": 10092,
@@ -1513,7 +1609,7 @@
       "baseName": "Yoshimi",
       "variant": "Band",
       "asset": "10092.png",
-      "assetSHA256": "1b5a57113f2803d4ed34cdc52417f09bcf44b4250d34f754c6d84e2fe9b06fea"
+      "assetSHA256": "9f6355624d4f75e85b9ba0531ed23323ae6224ee54fd37aa20c5681fc844f074"
     },
     {
       "id": 10094,
@@ -1523,7 +1619,7 @@
       "baseName": "Momoi",
       "variant": "Maid",
       "asset": "10094.png",
-      "assetSHA256": "1a75f41bc18878fe69969a52c8c95e616203152202a8c11b0477f8324adfde49"
+      "assetSHA256": "13e35707373ca81884327c8b2da0321aca19086fed393c4fd83bd866508fe96d"
     },
     {
       "id": 10095,
@@ -1533,7 +1629,7 @@
       "baseName": "Midori",
       "variant": "Maid",
       "asset": "10095.png",
-      "assetSHA256": "c537aa784d6317a991efc0b0d5414fd78ef2fa92bb465fab1fe608d299bcae55"
+      "assetSHA256": "8be099fe86ebd6d59615bfeb2bd222e77975f9f15bd70cfef25cee2266324a85"
     },
     {
       "id": 10096,
@@ -1543,7 +1639,7 @@
       "baseName": "Kanna",
       "variant": "Swimsuit",
       "asset": "10096.png",
-      "assetSHA256": "0723759f00976e58021028b69db4447efec380272eae3932744f5dda9a9c4ae6"
+      "assetSHA256": "8ccd0d9e1ebc10cc732f03a5a0b26ae7cb3071eda946dedf3e01c982cd2b9ef7"
     },
     {
       "id": 10097,
@@ -1553,7 +1649,7 @@
       "baseName": "Moe",
       "variant": "Swimsuit",
       "asset": "10097.png",
-      "assetSHA256": "ca326fefa296049f568a1383ecd9150ed2e8c70af2720983a0be8767cfd91b91"
+      "assetSHA256": "83c5f6038fe4f9a88cd3b6577e05dd8fbfd0978fd72dc81373453bf3ee7a3940"
     },
     {
       "id": 10098,
@@ -1563,7 +1659,7 @@
       "baseName": "Hoshino",
       "variant": "Armed",
       "asset": "10098.png",
-      "assetSHA256": "5c6edce55a36af3f6a6ce5e745cae55e6890052564fe3a8b8a8207d75d06bce7"
+      "assetSHA256": "6cd4a482b70dd835ce9e97b5d45d3ea68d91a6ed27dffb880ecd0d597e7c63bc"
     },
     {
       "id": 10101,
@@ -1573,7 +1669,7 @@
       "baseName": "Saori",
       "variant": "Swimsuit",
       "asset": "10101.png",
-      "assetSHA256": "644adb261e19709fdd60be5edd5b816bd021c9ff715785d4fabf125516181307"
+      "assetSHA256": "a6eb70c833ea585b1e8035bc8f2cbe9ae8dd8a604d548dc51d401be3e40a4718"
     },
     {
       "id": 10102,
@@ -1583,7 +1679,7 @@
       "baseName": "Hiyori",
       "variant": "Swimsuit",
       "asset": "10102.png",
-      "assetSHA256": "3f7f5a32505400facd1c9ba3111d1588e162600f6143773af3684609ad0d1bea"
+      "assetSHA256": "6603ae2b164001726116f9203346b097eff1445ae38aaaae3d5ea385151deb9b"
     },
     {
       "id": 10103,
@@ -1593,7 +1689,7 @@
       "baseName": "Marina",
       "variant": "Qipao",
       "asset": "10103.png",
-      "assetSHA256": "0ac0fe66a28b0f7101e0e57a53f7f9d7ea195e7a9801208ff374aecc9d80639f"
+      "assetSHA256": "a28f231bee0852e92f467bbf9c0910f74e4b7419b73bf273780130b5b4c16c54"
     },
     {
       "id": 10105,
@@ -1603,7 +1699,7 @@
       "baseName": "Mari",
       "variant": "Pop Idol",
       "asset": "10105.png",
-      "assetSHA256": "a02cff20635001974f36d82fdae3a5dd932fac79a6ca270beffae73a15508e6f"
+      "assetSHA256": "c27d9cb1ba0adb8b6dcfaf5f631958017780feb04df773f96b9e7faa15125ef8"
     },
     {
       "id": 10106,
@@ -1613,7 +1709,7 @@
       "baseName": "Sakurako",
       "variant": "Pop Idol",
       "asset": "10106.png",
-      "assetSHA256": "f20600a68590c1af1b2e911dd6b4ea7926b1c4d186157f3ff56155c5b246a8b3"
+      "assetSHA256": "0e622bf7a99fe4eae9faa232f6621848aad309b91a571ecbb414b852b6818a42"
     },
     {
       "id": 10108,
@@ -1623,7 +1719,7 @@
       "baseName": "Yuuka",
       "variant": "Pajamas",
       "asset": "10108.png",
-      "assetSHA256": "0ed40bd87db8895e2cba68875eda69e081d2a1939a3dc9606b3f2a04e114e787"
+      "assetSHA256": "b01837c59df27b89c92f5c59fdcc74a5b613ef1600828c7cfa189e10cdb19b76"
     },
     {
       "id": 10109,
@@ -1633,7 +1729,7 @@
       "baseName": "Noa",
       "variant": "Pajamas",
       "asset": "10109.png",
-      "assetSHA256": "3498fd7975492b340ede6488439303c7c4855000e8e1ea1837d5e23fd2721b1f"
+      "assetSHA256": "fa454ed7e16d9c6c136fc519ca887d5d44fc086b6503f1cef886a5a5d7215a9d"
     },
     {
       "id": 10111,
@@ -1643,7 +1739,7 @@
       "baseName": "Neru",
       "variant": "School",
       "asset": "10111.png",
-      "assetSHA256": "bdf1b581f602621b1902c10b1da61aedeafcc91fbca18b30b425443ac3c43898"
+      "assetSHA256": "9a9003180034f7c86a941bdafc0eaec53230a4bd06807ac5270466d61c8fd0d2"
     },
     {
       "id": 10112,
@@ -1653,7 +1749,7 @@
       "baseName": "Asuna",
       "variant": "School",
       "asset": "10112.png",
-      "assetSHA256": "90e0025e10965b8359a9efc93bb3dd159ac3997260dfad093843b047c4cd2d7a"
+      "assetSHA256": "7e356bc1bb5569deece24db6413ba06e9a542efa223ffed2309bc9ac343750dc"
     },
     {
       "id": 10113,
@@ -1663,7 +1759,7 @@
       "baseName": "Sena",
       "variant": "Casual",
       "asset": "10113.png",
-      "assetSHA256": "398a2d9313e5b1828fb7193b58bc8fa2d4c1a1a672c7f8da33b78218a850ddd2"
+      "assetSHA256": "9bda7c4cc7e2da5a61c7b631abdfc04ca8c83cc1abd2d7bbf87842bd113e7480"
     },
     {
       "id": 10114,
@@ -1673,7 +1769,7 @@
       "baseName": "Juri",
       "variant": "Part-Timer",
       "asset": "10114.png",
-      "assetSHA256": "8abec64e4480bd409071f4cf29e52e6eee303ae949580b9af14a58d255277f6e"
+      "assetSHA256": "b3c4cfaa5b5ece32e3a92d8568f437bf52d9db689628442e8bf4c83a85c0b018"
     },
     {
       "id": 10116,
@@ -1683,7 +1779,7 @@
       "baseName": "Saori",
       "variant": "Dress",
       "asset": "10116.png",
-      "assetSHA256": "9b1b2729ed5584c6d9e9033fa3eee91edc15fb90754e6b293a2cb1cd79617e7e"
+      "assetSHA256": "c00dbd33ddd1717d42fe0ddbf83d560fd305896983b965f50cb676e67f356a12"
     },
     {
       "id": 10120,
@@ -1693,7 +1789,7 @@
       "baseName": "Natsu",
       "variant": "Band",
       "asset": "10120.png",
-      "assetSHA256": "5dc0d9224948dbb729d8fc010b9f3042981bbd7902366531251f655df4450caa"
+      "assetSHA256": "ff87c6b2794961dd40e2595b54cccd69011f29cf8d4daddeea0a3682b53d90ba"
     },
     {
       "id": 10121,
@@ -1703,7 +1799,7 @@
       "baseName": "Yukari",
       "variant": "Swimsuit",
       "asset": "10121.png",
-      "assetSHA256": "ffdccaae4d0aa01d6dcb0381a1a9bd906cf1e9c12e5499eb7428c0d95d0dd332"
+      "assetSHA256": "67124a71f6b23b042916561126e4761c26f52ac69584fec92855c9d29258bb03"
     }
   ]
 }
