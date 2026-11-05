@@ -270,7 +270,102 @@ async function captureProject(directory, destination, { concurrency = 8, smallFi
     inventory: trees.map(tree => ({ root: tree.root, frozenRoot: tree.frozenRoot, head: tree.head, selectedUtc: tree.selectedUtc, selectedPaths: tree.selectedPaths, entries: tree.inventory })),
     frozenSnapshot: frozen };
 }
-module.exports = { captureProject, parents, parentIdentity, fileChanged, contained };
+// Copy a baseline already measured by the input owner. Content identity comes
+// from that snapshot; this function reports copy completion, not revalidation.
+async function copyVerifiedProject(directory, destination, snapshot, { concurrency = 8 } = {}) {
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 32) throw new Error("Invalid copy concurrency");
+  const root = path.resolve(directory), frozenRoot = path.resolve(destination);
+  if (!snapshot || !/^[a-f0-9]{64}$/.test(snapshot.sha256 || '') || snapshot.inventory?.[0]?.root !== root ||
+      contained(root, frozenRoot) || contained(frozenRoot, root)) throw new Error("Disjoint copy roots and verified source inventory required");
+  const started = performance.now(), trees = [], files = [], folders = new Map();
+  const nested = new Set(snapshot.inventory.slice(1).map(tree => path.resolve(tree.root)));
+  for (const tree of snapshot.inventory) {
+    if (!contained(root, tree.root)) throw new Error("Verified tree escapes copy root");
+    const target = path.join(frozenRoot, path.relative(root, tree.root));
+    const rows = git(tree.root, ['ls-files', '--stage', '-z']);
+    const entries = rows.split('\0').filter(Boolean).map(row => {
+      const tab = row.indexOf('\t'), [mode, object, stage] = row.slice(0, tab).split(' ');
+      if (tab < 0 || stage !== '0' || !['100644', '100755', '120000', '160000'].includes(mode)) throw new Error('Invalid verified Git index');
+      return { mode, object, path: row.slice(tab + 1) };
+    });
+    const selected = new Set(entries.map(entry => entry.path));
+    for (const entry of tree.entries) {
+      if (!entry.path || path.isAbsolute(entry.path) || path.win32.isAbsolute(entry.path) || entry.path.split(/[\\/]/).some(part => ['..', '.', '.git'].includes(part))) throw new Error('Invalid verified copy path');
+      const source = path.resolve(tree.root, entry.path);
+      if (entry.sha256 === 'deleted' || nested.has(source)) continue;
+      if (!selected.has(entry.path)) throw new Error('Verified copy file missing from Git index');
+      const copied = path.join(target, entry.path);
+      files.push({ source, copied });
+      for (let folder = path.dirname(copied); contained(frozenRoot, folder); folder = path.dirname(folder)) {
+        folders.set(folder, path.join(root, path.relative(frozenRoot, folder)));
+        if (folder === frozenRoot) break;
+      }
+    }
+    trees.push({ source: tree.root, target, entries });
+  }
+  const gitStarted = performance.now();
+  let reusedFileCount = 0, writtenObjectCount = 0;
+  for (const tree of trees) {
+    if (git(tree.source, ['rev-parse', '--show-object-format']).trim() !== git(tree.target, ['rev-parse', '--show-object-format']).trim()) throw new Error('Frozen Git object format differs from source');
+    const objects = [...new Set(tree.entries.filter(entry => entry.mode !== '160000').map(entry => entry.object))];
+    const available = objects.length ? git(tree.target, ['cat-file', '--batch-check=%(objectname)'], objects.join('\n') + '\n').trim().split('\n') : [];
+    if (available.length !== objects.length) throw new Error('Frozen Git object query count differs');
+    const missing = objects.filter((object, index) => available[index] === object + ' missing');
+    if (available.some((line, index) => line !== objects[index] && line !== objects[index] + ' missing')) throw new Error('Invalid frozen Git object query');
+    if (missing.length) await copyGitObjects(tree.source, tree.target, missing);
+    reusedFileCount += objects.length - missing.length; writtenObjectCount += missing.length;
+    git(tree.target, ['read-tree', '--empty']);
+    if (tree.entries.length) git(tree.target, ['update-index', '-z', '--index-info'], tree.entries.map(entry => `${entry.mode} ${entry.object}\t${entry.path}\0`).join(''));
+  }
+  const gitMs = performance.now() - gitStarted, copyStarted = performance.now();
+  for (const folder of [...folders.keys()].sort((a, b) => a.length - b.length)) await fs.promises.mkdir(folder, { recursive: true });
+  let next = 0, failure;
+  async function copyFiles() {
+    while (!failure && next < files.length) {
+      const { source, copied } = files[next++];
+      try { await fs.promises.copyFile(source, copied, fs.constants.COPYFILE_EXCL); }
+      catch (error) { failure ??= error; }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, files.length) }, copyFiles));
+  if (failure) throw failure;
+  // Preserve ordinary directory permissions once, without per-file ancestor audits.
+  for (const [folder, source] of [...folders].sort(([a], [b]) => b.length - a.length)) await fs.promises.chmod(folder, (await fs.promises.stat(source)).mode & 0o777);
+  return { mode: 'standard-copy', contentVerified: false, sourceSha256: snapshot.sha256,
+    fileCount: files.length, bytes: snapshot.bytes, elapsedMs: performance.now() - started,
+    phasesMs: { git: gitMs, copy: performance.now() - copyStarted }, gitIo: { reusedFileCount, writtenObjectCount } };
+}
+
+async function copyGitObjects(source, destination, objects) {
+  const producer = spawn('git', ['-c', 'core.longpaths=true', '-C', source, 'pack-objects', '--stdout'], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+  const consumer = spawn('git', ['-c', 'core.longpaths=true', '-C', destination, 'index-pack', '--stdin'], { windowsHide: true, stdio: ['pipe', 'ignore', 'pipe'] });
+  let errors = '';
+  const closed = [producer, consumer].map(child => new Promise(resolve => {
+    child.once('error', error => { errors += error.message; });
+    child.stderr.on('data', chunk => { errors = (errors + chunk).slice(-65536); });
+    child.once('close', (code, signal) => resolve({ code, signal }));
+  }));
+  producer.stdin.on('error', error => { errors += error.message; });
+  producer.stdin.end(objects.join('\n') + '\n');
+  try {
+    await pipeline(producer.stdout, consumer.stdin);
+    const outcomes = await Promise.all(closed);
+    if (outcomes.some(exit => exit.code !== 0 || exit.signal)) throw new Error('Git object copy failed: ' + errors);
+  } catch (error) {
+    for (const child of [producer, consumer]) if (child.exitCode === null && child.signalCode === null) child.kill();
+    await Promise.all(closed);
+    throw error;
+  }
+}
+
+async function copyVerifiedTree(source, destination) {
+  source = path.resolve(source); destination = path.resolve(destination);
+  if (contained(source, destination) || contained(destination, source) || fs.existsSync(destination)) throw new Error('Fresh disjoint verified copy destination required');
+  await fs.promises.cp(source, destination, { recursive: true, force: false, errorOnExist: true,
+    filter: file => !path.relative(source, file).split(path.sep).some(part => ['target', 'node_modules', '.git'].includes(part)) });
+}
+
+module.exports = { captureProject, copyVerifiedProject, copyVerifiedTree, parents, parentIdentity, fileChanged, contained };
 if (require.main === module) {
   const [root, destination, report] = process.argv.slice(2);
   captureProject(root, destination).then(result => {

@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { captureProject: capture, parents } = require("./capture-project-inputs.cjs");
+const { captureProject: capture, parents, copyVerifiedProject } = require("./capture-project-inputs.cjs");
 const { snapshotProject } = require("./deployment-input-snapshot.cjs");
 
 if (process.argv[2]) assert(path.isAbsolute(process.argv[2]), "absolute owned fixture root required");
@@ -59,6 +59,33 @@ async function main() {
   for (smallFileMaxBytes of [128 * 1024, 0]) {
   suiteRoot = path.join(fixtureRoot, `threshold-${smallFileMaxBytes}`);
   fs.mkdirSync(suiteRoot);
+  await test("verified copies preserve untracked nested repositories and reject missing indexed files", async () => {
+    const root = repository("untracked-copy"), vendor = repository("untracked-copy/vendor");
+    fs.writeFileSync(path.join(vendor, "dir/input.txt"), "dirty untracked repository\n");
+    fs.writeFileSync(path.join(vendor, "new.bin"), Buffer.from([0, 255, 13, 10]));
+    const destination = clone(root, "untracked-copy-frozen");
+    git(fixtureRoot, "clone", "--quiet", "--no-checkout", vendor, path.join(destination, "vendor"));
+    const captured = await captureProject(root, destination);
+    assert.ok(captured.frozenSnapshot.inventory[0].entries.some(entry => entry.path === "vendor/"));
+    const working = clone(destination, "untracked-copy-working");
+    git(fixtureRoot, "clone", "--quiet", "--no-checkout", path.join(destination, "vendor"), path.join(working, "vendor"));
+    const copied = await copyVerifiedProject(destination, working, captured.frozenSnapshot);
+    const observed = await snapshotProject(working);
+    assert.equal(observed.sha256, captured.sha256);
+    assert.equal(observed.fileCount, captured.fileCount);
+    assert.equal(observed.bytes, captured.bytes);
+    assert.equal(copied.fileCount, captured.fileCount);
+    assert.equal(copied.bytes, captured.bytes);
+    for (const relative of ["", "vendor"]) {
+      assert.equal(git(path.join(working, relative), "ls-files", "--stage"), git(path.join(destination, relative), "ls-files", "--stage"));
+    }
+    for (const relative of ["dir/input.txt", "new.bin"]) {
+      assert.deepEqual(fs.readFileSync(path.join(working, "vendor", relative)), fs.readFileSync(path.join(vendor, relative)));
+    }
+    git(destination, "update-index", "--force-remove", "--", "dir/input.txt");
+    const rejected = clone(destination, "untracked-copy-rejected");
+    await assert.rejects(copyVerifiedProject(destination, rejected, captured.frozenSnapshot), /Verified copy file missing from Git index/);
+  });
   await test("selected bytes include dirty/untracked/deleted paths and nested repositories", async () => {
     const root = repository("selection"), vendor = repository("vendor");
     git(root, "-c", "protocol.file.allow=always", "submodule", "add", "--quiet", vendor, "modules/vendor");
