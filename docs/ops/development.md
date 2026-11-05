@@ -277,6 +277,8 @@ From the project root, `node scripts/test-incremental-extension-build.cjs` check
 
 ## Prepare, verify and install
 
+Windows host verification hashes the original Codex UI before and after the host run, then hashes its isolated fixture after the run and compares it with the original source snapshot. It does not rehash either copied extension immediately after a successful native copy. Audio copying relies on the native copy result, official-version inventories and the selected host checks; it has no separate content-hash comparison. In the report, `originalSource.before/after` are observations, while `originalFixture.expected` is the source-derived baseline and `after` is the observed fixture state. `matchesSource` reports their final match without claiming a measured fixture-before state. Copy failures still abort immediately; UI content differences fail the final preservation check.
+
 ```powershell
 ./scripts/install-azrael.ps1 -ReleaseDirectory '<release>' -PrepareOnly
 ./scripts/check-independent-vscode.ps1 -HostVsixPath '<prepared azrael-host.vsix>' `
