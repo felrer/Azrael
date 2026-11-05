@@ -1,0 +1,622 @@
+{
+  "schema": 1,
+  "task": "FW-01-volsnap-io-safety",
+  "environment": "Windows x64 local C: MSVC stable Rust/Cargo1.98",
+  "scope": "source-only package test and bounded debug standalone benchmark; no installation/live migration/full app",
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "azrael-project-maintenance",
+    "--locked",
+    "--offline",
+    "--",
+    "--test-threads=2"
+  ],
+  "buildJobs": 2,
+  "actualExit": 0,
+  "actualCounts": {
+    "summaries": [
+      {
+        "status": "ok",
+        "passed": 102,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 35,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 11,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 28,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 22,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 24,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0
+      }
+    ],
+    "passed": 258,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filteredOut": 0,
+    "executed": 258
+  },
+  "accepted": true,
+  "elapsedMs": 777301,
+  "frozenAggregateSha256": "9900cce5f7e2eec598bb377eff34d5cae33b86636b90bf0bdd869691618092f7",
+  "originalLockSha256": "ef8c599da0c984f1207532209dbe71fedcbc1eed9d714e06cf131078c9664b76",
+  "focusedLockSha256": "7f12c3cc5964b12531a150f5f68e668b0fcc831fddbba0b999b9a4c02765a75a",
+  "offlineClosurePackages": 79,
+  "exactOriginalIdentitySubset": true,
+  "realProcessDependency": true,
+  "sourceFiles": [
+    {
+      "path": "project-maintenance\\Cargo.toml",
+      "sha256": "057bc3dd73155a84453db7abafee14f4387c0f26eb9bd99d53327f8e02f91c1d"
+    },
+    {
+      "path": "project-maintenance\\examples\\maintenance_dispatch.rs",
+      "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8"
+    },
+    {
+      "path": "project-maintenance\\src\\apply.rs",
+      "sha256": "4c1d045738aa66aff479b3894366524789510cd1882e840e4cdd46cb3f792d3c"
+    },
+    {
+      "path": "project-maintenance\\src\\bin\\maintenance_owner.rs",
+      "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+    },
+    {
+      "path": "project-maintenance\\src\\cli.rs",
+      "sha256": "9ae3851660bb0826012ee73817149f044dce16fa33de023d75bda9513f43c6f3"
+    },
+    {
+      "path": "project-maintenance\\src\\duplicate_claims.rs",
+      "sha256": "896665b2e03326db2913826033416eff6335f75195280c2d1322c98d9041d4c6"
+    },
+    {
+      "path": "project-maintenance\\src\\groups.rs",
+      "sha256": "57a157c96540c701bedb18bd1dcc49b1aa16453bf1b31b11e40f4da00625609b"
+    },
+    {
+      "path": "project-maintenance\\src\\io_priority.rs",
+      "sha256": "7ac1a29b632f02147a9a002500c4a392a39d55c0999a7060ef2c2b8e717dbe75"
+    },
+    {
+      "path": "project-maintenance\\src\\lease.rs",
+      "sha256": "96b1dd485d7098300ba3d876476b1fe033b3cc18e029248ac4e150563a3a60c9"
+    },
+    {
+      "path": "project-maintenance\\src\\lib.rs",
+      "sha256": "941347edb5dd1ee836d0a4626df1283d6a8b02b3ee74467ccec1ea52e8d932c4"
+    },
+    {
+      "path": "project-maintenance\\src\\lock_recovery.rs",
+      "sha256": "5adb7f4f7fb6f105000bbc4567a29298091e8301b0a1203324131656703402c5"
+    },
+    {
+      "path": "project-maintenance\\src\\lock_wait.rs",
+      "sha256": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be"
+    },
+    {
+      "path": "project-maintenance\\src\\nested_retirement.rs",
+      "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06"
+    },
+    {
+      "path": "project-maintenance\\src\\partitioned_storage.rs",
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35"
+    },
+    {
+      "path": "project-maintenance\\src\\paths.rs",
+      "sha256": "2d02956e42458646a54aed8e1b2085126a67399bd481dca9aa980c16c927ffc5"
+    },
+    {
+      "path": "project-maintenance\\src\\planning.rs",
+      "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2"
+    },
+    {
+      "path": "project-maintenance\\src\\preferences.rs",
+      "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541"
+    },
+    {
+      "path": "project-maintenance\\src\\registration.rs",
+      "sha256": "0afd90602598af6c261ad1c6c89eb14c3fb0d1ba18871b16662d95b44da18a95"
+    },
+    {
+      "path": "project-maintenance\\src\\registry.rs",
+      "sha256": "c8c4e6cc18f6cac96d4524b8c71be7a8f5756d40c069feec92a2c21048a691e0"
+    },
+    {
+      "path": "project-maintenance\\src\\reservations.rs",
+      "sha256": "ff148ddad4f5840c8e992548e2222512ced8ca711bd9e22a60e0c1f352eaef0d"
+    },
+    {
+      "path": "project-maintenance\\src\\retirement.rs",
+      "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807"
+    },
+    {
+      "path": "project-maintenance\\src\\review_relations.rs",
+      "sha256": "02ab58ece513f473356f0ec06bdd72040b8877d9ce6f54476e606ee5dcedcefd"
+    },
+    {
+      "path": "project-maintenance\\src\\review_reuse.rs",
+      "sha256": "8edb1c6c3a47275da25eed621d060e4b75f20c9955fb840eb00130dd8cad8e91"
+    },
+    {
+      "path": "project-maintenance\\src\\storage.rs",
+      "sha256": "ec6d220f1ae3ebe16e3c39d3ced4d55269df196581dea28b4858d1948c490481"
+    },
+    {
+      "path": "project-maintenance\\src\\timing.rs",
+      "sha256": "e92ca342f78783ac21c865cadab95530b4d76207bb5d7e810d5a3ba1beafab32"
+    },
+    {
+      "path": "project-maintenance\\src\\unix_delete.rs",
+      "sha256": "ba2203f31f4cc48cac301f88c2eaf0d782bfd0da01dbb7b7184b3fdafd1ce5ee"
+    },
+    {
+      "path": "project-maintenance\\src\\windows_delete.rs",
+      "sha256": "693a0bdc7e2c831254070fa2c55aba51896cf84ac63f3e565eeef182b7ddac71"
+    },
+    {
+      "path": "project-maintenance\\tests\\absent_adoption.rs",
+      "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a"
+    },
+    {
+      "path": "project-maintenance\\tests\\contention.rs",
+      "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d"
+    },
+    {
+      "path": "project-maintenance\\tests\\contracts.rs",
+      "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df"
+    },
+    {
+      "path": "project-maintenance\\tests\\duplicate_claims.rs",
+      "sha256": "d810b614551801330d5b0a993eadb4d45b99aac5d9939f8e4f9945984f465683"
+    },
+    {
+      "path": "project-maintenance\\tests\\groups.rs",
+      "sha256": "36bbe1ee2394643fa5000fdf0b672b09401113ca662794dc8019dd7bebc6423c"
+    },
+    {
+      "path": "project-maintenance\\tests\\hardlink_normalization.rs",
+      "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf"
+    },
+    {
+      "path": "project-maintenance\\tests\\lock_recovery.rs",
+      "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab"
+    },
+    {
+      "path": "project-maintenance\\tests\\nested_retirement.rs",
+      "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec"
+    },
+    {
+      "path": "project-maintenance\\tests\\partitioned.rs",
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031"
+    },
+    {
+      "path": "project-maintenance\\tests\\registry.rs",
+      "sha256": "4ff45678bc1a348d82d118ccd70c1318c3dd5d5d3eafd57e89a40ca73f3ebd09"
+    },
+    {
+      "path": "project-maintenance\\tests\\root_retirement.rs",
+      "sha256": "31cc0a35e98b3aec4e7aae8cab04a0a8ad8ef90785e2cb8b8c88aaa5a438690f"
+    },
+    {
+      "path": "project-maintenance\\tests\\verified_junctions.rs",
+      "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+    },
+    {
+      "path": "utils\\process\\BUILD.bazel",
+      "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da"
+    },
+    {
+      "path": "utils\\process\\Cargo.toml",
+      "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f"
+    },
+    {
+      "path": "utils\\process\\src\\background_command_tests.rs",
+      "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6"
+    },
+    {
+      "path": "utils\\process\\src\\lib.rs",
+      "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+    }
+  ],
+  "currentSourceMatches": true,
+  "frozenSourceUnchanged": true,
+  "binaries": {
+    "baseline": {
+      "sha256": "1cf35e94035e71ad4b279e9c9f9498f784b48ec467b3aae0630fbaf98f7eff1a",
+      "bytes": 4863488
+    },
+    "candidate": {
+      "sha256": "a24694e8759fa24bc99c876f101396d8ebed44c3ed053d43f182c4678e7d7660",
+      "bytes": 4887040
+    }
+  },
+  "baselineProductBlobs": {
+    "engine/codex-rs/project-maintenance/src/paths.rs": "975a819ee0ccad5c45d8014281356155e9540556",
+    "engine/codex-rs/project-maintenance/src/windows_delete.rs": "cff7698d90badd72024a964d991e2a00b9bbb015",
+    "engine/codex-rs/project-maintenance/src/registration.rs": "475ba5b61a0a6c470efa261aaad2ad7c207302c9",
+    "engine/codex-rs/project-maintenance/src/lib.rs": "fb7ae74ebdc6dd080e9b07d02a2d2da5ecf79f16",
+    "engine/codex-rs/project-maintenance/src/groups.rs": "e99289349fb9dabfdd7556648b6a1822ad424a95",
+    "engine/codex-rs/project-maintenance/tests/registry.rs": "d9866b5e6b25a296623fac70a0b31b74da7eb819",
+    "engine/codex-rs/project-maintenance/src/io_priority.rs": null
+  },
+  "benchmark": {
+    "scope": "Windows x64 MSVC debug binaries, local C: 250 tiny files per sample, three samples each; process startup included; warm dependency preparation; no peak-memory claim",
+    "samples": [
+      {
+        "kind": "baseline",
+        "index": 0,
+        "fileCount": 250,
+        "totalPayloadBytes": 2890,
+        "times": [
+          {
+            "label": "register",
+            "elapsedMs": 1377.2538,
+            "exit": 0
+          },
+          {
+            "label": "refresh0",
+            "elapsedMs": 144.6095,
+            "exit": 0
+          },
+          {
+            "label": "refresh1",
+            "elapsedMs": 145.4647,
+            "exit": 0
+          },
+          {
+            "label": "refresh2",
+            "elapsedMs": 139.9723,
+            "exit": 0
+          },
+          {
+            "label": "review",
+            "elapsedMs": 103.0062,
+            "exit": 0
+          },
+          {
+            "label": "delete",
+            "elapsedMs": 3896.9557,
+            "exit": 0
+          }
+        ],
+        "payloadAbsent": true
+      },
+      {
+        "kind": "candidate",
+        "index": 0,
+        "fileCount": 250,
+        "totalPayloadBytes": 2890,
+        "times": [
+          {
+            "label": "register",
+            "elapsedMs": 1561.3165,
+            "exit": 0
+          },
+          {
+            "label": "refresh0",
+            "elapsedMs": 139.3032,
+            "exit": 0
+          },
+          {
+            "label": "refresh1",
+            "elapsedMs": 121.924,
+            "exit": 0
+          },
+          {
+            "label": "refresh2",
+            "elapsedMs": 123.2322,
+            "exit": 0
+          },
+          {
+            "label": "review",
+            "elapsedMs": 105.7801,
+            "exit": 0
+          },
+          {
+            "label": "delete",
+            "elapsedMs": 5128.3132,
+            "exit": 0
+          }
+        ],
+        "payloadAbsent": true
+      },
+      {
+        "kind": "candidate",
+        "index": 1,
+        "fileCount": 250,
+        "totalPayloadBytes": 2890,
+        "times": [
+          {
+            "label": "register",
+            "elapsedMs": 1335.8893,
+            "exit": 0
+          },
+          {
+            "label": "refresh0",
+            "elapsedMs": 137.48,
+            "exit": 0
+          },
+          {
+            "label": "refresh1",
+            "elapsedMs": 123.0173,
+            "exit": 0
+          },
+          {
+            "label": "refresh2",
+            "elapsedMs": 123.4203,
+            "exit": 0
+          },
+          {
+            "label": "review",
+            "elapsedMs": 101.0533,
+            "exit": 0
+          },
+          {
+            "label": "delete",
+            "elapsedMs": 4822.1123,
+            "exit": 0
+          }
+        ],
+        "payloadAbsent": true
+      },
+      {
+        "kind": "baseline",
+        "index": 1,
+        "fileCount": 250,
+        "totalPayloadBytes": 2890,
+        "times": [
+          {
+            "label": "register",
+            "elapsedMs": 1327.9556,
+            "exit": 0
+          },
+          {
+            "label": "refresh0",
+            "elapsedMs": 136.6322,
+            "exit": 0
+          },
+          {
+            "label": "refresh1",
+            "elapsedMs": 148.4733,
+            "exit": 0
+          },
+          {
+            "label": "refresh2",
+            "elapsedMs": 136.949,
+            "exit": 0
+          },
+          {
+            "label": "review",
+            "elapsedMs": 105.2445,
+            "exit": 0
+          },
+          {
+            "label": "delete",
+            "elapsedMs": 3825.0983,
+            "exit": 0
+          }
+        ],
+        "payloadAbsent": true
+      },
+      {
+        "kind": "baseline",
+        "index": 2,
+        "fileCount": 250,
+        "totalPayloadBytes": 2890,
+        "times": [
+          {
+            "label": "register",
+            "elapsedMs": 1330.0198,
+            "exit": 0
+          },
+          {
+            "label": "refresh0",
+            "elapsedMs": 137.264,
+            "exit": 0
+          },
+          {
+            "label": "refresh1",
+            "elapsedMs": 136.6507,
+            "exit": 0
+          },
+          {
+            "label": "refresh2",
+            "elapsedMs": 136.187,
+            "exit": 0
+          },
+          {
+            "label": "review",
+            "elapsedMs": 102.6705,
+            "exit": 0
+          },
+          {
+            "label": "delete",
+            "elapsedMs": 3787.8602,
+            "exit": 0
+          }
+        ],
+        "payloadAbsent": true
+      },
+      {
+        "kind": "candidate",
+        "index": 2,
+        "fileCount": 250,
+        "totalPayloadBytes": 2890,
+        "times": [
+          {
+            "label": "register",
+            "elapsedMs": 1352.2453,
+            "exit": 0
+          },
+          {
+            "label": "refresh0",
+            "elapsedMs": 141.4131,
+            "exit": 0
+          },
+          {
+            "label": "refresh1",
+            "elapsedMs": 123.1857,
+            "exit": 0
+          },
+          {
+            "label": "refresh2",
+            "elapsedMs": 121.8076,
+            "exit": 0
+          },
+          {
+            "label": "review",
+            "elapsedMs": 102.515,
+            "exit": 0
+          },
+          {
+            "label": "delete",
+            "elapsedMs": 4669.8788,
+            "exit": 0
+          }
+        ],
+        "payloadAbsent": true
+      }
+    ]
+  },
+  "execution": {
+    "fullCargo": {
+      "pid": 27360,
+      "token": "3b8f4393-b6cc-49bc-ab6e-ea2f8f953b3e",
+      "phase": "observed-terminal",
+      "status": "success",
+      "exit": 0,
+      "terminalUtc": "2026-11-05T09:55:33.202Z"
+    },
+    "baselineCargo": {
+      "pid": 28760,
+      "token": "890f8001-05e6-4385-80e4-201b048595c5",
+      "phase": "observed-terminal",
+      "status": "success",
+      "exit": 0,
+      "terminalUtc": "2026-11-05T09:55:52.117Z"
+    },
+    "benchmark": {
+      "exit": 0,
+      "all36CliInvocationsExitZero": true,
+      "all6PayloadsVerifiedAbsent": true
+    },
+    "cargoOwnerLeaseAbsent": true
+  },
+  "limitations": [
+    "Windows x64 only; Linux/macOS were not executed",
+    "debug binaries, tiny local fixtures and process startup included; no full throughput or crash causation/prevention claim",
+    "No peak-memory measurement",
+    "Two fixture-harness mistakes were diagnosed before valid samples: lifecycle-role mismatch and managed-root self-protection; invalid samples excluded",
+    "Initial vendor preparation failed because registry source lacks directory-vendor checksum metadata; corrected to actual cached crate archives checked against original lock checksums",
+    "Offline focused lock normalizes irrelevant dependency edges; all surviving name/version/source/checksum identities remain exact original subset"
+  ]
+}

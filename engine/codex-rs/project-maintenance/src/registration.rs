@@ -103,17 +103,20 @@ pub(crate) fn register<'a>(
     };
     drop(catalog_locks);
     store.suspend()?;
-    let measured = prepare(root, request, &mut store.state, auth).and_then(|result| {
-        if auth.cancelled() {
-            return Err("registration cancelled before commit".into());
-        }
-        for (path, stamp) in &observed {
-            if root_stamp(root, path, auth)? != *stamp {
-                return Err("registration root changed during measurement".into());
-            }
-        }
-        Ok(result)
-    });
+    let measured =
+        crate::io_priority::background(|| prepare(root, request, &mut store.state, auth)).and_then(
+            |result| {
+                if auth.cancelled() {
+                    return Err("registration cancelled before commit".into());
+                }
+                for (path, stamp) in &observed {
+                    if root_stamp(root, path, auth)? != *stamp {
+                        return Err("registration root changed during measurement".into());
+                    }
+                }
+                Ok(result)
+            },
+        );
     if measured.is_err() {
         store.state = before.clone();
     }

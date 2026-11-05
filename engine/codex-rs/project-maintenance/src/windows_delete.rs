@@ -312,15 +312,169 @@ if($true) {
     # cleanup helper; pin the full FILE_ID_INFO and mount-point payload here.
     Add-Type -TypeDefinition @'
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Microsoft.Win32.SafeHandles;
 public static class MaintenanceJunctionNative {
+    // String-only canonicalization: never resolve a path through the filesystem.
+    public static string ExtendedLiteral(string literal) {
+        string plain=literal.Replace('/','\\');
+        if(plain.StartsWith(@"\\?\UNC\",StringComparison.OrdinalIgnoreCase)) plain=@"\\"+plain.Substring(8);
+        else if(plain.StartsWith(@"\\?\")) plain=plain.Substring(4);
+        string tail, prefix;
+        if(Regex.IsMatch(plain,@"^[A-Za-z]:\\",RegexOptions.IgnoreCase)) {
+            tail=plain.Substring(3);
+            if(tail.Contains(":")) throw new InvalidOperationException("Alternate stream rejected");
+            prefix=@"\\?\";
+        } else {
+            Match match=Regex.Match(plain,@"^\\\\([^\\]+)\\([^\\]+)(?:\\|$)",RegexOptions.IgnoreCase);
+            if(!match.Success) throw new InvalidOperationException("Absolute drive or UNC path required");
+            string root=@"\\"+match.Groups[1].Value+@"\"+match.Groups[2].Value+@"\";
+            tail=plain.Substring(Math.Min(root.Length,plain.Length));
+            if(plain.Contains(":") || String.Equals(match.Groups[1].Value,".",StringComparison.InvariantCultureIgnoreCase) || String.Equals(match.Groups[1].Value,"?",StringComparison.InvariantCultureIgnoreCase))
+                throw new InvalidOperationException("Device/stream path rejected");
+            prefix=@"\\?\UNC\"; plain=plain.Substring(2);
+        }
+        foreach(string part in tail.Split('\\')) {
+            if(String.Equals(part,".",StringComparison.InvariantCultureIgnoreCase) || String.Equals(part,"..",StringComparison.InvariantCultureIgnoreCase)) throw new InvalidOperationException("Ambiguous path rejected");
+        }
+        string result=prefix+plain.TrimEnd('\\');
+        if(tail.TrimEnd('\\').Length==0) result+=@"\";
+        return result;
+    }
+    public static string LiteralRoot(string literal) {
+        if(Regex.IsMatch(literal,@"^\\\\\?\\[A-Za-z]:\\",RegexOptions.IgnoreCase)) return literal.Substring(0,7);
+        Match match=Regex.Match(literal,@"^\\\\\?\\UNC\\[^\\]+\\[^\\]+(?:\\|$)",RegexOptions.IgnoreCase);
+        if(match.Success) return match.Value.TrimEnd('\\')+@"\";
+        throw new InvalidOperationException("Invalid extended root");
+    }
+    public sealed class DeletionContext {
+        readonly string target;
+        readonly IDictionary approved, junctions;
+        readonly Action<string> assertJunction;
+        public DeletionContext(string target, IDictionary approved, IDictionary junctions, Action<string> assertJunction) {
+            this.target=target; this.approved=approved; this.junctions=junctions; this.assertJunction=assertJunction;
+        }
+        public void AssertAncestors(string literal) {
+            MaintenanceJunctionNative.AssertAncestors(literal,LiteralRoot(literal),junctions.Contains(literal) ? assertJunction : null);
+        }
+        public void AssertTree() {
+            var pending=new Stack<string>(); pending.Push(target);
+            var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            while(pending.Count>0) {
+                string literal=pending.Pop();
+                if(!approved.Contains(literal)) throw new InvalidOperationException("Unreviewed descendant appeared");
+                if(!seen.Add(literal)) throw new InvalidOperationException("Duplicate observed descendant");
+                AssertAncestors(literal);
+                int attributes=(int)System.IO.File.GetAttributes(literal);
+                if((attributes & 4)!=0) throw new InvalidOperationException("System attributes protected");
+                // Include hidden/system entries, and never enumerate a junction.
+                if((attributes & 16)!=0 && !junctions.Contains(literal)) {
+                    foreach(string child in System.IO.Directory.EnumerateFileSystemEntries(literal)) pending.Push(ExtendedLiteral(child));
+                }
+            }
+            if(seen.Count!=approved.Count) throw new InvalidOperationException("Approved descendant disappeared");
+        }
+        public void Normalize(List<object> changes) {
+            var pins=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+            foreach(string literal in approved.Keys) {
+                AssertAncestors(literal);
+                if(junctions.Contains(literal)) continue;
+                int attributes=(int)System.IO.File.GetAttributes(literal);
+                if((attributes & 16)==0 && (attributes & 3)!=0) pins[literal]=NormalizationPin(literal);
+            }
+            if(pins.Count>0) {
+                var linkCounts=new Dictionary<string,int>(StringComparer.OrdinalIgnoreCase);
+                foreach(string literal in approved.Keys) {
+                    AssertAncestors(literal);
+                    if(junctions.Contains(literal)) continue;
+                    int attributes=(int)System.IO.File.GetAttributes(literal);
+                    if((attributes & 16)==0) {
+                        string pin=NormalizationPin(literal); int count;
+                        linkCounts.TryGetValue(pin,out count); linkCounts[pin]=count+1;
+                    }
+                }
+                foreach(string pin in pins.Values) {
+                    uint links=UInt32.Parse(pin.Substring(pin.LastIndexOf(':')+1)); int count;
+                    if(!linkCounts.TryGetValue(pin,out count) || (long)count!=(long)links)
+                        throw new InvalidOperationException("ReadOnly/Hidden normalization blocked: multiple hardlinks extend outside one selected deletion root; cross-member link ownership is not verified");
+                }
+            }
+            foreach(string literal in approved.Keys) {
+                AssertAncestors(literal);
+                if(junctions.Contains(literal)) continue;
+                int before=(int)System.IO.File.GetAttributes(literal);
+                if((before & 4)!=0 || (before & 1024)!=0) throw new InvalidOperationException("System/reparse attributes protected");
+                int after=before & ~3;
+                if(before!=after) {
+                    if((before & 16)==0) {
+                        string pin;
+                        if(!pins.TryGetValue(literal,out pin) || !String.Equals(NormalizationPin(literal),pin,StringComparison.Ordinal))
+                            throw new InvalidOperationException("Normalization file identity or link count changed");
+                    }
+                    System.IO.File.SetAttributes(literal,(System.IO.FileAttributes)after);
+                    // Append to the caller's list immediately, preserving earlier
+                    // changes if any subsequent entry or observation fails.
+                    changes.Add(new Hashtable {{"path",approved[literal]},{"before",before},{"after",(int)System.IO.File.GetAttributes(literal)}});
+                }
+            }
+        }
+        public void DeleteApproved() {
+            var ordered=new List<string>();
+            foreach(string literal in approved.Keys) {
+                // Approved junctions are verified and unlinked separately.
+                if(!junctions.Contains(literal)) ordered.Add(literal);
+            }
+            // Every child has a longer literal path than its parent. Never
+            // enumerate here: a late unreviewed child must keep its parent alive.
+            ordered.Sort((left,right)=> {
+                int length=right.Length.CompareTo(left.Length);
+                return length!=0 ? length : StringComparer.OrdinalIgnoreCase.Compare(left,right);
+            });
+            foreach(string literal in ordered) {
+                AssertAncestors(literal);
+                int attributes=(int)System.IO.File.GetAttributes(literal);
+                if((attributes & 4)!=0 || (attributes & 1024)!=0) throw new InvalidOperationException("System/reparse attributes protected");
+                bool removed=(attributes & 16)!=0 ? RemoveDirectoryW(literal) : DeleteFileW(literal);
+                if(!removed) throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+        }
+    }
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern SafeFileHandle CreateFileW(string p, uint a, uint s, IntPtr sa, uint c, uint f, IntPtr t);
     [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetFileInformationByHandleEx(SafeFileHandle h, int c, IntPtr b, uint n);
     [DllImport("kernel32.dll", SetLastError=true)] static extern bool DeviceIoControl(SafeFileHandle h, uint c, IntPtr i, uint ni, byte[] o, uint no, out uint n, IntPtr ov);
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern bool RemoveDirectoryW(string p);
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern bool DeleteFileW(string p);
+    [DllImport("kernel32.dll")] static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool SetPriorityClass(IntPtr process, uint priority);
+    public static void EnterBackgroundMode() {
+        // Process mode lowers CPU, I/O and memory scheduling for this isolated
+        // worker and all its threads, without changing the maintenance parent.
+        if(!SetPriorityClass(GetCurrentProcess(),0x00100000)) throw new Win32Exception(Marshal.GetLastWin32Error());
+    }
+    public static void AssertAncestors(string literal, string root, Action<string> assertJunction) {
+        // Keep every fresh leaf/ancestor observation in its original order.
+        // Only the interpreted loop moves here; no metadata is cached between
+        // entries or between the separate deletion validation boundaries.
+        string cursor=literal;
+        while(!String.IsNullOrEmpty(cursor)) {
+            int attributes=(int)System.IO.File.GetAttributes(cursor);
+            if((attributes & 1024)!=0) {
+                if(!String.Equals(cursor,literal,StringComparison.InvariantCultureIgnoreCase) || assertJunction==null)
+                    throw new InvalidOperationException("Ancestor reparse path protected");
+                // Preserve the approved leaf's provider/target/pin checks before
+                // walking further, rather than postponing them until return.
+                assertJunction(literal);
+            }
+            if(String.Equals(cursor.TrimEnd('\\'),root.TrimEnd('\\'),StringComparison.InvariantCultureIgnoreCase)) break;
+            string parent=cursor.Substring(0,cursor.TrimEnd('\\').LastIndexOf('\\'));
+            cursor=parent.Length<root.Length ? root : parent;
+        }
+    }
     public static string NormalizationPin(string path) {
         using(var h=CreateFileW(path,128,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
             if(h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -363,46 +517,14 @@ public static class MaintenanceJunctionNative {
 }
 '@
 }
+# The Rust containment handshake has completed before this script is evaluated.
+# Fail before accepting deletion work if process background mode is unavailable.
+[MaintenanceJunctionNative]::EnterBackgroundMode()
 function Extended-Literal([string]$literal) {
-    # Normalize provider-returned and approved paths into the same literal key.
-    # Do not resolve through the filesystem or use MAX_PATH-limited .NET helpers.
-    $plain=$literal.Replace('/','\')
-    if($plain.StartsWith('\\?\UNC\',[StringComparison]::OrdinalIgnoreCase)){$plain='\\'+$plain.Substring(8)}
-    elseif($plain.StartsWith('\\?\')){$plain=$plain.Substring(4)}
-    if($plain -match '^[A-Za-z]:\\') {
-        $root=$plain.Substring(0,3); $tail=$plain.Substring(3)
-        if($tail.Contains(':')){throw 'Alternate stream rejected'}
-        $prefix='\\?\'
-    } elseif($plain -match '^\\\\([^\\]+)\\([^\\]+)(?:\\|$)') {
-        $root='\\'+$Matches[1]+'\'+$Matches[2]+'\'
-        $tail=$plain.Substring([Math]::Min($root.Length,$plain.Length))
-        if($plain.Contains(':') -or $Matches[1] -eq '.' -or $Matches[1] -eq '?'){throw 'Device/stream path rejected'}
-        $prefix='\\?\UNC\'; $plain=$plain.Substring(2)
-    } else {throw 'Absolute drive or UNC path required'}
-    foreach($part in $tail.Split('\')) {
-        if($part -eq '.' -or $part -eq '..'){throw 'Ambiguous path rejected'}
-    }
-    $result=$prefix+$plain.TrimEnd('\')
-    if($tail.TrimEnd('\').Length -eq 0){$result+='\'}
-    return $result
-}
-function Literal-Root([string]$literal) {
-    if($literal -match '^\\\\\?\\[A-Za-z]:\\'){return $literal.Substring(0,7)}
-    if($literal -match '^\\\\\?\\UNC\\[^\\]+\\[^\\]+(?:\\|$)'){return $Matches[0].TrimEnd('\')+'\'}
-    throw 'Invalid extended root'
+    return [MaintenanceJunctionNative]::ExtendedLiteral($literal)
 }
 function Assert-Ancestors($literal) {
-    $cursor=$literal; $root=Literal-Root $literal
-    while($cursor) {
-        $attributes=[int][IO.File]::GetAttributes($cursor)
-        if(($attributes -band 1024) -ne 0){
-            if($cursor -ne $literal -or !$junctions.ContainsKey($literal)){throw 'Ancestor reparse path protected'}
-            Assert-Junction $literal
-        }
-        if($cursor.TrimEnd('\') -eq $root.TrimEnd('\')){break}
-        $parent=$cursor.Substring(0,$cursor.TrimEnd('\').LastIndexOf('\'))
-        if($parent.Length -lt $root.Length){$cursor=$root}else{$cursor=$parent}
-    }
+    $deletionContext.AssertAncestors([string]$literal)
 }
 function Assert-Junction($literal) {
     $spec=$junctions[$literal]
@@ -412,20 +534,7 @@ function Assert-Junction($literal) {
        [MaintenanceJunctionNative]::Pin($literal) -cne [string]$spec.identity.pin) {throw 'Approved junction changed'}
 }
 function Assert-Tree {
-    $pending=[Collections.Generic.Stack[string]]::new(); $pending.Push($target)
-    $seen=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    while($pending.Count -gt 0) {
-        $literal=$pending.Pop()
-        if(!$approved.ContainsKey($literal)){throw 'Unreviewed descendant appeared'}
-        if(!$seen.Add($literal)){throw 'Duplicate observed descendant'}
-        Assert-Ancestors $literal
-        $attributes=[int][IO.File]::GetAttributes($literal)
-        if(($attributes -band 4) -ne 0){throw 'System attributes protected'}
-        # Top-level literal enumeration includes hidden/system entries. The
-        # checked leaf must be a plain directory before enumeration starts.
-        if(($attributes -band 16) -ne 0 -and !$junctions.ContainsKey($literal)){foreach($child in [IO.Directory]::EnumerateFileSystemEntries($literal)){$pending.Push((Extended-Literal $child))}}
-    }
-    if($seen.Count -ne $approved.Count){throw 'Approved descendant disappeared'}
+    $deletionContext.AssertTree()
 }
 function Invoke-Deletion($request) {
 $changes=[Collections.Generic.List[object]]::new(); $failure=$null; $target=$null
@@ -444,61 +553,23 @@ try {
         if($literal -eq $target -or !$approved.ContainsKey($literal) -or $junctions.ContainsKey($literal)){throw 'Invalid junction deletion approval'}
         $junctions[$literal]=$spec
     }
+    $junctionCheck=[Action[string]]{param($path) Assert-Junction $path}
+    $deletionContext=[MaintenanceJunctionNative+DeletionContext]::new($target,$approved,$junctions,$junctionCheck)
     Assert-Tree
-    # Preflight every attribute-changing file before modifying any entry.
-    # Count every approved regular-file name in this one deletion root.
-    $normalizationPins=@{}
-    foreach($literal in $approved.Keys) {
-        Assert-Ancestors $literal
-        if($junctions.ContainsKey($literal)){continue}
-        $attributes=[int][IO.File]::GetAttributes($literal)
-        if(($attributes -band 16) -eq 0 -and (($attributes -band 3) -ne 0)) {
-            $normalizationPins[$literal]=[MaintenanceJunctionNative]::NormalizationPin($literal)
-        }
-    }
-    if($normalizationPins.Count -gt 0) {
-        $linkCounts=@{}
-        foreach($literal in $approved.Keys) {
-            Assert-Ancestors $literal
-            if($junctions.ContainsKey($literal)){continue}
-            $attributes=[int][IO.File]::GetAttributes($literal)
-            if(($attributes -band 16) -eq 0) {
-                $pin=[MaintenanceJunctionNative]::NormalizationPin($literal)
-                if(!$linkCounts.ContainsKey($pin)){$linkCounts[$pin]=0}
-                $linkCounts[$pin]++
-            }
-        }
-        foreach($pin in $normalizationPins.Values) {
-            $links=[uint32]($pin.Split(':')[-1])
-            if(!$linkCounts.ContainsKey($pin) -or $linkCounts[$pin] -ne $links) {throw 'ReadOnly/Hidden normalization blocked: multiple hardlinks extend outside one selected deletion root; cross-member link ownership is not verified'}
-        }
-    }
-    # Assert-Tree checked the exact full authorized set before normalization.
-    foreach($literal in $approved.Keys) {
-        Assert-Ancestors $literal
-        if($junctions.ContainsKey($literal)){continue}
-        $before=[int][IO.File]::GetAttributes($literal)
-        if(($before -band 4) -ne 0 -or ($before -band 1024) -ne 0) {throw 'System/reparse attributes protected'}
-        $after=$before -band (-bnot 3)
-        if($before -ne $after){
-            if(($before -band 16) -eq 0) {
-                if(!$normalizationPins.ContainsKey($literal) -or [MaintenanceJunctionNative]::NormalizationPin($literal) -cne $normalizationPins[$literal]) {throw 'Normalization file identity or link count changed'}
-            }
-            [IO.File]::SetAttributes($literal,[IO.FileAttributes]$after)
-            $changes.Add(@{path=$approved[$literal];before=$before;after=[int][IO.File]::GetAttributes($literal)})
-        }
-    }
+    # The compiled loops retain fresh ancestor observations at every entry and
+    # complete all hardlink preflight checks before the first attribute change.
+    $deletionContext.Normalize($changes)
     Assert-Tree
     foreach($literal in $junctions.Keys) {
         Assert-Ancestors $literal
         Assert-Junction $literal
         [MaintenanceJunctionNative]::Unlink($literal, [string]$junctions[$literal].identity.pin)
     }
-    # Ordinary recursive removal starts only after all approved links are gone.
+    # Ordinary exact-path removal starts only after all approved links are gone.
     $junctions.Clear()
     foreach($original in $request.junctions){$approved.Remove((Extended-Literal $original.path))}
     Assert-Tree
-    Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop
+    $deletionContext.DeleteApproved()
 } catch { $failure=$_.Exception.Message }
 $remaining=$null
 if($target) {
@@ -725,10 +796,68 @@ $null=[Console]::In.ReadLine()
     }
 
     #[test]
+    fn worker_enters_process_background_mode_before_deletion() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("payload");
+        fs::write(&target, "background deletion").unwrap();
+        // A second BEGIN fails with ERROR_PROCESS_MODE_ALREADY_BACKGROUND.
+        // This observes actual process mode, including I/O/memory scheduling;
+        // setting only a CPU priority class would allow the second BEGIN.
+        let script = SCRIPT.replace(
+            "[MaintenanceJunctionNative]::EnterBackgroundMode()",
+            r#"[MaintenanceJunctionNative]::EnterBackgroundMode()
+$alreadyBackground=$false
+try { [MaintenanceJunctionNative]::EnterBackgroundMode() }
+catch {
+    if($_.Exception.InnerException.NativeErrorCode -ne 402) { throw }
+    $alreadyBackground=$true
+}
+if(!$alreadyBackground) { throw 'Worker was not already in process background mode' }"#,
+        );
+        let mut worker = Worker::spawn(&script).unwrap();
+        let report = worker
+            .delete(&target, std::slice::from_ref(&target), &[])
+            .unwrap();
+        assert_eq!(report["status"], "deleted");
+        assert!(!target.exists());
+    }
+
+    #[test]
+    fn late_unreviewed_child_survives_exact_deletion_and_reports_partial_failure() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("generated");
+        fs::create_dir(&target).unwrap();
+        let reviewed = target.join("reviewed");
+        let late = target.join("late-unreviewed");
+        fs::write(&reviewed, "reviewed payload").unwrap();
+        // Inject the concurrent arrival immediately after the final Assert-Tree,
+        // then exercise the real deletion method and its normal report boundary.
+        let script = SCRIPT.replace(
+            "    $deletionContext.DeleteApproved()",
+            "    [IO.File]::WriteAllText(($target+'\\late-unreviewed'),'unreviewed payload')\n    $deletionContext.DeleteApproved()",
+        );
+        let mut worker = Worker::spawn(&script).unwrap();
+        let report = worker
+            .delete(&target, &[target.clone(), reviewed.clone()], &[])
+            .unwrap();
+        assert_eq!(report["status"], "failed");
+        assert_eq!(report["remaining"], true);
+        assert!(report["error"].is_string());
+        assert_eq!(report["attributes"], json!([]));
+        assert!(!reviewed.exists());
+        assert_eq!(fs::read_to_string(&late).unwrap(), "unreviewed payload");
+        assert!(target.is_dir());
+    }
+
+    #[test]
     fn failed_request_does_not_leak_audit_or_failure_into_next_root() {
         let root = tempfile::tempdir().unwrap();
-        let locked = root.path().join("locked");
+        let target = root.path().join("partial");
+        fs::create_dir(&target).unwrap();
+        let removed = target.join("removed-before-locked");
+        let locked = target.join("locked");
         let next = root.path().join("next");
+        fs::write(&removed, "removed payload").unwrap();
         fs::write(&locked, "locked payload").unwrap();
         fs::write(&next, "next payload").unwrap();
         // Permit reading/writing attributes but deny ordinary deletion.
@@ -743,8 +872,8 @@ $null=[Console]::In.ReadLine()
         let context = Context::new(&allow);
         let failed = paths::delete_verified(
             root.path(),
-            &locked,
-            std::slice::from_ref(&locked),
+            &target,
+            &[target.clone(), locked.clone(), removed.clone()],
             &context,
         )
         .unwrap();
@@ -758,6 +887,9 @@ $null=[Console]::In.ReadLine()
         assert_eq!(failed["remaining"], true);
         assert!(failed["error"].is_string());
         assert_eq!(failed["attributes"].as_array().unwrap().len(), 1);
+        assert!(!removed.exists());
+        assert_eq!(fs::read_to_string(&locked).unwrap(), "locked payload");
+        assert!(target.is_dir());
         let success =
             paths::delete_verified(root.path(), &next, std::slice::from_ref(&next), &context)
                 .unwrap();
@@ -776,6 +908,7 @@ $null=[Console]::In.ReadLine()
         assert!(!next.exists());
         drop(handle);
         fs::remove_file(&locked).unwrap();
+        fs::remove_dir(&target).unwrap();
     }
 
     #[test]
@@ -917,8 +1050,17 @@ exit 17
         );
         assert_eq!(failed["attributes"], json!([]));
         assert!(fs::metadata(&file).unwrap().permissions().readonly());
+        let nested = target.join("nested");
+        let empty = nested.join("empty");
+        let nested_file = nested.join("payload");
+        fs::create_dir_all(&empty).unwrap();
+        fs::write(&nested_file, "nested payload").unwrap();
         let success = worker
-            .delete(&target, &[target.clone(), file.clone()], &[])
+            .delete(
+                &target,
+                &[target.clone(), nested, file.clone(), empty, nested_file],
+                &[],
+            )
             .unwrap();
         assert_eq!(success["status"], "deleted");
         assert_eq!(success["attributes"].as_array().unwrap().len(), 1);
