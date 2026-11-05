@@ -4,6 +4,7 @@ const { spawnSync } = require("node:child_process");
 
 const python = process.platform === "win32" ? "python" : "python3";
 const checks = [
+  ["test_engine_source_state.py", "SourceStateTests"],
   ["test_import_engine_source.py",
     "ImportTests.test_inventory_rejects_root_replaced_with_identical_files",
     "ImportTests.test_destination_rejects_root_replaced_with_identical_files",
