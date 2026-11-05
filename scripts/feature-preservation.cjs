@@ -13,6 +13,7 @@ const { validateCargoPreflight } = require('./cargo-verification.cjs');
 const { physicalPath } = require('./cargo-target-owner.cjs');
 const { planVerificationSchedule } = require('./verification-schedule.cjs');
 const sourceCheckSelection = require('./source-check-selection.cjs');
+const { provenanceArguments } = require('./engine-source-handoff.cjs');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
@@ -177,6 +178,7 @@ async function sourceUiIdentity(config) {
     webviewSha256: await fileHash(path.join(config.uiRoot, PROVIDER_PICKER_ASSET)) };
 }
 async function identity(config, manifest, rules, features, execution = execute) {
+  const sourceStateArguments = provenanceArguments(config.sourceStatePath, config.sourceGeneration);
   if (config.identityProvider) return config.identityProvider(config, manifest, rules, features);
   const references = new Set([manifestName, 'scripts/feature-preservation.cjs', 'scripts/directory-state.cjs', 'scripts/deployment-input-snapshot.cjs']);
   const testPolicy = sourceTestPolicy(config);
@@ -202,7 +204,7 @@ async function identity(config, manifest, rules, features, execution = execute) 
     if (config.checkPhase === 'source') return input;
     if (![config.engineSourceRoot, config.engineDirectory].every(value => value && path.isAbsolute(value))) throw Error('Explicit absolute engine source and binary roots required');
     const suffix = crypto.randomUUID();
-    const result = await execution('python', [path.join(config.projectRoot, 'scripts/engine-provenance.py'), 'verify', '--root', config.engineSourceRoot, '--engine-dir', config.engineDirectory],
+    const result = await execution('python', [path.join(config.projectRoot, 'scripts/engine-provenance.py'), 'verify', '--root', config.engineSourceRoot, '--engine-dir', config.engineDirectory, ...sourceStateArguments],
       { cwd: config.projectRoot, env: process.env, logPath: path.join(config.outputDirectory, `provenance-${suffix}.log`), errorPath: path.join(config.outputDirectory, `provenance-${suffix}.stderr.log`) });
     if (result.exitCode !== 0) throw Error(`Engine provenance failed: ${result.stderr || result.error || result.exitCode}`);
     input.engine = { sourceRoot: config.engineSourceRoot, directory: config.engineDirectory, provenance: JSON.parse(result.stdout) };

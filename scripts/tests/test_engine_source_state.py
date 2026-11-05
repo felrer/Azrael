@@ -56,6 +56,28 @@ class SourceStateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Copied source differs"):
             self.verify()
 
+    def test_handoff_clone_reuses_observation_and_still_rejects_source_changes(self):
+        self.prepare()
+        expected = self.verify()
+        handoff = self.fixture / "handoff.json"
+        consumer = self.fixture / "consumer.json"
+        helper = Path(__file__).parents[1] / "engine-source-handoff.cjs"
+        common = ["--handoff", str(handoff), "--token", "same-attempt", "--release", str(self.engine)]
+        for arguments in (["publish", *common, "--state", str(self.state), "--generation", "first"],
+                          ["consume", *common, "--destination", str(consumer)]):
+            result = subprocess.run(["node", str(helper), *arguments], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(json.loads(result.stdout)["usable"])
+        original_state = self.state.read_bytes()
+        with patch.object(self.module, "snapshot", wraps=self.module.snapshot) as full:
+            self.assertEqual(self.module.verify(self.source, self.engine, source_state=consumer, source_generation="first"), expected)
+            self.assertEqual(full.call_count, 0)
+            (self.source / "tracked.txt").write_bytes(b"changed source")
+            with self.assertRaisesRegex(ValueError, "Copied source differs"):
+                self.module.verify(self.source, self.engine, source_state=consumer, source_generation="first")
+            self.assertEqual(full.call_count, 1)
+        self.assertEqual(self.state.read_bytes(), original_state)
+
     def test_generation_and_corrupt_state_require_full_validation(self):
         self.prepare()
         with patch.object(self.module, "snapshot", wraps=self.module.snapshot) as full:

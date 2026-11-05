@@ -39,6 +39,7 @@ $changedCases += @('environment preflight failure', 'missing registered cache pr
 $changedCases += @('deployment capacity guard')
 $changedCases += @('vsix entry index')
 $changedCases += @('host copy baseline')
+$changedCases += @('source handoff unavailable')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -115,7 +116,7 @@ fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.
 })().catch(e=>{console.error(e);process.exit(9)});
 '@
 $buildStub = @'
-param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$CargoCacheProjectRoot,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory,[switch]$LifecycleParentActive)
+param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$CargoCacheProjectRoot,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory,[switch]$LifecycleParentActive,[string]$SourceStateHandoffPath,[string]$SourceStateHandoffToken)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
@@ -158,6 +159,12 @@ if($scenario.moduleCache){
 }
 $buildInfo | ConvertTo-Json | Set-Content (Join-Path $a "releases/$ReleaseName/build-info.json")
 'pinned typescript' | Set-Content (Join-Path $a "build/$ReleaseName/companion/node_modules/typescript/lib/typescript.js")
+if(-not $scenario.sourceHandoffUnavailable){
+ $statePath=Join-Path $a 'build-source-state.json'
+ @{schema=1;entries=@{fixture=@{generation='fixture-generation';metadata=@{inventory='observed'};snapshot=@{sourceSha256='verified'}}}}|ConvertTo-Json -Depth 6|Set-Content $statePath -Encoding utf8NoBOM
+ & node (Join-Path $PSScriptRoot 'engine-source-handoff.cjs') publish --handoff $SourceStateHandoffPath --token $SourceStateHandoffToken --release (Join-Path $a "releases/$ReleaseName") --state $statePath --generation fixture-generation|Out-Null
+ if($LASTEXITCODE -ne 0){throw 'fixture handoff publish failed'}
+}
 @{time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-end.json')
 if($scenario.mode -eq 'build-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
 '@
@@ -253,11 +260,20 @@ if(args[0]==='run'){
 }else throw Error('unexpected preservation command');
 '@
 $prepareStub = @'
-param([string]$ReleaseDirectory,[string]$OutputDirectory,[string]$StateRoot,[string]$SourceCodexHome,[string]$SourceExtensionPath,[string]$TypeScriptPath,[switch]$SkipCodexEnvironmentSnapshot,[switch]$ChangedOnlyTests,[string]$NamespaceCacheProjectRoot,[string]$SourceTestPolicyPath,[switch]$ExhaustiveTests)
+param([string]$ReleaseDirectory,[string]$OutputDirectory,[string]$StateRoot,[string]$SourceCodexHome,[string]$SourceExtensionPath,[string]$TypeScriptPath,[switch]$SkipCodexEnvironmentSnapshot,[switch]$ChangedOnlyTests,[string]$NamespaceCacheProjectRoot,[string]$SourceTestPolicyPath,[switch]$ExhaustiveTests,[string]$SourceStatePath,[string]$SourceGeneration)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
+if($scenario.sourceHandoffUnavailable){
+ if($SourceStatePath -or $SourceGeneration){throw 'unavailable handoff must use full validation'}
+}else{
+ if($SourceGeneration -cne 'fixture-generation' -or -not (Test-Path -LiteralPath $SourceStatePath)){throw 'prepare source observation forwarding missing'}
+ if($SourceStatePath -eq (Join-Path $a 'build-source-state.json')){throw 'prepare must own its source state'}
+ $engineConfig=Get-Content -LiteralPath (Join-Path $a 'logs/deploy-chosen/engine-preservation-inputs.json') -Raw|ConvertFrom-Json
+ if($engineConfig.sourceStatePath -eq $SourceStatePath -or $engineConfig.sourceGeneration -cne $SourceGeneration){throw 'consumers must have independent state files'}
+ if((Get-FileHash -LiteralPath $engineConfig.sourceStatePath).Hash -cne (Get-FileHash -LiteralPath $SourceStatePath).Hash){throw 'consumers did not receive the same observation'}
+}
 @{SourceTestPolicy=(Get-Content -LiteralPath $SourceTestPolicyPath -Raw | ConvertFrom-Json);ReleaseDirectory=$ReleaseDirectory;OutputDirectory=$OutputDirectory;TypeScriptPath=$TypeScriptPath;SourceExtensionPath=$SourceExtensionPath;NamespaceCacheProjectRoot=$NamespaceCacheProjectRoot;SkipCodexEnvironmentSnapshot=[bool]$SkipCodexEnvironmentSnapshot;ChangedOnlyTests=[bool]$ChangedOnlyTests;ChangedOnlyTestsBound=$PSBoundParameters.ContainsKey('ChangedOnlyTests')} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-invocation.json')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-start.json')
 if($scenario.mode -like 'account-*' -or $scenario.mode -eq 'source-fail-after-build'){
@@ -714,6 +730,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         return
     }
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'engine-source-handoff.cjs') -Destination $scripts
     # This orchestration fixture starts no native socket. Real Windows UTF-8
     # limits belong to test-verification-state.ps1, not these deep mock roots.
     Write-Utf8 (Join-Path $scripts 'verification-state.ps1') @'
@@ -802,7 +819,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         & git -c core.longpaths=true -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
     }
-    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;shortTemporary=$shortTemporary;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'full install')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
+    @{sourceHandoffUnavailable=($Name -eq 'source handoff unavailable');mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;shortTemporary=$shortTemporary;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'full install')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
     if($Mode -eq 'missing-registered-cache-project'){
         $cacheRoot=Join-Path $a 'cache/modules'
         New-Item -ItemType Directory -Path $cacheRoot | Out-Null
@@ -1177,6 +1194,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'explicit source receipt rejected' 'engine-source-preflight-fail' $true -ReuseSourcePreflight $true
     # One successful install also verifies that closing it preserves another temporary consumer.
     Invoke-Case 'full install' 'success'
+    Invoke-Case 'source handoff unavailable' 'success' $true
     Invoke-Case 'short fixture install' 'success'
     Invoke-Case 'module cache install' 'success' -ModuleCache $true
     Invoke-Case 'exhaustive regression verify only' 'success' $true -Exhaustive $true
