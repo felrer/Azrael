@@ -12,6 +12,8 @@ Selection starts with the existing `azrael-default` profile for every provider a
 
 The resolver produces one immutable request profile with its composition ID, prompt/tool IDs and a SHA-256 semantic fingerprint. The fingerprint includes loaded user template content, bundled rendered instructions and tool contract revision. The request's pinned model, registry, system instructions and input-budget projection use this configuration snapshot. A live model switch takes effect in the next captured request. Captured execution is not rebound.
 
+Common behavior separates neutral follow-up questions and new information from established errors or omissions: compare existing content before correcting it, and do not infer authorization for additional work from a needed correction. The bundled model-catalog template follows the same rule. This instruction contract does not establish live-model compliance.
+
 ## Configuration
 
 Use `[harness]` in the existing base `config.toml`, project config layers or modern named `<profile>.config.toml` layers. Normal layer merging preserves unrelated entries. These names are independent of legacy `[profiles.*]` tables and the new `[harness.profiles.*]` composition definitions. Relative template paths resolve against their declaring configuration layer.
