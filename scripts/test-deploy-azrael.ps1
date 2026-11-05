@@ -38,6 +38,7 @@ $pwsh = (Get-Process -Id $PID).Path
 $changedCases += @('environment preflight failure', 'missing registered cache project', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
 $changedCases += @('deployment capacity guard')
 $changedCases += @('vsix entry index')
+$changedCases += @('host copy baseline')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -408,6 +409,58 @@ function Test-VsixEntryIndex([string]$FixtureRoot, [string]$PreparationPath) {
     [pscustomobject]@{Scenarios=$scenarios.Count;Passed=$scenarios.Count}
 }
 
+function Test-HostCopyBaseline([string]$FixtureRoot, [string]$CheckPath, [string]$StateScript = (Join-Path (Split-Path $CheckPath -Parent) 'directory-state.ps1')) {
+    $tokens = $null; $parseErrors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile($CheckPath, [ref]$tokens, [ref]$parseErrors)
+    if ($parseErrors.Count) { throw 'Host check script syntax failed.' }
+    $assignments = @{}
+    foreach ($name in @('sourceBefore', 'fixtureOriginalExpected', 'sourceAfter', 'fixtureOriginalAfter', 'summary')) {
+        $assignments[$name] = $ast.Find({param($n) $n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left -is [Management.Automation.Language.VariableExpressionAst] -and $n.Left.VariablePath.UserPath -eq $name}, $true)
+        if (-not $assignments[$name]) { throw "Host preservation assignment missing: $name" }
+    }
+    $statements = @($assignments.sourceAfter.Parent.Statements)
+    $index = [array]::IndexOf($statements, $assignments.sourceAfter)
+    $finalCheck = [scriptblock]::Create(($statements[$index..($index+2)].Extent.Text -join "`n"))
+    $summaryTable = $assignments.summary.Right.Find({param($n) $n -is [Management.Automation.Language.HashtableAst]}, $true)
+    $reportExpressions = @{}
+    foreach ($pair in $summaryTable.KeyValuePairs) { if ($pair.Item1.Value -in @('originalSource', 'originalFixture')) { $reportExpressions[$pair.Item1.Value] = [scriptblock]::Create($pair.Item2.Extent.Text) } }
+    . $StateScript
+    $reads = [Collections.Generic.List[string]]::new()
+    function Get-DirectoryState([string]$Path) { $reads.Add($Path); Get-AzraelDirectoryState -Path $Path }
+    $scenarios = @('normal', 'source-change', 'fixture-change', 'fixture-add', 'fixture-delete')
+    foreach ($scenario in $scenarios) {
+        $reads.Clear()
+        $originalSource = Join-Path $FixtureRoot "$scenario/source"
+        $originalFixture = Join-Path $FixtureRoot "$scenario/fixture"
+        New-Item -ItemType Directory -Path $originalSource, $originalFixture | Out-Null
+        foreach ($directory in @($originalSource, $originalFixture)) {
+            [IO.File]::WriteAllText((Join-Path $directory 'a.txt'), 'alpha')
+            [IO.File]::WriteAllText((Join-Path $directory 'b.txt'), 'beta')
+        }
+        . ([scriptblock]::Create($assignments.sourceBefore.Extent.Text))
+        . ([scriptblock]::Create($assignments.fixtureOriginalExpected.Extent.Text))
+        switch ($scenario) {
+            'source-change' { [IO.File]::WriteAllText((Join-Path $originalSource 'a.txt'), 'gamma') }
+            'fixture-change' { [IO.File]::WriteAllText((Join-Path $originalFixture 'a.txt'), 'gamma') }
+            'fixture-add' { [IO.File]::WriteAllText((Join-Path $originalFixture 'extra.txt'), 'x') }
+            'fixture-delete' { Remove-Item -LiteralPath (Join-Path $originalFixture 'b.txt') }
+        }
+        $failure = $null
+        try { . $finalCheck } catch { $failure = $_.Exception.Message }
+        if ($reads.Count -ne 3 -or @($reads | Where-Object { $_ -ceq $originalSource }).Count -ne 2 -or @($reads | Where-Object { $_ -ceq $originalFixture }).Count -ne 1) { throw 'Host preservation must measure source twice and fixture once.' }
+        if ($scenario -ne 'normal') {
+            if ($failure -cne 'Original Codex source changed or validation fixture differs from the source snapshot.') { throw "Preservation missed ${scenario}: $failure" }
+            continue
+        }
+        if ($failure) { throw $failure }
+        $sourceReport = . $reportExpressions.originalSource
+        $fixtureReport = . $reportExpressions.originalFixture
+        if (-not $sourceReport.unchanged -or $sourceReport.before.path -cne $originalSource -or $sourceReport.after.sha256 -cne $sourceBefore.sha256) { throw 'Source observation report differs.' }
+        if (-not $fixtureReport.matchesSource -or $fixtureReport.expected.path -cne $originalFixture -or $fixtureReport.expected.sha256 -cne $sourceBefore.sha256 -or $fixtureReport.after.sha256 -cne $fixtureReport.expected.sha256 -or $fixtureReport.Contains('before') -or $fixtureReport.Contains('unchanged')) { throw 'Fixture expectations must be distinct from observations.' }
+    }
+    [pscustomobject]@{Scenarios=$scenarios.Count;Passed=$scenarios.Count;HashCallsPerScenario=3}
+}
+
 function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
@@ -416,6 +469,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if ($Mode -eq 'host-copy-baseline') {
+        $details = Test-HostCopyBaseline (Join-Path $root 'copy-baseline') (Join-Path $PSScriptRoot 'check-independent-vscode.ps1')
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
+    }
     if ($Mode -eq 'vsix-entry-index') {
         $details = Test-VsixEntryIndex (Join-Path $root 'vsix-index') (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
@@ -1103,6 +1160,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
     Invoke-Case 'vsix entry index' 'vsix-entry-index'
+    Invoke-Case 'host copy baseline' 'host-copy-baseline'
     Invoke-Case 'deployment capacity guard' 'deployment-capacity'
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'

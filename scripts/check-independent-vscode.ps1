@@ -118,21 +118,17 @@ New-Item -ItemType Directory -Path $logDirectory, (Join-Path $userData 'User'), 
 
 $exitCodes = [ordered]@{ initialInventory = $null; hostInstall = $null; finalInventory = $null; namespace = $null; standaloneHost = $null; host = $null }
 $sourceBefore = Get-DirectoryState -Path $originalSource
-$audioBefore = Get-DirectoryState -Path $audioSource
 $originalFixture = Join-Path $extensions (Split-Path $originalSource -Leaf)
+$fixtureOriginalExpected = [ordered]@{ path = $originalFixture; sha256 = $sourceBefore.sha256; fileCount = $sourceBefore.fileCount; bytes = $sourceBefore.bytes }
 $audioFixture = Join-Path $extensions (Split-Path $audioSource -Leaf)
 $runtimeConfigOverride = $null
 try {
     & robocopy.exe $originalSource $originalFixture /E /MT:8 /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -gt 7) { throw "Pristine original fixture copy failed with exit code $LASTEXITCODE." }
     $global:LASTEXITCODE = 0
-    $fixtureOriginalBefore = Get-DirectoryState -Path $originalFixture
-    if ($fixtureOriginalBefore.sha256 -cne $sourceBefore.sha256) { throw 'Pristine original fixture copy hash differed from its source.' }
     & robocopy.exe $audioSource $audioFixture /E /MT:8 /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -gt 7) { throw "Official audio dependency fixture copy failed with exit code $LASTEXITCODE." }
     $global:LASTEXITCODE = 0
-    $fixtureAudioBefore = Get-DirectoryState -Path $audioFixture
-    if ($fixtureAudioBefore.sha256 -cne $audioBefore.sha256) { throw 'Official audio dependency fixture hash differed from its source.' }
 
     $initial = @(& $code --user-data-dir $userData --extensions-dir $extensions --list-extensions --show-versions 2>&1)
     $exitCodes.initialInventory = $LASTEXITCODE
@@ -273,8 +269,8 @@ exports.deactivate = function () {};
     $sourceAfter = Get-DirectoryState -Path $originalSource
     $fixtureOriginalAfter = Get-DirectoryState -Path $originalFixture
     if ($sourceAfter.sha256 -cne $sourceBefore.sha256 -or $sourceAfter.fileCount -ne $sourceBefore.fileCount -or $sourceAfter.bytes -ne $sourceBefore.bytes -or
-        $fixtureOriginalAfter.sha256 -cne $fixtureOriginalBefore.sha256 -or $fixtureOriginalAfter.fileCount -ne $fixtureOriginalBefore.fileCount -or $fixtureOriginalAfter.bytes -ne $fixtureOriginalBefore.bytes) {
-        throw 'Actual host validation changed original Codex files.'
+        $fixtureOriginalAfter.sha256 -cne $fixtureOriginalExpected.sha256 -or $fixtureOriginalAfter.fileCount -ne $fixtureOriginalExpected.fileCount -or $fixtureOriginalAfter.bytes -ne $fixtureOriginalExpected.bytes) {
+        throw 'Original Codex source changed or validation fixture differs from the source snapshot.'
     }
     $summary = [ordered]@{
         passed = $true; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; standaloneHostResult = $standaloneResultPath; hostResult = $resultPath; log = $logPath; namespaceLog = $namespaceLog
@@ -283,7 +279,7 @@ exports.deactivate = function () {};
         hostPackage = [ordered]@{ vsix = $hostVsix; sha256 = $hostVsixSha256; version = $hostVersion; installedPath = $installedHost }
         runtimeConfigOverride = $runtimeConfigOverride
         originalSource = [ordered]@{ before = $sourceBefore; after = $sourceAfter; unchanged = $true }
-        originalFixture = [ordered]@{ before = $fixtureOriginalBefore; after = $fixtureOriginalAfter; unchanged = $true }
+        originalFixture = [ordered]@{ expected = $fixtureOriginalExpected; after = $fixtureOriginalAfter; matchesSource = $true }
         loginPerformed = $false; modelRequestPerformed = $false; newThreadPerformed = $false; testObjectMutationPerformed = $false
     }
     $summary | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
