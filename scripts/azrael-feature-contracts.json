@@ -557,6 +557,8 @@
         "scripts/engine-provenance.py",
         "scripts/engine-source-state.py",
         "scripts/engine-source-metadata.cjs",
+        "scripts/engine-source-handoff.cjs",
+        "scripts/test-engine-source-handoff.cjs",
         "scripts/tests/test_engine_source_state.py",
         "scripts/package-azrael.ps1",
         "scripts/check-engine-provenance-guards.cjs",
@@ -585,7 +587,8 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-package-local-host.cjs"
+            "scripts/test-package-local-host.cjs",
+            "scripts/test-engine-source-handoff.cjs"
           ],
           "level": "source"
         }

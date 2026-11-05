@@ -317,6 +317,11 @@ try {
     @{changedPaths = @($policyPaths); exhaustive = [bool]$ExhaustiveRegression} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceTestPolicyPath -Encoding utf8NoBOM
     $focusedEngineFeatureIds = @(if (-not $FullRegression) { Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) })
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot, '-LifecycleParentActive')
+    # Fresh even on Resume: no handoff from an earlier deployment attempt is accepted.
+    $sourceHandoffToken = [guid]::NewGuid().ToString('N')
+    $sourceHandoffPath = Join-Path $logs "engine-source-handoff-$sourceHandoffToken.json"
+    $sourceHandoffHelper = Join-Path $PSScriptRoot 'engine-source-handoff.cjs'
+    $buildArgs += @('-SourceStateHandoffPath', $sourceHandoffPath, '-SourceStateHandoffToken', $sourceHandoffToken)
     if ($RetainedSourceRoot) { $buildArgs += @('-RetainedSourceRoot', $RetainedSourceRoot) }
     if ((-not $SkipEngineBuild -and -not $EngineTargetDirectory) -or $CargoCacheProjectRoot) {
         $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } else { $project }
@@ -419,6 +424,15 @@ try {
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
     # Build completion releases binary consumers; source failures still cancel owned work.
     Wait-OwnedCommands @($build) -MonitoredCommands @($sourceTests)
+    # Only a successfully terminated build can seed consumers. Each owns a writable copy.
+    $sourceHandoff = @{}
+    foreach ($consumer in @('engine-preservation', 'prepare')) {
+        $destination = Join-Path $logs "$consumer-source-state-$sourceHandoffToken.json"
+        $handoffJson = & node $sourceHandoffHelper consume --handoff $sourceHandoffPath --token $sourceHandoffToken --release $release --destination $destination
+        if ($LASTEXITCODE -ne 0) { throw "Source state handoff failed for $consumer" }
+        $sourceHandoff[$consumer] = $handoffJson | ConvertFrom-Json
+    }
+    $metrics.sourceObservationHandoff = $sourceHandoff
     Assert-ProjectSnapshot 'post-build'
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
@@ -427,6 +441,10 @@ try {
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
         reuseNativeChecks = -not [bool]$ForceNativeVerification
         sourceReceiptPath = [string]$sourcePreflightResult.receiptPath
+    }
+    if ($sourceHandoff['engine-preservation'].usable) {
+        $enginePreservationConfig.sourceStatePath = $sourceHandoff['engine-preservation'].sourceStatePath
+        $enginePreservationConfig.sourceGeneration = $sourceHandoff['engine-preservation'].sourceGeneration
     }
     if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoCacheProjectRoot) { $enginePreservationConfig.cargoCacheProjectRoot = $CargoCacheProjectRoot }
@@ -449,6 +467,9 @@ try {
     $TypeScriptPath = (Resolve-Path -LiteralPath $TypeScriptPath).Path
     $prepareArgs = @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
     $prepareArgs += @('-SourceTestPolicyPath', $sourceTestPolicyPath)
+    if ($sourceHandoff['prepare'].usable) {
+        $prepareArgs += @('-SourceStatePath', $sourceHandoff['prepare'].sourceStatePath, '-SourceGeneration', $sourceHandoff['prepare'].sourceGeneration)
+    }
     if ($HostVersion) { $prepareArgs += @('-HostVersion', $HostVersion) }
     if ($NamespaceCacheProjectRoot) { $prepareArgs += @('-NamespaceCacheProjectRoot', $NamespaceCacheProjectRoot) }
     if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }

@@ -21,10 +21,13 @@ param(
     [ValidateSet('engine','companion','providers','window-control')][string[]]$RebuildModule = @(),
     [ValidateRange(0,10)][int]$KeepModuleCaches = 0,
     [switch]$SkipCacheCleanup,
+    [string]$SourceStateHandoffPath,
+    [string]$SourceStateHandoffToken,
     [switch]$LifecycleParentActive
 )
 
 $ErrorActionPreference = 'Stop'
+if ([bool]$SourceStateHandoffPath -ne [bool]$SourceStateHandoffToken) { throw 'Source state handoff path and attempt token must be supplied together.' }
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $artifactRoot = Join-Path $projectRoot 'artifacts'
 $release = Join-Path $artifactRoot "releases/$ReleaseName"
@@ -282,6 +285,9 @@ if (-not $SkipCacheCleanup) {
     $moduleCache.StagingCleanupResults | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'legacy-cache-cleanup.json') -Encoding utf8NoBOM
     & (Join-Path $PSScriptRoot 'clean-engine-caches.ps1') -ProjectRoot $projectRoot -CurrentSourceRoot $sourceRoot -TargetDirectory $engineTarget -Apply -ReportPath (Join-Path $logDirectory 'engine-cache-cleanup.json') | Out-Null
     } catch { Write-Warning "Cache cleanup preserved uncertain paths: $($_.Exception.Message)"; @{status='blocked';reason=$_.Exception.Message}|ConvertTo-Json|Set-Content (Join-Path $logDirectory 'cache-cleanup-warning.json') }
+}
+if ($SourceStateHandoffPath) {
+    Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'engine-source-handoff.cjs'), 'publish', '--handoff', $SourceStateHandoffPath, '--token', $SourceStateHandoffToken, '--release', $release, '--state', $sourceStatePath, '--generation', $sourceGeneration) 'source-state-handoff.log'
 }
 Complete-BuildMetrics $buildMetrics -Status success
 $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State $(if ($LifecycleParentActive) {'pending'} else {'complete'}) -MembershipComplete (-not $LifecycleParentActive) -Members $lifecycleMembers

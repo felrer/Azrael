@@ -14,12 +14,20 @@ param(
     [switch]$Resume,
     [switch]$ChangedOnlyTests,
     [string]$SourceTestPolicyPath,
+    [string]$SourceStatePath,
+    [string]$SourceGeneration,
     [switch]$ExhaustiveTests,
     [string]$CacheDirectory,
     [string]$NamespaceCacheProjectRoot
 )
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
+$sourceStateArguments = @()
+if ($SourceStatePath -or $SourceGeneration) {
+    $sourceStateJson = & node (Join-Path $PSScriptRoot 'engine-source-handoff.cjs') arguments --state $SourceStatePath --generation $SourceGeneration
+    if ($LASTEXITCODE -ne 0) { throw 'Invalid source observation context.' }
+    $sourceStateArguments = @($sourceStateJson | ConvertFrom-Json)
+}
 $sourceTestPolicy = $null
 if ($SourceTestPolicyPath) {
     $sourceTestPolicy = Get-Content -LiteralPath $SourceTestPolicyPath -Raw | ConvertFrom-Json
@@ -237,7 +245,7 @@ $moduleCacheLock=Join-Path $project 'artifacts/cache/modules/.lock'
 $moduleCacheLease=[IO.File]::Open($moduleCacheLock,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::Read,[IO.FileShare]::Read)
 try {
     Invoke-PreparationPhase 'input-verification' {
-        & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $build.engineSourceRoot --engine-dir (Join-Path $release 'engine') | Out-Null
+        & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $build.engineSourceRoot --engine-dir (Join-Path $release 'engine') @sourceStateArguments | Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'Preparation requires an engine built from the current source.' }
         $computerUseText = & node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') verify --directory (Join-Path $release 'computer-use')
         if ($LASTEXITCODE -ne 0) { throw 'Preparation requires a verified Computer Use runtime.' }
