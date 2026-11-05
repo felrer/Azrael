@@ -11,6 +11,10 @@
 - Use `project-bootstrap` when explicitly asked to initialize or align project documentation. Preserve existing content and routing; it does not scaffold application code or copy common implementation rules into project playbooks.
 - Keep all six core skills installed together with their supporting resources. Read the selected skill's actual instructions before applying it.
 
+## Commits (All Agents)
+
+- Whenever an authorized task produces changes, group related implementation, tests, and documentation by functional work unit. After each unit is complete and its required verification passes, create a separate commit before moving to the next unit or reporting completion. Include only that unit's authorized changes; preserve unrelated, user, and concurrent changes without staging them. Review the staged diff and use a descriptive commit message. Report the resulting commit hash. A commit does not authorize a push; follow the user's push instructions separately.
+
 ## Testing (All Agents)
 
 - For selecting, writing, running, reviewing, consolidating or retiring tests, apply `CODEX_HOME/skills/testing/SKILL.md` together with project-specific verification requirements.
