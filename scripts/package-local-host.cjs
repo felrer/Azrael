@@ -7,6 +7,7 @@ const { performance } = require("node:perf_hooks");
 
 // Keep text credential scanning focused on source and configuration assets.
 const generatedAssetExtension = /\.(exe|dll|pdb|node|so|dylib|wasm|woff|woff2|ttf|otf|png|jpg|jpeg|gif|svg|webp|avif|ico|mp3|mp4|webm|zip|gz|br)$/i;
+const precompressedExtensions = new Set([".png", ".jpg", ".jpeg", ".webp", ".avif", ".gif", ".woff", ".woff2"]);
 
 function textScanFiles(files) {
   return files.filter(file => file.contents === undefined &&
@@ -73,9 +74,10 @@ async function untrustedTextFiles(files, cwd, pristineRoot) {
   return selected;
 }
 
-// Match the pinned VSCE writer: collected buffers/paths and modes, output replacement,
-// and SOURCE_DATE_EPOCH ordering and timestamps. Resolve yazl from that same tool.
+// Preserve the pinned VSCE file set, modes, ordering and timestamps. Already
+// compressed images/fonts use ZIP STORE; all other entries retain DEFLATE.
 async function writeVsix(files, packagePath, yazl) {
+  const counts = { stored: 0, deflated: 0 };
   await fs.promises.unlink(packagePath).catch(error => {
     if (error.code !== "ENOENT") throw error;
   });
@@ -87,10 +89,18 @@ async function writeVsix(files, packagePath, yazl) {
       files.sort((a, b) => a.path.localeCompare(b.path));
     }
     zip.once("error", reject);
-    files.forEach(file => file.contents !== undefined
-      ? zip.addBuffer(typeof file.contents === "string" ? Buffer.from(file.contents, "utf8") : file.contents,
-        file.path, { ...zipOptions, mode: file.mode })
-      : zip.addFile(file.localPath, file.path, { ...zipOptions, mode: file.mode }));
+    for (const file of files) {
+      const extension = path.posix.extname(file.path.replaceAll("\\", "/")).toLowerCase();
+      const compress = !precompressedExtensions.has(extension);
+      const options = { ...zipOptions, mode: file.mode, compress };
+      counts[compress ? "deflated" : "stored"]++;
+      if (file.contents !== undefined) {
+        zip.addBuffer(typeof file.contents === "string" ? Buffer.from(file.contents, "utf8") : file.contents,
+          file.path, options);
+      } else {
+        zip.addFile(file.localPath, file.path, options);
+      }
+    }
     zip.end();
     const output = fs.createWriteStream(packagePath);
     zip.outputStream.once("error", reject);
@@ -98,6 +108,7 @@ async function writeVsix(files, packagePath, yazl) {
     output.once("finish", resolve);
     zip.outputStream.pipe(output);
   });
+  return counts;
 }
 
 async function packageLocalHost(vsceCliPath, outputVsixPath, pristineRoot) {
@@ -149,7 +160,9 @@ async function packageLocalHost(vsceCliPath, outputVsixPath, pristineRoot) {
     });
     // Reuse this exact set and retain VSCE's manifest and package validation.
     await timed("validationEnvGuard", () => printAndValidatePackagedFiles(files, cwd, manifest, options));
-    await timed("archive", () => writeVsix(files, output, yazl));
+    const archiveCounts = await timed("archive", () => writeVsix(files, output, yazl));
+    metrics.counts.stored = archiveCounts.stored;
+    metrics.counts.deflated = archiveCounts.deflated;
     metrics.outputBytes = (await fs.promises.stat(output)).size;
     metrics.success = true;
     return 0;
