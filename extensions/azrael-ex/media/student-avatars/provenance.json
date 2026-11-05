@@ -1543,15 +1543,16 @@
     "renderer": "OpenAI built-in image_gen",
     "designMetadata": "artifacts/visualizations/blue-archive-expansion-20261012/designs/{id}.json",
     "rootVisualDecisions": "artifacts/visualizations/blue-archive-expansion-20261012/root-visual-decisions.json",
-    "review": "artifacts/visualizations/blue-archive-expansion-20261012/review.html",
+    "review": null,
     "baselineSHA256": "c37a61cfe4a82939cb10767f4f9606ab9c665e3a8a184d789628f1dd4d4e3d36",
-    "generationAttempts": 127
+    "generationAttempts": 127,
+    "reviewDisposition": "Historical review retired after approval; prompts, decisions and original hashes remain."
   },
   "reconfirmation": {
     "approvedAtUTC": "2026-10-12T02:04:54.650573+00:00",
     "appliedCount": 6,
     "approvalMode": "User explicitly approved all six candidates in chat.",
-    "review": "artifacts/visualizations/blue-archive-reconfirm-20261012/confirm.html",
+    "review": null,
     "receipt": "artifacts/visualizations/blue-archive-reconfirm-20261012/approval.json",
     "generationAttempts": 17,
     "retries": 11,
@@ -1604,7 +1605,8 @@
         "referenceUrl": "https://schaledb.com/images/student/portrait/10103.webp",
         "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10103.json"
       }
-    ]
+    ],
+    "reviewDisposition": "Historical image review retired; approval receipt and per-student hash decisions remain."
   },
   "optimization": {
     "kind": "resize-only",
@@ -1621,7 +1623,7 @@
     ],
     "resampler": "Windows System.Drawing HighQualityBicubic, SourceCopy, TileFlipXY, Format32bppArgb",
     "alpha": "preserved",
-    "reviewHtml": "artifacts/tasks/FT-02-avatar-preview/runs/20261105T052058378Z-8acc93ae-c56d-4d34-bfdd-e247e8839418/outputs/avatar-512-comparison.html",
+    "reviewHtml": null,
     "sourceBytes": 195635668,
     "bytes": 62086260,
     "entries": [
@@ -3025,6 +3027,38 @@
         "sourceBytes": 1151981,
         "bytes": 360078
       }
-    ]
+    ],
+    "reviewDisposition": "Five original/resized pairs approved by user; HTML retired when retaining only three original-size references."
+  },
+  "originalRetention": {
+    "referenceIndex": "artifacts/visualizations/blue-archive-expansion-20261012/retained-originals.json",
+    "references": [
+      {
+        "id": 10010,
+        "path": "artifacts/visualizations/blue-archive-pixel-review-20261004/students-100/assets/10010.png",
+        "bytes": 893001,
+        "sha256": "6eb16001f4cc80ee9b7707df5f7054405be7ff179e7d4bd64caf4d3d599c1377",
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "id": 10046,
+        "path": "artifacts/visualizations/blue-archive-expansion-20261012/assets/10046.png",
+        "bytes": 1138121,
+        "sha256": "7d4282375d699fb209d69bc7169d0ef028474efa61bfa1f50431fadcc1e6f710",
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "id": 26004,
+        "path": "artifacts/visualizations/blue-archive-expansion-20261012/assets/26004.png",
+        "bytes": 1265016,
+        "sha256": "2bd004acc3086ce8c1a344b1d75ee9e875b9af63528b81e30704ec8287858672",
+        "width": 1254,
+        "height": 1254
+      }
+    ],
+    "scope": "Legacy student avatar originals and image-bearing review documents only; keep three selected originals and textual generation/approval metadata. Frozen build/recovery groups and Git history excluded.",
+    "generationBaselineDisposition": "Historical generation style baseline retired; its SHA256 and prompts remain in generation metadata."
   }
 }
