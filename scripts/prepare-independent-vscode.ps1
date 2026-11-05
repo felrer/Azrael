@@ -82,6 +82,13 @@ function Assert-IntegratedHostVsixContents {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $archive = [IO.Compression.ZipFile]::OpenRead($VsixPath)
     try {
+        # Match -ceq's invariant, case-sensitive comparison, including Unicode.
+        # A null entry marks an ambiguous name for the runtime checks below.
+        $runtimeEntries = [Collections.Generic.Dictionary[string, IO.Compression.ZipArchiveEntry]]::new([StringComparer]::InvariantCulture)
+        foreach ($entry in $archive.Entries) {
+            if ($runtimeEntries.ContainsKey($entry.FullName)) { $runtimeEntries[$entry.FullName] = $null }
+            else { $runtimeEntries.Add($entry.FullName, $entry) }
+        }
         foreach ($requiredEntry in @(
             'extension/integrated-azrael-entry.cjs',
             'extension/out/session-links.cjs',
@@ -129,9 +136,9 @@ function Assert-IntegratedHostVsixContents {
         $expected = @(@{ path = 'manifest.json'; sha256 = (Get-FileHash -LiteralPath (Join-Path $runtimeDirectory 'manifest.json')).Hash.ToLowerInvariant() }) + @($runtimeManifest.files)
         foreach ($file in $expected) {
             $entryName = 'extension/computer-use/' + $file.path
-            $entries = @($archive.Entries | Where-Object FullName -CEQ $entryName)
-            if ($entries.Count -ne 1) { throw "Computer Use VSIX entry missing or ambiguous: $entryName" }
-            $stream = $entries[0].Open()
+            $entry = $null
+            if (-not $runtimeEntries.TryGetValue($entryName, [ref]$entry) -or $null -eq $entry) { throw "Computer Use VSIX entry missing or ambiguous: $entryName" }
+            $stream = $entry.Open()
             try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)).ToLowerInvariant() } finally { $stream.Dispose() }
             if ($actual -cne $file.sha256) { throw "Computer Use VSIX hash mismatch: $entryName" }
         }
@@ -141,9 +148,9 @@ function Assert-IntegratedHostVsixContents {
             $windowFiles = @(@{ path = 'manifest.json'; sha256 = $build.sha256.'window-control/manifest.json' }) + @($windowManifest.files)
             foreach ($file in $windowFiles) {
                 $entryName = 'extension/window-control/' + $file.path
-                $entries = @($archive.Entries | Where-Object FullName -CEQ $entryName)
-                if ($entries.Count -ne 1) { throw "Window Control VSIX entry missing or ambiguous: $entryName" }
-                $stream = $entries[0].Open()
+                $entry = $null
+                if (-not $runtimeEntries.TryGetValue($entryName, [ref]$entry) -or $null -eq $entry) { throw "Window Control VSIX entry missing or ambiguous: $entryName" }
+                $stream = $entry.Open()
                 try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
                 if ($actual -ine $file.sha256) { throw "Window Control VSIX hash mismatch: $entryName" }
             }

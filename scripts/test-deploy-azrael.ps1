@@ -37,6 +37,7 @@ $changedCases = @('policy selection', 'full install', 'module cache install', 'e
 $pwsh = (Get-Process -Id $PID).Path
 $changedCases += @('environment preflight failure', 'missing registered cache project', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
 $changedCases += @('deployment capacity guard')
+$changedCases += @('vsix entry index')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -344,6 +345,69 @@ if($scenario.mode -eq 'install-wrong-receipt-version'){$receipt.hostVersion='9.9
 $receipt | ConvertTo-Json | Set-Content -LiteralPath $receiptPath
 [pscustomobject]@{Prepared=$true;Installed=$true;ReloadRequired=$true;Receipt=$receiptPath;HostVsix=$prepared.HostVsix;ReleaseDirectory=$ReleaseDirectory;Launched=$false}
 '@
+function Test-VsixEntryIndex([string]$FixtureRoot, [string]$PreparationPath) {
+    $tokens = $null; $parseErrors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile($PreparationPath, [ref]$tokens, [ref]$parseErrors)
+    if ($parseErrors.Count) { throw 'Preparation script syntax failed.' }
+    $definition = $ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Assert-IntegratedHostVsixContents'}, $true)
+    $quotedScripts = "'" + (Split-Path $PreparationPath -Parent).Replace("'", "''") + "'"
+    . ([scriptblock]::Create($definition.Extent.Text.Replace('$PSScriptRoot', $quotedScripts)))
+    $release = Join-Path $FixtureRoot 'release'
+    New-Item -ItemType Directory -Path (Join-Path $release 'computer-use'), (Join-Path $release 'window-control') | Out-Null
+    $bytes = [Text.Encoding]::UTF8.GetBytes('runtime fixture')
+    $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
+    $runtimeFiles = @('node.exe', 'node_repl.exe' | ForEach-Object {
+        [IO.File]::WriteAllBytes((Join-Path $release "computer-use/$_"), $bytes)
+        @{path=$_;bytes=$bytes.Length;sha256=$hash}
+    })
+    @{schema=2;kind='azrael-node-repl';files=$runtimeFiles;packages=@()} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $release 'computer-use/manifest.json') -Encoding utf8NoBOM
+    @{files=@(@{path='backend.bin';sha256=$hash});virtualInput=$false;multiPointer=$false} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $release 'window-control/manifest.json') -Encoding utf8NoBOM
+    $entries = [Collections.Generic.Dictionary[string, byte[]]]::new([StringComparer]::Ordinal)
+    # Populate unrelated required UI/host content from its owning manifest loop.
+    foreach ($variable in @('requiredEntry', 'module')) {
+        $loop = $definition.Body.Find({param($n) $n -is [Management.Automation.Language.ForEachStatementAst] -and $n.Variable.VariablePath.UserPath -eq $variable}, $true)
+        foreach ($literal in $loop.Condition.FindAll({param($n) $n -is [Management.Automation.Language.StringConstantExpressionAst]}, $true)) {
+            $name = if ($variable -eq 'module') { "extension/out/$($literal.Value)" } else { $literal.Value }
+            $entries[$name] = $bytes
+        }
+    }
+    foreach ($name in @('node.exe', 'node_repl.exe', 'manifest.json')) { $entries["extension/computer-use/$name"] = [IO.File]::ReadAllBytes((Join-Path $release "computer-use/$name")) }
+    $entries['extension/window-control/backend.bin'] = $bytes
+    $entries['extension/window-control/manifest.json'] = [IO.File]::ReadAllBytes((Join-Path $release 'window-control/manifest.json'))
+    $build = [pscustomobject]@{sha256=@{}}
+    foreach ($name in $entries.Keys | Where-Object { $_.StartsWith('extension/out/') }) { $build.sha256['host/' + $name.Substring('extension/out/'.Length)] = $hash }
+    $build.sha256['window-control/manifest.json'] = (Get-FileHash -LiteralPath (Join-Path $release 'window-control/manifest.json')).Hash
+    $scenarios = @('valid', 'missing-computer', 'duplicate-computer', 'case-computer', 'unicode-duplicate-computer', 'hash-computer', 'missing-window', 'duplicate-window', 'hash-window')
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    foreach ($scenario in $scenarios) {
+        $vsix = Join-Path $FixtureRoot "$scenario.vsix"
+        $zip = [IO.Compression.ZipFile]::Open($vsix, [IO.Compression.ZipArchiveMode]::Create)
+        try {
+            foreach ($name in $entries.Keys) {
+                $computerTarget = $name -ceq 'extension/computer-use/node.exe'
+                $windowTarget = $name -ceq 'extension/window-control/backend.bin'
+                if (($computerTarget -and $scenario -eq 'missing-computer') -or ($windowTarget -and $scenario -eq 'missing-window')) { continue }
+                $target = if ($computerTarget -and $scenario -eq 'case-computer') { 'extension/computer-use/NODE.exe' } else { $name }
+                [byte[]]$payload = if (($computerTarget -and $scenario -eq 'hash-computer') -or ($windowTarget -and $scenario -eq 'hash-window')) { [byte[]]@(0) } else { $entries[$name] }
+                $stream = $zip.CreateEntry($target).Open()
+                try { $stream.Write($payload, 0, $payload.Length) } finally { $stream.Dispose() }
+                if (($computerTarget -and $scenario -in @('duplicate-computer', 'unicode-duplicate-computer')) -or ($windowTarget -and $scenario -eq 'duplicate-window')) {
+                    $duplicate = if ($scenario -eq 'unicode-duplicate-computer') { "extension/computer-use/no$([char]0x00ad)de.exe" } else { $name }
+                    $stream = $zip.CreateEntry($duplicate).Open()
+                    try { $stream.Write($entries[$name], 0, $entries[$name].Length) } finally { $stream.Dispose() }
+                }
+            }
+        } finally { $zip.Dispose() }
+        $failure = $null
+        try { Assert-IntegratedHostVsixContents -VsixPath $vsix } catch { $failure = $_.Exception.Message }
+        if ($scenario -eq 'valid') { if ($failure) { throw $failure }; continue }
+        $runtime = if ($scenario.EndsWith('window')) { 'Window Control' } else { 'Computer Use' }
+        $expected = if ($scenario.StartsWith('hash-')) { "$runtime VSIX hash mismatch:*" } else { "$runtime VSIX entry missing or ambiguous:*" }
+        if (-not $failure -or $failure -notlike $expected) { throw "Wrong VSIX validation result for ${scenario}: $failure" }
+    }
+    [pscustomobject]@{Scenarios=$scenarios.Count;Passed=$scenarios.Count}
+}
+
 function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
@@ -352,6 +416,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if ($Mode -eq 'vsix-entry-index') {
+        $details = Test-VsixEntryIndex (Join-Path $root 'vsix-index') (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1')
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
+    }
     if ($Mode -eq 'deployment-capacity') {
         $deployText = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
         $ast = [Management.Automation.Language.Parser]::ParseInput($deployText, [ref]$null, [ref]$null)
@@ -1034,6 +1102,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     }
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
+    Invoke-Case 'vsix entry index' 'vsix-entry-index'
     Invoke-Case 'deployment capacity guard' 'deployment-capacity'
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'
