@@ -1,0 +1,37 @@
+{
+  "recordedUtc": "2026-11-05T10:40:43.525Z",
+  "ownerExecutableSha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "logicalBytes": 105402913,
+  "exitCode": 0,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:fw02:vss-35233693-59a0-4bc8-8eb4-4e2614e94272",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-24172-7309-1793875237005",
+        "decision": "delete",
+        "decision_id": "ffa6d94bdde045a43fb7d97b2a214ca891afe93827b058f44c9e8c6db93fbfc4",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "1c046ed55fe0a8f4a70509ae465441fa8af2d45d5fab14d2c8a066b0fafde592",
+        "lifecycle_group_id": "run:fw02:vss-35233693-59a0-4bc8-8eb4-4e2614e94272",
+        "reason": "Stopped failed preflight; exact owned image verified detached, no shadow/worker created, independently readable evidence retained outside run; disposable run no longer needed.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "2a869b59ac221acbe8df500035d6f3350d3feab3795f036acfd957651d544940"
+      }
+    ]
+  }
+}

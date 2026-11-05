@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-11-05T10:38:44.757Z",
+  "runId": "run:fw02:vss-35233693-59a0-4bc8-8eb4-4e2614e94272",
+  "owner": "root/fw02-volsnap-reproduction",
+  "classification": "preflight-environment-setup-failed; workload-not-started",
+  "target": "New real Volsnap Event ID 25 on the owned test volume; excludes Windows bugcheck reproduction",
+  "environment": {
+    "os": "Windows 11 Home 10.0.26200",
+    "architecture": "x64",
+    "host": "local Windows PC"
+  },
+  "limits": {
+    "virtualDiskBytes": 8589934592,
+    "maxWorkloadSeconds": 180,
+    "maxRequestedWriteBytes": 17179869184,
+    "maxWriters": 2
+  },
+  "controllerSha256": "35da0ce8df845b1fad4388978822ff59843733e51751b89bef6b0ca2fb6be4c3",
+  "workerSha256": "cec50ac4daff850b3f61473cec7035eb3a89022e73e50e7d4d53be5b151b7714",
+  "preflight": {
+    "Stage": "Preflight",
+    "StartedUtc": "2026-11-05T10:35:03.7984664Z",
+    "Success": false,
+    "Cleanup": [],
+    "Failure": "ShadowStorage.Create unavailable/failed; no workload allowed",
+    "CutoffUtc": "2026-11-05T10:35:13.3053516Z",
+    "Detached": true,
+    "PreexistingShadowsPreserved": true,
+    "PreexistingAssociationsPreserved": true,
+    "OwnedVolumeEvent25": [],
+    "OtherVolsnapEvents": [],
+    "EndedUtc": "2026-11-05T10:35:13.6615166Z"
+  },
+  "identity": {
+    "ImagePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw02\\runs\\vss-35233693-59a0-4bc8-8eb4-4e2614e94272\\outputs\\test.vhdx",
+    "DiskUniqueId": "6002248061D9618A312EEA1BE6980866",
+    "VolumeGuid": "\\\\?\\Volume{ef2cb9da-3666-4a8d-9bef-fc23c8ef7dae}\\",
+    "DeviceName": "\\Device\\HarddiskVolume13",
+    "DriveToken": "F:"
+  },
+  "before": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "Utc": "2026-11-05T10:35:06.3020633Z",
+    "EventFloor": 44915,
+    "Shadows": {}
+  },
+  "after": {
+    "Associations": [
+      {
+        "Volume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "DiffVolume": "\\\\?\\Volume{f343b8e0-51f8-11ee-ae08-5ecf8da9b45c}\\",
+        "MaxSpace": "39952842752",
+        "AllocatedSpace": 0,
+        "UsedSpace": 0
+      }
+    ],
+    "ChangedBaselineAssociations": [],
+    "Shadows": {},
+    "MissingBaselineShadowIds": []
+  },
+  "launches": [
+    {
+      "processExited": true,
+      "pid": 30412,
+      "startedUtc": "2026-11-05T10:32:06.1432533Z",
+      "actualExit": 1,
+      "endedUtc": "2026-11-05T10:33:08.1072561Z"
+    },
+    {
+      "processExited": true,
+      "pid": 32092,
+      "startedUtc": "2026-11-05T10:35:01.2575559Z",
+      "actualExit": 1,
+      "endedUtc": "2026-11-05T10:35:13.7191139Z"
+    }
+  ],
+  "scriptPolicy": {
+    "initialEffective": "Restricted",
+    "secondProcessOnly": "RemoteSigned",
+    "systemPolicyChanged": false,
+    "initialFailure": "Exit 1 before stage entry; original stderr unavailable, execution-policy cause suspected rather than proven"
+  },
+  "failure": {
+    "operation": "Win32_ShadowStorage.Create",
+    "returnValue": 10,
+    "documentedMeaning": "Unknown error",
+    "volumeAndDiffVolume": "same owned test volume",
+    "requestedMaxSpace": 4294967296,
+    "shadowCreateAttempted": false
+  },
+  "observedPayload": {
+    "requestedBytes": 1048576,
+    "workloadBytes": 0,
+    "backingFileBytes": 104857600
+  },
+  "producerStopEvidence": {
+    "controller": "Parent WaitForExit/Refresh observed process exit 1, PID 32092, receipts above",
+    "diskpart": "Synchronous native invocation completed with actual exit 0 in stage journal",
+    "worker": "Workload-only worker construction was never reached",
+    "compiler": "Synchronous Add-Type returned before preflight stage; no async producer in reviewed controller",
+    "image": "Controller normal Dismount-DiskImage followed by Get-DiskImage Attached=false; Detached=true only after this check"
+  },
+  "diagnosticWindow": {
+    "fromUtc": "2026-11-05T10:34:55Z",
+    "toUtc": "2026-11-05T10:36:00Z",
+    "applicationEvents": 1,
+    "systemEvents": 8,
+    "relatedVssVolsnapSppVirtualDiskEvents": 0,
+    "queryExit": 0
+  },
+  "limitations": [
+    "No successful shadow copy was created; bounded workload did not run.",
+    "No claim that this Windows environment cannot support VSS by another route.",
+    "No causal claim about Azrael or safety improvement effectiveness."
+  ],
+  "officialSource": "https://learn.microsoft.com/en-us/previous-versions/windows/desktop/vsswmi/create-method-in-class-win32-shadowstorage"
+}
