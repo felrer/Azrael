@@ -89,7 +89,7 @@ async function untrustedTextFiles(files, cwd, pristineRoot) {
 }
 
 // Preserve the pinned VSCE file set, modes, ordering and timestamps. Already
-// compressed images/fonts use ZIP STORE; all other entries retain DEFLATE.
+// compressed images/fonts use ZIP STORE; other entries use speed-first DEFLATE.
 async function writeVsix(files, packagePath, yazl) {
   const counts = { stored: 0, deflated: 0 };
   await fs.promises.unlink(packagePath).catch(error => {
@@ -97,7 +97,8 @@ async function writeVsix(files, packagePath, yazl) {
   });
   await new Promise((resolve, reject) => {
     const zip = new yazl.ZipFile();
-    const zipOptions = {};
+    // yazl 3.3+ otherwise adds extended timestamps absent from pinned VSCE.
+    const zipOptions = { forceDosTimestamp: true };
     if (process.env.SOURCE_DATE_EPOCH) {
       zipOptions.mtime = new Date(parseInt(process.env.SOURCE_DATE_EPOCH) * 1000);
       files.sort((a, b) => a.path.localeCompare(b.path));
@@ -106,7 +107,7 @@ async function writeVsix(files, packagePath, yazl) {
     for (const file of files) {
       const extension = path.posix.extname(file.path.replaceAll("\\", "/")).toLowerCase();
       const compress = !precompressedExtensions.has(extension);
-      const options = { ...zipOptions, mode: file.mode, compress };
+      const options = { ...zipOptions, mode: file.mode, compress, compressionLevel: compress ? 1 : 0 };
       counts[compress ? "deflated" : "stored"]++;
       if (file.contents !== undefined) {
         zip.addBuffer(typeof file.contents === "string" ? Buffer.from(file.contents, "utf8") : file.contents,
@@ -137,7 +138,7 @@ async function packageLocalHost(vsceCliPath, outputVsixPath, pristineRoot) {
   const toolRoot = path.dirname(cli);
   const { readManifest, collect, printAndValidatePackagedFiles } = require(path.join(toolRoot, "out/package.js"));
   const { lintFiles, lintText } = require(path.join(toolRoot, "out/secretLint.js"));
-  const yazl = require(require.resolve("yazl", { paths: [toolRoot] }));
+  const yazl = require(require.resolve("azrael-yazl", { paths: [toolRoot] }));
   const cwd = process.cwd();
   const output = path.resolve(outputVsixPath);
   const options = {

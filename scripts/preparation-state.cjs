@@ -39,7 +39,12 @@ async function inputs(config) {
   })));
   const toolFiles = ["companion/node_modules/typescript/lib/typescript.js",
     "companion/node_modules/@vscode/vsce/out/package.js",
-    "companion/node_modules/@vscode/vsce/out/secretLint.js"];
+    "companion/node_modules/@vscode/vsce/out/secretLint.js",
+    "companion/package-lock.json",
+    "companion/node_modules/azrael-yazl/package.json",
+    "companion/node_modules/azrael-yazl/index.js",
+    "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/package.json",
+    "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/index.js"];
   const tools = Object.fromEntries(await Promise.all(toolFiles.map(async name =>
     [name, await fileHash(path.join(config.toolDirectory, name))])));
   return { schema: 1, config, scripts: hashes, transformRules: getTransformRules(), tools,

@@ -7,6 +7,10 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { test } = require("node:test");
 const state = require("./preparation-state.cjs");
+const zipToolFiles = ["companion/package-lock.json", "companion/node_modules/azrael-yazl/package.json",
+  "companion/node_modules/azrael-yazl/index.js",
+  "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/package.json",
+  "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/index.js"];
 
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-preparation-test-"));
@@ -29,6 +33,7 @@ function fixture(t) {
   for (const name of ["typescript/lib/typescript.js", "@vscode/vsce/out/package.js", "@vscode/vsce/out/secretLint.js"]) {
     write(path.join(config.toolDirectory, "companion/node_modules", name), "fixture tool");
   }
+  for (const name of zipToolFiles) write(path.join(config.toolDirectory, name), "fixture ZIP tool");
   const output = path.join(root, "output");
   fs.mkdirSync(output);
   return { root, config, output, write };
@@ -66,6 +71,23 @@ test("resume refuses configuration, build receipt, bundle and tool changes", asy
   fs.writeFileSync(path.join(config.release, "engine.exe"), "engine");
   fs.writeFileSync(path.join(config.toolDirectory, "companion/node_modules/@vscode/vsce/out/package.js"), "changed tool");
   await assert.rejects(state.initialize(output, config, true), /Preparation inputs changed/);
+});
+
+// Updating packaging dependencies must invalidate resumes even if VSCE is unchanged.
+test("resume binds the ZIP writer, CRC implementation and dependency lock", async t => {
+  const { config, output } = fixture(t);
+  const initial = await state.initialize(output, config, false);
+  for (const name of zipToolFiles) {
+    assert.ok(initial.inputs.tools[name], name);
+    const file = path.join(config.toolDirectory, name);
+    const original = fs.readFileSync(file);
+    fs.writeFileSync(file, "changed ZIP tool");
+    await assert.rejects(state.initialize(output, config, true), /Preparation inputs changed/, name);
+    fs.unlinkSync(file);
+    await assert.rejects(state.initialize(output, config, true), { code: "ENOENT" }, name);
+    fs.writeFileSync(file, original);
+  }
+  assert.deepEqual(await state.initialize(output, config, true), initial);
 });
 
 test("resume refuses a changed transform rule fingerprint", async t => {
