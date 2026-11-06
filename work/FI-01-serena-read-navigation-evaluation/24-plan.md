@@ -1,12 +1,14 @@
-상태: 현재 변경을 포함한 출처 정합성 갱신·관련 검증 진행 중. 사용자는 제품 빌드를 제외했다. 패키징·설치도 실행하지 않으며, 기존 native 결과를 재사용하고 소스 검증·task commit·필요한 정리를 마무리한다.
+상태: 빌드를 제외한 소스 작업을 마무리했다. 구현·출처 갱신은 d02a65807에 commit했고, 기존 native 결과 재사용과 소스 검증을 완료했다. 사용 종료 임시 묶음 6개는 owner 삭제·실제 경로 부재·최종화를 확인했다. 사용자가 조건부 보존을 승인한 공유 Cargo 복구 증거 5파일/17,263bytes만 남겼다. 제품 빌드·패키징·설치와 설치 수용은 이번 범위에서 제외했다.
 
 # v5 이름 검색 기본 도구와 공통 프롬프트 반영 계획
+
+복구 증거 보존 승인: `artifacts/tasks/FI-01-find-names/runs/recovery-20261106-boot`, lifecycle `run:FI-01-find-names:recovery-20261106-boot`, owner `find-names-cargo-recovery`의 5파일/17,263bytes다. 공유 Cargo 캐시 `96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24`의 이전 실행 종료·재시작 증거를 보존하며, 캐시 소유자가 해당 참조를 해제하면 owner 검토와 정리를 재개한다. 다른 임시 자료의 보존 승인이 아니며 빌드 제외 지시는 유지한다.
 
 ## 확정된 입력과 빌드 제외
 
 제품 빌드 사전 검사에서 현재 고정 engine의 `SOURCE.json`과 실제 파일 20개가 달라 `Copied source differs: codex-rs/app-server/src/azrael_shared_server.rs`로 actual exit1을 확인했다. 대상은 로그인·계정·유지관리의 다른 작업 변경이며 `find_names` handler/helper는 기존 승인 SHA와 같다. 원본 소스·출처 영수증과 실행 중 native 입력은 변경하지 않았다.
 
-사용자는 현재 변경을 함께 포함해 검증하는 방향을 선택한 뒤 빌드는 하지 않는다고 정정했다. 따라서 현재 20개 파일의 출처 정합성과 필요한 소스 검증까지 수행하며 제품 컴파일·패키징·설치와 설치 후 수용은 이번 실행 범위에서 제외한다. 새 Cargo 컴파일은 시작하지 않는다. 기존 native 검증 이후 해당 20개 파일 및 SOURCE.json의 내용은 달라지지 않았음을 확인했다. 사전 검사 run `artifacts/tasks/FI-01-find-names/runs/preflight-20261106`은 출처 불일치 원인 확인에 필요한 진단 묶음이며 사용 종료 후 owner 정리한다.
+사용자는 현재 변경을 함께 포함해 검증하는 방향을 선택한 뒤 빌드는 하지 않는다고 정정했다. 따라서 현재 20개 파일의 출처 정합성과 필요한 소스 검증까지 수행하며 제품 컴파일·패키징·설치와 설치 후 수용은 이번 실행 범위에서 제외한다. 새 Cargo 컴파일은 시작하지 않는다. 출처 갱신 전 20개 파일 및 SOURCE.json이 기존 native 입력과 일치함을 확인했고, 20개 실제 코드 파일을 변경하지 않은 채 현재 SOURCE.json만 지원 writer로 갱신했다. 사전 검사 run `artifacts/tasks/FI-01-find-names/runs/preflight-20261106`은 독립 진단 결과 보존 후 owner 정리를 완료했다.
 
 ## 목적과 권한
 
@@ -54,21 +56,23 @@ Use the available tools efficiently. Use `find_names` when helpful for declarati
 
 동일 embedded copy인 engine/codex-rs/prompts/templates/agent_behavior.md도 함께 갱신하고 scripts/test-common-agent-instructions.cjs로 일치를 확인한다. engine/codex-rs/prompts/src/model_instructions.rs가 이를 포함하므로 기본 프로필에서 반영된다. 사용자 custom behavior template을 덮어쓰지 않으며 optional lean 등 별도 내장 behavior는 기존 프로필 소유 정책에 맞춰 최소 정합성을 확인한다. AGENTS나 skill에 중복 규칙을 추가하지 않는다.
 
-## 구현·검증·배포 순서
+## 구현·검증 순서 (최신 빌드 제외 반영)
 
 1. 기존 자산 재사용과 ID/AST 동등성·런타임 배포 경계를 확인한다. 미확정 ID/의존성 변경이 필요하면 먼저 합의한다.
 2. 공통 registry/읽기 권한/선택된 helper를 연결하고 기본·코드 모드 도구 계약을 등록한다.
 3. 공통 지침의 소유 원문과 embedded copy를 갱신하고 도구 도움말을 간결하게 유지한다. 제품 owning architecture와 scripts/azrael-feature-contracts.json의 보존 owner/check를 연결한다.
 4. 기존 fixture를 재사용해 casefold/이름만 검색/대상 포함·제외/빈 query/시그니처 옵션/범위/파일 변경·경로·sandbox를 최소 검증한다. core/src/tools/spec_plan_tests.rs에서 native·코드 모드 노출, 메인/서브·provider mapping·도구 없는 모드 보존을 확인한다. 지침 동일성 및 변경된 parser/helper의 실제 제품 경계를 확인한다. 별도 대규모 성능 실험·캐시 가드·진단 인프라는 추가하지 않는다.
-5. 검증된 변경분을 기존 빌드·설치 절차로 반영하고 기본 도구로 직접 호출되는지 작은 smoke test를 한다. 빌드·설치 대상과 사용자 재시작 시점은 승인된 실행 계획에서 명시한다. 임시 자료는 기존 owner로 정리하며 관련 변경만 task commit한다.
+5. 현재 변경 20개의 출처 기록을 기존 검증 writer로 갱신하고 실제 소스 snapshot 검사를 수행한다. 기존 충분한 source/native 검증을 재사용하며 새 Cargo 컴파일·제품 빌드·패키징·설치·설치 후 smoke는 실행하지 않는다. 관련 변경만 task commit하고 사용이 끝난 임시 자료를 owner로 정리한다.
 
 ## 플랫폼과 수용 한계
 
 공통 검색 의미는 Windows x64·Linux x64(glibc)·macOS ARM64 목표에 맞추고 검증된 플랫폼을 구분한다. 기존 v5 실험은 Windows x64뿐이다. runtime/helper 패키징과 sandbox·경로 처리의 플랫폼별 확인 전 다른 플랫폼 완료로 표시하지 않는다. Windows regression을 포함하며 플랫폼 계약의 mandatory gate를 보존한다. 사용자 VS Code 종료의 원인은 미확정이고 이번 기능 계획의 성공으로 그 원인을 설명하지 않는다.
 
-제품 기본 도구로 등록한 뒤 작은 직접 호출에서 노출·실행을 확인한다. 별도 모델 성능 실험이나 캐시 감시 인프라는 추가하지 않는다. 실험의 수치가 기본 도구 통합 후 그대로 유지된다고 보장하지 않는다.
+설치 후 기본 도구 직접 호출 검증은 제품 빌드·설치 제외에 따라 이번 범위에서 수행하지 않는다. 별도 모델 성능 실험이나 캐시 감시 인프라는 추가하지 않는다. 실험의 수치가 기본 도구 통합 후 그대로 유지된다고 보장하지 않는다.
 
 ## 실행 소유와 현재 검증
+
+아래 실행 경로는 당시 입력·결과의 출처다. 독립적으로 읽을 수 있는 검증·종료·삭제 결과는 `24-verification.json`에 보존했으며, 사용이 끝난 payload·원시 로그·출처 백업·커밋 준비 자료는 owner 절차로 삭제했다. 현재 변경 20개와 이름 검색 engine 소유 파일 5개는 갱신된 SOURCE.json과 일치하고, helper도 검증된 SHA와 일치한다. 설치 수용·최초 symlink 경계·Linux/macOS 실행은 미검증으로 유지한다.
 
 - Root: 공유 계약, 공통 지침 두 사본, architecture 및 feature inventory, 통합·최종 수용과 task commit. 기존 unrelated staged37개와 선행 수정은 보존한다.
 - Native owner: handler·등록·선별 Rust 검증. Helper owner: 순수 Node parser·casefold·ID 동등성. Packaging owner: 기존 Node/host runtime·플랫폼 패키징 연결과 직접 검사. Run owner: 이 작업의 artifact lifecycle과 실제 ID probe. 각 owner는 겹치지 않는 변경을 담당하며 재위임하지 않는다.
@@ -84,6 +88,6 @@ Use the available tools efficiently. Use `find_names` when helpful for declarati
 - 재개 입력: helper와 native handler의 SHA256은 기존 검증값과 같다. 11월 3일 이후 공유 checkout 변경은 별도 작업으로 보존한다. native 검사에서 전체 engine identity가 달라졌으면 기존 frozen snapshot을 수정하지 않고 기존 checker의 새 소유 run/동결 입력을 사용한다. 대상은 기존 5개 선별 Rust 계약이며 새 성능 실험·캐시 감시·별도 Cargo target은 추가하지 않는다.
 - native 재개는 2026-11-06 11:38 KST에 시작했다. `node scripts/check-find-names.cjs`, `CARGO_HOME=artifacts/ch17`, jobs2, toolchain1.95.0, 기존 물리 shared96 cache를 사용한다. work completion `c89e5a0d-2f59-4713-9bd4-f75d6153ddd5`, executor session27319, run `artifacts/tasks/FI-01-find-names/runs/20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d`, 새 고정 engine `artifacts/verification/fn-074404ce/engine`이다. 전체 현재 source SHA는 `dba174993424ca03a4d87d819d20550b7084ab253646bbeb9330aada76a5bce4`로 이전과 달라 이전 snapshot을 변경하지 않았다. 첫 확인 시점은 11:53 KST이며 실제 종료 전 검사 통과로 표시하지 않는다. native 결과가 제품 빌드·설치의 선행조건이다.
 - 11:53 KST 체크포인트: source freeze 완료, 최초 `find_names` 테스트용 실제 Cargo는 11:40:04에 시작했다. 관측 시 rustc2개/가용RAM 약11.4GiB였으며 실제 컴파일이 진행 중이다. 결과·종료코드는 아직 없고 다음 확인은 12:08 KST 또는 completion event다. 현재 checker의 report는 동기 child 반환 전 상태이므로 중간 `accepted:false`나 `producerStopped:true`를 terminal evidence로 사용하지 않는다.
-- native 최종 결과: 12:11 KST에 5개 묶음 모두 acceptedtrue/actual0, 종료와 source/frozen/helper 불변을 확인했다. 전체 경과 약32분이며 대부분 최초 test compilation에 사용했고 재실행은 없었다. 상세 명령·실제 테스트 수·report SHA는 `24-verification.json`에 보존했다. 검사 run과 고정 engine은 배포 입력 선택 및 이후 수용에 필요한 현재 handoff 자료이며, 선택 후 사용이 끝나는 묶음은 기존 owner로 정리한다. 최초 symlink 경계와 최종 package/설치/direct smoke, Linux/macOS는 별도 미검증 범위다.
+- native 최종 결과: 12:11 KST에 5개 묶음 모두 acceptedtrue/actual0, 종료와 source/frozen/helper 불변을 확인했다. 전체 경과 약32분이며 대부분 최초 test compilation에 사용했고 재실행은 없었다. 상세 명령·실제 테스트 수·report SHA는 `24-verification.json`에 보존했다. 독립 검증 결과 인계 후 검사 run과 고정 engine은 owner 정리를 완료했다. 최초 symlink 경계와 최종 package/설치/direct smoke, Linux/macOS는 별도 미검증 범위다.
 - 실제 파일 변경 감지는 별도 controlled fault 1회로 확인했다. 제품 소스를 수정하지 않고 검증된 원 helper가 테스트 소스를 해석한 뒤 정확한 소유 fixture만 변경하는 임시 wrapper를 사용했다. handler가 `File changed during name search; request find_names again`으로 거부했고 예상한 Cargo exit101/실패1개와 harness exit0을 관측했다. 이는 정상 native11개 통과와 분리한 의도적 오류 검사이며 원 실패 결과를 성공으로 바꾸지 않았다. 독립 원인·범위·출력/임시 wrapper SHA는 `24-verification.json`에 보존했다. 소모성 probe 묶음은 검증된 ff01 owner의 register/review/apply(actual0)로 논리1,422,058bytes/deleted/remaining:false 및 실제 경로 부재와 lifecycle finalize를 확인했다.
-- 다음 인계: 배포 입력 선택 답변 → 선택한 소스의 출처 검증·미검증 경계 확인 → 기존 제품 빌드·설치·직접 smoke → owner cleanup/task commit. 최종 수용이 남아 전체 완료가 아니며 작업 run은 현재 handoff·진단에 필요한 보호 자료다. 이전 run22 및 unrelated 변경을 건드리지 않는다.
+- 최종 인계: 현재 변경 20개를 포함한 SOURCE.json 갱신 및 snapshot actual0, helper·지침·manifest source 검사 actual0을 완료했다. 구현 task commit은 d02a65807이며, unrelated index 항목과 실제 작업 파일을 보존했다. 사용 종료 임시 묶음 6개는 owner cleanup과 최종화를 완료했다. 제품 빌드·설치·직접 smoke는 제외하며 이전 run22 및 unrelated 변경은 보존한다. 복구 증거는 위에 명시한 사용자 승인 범위와 해제 조건을 따른다.

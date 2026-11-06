@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "source_verified_build_excluded_pending_commit_cleanup",
+  "status": "source_scope_complete_build_excluded",
   "plan": "work/FI-01-serena-read-navigation-evaluation/24-plan.md",
   "feature_id": "tool.find-names",
   "run_root": "artifacts/verification/find-names-product-20261103-7f4a91c2",
@@ -123,8 +123,18 @@
   "new_model_trials": 0,
   "installation_changed": false,
   "unrelated_staged_paths_preserved": 37,
-  "task_commit": "Implementation/source provenance diff reviewed; isolated index ready; cleanup remains pending",
-  "cleanup": "Existing native/frozen and pre-edit bundles in current use for input comparison, evidence transfer and commit isolation; delete through owner after use. Recovery proof retains cache-provenance protection; previous unknown run22 untouched.",
+  "task_commit": {
+    "commit": "d02a65807b8f5c1faf7d6122d4c418eed477507c",
+    "exit_code": 0,
+    "files": 33,
+    "unrelated_index_entries_preserved": 18684,
+    "working_files_unchanged": true,
+    "staged_js_syntax_checks": 11,
+    "staged_json_parse_checks": 4,
+    "verification_scope": "Previously verified combined working source; no build or new Cargo compilation",
+    "documentation": "Final work record reconciles the latest build exclusion, approved recovery retention and actual cleanup."
+  },
+  "cleanup": "Six final cleanup groups deleted, actual absence verified and lifecycles finalized, in addition to the installer and controlled-fault runs deleted earlier. Only the recovery group is retained with explicit scoped approval; previous unrelated/uncertain run22 unchanged.",
   "cargo_recovery": {
     "verified": true,
     "originalOutcome": "unknown",
@@ -842,5 +852,314 @@
       "exit_code": 0
     }
   ],
-  "commit_scope": "Feature-only hunks and authorized current source receipt; unrelated staged entries preserved. Verification describes the combined working source, not a clean-commit build."
+  "commit_scope": "Feature-only hunks and authorized current source receipt; unrelated staged entries preserved. Verification describes the combined working source, not a clean-commit build.",
+  "cleanup_state": {
+    "status": "complete_with_approved_recovery_retention",
+    "deleted_groups": 6,
+    "retained_group": "run:FI-01-find-names:recovery-20261106-boot",
+    "recovery_group_retention": "explicitly_approved"
+  },
+  "cleanup_batch": {
+    "started_utc": "2026-11-06T03:53:33.617Z",
+    "finished_utc": "2026-11-06T04:10:57.995Z",
+    "owner_executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "owner_sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+    "results": [
+      {
+        "id": "run:FI-01-find-names:preflight-20261106",
+        "paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\preflight-20261106"
+        ],
+        "actual_absence": true,
+        "finalized": true
+      },
+      {
+        "id": "run:FI-01-find-names:20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d",
+        "paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fn-074404ce"
+        ],
+        "actual_absence": true,
+        "finalized": true
+      },
+      {
+        "id": "run:serena-read-eval:20261103:product-7f4a91c2",
+        "paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\find-names-product-20261103-7f4a91c2"
+        ],
+        "actual_absence": true,
+        "finalized": true
+      },
+      {
+        "id": "run:FI-01-find-names:source-close-20261106",
+        "paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\source-close-20261106"
+        ],
+        "actual_absence": true,
+        "finalized": true
+      }
+    ],
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:FI-01-find-names:20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d",
+          "status": "deleted"
+        },
+        {
+          "id": "run:FI-01-find-names:preflight-20261106",
+          "status": "deleted"
+        },
+        {
+          "id": "run:FI-01-find-names:source-close-20261106",
+          "status": "deleted"
+        },
+        {
+          "id": "run:serena-read-eval:20261103:product-7f4a91c2",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-9144-7505-1793937781775",
+          "decision": "delete",
+          "decision_id": "581b45812d3d44d76995cf510dd130fc643bf9f7dd4cfbda6c3465480697874e",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "26449510e51103dd40ef70a1e10915c94369c74bce5e74b4a3123eafdd7448ce",
+          "lifecycle_group_id": "run:FI-01-find-names:preflight-20261106",
+          "reason": "Source-only implementation and independent verification evidence committed or preserved in work24; input, backup and diagnostic use ended; no build/install consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "b321ba0f25834a4456d0067d43ed3545bca600b57b0602fa1f50298eb559ee8a"
+        },
+        {
+          "attempt_id": "attempt-9144-7507-1793937814073",
+          "decision": "delete",
+          "decision_id": "e1177c84ab3a7977b906bd2a107fb289fac3e2be6a0cf73df76ae4acf4aaf85a",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleting",
+          "id": "45638574d2f20f980faef158ee315a19e7a518863fff4877c7a973a98f669003",
+          "lifecycle_group_id": "run:FI-01-find-names:20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d",
+          "reason": "Source-only implementation and independent verification evidence committed or preserved in work24; input, backup and diagnostic use ended; no build/install consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "a3d397dfefa1ce5dc4604821d1c257f59e382a02ec551429a5b2c547572b0879"
+        },
+        {
+          "attempt_id": "attempt-9144-7509-1793938014586",
+          "decision": "delete",
+          "decision_id": "0eb819fb85a707c8aec5a0e5a69b206b24ddb36c50664031216adfefabcdd565",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "a95edff2b6b4fa26596c7c6af5d441bcf6800cb0db55992e4b64915db484038d",
+          "lifecycle_group_id": "run:FI-01-find-names:20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d",
+          "reason": "Source-only implementation and independent verification evidence committed or preserved in work24; input, backup and diagnostic use ended; no build/install consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "d192a997a59bce26b9e0842dd9e65b712ce212a7a6acc0e3a6b9d5e06e10a43d"
+        },
+        {
+          "attempt_id": "attempt-9144-7511-1793938076576",
+          "decision": "delete",
+          "decision_id": "9c6678cdef24b69ff971da470e732775765fcd69ccb9c92b9c974d44442d416e",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "563287f49eedfe58edc574611f02be990b133eb46bb8ad8891dfc58e94ad81a4",
+          "lifecycle_group_id": "run:FI-01-find-names:source-close-20261106",
+          "reason": "Source-only implementation and independent verification evidence committed or preserved in work24; input, backup and diagnostic use ended; no build/install consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "88a09c76e873708b60f0719ad340a097bc77f95c4210db7624b440ca70fb909e"
+        },
+        {
+          "attempt_id": "attempt-9144-7513-1793938130116",
+          "decision": "delete",
+          "decision_id": "1442e5a14ec89581a491ad7abed22b162f42bdc8af127878cd1098134407e249",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "bfaadc3d284219f8e7ac41d1985eb1b59de73e3751c29ded7a9e3c1b5bb5518e",
+          "lifecycle_group_id": "run:serena-read-eval:20261103:product-7f4a91c2",
+          "reason": "Source-only implementation and independent verification evidence committed or preserved in work24; input, backup and diagnostic use ended; no build/install consumer",
+          "remaining": false,
+          "status": "deleted",
+          "token": "b19b303aa08591dc21cfe99eddd8bf5007f767d07440239ce79ca590b8f0766f"
+        }
+      ]
+    },
+    "owner_commands_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "retention": {
+    "status": "explicitly_approved",
+    "group": "run:FI-01-find-names:recovery-20261106-boot",
+    "path": "artifacts/tasks/FI-01-find-names/runs/recovery-20261106-boot",
+    "owner": "find-names-cargo-recovery",
+    "files": 5,
+    "bytes": 17263,
+    "purpose": "Required previous-generation process-stop and restart evidence for shared Cargo cache 96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+    "release_condition": "Re-review and owner cleanup when the cache owner releases the referenced previous-generation proof",
+    "user_answer": "Approved retention under the stated condition; build remains excluded"
+  },
+  "backup_replacement": {
+    "backup": "artifacts/tasks/FI-01-find-names/runs/source-provenance-20261106/inputs/SOURCE.before.json",
+    "backup_sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149",
+    "verified_replacement": "engine/SOURCE.json",
+    "replacement_sha256": "a954ad80d95d0a9d798bbb9e133308781c1c593d9c4a853bbfe87f492159b0d1",
+    "source_snapshot_exit": 0,
+    "committed_replacement": "d02a65807b8f5c1faf7d6122d4c418eed477507c"
+  },
+  "final_cleanup_calls": [
+    {
+      "operation": "register",
+      "group": "run:FI-01-find-names:source-provenance-20261106",
+      "exit_code": 0,
+      "stderr": null
+    },
+    {
+      "operation": "register",
+      "group": "run:FI-01-find-names:cleanup-20261106",
+      "exit_code": 0,
+      "stderr": null
+    },
+    {
+      "operation": "review",
+      "group": [
+        "run:FI-01-find-names:source-provenance-20261106",
+        "run:FI-01-find-names:cleanup-20261106"
+      ],
+      "exit_code": 0,
+      "stderr": null
+    },
+    {
+      "operation": "apply",
+      "group": [
+        "run:FI-01-find-names:source-provenance-20261106",
+        "run:FI-01-find-names:cleanup-20261106"
+      ],
+      "exit_code": 0,
+      "stderr": null
+    }
+  ],
+  "final_cleanup": {
+    "owner_sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:FI-01-find-names:cleanup-20261106",
+          "status": "deleted"
+        },
+        {
+          "id": "run:FI-01-find-names:source-provenance-20261106",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-25448-7518-1793938412718",
+          "decision": "delete",
+          "decision_id": "9e6b069ed1c6211f0f890f082fde61b8042e40402aa3a8fc4317b6e6a3356a87",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "35e5b7d1b870bb2a6ca793225b5db1f8a810a6afbb2316ad5a162760e1d887a9",
+          "lifecycle_group_id": "run:FI-01-find-names:source-provenance-20261106",
+          "reason": "Verified updated source receipt is committed and independently validated; temporary backup, request logs and cleanup control proofs have no remaining consumers; outcomes preserved in work24",
+          "remaining": false,
+          "status": "deleted",
+          "token": "8209aee539c48dd2c2e54d0381681fcf3b413c4f25e98883aa9cea39ac2fc22d"
+        },
+        {
+          "attempt_id": "attempt-25448-7520-1793938430062",
+          "decision": "delete",
+          "decision_id": "84d1a38720f27f29ab73858cfa8c06aeea218910f5d4349f507b462a6db2b47c",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "6303ac09116e86029c54979476f212cff28a9fb26559df602feca5d6a08613de",
+          "lifecycle_group_id": "run:FI-01-find-names:cleanup-20261106",
+          "reason": "Verified updated source receipt is committed and independently validated; temporary backup, request logs and cleanup control proofs have no remaining consumers; outcomes preserved in work24",
+          "remaining": false,
+          "status": "deleted",
+          "token": "e59930e37d1fb8c4e202bc541fe7464a5931c5f59ac6d75da168a76ab1447d2f"
+        }
+      ]
+    },
+    "results": [
+      {
+        "id": "run:FI-01-find-names:source-provenance-20261106",
+        "paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\source-provenance-20261106"
+        ],
+        "actual_absence": true,
+        "finalized": true
+      },
+      {
+        "id": "run:FI-01-find-names:cleanup-20261106",
+        "paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\cleanup-20261106"
+        ],
+        "actual_absence": true,
+        "finalized": true
+      }
+    ],
+    "finished_utc": "2026-11-06T04:14:01.809Z"
+  },
+  "final_source_check": {
+    "source_paths_checked": 25,
+    "matching_published_receipt": true,
+    "helper_matches_verified_identity": true,
+    "exit_code": 0,
+    "new_compilation": false
+  },
+  "raw_log_handling": "Historical run/log paths identify executed inputs and outputs; all disposable raw logs and source copies were deleted after independent outcomes, identities and counts were preserved in this record. The approved 17,263-byte recovery proof remains available at its recorded path."
 }
